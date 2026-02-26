@@ -1,0 +1,1111 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+
+
+
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+
+        <a href="CreateYarnPO" style="float:right;" class="btn btn-primary">Add Yarn PO</a>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel"> </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
+
+
+                        <div class="row gutters">
+
+
+
+
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <!-- Field wrapper start -->
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+
+
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <p id="PPODate"><b>PO Date: </b></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+
+                                                <p id="PPONo"><b>PO No : </b> </p>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                                <!-- Field wrapper end -->
+                            </div>
+
+
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+                                        <div class="col-12">
+                                            <div class="form-section-header light-bg" id="divSupplierPartyName"></div>
+                                        </div>
+                                        <hr />
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hSupplierPartyId" class="form-control" value="5">
+                                                <p id="PSupplierMobileNo"><b>Mobile No: </b>7369596396 / 0</p>
+                                                <p id="PSupplierEmail"><b>Email : </b>DIV@G.COM</p>
+                                                <p id="PSupplierBillingAddress"><b>Address : </b>SIKHA COMPLEX</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <br>
+                                                <p id="PSupplierState"><b>State : </b>24-Gujarat</p>
+                                                <p id="PSupplierGSTIN"><b>GSTIn : </b>24YPKLO5633L1Z9</p>
+
+
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6" style="border-left: 1px solid;">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+                                        <div class="col-12">
+                                            <div class="form-section-header light-bg" id="divBillToPartyName"></div>
+                                        </div>
+                                        <hr />
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hBillToPartyId" class="form-control" value="5">
+                                                <p id="PBillToMobileNo"><b>Mobile No: </b>7369596396 / 0</p>
+                                                <p id="PBillToEmail"><b>Email : </b>DIV@G.COM</p>
+                                                <p id="PBillToBillingAddress"><b>Address : </b>SIKHA COMPLEX</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <br>
+                                                <p id="PBillToState"><b>State : </b>24-Gujarat</p>
+                                                <p id="PBillToGSTIN"><b>GSTIn : </b>24YPKLO5633L1Z9</p>
+
+
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6" style="border-top: 1px solid;">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+                                        <div class="col-12">
+                                            <div class="form-section-header light-bg" id="divCompanyPartyName"></div>
+                                        </div>
+                                        <hr />
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hCompanyPartyId" class="form-control" value="5">
+                                                <p id="PCompanyMobileNo"><b>Mobile No: </b>7369596396 / 0</p>
+                                                <p id="PCompanyEmail"><b>Email : </b>DIV@G.COM</p>
+                                                <p id="PCompanyBillingAddress"><b>Address : </b>SIKHA COMPLEX</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <br>
+                                                <p id="PCompanyState"><b>State : </b>24-Gujarat</p>
+                                                <p id="PCompanyGSTIN"><b>GSTIn : </b>24YPKLO5633L1Z9</p>
+
+
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6" style="display:none; border-left: 1px solid; border-top: 1px solid;">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+                                        <div class="col-12">
+                                            <div class="form-section-header light-bg" id="divShippedToPartyName"></div>
+                                        </div>
+                                        <hr />
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hShippedToPartyId" class="form-control" value="5">
+                                                <p id="PShippedToMobileNo"><b>Mobile No: </b>7369596396 / 0</p>
+                                                <p id="PShippedToEmail"><b>Email : </b>DIV@G.COM</p>
+                                                <p id="PShippedToBillingAddress"><b>Address : </b>SIKHA COMPLEX</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <br>
+                                                <p id="PShippedToState"><b>State : </b>24-Gujarat</p>
+                                                <p id="PShippedToGSTIN"><b>GSTIn : </b>24YPKLO5633L1Z9</p>
+
+
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6" style=" border-left: 1px solid; border-top: 1px solid;">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+                                        <div class="col-12">
+                                            <div class="form-section-header light-bg" id="divGoDownDetail">Godown Detail</div>
+                                        </div>
+                                        <hr />
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hGodownID" class="form-control" value="5">
+                                                <p id="PGodownTitle"><b>Godown Title : </b>SIKHA COMPLEX</p>
+                                                <p id="PGodownAddress"><b>Address : </b>SIKHA COMPLEX</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                        <br />
+
+
+
+                        <hr />
+
+
+
+                        <div class="row gutters">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <input type="hidden" id="txtPurchasenStock" value="0" />
+                                    <table class="table table-bordered" id="tblYarnMaterial" style="overflow: hidden;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="8">Yarn Details</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="width:3%;">#</th>
+                                                <th style="width: 15%; text-align: center;">Yarn Material</th>
+                                                <th style="width: 15%; text-align: center;">Yarn Color</th>
+                                                <th style="width: 10%; text-align: center;">Company Code</th>
+                                                <th style="width: 10%; text-align: center;">Qty</th>
+                                                <th style="width: 10%; text-align: center;">Rate</th>
+                                                <th style="width: 15%; text-align: center;">GST SLAB</th>
+                                                <th style="width: 15%; text-align: center;">Amount</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="tableYarnPO">
+                                        </tbody>
+
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="4" style="text-align:end;">Total</th>
+                                                <th style="text-align:center;"><span id="pTotalQty">0</span></th>
+                                                <th style="text-align:center;"><i class="fa fa-inr"></i>&nbsp; <span id="pTotalRate">0</span>/-</th>
+                                                <th></th>
+                                                <th style="text-align:center;"><i class="fa fa-inr"></i>&nbsp; <span id="pTotalAmount">0</span>/-</th>
+                                            </tr>
+                                        </tfoot>
+
+
+                                    </table>
+
+
+
+
+                                </div>
+                            </div>
+
+                            <br />
+
+                            <hr />
+
+                            <div class="col-3">
+                                <h6>Delivery Time in Days: <span id="spanDeliveryTime"></span></h6> 
+                            </div>
+
+
+                            <div class="col-3">
+                                <h6>Payment Condition in Days: <span id="spanPaymentCondition"></span></h6>
+                            </div>
+
+
+                            <div class="col-6">
+                                <h6>Notes Remarks: <span id="spanNotesRemarks"></span></h6>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <input id="catedit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Yarn PO Form</div>
+                    <br />
+
+
+                    <div class="row gutters">
+
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="SearchRequirementNo" placeholder="Search Yarn PO No / Party Name." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Yarn PO No. / Party Name </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style=" background-color: #1273eb;">
+                                    <th style="color: white !important;">Sr No</th>
+                                    <th style="color: white !important;">Action</th>
+                                    <th style="color: white !important;">PO <br /> Date</th>
+                                    <th style="color: white !important;">PO <br /> No</th>
+                                    <th style="color: white !important;">Supplier <br /> Name</th>
+                                    <th style="color: white !important;">Bill To <br /> Name</th>
+                                    <th style="color: white !important;">Company <br /> Name</th>
+                                    <th style="color: white !important;">Godown <br /> Details</th>
+                                    <th style="color: white !important;">Total <br /> Amount</th>
+                                    <th style="color: white !important;">Delivery <br /> Time</th>
+                                    <th style="color: white !important;">Payment <br /> Condition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                    <br />
+
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="divPaggination">
+                            @*<li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>*@
+                        </ul>
+                    </nav>
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Row end -->
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Custom Data tables -->
+@*<script src="vendor/datatables/custom/custom-datatables.js"></script>*@
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+    document.title = "Yarn PO Form - Nikunj Textile";
+</script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#YarnForm-tab").addClass("active");
+        $("#tab-YarnForm").addClass("show active");
+        $("#aYarnPO").addClass("current-page");
+
+        FunctionIsLogin();
+
+        displayPagginationData();
+        displayData(0);
+        getYarnColor();
+        //getDefaultCompany();
+
+
+
+    });
+
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+
+
+
+
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+
+            }
+        });
+    }
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+    function functionSearch() {
+        displayPagginationData();
+        displayData(0);
+    }
+
+    function displayData(rowStartCheck) {
+
+        var rowStart = rowStartCheck;
+        var searchdesignNo = $("#SearchRequirementNo").val();
+
+        var formData = new FormData();
+        formData.append('SearchRequirementNo', searchdesignNo);
+        formData.append('startFrom', rowStart);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getYarnPOMaster',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (rowStart == 0) {
+                    $("#copy-print-csv tbody").empty();
+                }
+                var dataTable = $('#copy-print-csv');
+                var temp = "";
+
+                var srno = parseInt(rowStart) + parseInt(1);
+                for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+
+                    temp += "<tr><td>" + srno++ + "</td>";
+                    //temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnPOMaster[i].DesignColorMatchingFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listYarnPOMaster[i].DesignColorMatchingFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                    temp += "<td><div class='actions'>";
+                    if (response.listYarnPOMaster[i].EditableOrNot == "0") {
+                        temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                    }
+                    else
+                    {
+                        //temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;";
+                        //temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                    }
+                    
+                    temp += "</div></td>";
+                    //temp += "<td>" + response.listYarnPOMaster[i].DateandTimes + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].PODates + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].PONo + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].SupplierPartyName + " <br />" + response.listYarnPOMaster[i].SupplierMobileNo + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].BillToPartyName + " <br />" + response.listYarnPOMaster[i].BillToMobileNo + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].CompanyPartyName + " <br />" + response.listYarnPOMaster[i].CompanyMobileNo + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].GodownTitle + " <br />" + response.listYarnPOMaster[i].GodownAddress + "</td>";
+                    temp += "<td><i class='fa fa-inr'></i> &nbsp;" + response.listYarnPOMaster[i].TotalAmount.toLocaleString("en-IN") + "/-</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].DeliveryTime + "</td>";
+                    temp += "<td>" + response.listYarnPOMaster[i].PaymentCondition + "</td>";
+                    temp += "</tr>";
+
+                }
+                $("#copy-print-csv tbody").empty();
+                dataTable.append(temp);
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+
+    var total = 0;
+    var Paggination = 0;
+    var prevNo = 0;
+    var nextNo = 0;
+    var SelectNo = 1;
+    var PageNo = 0;
+
+    //Display Paggination
+    function displayPagginationData() {
+
+        var searchdesignNo = $("#SearchRequirementNo").val();
+
+        var formData = new FormData();
+        formData.append('SearchString', searchdesignNo);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getYarnPOMasterPaggination',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                //console.log(response);
+
+                //var userTable = $('#DDLDistrict');
+                //listPagginationMaster
+                total = response.listPagginationMaster[0].Total;
+                Paggination = response.listPagginationMaster[0].Paggination + 1;
+                prevNo = 0;
+                nextNo = 10;
+                //alert(response.listPagginationMaster[0].Paggination);
+                if (response.listPagginationMaster[0].Paggination == "0") {
+                    $('#divPaggination').hide();
+                }
+                else {
+
+
+                    if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                        }
+                        $('#divPaggination').html(temp).show();
+                    }
+                    else {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= 10; i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+
+                        }
+                        //temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";
+                        temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                        $('#divPaggination').html(temp).show();
+                    }
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+                //console.log(error);
+                //console.log("error" + request.statusText);
+                //alert(request.statusText);
+            }
+        });
+    }
+
+
+
+
+    //Select Paggination
+    function funcationPaggination(abc) {
+        //alert(abc);
+        $("#trLoading").show();
+        var a = "#a" + abc;
+        SelectNo = abc;
+        //alert(a);
+        $('li').removeClass('active');
+        //$("#a3").addClass("active");
+        $(a).addClass('active');
+
+        $("#rowStartCount").val(((abc - 1) * 30));
+        displayData(((abc - 1) * 30));
+
+        //$("#rowStartCount").val(((abc - 1) * 2));
+        //displayData(((abc - 1) * 2));
+
+    }
+
+
+
+
+
+
+
+
+    function clearAll() {
+        getDefaultCompany();
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Color Matching Form");
+        $("#add-alert").hide();
+
+        $("#YarnColor").val('');
+
+        $(".company-invalid-feedback").hide();
+
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+    }
+
+
+
+
+
+
+
+
+
+    function showRecords(id) {
+
+        clearAll();
+        $("#edit-id").val(id);
+        $("#saveViewbtn").hide();
+        $("#savebtn").hide();
+        $("#editbtn").show();
+        $("#addNewContactLabel").html("Yarn PO Form");
+
+
+        var DecryptID = "";
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                //window.location.href = 'UpdatePurchaseInvoice?id=' + response.listEncryptDecrypt[0].DecryptID;
+                ViewRecordQueryString(DecryptID);
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+
+
+
+
+
+    }
+
+
+
+    var ArrayYarnColor = [];
+
+    function getYarnColor() {
+
+        var formData = new FormData();
+        //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                //console.log(response);
+                //alert(response.Code);
+                ArrayYarnColor.push(response.listYarnColorMaster);
+
+                if (response.Code == "200") {
+
+                    //Design No
+                    if (response.listYarnColorMaster.length > 0) {
+                        var tempDesignNo = "";
+
+                    }
+                }
+            },
+            error: function (request, status, error) {
+
+                //window.location.href = 'SaleInvoice';
+
+            }
+        });
+
+
+    }
+
+
+
+
+
+    function ViewRecordQueryString(DecryptID) {
+
+
+        var formData = new FormData();
+        formData.append('YarnPOID', DecryptID);
+
+        var PartyId = 0;
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getYarnPODetails',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+
+                //alert(response.listYarnPOMaster.length);
+                var userTable = $('#TblUser');
+
+
+                for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+
+
+                    /* ---------- View Party Details ---------- */
+
+
+                    $("#PPODate").html("<b>PO Date: </b>" + response.listYarnPOMaster[i].PODates);
+                    $("#PPONo").html("<b>PO No: </b>" + response.listYarnPOMaster[i].PONo);
+
+
+                    $("#divSupplierPartyName").html(response.listYarnPOMaster[i].SupplierPartyName);
+                    $("#PSupplierMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].SupplierMobileNo + " / " + response.listYarnPOMaster[i].SupplierAlterMobileNo);
+                    $("#PSupplierBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].SupplierBillingAddress);
+                    $("#PSupplierState").html("<b>State: </b>" + response.listYarnPOMaster[i].SupplierState);
+                    $("#PSupplierGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].SupplierGSTIN);
+
+                    
+                    $("#divBillToPartyName").html(response.listYarnPOMaster[i].BillToPartyName);
+                    $("#PBillToMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].BillToMobileNo + " / " + response.listYarnPOMaster[i].BillToAlterMobileNo);
+                    $("#PBillToBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].BillToBillingAddress);
+                    $("#PBillToState").html("<b>State: </b>" + response.listYarnPOMaster[i].BillToState);
+                    $("#PBillToGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].BillToGSTIN);
+                     
+                    
+                    $("#divCompanyPartyName").html(response.listYarnPOMaster[i].CompanyPartyName);
+                    $("#PCompanyMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].CompanyMobileNo + " / " + response.listYarnPOMaster[i].CompanyAlterMobileNo);
+                    $("#PCompanyBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].CompanyBillingAddress);
+                    $("#PCompanyState").html("<b>State: </b>" + response.listYarnPOMaster[i].CompanyState);
+                    $("#PCompanyGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].CompanyGSTIN);
+
+                    
+                    $("#divShippedToPartyName").html(response.listYarnPOMaster[i].ShippedToPartyName);
+                    $("#PShippedToMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].ShippedToMobileNo + " / " + response.listYarnPOMaster[i].ShippedToAlterMobileNo);
+                    $("#PShippedToBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].ShippedToBillingAddress);
+                    $("#PShippedToState").html("<b>State: </b>" + response.listYarnPOMaster[i].ShippedToState);
+                    $("#PShippedToGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].ShippedToGSTIN);
+
+
+                    $("#hGodownID").val(response.listYarnPOMaster[i].GodownID);
+                    $("#PGodownTitle").html("<b>Godown Title: </b>" + response.listYarnPOMaster[i].GodownTitle);
+                    $("#PGodownAddress").html("<b>Godown Address: </b>" + response.listYarnPOMaster[i].GodownAddress);
+                    
+
+                    $("#pTotalQty").html(response.listYarnPOMaster[i].TotalQty.toLocaleString("en-IN"));
+                    $("#pTotalRate").html(response.listYarnPOMaster[i].TotalRate.toLocaleString("en-IN"));
+                    $("#pTotalAmount").html(response.listYarnPOMaster[i].TotalAmount.toLocaleString("en-IN"));
+
+
+                    $("#spanDeliveryTime").html(response.listYarnPOMaster[i].DeliveryTime);
+                    $("#spanPaymentCondition").html(response.listYarnPOMaster[i].PaymentCondition);
+                    $("#spanNotesRemarks").html(response.listYarnPOMaster[i].NotesRemarks);
+
+
+
+
+                    /* ---------- Yarn Requirement Detail  ---------- */
+
+                    $("#tableYarnPO tbody").empty();
+
+                    var dataTable = $('#tableYarnPO');
+                    var temp = "";
+
+                    var srno = parseInt(0) + parseInt(1);
+                    for (var j = 0; j < response.listYarnPOMaster[i].listYarnPODetails.length; j++) {
+
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].YarnMaterial + "</td>";
+                        temp += "<td style='display: flex; align-items: center; gap: 5px;'> <div style='width: 35px; height: 35px; border-radius: 3px; background-color: #" + response.listYarnPOMaster[i].listYarnPODetails[j].YarnColorCode + ";'></div> " + response.listYarnPOMaster[i].listYarnPODetails[j].YarnColor + "</td>";
+                        temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].CompanyCode + "</td>";
+                        temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].Qty.toLocaleString("en-IN") + "</td>";
+                        temp += "<td style='text-align: center;'><i class='fa fa-inr'></i>" + response.listYarnPOMaster[i].listYarnPODetails[j].Rate.toLocaleString("en-IN") + "/-</td>";
+                        temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].GSTSLABName + "</td>";
+                        temp += "<td style='text-align: center;'><i class='fa fa-inr'></i>" + response.listYarnPOMaster[i].listYarnPODetails[j].Amount.toLocaleString("en-IN") + "/-</td>";
+                        temp += "</tr>";
+
+                    }
+                    $("#tableYarnPO tbody").empty();
+                    dataTable.html(temp);
+
+
+
+
+                    // $("#divMatchingColor").html(tempColorMatching);
+
+
+                    //tableYarnPO
+
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+
+                //window.location.href = 'PurchaseInvoice';
+
+            }
+        });
+
+    }
+
+
+
+    function showEditRecords(id) {
+
+        var DecryptID = "";
+
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                window.location.href = '/UpdateYarnPO?id=' + response.listEncryptDecrypt[0].DecryptID;
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+    }
+
+
+
+    function functionUserDelete(id) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            var formData = new FormData();
+            formData.append('YarnPOID', id);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/DeleteYarnPOMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200) {
+
+                        notes.show("Yarn Requirement deleted successfully.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+
+                        displayData(0);
+                    }
+                    else {
+                        //alert("Problem has been occurred while submitting your data.");
+
+                        notes.show("Problem has been occurred while deleting Design Entry Form .", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    // alert("Problem has been occurred while submitting your data.");
+
+                    notes.show("Problem has been occurred while deleting Design Entry Form.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+
+    }
+
+
+
+
+</script>
+
+
+

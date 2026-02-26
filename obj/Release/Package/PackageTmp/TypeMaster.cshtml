@@ -1,0 +1,1002 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Type</button>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Type</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="add-alert" class="alert alert-success" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+                        <br />
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+                                    <div class="col-6">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="Type" name="Type" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Type<sup style="color:red;">*</sup></div>
+                                            <div class="Type-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="Type-invalid-feedback invalid-feedback">Please Mention Type</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+
+                                    </div>
+
+                                    <div class="col-6">
+
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <div class="form-check form-check-inline">
+                                                <br />
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
+
+                                            </div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Type</div>
+                    <br />
+                    <div class="row gutters">
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="search-Type" placeholder="Search Type" type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Type</div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+                    </div>
+
+
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style="background-color: #1273eb;">
+                                    <th style="color:white;">Sr No</th>
+                                    <th style="color:white;">Type</th>
+                                    <th style="color:white;">Is Active</th>
+                                    <!--<th>Position</th>-->
+                                    <th style="color:white;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="view-more-styl-class">
+        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
+        <br /><br /><br />
+    </div>
+    <!-- Row end -->
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Custom Data tables -->
+<!--<script src="vendor/datatables/custom/custom-datatables.js"></script>-->
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+    document.title = "Type - Nikunj Textile";
+</script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#master-tab").addClass("active");
+        $("#tab-Master").addClass("show active");
+        $("#aType").addClass("current-page");
+
+        FunctionIsLogin();
+
+
+        displayData(0);
+        //getDefaultCompany();
+
+
+
+
+        // Shortcut Key
+        //$(document).keydown(function (key) {
+        //    switch (parseInt(key.which, 10)) {
+        //        case 27:
+        //            //Esc Key
+        //            $("#cancelbtn").click();
+        //            break;
+        //        case 18 && 79:
+        //            // Alt + O
+        //            $("#AddFinacialYearModel").click();
+        //            //addnewcontact
+        //            break;
+        //        default:
+        //            //alert(key.which);
+        //            break;
+        //    }
+        //});
+
+
+    });
+
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+
+
+
+
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+
+            }
+        });
+    }
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function functionSearch() {
+        //displayPagginationData();
+        displayData(0);
+    }
+
+
+
+    function displayData(rowStartCheck) {
+        var rowStart = 0;
+        if (rowStartCheck != 0) {
+            rowStart = parseInt($("#rowStartCount").val()) + 10;
+            $("#rowStartCount").val(rowStart);
+        }
+        else {
+            rowStart = 0;
+            $("#rowStartCount").val("0");
+        }
+
+
+        var searchTyre = $("#search-Type").val();
+
+        var formData = new FormData();
+        formData.append('searchTyre', searchTyre);
+        formData.append('startFrom', rowStart);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getTypeMaster',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+
+                //$.ajax({
+                //    type: "GET",
+                //    url: '/WebServiceNikunjTextile.asmx/getTypeMaster?startFrom=' + rowStart,
+                //    //getItemCat
+                //    data: "{ 'startFrom':'" + rowStart + "' }",
+                //    dataType: 'json',
+                //    contentType: false,
+                //    processData: false,
+                //    success: function (response) {
+
+                console.log(response);
+
+                if (rowStart == 0) {
+                    $("#copy-print-csv tbody").empty();
+                }
+                var dataTable = $('#copy-print-csv');
+                var temp = "";
+                var operation = "";
+                if (response.listTypeMaster.length < 10) {
+                    $("#view-more-btn").hide();
+                }
+                else {
+                    $("#view-more-btn").show();
+                }
+
+                var SrNo = rowStart + 1;
+                for (var i = 0; i < response.listTypeMaster.length; i++) {
+
+                    var Top = i - 1;
+                    var Previous = i + 1;
+
+                    //console.log(response.listTypeMaster[Previous].TypeID);
+
+                    var ActionPosition = "";
+                    if (response.listTypeMaster.length != 1) {
+                        if (i == 0) {
+
+                            var PostDown = response.listTypeMaster[i].TypeID + "," + response.listTypeMaster[i].Position + "|" + response.listTypeMaster[Previous].TypeID + "," + response.listTypeMaster[Previous].Position;
+
+                            ActionPosition += "<input type='hidden' id='PostDown_" + response.listTypeMaster[i].TypeID + "' value = '" + PostDown + "' /> ";
+                            ActionPosition += "<span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listTypeMaster[i].TypeID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            //ActionPosition += "<button type='button' class='btn btn-primary' style='font-size: 6px;' onclick='functionCakeCategoryUp(" + response.listTypeMaster[i].TypeID + ")'><i class='fa fa-arrow-up fa-2x'></i></button>  &nbsp;";
+                        }
+                        else
+                            if (i == parseInt(response.listTypeMaster.length - 1)) {
+
+                                var PostUp = response.listTypeMaster[i].TypeID + "," + response.listTypeMaster[i].Position + "|" + response.listTypeMaster[Top].TypeID + "," + response.listTypeMaster[Top].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listTypeMaster[i].TypeID + "' value = '" + PostUp + "' /> </span>";
+                                ActionPosition += "<span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listTypeMaster[i].TypeID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
+                            }
+                            else {
+
+                                var PostUp = response.listTypeMaster[i].TypeID + "," + response.listTypeMaster[i].Position + "|" + response.listTypeMaster[Top].TypeID + "," + response.listTypeMaster[Top].Position;
+                                var PostDown = response.listTypeMaster[i].TypeID + "," + response.listTypeMaster[i].Position + "|" + response.listTypeMaster[Previous].TypeID + "," + response.listTypeMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listTypeMaster[i].TypeID + "' value = '" + PostUp + "' /><span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listTypeMaster[i].TypeID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listTypeMaster[i].TypeID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listTypeMaster[i].TypeID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+
+                    }
+
+                    temp += "<tr>";
+                    temp += "<td>" + SrNo++ + "</td>";
+                    temp += "<td>" + response.listTypeMaster[i].Type + "</td>";
+
+                    if (response.listTypeMaster[i].IsActive == "1") {
+                        temp += "<td><span class='badge bg-success'>Active</span></td>";
+                    }
+                    else {
+                        temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                    }
+
+                    //temp += "<td>" + ActionPosition + "</td>";
+                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listTypeMaster[i].TypeID + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;&nbsp; <a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listTypeMaster[i].TypeID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                    temp += "</tr>";
+                }
+
+                dataTable.append(temp);
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+    //Delete Type
+    function functionFYDelete(abc) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            // Save it!
+            //alert(abc)
+            var formData = new FormData();
+            formData.append('FinancialYearIDs', abc);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+
+                    if (response.Code == 1) {
+                        displayData(0);
+
+                        notes.show("Financial Year deleted successfully.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+
+                    }
+
+                    else {
+                        //document.getElementById("divSuccess").style.display = "none";
+                        //document.getElementById("divError").style.display = "block";
+                        //$("#spanError").html(response.Message);
+
+                        notes.show("Problem has been occurred while deleting Financial Year.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+
+                    }
+                },
+                error: function (error) {
+                    notes.show("Problem has been occurred while deleting Financial Year.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            });
+
+
+        } else {
+            // Do nothing!
+            console.log('Problem has been occurred while submitting your data.');
+        }
+        //alert(abc);
+    }
+
+    function clearAll() {
+        getDefaultCompany();
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Type");
+        $("#add-alert").hide();
+
+        $("#Type").val('');
+
+        $(".company-invalid-feedback").hide();
+
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+    }
+
+
+
+    function checkSaveView() {
+
+        var IsActive = "0";
+        if ($("#IsActive").is(':checked')) {
+            //$("#isDefault").attr('value', 'true');
+            IsActive = "1";
+        }
+
+
+        var Type = $('#Type').val();
+
+
+        if (validate(document.getElementById('Type')) == false) {
+            validate(document.getElementById('Type'));
+        }
+        else {
+
+            var formData = new FormData();
+            formData.append('Type', Type);
+            formData.append('IsActive', IsActive);
+
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertTypeMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+
+                        notes.show(response.Message, {
+                            type: 'success',
+
+                        });
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
+
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+
+                        });
+                    }
+                },
+                error: function (error) {
+
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+
+                    });
+
+                }
+            });
+        }
+    }
+
+
+    function checkSave() {
+        var IsActive = "0";
+        if ($("#IsActive").is(':checked')) {
+
+            IsActive = "1";
+        }
+
+
+        var Type = $('#Type').val();
+
+
+        if (validate(document.getElementById('Type')) == false) {
+            validate(document.getElementById('Type'));
+        }
+        else {
+
+            var formData = new FormData();
+            formData.append('Type', Type);
+            formData.append('IsActive', IsActive);
+
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertTypeMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+
+                        notess.show(response.Message, {
+                            type: 'success',
+
+                        });
+                        displayData(0);
+
+                    }
+                    else {
+
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+
+                        });
+                    }
+                },
+                error: function (error) {
+
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+
+                    });
+
+                }
+            });
+        }
+
+
+
+
+
+
+    }
+
+
+
+
+    function checkEdit() {
+        var id = $("#edit-id").val();
+        var IsActive = "0";
+        if ($("#IsActive").is(':checked')) {
+
+            IsActive = "1";
+        }
+
+
+        var Type = $('#Type').val();
+
+
+        if (validate(document.getElementById('Type')) == false) {
+            validate(document.getElementById('Type'));
+        }
+        else {
+
+            var formData = new FormData();
+            formData.append('TypeID', id);
+            formData.append('Type', Type);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditTypeMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+
+                        clearAll();
+
+                        $('#Type').val('');
+                        notes.show(response.Message, {
+                            type: 'success',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                        displayData(0);
+
+                        $("#cancelbtn").click();
+                    }
+                    else {
+                        //$("#add-alert").removeClass("alert-success");
+                        //$("#add-alert").addClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+    }
+
+
+
+
+
+
+    function showRecords(id) {
+
+        clearAll();
+        $("#edit-id").val(id);
+        $("#saveViewbtn").hide();
+        $("#savebtn").hide();
+        $("#editbtn").show();
+        $("#addNewContactLabel").html("Edit Type");
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getTypeMasterById?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    //console.log(response.listTypeMaster[0].ItemCategoryTitle);
+
+
+                    $("#Type").val(response.listTypeMaster[0].Type);
+
+                    if (response.listTypeMaster[0].IsActive == "1") {
+                        $("#IsActive").prop('checked', true);
+                    }
+                    else {
+                        $("#IsActive").prop('checked', false);
+                    }
+
+                }
+                else {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+                }
+
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+
+                notess.show(response.Message, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+            }
+        });
+
+    }
+
+
+
+
+
+    function functionYarnDelete(id) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            var formData = new FormData();
+            formData.append('TypeID', id);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/DeleteTypeMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200) {
+
+                        notes.show("Type deleted successfully.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+
+                        displayData(0);
+                    }
+                    else {
+                        //alert("Problem has been occurred while submitting your data.");
+
+                        notes.show("Problem has been occurred while deleting Type .", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    // alert("Problem has been occurred while submitting your data.");
+
+                    notes.show("Problem has been occurred while deleting Type.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+
+    }
+
+
+
+
+    function onPostUp(QueueNo) {
+
+        var down = $("#PostUp_" + QueueNo + "").val();
+        //alert(down);
+
+        var formData = new FormData();
+        formData.append('PostQueue', down);
+
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_TypeQueue',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+
+
+
+                if (response.Code == 1) {
+
+                    displayData($("#rowStartCount").val());
+
+                }
+
+                else {
+                    notess.show("Problem has been occurred while retrieving your data.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            },
+            error: function (error) {
+                notess.show("Problem has been occurred while retrieving your data.", {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+            }
+        });
+
+
+
+    }
+
+
+
+    function onPostDown(QueueNo) {
+
+        var down = $("#PostDown_" + QueueNo + "").val();
+        //alert(down);
+
+        var formData = new FormData();
+        formData.append('PostQueue', down);
+
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_TypeQueue',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+
+
+
+                if (response.Code == 1) {
+
+                    displayData($("#rowStartCount").val());
+
+                }
+
+                else {
+                    notess.show("Problem has been occurred while retrieving your data.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            },
+            error: function (error) {
+
+                notess.show("Problem has been occurred while retrieving your data.", {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+            }
+        });
+
+
+
+    }
+
+
+
+    function validate(code) {
+        code.value = code.value.replace(/\s+/g, ' ').trim();
+        var errorMessageValid = "." + code.id + "-valid-feedback";
+        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+        $(".invalid-feedback .valid-feedback").hide();
+        if (code.value == "") {
+            if (code.id == "name") {
+                $(".company-invalid-feedback").show();
+            }
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
+        }
+        else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
+        }
+        else {
+            document.getElementById(code.id).classList.add("is-valid");
+            document.getElementById(code.id).classList.remove("is-invalid");
+            $(errorMessageValid).show();
+            $(errorMessageInvalid).hide();
+            $(".company-invalid-feedback").show();
+            return true;
+        }
+    }
+
+</script>
+
+
+

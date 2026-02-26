@@ -1,0 +1,2605 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+
+
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Update Design Entry Form</div>
+                    <br />
+                    <!--Images-->
+                    <div class="row gutters">
+
+                        <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                    <input type="file" id="upload-PhotoOfDesign-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
+                                    <input type="hidden" id="upload-PhotoOfDesign-temp-default" value="" />
+                                    <div class="dz-message needsclick" style="text-align: center; ">
+                                        <label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default" style="width: 100%; padding-top: 80px; padding-bottom: 80px; ">Photo Of Design.</label>
+                                    </div>
+                                </div>
+
+                                <div style="text-align:center;padding-top:10px;">
+                                    <button class="btn btn-outline-primary" onclick="clearPhotoOfDesignDefault()">Clear Photo Of Design</button>
+                                </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                    <input type="file" id="upload-PhotoOfSketch-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
+                                    <input type="hidden" id="upload-PhotoOfSketch-temp-default" value="" />
+                                    <div class="dz-message needsclick" style="text-align: center;">
+                                        <label id="upload-PhotoOfSketch-default-preview" for="upload-PhotoOfSketch-default" style="width: 100%; padding-top: 80px; padding-bottom: 80px;">Photo Of Sketch.</label>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="txtPhotoOfSketch" name="txtPhotoOfSketch" class="form-control" />
+                                <div style="text-align:center;padding-top:10px;">
+                                    <button class="btn btn-outline-primary" onclick="clearPhotoOfSketchDefault()">Clear Photo Of Sketch</button>
+                                </div>
+                            </div>
+                            <!-- Field wrapper end -->
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <input type="hidden" id="DesignEntryFormID" value="" title="DesignEntryFormID" />
+                    <input type="hidden" id="txttempPhotoOfDesign" value="" title="txttempPhotoOfDesign" />
+                    <input type="hidden" id="txttempPhotoOfSketch" value="" title="txttempPPhotoOfSketch" />
+                    <input type="hidden" id="txtWarpData" value="1|" title="txtWarpData" />
+                    <input type="hidden" id="txtWeftData" value="1|" title="txtWeftData" />
+
+                    <!--Warn Data -->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                        </div>
+
+
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="field-wrapper" style="margin-bottom: 0;">
+                                <div class="field-placeholder" style=" text-align: end; width: 85%;"> WARP DATA</div>
+                                <br />
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="row gutters">
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                            <div class="col-12">
+                                <div class="field-wrapper" style=" margin-top: 0;">
+                                    <select id="warnquality" class="form-control" title="Select Warp Qoulity" onfocusout="validate(this)">
+                                    </select>
+                                    <div class="field-placeholder">Warp Pattern<sup style="color:red;">*</sup></div>
+                                    <div class="warnquality-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="warnquality-invalid-feedback invalid-feedback">Mention Warp Pattern</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12" id="divWarpData">
+
+                            <!--Warn Qoulity 1 -->
+                            <div class="row gutters">
+
+                                <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                    <br />
+                                </div>
+
+                                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                    <div class="field-wrapper" style=" margin-top:0; text-align: center;">
+                                        <div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: large;">1</span></div>
+                                        <br />
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+                                    <div class="row gutters">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <select id="yarnquality1" name="yarnquality1" title="Yarn Material" class="form-control" onfocusout="validate(this)">
+                                                </select>
+                                                <div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>
+                                                <div class="yarnquality1-valid-feedback valid-feedback">Looks good!</div>
+                                                <div class="yarnquality1-invalid-feedback invalid-feedback">Mention Yarn Material</div>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <select id="yarncolor1" name="yarncolor1" title="Yarn Color" class="form-control" onfocusout="validate(this)">
+                                                </select>
+                                                <div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>
+                                                <div class="yarncolor1-valid-feedback valid-feedback">Looks good!</div>
+                                                <div class="yarncolor1-invalid-feedback invalid-feedback">Mention Yarn Color</div>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="tel" id="Tar1" name="Tar1" title="Tar" class="form-control clear-field" maxlength="5" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                <div class="field-placeholder">Tar<sup style="color:red;">*</sup></div>
+                                                <div class="Tar1-valid-feedback valid-feedback">Looks good!</div>
+                                                <div class="Tar1-invalid-feedback invalid-feedback">Mention Tar</div>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+                                        <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                        </div>
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12" id="divWarpData">
+                            <div class="row gutters">
+                                <div class="row gutters">
+                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                    </div>
+                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                        <button type="button" class="btn btn-secondary" style=" width: 100%;" onclick="AddWarpData()"><i class="fa fa-plus"></i> ADD WARP DATA</button>
+                                    </div>
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <hr />
+
+
+                    <!--Weft Data -->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                        </div>
+
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="field-wrapper" style="margin-bottom: 0;">
+                                <div class="field-placeholder" style=" text-align: end; width: 85%;"> WEFT DATA</div>
+                                <br />
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    <div class="row gutters">
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                            <div class="row gutters">
+
+                                <!--Design Date-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="DesignDate" class="form-control datepicker" title="Design Date" onfocusout="validate(this)">
+                                        <div class="field-placeholder">Date<sup style="color:red;">*</sup></div>
+                                        <div class="DesignDate-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignDate-invalid-feedback invalid-feedback">Mention Date</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Designer-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <select id="DesignerID" name="DesignerID" title="DesignerID" class="form-control" onfocusout="validate(this)" onchange="changeDesigner(this)">
+                                        </select>
+                                        <div class="field-placeholder">Designer<sup style="color:red;">*</sup></div>
+                                        <div class="DesignerID-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignerID-invalid-feedback invalid-feedback">Mention Designer</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Sketcher-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <select id="Sketcher" name="Sketcher" title="Sketcher" class="form-control" onfocusout="validate(this)">
+                                        </select>
+                                        <div class="field-placeholder">Sketcher<sup style="color:red;">*</sup></div>
+                                        <div class="Sketcher-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="Sketcher-invalid-feedback invalid-feedback">Select Sketcher</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Design NO-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="spanDesignerCode" style="width: 40%;">0</span>
+                                            <input id="DesignerCode" type="hidden" class="form-control clear-field detail" placeholder="">
+                                            <input id="DesignNo" type="text" class="form-control clear-field detail" placeholder="" onkeypress="return (event.charCode>=48 && event.charCode<=57 || event.charCode>=65 && event.charCode<=90  || event.charCode>=97 && event.charCode<=122)" maxlength="10">
+
+
+
+                                            <span class="input-group-text" id="spanExstingDesignerCode" style="width: 40%; display:none;">0</span>
+                                            <input id="ExstingDesignNo" type="hidden" class="form-control clear-field detail" placeholder="">
+
+
+                                        </div>
+                                        <div class="field-placeholder">Design No<sup style="color:red;">*</sup></div>
+                                        <div class="DesignNo-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignNo-invalid-feedback invalid-feedback">Select Design No</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Remark-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="Remark" class="form-control" title="Remark">
+                                        <div class="field-placeholder">Remark</div>
+                                        @*<div class="Remark-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
+                                    </div>
+                                </div>
+
+
+                                <!--PICK ON LOOM-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="tel" id="PickOnLoom" class="form-control" title="Pick On Loom" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)" maxlength="6">
+                                        <div class="field-placeholder">Pick On Loom<sup style="color:red;">*</sup></div>
+                                        <div class="PickOnLoom-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="PickOnLoom-invalid-feedback invalid-feedback">Mention Pick On Loom</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Total Card-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="TotalCard" class="form-control" title="Pick On Loom" onfocusout="validate(this)" value="0" onkeypress="return validateFloatKeyPress(this,event);" onkeyup="CardPickCalculation()">
+                                        <div class="field-placeholder">Total Card<sup style="color:red;">*</sup></div>
+                                        <div class="TotalCard-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="TotalCard-invalid-feedback invalid-feedback">Mention Total Card</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Aveage Pick-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="AveragePic" class="form-control" title="Average Pic" onfocusout="validate(this)" value="0" onkeypress="return validateFloatKeyPress(this,event);" onkeyup="CardPickCalculation()">
+                                        <div class="field-placeholder">Average Pic<sup style="color:red;">*</sup></div>
+                                        <div class="AveragePic-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="AveragePic-invalid-feedback invalid-feedback">Mention Average Pic</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Reed On Loom-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="ReedOnLoom" class="form-control" title="Reed On Loom" onfocusout="validate(this)">
+                                        <div class="field-placeholder">Reed On Loom<sup style="color:red;">*</sup></div>
+                                        <div class="ReedOnLoom-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ReedOnLoom-invalid-feedback invalid-feedback">Mention Reed On Loom</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Type-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <select id="type" name="type" title="type" class="form-control" onfocusout="validate(this)">
+                                        </select>
+                                        <div class="field-placeholder">Type<sup style="color:red;">*</sup></div>
+                                        <div class="type-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="type-invalid-feedback invalid-feedback">Select Type</div>
+                                    </div>
+                                </div>
+
+
+                                <!--Material-->
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <select id="DesignCategory" name="DesignCategory" title="DesignCategory" class="form-control" onfocusout="validate(this)">
+                                        </select>
+                                        <div class="field-placeholder">Design Category<sup style="color:red;">*</sup></div>
+                                        <div class="DesignCategory-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignCategory-invalid-feedback invalid-feedback">Select Design Category</div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="tel" id="DesignCut" name="DesignCut" title="Design Cut" class="form-control" readonly>
+                                        <div class="field-placeholder">Design Cut<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                            <div id="divWeftData">
+                                <!--Fedral 1-->
+                                <div class="row gutters" id="Federall1">
+
+                                    <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                        <br />
+                                    </div>
+
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                        <div class="field-wrapper" style=" margin-top:0; text-align: center;">
+                                            <div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: larger;">Feeder 1</span></div>
+                                            <br />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+                                        <div class="row gutters">
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <input type="tel" id="Card1" name="Card1" title="Card 1" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="7" onkeyup="CardPickCalculation()">
+                                                    <div class="field-placeholder">Card<sup style="color:red;">*</sup></div>
+                                                    <div class="Card1-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="Card1-invalid-feedback invalid-feedback">Mention Card</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <input type="tel" id="Pick1" name="Pick1" title="Pick 1" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="7" onkeyup="CardPickCalculation()">
+                                                    <div class="field-placeholder">Pick<sup style="color:red;">*</sup></div>
+                                                    <div class="Pick1-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="Pick1-invalid-feedback invalid-feedback">Mention Pick</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+
+                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    @*<select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control"  onfocusout="validate(this)">*@
+                                                    <select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control" onfocusout="validate(this)">
+                                                    </select>
+                                                    <div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>
+                                                    <div class="yarnMaterial1-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="yarnMaterial1-invalid-feedback invalid-feedback">Select Yarn Material</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+
+                                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                                <br />
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+                            <br />
+                            <div class="row gutters">
+                                <div class="row gutters">
+                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                    </div>
+                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                        <button type="button" class="btn btn-secondary" style=" width: 100%;" onclick="AddWeftData()"><i class="fa fa-plus"></i> ADD WEFT DATA</button>
+
+                                    </div>
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                    </div>
+
+                                    <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                    </div>
+                                    <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-7">
+                                        <br />
+                                        <p id="spanTotalCard"></p>
+                                        <p id="spanTotalPic"></p>
+
+                                        <br />
+                                        <br />
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+
+
+                        <br />
+
+                        <div class="modal-footer">
+                            <a href="DesignEntry" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                            <button id="savebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium;">Update Design Form</button>
+                        </div>
+
+
+                    </div>
+
+                    <br />
+                    <br />
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
+
+<!-- Custom Data tables -->
+<script src="vendor/datatables/custom/custom-datatables.js"></script>
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+    document.title = "Design Entry Form - Nikunj Textile";
+    $('body').addClass('fullscreen');
+</script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#EntryForm-tab").addClass("active");
+        $("#tab-EntryForm").addClass("show active");
+        $("#aCreateDesignEntry").addClass("current-page");
+
+        FunctionIsLogin();
+
+        getDesignEntryForm();
+
+        //getDefaultCompany();
+
+
+        //setInterval(
+        //    function () {
+        //        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+
+        //        functionDesignEntryForm(hashes[0].split('=')[1]);
+        //    },
+        //    500
+        //);
+
+        setTimeout(function () {
+
+
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+
+            functionDesignEntryForm(hashes[0].split('=')[1]);
+
+        }, 1000);
+
+    });
+
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+
+
+    function validateFloatKeyPress(el, evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        var number = el.value.split('.');
+        if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        //just one dot (thanks ddlab)
+        if (number.length > 1 && charCode == 46) {
+            return false;
+        }
+        //get the carat position
+        var caratPos = getSelectionStart(el);
+        var dotPos = el.value.indexOf(".");
+        if (caratPos > dotPos && dotPos > -1 && (number[1].length > 1)) {
+            return false;
+        }
+        return true;
+    }
+
+    function getSelectionStart(o) {
+        if (o.createTextRange) {
+            var r = document.selection.createRange().duplicate()
+            r.moveEnd('character', o.value.length)
+            if (r.text == '') return o.value.length
+            return o.value.lastIndexOf(r.text)
+        } else return o.selectionStart
+    }
+
+
+
+
+
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+
+            }
+        });
+    }
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+    function clearAll() {
+        getDefaultCompany();
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Design Entry Form");
+        $("#add-alert").hide();
+
+        $("#YarnColor").val('');
+
+        $(".company-invalid-feedback").hide();
+
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+    }
+
+    function validate(code) {
+
+        console.log(code.id);
+
+        code.value = code.value.replace(/\s+/g, ' ').trim();
+        var errorMessageValid = "." + code.id + "-valid-feedback";
+        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+        $(".invalid-feedback .valid-feedback").hide();
+
+        if (code.value == "0") {
+
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
+        }
+        else
+            if (code.value == "") {
+
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+    }
+
+
+
+
+    var ArrayYarnQuality = [];
+    var ArrayYarnColor = [];
+    var ArrayYarnMaterial = [];
+    var ArrayDesignSpecification = [];
+    var DesingerArrayDetail;
+
+
+    function getDesignEntryForm() {
+
+        var formData = new FormData();
+        //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryForm',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                //alert(response.Code);
+
+                if (response.Code == "200") {
+
+
+                    ArrayYarnQuality.push(response.listYarnQualityMaster);
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+                    ArrayYarnMaterial.push(response.listYarnMaterialMaster);
+                    ArrayDesignSpecification.push(response.listDesignSpecificationMaster);
+
+
+                    //Design No
+                    if (response.listDesignerMaster.length > 0) {
+                        var tempDesignNo = "";
+                        tempDesignNo = "<option value='' selected> Select Designer </option>";
+                        $('#DesignerID').append(tempDesignNo);
+                        for (var i = 0; i < response.listDesignerMaster.length; i++) {
+
+                            tempDesignNo = "<option value='" + response.listDesignerMaster[i].DesignerID + "'> " + response.listDesignerMaster[i].DesignerName + " </option>";
+                            $('#DesignerID').append(tempDesignNo);
+
+                        }
+                    }
+
+                    DesingerArrayDetail = response.listDesignerMaster;
+
+
+
+
+                    //Material
+                    if (response.listMaterialMaster.length > 0) {
+                        var tempMaterial = "";
+                        tempMaterial = "<option value='' selected> Select Material </option>";
+                        $('#Material').append(tempMaterial);
+                        for (var i = 0; i < response.listMaterialMaster.length; i++) {
+
+                            tempMaterial = "<option value='" + response.listMaterialMaster[i].MaterialID + "'> " + response.listMaterialMaster[i].Material + " </option>";
+                            $('#Material').append(tempMaterial);
+
+                        }
+                    }
+
+
+                    //Design Category
+                    if (response.listDesignCategoryMaster.length > 0) {
+                        var tempDesignCategory = "";
+                        DesignCategory = "<option value='' selected> Select Design Category </option>";
+                        $('#DesignCategory').append(DesignCategory);
+                        for (var i = 0; i < response.listDesignCategoryMaster.length; i++) {
+
+                            DesignCategory = "<option value='" + response.listDesignCategoryMaster[i].DesignCategoryID + "'> " + response.listDesignCategoryMaster[i].DesignCategory + " </option>";
+                            $('#DesignCategory').append(DesignCategory);
+
+                        }
+                    }
+
+
+                    //Sketcher
+                    if (response.listSketcherMaster.length > 0) {
+                        var templistSketcherMaster = "";
+                        templistSketcherMaster = "<option value='' selected> Select Sketcher </option>";
+                        $('#Sketcher').append(templistSketcherMaster);
+                        for (var i = 0; i < response.listSketcherMaster.length; i++) {
+
+                            templistSketcherMaster = "<option value='" + response.listSketcherMaster[i].SketcherID + "'> " + response.listSketcherMaster[i].Sketcher + " </option>";
+                            $('#Sketcher').append(templistSketcherMaster);
+
+                        }
+                    }
+
+
+
+
+                    //type
+                    if (response.listTypeMaster.length > 0) {
+                        var templistTypeMaster = "";
+                        templistTypeMaster = "<option value='' selected> Select Type </option>";
+                        $('#type').append(templistTypeMaster);
+                        for (var i = 0; i < response.listTypeMaster.length; i++) {
+
+                            templistTypeMaster = "<option value='" + response.listTypeMaster[i].TypeID + "'> " + response.listTypeMaster[i].Type + " </option>";
+                            $('#type').append(templistTypeMaster);
+
+                        }
+                    }
+
+
+
+
+
+                    //Warp Pattern
+                    if (response.listWarpQualityMaster.length > 0) {
+                        var templistWarpQualityMaster = "";
+                        templistWarpQualityMaster = "<option value='' selected> Select Warp Pattern </option>";
+                        $('#warnquality').append(templistWarpQualityMaster);
+                        for (var i = 0; i < response.listWarpQualityMaster.length; i++) {
+                            templistWarpQualityMaster = "<option value='" + response.listWarpQualityMaster[i].WarpQualityID + "'> " + response.listWarpQualityMaster[i].WarpQuality + " </option>";
+                            $('#warnquality').append(templistWarpQualityMaster);
+
+                        }
+                    }
+
+                    //Design Specification
+                    if (response.listDesignSpecificationMaster.length > 0) {
+                        var templistDesignSpecificationMaster = "";
+                        templistDesignSpecificationMaster = "<option value='' selected> Select Design Specification </option>";
+                        $('#DesignSpecification1').append(templistDesignSpecificationMaster);
+                        for (var i = 0; i < response.listDesignSpecificationMaster.length; i++) {
+                            templistDesignSpecificationMaster = "<option value='" + response.listDesignSpecificationMaster[i].DesignSpecificationID + "'> " + response.listDesignSpecificationMaster[i].DesignSpecification + " </option>";
+                            $('#DesignSpecification1').append(templistDesignSpecificationMaster);
+                        }
+                    }
+
+
+
+                    //Yarn Color
+                    if (response.listYarnColorMaster.length > 0) {
+                        var templistYarnColorMaster = "";
+                        templistYarnColorMaster = "<option value='' selected> Select Yarn Color </option>";
+                        $('#yarncolor1').append(templistYarnColorMaster);
+                        //$('#yarncolor2').append(templistYarnColorMaster);
+                        //$('#yarncolor3').append(templistYarnColorMaster);
+                        //$('#yarncolor4').append(templistYarnColorMaster);
+                        //$('#yarncolor5').append(templistYarnColorMaster);
+                        //$('#yarncolor6').append(templistYarnColorMaster);
+                        for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+                            templistYarnColorMaster = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
+                            $('#yarncolor1').append(templistYarnColorMaster);
+                            //$('#yarncolor2').append(templistYarnColorMaster);
+                            //$('#yarncolor3').append(templistYarnColorMaster);
+                            //$('#yarncolor4').append(templistYarnColorMaster);
+                            //$('#yarncolor5').append(templistYarnColorMaster);
+                            //$('#yarncolor6').append(templistYarnColorMaster);
+
+                        }
+                    }
+
+
+
+
+                    //Yarn Materia
+                    if (response.listYarnMaterialMaster.length > 0) {
+                        var templistYarnMaterialMaster = "";
+                        templistYarnMaterialMaster = "<option value='' selected> Select Yarn Material </option>";
+                        $('#yarnMaterial1').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial2').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial3').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial4').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial5').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial6').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial7').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial8').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial9').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial10').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial11').append(templistYarnMaterialMaster);
+                        //$('#yarnMaterial12').append(templistYarnMaterialMaster);
+
+
+                        for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+                            templistYarnMaterialMaster = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
+                            $('#yarnMaterial1').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial2').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial3').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial4').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial5').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial6').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial7').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial8').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial9').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial10').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial11').append(templistYarnMaterialMaster);
+                            //$('#yarnMaterial12').append(templistYarnMaterialMaster);
+
+                        }
+                    }
+
+
+
+
+
+                }
+
+
+
+
+            },
+            error: function (request, status, error) {
+
+                //window.location.href = 'SaleInvoice';
+
+            }
+        });
+
+
+
+
+
+    }
+
+
+
+
+
+
+    function changeDesigner(design) {
+
+
+        if (DesingerArrayDetail.length > 0) {
+
+            for (var i = 0; i < DesingerArrayDetail.length; i++) {
+
+                var mainString = DesingerArrayDetail[i].DesignerID;
+                var searchString = design.value;
+
+
+                if (searchString == mainString) {
+                    var DesignerID = DesingerArrayDetail[i].DesignerID;
+                    var DesignerCode = DesingerArrayDetail[i].DesignerCode;
+                    var DesignerName = DesingerArrayDetail[i].DesignerName;
+
+                    $("#spanDesignerCode").html(DesignerCode);
+                    $("#DesignerCode").val(DesignerCode);
+                }
+
+            }
+
+
+        }
+
+        //alert(design.value);
+        //alert($('select#Designer option:selected').text());
+
+        //$("#DesignerCode").html($('select#Designer option:selected').text());
+
+    }
+
+
+
+
+
+
+    function AddWarpData() {
+        var txtwarpData = $("#txtWarpData").val();
+
+        //alert(txtwarpData.slice(0, -1));
+        var tempWarpData = "";
+        if (txtwarpData.slice(0, -1) == "1") {
+            var yarnquality1 = document.getElementById("yarnquality1");
+            //var yarncolor1 = document.getElementById("yarncolor1");
+            var Tar1 = document.getElementById("Tar1");
+
+            if (validate(yarnquality1) == false || validate(Tar1) == false) {
+                validate(yarnquality1);
+                //validate(yarncolor1);
+                validate(Tar1);
+            }
+            else {
+
+                tempWarpData += "<div class='row gutters' id='divWarpData2'>";
+                tempWarpData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                tempWarpData += "<br />";
+                tempWarpData += "</div>";
+                tempWarpData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                tempWarpData += "<div class='field-wrapper' style='margin-top:0; text-align: center;'>";
+                tempWarpData += "<div class='field-placeholder' style='text-align: center; width:85%;'>";
+                tempWarpData += "<br /><span style='font-size: large;'>2</span></div>";
+                tempWarpData += "<br />";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+
+                tempWarpData += "<div class='col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12'>";
+                tempWarpData += "<div class='row gutters'>";
+                tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                tempWarpData += "<div class='field-wrapper'>";
+                tempWarpData += "<select id='yarnquality2' name='yarnquality2' title='Yarn Material' class='form-control' onfocusout='validate(this)'>";
+                tempWarpData += "<option value='' selected> Select Yarn Material </option>";
+
+
+
+                for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
+                    tempWarpData += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
+                }
+
+
+                tempWarpData += "</select>";
+                tempWarpData += "<div class='field-placeholder'>Yarn Material<sup style='color:red;'>*</sup></div>";
+                tempWarpData += "<div class='yarnquality2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWarpData += "<div class='yarnquality2-invalid-feedback invalid-feedback'>Mention Yarn Material</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+
+                //tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                //tempWarpData += "<div class='field-wrapper'>";
+                //tempWarpData += "<select id='yarncolor2' name='yarncolor2' title='Yarn Color' class='form-control' onfocusout='validate(this)'>";
+                //tempWarpData += "<option value='' selected> Select Yarn Colode </option>";
+
+                //for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+                //    tempWarpData += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
+                //}
+
+                //tempWarpData += "</select>";
+                //tempWarpData += "<div class='field-placeholder'>Yarn Color<sup style='color:red;'>*</sup></div>";
+                //tempWarpData += "<div class='yarncolor2-valid-feedback valid-feedback'>Looks good!</div>";
+                //tempWarpData += "<div class='yarncolor2-invalid-feedback invalid-feedback'>Mention Yarn Color</div>";
+                //tempWarpData += "</div>";
+                //tempWarpData += "</div>";
+
+                tempWarpData += "<div class='col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12'>";
+                tempWarpData += "<div class='field-wrapper'>";
+                tempWarpData += "<input type='tel' id='Tar2' name='Tar2' title='Tar' class='form-control clear-field' maxlength='5' onfocusout='validate(this)' onkeypress='return (event.charCode>=48 && event.charCode<=57)'>";
+                tempWarpData += "<div class='field-placeholder'>Tar<sup style='color:red;'>*</sup></div>";
+                tempWarpData += "<div class='Tar2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWarpData += "<div class='Tar2-invalid-feedback invalid-feedback'>Mention Tar</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+                tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                tempWarpData += "<i class='fa fa-times fa-2x' style='color: red; margin-top: 14px; cursor:pointer;' onclick='deleteWarpData(2)'></i>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+                $("#txtWarpData").val(txtwarpData + "2|")
+            }
+
+
+
+
+            $("#divWarpData").append(tempWarpData);
+        }
+        else {
+
+            var txtWarpData = txtwarpData.slice(0, -1).split('|');
+            var TruOrFalse = "";
+
+            for (var i = 0; i < txtWarpData.length; i++) {
+
+                //alert(txtWarpData[i]);
+                //var no = parseInt(txtWarpData[(txtWarpData.length - 1)]) + parseInt(1);
+                var no = parseInt(txtWarpData[(txtWarpData.length - 1)]);
+                var YarnQuality = "yarnquality" + no;
+                //var YarnColor = "yarncolor" + no;
+                var Tar = "Tar" + no;
+
+                var YQuality = document.getElementById(YarnQuality);
+                //var YColor = document.getElementById(YarnColor);
+                var Ta = document.getElementById(Tar);
+
+                //alert(YarnQuality + " " + YarnColor + " " + Tar);
+
+                if (validate(YQuality) == false || validate(Ta) == false) {
+                    validate(YQuality);
+                    //validate(YColor);
+                    validate(Ta);
+                    TruOrFalse = '0';
+                }
+                else {
+                    TruOrFalse = '1';
+                }
+
+            }
+
+
+
+            if (TruOrFalse == "1") {
+                var tempWarpData = "";
+                //for (var i = 0; i < txtWarpData.length; i++) {
+
+
+                //var no = parseInt(txtWarpData.length) + parseInt(1);
+                var no = parseInt(txtWarpData[(txtWarpData.length - 1)]) + parseInt(1);
+                var YarnQuality = "yarnquality" + no;
+                //var YarnColor = "yarncolor" + no;
+                var Tar = "Tar" + no;
+
+
+
+
+                tempWarpData += "<div class='row gutters' id='divWarpData" + no + "'>";
+                tempWarpData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                tempWarpData += "<br />";
+                tempWarpData += "</div>";
+                tempWarpData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                tempWarpData += "<div class='field-wrapper' style='margin-top:0; text-align: center;'>";
+                tempWarpData += "<div class='field-placeholder' style='text-align: center; width:85%;'>";
+                tempWarpData += "<br /><span style='font-size: large;'>" + no + "</span></div>";
+                tempWarpData += "<br />";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+
+                tempWarpData += "<div class='col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12'>";
+                tempWarpData += "<div class='row gutters'>";
+                tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                tempWarpData += "<div class='field-wrapper'>";
+                tempWarpData += "<select id='yarnquality" + no + "' name='yarnquality" + no + "' title='Yarn Material' class='form-control' onfocusout='validate(this)'>";
+                tempWarpData += "<option value='' selected> Select Yarn Material </option>";
+
+
+
+                for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
+                    tempWarpData += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
+                }
+
+
+                tempWarpData += "</select>";
+                tempWarpData += "<div class='field-placeholder'>Yarn Material<sup style='color:red;'>*</sup></div>";
+                tempWarpData += "<div class='yarnquality" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWarpData += "<div class='yarnquality" + no + "-invalid-feedback invalid-feedback'>Mention Yarn Material</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+                //tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                //tempWarpData += "<div class='field-wrapper'>";
+                //tempWarpData += "<select id='yarncolor" + no + "' name='yarncolor" + no + "' title='Yarn Color' class='form-control' onfocusout='validate(this)'>";
+                //tempWarpData += "<option value='' selected> Select Yarn Colode </option>";
+
+                //for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+                //    tempWarpData += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
+                //}
+
+                //tempWarpData += "</select>";
+                //tempWarpData += "<div class='field-placeholder'>Yarn Color<sup style='color:red;'>*</sup></div>";
+                //tempWarpData += "<div class='yarncolor" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                //tempWarpData += "<div class='yarncolor" + no + "-invalid-feedback invalid-feedback'>Mention Yarn Color</div>";
+                //tempWarpData += "</div>";
+                //tempWarpData += "</div>";
+
+                tempWarpData += "<div class='col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12'>";
+                tempWarpData += "<div class='field-wrapper'>";
+                tempWarpData += "<input type='tel' id='Tar" + no + "' name='Tar" + no + "' title='Tar' class='form-control clear-field' maxlength='5' onfocusout='validate(this)' onkeypress='return (event.charCode>=48 && event.charCode<=57)'>";
+                tempWarpData += "<div class='field-placeholder'>Tar<sup style='color:red;'>*</sup></div>";
+                tempWarpData += "<div class='Tar" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWarpData += "<div class='Tar" + no + "-invalid-feedback invalid-feedback'>Mention Tar</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+                tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                tempWarpData += "<i class='fa fa-times fa-2x' style='color: red; margin-top: 14px; cursor:pointer;' onclick='deleteWarpData(" + no + ")'></i>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+                tempWarpData += "</div>";
+
+
+                $("#txtWarpData").val(txtwarpData + no + "|")
+
+
+
+                //}
+
+                $("#divWarpData").append(tempWarpData);
+
+
+
+
+            }
+
+        }
+    }
+
+    function deleteWarpData(abc) {
+
+        //if (confirm('Are you sure delete?')) {
+        var divWarpData = "#divWarpData" + abc;
+
+        $(divWarpData).remove();
+
+        var replace = abc + "|";
+        var txtWarpData = $("#txtWarpData").val();
+
+        $("#txtWarpData").val(txtWarpData.replace(replace, ''));
+        //}
+
+    }
+
+
+    function AddWeftData() {
+
+
+
+        var txtWeftData = $("#txtWeftData").val();
+        //ArrayYarnMaterial
+
+        var tempWeftData = "";
+        if (txtWeftData.slice(0, -1) == "1") {
+
+
+
+            var Card1 = document.getElementById("Card1");
+            var Pick1 = document.getElementById("Pick1");
+            var yarnMaterial1 = document.getElementById("yarnMaterial1");
+            var DesignSpecification1 = document.getElementById("DesignSpecification1");
+
+            if (validate(Card1) == false || validate(Pick1) == false || validate(yarnMaterial1) == false || validate(DesignSpecification1) == false) {
+                validate(Card1);
+                validate(Pick1);
+                validate(yarnMaterial1);
+                validate(DesignSpecification1);
+            }
+            else {
+
+                tempWeftData += "<div class='row gutters' id='Federall2'>";
+
+                //tempWeftData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                //tempWeftData += "<br />";
+                //tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                tempWeftData += "<div class='field-wrapper' style='margin-top:0; text-align: center;'>";
+                tempWeftData += "<div class='field-placeholder' style='text-align: center; width:85%;'> <br /><span style='font-size: larger;'>Feeder 2</span></div>";
+                tempWeftData += "<br />";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12'>";
+                tempWeftData += "<div class='row gutters'>";
+
+                tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                tempWeftData += "<input type='tel' id='Card2' name='Card2' title='Card 2' class='form-control clear-field' onfocusout='validate(this)' onkeypress='return validateFloatKeyPress(this, event);' maxlength='7'  onkeyup='CardPickCalculation()'>";
+                tempWeftData += "<div class='field-placeholder'>Card<sup style='color:red;'>*</sup></div>";
+                tempWeftData += "<div class='Card2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWeftData += "<div class='Card2-invalid-feedback invalid-feedback'>Mention Card</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                tempWeftData += "<input type='tel' id='Pick2' name='Pick2' title='Pick 2' class='form-control clear-field' onfocusout='validate(this)' onkeypress='return validateFloatKeyPress(this, event);' maxlength='7' onkeyup='CardPickCalculation()'>";
+                tempWeftData += "<div class='field-placeholder'>Pick<sup style='color:red;'>*</sup></div>";
+                tempWeftData += "<div class='Pick2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWeftData += "<div class='Pick2-invalid-feedback invalid-feedback'>Mention Pick</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                tempWeftData += "<select id='yarnMaterial2' name='yarnMaterial2' title='Yarn Material 2' class='form-control' onfocusout='validate(this)'>";
+                tempWeftData += "<option value=' '> Select Yarn Material </option>";
+
+                for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
+                    tempWeftData += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
+                }
+
+                tempWeftData += "</select>";
+                tempWeftData += "<div class='field-placeholder'>Yarn Material<sup style='color:red;'>*</sup></div>";
+                tempWeftData += "<div class='yarnMaterial2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWeftData += "<div class='yarnMaterial2-invalid-feedback invalid-feedback'>Select Yarn Material</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12'>";
+                tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                //tempWeftData += "<input type='text' id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control clear-field' onfocusout='validate(this)' >";
+
+                tempWeftData += "<select id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control' onfocusout='validate(this)'>";
+                tempWeftData += "<option value=' '> Select Design Specification </option>";
+                for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
+                    tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";
+                }
+                tempWeftData += "</select>";
+
+                tempWeftData += "<div class='field-placeholder'>Design Specification<sup style='color:red;'>*</sup></div>";
+                tempWeftData += "<div class='DesignSpecification2-valid-feedback valid-feedback'>Looks good!</div>";
+                tempWeftData += "<div class='DesignSpecification2-invalid-feedback invalid-feedback'>Mention Design Specification</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                tempWeftData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                tempWeftData += "<i class='fa fa-times fa-2x' style='color: red; margin-top: 8px; cursor:pointer;' onclick='deleteWeftData(2)'></i>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+                tempWeftData += "</div>";
+
+                $("#txtWeftData").val(txtWeftData + "2|")
+            }
+
+
+            $("#divWeftData").append(tempWeftData);
+        }
+        else {
+
+
+
+            var txtWeftData = txtWeftData.slice(0, -1).split('|');
+            var TruOrFalse = "";
+
+
+
+            for (var i = 0; i < txtWeftData.length; i++) {
+
+                //alert(txtWeftData.length + "  " + txtWeftData[(txtWeftData.length - 1)] );
+                var no = parseInt(txtWeftData[(txtWeftData.length - 1)]);
+
+                var Card = "Card" + no;
+                var Pick = "Pick" + no;
+                var yarnMaterial = "yarnMaterial" + no;
+                var DesignSpecification = "DesignSpecification" + no;
+
+                var WCard = document.getElementById(Card);
+                var WPick = document.getElementById(Pick);
+                var YMaterial = document.getElementById(yarnMaterial);
+                var DSpecification = document.getElementById(DesignSpecification);
+
+                //alert(YarnQuality + " " + YarnColor + " " + Tar);
+
+                if (validate(WCard) == false || validate(WPick) == false || validate(YMaterial) == false || validate(DSpecification) == false) {
+                    validate(WCard);
+                    validate(WPick);
+                    validate(YMaterial);
+                    validate(DSpecification);
+                    TruOrFalse = '0';
+                }
+                else {
+                    TruOrFalse = '1';
+                }
+
+            }
+
+
+
+            if (TruOrFalse == "1") {
+                //var tempWarpData = "";
+                //for (var i = 0; i < txtWeftData.length; i++) {
+
+                //var no = parseInt(txtWeftData[(txtWeftData.length - 1)])
+                var no = parseInt(txtWeftData[(txtWeftData.length - 1)]) + parseInt(1);
+
+                if (txtWeftData.length != 12) {
+                    tempWeftData += "<div class='row gutters' id='Federall" + no + "'>";
+
+                    //tempWeftData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                    //tempWeftData += "<br />";
+                    //tempWeftData += "</div>";
+
+                    tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                    tempWeftData += "<div class='field-wrapper' style='margin-top:0; text-align: center;'>";
+                    tempWeftData += "<div class='field-placeholder' style='text-align: center; width:85%;'> <br /><span style='font-size: larger;'>Feeder " + no + "</span></div>";
+                    tempWeftData += "<br />";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+                    tempWeftData += "<div class='col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12'>";
+
+                    tempWeftData += "<div class='row gutters'>";
+                    tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                    tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                    tempWeftData += "<input type='tel' id='Card" + no + "' name='Card" + no + "' title='Card " + no + "' class='form-control clear-field' onfocusout='validate(this)' onkeypress='return validateFloatKeyPress(this, event);' maxlength='7'  onkeyup='CardPickCalculation()'>";
+                    tempWeftData += "<div class='field-placeholder'>Card<sup style='color:red;'>*</sup></div>";
+                    tempWeftData += "<div class='Card" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                    tempWeftData += "<div class='Card" + no + "-invalid-feedback invalid-feedback'>Mention Card</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+                    tempWeftData += "<div class='col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12'>";
+                    tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                    tempWeftData += "<input type='tel' id='Pick" + no + "' name='Pick" + no + "' title='Pick " + no + "' class='form-control clear-field' onfocusout='validate(this)' onkeypress='return validateFloatKeyPress(this, event);' maxlength='7'  onkeyup='CardPickCalculation()'>";
+                    tempWeftData += "<div class='field-placeholder'>Pick<sup style='color:red;'>*</sup></div>";
+                    tempWeftData += "<div class='Pick" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                    tempWeftData += "<div class='Pick" + no + "-invalid-feedback invalid-feedback'>Mention Pick</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+                    tempWeftData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
+                    tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                    tempWeftData += "<select id='yarnMaterial" + no + "' name='yarnMaterial" + no + "' title='Yarn Material " + no + "' class='form-control' onfocusout='validate(this)'>";
+                    tempWeftData += "<option value=' '> Select Yarn Material </option>";
+
+                    for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
+                        tempWeftData += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
+                    }
+
+                    tempWeftData += "</select>";
+                    tempWeftData += "<div class='field-placeholder'>Yarn Material<sup style='color:red;'>*</sup></div>";
+                    tempWeftData += "<div class='yarnMaterial" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                    tempWeftData += "<div class='yarnMaterial" + no + "-invalid-feedback invalid-feedback'>Select Yarn Material</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+
+
+                    tempWeftData += "<div class='col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12'>";
+                    tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
+                    //tempWeftData += "<input type='text' id='DesignSpecification" + no + "' name='DesignSpecification" + no + "' title='Design Specification " + no + "' class='form-control clear-field' onfocusout='validate(this)' >";
+
+                    tempWeftData += "<select id='DesignSpecification" + no + "' name='DesignSpecification2' title='Design Specification " + no + "' class='form-control' onfocusout='validate(this)'>";
+                    tempWeftData += "<option value=' '> Select Design Specification </option>";
+                    for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
+                        tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";
+                    }
+                    tempWeftData += "</select>";
+
+                    tempWeftData += "<div class='field-placeholder'>Design Specification<sup style='color:red;'>*</sup></div>";
+                    tempWeftData += "<div class='DesignSpecification" + no + "-valid-feedback valid-feedback'>Looks good!</div>";
+                    tempWeftData += "<div class='DesignSpecification" + no + "-invalid-feedback invalid-feedback'>Mention Design Specification</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+                    tempWeftData += "<div class='col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12'>";
+                    tempWeftData += "<i class='fa fa-times fa-2x' style='color: red; margin-top: 8px; cursor:pointer;' onclick='deleteWeftData(" + no + ")'></i>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+                    tempWeftData += "</div>";
+
+                    //alert(txtWeftData);
+                    $("#txtWeftData").val($("#txtWeftData").val() + no + "|")
+
+                    $("#divWeftData").append(tempWeftData);
+                }
+
+
+
+
+
+                //}
+
+
+
+
+
+
+            }
+
+
+
+
+
+        }
+
+
+    }
+
+
+
+    function deleteWeftData(abc) {
+
+        //if (confirm('Are you sure delete?')) {
+        var divWeftData = "#Federall" + abc;
+
+        $(divWeftData).remove();
+
+        var replace = abc + "|";
+        var txtWeftData = $("#txtWeftData").val();
+
+        $("#txtWeftData").val(txtWeftData.replace(replace, ''));
+        //}
+
+    }
+
+
+    function saveImage(input) {
+        var previewStr = "#" + input.id + "-preview";
+        if (input.files && input.files[0]) {
+            var fildr = new FileReader();
+            fildr.onload = function (e) {
+                var imgStr = "<img src='" + e.target.result + "' style='width:100%;margin-top:-54px;'>";
+                $(previewStr).html(imgStr);
+                $(previewStr).css('color', 'initial');
+            }
+            fildr.readAsDataURL(input.files[0]);
+
+            if (input.id == "upload-PhotoOfDesign-default") {
+                $("#txttempPhotoOfDesign").val("");
+            }
+            else
+                if (input.id == "upload-PhotoOfSketch-default") {
+                    $("#txttempPhotoOfSketch").val("");
+                }
+
+            return true;
+        }
+        else {
+            var message = "";
+            if (input.id == "upload-image" || input.id == "upload-image-default") {
+                message = "Photo Of Sketch Is Needed.";
+            }
+            else {
+                message = "Photo of Design Is Needed.";
+            }
+            $(previewStr).html(message);
+            $(previewStr).css('color', 'red');
+            return false;
+        }
+    }
+
+    function clearPhotoOfDesignDefault() {
+        $("#upload-PhotoOfDesign-default-preview").html("Photo Of Design.");
+        $("#upload-PhotoOfDesign-default").val("");
+        $("#txttempPhotoOfDesign").val("");
+    }
+
+    function clearPhotoOfSketchDefault() {
+        $("#upload-PhotoOfSketch-default-preview").html("Photo Of Sketch.");
+        $("#upload-PhotoOfSketch-default").val("");
+        $("#txttempPhotoOfSketch").val("");
+    }
+
+
+
+
+
+
+
+
+
+    function functionDesignEntryForm(DesignEntryFormID) {
+
+        var formData = new FormData();
+        formData.append('DesignEntryFormID', DesignEntryFormID);
+
+        var PartyId = 0;
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getDesignEntryFormDetails',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+
+                //alert(response.listDesignEntryForm.length);
+                var userTable = $('#TblUser');
+
+
+                for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+
+
+                    /* ---------- View Party Details ---------- */
+
+
+                    $("#upload-PhotoOfDesign-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
+                    if (response.listDesignEntryForm[i].PhotoOfSketch != "") {
+                        $("#upload-PhotoOfSketch-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
+                    }
+
+
+                    $("#txtPhotoOfSketch").val(response.listDesignEntryForm[i].PhotoOfSketch);
+
+
+                    $("#DesignEntryFormID").val(response.listDesignEntryForm[i].DesignEntryFormID);
+                    $("#txttempPhotoOfDesign").val(response.listDesignEntryForm[i].PhotoOfDesign);
+                    $("#txttempPhotoOfSketch").val(response.listDesignEntryForm[i].PhotoOfSketch);
+
+                    $("#warnquality").val(response.listDesignEntryForm[i].WarpQualityID);
+
+                    var fullDate = new Date(response.listDesignEntryForm[i].DesignDates);
+                    //alert(fullDate);
+                    //var ist = fullDate.toLocaleString();
+                    //console.log("IST now is : " + ist);
+
+                    var twoDigitMonth = (fullDate.getMonth() + 1) + ""; if (twoDigitMonth.length == 1) twoDigitMonth = "0" + twoDigitMonth;
+                    var twoDigitDate = fullDate.getDate() + ""; if (twoDigitDate.length == 1) twoDigitDate = "0" + twoDigitDate;
+                    //var currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+                    //var currentDate = fullDate.getFullYear() + "-" + twoDigitMonth + "-" + twoDigitDate;
+                    var currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+
+                    //alert(response.listDesignEntryForm[i].TypeID);
+
+
+                    $("#DesignDate").val(currentDate);
+                    $("#DesignerID").val(response.listDesignEntryForm[i].DesignerID);
+                    $("#Sketcher").val(response.listDesignEntryForm[i].SketcherID);
+
+                    $("#spanExstingDesignerCode").html(response.listDesignEntryForm[i].DesignerCode);
+                    $("#ExstingDesignNo").val(response.listDesignEntryForm[i].DesignNo);
+
+                    $("#spanDesignerCode").html(response.listDesignEntryForm[i].DesignerCode);
+                    $("#DesignNo").val(response.listDesignEntryForm[i].DesignNo);
+                    $("#DesignerCode").val(response.listDesignEntryForm[i].DesignerCode);
+
+                    $("#Remark").val(response.listDesignEntryForm[i].Remark);
+                    $("#PickOnLoom").val(response.listDesignEntryForm[i].PickOnLoom);
+                    $("#TotalCard").val(response.listDesignEntryForm[i].TotalCard);
+                    $("#AveragePic").val(response.listDesignEntryForm[i].AveragePic);
+                    $("#ReedOnLoom").val(response.listDesignEntryForm[i].ReedOnLoom);
+                    $("#type").val(response.listDesignEntryForm[i].TypeID);
+                    $("#DesignCategory").val(response.listDesignEntryForm[i].DesignCategoryID);
+                    $("#DesignCut").val(response.listDesignEntryForm[i].DesignCut);
+
+
+
+
+                    var WarSrNo = 0;
+                    /* ---------- Design Form Warp Data ---------- */
+                    var tempWarnQuality = "";
+                    var txtWarpData = "";
+                    for (var j = 0; j < response.listDesignEntryForm[i].listDesignFormWarpData.length; j++) {
+                        WarSrNo = WarSrNo + 1;
+                        txtWarpData += WarSrNo + "|";
+                        if (j == 0) {
+                            tempWarnQuality += '<div class="row gutters">';
+                            tempWarnQuality += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                            tempWarnQuality += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                            tempWarnQuality += '<div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: large;">' + WarSrNo + '</span></div>';
+                            tempWarnQuality += '<br />';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">';
+                            tempWarnQuality += '<div class="row gutters">';
+                            tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper">';
+                            tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control" onfocusout="validate(this)">';
+                            tempWarnQuality += '<option value=""> Select Yarn Material </option>';
+
+
+                            
+                            for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
+
+                                if (ArrayYarnMaterial[0][q].YarnMaterialID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnQualityMaterialID) {
+                                    tempWarnQuality += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '" selected> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+                                else {
+                                    tempWarnQuality += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '"> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+
+                            }
+
+
+
+                            tempWarnQuality += '</select>';
+                            tempWarnQuality += '<div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>';
+                            tempWarnQuality += '<div class="yarnquality' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWarnQuality += '<div class="yarnquality' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Yarn Material</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            //tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            //tempWarnQuality += '<div class="field-wrapper">';
+                            //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control" onfocusout="validate(this)">';
+                            //tempWarnQuality += '<option value=""> Select Yarn Color </option>';
+                            //for (var c = 0; c < ArrayYarnColor[0].length; c++) {
+                            //    if (ArrayYarnColor[0][c].YarnColorID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnColorID) {
+                            //        tempWarnQuality += '<option value="' + ArrayYarnColor[0][c].YarnColorID + '" selected> ' + ArrayYarnColor[0][c].YarnColor + ' </option>';
+                            //    }
+                            //    else {
+                            //        tempWarnQuality += '<option value="' + ArrayYarnColor[0][c].YarnColorID + '"> ' + ArrayYarnColor[0][c].YarnColor + ' </option>';
+                            //    }
+                            //}
+
+                            //tempWarnQuality += '</select>';
+                            //tempWarnQuality += '<div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>';
+                            //tempWarnQuality += '<div class="yarncolor' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            //tempWarnQuality += '<div class="yarncolor' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Yarn Color</div>';
+                            //tempWarnQuality += '</div>';
+                            //tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper">';
+                            tempWarnQuality += '<input type="tel" id="Tar' + WarSrNo + '" name="Tar' + WarSrNo + '" title="Tar" value="' + response.listDesignEntryForm[i].listDesignFormWarpData[j].Tar + '" class="form-control clear-field" maxlength="5" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)">';
+                            tempWarnQuality += '<div class="field-placeholder">Tar<sup style="color:red;">*</sup></div>';
+                            tempWarnQuality += '<div class="Tar' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWarnQuality += '<div class="Tar' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Tar</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"></div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '';
+                        }
+                        else {
+                            tempWarnQuality += '<div class="row gutters" id="divWarpData' + WarSrNo + '">';
+
+                            tempWarnQuality += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                            tempWarnQuality += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                            tempWarnQuality += '<div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: large;">' + WarSrNo + '</span></div>';
+                            tempWarnQuality += '<br />';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">';
+
+                            tempWarnQuality += '<div class="row gutters">';
+
+                            tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper">';
+                            tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control" onfocusout="validate(this)">';
+                            tempWarnQuality += '<option value=""> Select Yarn Material </option>';
+
+                            for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
+
+                                if (ArrayYarnMaterial[0][q].YarnMaterialID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnQualityMaterialID) {
+                                    tempWarnQuality += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '" selected> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+                                else {
+                                    tempWarnQuality += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '"> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+                            }
+
+
+                            tempWarnQuality += '</select>';
+                            tempWarnQuality += '<div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>';
+                            tempWarnQuality += '<div class="yarnquality' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWarnQuality += '<div class="yarnquality' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Yarn Material</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            //tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            //tempWarnQuality += '<div class="field-wrapper">';
+                            //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control" onfocusout="validate(this)">';
+                            //tempWarnQuality += '<option value=""> Select Yarn Color </option>';
+                            //for (var c = 0; c < ArrayYarnColor[0].length; c++) {
+                            //    if (ArrayYarnColor[0][c].YarnColorID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnColorID) {
+                            //        tempWarnQuality += '<option value="' + ArrayYarnColor[0][c].YarnColorID + '" selected> ' + ArrayYarnColor[0][c].YarnColor + ' </option>';
+                            //    }
+                            //    else {
+                            //        tempWarnQuality += '<option value="' + ArrayYarnColor[0][c].YarnColorID + '"> ' + ArrayYarnColor[0][c].YarnColor + ' </option>';
+                            //    }
+                            //}
+                            //tempWarnQuality += '</select>';
+                            //tempWarnQuality += '<div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>';
+                            //tempWarnQuality += '<div class="yarncolor' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            //tempWarnQuality += '<div class="yarncolor' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Yarn Color</div>';
+                            //tempWarnQuality += '</div>';
+                            //tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                            tempWarnQuality += '<div class="field-wrapper">';
+                            tempWarnQuality += '<input type="tel" id="Tar' + WarSrNo + '" name="Tar' + WarSrNo + '" title="Tar" value="' + response.listDesignEntryForm[i].listDesignFormWarpData[j].Tar + '" class="form-control clear-field" maxlength="5" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)">';
+                            tempWarnQuality += '<div class="field-placeholder">Tar<sup style="color:red;">*</sup></div>';
+                            tempWarnQuality += '<div class="Tar' + WarSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWarnQuality += '<div class="Tar' + WarSrNo + '-invalid-feedback invalid-feedback">Mention Tar</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+
+                            tempWarnQuality += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">';
+                            tempWarnQuality += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteWarpData(' + WarSrNo + ')"></i>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '</div>';
+                            tempWarnQuality += '';
+                        }
+
+
+                    }
+
+                    $("#divWarpData").html(tempWarnQuality);
+                    $("#txtWarpData").val(txtWarpData);
+
+
+
+                    var WeftSrNo = 0;
+                    /* ---------- Design Form Weft Data ---------- */
+                    var tempWeftData = "";
+                    var txtWeftData = "";
+                    for (var k = 0; k < response.listDesignEntryForm[i].listDesignEntryWeftData.length; k++) {
+                        WeftSrNo = WeftSrNo + 1;
+                        txtWeftData += WeftSrNo + "|";
+
+                        if (k == 0) {
+                            tempWeftData += '<div class="row gutters" id="Federall' + WeftSrNo + '">';
+
+                            //tempWeftData += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                            tempWeftData += '<div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: larger;">Feeder ' + WeftSrNo + '</span></div>';
+                            tempWeftData += '<br />';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">';
+                            tempWeftData += '<div class="row gutters">';
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<input type="tel" id="Card' + WeftSrNo + '" name="Card' + WeftSrNo + '" title="Card ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Card + '" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this, event);"  maxlength="5" onkeyup="CardPickCalculation()">';
+                            tempWeftData += '<div class="field-placeholder">Card<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="Card' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="Card' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Card</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<input type="tel" id="Pick' + WeftSrNo + '" name="Pick' + WeftSrNo + '" title="Pick ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Pick + '"  class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this, event);" maxlength="5" onkeyup="CardPickCalculation()">';
+                            tempWeftData += '<div class="field-placeholder">Pick<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="Pick' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="Pick' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Pick</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                            tempWeftData += '<option value=""> Select Yarn Material </option>';
+                            //alert(ArrayYarnMaterial[0].length);
+                            for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
+
+                                if (ArrayYarnMaterial[0][q].YarnMaterialID == response.listDesignEntryForm[i].listDesignEntryWeftData[k].YarnMaterialID) {
+                                    tempWeftData += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '" selected> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+                                else {
+                                    tempWeftData += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '"> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+
+                            }
+
+                            tempWeftData += '</select>';
+                            tempWeftData += '<div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="yarnMaterial' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="yarnMaterial' + WeftSrNo + '-invalid-feedback invalid-feedback">Select Yarn Material</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+
+                            tempWeftData += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
+
+                            tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                            tempWeftData += '<option value=""> Select Yarn Material </option>';
+                            //alert(ArrayDesignSpecification[0].length);
+                            for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
+
+                                if (ArrayDesignSpecification[0][q].DesignSpecificationID == response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecificationID) {
+                                    tempWeftData += '<option value="' + ArrayDesignSpecification[0][q].DesignSpecificationID + '" selected> ' + ArrayDesignSpecification[0][q].DesignSpecification + ' </option>';
+                                }
+                                else {
+                                    tempWeftData += '<option value="' + ArrayDesignSpecification[0][q].DesignSpecificationID + '"> ' + ArrayDesignSpecification[0][q].DesignSpecification + ' </option>';
+                                }
+                            }
+
+                            tempWeftData += '</select>';
+
+                            tempWeftData += '<div class="field-placeholder">Design Specification<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="DesignSpecification' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="DesignSpecification' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Design Specification</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br />';
+                            //tempWeftData += '<i class="fa fa-times fa-2x" style="color: red; cursor:pointer;" onclick="deleteWeftData(' + WeftSrNo + ')"></i>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                        }
+                        else {
+                            tempWeftData += '<div class="row gutters" id="Federall' + WeftSrNo + '">';
+
+                            //tempWeftData += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                            tempWeftData += '<div class="field-placeholder" style=" text-align: center; width:85%;"> <br /><span style=" font-size: larger;">Feeder ' + WeftSrNo + '</span></div>';
+                            tempWeftData += '<br />';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">';
+                            tempWeftData += '<div class="row gutters">';
+
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<input type="tel" id="Card' + WeftSrNo + '" name="Card' + WeftSrNo + '" title="Card ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Card + '" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this, event);" maxlength="7" onkeyup="CardPickCalculation()">';
+                            tempWeftData += '<div class="field-placeholder">Card<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="Card' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="Card' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Card</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<input type="tel" id="Pick' + WeftSrNo + '" name="Pick' + WeftSrNo + '" title="Pick ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Pick + '"  class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this, event);" maxlength="7" onkeyup="CardPickCalculation()">';
+                            tempWeftData += '<div class="field-placeholder">Pick<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="Pick' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="Pick' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Pick</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                            tempWeftData += '<option value=""> Select Yarn Material </option>';
+                            //alert(ArrayYarnMaterial[0].length);
+                            for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
+
+                                if (ArrayYarnMaterial[0][q].YarnMaterialID == response.listDesignEntryForm[i].listDesignEntryWeftData[k].YarnMaterialID) {
+                                    tempWeftData += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '" selected> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+                                else {
+                                    tempWeftData += '<option value="' + ArrayYarnMaterial[0][q].YarnMaterialID + '"> ' + ArrayYarnMaterial[0][q].YarnMaterial + ' </option>';
+                                }
+
+                            }
+
+                            tempWeftData += '</select>';
+                            tempWeftData += '<div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="yarnMaterial' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="yarnMaterial' + WeftSrNo + '-invalid-feedback invalid-feedback">Select Yarn Material</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+
+                            tempWeftData += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                            tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                            //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
+
+                            tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                            tempWeftData += '<option value=""> Select Yarn Material </option>';
+                            //alert(ArrayDesignSpecification[0].length);
+                            for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
+
+                                if (ArrayDesignSpecification[0][q].DesignSpecificationID == response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecificationID) {
+                                    tempWeftData += '<option value="' + ArrayDesignSpecification[0][q].DesignSpecificationID + '" selected> ' + ArrayDesignSpecification[0][q].DesignSpecification + ' </option>';
+                                }
+                                else {
+                                    tempWeftData += '<option value="' + ArrayDesignSpecification[0][q].DesignSpecificationID + '"> ' + ArrayDesignSpecification[0][q].DesignSpecification + ' </option>';
+                                }
+                            }
+
+                            tempWeftData += '</select>';
+
+                            tempWeftData += '<div class="field-placeholder">Design Specification<sup style="color:red;">*</sup></div>';
+                            tempWeftData += '<div class="DesignSpecification' + WeftSrNo + '-valid-feedback valid-feedback">Looks good!</div>';
+                            tempWeftData += '<div class="DesignSpecification' + WeftSrNo + '-invalid-feedback invalid-feedback">Mention Design Specification</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+
+                            tempWeftData += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"> ';
+                            tempWeftData += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 5px; cursor:pointer;" onclick="deleteWeftData(' + WeftSrNo + ')"></i>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                            tempWeftData += '</div>';
+                        }
+
+
+                    }
+
+                    $("#divWeftData").html(tempWeftData);
+                    $("#txtWeftData").val(txtWeftData);
+
+
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+
+                window.location.href = 'DesignEntry';
+
+            }
+        });
+
+
+
+    }
+
+
+
+
+
+
+
+    function checkUpdate() {
+
+
+
+        var PhotoOfDesign = $('#upload-PhotoOfDesign-default')[0].files[0];
+        var PhotoOfSketch = $('#upload-PhotoOfSketch-default')[0].files[0];
+
+
+        //if ($('#upload-PhotoOfDesign-default')[0].files.length == 0) {
+
+        //    notes.show('Please Upload Photo Of Design', {
+        //        type: 'danger',
+        //        //title: 'Opps.!',
+        //        //icon: '<i class="icon-alert-triangle"></i>'
+        //    });
+
+        //}
+
+
+
+
+        var txtPhotoOfSketch = $("#txtPhotoOfSketch").val();
+
+        //alert(txtPhotoOfSketch);
+
+        var TestSketcher = document.getElementById("Sketcher");
+        var isSketcherField = 0;
+
+        if ($('#upload-PhotoOfSketch-default')[0].files.length == 1) {
+
+            if (validate(TestSketcher) == false) {
+                validate(TestSketcher);
+                isSketcherField = 1;
+            }
+            else {
+                isSketcherField = 0;
+            }
+        }
+
+
+        if (TestSketcher.value != "") {
+            if ($('#upload-PhotoOfSketch-default')[0].files.length == 0) {
+                if (txtPhotoOfSketch != "") {
+                    isSketcherField = 0;
+                }
+                else {
+                    notes.show('Please Upload Photo Of Sketch', {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                    isSketcherField = 1;
+                }
+            }
+            else {
+                isSketcherField = 0;
+            }
+        }
+
+
+
+
+        if (isSketcherField == 0) {
+
+
+            var warnquality = document.getElementById("warnquality");
+
+
+            var txtwarpData = $("#txtWarpData").val();
+            var WarpTruOrFalse = '0';
+            var arrWarpData = txtwarpData.slice(0, -1).split('|');
+            for (var i = 0; i < arrWarpData.length; i++) {
+
+                var no = parseInt(arrWarpData[(arrWarpData.length - 1)]);
+                //alert("Warp " + no);
+                var YarnQuality = "yarnquality" + no;
+                //var YarnColor = "yarncolor" + no;
+                var Tar = "Tar" + no;
+
+                var YQuality = document.getElementById(YarnQuality);
+                //var YColor = document.getElementById(YarnColor);
+                var Ta = document.getElementById(Tar);
+
+                //alert(YarnQuality + " " + YarnColor + " " + Tar);
+
+                if (validate(YQuality) == false || validate(Ta) == false) {
+                    validate(YQuality);
+                    //validate(YColor);
+                    validate(Ta);
+                    WarpTruOrFalse = '0';
+                }
+                else {
+                    WarpTruOrFalse = '1';
+                }
+
+            }
+
+
+
+
+            var TotalWeftCard = 0;
+            var TotalWeftPick = 0;
+
+            var WeftTruOrFalse = '0';
+            var txtWeftData = $("#txtWeftData").val();
+            var arrWeftData = txtWeftData.slice(0, -1).split('|');
+            for (var i = 0; i < arrWeftData.length; i++) {
+
+                //var no = parseInt(arrWeftData[(arrWeftData.length - 1)]);
+                var no = parseInt(i) + parseInt(1);
+                //alert("Weft " + no);
+                var Card = "Card" + no;
+                var Pick = "Pick" + no;
+                var yarnMaterial = "yarnMaterial" + no;
+                var DesignSpecification1 = "DesignSpecification" + no;
+
+                var WCard = document.getElementById(Card);
+                var WPick = document.getElementById(Pick);
+                var YMaterial = document.getElementById(yarnMaterial);
+                var DSpecification1 = document.getElementById(DesignSpecification1);
+
+                TotalWeftCard = (parseFloat(TotalWeftCard) + parseFloat(WCard.value)).toFixed(2);
+                TotalWeftPick = (parseFloat(TotalWeftPick) + parseFloat(WPick.value)).toFixed(2);
+
+                if (validate(WCard) == false || validate(WPick) == false || validate(YMaterial) == false || validate(DSpecification1) == false) {
+                    validate(WCard);
+                    validate(WPick);
+                    validate(YMaterial);
+                    validate(DSpecification1);
+                    WeftTruOrFalse = '0';
+                }
+                else {
+                    WeftTruOrFalse = '1';
+                }
+
+            }
+
+
+
+
+            if (WarpTruOrFalse == "0") {
+
+                notes.show('Please Mention all Warp Data.', {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+            }
+            else
+
+                if (WeftTruOrFalse == "0") {
+
+                    notes.show('Please Mention all Weft Data.', {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+                }
+                else {
+
+                    var DesignEntryFormID = document.getElementById("DesignEntryFormID");
+                    var tempPhotoOfDesign = document.getElementById("txttempPhotoOfDesign");
+                    var tempPhotoOfSketch = document.getElementById("txttempPhotoOfSketch");
+                    var DesignDate = document.getElementById("DesignDate");
+                    var Designer = document.getElementById("DesignerID");
+                    var Sketcher = document.getElementById("Sketcher");
+                    var DesignerCode = document.getElementById("DesignerCode");
+                    var DesignNo = document.getElementById("DesignNo");
+
+                    var spanExstingDesignerCode = document.getElementById("spanExstingDesignerCode");
+                    var ExstingDesignNo = document.getElementById("ExstingDesignNo");
+
+                    var Remark = document.getElementById("Remark");
+                    var PickOnLoom = document.getElementById("PickOnLoom");
+                    var TotalCard = document.getElementById("TotalCard");
+                    var AveragePic = document.getElementById("AveragePic");
+                    var ReedOnLoom = document.getElementById("ReedOnLoom");
+                    var DesignCategory = document.getElementById("DesignCategory");
+                    var DesignCut = document.getElementById("DesignCut");
+
+                    var isMatchCalculation = 1;
+                    //alert(TotalWeftCard + " card " + TotalCard.value);
+                    if (parseFloat(TotalWeftCard) != parseFloat(TotalCard.value)) {
+                        notes.show('Not Match Total Card.', {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                        isMatchCalculation = 0;
+                    }
+
+                    //alert(TotalWeftPick + " pick " + AveragePic.value);
+                    if (parseFloat(TotalWeftPick) != parseFloat(AveragePic.value)) {
+                        notes.show('Not Match Total Average Pic.', {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+                        isMatchCalculation = 0;
+                    }
+
+                    if (isMatchCalculation == 1) {
+
+                        if (validate(warnquality) == false ||
+                            validate(Designer) == false || validate(DesignNo) == false ||
+                            validate(PickOnLoom) == false || validate(TotalCard) == false ||
+                            validate(AveragePic) == false || validate(ReedOnLoom) == false || validate(type) == false) {
+
+                            validate(warnquality);
+
+                            validate(DesignDate);
+                            validate(Designer);
+                            //validate(Sketcher);
+                            validate(DesignNo);
+                            //validate(Remark);
+                            validate(PickOnLoom);
+                            validate(TotalCard);
+                            validate(AveragePic);
+                            validate(ReedOnLoom);
+                            validate(type);
+
+
+
+                        }
+                        else {
+
+
+
+
+
+                            var listDesignEntryForm = '';
+                            listDesignEntryForm += '{';
+                            listDesignEntryForm += '"DesignEntryFormID":"' + DesignEntryFormID.value + '",';
+                            listDesignEntryForm += '"tempPhotoOfDesign":"' + tempPhotoOfDesign.value + '",';
+                            listDesignEntryForm += '"tempPhotoOfSketch":"' + tempPhotoOfSketch.value + '",';
+                            listDesignEntryForm += '"WarpQualityID":"' + warnquality.value + '",';
+                            listDesignEntryForm += '"DesignDates":"' + DesignDate.value + '",';
+                            listDesignEntryForm += '"DesignerID":"' + Designer.value + '",';
+                            if (Sketcher.value == "") {
+                                listDesignEntryForm += '"SketcherID":"0",';
+                            }
+                            else { listDesignEntryForm += '"SketcherID":"' + Sketcher.value + '",'; }
+
+                            listDesignEntryForm += '"DesignerCode":"' + DesignerCode.value + '",';
+                            listDesignEntryForm += '"DesignNo":"' + DesignNo.value + '",';
+
+                            listDesignEntryForm += '"spanExstingDesignerCode":"' + spanExstingDesignerCode.innerHTML + '",';
+                            listDesignEntryForm += '"ExstingDesignNo":"' + ExstingDesignNo.value + '",';
+
+                            listDesignEntryForm += '"Remark":"' + Remark.value + '",';
+
+                            if (PickOnLoom.value == "") {
+                                listDesignEntryForm += '"PickOnLoom":"0",';
+                            }
+                            else { listDesignEntryForm += '"PickOnLoom":"' + PickOnLoom.value + '",'; }
+
+                            if (TotalCard.value == "") {
+                                listDesignEntryForm += '"TotalCard":"0",';
+                            }
+                            else { listDesignEntryForm += '"TotalCard":"' + TotalCard.value + '",'; }
+
+
+                            listDesignEntryForm += '"AveragePic":"' + AveragePic.value + '",';
+                            listDesignEntryForm += '"ReedOnLoom":"' + ReedOnLoom.value + '",';
+                            listDesignEntryForm += '"TypeID":"' + type.value + '",';
+                            if (DesignCategory.value == "") {
+                                listDesignEntryForm += '"DesignCategoryID":"0",';
+                            }
+                            else { listDesignEntryForm += '"DesignCategoryID":"' + DesignCategory.value + '",'; }
+
+                            listDesignEntryForm += '"DesignCut":"' + DesignCut.value + '",';
+
+                            //listDesignEntryForm += '"listDesignEntryWeftData":[';
+
+                            var listWarpData = "";
+
+                            var txtWarpData = $("#txtWarpData").val().slice(0, -1).split('|');
+
+                            for (var i = 0; i < txtWarpData.length; i++) {
+
+                                var no = parseInt(i) + parseInt(1);
+                                //var no = parseInt(txtWarpData[(txtWarpData.length - 1)]);
+
+                                var YarnQuality = "yarnquality" + no;
+                                //var YarnColor = "yarncolor" + no;
+                                var Tar = "Tar" + no;
+
+                                var YQuality = document.getElementById(YarnQuality);
+                                //var YColor = document.getElementById(YarnColor);
+                                var Ta = document.getElementById(Tar);
+
+                                listWarpData += "{";
+                                listWarpData += '"YarnQualityID":"' + YQuality.value + '",';
+                                //listWarpData += '"YarnColorID":"' + YColor.value + '",';
+                                listWarpData += '"Tar":"' + Ta.value + '"';
+                                listWarpData += "},";
+                            }
+
+                            // listDesignEntryForm += ']';
+
+                            //listDesignEntryForm += '"listDesignFormWarpData":[';
+                            
+
+                            var listWeftData = "";
+
+                            var txtWeftData = $("#txtWeftData").val().slice(0, -1).split('|');
+
+                            for (var i = 0; i < txtWeftData.length; i++) {
+                                var no = parseInt(i) + parseInt(1);
+
+                                var WCard = "#Card" + no;
+                                var WPick = "#Pick" + no;
+                                var YarnMaterial = "#yarnMaterial" + no;
+                                var DesignSpecification = "#DesignSpecification" + no;
+
+                                var VCard = $(WCard).val();
+                                var VPick = $(WPick).val();
+                                var VYarnMaterial = $(YarnMaterial).val();
+                                var DSpecification = $(DesignSpecification).val();
+
+                                listWeftData += "{";
+                                listWeftData += '"Card":"' + VCard + '",';
+                                listWeftData += '"Pick":"' + VPick + '",';
+                                listWeftData += '"YarnMaterialID":"' + VYarnMaterial + '",';
+                                listWeftData += '"DesignSpecification":"' + DSpecification + '"';
+                                listWeftData += "},";
+
+                            }
+
+                            listDesignEntryForm += '"listDesignEntryWeftData":[' + listWeftData.slice(0, -1) + '],';
+                            listDesignEntryForm += '"listDesignFormWarpData":[' + listWarpData.slice(0, -1) + ']';
+                            //listDesignEntryForm += ']';
+                            listDesignEntryForm += '}';
+
+                            
+                            //alert(SaleInvoiceArray);
+                            //console.log(listDesignEntryForm);
+                            var PhotoOfDesign = $('#upload-PhotoOfDesign-default')[0].files[0];
+                            var PhotoOfSketch = $('#upload-PhotoOfSketch-default')[0].files[0];
+
+                            var formData = new FormData();
+                            formData.append('DesignEntryForm', listDesignEntryForm);
+                            formData.append('PhotoOfDesign', PhotoOfDesign);
+                            formData.append('PhotoOfSketch', PhotoOfSketch);
+
+                            $.ajax({
+                                type: "POST",
+                                url: '/WebServiceNikunjTextile.asmx/UpdateDesignEntryFormMaster',
+                                data: formData,
+                                dataType: 'json',
+                                contentType: false,
+                                processData: false,
+                                success: function (response) {
+
+                                    if (response.Code == 200) {
+                                        $("#editItembtn").attr("disabled", false);
+                                        notes.show("Design Entry Created Successfully.", {
+                                            type: 'success',
+                                            //title: 'Yeehh..!',
+                                            //icon: '<i class="icon-sentiment_satisfied"></i>'
+                                        });
+
+                                        //InvoiceClearAll();
+                                        window.location.href = 'DesignEntry';
+                                    }
+                                    else {
+
+                                        notes.show(response.Message, {
+                                            type: 'danger',
+                                            //title: 'Yeehh..!',
+                                            //icon: '<i class="icon-sentiment_satisfied"></i>'
+                                        });
+
+                                    }
+                                },
+                                error: function (error) {
+                                    notes.show("Problem has been occurred while submitting your data.", {
+                                        type: 'danger',
+                                        //title: 'Yeehh..!',
+                                        //icon: '<i class="icon-sentiment_satisfied"></i>'
+                                    });
+
+                                }
+                            });
+
+
+
+                             
+
+                            //alert("warnquality " + warnquality.value + " yarnquality1 " + yarnquality1.value + " yarncolor1 " + yarncolor1.value + " Tar1 " + Tar1.value);
+
+                            //alert(" yarnquality2 " + yarnquality2.value + " yarncolor2 " + yarncolor2.value + " Tar2 " + Tar2.value);
+                            //alert(" yarnquality3 " + yarnquality3.value + " yarncolor3 " + yarncolor3.value + " Tar3 " + Tar3.value);
+                            //alert(" yarnquality4 " + yarnquality4.value + " yarncolor4 " + yarncolor4.value + " Tar4 " + Tar4.value);
+                            //alert(" yarnquality5 " + yarnquality5.value + " yarncolor5 " + yarncolor5.value + " Tar5 " + Tar5.value);
+                            //alert(" yarnquality6 " + yarnquality6.value + " yarncolor6 " + yarncolor6.value + " Tar6 " + Tar6.value);
+
+                            //alert("DesignDate " + DesignDate.value + " Designer " + Designer.value + " Sketcher " + Sketcher.value + " DesignNo " + DesignNo.value);
+                            //alert("Remark " + Remark.value + " PickOnLoom " + PickOnLoom.value + " TotalCard " + TotalCard.value + " AveragePic " + AveragePic.value);
+                            //alert("ReedOnLoom " + ReedOnLoom.value + " type " + type.value + " Material " + Material.value);
+
+
+                            //alert("Card1 " + Card1.value + " Pick1 " + Pick1.value + " yarnMaterial1 " + yarnMaterial1.value);
+                            //alert("Card2 " + Card2.value + " Pick2 " + Pick2.value + " yarnMaterial2 " + yarnMaterial2.value);
+                            //alert("Card3 " + Card3.value + " Pick3 " + Pick3.value + " yarnMaterial3 " + yarnMaterial3.value);
+                            //alert("Card4 " + Card4.value + " Pick4 " + Pick4.value + " yarnMaterial4 " + yarnMaterial4.value);
+                            //alert("Card5 " + Card5.value + " Pick5 " + Pick5.value + " yarnMaterial5 " + yarnMaterial5.value);
+                            //alert("Card6 " + Card6.value + " Pick6 " + Pick6.value + " yarnMaterial6 " + yarnMaterial6.value);
+                            //alert("Card7 " + Card7.value + " Pick7 " + Pick7.value + " yarnMaterial7 " + yarnMaterial7.value);
+                            //alert("Card8 " + Card8.value + " Pick8 " + Pick8.value + " yarnMaterial8 " + yarnMaterial8.value);
+                            //alert("Card9 " + Card9.value + " Pick9 " + Pick9.value + " yarnMaterial9 " + yarnMaterial9.value);
+                            //alert("Card10 " + Card10.value + " Pick10 " + Pick10.value + " yarnMaterial10 " + yarnMaterial10.value);
+                            //alert("Card11 " + Card11.value + " Pick11 " + Pick11.value + " yarnMaterial11 " + yarnMaterial11.value);
+                            //alert("Card12 " + Card12.value + " Pick12 " + Pick12.value + " yarnMaterial12 " + yarnMaterial12.value);
+
+                        }
+
+                    }
+
+
+                }
+
+
+
+
+
+
+        }
+
+
+
+
+
+    }
+
+
+    function CardPickCalculation() {
+
+        var txtTotalCard = $("#TotalCard").val();
+        var txtAveragePic = $("#AveragePic").val();
+
+        var txtWeftData = $("#txtWeftData").val().slice(0, -1).split('|');
+
+        var TotalCard = 0;
+        var TotalPic = 0;
+
+        for (var i = 0; i < txtWeftData.length; i++) {
+            var no = parseFloat(i) + parseFloat(1);
+
+            var WCard = "#Card" + no;
+            var WPick = "#Pick" + no;
+
+            var VCard = $(WCard).val();
+            var VPick = $(WPick).val();
+
+            console.log("VCard " + VCard);
+            console.log("VPick " + VPick);
+
+            TotalCard = (parseFloat(TotalCard) + parseFloat(VCard)).toFixed(2);
+            TotalPic = (parseFloat(TotalPic) + parseFloat(VPick)).toFixed(2);
+        }
+
+
+
+        if (parseFloat(txtTotalCard) == parseFloat(TotalCard)) {
+            $("#spanTotalCard").html("Match Total Card.*");
+            $("#spanTotalCard").css("color", "green");
+        }
+        else {
+            $("#spanTotalCard").html("Not Match Total Card.*");
+            $("#spanTotalCard").css("color", "red");
+        }
+
+
+
+        if (parseFloat(txtAveragePic) == parseFloat(TotalPic)) {
+            $("#spanTotalPic").html("Match Total Average Pic.*");
+            $("#spanTotalPic").css("color", "green");
+        }
+        else {
+            $("#spanTotalPic").html("Not Match Total Average Pic.*");
+            $("#spanTotalPic").css("color", "red");
+        }
+
+
+        //spanTotal
+
+    }
+
+
+
+</script>
+
+
+

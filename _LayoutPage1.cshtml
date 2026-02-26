@@ -1,0 +1,580 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Meta -->
+    <meta name="description" content="Nikung Textile">
+    <meta name="author" content="Nikunj Textile">
+    <link rel="shortcut icon" href="img/fav.png">
+
+    <!-- Title -->
+    <title id="title"> </title>
+
+    <!-- *************
+        ************ Common Css Files *************
+    ************ -->
+    <!-- Bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- Icomoon Font Icons css -->
+    <link rel="stylesheet" href="fonts/style.css">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Notify -->
+    <link rel="stylesheet" href="vendor/notify/notify-flat.css" />
+
+    <!-- *************
+        ************ Vendor Css Files *************
+    ************ -->
+    <!-- Mega Menu -->
+    <link rel="stylesheet" href="vendor/megamenu/css/megamenu.css">
+
+    <!-- Search Filter JS -->
+    <link rel="stylesheet" href="vendor/search-filter/search-filter.css">
+    <link rel="stylesheet" href="vendor/search-filter/custom-search-filter.css">
+
+    <!-- Data Tables -->
+    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4.css" />
+    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4-custom.css" />
+    <link href="vendor/datatables/buttons.bs.css" rel="stylesheet" />
+
+    <!-- Bootstrap Select CSS -->
+    <link rel="stylesheet" href="vendor/bs-select/bs-select.css" />
+
+    <!-- Date Range CSS -->
+    <link rel="stylesheet" href="vendor/daterange/daterange.css">
+
+    <!-- Uploader CSS -->
+    <link rel="stylesheet" href="vendor/dropzone/dropzone.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <style>
+        .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
+            display: none;
+        }
+
+        .alert {
+            display: none;
+        }
+
+        .is-valid {
+            border-color: rgba(25,135,84,.9) !important;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .is-invalid {
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            border-color: rgba(220,53,69,.9);
+        }
+
+        .view-more-styl-class {
+            text-align: center;
+        }
+
+        .title {
+            font-size: .8rem;
+            color: #1273eb;
+            margin: 5px 0 0.3rem 0;
+            font-weight: 600;
+            text-align: left;
+        }
+    </style>
+
+    @*<style>
+            .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
+                display: none;
+            }
+
+            .alert {
+                display: none;
+            }
+
+            .is-valid {
+                border-color: rgba(25,135,84,.9) !important;
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .is-invalid {
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+                border-color: rgba(220,53,69,.9);
+            }
+
+            .view-more-styl-class {
+                text-align: center;
+            }
+
+            .title {
+                font-size: .8rem;
+                color: #1273eb;
+                margin: 5px 0 0.3rem 0;
+                font-weight: 600;
+                text-align: left;
+            }
+        </style>*@
+
+
+    @*<style>
+            .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
+                display: none;
+            }
+
+            .alert {
+                display: none;
+            }
+
+            .is-valid {
+                border-color: rgba(25,135,84,.9) !important;
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .is-invalid {
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+                border-color: rgba(220,53,69,.9);
+            }
+
+            .view-more-styl-class {
+                text-align: center;
+            }
+        </style>*@
+
+</head>
+
+
+
+<body style="overflow:hidden;">
+
+
+    <div class="page-wrapper">
+
+        <!-- Sidebar wrapper start -->
+        <nav class="sidebar-wrapper">
+
+            <!-- Sidebar content start -->
+            <div class="sidebar-tabs">
+
+                <!-- Tabs nav start -->
+                <div class="nav" role="tablist" aria-orientation="vertical">
+
+                    <a href="#" class="logo">
+                        <img src="img/logo.svg" alt="Tryon InfoSoft">
+                    </a>
+
+                    <a class="nav-link" id="home-tab" data-bs-toggle="tab" href="#tab-home" role="tab" aria-controls="tab-home" aria-selected="false">
+                        <i class="icon-home2"></i>
+                        <span class="nav-link-text">Dashboard</span>
+                    </a>
+
+                    <a class="nav-link" id="master-tab" data-bs-toggle="tab" href="#tab-Master" role="tab" aria-controls="tab-product" aria-selected="true">
+                        <i class="icon-layers2"></i>
+                        <span class="nav-link-text">Master</span>
+                    </a>
+
+
+                    <a class="nav-link" id="EntryForm-tab" data-bs-toggle="tab" href="#tab-EntryForm" role="tab" aria-controls="tab-EntryForm" aria-selected="true">
+                        <i class="icon-layers2"></i>
+                        <span class="nav-link-text">Entry Form</span>
+                    </a>
+
+                    <a class="nav-link" id="YarnForm-tab" data-bs-toggle="tab" href="#tab-YarnForm" role="tab" aria-controls="tab-YarnForm" aria-selected="true">
+                        <i class="icon-tonality"></i>
+                        <span class="nav-link-text">Yarn Detail</span>
+                    </a>
+
+                    <a class="nav-link" id="forms-tab" data-bs-toggle="tab" href="#tab-forms" role="tab" aria-controls="tab-forms" aria-selected="false">
+                        <i class="icon-edit1"></i>
+                        <span class="nav-link-text">Utility</span>
+                    </a>
+
+                </div>
+                <!-- Tabs nav end -->
+                <!-- Tabs content start -->
+                <div class="tab-content">
+
+                    <!-- Chat tab -->
+                    <div class="tab-pane fade" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
+
+                        <!-- Tab content header start -->
+                        <div class="tab-pane-header">
+                            Dashboard
+                        </div>
+
+                        <div class="sidebarMenuScroll">
+                            <div class="sidebar-menu">
+                                <ul>
+                                    <li>
+                                        <a href="Dashboard" id="aDashboard">Dashboard</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Pages tab -->
+                    <div class="tab-pane fade" id="tab-Master" role="tabpanel" aria-labelledby="master-tab">
+
+                        <!-- Tab content header start -->
+                        <div class="tab-pane-header">
+                            Master Page
+                        </div>
+                        <!-- Tab content header end -->
+                        <!-- Sidebar menu starts -->
+                        <div class="sidebarMenuScroll">
+                            <div class="sidebar-menu">
+                                <ul>
+                                    <!--<li>
+                                        <a href="/YarnQuality" id="aYarnQuality">Yarn Quality</a>
+                                    </li>-->
+                                    <li>
+                                        <a href="/YarnColor" id="aYarnColor">Yarn Color</a>
+                                    </li>
+                                    <li>
+                                        <a href="/ColorGroup" id="aColorGroup">Color Group</a>
+                                    </li>
+                                    <!--<li>
+                                        <a href="/WeftColor" id="aWeftColor">Weft Color</a>
+                                    </li>-->
+                                    <li>
+                                        <a href="/Designer" id="aDesigner">Designer</a>
+                                    </li>
+                                    <li>
+                                        <a href="/DesignSpecification" id="aDesignSpecification">Design Specification</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Sketcher" id="aSketcher">Sketcher</a>
+                                    </li>
+                                    <li>
+                                        <a href="/WarpQuality" id="aWarpQuality">Warp Pattern</a>
+                                    </li>
+                                    <li>
+                                        <a href="/TypeMaster" id="aType">Type</a>
+                                    </li>
+                                    <li>
+                                        <a href="/DesignCategory" id="aDesignCategory">Design Category</a>
+                                    </li>
+                                    <li>
+                                        <a href="/YarnMaterialMaster" id="aYarnMaterial">Yarn Material</a>
+                                    </li>
+                                    <li><hr /></li>
+
+                                    <li>
+                                        <a href="/PartyMaster" id="aPartyMaster">Party Master</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="/GodownMaster" id="aGodownMaster">Godown Master</a>
+                                    </li>
+
+                                    <li style="display:none;">
+                                        <a href="/GodownManagerMaster" id="aGodownManagerMaster">Godown Manager</a>
+                                    </li>
+
+                                    <!--<li>
+                                        <a href="/LocationMaster" id="aLocation">Location Master</a>
+                                    </li>-->
+
+                                </ul>
+
+                            </div>
+                        </div>
+                        <!-- Sidebar menu ends -->
+                        <!-- Sidebar actions starts -->
+                        <!-- Sidebar actions ends -->
+
+                    </div>
+
+
+
+                    <!-- Pages tab -->
+                    <div class="tab-pane fade" id="tab-EntryForm" role="tabpanel" aria-labelledby="EntryForm-tab">
+
+                        <!-- Tab content header start -->
+                        <div class="tab-pane-header">
+                            Design Form Page
+                        </div>
+                        <!-- Tab content header end -->
+                        <!-- Sidebar menu starts -->
+                        <div class="sidebarMenuScroll">
+                            <div class="sidebar-menu">
+                                <ul>
+                                    <li>
+                                        <a href="/CreateDesignEntry" id="aCreateDesignEntry">Create Design Entry</a>
+                                    </li>
+                                    <li>
+                                        <a href="/DesignEntry" id="aDesignEntry">Design Entry</a>
+                                    </li>
+                                    <li>
+                                        <hr />
+                                    </li>
+                                    <li>
+                                        <a href="/CreateDesignColorMatching" id="aCreateDesignColorMatching">Create Color Matching</a>
+                                    </li>
+                                    <li>
+                                        <a href="/ColorMatching" id="aColorMatching">Color Matching </a>
+                                    </li>
+                                    <li>
+                                        <hr />
+                                    </li>
+                                    <li>
+                                        <a href="/ColorMatchingValidationForm" id="aColorMatchingValidationForm">Color Matching Validation Form</a>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                        </div>
+                        <!-- Sidebar menu ends -->
+                        <!-- Sidebar actions starts -->
+                        <!-- Sidebar actions ends -->
+
+                    </div>
+
+
+                    <!-- Pages tab -->
+                    <div class="tab-pane fade" id="tab-YarnForm" role="tabpanel" aria-labelledby="YarnForm-tab">
+
+                        <!-- Tab content header start -->
+                        <div class="tab-pane-header">
+                            Yarn Form Page
+                        </div>
+                        <!-- Tab content header end -->
+                        <!-- Sidebar menu starts -->
+                        <div class="sidebarMenuScroll">
+                            <div class="sidebar-menu">
+                                <ul>
+                                    <li>
+                                        <a href="/CreateYarnPO" id="aCreateYarnPO">Create Yarn PO</a>
+                                    </li>
+                                    <li>
+                                        <a href="/YarnPO" id="aYarnPO">Yarn PO</a>
+                                    </li>
+                                    <li>
+                                        <hr />
+                                    </li>
+                                    <li>
+                                        <a href="/CreateYarnRequirement" id="aCreateYarnRequirement">Create Yarn Requirement</a>
+                                    </li>
+                                    <li>
+                                        <a href="/YarnRequirement" id="aYarnRequirement">Yarn Requirement</a>
+                                    </li>
+                                    <li><hr /></li>
+
+                                    <li>
+                                        <a href="/CreateYarnInward" id="aCreateYarnInward">Create Yarn Inward</a>
+                                    </li>
+                                    <li>
+                                        <a href="/YarnInward" id="aYarnInward">Yarn Inward</a>
+                                    </li>
+                                    <li><hr /></li>
+                                    <li>
+                                        <a href="/YarnInterChange" id="aYarnInterChange">Yarn Inter Change</a>
+                                    </li>
+                                    <li><hr /></li>
+                                    <li>
+                                        <a href="/YarnOutWardChallan" id="aYarnOutWardChallan">Create Outward List</a>
+                                    </li>
+                                    <li>
+                                        <a href="/YarnOutWardChallanDetails" id="aYarnOutWardChallanDetails">Yarn Outward List</a>
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </div>
+                        <!-- Sidebar menu ends -->
+                        <!-- Sidebar actions starts -->
+                        <!-- Sidebar actions ends -->
+
+                    </div>
+
+
+                    <!-- Forms tab -->
+                    <div class="tab-pane fade" id="tab-forms" role="tabpanel" aria-labelledby="forms-tab">
+
+                        <!-- Tab content header start -->
+                        <div class="tab-pane-header">
+                            Utility
+                        </div>
+                        <!-- Tab content header end -->
+                        <!-- Sidebar menu starts -->
+                        <div class="sidebarMenuScroll">
+                            <div class="sidebar-menu">
+                                <ul>
+                                    <li>
+                                        <a href="CompanyMaster" id="aCompanyMaster">Company Master</a>
+                                    </li>
+                                    <li>
+                                        <a href="UserAccount" id="aUserAccount">User Master</a>
+                                    </li>
+                                    <li>
+                                        <a href="GstSlabMaster" id="aGstSlabMaster">Gst Slab</a>
+                                    </li>
+                                    <li>
+                                        <a href="FinancialYear" id="aFinancialYear">Financial Year</a>
+                                    </li>
+                                </ul>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- Tabs content end -->
+
+            </div>
+            <!-- Sidebar content end -->
+
+        </nav>
+        <!-- Sidebar wrapper end -->
+        <!-- *************
+            ************ Main container start *************
+        ************* -->
+        <div class="main-container">
+
+            <!-- Page header starts -->
+            <div class="page-header">
+
+                <!-- Row start -->
+                <div class="row gutters">
+                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 col-9">
+
+                        <!-- Search container start -->
+                        <div class="search-container">
+
+                            <!-- Toggle sidebar start -->
+                            <div class="toggle-sidebar" id="toggle-sidebar">
+                                <i class="icon-menu"></i>
+                            </div>
+
+
+                        </div>
+                        <!-- Search container end -->
+                    </div>
+
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-3">
+
+                        <!-- Header actions start -->
+                        <ul class="header-actions">
+
+                            <li class="dropdown">
+                                <a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
+                                    <span class="avatar">
+                                        <img src="img/user.svg" alt="User Avatar">
+                                        <span class="status busy"></span>
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end md" aria-labelledby="userSettings">
+                                    <div class="header-profile-actions">
+                                        <a href="javascript:void(0)" onclick="logout()"><i class="icon-log-out1"></i>Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+
+
+                        </ul>
+                        <!-- Header actions end -->
+
+                    </div>
+                </div>
+                <!-- Row end -->
+
+            </div>
+            <!-- Page header ends -->
+            <!-- Content wrapper scroll start -->
+            <div class="content-wrapper-scroll">
+
+
+
+
+
+
+
+
+
+
+
+
+
+                @RenderBody()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="app-footer">
+                    <script>document.write(new Date().getFullYear())</script> © My-Billing Design & Develop by <a href="https://www.tryoninfosoft.com" target="_blank" title="Website Design and Development, Software Development and Mobile Apps Development Company in Surat.">TRYON INFOSOFT</a>
+                </div>
+                <!-- App footer end -->
+
+            </div>
+            <!-- Content wrapper scroll end -->
+
+        </div>
+        <!-- *************
+            ************ Main container end *************
+        ************* -->
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

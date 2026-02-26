@@ -1,0 +1,1984 @@
+﻿
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="0" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <button id="AddPartyModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="AddPartyModel()">Add Party</button>
+        <br />
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Party</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
+                        <div id="add-alert" class="alert alert-success" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+
+
+
+
+
+
+                        <div class="row gutters" id="DivPartyMaster">
+
+                            <div class="row gutters">
+                                <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                    <div class="row gutters">
+
+                                        <div class="col-6">
+
+
+                                            <div class="row gutters">
+
+
+                                                <div class="col-6">
+                                                    <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
+                                                </div>
+                                                <div class="col-6">
+
+                                                </div>
+                                                <hr />
+
+
+
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="SundryParty" class="form-control" name="SundryParty">
+                                                            <option value="0"></option>
+                                                            <option value="1">Sundry Creditors</option>
+                                                            <option value="2">Sundry Debtors</option>
+                                                            <option value="3">Job Work</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Select Sundry Party</div>
+                                                        <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+
+
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                                        <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                        <input id="gstintemp" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                        <div class="field-placeholder">GSTIN</div>
+                                                        <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="gstin-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                                        <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                        <input id="PanNotemp" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                        <div class="field-placeholder">PAN No</div>
+                                                        <div class="PanNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="PanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+
+                                                    </div>
+
+                                                </div>
+
+
+
+
+                                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
+                                                        <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
+                                                        <div class="party-name-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="party-name-invalid-feedback invalid-feedback">Please Provide Party Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+
+
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="phone" placeholder="Enter Mobile" type="tel" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                        <input id="phonetemp" placeholder="Enter Mobile" type="hidden" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                        <div class="field-placeholder">Mobile Number <span class="text-danger">*</span></div>
+                                                        <div class="phone-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="phone-invalid-feedback invalid-feedback">Please Provide Mobile Number</div>
+                                                        <div class="phone-less-feedback invalid-feedback">Invalid Number</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" @*onfocusout="validate(this)"*@ min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                        <div class="field-placeholder">Alternate Number</div>
+                                                        <div class="alt-phone-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="alt-phone-invalid-feedback invalid-feedback">Please Provide Alternate Number</div>
+                                                        <div class="alt-phone-less-feedback invalid-feedback">Invalid Number</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="email" placeholder="Enter Email" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field detail" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
+                                                        <input type="hidden" id="email-temp" value="" />
+                                                        <input type="hidden" id="phone-temp" value="" />
+                                                        <div class="field-placeholder">Email</div>
+                                                        <div class="email-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="email-invalid-feedback invalid-feedback">Please Provide Proper Email</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                </div>
+
+
+
+
+                                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="placeOfSupply" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
+                                                            <option value="-1">Select</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Place Of Supply</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeypress="return (event.charCode>=48 && event.charCode<=57)" onfocus="myFunctionPINCODE(this.value)" onkeyup="myFunctionPINCODE(this)">
+                                                        <div class="field-placeholder">Pincode</div>
+                                                        <div class="pincode-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="pincode-invalid-feedback invalid-feedback">Please Provide pincode</div>
+                                                        <div class="pincode-less-feedback invalid-feedback">Invalid Number</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+                                                <script>
+                                                    function myFunctionPINCODE(abc) {
+                                                        var code = abc.value;
+                                                        //alert(code);
+
+                                                        if (code == "") {
+                                                            document.getElementById(abc.id).classList.remove("is-valid");
+                                                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                        }
+                                                        else {
+                                                            //alert(code);
+                                                            console.log(code.length);
+                                                            if (code.length == "6") {
+                                                                //alert(code + " asd ");
+                                                                var ifscurl = "https://api.postalpincode.in/pincode/" + code;
+                                                                $.ajax({
+                                                                    type: "GET",
+                                                                    url: ifscurl,
+                                                                    contentType: false,
+                                                                    processData: false,
+                                                                    success: function (response) {
+                                                                        console.log(response);
+
+
+                                                                        if (response.length != 0) {
+                                                                            //alert("Hello World");
+
+                                                                            $("#city").val(response[0].PostOffice[0].District);
+
+                                                                            //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                                                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                                                                            //$("#divIFSC").html("Good.");
+
+                                                                            document.getElementById(abc.id).classList.add("is-valid");
+                                                                            document.getElementById(abc.id).classList.remove("is-invalid");
+                                                                        }
+                                                                        else {
+                                                                            //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                                                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                                                                            //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                                                                            document.getElementById(abc.id).classList.remove("is-valid");
+                                                                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                                            $("#city").val('');
+
+                                                                        }
+
+
+
+                                                                    },
+                                                                    error: function (request, status, error) {
+                                                                        // console.log(error);
+                                                                        document.getElementById(abc.id).classList.remove("is-valid");
+                                                                        document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                                                                        $("#city").val('');
+
+
+                                                                    }
+                                                                });
+                                                            }
+                                                            else {
+                                                                document.getElementById(abc.id).classList.remove("is-valid");
+                                                                document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                                $("#BankName").val('');
+                                                                $("#BankBranch").val('');
+
+                                                            }
+                                                        }
+                                                    }
+                                                </script>
+
+                                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="city" placeholder="Enter City" type="text" class="form-control clear-field detail">
+                                                        <div class="field-placeholder">City</div>
+                                                        <div class="alt-phone-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="alt-phone-invalid-feedback invalid-feedback">Please Provide City</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+
+                                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+                                                    <div class="field-wrapper">
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input clear-field detail" type="checkbox" id="chcekIsActiveParty" checked style="cursor:pointer;">
+                                                            <label class="form-check-label" for="chcekIsActiveParty">Is Active Party</label>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+
+
+                                            </div>
+
+
+
+                                        </div>
+
+                                        <div class="col-6" style=" border-left: 1px solid #c3c3c3;">
+
+
+
+                                            <div class="col-6">
+                                                <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Bank Details</div>
+                                            </div>
+                                            <div class="col-6">
+
+                                            </div>
+                                            <hr style=" margin: 0px 0px 16px 0;" />
+
+
+                                            <div class="row gutters">
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="BankHolderName" type="text" class="form-control clear-field detail" placeholder="Bank Holder Name" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode == 32)">
+                                                        <div class="field-placeholder">Bank Holder Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="BankAccountNo" type="text" class="form-control clear-field detail" placeholder="Bank Account No" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                        <div class="field-placeholder">Bank A/c No</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+
+                                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )" onfocus="myFunctionIFSC(this.value)" onkeyup="myFunctionIFSC(this)">
+                                                        <div class="field-placeholder">Bank IFSC</div>
+                                                        <div class="BankIFSCCode-valid-feedback valid-feedback">Looks good!</div>
+                                                        @*<div class="BankIFSCCode-invalid-feedback invalid-feedback">Please Provide Bank IFSC Code</div>*@
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+                                                <script>
+                                                    function myFunctionIFSC(abc) {
+                                                        var code = abc.value;
+                                                        //alert(code);
+
+                                                        if (code == "") {
+                                                            document.getElementById(abc.id).classList.remove("is-valid");
+                                                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                        }
+                                                        else {
+                                                            //alert(code);
+                                                            if (code.length == 11) {
+                                                                var ifscurl = "https://ifsc.razorpay.com/" + code;
+                                                                $.ajax({
+                                                                    type: "GET",
+                                                                    url: ifscurl,
+                                                                    contentType: false,
+                                                                    processData: false,
+                                                                    success: function (response) {
+                                                                        //console.log(response);
+
+
+                                                                        if (response.length != 0) {
+                                                                            //alert("Hello World");
+
+                                                                            $("#BankName").val(response.BANK);
+                                                                            $("#BankBranch").val(response.BRANCH);
+
+                                                                            //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                                                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                                                                            //$("#divIFSC").html("Good.");
+
+                                                                            document.getElementById(abc.id).classList.add("is-valid");
+                                                                            document.getElementById(abc.id).classList.remove("is-invalid");
+                                                                        }
+                                                                        else {
+                                                                            //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                                                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                                                                            //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                                                                            document.getElementById(abc.id).classList.remove("is-valid");
+                                                                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                                            $("#BankName").val('');
+                                                                            $("#BankBranch").val('');
+                                                                        }
+
+
+
+                                                                    },
+                                                                    error: function (request, status, error) {
+                                                                        // console.log(error);
+                                                                        document.getElementById(abc.id).classList.remove("is-valid");
+                                                                        document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                                                                        $("#BankName").val('');
+                                                                        $("#BankBranch").val('');
+
+                                                                    }
+                                                                });
+                                                            }
+                                                            else {
+                                                                document.getElementById(abc.id).classList.remove("is-valid");
+                                                                document.getElementById(abc.id).classList.add("is-invalid");
+
+                                                                $("#BankName").val('');
+                                                                $("#BankBranch").val('');
+
+                                                            }
+                                                        }
+                                                    }
+                                                </script>
+
+                                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="BankName" type="text" class="form-control clear-field detail" placeholder="Bank Name" readonly>
+                                                        <div class="field-placeholder">Bank Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+                                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="BankBranch" type="text" class="form-control clear-field detail" placeholder="Bank Branch" readonly>
+                                                        <div class="field-placeholder">Bank Branch</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+
+
+
+
+
+
+                                            </div>
+
+
+
+
+                                            <div class="col-6">
+                                                <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
+                                            </div>
+                                            <div class="col-6">
+
+                                            </div>
+                                            <hr style=" margin: 5px 0px 16px 0;" />
+
+
+
+
+
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper">
+                                                    <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="3" placeholder="Enter Billing Address"></textarea>
+                                                    <div class="field-placeholder">Billing Address</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+
+                                            </div>
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
+
+                                                <div class="field-wrapper">
+                                                    <div class="form-check form-check-inline" style="margin-left: 65%;">
+                                                        <input class="form-check-input clear-field detail" onclick="toggleShippingAddress()" type="checkbox" id="chcekAddress" value="option" checked style="cursor:pointer;">
+                                                        <label class="form-check-label" for="chcekAddress">Same as Billing Address</label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper">
+                                                    <textarea id="shippingAddress" class="form-control clear-field" rows="3" placeholder="Enter Shipping Address" disabled></textarea>
+                                                    <div class="field-placeholder">Shipping Address</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+
+
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <input id="catedit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Party Master</div>
+                    <br />
+
+                    <div class="row gutters">
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="search-party-name" placeholder="Search Party Name / Mobile No / GST In" type="text" class="form-control clear-field detail" onkeyup="functionSearch(this)">
+                                <div class="field-placeholder">Search Party Name / Mobile No / GST In </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style="background-color: #1273eb;">
+                                    <th style="color:white;">Sr No</th>
+                                    <th style="color:white;">Date</th>
+                                    <th style="color:white;">Party Name</th>
+                                    <th style="color:white;">Mobile No</th>
+                                    <th style="color:white;">GST IN</th>
+                                    <th style="width: 20%; color: white;">City <br />State <br /> Pincode</th>
+                                    <th style="color:white;">Is Active</th>
+                                    <th style="width: 5%; color: white;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <br />
+
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="divPaggination">
+                            @*<li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>*@
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
+
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Custom Data tables -->
+<!--<script src="vendor/datatables/custom/custom-datatables.js"></script>-->
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+    document.title = "Party Master - Nikunj Textile";
+</script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#master-tab").addClass("active");
+        $("#tab-Master").addClass("show active");
+        $("#aPartyMaster").addClass("current-page");
+
+        FunctionIsLogin();
+
+        getStates(0);
+
+        displayData(0);
+        displayPagginationData();
+
+
+
+
+
+
+    });
+
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    function longfunctionfirst(callback) {
+        setTimeout(function () {
+            if (typeof callback == 'function')
+                callback();
+        }, 10);
+    };
+
+
+
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+
+            }
+        });
+    }
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function toggleShippingAddress() {
+        if ($("#chcekAddress").prop("checked") == true) {
+
+            $("#shippingAddress").attr("disabled", true);
+            $("#shippingAddress").val($("#billingAddress").val());
+            //$('#shippingAddress').prop('disabled', true);
+        }
+        else {
+
+            $("#shippingAddress").attr("disabled", false);
+
+
+        }
+    }
+
+
+
+
+    function checkShippingAdd() {
+        if ($("#chcekAddress").prop("checked") == true) {
+            $("#shippingAddress").val($("#billingAddress").val());
+        }
+    }
+
+
+    function AddPartyModel() {
+        //longfunctionfirst(getPartyCat);
+        //displayDataAdditional();
+
+        clearAll();
+    }
+
+    function clearAll() {
+
+        $(".detail").attr("disabled", false);
+
+        //getDefaultCompany();
+        $("#saveViewbtn").show();
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Party Information");
+        $("#add-alert").hide();
+        $("#name").val('');
+        //
+        $(".company-invalid-feedback").hide();
+
+        $('#DDLSalesExecutive').val('0');
+        $("#DDLTransportDetails").val("0");
+        $('#BankHolderName').val('');
+        $('#BankAccountNo').val('');
+        $('#BankIFSCCode').val('');
+        $('#BankName').val('');
+        $('#BankBranch').val('');
+
+
+        $(".clear-field").val("");
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+
+
+
+    }
+
+
+    function functionSearch(Searchval) {
+        //alert(Searchval.value);
+
+        $("#rowStartCount").val(0);
+        displayPagginationData();
+        displayData(0);
+    }
+
+
+    function displayData(rowStartCheck) {
+
+        var rowStart = rowStartCheck;
+
+        var searchpartyname = $("#search-party-name").val();
+
+        var formData = new FormData();
+        formData.append('searchpartyname', searchpartyname);
+        formData.append('startFrom', rowStart);
+
+
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getPartyMaster',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (rowStart == 0) {
+                    $("#copy-print-csv tbody").empty();
+                }
+                var dataTable = $('#copy-print-csv');
+                var temp = "";
+                var operation = "";
+
+                var srno = parseInt(rowStart) + parseInt(1);
+                for (var i = 0; i < response.listPartyMaster.length; i++) {
+
+                    temp += "<tr><td>" + srno++ + "</td>";
+                    temp += "<td>" + response.listPartyMaster[i].DateandTimes + "</td>";
+                    var SpanSundryParty = "";
+                    if (response.listPartyMaster[i].SundryParty == "1") {
+                        SpanSundryParty = "<span class='badge bg-success' style='margin-top: 5px;'><i class='fa fa-arrow-down'></i> Sundry Creditors</span>";
+                    }
+                    else
+                        if (response.listPartyMaster[i].SundryParty == "2") {
+                            SpanSundryParty = "<span class='badge bg-danger' style='margin-top: 5px;'><i class='fa fa-arrow-up'></i> Sundry Debtors</span>";
+                        }
+                    
+                    else
+                        if (response.listPartyMaster[i].SundryParty == "3") {
+                            SpanSundryParty = "<span class='badge bg-warning' style='margin-top: 5px;'><i class='fa fa-user'></i> Job Work</span>";
+                        }
+
+                    temp += "<td>" + response.listPartyMaster[i].PartyName + " <br /> " + SpanSundryParty + "</td>";
+                    temp += "<td>" + response.listPartyMaster[i].MobileNo + "</td>";
+                    if (response.listPartyMaster[i].AltMobileNo != "0") {
+                        temp += "<br />" + response.listPartyMaster[i].AltMobileNo;
+                    }
+                    temp += "</td>";
+
+                    temp += "<td>" + response.listPartyMaster[i].GSTIN + " <br /> " + response.listPartyMaster[i].PanNo + "</td>";
+                    temp += "<td>" + response.listPartyMaster[i].City + " <br /> " + response.listPartyMaster[i].State + " <br /> " + response.listPartyMaster[i].Pincode + "</td>";
+
+                    if (response.listPartyMaster[i].IsActiveParty == "1" || response.listPartyMaster[i].IsActiveParty == 1) {
+                        IsApproved = "<span class='badge bg-success'>Approved</span>";
+                    }
+                    else {
+                        IsApproved = "<span class='badge bg-danger'>Not Approved</span>";
+                    }
+                    temp += "<td>" + IsApproved + "</td>";
+                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listPartyMaster[i].PartyId + ",1)'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listPartyMaster[i].PartyId + ",0)'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listPartyMaster[i].PartyId + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                    temp += "</tr>";
+
+                }
+                $("#copy-print-csv tbody").empty();
+                dataTable.append(temp);
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+    var total = 0;
+    var Paggination = 0;
+    var prevNo = 0;
+    var nextNo = 0;
+    var SelectNo = 1;
+    var PageNo = 0;
+
+    //Display Paggination
+    function displayPagginationData() {
+
+
+        var formData = new FormData();
+        formData.append('PartyName', $("#search-party-name").val());
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getPartyMasterPaggination',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                //console.log(response);
+
+                //var userTable = $('#DDLDistrict');
+                //listPagginationMaster
+                total = response.listPagginationMaster[0].Total;
+                Paggination = response.listPagginationMaster[0].Paggination + 1;
+                prevNo = 0;
+                nextNo = 10;
+                //alert(response.listPagginationMaster[0].Paggination);
+                if (response.listPagginationMaster[0].Paggination == "0") {
+                    $('#divPaggination').hide();
+                }
+                else {
+
+
+                    if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                        }
+                        $('#divPaggination').html(temp).show();
+                    }
+                    else {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= 10; i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+
+                        }
+                        //temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";
+                        temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                        $('#divPaggination').html(temp).show();
+                    }
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+                //console.log(error);
+                //console.log("error" + request.statusText);
+                //alert(request.statusText);
+            }
+        });
+    }
+
+
+    //Select Paggination
+    function funcationPaggination(abc) {
+        //alert(abc);
+        $("#trLoading").show();
+        var a = "#a" + abc;
+        SelectNo = abc;
+        //alert(a);
+        $('li').removeClass('active');
+        //$("#a3").addClass("active");
+        $(a).addClass('active');
+
+        $("#rowStartCount").val(((abc - 1) * 30));
+        displayData(((abc - 1) * 30));
+
+
+        //$("#rowStartCount").val(((abc - 1) * 2));
+        //displayData(((abc - 1) * 2));
+
+    }
+
+    //Next Paggination
+    function funcationPagginationNext() {
+        var n = nextNo + 1;
+        var nnext = nextNo + 10;
+
+        //alert(nextNo + " " + Paggination);
+
+        if (nextNo > Paggination - 10) {
+            nnext = Paggination;
+
+            //prevNo = nnext - 9;
+            prevNo = nextNo;
+            nextNo = nnext;
+            //alert("end" + prevNo + 1 + " " + nnext);
+            var temp = "";
+
+            //temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+            for (var i = prevNo + 1; i <= nnext; i++) {
+                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+            }
+            //temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>&raquo;</a>";
+            //temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";
+
+            $('#divPaggination').html(temp).show();
+
+
+        }
+        else {
+
+            //alert(n + " " + nnext);
+            prevNo = nextNo;
+            nextNo = nnext;
+
+            var temp = "";
+            /*temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";*/
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+
+            for (var i = n; i <= nnext; i++) {
+                //temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";
+                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+            }
+            /*temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";*/
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+            $('#divPaggination').html(temp).show();
+
+        }
+
+        //alert("Total " + total + " Paggination " + Paggination + " prevNo " + prevNo + " nextNo " + nextNo + " SelectNo " + SelectNo);
+
+        PageNo += 1
+        //alert(PageNo);
+    }
+
+    //Prev Paggination
+    function funcationPagginationPrev() {
+
+        PageNo += -1;
+        // alert(PageNo);
+
+        if (PageNo == 0) {
+            var n = 1;
+        }
+        else {
+            var n = PageNo + "1";
+        }
+
+        var nnext = parseInt(n) + 9;
+
+
+        //alert(n + " " + nnext);
+        //var n = nextNo - 19;
+        //var nnext = n + 9;
+
+
+        //alert("hello " + n + " " + nnext);
+
+        if (nnext == 10) {
+            nnext = Paggination;
+
+
+            prevNo = 1;
+            nextNo = 10;
+
+
+            //alert("end" + prevNo + " " + nextNo);
+            var temp = "";
+            /*temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";*/
+            //temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+            for (var i = prevNo; i <= nextNo; i++) {
+                //temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";
+                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+            }
+            /*temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";*/
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+            $('#divPaggination').html(temp).show();
+
+        }
+        else {
+            //alert(n + " " + nnext);
+            prevNo = nextNo;
+            nextNo = nnext;
+
+            var temp = "";
+            /*temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";*/
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+            for (var i = n; i <= nnext; i++) {
+                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+            }
+            /*temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";*/
+            temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+            $('#divPaggination').html(temp).show();
+
+        }
+    }
+
+
+
+
+
+
+
+
+    function getStates(GSTStateCode) {
+        //alert(GSTStateCode);
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getStates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#placeOfSupply option[value]").each(function () {
+                    $(this).remove();
+                });
+
+                $('#placeOfSupply').empty();
+
+
+
+                appendTemp = "<option value='0'>Select Place Of Supply</option >";
+                $('#placeOfSupply').append(appendTemp);
+
+                if (GSTStateCode == "0") {
+
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+
+                        appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        $('#placeOfSupply').append(appendTemp);
+                    }
+                }
+                else {
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+                        if (admin.GSTStateCode == GSTStateCode) {
+                            appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        }
+                        else {
+                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        }
+
+
+                        $('#placeOfSupply').append(appendTemp);
+                    }
+                }
+
+
+                //$('#placeOfSupply').append("<option value=''> -- Select State -- </option>");
+
+
+
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+
+    function checkSaveView() {
+
+        var name = document.getElementById('party-name');
+        var phone = document.getElementById('phone');
+        if (validate(name) == false || validate(phone) == false) {
+            validate(name);
+            validate(phone);
+        }
+        else {
+
+            var email = document.getElementById('email');
+
+            var altPhone = document.getElementById('alt-phone');
+            var placeOfSupply = $("#placeOfSupply option:selected").text();
+            var gst = document.getElementById("gstin");
+            var PanNo = document.getElementById("PanNo");
+            var Pincode = document.getElementById("pincode");
+            var city = document.getElementById("city");
+
+            var billingAddress = document.getElementById("billingAddress");
+            var shippingAddress = document.getElementById("shippingAddress");
+
+
+            var BankHolderName = document.getElementById('BankHolderName');
+            var BankAccountNo = document.getElementById('BankAccountNo');
+            var BankIFSCCode = document.getElementById('BankIFSCCode');
+            var BankName = document.getElementById('BankName');
+            var BankBranch = document.getElementById('BankBranch');
+            var SundryParty = document.getElementById('SundryParty');
+
+
+            var IsActiveParty = "0";
+            if ($("#chcekIsActiveParty").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsActiveParty = "1";
+            }
+
+
+            var IsSameAddress = "0";
+            if ($("#chcekAddress").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsSameAddress = "1";
+            }
+
+            var formData = new FormData();
+
+            formData.append('PartyName', name.value);
+            formData.append('MobileNo', phone.value);
+            if (altPhone.value == "") {
+                formData.append('AlterMobileNo', '0');
+            }
+            else {
+                formData.append('AlterMobileNo', altPhone.value);
+            }
+
+
+            formData.append('Email', email.value);
+            formData.append('BillingAddress', billingAddress.value);
+            formData.append('ShippingAddress', shippingAddress.value);
+            formData.append('IsSameAddress', IsSameAddress);
+            formData.append('GSTIN', gst.value);
+            formData.append('State', placeOfSupply);
+            formData.append('PanNo', PanNo.value);
+            formData.append('Pincode', Pincode.value);
+            formData.append('city', city.value);
+            formData.append('BankHolderName', BankHolderName.value);
+            formData.append('BankAccountNo', BankAccountNo.value);
+            formData.append('BankIFSCCode', BankIFSCCode.value);
+            formData.append('BankName', BankName.value);
+            formData.append('BankBranch', BankBranch.value);
+            formData.append('SundryParty', SundryParty.value);
+            formData.append('IsActiveParty', IsActiveParty);
+
+
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+
+                        //$("#add-alert").addClass("alert-success");
+                        //$("#add-alert").removeClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+                        displayData(0);
+
+                        notes.show(response.Message, {
+                            type: 'success',
+                            //title: 'Yeehh..!',
+                            //icon: '<i class="icon-sentiment_satisfied"></i>'
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                        $("#cancelbtn").click();
+                    }
+                    else {
+                        //$("#add-alert").removeClass("alert-success");
+                        //$("#add-alert").addClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+                    }
+                },
+                error: function (error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            });
+
+
+
+
+        }
+
+
+
+
+    }
+
+
+    function checkSave() {
+        var name = document.getElementById('party-name');
+        var phone = document.getElementById('phone');
+        if (validate(name) == false || validate(phone) == false) {
+            validate(name);
+            validate(phone);
+        }
+        else {
+
+            var email = document.getElementById('email');
+
+            var altPhone = document.getElementById('alt-phone');
+            var placeOfSupply = $("#placeOfSupply option:selected").text();
+            var gst = document.getElementById("gstin");
+            var PanNo = document.getElementById("PanNo");
+            var Pincode = document.getElementById("pincode");
+            var city = document.getElementById("city");
+
+            var billingAddress = document.getElementById("billingAddress");
+            var shippingAddress = document.getElementById("shippingAddress");
+
+
+            var BankHolderName = document.getElementById('BankHolderName');
+            var BankAccountNo = document.getElementById('BankAccountNo');
+            var BankIFSCCode = document.getElementById('BankIFSCCode');
+            var BankName = document.getElementById('BankName');
+            var BankBranch = document.getElementById('BankBranch');
+            var SundryParty = document.getElementById('SundryParty');
+
+
+            var IsActiveParty = "0";
+            if ($("#chcekIsActiveParty").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsActiveParty = "1";
+            }
+
+
+            var IsSameAddress = "0";
+            if ($("#chcekAddress").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsSameAddress = "1";
+            }
+
+            var formData = new FormData();
+
+            formData.append('PartyName', name.value);
+            formData.append('MobileNo', phone.value);
+            if (altPhone.value == "") {
+                formData.append('AlterMobileNo', '0');
+            }
+            else {
+                formData.append('AlterMobileNo', altPhone.value);
+            }
+
+
+            formData.append('Email', email.value);
+            formData.append('BillingAddress', billingAddress.value);
+            formData.append('ShippingAddress', shippingAddress.value);
+            formData.append('IsSameAddress', IsSameAddress);
+            formData.append('GSTIN', gst.value);
+            formData.append('State', placeOfSupply);
+            formData.append('PanNo', PanNo.value);
+            formData.append('Pincode', Pincode.value);
+            formData.append('city', city.value);
+            formData.append('BankHolderName', BankHolderName.value);
+            formData.append('BankAccountNo', BankAccountNo.value);
+            formData.append('BankIFSCCode', BankIFSCCode.value);
+            formData.append('BankName', BankName.value);
+            formData.append('BankBranch', BankBranch.value);
+            formData.append('IsActiveParty', IsActiveParty);
+            formData.append('SundryParty', SundryParty.value);
+
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+
+
+                        displayData(0);
+
+                        notess.show(response.Message, {
+                            type: 'success',
+                            //title: 'Yeehh..!',
+                            //icon: '<i class="icon-sentiment_satisfied"></i>'
+                        });
+                        //$("#cancelbtn").click();
+                    }
+                    else {
+                        //$("#add-alert").removeClass("alert-success");
+                        //$("#add-alert").addClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+                    }
+                },
+                error: function (error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            });
+
+        }
+    }
+
+
+
+
+    function checkEdit() {
+        var id = $("#edit-id").val();
+        var name = document.getElementById('party-name');
+        var phone = document.getElementById('phone');
+        var phonetemp = document.getElementById('phonetemp');
+        if (validate(name) == false || validate(phone) == false) {
+            validate(name);
+            validate(phone);
+        }
+        else {
+            var email = document.getElementById('email');
+
+            var altPhone = document.getElementById('alt-phone');
+            var placeOfSupply = $("#placeOfSupply option:selected").text();
+            var gst = document.getElementById("gstin");
+            var gsttemp = document.getElementById("gstintemp");
+            var PanNo = document.getElementById("PanNo");
+            var PanNotemp = document.getElementById("PanNotemp");
+            var Pincode = document.getElementById("pincode");
+            var city = document.getElementById("city");
+
+            var billingAddress = document.getElementById("billingAddress");
+            var shippingAddress = document.getElementById("shippingAddress");
+
+
+            var BankHolderName = document.getElementById('BankHolderName');
+            var BankAccountNo = document.getElementById('BankAccountNo');
+            var BankIFSCCode = document.getElementById('BankIFSCCode');
+            var BankName = document.getElementById('BankName');
+            var BankBranch = document.getElementById('BankBranch');
+            var SundryParty = document.getElementById('SundryParty');
+
+            var IsActiveParty = "0";
+            if ($("#chcekIsActiveParty").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsActiveParty = "1";
+            }
+
+
+            var IsSameAddress = "0";
+            if ($("#chcekAddress").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsSameAddress = "1";
+            }
+
+
+            var formData = new FormData();
+            formData.append('PartyId', id);
+
+            formData.append('PartyName', name.value);
+            formData.append('MobileNo', phone.value);
+            formData.append('MobileNotemp', phonetemp.value);
+            if (altPhone.value == "") {
+                formData.append('AlterMobileNo', '0');
+            }
+            else {
+                formData.append('AlterMobileNo', altPhone.value);
+            }
+
+
+            formData.append('Email', email.value);
+            formData.append('BillingAddress', billingAddress.value);
+            formData.append('ShippingAddress', shippingAddress.value);
+            formData.append('IsSameAddress', IsSameAddress);
+            formData.append('GSTIN', gst.value);
+            formData.append('GSTINtemp', gsttemp.value);
+            formData.append('State', placeOfSupply);
+            formData.append('PanNo', PanNo.value);
+            formData.append('PanNotemp', PanNotemp.value);
+            formData.append('Pincode', Pincode.value);
+            formData.append('city', city.value);
+            formData.append('BankHolderName', BankHolderName.value);
+            formData.append('BankAccountNo', BankAccountNo.value);
+            formData.append('BankIFSCCode', BankIFSCCode.value);
+            formData.append('BankName', BankName.value);
+            formData.append('BankBranch', BankBranch.value);
+            formData.append('IsActiveParty', IsActiveParty);
+            formData.append('SundryParty', SundryParty.value);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/editPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+
+                        clearAll();
+
+                        //$("#add-alert").addClass("alert-success");
+                        //$("#add-alert").removeClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notes.show(response.Message, {
+                            type: 'success',
+                            //title: 'Yeehh..!',
+                            //icon: '<i class="icon-sentiment_satisfied"></i>'
+                        });
+
+                        displayData($("#rowStartCount").val());
+                        $("#cancelbtn").click();
+                    }
+                    else {
+
+                        //$("#add-alert").removeClass("alert-success");
+                        //$("#add-alert").addClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+                }
+            });
+
+
+
+
+
+
+        }
+    }
+
+
+
+
+
+
+    function showRecords(id, status) {
+        clearAll();
+
+
+
+        $("#edit-id").val(id);
+        $("#saveViewbtn").hide();
+        $("#savebtn").hide();
+        $("#saveViewbtn").hide();
+
+        if (status == 0 || status == "0") {
+            $("#addNewContactLabel").html("Party Master Details");
+            $(".detail").attr("disabled", true);
+            $("#editbtn").hide();
+        }
+        else {
+            $("#addNewContactLabel").html("Edit Party Master");
+            $(".detail").attr("disabled", false);
+            $("#editbtn").show();
+        }
+
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getPartyMasterById?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+
+                    //alert(response.listPartyMaster[0].PartyName);
+                    $("#party-name").val(response.listPartyMaster[0].PartyName);
+                    $('#phone').val(response.listPartyMaster[0].MobileNo);
+                    $('#phonetemp').val(response.listPartyMaster[0].MobileNo);
+                    $('#alt-phone').val(response.listPartyMaster[0].AlterMobileNo);
+                    $('#email').val(response.listPartyMaster[0].Email);
+
+                    $("textarea#billingAddress").val(response.listPartyMaster[0].BillingAddress);
+                    $("textarea#shippingAddress").val(response.listPartyMaster[0].ShippingAddress);
+
+
+                    if (response.listPartyMaster[0].IsSameAddress == "1") {
+                        $("#chcekAddress").prop("checked", true);
+                        $("#shippingAddress").attr("disabled", true);
+                        $("#shippingAddress").val($("#billingAddress").val());
+                    }
+                    else {
+                        $("#chcekAddress").prop("checked", false);
+                        $("#shippingAddress").attr("disabled", false);
+
+                    }
+
+                    $('#placeOfSupply').val(response.listPartyMaster[0].State.slice(0, 2));
+                    if (response.listPartyMaster[0].State != '') {
+                        $('#select2-placeOfSupply-container').html(response.listPartyMaster[0].State);
+                    }
+
+                    $('#gstin').val(response.listPartyMaster[0].GSTIN);
+                    $('#gstintemp').val(response.listPartyMaster[0].GSTIN);
+                    $('#PanNo').val(response.listPartyMaster[0].PanNo);
+                    $('#PanNotemp').val(response.listPartyMaster[0].PanNo);
+                    $('#pincode').val(response.listPartyMaster[0].Pincode);
+                    $('#city').val(response.listPartyMaster[0].City);
+
+                    $('#BankHolderName').val(response.listPartyMaster[0].BankHolderName);
+                    $('#BankAccountNo').val(response.listPartyMaster[0].BankAccountNo);
+                    $('#BankIFSCCode').val(response.listPartyMaster[0].BankIFSCCode);
+                    $('#BankName').val(response.listPartyMaster[0].BankName);
+                    $('#BankBranch').val(response.listPartyMaster[0].BankBranch);
+                    $('#SundryParty').val(response.listPartyMaster[0].SundryParty);
+
+
+                    if (response.listPartyMaster[0].IsActiveParty == "1") {
+                        $("#chcekIsActiveParty").prop("checked", true);
+                    }
+                    else {
+                        $("#chcekIsActiveParty").prop("checked", false);
+                    }
+
+                }
+                else {
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notess.show(response.Message, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+            }
+        });
+    }
+
+
+
+
+
+    function functionUserDelete(abc) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            var formData = new FormData();
+            formData.append('PartyId', abc);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/DeletePartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200) {
+
+
+                        notes.show("Party detail deleted successfully.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+                        displayData($("#rowStartCount").val());
+                    }
+                    else {
+                        //alert("Problem has been occurred while submitting your data.");
+
+                        notes.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    alert("Problem has been occurred while submitting your data.");
+
+                    notes.show("Problem has been occurred while deleting Party Detail.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+
+    }
+
+
+
+
+    function validate(code) {
+        //alert(code.id);
+        code.value = code.value.replace(/\s+/g, ' ').trim();
+        var errorMessageValid = "." + code.id + "-valid-feedback";
+        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+        $(".invalid-feedback .valid-feedback").hide();
+        if (code.value == "") {
+            if (code.id == "name") {
+                $(".company-invalid-feedback").show();
+            }
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
+        }
+        else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
+        }
+        else if ((code.id == "gstin")) {
+
+
+            if (code.value.length == 2) {
+
+                $('#placeOfSupply').val(code.value);
+
+                $("#select2-placeOfSupply-container").html($('#placeOfSupply option:selected').text());
+
+            }
+
+            if (code.value.length == 15) {
+                //alert(code.value.toUpperCase());
+                $("#gstin").val(code.value.toUpperCase());
+                let gstVal = code.value.toUpperCase();
+                let eMMessage = "No Errors";
+                let statecode = gstVal.substring(0, 2);
+                let patternstatecode = /^[0-9]{2}$/
+                let threetoseven = gstVal.substring(2, 7);
+                let patternthreetoseven = /^[A-Z]{5}$/
+                let seventoten = gstVal.substring(7, 11);
+                let patternseventoten = /^[0-9]{4}$/
+                let Twelveth = gstVal.substring(11, 12);
+                let patternTwelveth = /^[A-Z]{1}$/
+                let Thirteen = gstVal.substring(12, 13);
+                let patternThirteen = /^[1-9A-Z]{1}$/
+                let fourteen = gstVal.substring(13, 14);
+                let patternfourteen = /^Z$/
+                let fifteen = gstVal.substring(14, 15);
+                let patternfifteen = /^[0-9A-Z]{1}$/
+                if (gstVal.length != 15) {
+                    eMMessage = 'Length should be restricted to 15 digits and should not allow anything more or less';
+
+                } else if (!patternstatecode.test(statecode)) {
+                    eMMessage = 'First two characters of GSTIN should be numbers';
+
+                } else if (!patternthreetoseven.test(threetoseven)) {
+                    eMMessage = 'Third to seventh characters of GSTIN should be alphabets';
+
+                } else if (!patternseventoten.test(seventoten)) {
+                    eMMessage = 'Eighth to Eleventh characters of GSTIN should be numbers';
+
+                } else if (!patternTwelveth.test(Twelveth)) {
+                    eMMessage = 'Twelveth character of GSTIN should be alphabet';
+
+                } else if (!patternThirteen.test(Thirteen)) {
+                    eMMessage = 'Thirteen characters of GSTIN can be either alphabet or numeric';
+
+                } else if (!patternfourteen.test(fourteen)) {
+                    eMMessage = 'fourteen characters of GSTIN should be Z';
+
+                } else if (!patternfifteen.test(fifteen)) {
+                    eMMessage = 'fifteen characters of GSTIN can be either alphabet or numeric';
+                }
+                //console.log(eMMessage)
+
+                if (eMMessage == "No Errors") {
+                    $("#GSTError").html("Valid GSTIN");
+                    document.getElementById(code.id).classList.add("is-valid");
+                    document.getElementById(code.id).classList.remove("is-invalid");
+                    $(errorMessageValid).show();
+                    $(errorMessageInvalid).hide();
+
+                    var pan = code.value.substring(2, 12);
+                    $('#PanNo').val(pan);
+
+
+                    return true;
+                }
+                else {
+                    $("#GSTError").html(eMMessage);
+                    document.getElementById(code.id).classList.remove("is-valid");
+                    document.getElementById(code.id).classList.add("is-invalid");
+                    $(errorMessageInvalid).show();
+                    return false;
+                }
+
+            }
+            else {
+
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+
+                $("#GSTError").html("");
+
+                //document.getElementById(code.id).classList.remove("is-valid");
+                //document.getElementById(code.id).classList.add("is-invalid");
+                //$(errorMessageInvalid).show();
+                return false;
+            }
+
+        }
+        else {
+            document.getElementById(code.id).classList.add("is-valid");
+            document.getElementById(code.id).classList.remove("is-invalid");
+            $(errorMessageValid).show();
+            $(errorMessageInvalid).hide();
+            $(".company-invalid-feedback").show();
+            return true;
+        }
+    }
+
+</script>
+
+
+

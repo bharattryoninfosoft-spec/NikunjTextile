@@ -1,0 +1,1131 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+
+
+
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+
+        <a href="CreateDesignEntry" style="float:right;" class="btn btn-primary">Add Design Entry Form</a>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Party</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
+
+
+                        <div class="row gutters">
+
+                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                            </div>
+
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                    <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                        <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
+                                            <label id="PhotoOfDesign-preview">Photo Of Design.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Field wrapper end -->
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            </div>
+
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                    <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                        <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
+                                            <label id="PhotoOfSketch-preview">Photo Of Sketch.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Field wrapper end -->
+
+                            </div>
+
+
+                        </div>
+                        <br />
+
+
+
+
+
+                        <!--Warn Data -->
+                        <div class="row gutters">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            </div>
+
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                <div class="field-wrapper" style="margin-bottom: 0;">
+                                    <div class="field-placeholder" style=" text-align: end; width: 85%;"> WARP DATA</div>
+                                    <br />
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="row gutters">
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                <div class="col-12">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <h6>Warn Quality: <br /><span id="warnquality" style="font-weight:100;">ABC</span></h6>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12" id="divWarpData">
+
+                                <!--Warn Qoulity 1 -->
+                                <div class="row gutters" id="divWarnQuality">
+                                    <!--
+                                    <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                        <br />
+                                    </div>
+
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                        <div class="field-wrapper" style=" margin-top:0; text-align: center;">
+                                            <span style="font-size: large;">1</span>
+                                            <br />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+                                        <div class="row gutters">
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                <div class="field-wrapper">
+                                                    <h6>Yarn Quality: <span style="font-weight: 100;">ABC</span></h6>
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                <div class="field-wrapper">
+                                                    <h6>Yarn Color: <span style="font-weight: 100;">RED</span></h6>
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+
+                                                <div class="field-wrapper">
+                                                    <h6>Tar: <span style="font-weight: 100;">RED</span></h6>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                        <hr />
+
+                        <div class="row gutters">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                            </div>
+
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                <div class="field-wrapper" style="margin-bottom: 0;">
+                                    <div class="field-placeholder" style=" text-align: end; width: 85%;"> WEFT DATA</div>
+                                    <br />
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                            </div>
+                        </div>
+
+
+                        <div class="row gutters">
+
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                <div class="row gutters">
+
+                                    <!--Design Date-->
+                                    <div class="col-xl-6">
+                                        <h6>Date: <br /><span id="DesignDate" style="font-weight:100;">ABC</span></h6>
+                                    </div>
+
+
+                                    <!--Designer-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Designer: <br /><span id="DesignerID" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Sketcher-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Sketcher: <br /><span id="Sketcher" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Design NO-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style="margin-top: 0;">
+                                            <h6>Design No: <br /><span id="DesignNo" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Remark-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Remark: <br /><span id="Remark" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--PICK ON LOOM-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Pick On Loom: <br /><span id="PickOnLoom" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Total Card-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Total Card: <br /><span id="TotalCard" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Aveage Pick-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Average Pic: <br /><span id="AveragePic" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Reed On Loom-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Reed On Loom:<br /> <span id="ReedOnLoom" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Type-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Type:<br /> <span id="type" style="font-weight:100;">ABC</span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Design Category-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Design Category: <br /><span id="DesignCategory" style="font-weight:100;"></span></h6>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Design Cut-->
+                                    <div class="col-xl-6">
+                                        <div class="field-wrapper" style=" margin-top: 0;">
+                                            <h6>Design Cut: <br /><span id="DesignCut" style="font-weight:100;"></span></h6>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+
+
+                                <div class="row gutters" id="divWeftData">
+                                    <!--
+                                    <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
+                                        <br />
+                                    </div>
+
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                        <div class="field-wrapper" style=" margin-top:0; text-align: center;">
+                                            <span style=" font-size: larger;">Feeder 1</span>
+                                            <br />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+                                        <div class="row gutters">
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <h6>Card: <span id="Card" style="font-weight:100;">50</span></h6>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <h6>Pick: <span id="Pick" style="font-weight:100;">50</span></h6>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <h6>Yarn Material: <span id="yarnMaterial" style="font-weight:100;">50</span></h6>
+                                                </div>
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    -->
+                                </div>
+
+
+                                <br />
+
+                            </div>
+
+
+
+
+
+                        </div>
+
+
+
+
+
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <input id="catedit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Design Entry Form</div>
+                    <br />
+
+
+                    <div class="row gutters">
+
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="search-design-no" placeholder="Search Design No." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Design No. </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style=" background-color: #1273eb;">
+                                    <th style="color: white !important;">Sr No</th>
+                                    <th style="color: white !important;">Action</th>
+                                    <th style="color: white !important;">Design <br /> Date</th>
+                                    <th style="color: white !important;">Design <br /> No</th>
+                                    <th style="color: white !important;">Photo Of <br /> Design</th>
+                                    <th style="color: white !important;">Photo Of <br /> Sketch</th>
+                                    <th style="color: white !important;">Warp <br /> Quality</th>
+                                    <th style="color: white !important;">Pick On <br /> Loom</th>
+                                    <th style="color: white !important;">Total <br /> Card</th>
+                                    <th style="color: white !important;">Average <br /> Pic</th>
+                                    <th style="color: white !important;">Reed On <br /> Loom</th>
+                                    <th style="color: white !important;">Sketcher</th>
+                                    <th style="color: white !important;">Type</th>
+                                    <th style="color: white !important;">Design <br /> Category</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                    <br />
+
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="divPaggination">
+                            @*<li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>*@
+                        </ul>
+                    </nav>
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Row end -->
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Custom Data tables -->
+@*<script src="vendor/datatables/custom/custom-datatables.js"></script>*@
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+    document.title = "Design Entry Form - Nikunj Textile";
+</script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#EntryForm-tab").addClass("active");
+        $("#tab-EntryForm").addClass("show active");
+        $("#aDesignEntry").addClass("current-page");
+
+        FunctionIsLogin();
+
+        displayPagginationData();
+        displayData(0);
+
+        //getDefaultCompany();
+
+
+
+    });
+
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+
+
+
+
+
+
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
+
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
+                });
+
+
+            }
+        });
+    }
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+    function functionSearch() {
+        displayPagginationData();
+        displayData(0);
+    }
+
+    function displayData(rowStartCheck) {
+
+        var rowStart = rowStartCheck;
+        var searchdesignNo = $("#search-design-no").val();
+
+        var formData = new FormData();
+        formData.append('SearchDesignNo', searchdesignNo);
+        formData.append('startFrom', rowStart);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getDesignEntryFormMaster',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (rowStart == 0) {
+                    $("#copy-print-csv tbody").empty();
+                }
+                var dataTable = $('#copy-print-csv');
+                var temp = "";
+
+                var srno = parseInt(rowStart) + parseInt(1);
+                for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+
+                    temp += "<tr><td>" + srno++ + "</td>";
+                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].DesignDates + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + "</td>";
+                    temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:50px; height:50px;'></td>";
+                    if (response.listDesignEntryForm[i].PhotoOfSketch == "") {
+                        temp += "<td></td>";
+                    }
+                    else {
+                        temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:50px; height:50px;'></td>";
+                    }
+
+                    temp += "<td>" + response.listDesignEntryForm[i].WarpQuality + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].PickOnLoom + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].TotalCard + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].AveragePic + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].ReedOnLoom + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].Sketcher + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].Type + "</td>";
+                    temp += "<td>" + response.listDesignEntryForm[i].DesignCategory + "</td>";
+                    temp += "</tr>";
+
+                }
+                $("#copy-print-csv tbody").empty();
+                dataTable.append(temp);
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+
+    var total = 0;
+    var Paggination = 0;
+    var prevNo = 0;
+    var nextNo = 0;
+    var SelectNo = 1;
+    var PageNo = 0;
+
+    //Display Paggination
+    function displayPagginationData() {
+
+        var searchdesignNo = $("#search-design-no").val();
+
+        var formData = new FormData();
+        formData.append('SearchString', searchdesignNo);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getDesignEntryFormPaggination',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                //console.log(response);
+
+                //var userTable = $('#DDLDistrict');
+                //listPagginationMaster
+                total = response.listPagginationMaster[0].Total;
+                Paggination = response.listPagginationMaster[0].Paggination + 1;
+                prevNo = 0;
+                nextNo = 10;
+                //alert(response.listPagginationMaster[0].Paggination);
+                if (response.listPagginationMaster[0].Paggination == "0") {
+                    $('#divPaggination').hide();
+                }
+                else {
+
+
+                    if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                        }
+                        $('#divPaggination').html(temp).show();
+                    }
+                    else {
+                        var temp = "";
+                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
+
+                        for (var i = 1; i <= 10; i++) {
+                            if (i == 1) {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
+                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            else {
+                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
+                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+
+                        }
+                        //temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";
+                        temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                        $('#divPaggination').html(temp).show();
+                    }
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+                //console.log(error);
+                //console.log("error" + request.statusText);
+                //alert(request.statusText);
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+    //Select Paggination
+    function funcationPaggination(abc) {
+        //alert(abc);
+        $("#trLoading").show();
+        var a = "#a" + abc;
+        SelectNo = abc;
+        //alert(a);
+        $('li').removeClass('active');
+        //$("#a3").addClass("active");
+        $(a).addClass('active');
+
+        $("#rowStartCount").val(((abc - 1) * 30));
+        displayData(((abc - 1) * 30));
+
+        //$("#rowStartCount").val(((abc - 1) * 2));
+        //displayData(((abc - 1) * 2));
+
+    }
+
+
+
+
+    function clearAll() {
+        getDefaultCompany();
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Design Entry Form");
+        $("#add-alert").hide();
+
+        $("#YarnColor").val('');
+
+        $(".company-invalid-feedback").hide();
+
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+    }
+
+
+
+
+
+
+
+
+
+    function showRecords(id) {
+
+        clearAll();
+        $("#edit-id").val(id);
+        $("#saveViewbtn").hide();
+        $("#savebtn").hide();
+        $("#editbtn").show();
+        $("#addNewContactLabel").html("Design Entry Form");
+
+
+
+        var DecryptID = "";
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                //window.location.href = 'UpdatePurchaseInvoice?id=' + response.listEncryptDecrypt[0].DecryptID;
+                ViewRecordQueryString(DecryptID);
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+
+
+
+
+
+    }
+
+
+
+    function ViewRecordQueryString(DecryptID) {
+
+
+        var formData = new FormData();
+        formData.append('DesignEntryFormID', DecryptID);
+
+        var PartyId = 0;
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getDesignEntryFormDetails',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+
+                //alert(response.listDesignEntryForm.length);
+                var userTable = $('#TblUser');
+
+
+                for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+
+
+                    /* ---------- View Party Details ---------- */
+
+
+                    $("#PhotoOfDesign-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
+                    $("#PhotoOfSketch-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
+
+
+                    $("#warnquality").html(response.listDesignEntryForm[i].WarpQuality);
+                    $("#DesignDate").html(response.listDesignEntryForm[i].DesignDates);
+                    $("#DesignerID").html(response.listDesignEntryForm[i].DesignerName);
+                    $("#Sketcher").html(response.listDesignEntryForm[i].Sketcher);
+                    $("#DesignNo").html(response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo);
+                    $("#Remark").html(response.listDesignEntryForm[i].Remark);
+                    $("#PickOnLoom").html(response.listDesignEntryForm[i].PickOnLoom);
+                    $("#TotalCard").html(response.listDesignEntryForm[i].TotalCard);
+                    $("#AveragePic").html(response.listDesignEntryForm[i].AveragePic);
+                    $("#ReedOnLoom").html(response.listDesignEntryForm[i].ReedOnLoom);
+                    $("#type").html(response.listDesignEntryForm[i].Type);
+                    $("#DesignCategory").html(response.listDesignEntryForm[i].DesignCategory);
+                    $("#DesignCut").html(response.listDesignEntryForm[i].DesignCut);
+
+
+
+
+                    var WarSrNo = 1;
+                    /* ---------- Design Form Warp Data ---------- */
+                    var tempWarnQuality = "";
+                    for (var j = 0; j < response.listDesignEntryForm[i].listDesignFormWarpData.length; j++) {
+
+
+
+                        tempWarnQuality += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                        tempWarnQuality += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                        tempWarnQuality += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                        tempWarnQuality += '<span style="font-size: large;">' + WarSrNo++ + '</span>';
+                        tempWarnQuality += '<br />';
+                        tempWarnQuality += '</div>';
+                        tempWarnQuality += '</div>';
+
+                        tempWarnQuality += '<div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">';
+                        tempWarnQuality += '<div class="row gutters">';
+                        tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                        tempWarnQuality += '<div class="field-wrapper">';
+                        tempWarnQuality += '<h6>Yarn Quality:<br /> <span style="font-weight: 100;">' + response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnMaterial + '</span></h6>';
+                        tempWarnQuality += '</div>';
+                        tempWarnQuality += '</div>';
+
+                        //tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                        //tempWarnQuality += '<div class="field-wrapper">';
+                        //tempWarnQuality += '<h6>Yarn Color: <br /><span style="font-weight: 100;">' + response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnColor + '</span></h6>';
+                        //tempWarnQuality += '</div>';
+                        //tempWarnQuality += '</div>';
+
+                        tempWarnQuality += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                        tempWarnQuality += '<div class="field-wrapper">';
+                        tempWarnQuality += '<h6>Tar: <br /><span style="font-weight: 100;">' + response.listDesignEntryForm[i].listDesignFormWarpData[j].Tar + '</span></h6>';
+                        tempWarnQuality += '</div>';
+                        tempWarnQuality += '</div>';
+
+                        tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                        tempWarnQuality += '</div>';
+
+                        tempWarnQuality += '</div>';
+                        tempWarnQuality += '</div>';
+
+                    }
+
+                    $("#divWarnQuality").html(tempWarnQuality);
+
+
+
+
+                    var WeftSrNo = 1;
+                    /* ---------- Design Form Weft Data ---------- */
+                    var tempWeftData = "";
+                    for (var k = 0; k < response.listDesignEntryForm[i].listDesignEntryWeftData.length; k++) {
+
+                        //tempWeftData += '<div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"><br /></div>';
+
+                        tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                        tempWeftData += '<div class="field-wrapper" style=" margin-top:0; text-align: center;">';
+                        tempWeftData += '<span style=" font-size: larger;">Feeder ' + WeftSrNo++ + '</span>';
+                        tempWeftData += '<br />';
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+                        tempWeftData += '<div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">';
+
+                        tempWeftData += '<div class="row gutters">';
+                        tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                        tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                        tempWeftData += '<h6>Card: <br /><span id="Card" style="font-weight:100;">' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Card + '</span></h6>';
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+                        tempWeftData += '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">';
+                        tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                        tempWeftData += '<h6>Pick: <br /><span id="Pick" style="font-weight:100;">' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].Pick + '</span></h6>';
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+                        tempWeftData += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
+                        tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                        tempWeftData += '<h6>Yarn Material: <br /><span id="yarnMaterial" style="font-weight:100;">' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].YarnMaterial + '</span></h6>';
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+                        tempWeftData += '<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">';
+                        tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
+                        tempWeftData += '<h6>Design Specification: <br /><span id="DesignSpecification" style="font-weight:100;">' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '</span></h6>';
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+                        tempWeftData += '</div>';
+                        tempWeftData += '</div>';
+
+
+                    }
+
+                    $("#divWeftData").html(tempWeftData);
+
+
+                }
+
+
+            },
+            error: function (request, status, error) {
+
+                //window.location.href = 'PurchaseInvoice';
+
+            }
+        });
+
+    }
+
+
+
+    function showEditRecords(id) {
+        clearAll();
+        $("#edit-id").val(id);
+        $("#saveViewbtn").hide();
+        $("#savebtn").hide();
+        $("#editbtn").show();
+        $("#addNewContactLabel").html("Design Entry Form");
+
+
+
+        var DecryptID = "";
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+            data: "{ 'id':'" + id + "' }",
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                window.location.href = '/UpdateDesignEntry?id=' + response.listEncryptDecrypt[0].DecryptID;
+
+            },
+            error: function (request, status, error) {
+
+            }
+        });
+    }
+
+
+    function functionUserDelete(id) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            var formData = new FormData();
+            formData.append('DesignEntryFormID', id);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/DeleteDesignEntryFormMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200) {
+
+                        notes.show("Design Entry Form deleted successfully.", {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+
+                        displayData(0);
+                    }
+                    else {
+                        //alert("Problem has been occurred while submitting your data.");
+
+                        notes.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+
+                    }
+                },
+                error: function (error) {
+                    // alert("Problem has been occurred while submitting your data.");
+
+                    notes.show("Problem has been occurred while deleting Design Entry Form.", {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+
+    }
+
+
+
+
+</script>
+
+
+

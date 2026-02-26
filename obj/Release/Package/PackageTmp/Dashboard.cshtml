@@ -1,0 +1,582 @@
+﻿
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+<div class="content-wrapper">
+
+
+    <!-- Row start from here-->
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+
+
+        </div>
+    </div>
+
+    <!-- Row end to here -->
+
+</div>
+
+<!-- Page wrapper end -->
+<!-- *************
+    ************ Required JavaScript Files *************
+************* -->
+<!-- Required jQuery first, then Bootstrap Bundle JS -->
+
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+<!-- select2 JS -->
+@*<script src="https://tryoninfosoft.web.app/sr/select2.min.js"></script>*@
+
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Custom Data tables -->
+<script src="vendor/datatables/custom/custom-datatables.js"></script>
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.active, .show, .current-page').removeClass('active show current-page');
+
+        $("#home-tab").addClass("active");
+        $("#tab-home").addClass("show active");
+        $("#aDashboard").addClass("current-page");
+
+        displayData(0);
+
+        //longfunctionfirst(getBusinessTypes);
+        //longfunctionfirst(getBusinessCat);
+        //longfunctionfirst(getStates);
+
+        //--longfunctionfirst(getDefaultCompany);
+
+        //getBusinessTypes();
+        //getBusinessCat();
+        //getStates();
+        getDefaultCompany();
+        FunctionIsLogin();
+
+
+
+        // Shortcut Key
+        $(document).keydown(function (key) {
+            switch (parseInt(key.which, 10)) {
+                case 27:
+                    //Esc Key
+                    $("#cancelbtn").click();
+                    break;
+                //case 18 && 79:
+                //    // alt + o
+                //   $("#addcompaymodel").click();
+                //    //addnewcontact
+                //    break;
+                default:
+                    //alert(key.which);
+                    break;
+            }
+        });
+
+
+
+
+    });
+
+    function longfunctionfirst(callback) {
+        setTimeout(function () {
+            if (typeof callback == 'function')
+                callback();
+        }, 10);
+    };
+
+
+
+
+
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                console.log(data);
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+
+
+    var selectedState = "";
+
+    function getDefaultCompany() {
+        //alert("secound");
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response);
+                if (response.Code == 200 || response.Code == "200") {
+                    if (response.listCompanyMaster.length != 0) {
+                        $("#edit-id-default").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-name-default").val(response.listCompanyMaster[0].CompanyName);
+                        $('#email-default').val(response.listCompanyMaster[0].Email);
+                        $('#phone-default').val(response.listCompanyMaster[0].MobileNo);
+                        $('#alt-phone-default').val(response.listCompanyMaster[0].AlterMobileNo);
+                        //selectedState = response.listCompanyMaster[0].State;
+                        //$('#state-default').val(response.listCompanyMaster[0].State);
+                        //$('#state-default').val('24-Gujarat');
+                        //$('#state-default [value=24-Gujarat]').attr('selected', 'true');
+
+                        //$('#business-type-default').val(response.listCompanyMaster[0].BusinessType);
+                        //$('#business-cate-default').val(response.listCompanyMaster[0].BusinessCategory);
+
+                        longfunctionfirst(getStates(response.listCompanyMaster[0].State));
+                        longfunctionfirst(getBusinessTypes(response.listCompanyMaster[0].BusinessType));
+                        longfunctionfirst(getBusinessCat(response.listCompanyMaster[0].BusinessCategory));
+
+
+
+                        $('#address-default').val(response.listCompanyMaster[0].BusinessAddress);
+                        $('#description-default').val(response.listCompanyMaster[0].BusinessDescription);
+                        $('#bank-name-default').val(response.listCompanyMaster[0].BankName);
+                        $('#ifsc-default').val(response.listCompanyMaster[0].IFSC);
+                        $('#acNumber-default').val(response.listCompanyMaster[0].ACNo);
+                        $('#BarcodeTitle').val(response.listCompanyMaster[0].BarcodeTitle);
+                        $('#SetCreditPercentage').val(response.listCompanyMaster[0].SetCreditPercentage);
+                        $('#SupportNumber').val(response.listCompanyMaster[0].SupportNumber);
+
+                        if (response.listCompanyMaster[0].GSTIN == "" || response.listCompanyMaster[0].GSTIN == null) {
+                            $("#gstStat-default").prop('checked', false);
+                            $('#gst-default').val("");
+                            $('.gst-clear-default').hide();
+                        }
+                        else {
+                            $("#gstStat-default").prop('checked', true);
+                            $('#gst-default').val(response.listCompanyMaster[0].GSTIN);
+                            $('.gst-clear-default').show();
+                        }
+
+                        $("#setDefault-default").prop('checked', true);
+                        $("#setDefault-default").attr('disabled', true);
+                        $("#upload-image-temp-default").val(response.listCompanyMaster[0].CompanyLogo);
+                        var imgStr = "<img src='" + response.listCompanyMaster[0].CompanyLogo + "' style='height:200px;width:200px;margin-top:-54px;'>";
+                        $("#upload-image-default-preview").html(imgStr);
+                        $("#upload-image-default-preview").css('color', 'initial');
+
+                        $("#upload-sign-temp-default").val(response.listCompanyMaster[0].Sign);
+                        imgStr = "<img src='" + response.listCompanyMaster[0].Sign + "' style='height:200px;width:200px;margin-top:-54px;'>";
+                        $("#upload-sign-default-preview").html(imgStr);
+                        $("#upload-sign-default-preview").css('color', 'initial');
+                    }
+                }
+                else {
+                    $("#add-alert-default").removeClass("alert-success");
+                    $("#add-alert-default").addClass("alert-danger");
+                    $("#add-alert-default").html(response.Message);
+                    $("#add-alert-default").show();
+                }
+
+            },
+            error: function (request, status, error) {
+                $("#add-alert").removeClass("alert-success");
+                $("#add-alert").addClass("alert-danger");
+                $("#add-alert").html(response.Message);
+                $("#add-alert").show();
+            }
+        });
+    }
+
+
+
+    function getBusinessTypes(BusinsType) {
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getBusinessTypes',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#business-type option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#business-type-default option[value]").each(function () {
+                    $(this).remove();
+                });
+                $('#business-type').append("<option value='-1'> -- Select -- </option>");
+                $('#business-type-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (BusinsType == admin.BusinessTypeID) {
+                        appendTemp = "<option value=" + admin.BusinessTypeID + " selected>" + admin.BusinessTypeTitle + "</option >";
+                    }
+                    else {
+                        appendTemp = "<option value=" + admin.BusinessTypeID + ">" + admin.BusinessTypeTitle + "</option >";
+                    }
+
+
+                    $('#business-type').append(appendTemp);
+                    $('#business-type-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function getBusinessCat(BusinessCat) {
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getBusinessCates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#business-cate option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#business-cate-default option[value]").each(function () {
+                    $(this).remove();
+                });
+                $('#business-cate').append("<option value='-1'> -- Select -- </option>");
+                $('#business-cate-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (BusinessCat == admin.IndustryTypeID) {
+                        appendTemp = "<option value=" + admin.IndustryTypeID + " selected>" + admin.IndustryTypeTitle + "</option >";
+                    }
+                    else {
+                        appendTemp = "<option value=" + admin.IndustryTypeID + ">" + admin.IndustryTypeTitle + "</option >";
+                    }
+
+
+
+                    $('#business-cate').append(appendTemp);
+                    $('#business-cate-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function getStates(StateCode) {
+
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getStates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#state option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#state-default option[value]").each(function () {
+                    $(this).remove();
+                });
+
+                $('#state').append("<option value='-1'> -- Select -- </option>");
+                $('#state-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (admin.GSTStateCode == StateCode) {
+                        appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                    }
+                    else {
+                        //appendTemp = "<option value=" + admin.GSTStateCode + "-" + admin.StateTitle + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                    }
+
+                    $('#state').append(appendTemp);
+                    $('#state-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function checkGSTDefault() {
+        if ($("#gstStat-default").prop("checked") == true) {
+            $(".gst-clear-default").show();
+        }
+        else {
+            $(".gst-clear-default").hide();
+        }
+    }
+
+
+    function checkGST() {
+        if ($("#gstStat").prop("checked") == true) {
+            $(".gst-clear").show();
+        }
+        else {
+            $(".gst-clear").hide();
+        }
+    }
+
+
+
+
+
+
+
+    function getBusinessTypess(BusinsType) {
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getBusinessTypes',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#business-type option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#business-type-default option[value]").each(function () {
+                    $(this).remove();
+                });
+                $('#business-type').append("<option value='-1'> -- Select -- </option>");
+                //$('#business-type-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (BusinsType == admin.BusinessTypeID) {
+                        appendTemp = "<option value=" + admin.BusinessTypeID + " selected>" + admin.BusinessTypeTitle + "</option >";
+                    }
+                    else {
+                        appendTemp = "<option value=" + admin.BusinessTypeID + ">" + admin.BusinessTypeTitle + "</option >";
+                    }
+
+
+                    $('#business-type').append(appendTemp);
+                    //$('#business-type-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function getBusinessCatss(BusinessCat) {
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getBusinessCates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#business-cate option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#business-cate-default option[value]").each(function () {
+                    $(this).remove();
+                });
+                $('#business-cate').append("<option value='-1'> -- Select -- </option>");
+                //$('#business-cate-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (BusinessCat == admin.IndustryTypeID) {
+                        appendTemp = "<option value=" + admin.IndustryTypeID + " selected>" + admin.IndustryTypeTitle + "</option >";
+                    }
+                    else {
+                        appendTemp = "<option value=" + admin.IndustryTypeID + ">" + admin.IndustryTypeTitle + "</option >";
+                    }
+
+
+
+                    $('#business-cate').append(appendTemp);
+                    //$('#business-cate-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+    function getStatess(StateCode) {
+
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getStates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#state option[value]").each(function () {
+                    $(this).remove();
+                });
+                $("#state-default option[value]").each(function () {
+                    $(this).remove();
+                });
+
+                $('#state').append("<option value='-1'> -- Select -- </option>");
+                //$('#state-default').append("<option value='-1'> -- Select -- </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+
+                    if (admin.GSTStateCode == StateCode) {
+                        appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                    }
+                    else {
+                        //appendTemp = "<option value=" + admin.GSTStateCode + "-" + admin.StateTitle + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                    }
+
+                    $('#state').append(appendTemp);
+                    //$('#state-default').append(appendTemp);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+
+
+
+    function successGetEmployeeByIDFuntion(data) {
+    }
+
+    function failureGetEmployeeByIDFunction(request, status, error) {
+    }
+
+
+    function clearAll() {
+        $("#savebtn").show();
+        $("#editbtn").hide();
+        $("#addNewContactLabel").html("Add Company");
+        $("#add-alert").hide();
+        $("#setDefault").prop('checked', false);
+        $("#setDefault").attr('disabled', false);
+        $("#company-name").val('');
+        $('#email').val('');
+        $('#phone').val('');
+        $('#alt-phone').val('');
+        $('#state').val('-1');
+        $('#business-type').val('-1');
+        $('#business-cate').val('-1');
+        $('#address').val('');
+        $('#description').val('');
+        $('#bank-name').val('');
+        $('#ifsc').val('');
+        $('#acNumber').val('');
+        $("#gstStat").prop("checked", true);
+        $('#gst').val('');
+        $('.gst-clear').show();
+        $(".clear-field").removeClass("is-valid is-invalid");
+
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+
+        $("#upload-image-preview").html("Upload Company Logo.");
+        $("#upload-image-preview").css('color', 'initial');
+
+        $("#upload-sign-preview").html("Upload Signature.");
+        $("#upload-sign-preview").css('color', 'initial');
+    }
+
+
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+
+
+
+</script>
+
+</body>
+
+
+
+</html>
