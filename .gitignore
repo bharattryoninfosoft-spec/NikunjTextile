@@ -1,1 +1,26 @@
  
+ # Build Folders
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# NuGet Packages
+packages/
+
+# Node (if using Vue / JS frontend)
+node_modules/
+
+# Publish folder
+publish/
+
+# IIS Express
+.config/
