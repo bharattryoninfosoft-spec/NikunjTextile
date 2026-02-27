@@ -1423,6 +1423,8 @@
             var modalMaxQty =
                 parseInt($modalRow.find("td:eq(3)").text()) || 0;
 
+       
+
             var usedQty = 0;
 
             // 🔹 Right table ma thi total used qty add karo
@@ -1456,6 +1458,11 @@
             // ✅ Row always visible
             $modalRow.show();
 
+
+        
+
+
+
             // ✅ Row wise correct value
             textbox.val(remaining);
 
@@ -1473,6 +1480,12 @@
                 if (remaining > 0) {
                     $modalRow.find("td:eq(3)").text(remaining);
                     var textbox = $modalRow.find(".txtNoOfBox");
+                    if (!stockAssigned && usedQty <= modalMaxQty) {
+                        modalMaxQty = usedQty;
+                        stockAssigned = true;
+                    } else {
+                        MentionNoOfBox = 0;
+                    }
                     textbox.val(remaining).trigger("change");
 
                 }
@@ -1618,10 +1631,13 @@
                     var maxBox = parseInt(item.NoOfBox) || 0;
                     var MentionNoOfBox = 0;
 
-                    if (RemainingStock > 0) {
-                        MentionNoOfBox = Math.min(RemainingStock, maxBox);
-                        RemainingStock -= MentionNoOfBox;
+                    if (!stockAssigned && TextStock <= maxBox) {
+                        MentionNoOfBox = TextStock;
+                        stockAssigned = true;
+                    } else {
+                        MentionNoOfBox = 0;
                     }
+
 
                     temp += `
                      <tr 
