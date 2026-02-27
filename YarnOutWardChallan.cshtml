@@ -1421,6 +1421,8 @@
             var modalMaxQty =
                 parseInt($modalRow.find("td:eq(3)").text()) || 0;
 
+
+
             var usedQty = 0;
 
             // 🔹 Right table ma thi total used qty add karo
@@ -1448,15 +1450,6 @@
 
             var remaining = modalMaxQty - usedQty;
             if (remaining < 0) remaining = 0;
-
-            var textbox = $modalRow.find(".txtNoOfBox");
-
-            // ✅ Row always visible
-            $modalRow.show();
-
-            // ✅ Row wise correct value
-            textbox.val(remaining);
-
             if (remaining === 0) {
                 var textbox = $modalRow.find(".txtNoOfBox");
 
@@ -1471,7 +1464,13 @@
                 if (remaining > 0) {
                     $modalRow.find("td:eq(3)").text(remaining);
                     var textbox = $modalRow.find(".txtNoOfBox");
-                    textbox.val(remaining).trigger("change");
+                    if (!stockAssigned && usedQty <= modalMaxQty) {
+                        modalMaxQty = usedQty;
+                        stockAssigned = true;
+                    } else {
+                        MentionNoOfBox = 0;
+                    }
+                    textbox.val(usedQty).trigger("change");
 
                 }
                 textbox.prop("disabled", false)
@@ -1582,7 +1581,10 @@
         formData.append('GodownID', GodownID);
 
         var siftGodownInputBox = $("#siftGodownInputBox").val() || "";
-        formData.append('siftGodownInputBox',siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : "");
+        formData.append(
+            'siftGodownInputBox',
+            siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : ""
+        );
 
         $.ajax({
             type: "POST",
@@ -1613,11 +1615,13 @@
                     var maxBox = parseInt(item.NoOfBox) || 0;
                     var MentionNoOfBox = 0;
 
-                    if (srno === 1) {
-                        MentionNoOfBox = TextStock <= maxBox ? TextStock : maxBox;
+                    if (!stockAssigned && TextStock <= maxBox) {
+                        MentionNoOfBox = TextStock;
+                        stockAssigned = true;
                     } else {
                         MentionNoOfBox = 0;
                     }
+
 
                     temp += `
                      <tr
@@ -1652,6 +1656,7 @@
                 });
 
                 $tbody.append(temp);
+
                 $("#hTotalNoOfBox").html(TextStock);
                 $("#txtGodownLocationID").val(locationIds.join(",") + ",");
 
