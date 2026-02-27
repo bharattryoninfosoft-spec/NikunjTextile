@@ -33,13 +33,8 @@
                         </div>
                         <div class="modal-body">
                             <div id="notess"></div>
-
-
-
-
                             <div class="row gutters">
                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="table-responsive">
@@ -60,37 +55,29 @@
                                                             <td><span id="tblSpanNoOfBox">2</span></td>
                                                         </tr>
                                                     </thead>
-
                                                 </table>
-
-
                                                 <br />
-
                                                 <table class="table table-bordered v-middle m-0" style="border: 1px solid; ">
-                                                    <thead style=" background-color: aliceblue;">
+                                                    <thead style="background-color: aliceblue;">
                                                         <tr>
-                                                            <th style="width: 5%;">No.</th>
-                                                            <!--<th style="width: 5%;">#</th>-->
-                                                         
-                                                            <th style="width: 25%;">Godown Title</th>
-                                                            <th style="width: 25%;">Location Title</th>
-                                                            <th style="width: 25%;">No Of <br />Box</th>
-                                                            <th style="width: 25%;">Input <br />Total Box</th>
+                                                            <th style="width:5%;">No.</th>
+                                                            <th style="width:25%;">Godown Title</th>
+                                                            <th style="width:25%;">Location Title</th>
+                                                            <th style="width:25%;">No Of Box</th>
+                                                            <th style="width:25%;">Input Total Box</th>
 
+                                                            <!-- Hidden Columns -->
+                                                            <th style="display:none;">BillToPartyID</th>
+                                                            <th style="display:none;">GodownLocationID</th>
+                                                            <th style="display:none;">YarnColor</th>
+                                                            <th style="display:none;">YarnColorCode</th>
+                                                            <th style="display:none;">YarnColorID</th>
+                                                            <th style="display:none;">YarnMaterial</th>
+                                                            <th style="display:none;">YarnMaterialID</th>
+                                                            <th style="display:none;">CompanyName</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="tblYarnSift">
-                                                        <!--<tr>
-                                                            <th>1</th>
-                                                            <th>
-                                                                <input class="form-check-input" type="checkbox" id="checkPhone" style="width: 1.5em; height: 1.5em;">
-                                                            </th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th></th>
-                                                        </tr>-->
+                                                    <tbody id="tblYarnSift">                                                 
                                                     </tbody>
                                                     <tfoot style=" background-color: aliceblue;">
                                                         <tr>
@@ -103,7 +90,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <input type="hidden" id="txtYarnInwardDetailIDs" class="form-control" />
                                     <input type="hidden" id="txtBillToPartyID" class="form-control" title="BillToPartyID" />
                                     <input type="hidden" id="txtYarnMaterialID" class="form-control" title="YarnMaterialID" />
@@ -113,13 +99,6 @@
 
                                 </div>
                             </div>
-
-
-
-
-
-
-
                         </div>
                         <div class="modal-footer">
                             <button type="button" id="btnClose" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -129,11 +108,6 @@
                 </div>
             </div>
             <!-- Modal end -->
-
-
-
-
-
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">Yarn Outward List</div>
@@ -1060,7 +1034,7 @@
                                 temp += "<td><span id='span_Code_" + srno + "'>" + response.listYarnOutwardMaster[i].YarnColorCode + "</span></td>";
                                 var allids = srno + "_" + response.listYarnOutwardMaster[i].BillToPartyID + "_" + response.listYarnOutwardMaster[i].YarnMaterialID + "_" + response.listYarnOutwardMaster[i].YarnColorID;
                                 temp += "<td style='text-align: center;'> <span id='spanStock_" + srno + "' >" + response.listYarnOutwardMaster[i].Stock + "<span></td>";
-                                temp += "<td><input type='text' id='txtinputstock_" + srno + "' class='form-control' maxlength='2' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)' onkeyup='StockCalculation(this)'/><br/>";
+                                temp += "<td><input type='text' id='txtinputstock_" + srno + "' class='form-control' maxlength='2' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)''/><br/>";
                                 temp += " <input type='hidden' id='txtid_" + srno + "' value='" + allids + "' class='form-control' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)'  /></td>";
                                 temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='StockTransferSiftTo(\"" + allids + "\")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
                                 temp += "</tr>";
@@ -1077,171 +1051,288 @@
             })
         }
     }
+   function StockTransferSiftTo(abc) {
+       debugger;
+    if (!abc) return;
+    var parts = abc.split("_");
+    if (parts.length < 4) return;
+    var SrNo = parts[0];
+    var BillToPartyID = parts[1];
+    var YarnMaterialID = parts[2];
+    var YarnColorID = parts[3];
+    var GodownID = $("#ddlGodownMaster").val();
 
-    function StockCalculation(abc) {
-        var txtid = "#" + "txtid_" + abc.id.split('_')[1];
-        var SpanStockid = "#" + "spanStock_" + abc.id.split('_')[1];
-        var TextStock = abc.value;
-        var SpanStock = $(SpanStockid).text();
-        var txtinputid = "#" + "txtinputstock_" + abc.id.split('_')[1];
-        if (parseInt(TextStock) > parseInt(SpanStock)) {
-            notes.show("Please Mention Below Stock Value.", {
-                type: 'danger',
-            });
-
-            $(txtinputid).addClass("is-invalid");
-        }
-        else {
-            $(txtinputid).removeClass("is-invalid");
-        }
+    var $stockSpan = $("#spanStock_" + SrNo);
+    var $inputBox = $("#txtinputstock_" + SrNo);
+    var TextStock = parseInt($inputBox.val()) || 0;
+    var AvailableStock = parseInt($stockSpan.text()) || 0;
+    if (!TextStock) {
+        $inputBox.addClass("is-invalid");
+        notes.show("Please Mention No Of Box.", { type: 'danger' });
+        return;
     }
-    function StockTransferSiftTo(abc) {
-        //alert(abc);
 
-        var SrNo = abc.split("_")[0];
-        var BillToPartyID = abc.split("_")[1];
-        var YarnMaterialID = abc.split("_")[2];
-        var YarnColorID = abc.split("_")[3];
-        var GodownID = $("#ddlGodownMaster").val();
+    if (TextStock > AvailableStock) {
+        $inputBox.addClass("is-invalid");
+        notes.show("Please Mention Below Stock Value.", { type: 'danger' });
+        return;
+    }
 
-        //alert("SrNo " + SrNo + " BillToPartyID " + BillToPartyID + " YarnMaterialID " + YarnMaterialID + " YarnColorID " + YarnColorID);
+    $inputBox.removeClass("is-invalid");
+    $("#tblSpanCompanyName").html($("#span_Name_" + SrNo).html());
+    $("#tblSpanYarnMaterial").html($("#span_Material_" + SrNo).html());
+    $("#tblSpanYarnColor").html($("#span_Color_" + SrNo).html());
+    $("#tblSpanColorCode").html($("#span_Code_" + SrNo).html());
+    $("#tblSpanNoOfBox").html(TextStock);
 
-        var SpanStockid = "#" + "spanStock_" + SrNo;
-        var txtid = "#" + "txtinputstock_" + SrNo;
-        var TextStock = $(txtid).val();
-        var SpanStock = $(SpanStockid).text();
+    $("#txtBillToPartyID").val(BillToPartyID);
+    $("#txtYarnMaterialID").val(YarnMaterialID);
+    $("#txtYarnColorID").val(YarnColorID);
+    $("#txtTextStock").val(TextStock);
+    var formData = new FormData();
+    formData.append('BillToPartyID', BillToPartyID);
+    formData.append('YarnMaterialID', YarnMaterialID);
+    formData.append('YarnColorID', YarnColorID);
+    formData.append('GodownID', GodownID);
 
-        //alert(TextStock + " " + SpanStock);
+    var siftGodownInputBox = $("#siftGodownInputBox").val() || "";
+    formData.append(
+        'siftGodownInputBox',
+        siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : ""
+    );
 
-        if (TextStock != "") {
-            if (parseInt(TextStock) > parseInt(SpanStock)) {
-                //alert("Value Jyada hai.")
-                $(txtid).addClass("is-invalid");
-                notes.show("Please Mention Below Stock Value.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
+    $.ajax({
+        type: "POST",
+        url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutwardSiftMaster',
+        data: formData,
+        dataType: 'json',
+        contentType: false,
+        processData: false,
+        success: function (response) {
 
+            var list = response.listYarnOutwardMaster || [];
+            var $tbody = $("#tblYarnSift");
+
+            $tbody.empty();
+
+            if (!list.length) {
+                $("#hTotalNoOfBox").html(0);
+                return;
             }
-            else {
-                $(txtid).removeClass("is-invalid");
-                //alert("Hello");
 
-                var CompanyName = "#span_Name_" + SrNo;
-                var YarnMaterial = "#span_Material_" + SrNo;
-                var YarnColor = "#span_Color_" + SrNo;
-                var YarnColorCode = "#span_Code_" + SrNo;
+            var temp = "";
+            var srno = 1;
+            var RemainingStock = TextStock;
+            var locationIds = [];
 
-                $("#tblSpanCompanyName").html($(CompanyName).html());
-                $("#tblSpanYarnMaterial").html($(YarnMaterial).html());
-                $("#tblSpanYarnColor").html($(YarnColor).html());
-                $("#tblSpanColorCode").html($(YarnColorCode).html());
-                $("#tblSpanNoOfBox").html(TextStock);
+            list.forEach(function (item) {
 
-                $("#txtBillToPartyID").val(BillToPartyID);
-                $("#txtYarnMaterialID").val(YarnMaterialID);
-                $("#txtYarnColorID").val(YarnColorID);
-                $("#txtTextStock").val(TextStock);
+                var maxBox = parseInt(item.NoOfBox) || 0;
+                var MentionNoOfBox = 0;
 
-                //var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
-                var siftGodownInputBox = $("#siftGodownInputBox").val();
+                if (RemainingStock > 0) {
+                    MentionNoOfBox = Math.min(RemainingStock, maxBox);
+                    RemainingStock -= MentionNoOfBox;
+                }
 
-                var formData = new FormData();
-                formData.append('BillToPartyID', BillToPartyID);
-                formData.append('YarnMaterialID', YarnMaterialID);
-                formData.append('YarnColorID', YarnColorID);
-                formData.append('GodownID', GodownID);
-                //formData.append('YarnInwardDetailIDss', siftYarnInwardDetailID.slice(0, -1).replace(/\|/g, ','));
-                formData.append('siftGodownInputBox', siftGodownInputBox.slice(0, -1).replace(/\|/g, ','));
+                temp += `
+                        <tr 
+                            data-billto="${item.BillToPartyID}"
+                            data-godownlocationid="${item.GodownLocationID}"
+                            data-yarncolorid="${item.YarnColorID}"
+                            data-yarnmaterialid="${item.YarnMaterialID}"
+                            data-companyname="${item.CompanyName}"
+                            data-yarnmaterial="${item.YarnMaterial}"
+                            data-yarncolor="${item.YarnColor}"
+                            data-yarncolorcode="${item.YarnColorCode}">
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/getYarnOutwardSiftMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
+                            <td>${srno}</td>
+                            <td>${item.GodownTitle}</td>
+                            <td>${item.LocationTitle}</td>
+                            <td>${maxBox}</td>
+                            <td>
+                                <input type="tel"
+                                    class="form-control txtNoOfBox"
+                                    id="txtNoOfBox_${item.GodownLocationID}"
+                                    data-max="${maxBox}"
+                                    value="${MentionNoOfBox}"
+                                    maxlength="2"
+                                    style="width:60px; min-height:30px;"
+                                    onkeypress="return (event.charCode>=48 && event.charCode<=57)"
+                                    onkeyup="GodownNoOfBox(this)" />
+                            </td>
+                        </tr>`;
 
-
-                        setTimeout(function () {
-                            $("#btnSaveSiftYarnBox").focus();
-                        }, 500);
-
-                        var dataTable = $('#tblYarnSift');
-                        var temp = "";
-
-                        var srno = parseInt(0) + parseInt(1);
-
-                        var txtGodownLocationID = "";
-                        var NoOfBox = parseInt(TextStock);
-
-                        for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
-
-                            //var isChecked = i < parseInt(TextStock);
-                            //var checkedAttr = isChecked ? "checked" : "";
-                            //var rowStyle = isChecked ? "background-color:lightskyblue;" : "";
-                            //var YarnInwardDetailIDs = isChecked ? response.listYarnOutwardMaster[i].YarnInwardDetailID + "|" : "";
-
-                            temp += "<tr id='tr" + response.listYarnOutwardMaster[i].GodownLocationID + "'>";
-                            temp += "<td style='padding: .3rem .3rem;'>" + srno++ + "</td>";
-                            //temp += "<td style='padding: .3rem .3rem;'>";
-                            //temp += "<input class='form-check-input yarnCheck' type='checkbox' id='chk_" + response.listYarnOutwardMaster[i].YarnInwardDetailID + "' onchange='yarnInwardCheck(this.id)' "
-                            //    + "data-row='tr" + response.listYarnOutwardMaster[i].YarnInwardDetailID + "' "
-                            //    + checkedAttr
-                            //    + " style='width:1.7em;height:1.7em;'>";
-                            //temp += "</td>";
-                            //temp += "<td style='padding: .3rem .3rem;'>" + response.listYarnOutwardMaster[i].DateAndTimes + "</td>";
-
-
-                            var MentionNoOfBox = 0;
-                            NoOfBox = parseInt(NoOfBox) - parseInt(response.listYarnOutwardMaster[i].NoOfBox);
-                            if (NoOfBox > 0) {
-                                MentionNoOfBox = response.listYarnOutwardMaster[i].NoOfBox;
-                            }
-                            else {
-                                var RemainBox = Math.abs(NoOfBox);
-                                var MBox = parseInt(response.listYarnOutwardMaster[i].NoOfBox) - parseInt(RemainBox);
-                                if (MBox > 0) {
-                                    MentionNoOfBox = MBox;
-                                }
-                                else {
-                                    MentionNoOfBox = 0;
-                                }
-                            }                         
-                            temp += "<td style='padding: .3rem .3rem;'>" + response.listYarnOutwardMaster[i].GodownTitle + "</td>";
-                            temp += "<td style='padding: .3rem .3rem;'>" + response.listYarnOutwardMaster[i].LocationTitle + "</td>";
-                            temp += "<td style='padding: .3rem .3rem;'> <p id='span_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].NoOfBox + " </p></td>";
-                            var allids = response.listYarnOutwardMaster[i].BillToPartyID + "|" + response.listYarnOutwardMaster[i].YarnMaterialID + "|" + response.listYarnOutwardMaster[i].YarnColorID;
-                            temp += "<td style='padding: .3rem .3rem;'><input type='hidden' class='form-control' id='txtGodown_" + response.listYarnOutwardMaster[i].GodownLocationID + "' value='" + allids + "' />";
-                            temp += "<input type='tel' class='form-control' id='txtNoOfBox_" + response.listYarnOutwardMaster[i].GodownLocationID + "' value='" + MentionNoOfBox + "' onkeypress='return (event.charCode>=48 && event.charCode<=57)' maxlength='2' style='width:40%; min-height: 30px;' onkeyup='GodownNoOfBox(this)' /></td>";
-                            temp += "</tr>";
-                            txtGodownLocationID += response.listYarnOutwardMaster[i].GodownLocationID + ",";
-
-                        }
-
-                        $("#hTotalNoOfBox").html(TextStock);
-                        $("#txtGodownLocationID").val(txtGodownLocationID);
-                        $("#tblYarnSift").empty();
-                        dataTable.append(temp);
-                    },
-                    error: function (request, status, error) {
-                    }
-                });
-               $("#btnShiftModel").click();
-            }
-        }
-        else {
-            $(txtid).addClass("is-invalid");
-
-            notes.show("Please Mention No Of Box.", {
-                type: 'danger',
-                //title: 'Opps.!',
-                //icon: '<i class="icon-alert-triangle"></i>'
+                locationIds.push(item.GodownLocationID);
+                srno++;
             });
+
+            $tbody.append(temp);
+
+            $("#hTotalNoOfBox").html(TextStock);
+            $("#txtGodownLocationID").val(locationIds.join(",") + ",");
+          
+           HideAlreadySifted();
+
+            setTimeout(function () {
+                $("#btnSaveSiftYarnBox").focus();
+            }, 300);
+        }
+    });
+
+    $("#btnShiftModel").click();
+}
+    function SaveSiftYarnBox() {
+        debugger;
+        var dataArray = [];
+        var BillToPartyID = $("#txtBillToPartyID").val();
+        var YarnMaterialID = $("#txtYarnMaterialID").val();
+        var YarnColorID = $("#txtYarnColorID").val();
+
+        var GodownLocationIDRaw = $("#txtGodownLocationID").val();
+        if (!GodownLocationIDRaw) return;
+
+        var GodownLocationIDs = GodownLocationIDRaw.slice(0, -1).split(",");
+
+        var TotalNoOfBox = 0;
+
+        // 🔹 Calculate Total
+        GodownLocationIDs.forEach(function (id) {
+            var qty = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+            TotalNoOfBox += qty;
+        });
+
+        $("#hTotalNoOfBox").html(TotalNoOfBox);
+
+        var SpanNoOfBox = parseInt($("#tblSpanNoOfBox").html()) || 0;
+
+        if (TotalNoOfBox !== SpanNoOfBox) {
+            return;
         }
 
+        // 🔹 Build Sift String
+        var existingValue = $("#siftGodownInputBox").val() || "";
+        var newEntries = "";
+        var qtyMap = {};
+
+        GodownLocationIDs.forEach(function (id) {
+
+            var qty = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+            if (qty > 0) {
+
+                var entry = "(" + id + "," + BillToPartyID + "," + YarnMaterialID + "," + YarnColorID + "," + qty + ")|";
+                newEntries += entry;
+
+                var mapKey = BillToPartyID + "_" + YarnMaterialID + "_" + YarnColorID;
+
+                if (!qtyMap[mapKey]) {
+                    qtyMap[mapKey] = 0;
+                }
+
+                qtyMap[mapKey] += qty;
+            }
+        });
+
+        $("#siftGodownInputBox").val(existingValue + newEntries);
+
+        // 🔥 🔥 UPDATE STOCK IMMEDIATELY (NO AJAX WAIT)
+        $("#tableYarnOutward tr").each(function () {
+
+            var $row = $(this);
+
+            var hiddenId = $row.find("input[type='hidden']").val();
+            if (!hiddenId) return;
+
+            var parts = hiddenId.split("_");
+            if (parts.length < 4) return;
+
+            var rowKey = parts[1] + "_" + parts[2] + "_" + parts[3];
+
+            if (qtyMap[rowKey]) {
+
+                var stockSpan = $row.find("span[id^='spanStock_']");
+                var currentStock = parseInt(stockSpan.text()) || 0;
+
+                var newStock = currentStock - qtyMap[rowKey];
+
+                // Prevent negative
+                if (newStock < 0) newStock = 0;
+
+                stockSpan.text(newStock);
+                $row.find("input[id^='txtinputstock_']").val("");
+
+                // ✅ Hide row if stock becomes 0
+                if (newStock === 0) {
+                    $row.hide();
+                }
+            }
+        });
+
+        $("#tblYarnSift tr").each(function () {
+            var id = $(this).data("godownlocationid");   // from data attribute
+            var noOfBox = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+
+            if (noOfBox <= 0) return;   // skip empty rows
+
+            dataArray.push({
+                Id: id,
+                Company: $(this).data("companyname"),
+                Material: $(this).data("yarnmaterial"),
+                Color: $(this).data("yarncolor"),
+                YarnCode: $(this).data("yarncolorcode"),
+                Godown: $(this).find("td:eq(1)").text().trim(),
+                Location: $(this).find("td:eq(2)").text().trim(),
+                NoOfBox: noOfBox
+            });
+
+        });
+
+        if (dataArray.length === 0) {
+            alert("Please enter at least one box.");
+            return;
+        }
+
+        $("#btnClose").click();
+
+        var dataTable = $('#tableSiftYarnData');
+        var temp = "";
+
+        var srno = $("#tableSiftYarnData tr").length + 1;
+
+        for (var i = 0; i < dataArray.length; i++) {
+
+            temp += "<tr>";
+
+            var hiddenValue = "(" + dataArray[i].Id + "," +
+                BillToPartyID + "," +
+                YarnMaterialID + "," +
+                YarnColorID + "," +
+                dataArray[i].NoOfBox + ")";
+
+            temp += "<td style='text-align:center;'>" +
+                "<a href='javascript:void(0);' onclick='yarnbacksift(this,\"" + hiddenValue + "\")'>" +
+                "<img src='/img/left-rrow.png' title='Sift Back Yarn' style='width:20px;'/>" +
+                "</a>" +
+                "</td>";
+
+            temp += "<td>" + srno + "</td>";
+            temp += "<td>" + dataArray[i].Company + "</td>";
+            temp += "<td>" + dataArray[i].Material + "</td>";
+            temp += "<td>" + dataArray[i].Color + "</td>";
+            temp += "<td>" + dataArray[i].YarnCode + "</td>";
+            temp += "<td>" + dataArray[i].Location + "</td>";
+            temp += "<td>" + dataArray[i].NoOfBox + "</td>";
+
+            // Hidden value for back sift
+            temp += "<input type='hidden' id='txtsiftid_" + srno + "' " +
+                "value='" + dataArray[i].Id + "' />";
+
+            temp += "</tr>";
+
+            srno++;
+        }
+
+        dataTable.append(temp);
     }
     function GodownNoOfBox(abc) {
         var GodownLocationID = abc.id.split('_')[1];
@@ -1318,227 +1409,273 @@
         //alert(TotalNoOfBox);
 
     }
-    function showBarcodeRecords(YarnInwardDetailID) {
-        //alert(YarnInwardDetailID);
+    function HideAlreadySifted() {
+        debugger;
+        $("#tblYarnSift tr").each(function () {
+
+            var $modalRow = $(this);
+
+            var locationId = $modalRow.data("godownlocationid");
+            var billTo = $modalRow.data("billto");
+            var material = $modalRow.data("yarnmaterialid");
+            var color = $modalRow.data("yarncolorid");
+
+            var modalMaxQty =
+                parseInt($modalRow.find("td:eq(3)").text()) || 0;
+
+            var usedQty = 0;
+
+            // 🔹 Right table ma thi total used qty add karo
+            $("#tableSiftYarnData tr").each(function () {
+
+                var anchor = $(this).find("a[onclick]");
+                if (!anchor.length) return;
+
+                var onclickText = anchor.attr("onclick");
+                var match = onclickText.match(/"\((.*?)\)"/);
+                if (!match) return;
+
+                var parts = match[1].split(",");
+                if (parts.length < 5) return;
+
+                if (locationId == parts[0] &&
+                    billTo == parts[1] &&
+                    material == parts[2] &&
+                    color == parts[3]) {
+
+                    usedQty += parseInt(parts[4]) || 0;
+                }
+            });
 
 
-        var DecryptID = "";
+            var remaining = modalMaxQty - usedQty;
+            if (remaining < 0) remaining = 0;
+
+            var textbox = $modalRow.find(".txtNoOfBox");
+
+            // ✅ Row always visible
+            $modalRow.show();
+
+            // ✅ Row wise correct value
+            textbox.val(remaining);
+
+            if (remaining === 0) {
+               var textbox = $modalRow.find(".txtNoOfBox");
+
+                textbox.val(0)
+                    .prop("disabled", true)
+                    .addClass("bg-light");
+
+                // Row visible rahe
+                $modalRow.hide();
+            } else {
+                var remaining = modalMaxQty - usedQty;                
+                if (remaining > 0) {
+                    $modalRow.find("td:eq(3)").text(remaining);
+                    var textbox = $modalRow.find(".txtNoOfBox");
+                    textbox.val(remaining).trigger("change");
+
+                }
+                textbox.prop("disabled", false)
+                    .removeClass("bg-light");
+            }
+        });
+        
+        // 🔹 Total update
+        var total = 0;
+        $("#tblYarnSift .txtNoOfBox").each(function () {
+            total += parseInt($(this).val()) || 0;
+        });
+
+        $("#hTotalNoOfBox").html(total);
+    }
+    function yarnbacksift(el, key) {
+
+        debugger;
+
+        var originalKey = key;
+
+        // Remove brackets
+        key = key.replace("(", "").replace(")", "");
+        var ids = key.split(",");
+        var locationId = ids[0];
+        var partyId = ids[1];
+        var materialId = ids[2];
+        var colorId = ids[3];
+        var qty = parseInt(ids[4]) || 0;
+
+        // 🔹 1. Restore stock in left table
+        $("#tableYarnOutward tr").each(function () {
+
+            var $row = $(this);
+
+            var hiddenId = $row.find("input[type='hidden']").val();
+            if (!hiddenId) return;
+
+            var parts = hiddenId.split("_");
+
+            if (partyId == parts[1] &&
+                materialId == parts[2] &&
+                colorId == parts[3]) {
+
+                var stockSpan = $row.find("span[id^='spanStock_']");
+                var currentStock = parseInt(stockSpan.text()) || 0;
+
+                var newStock = currentStock + qty;
+
+                stockSpan.text(newStock);
+
+                // ✅ If stock > 0 → show row again
+                if (newStock > 0) {
+                    $row.show();   // removes display:none
+                }
+            }
+        });        
+        $(el).closest("tr").remove();
+        var currentValue = $("#siftGodownInputBox").val() || "";
+        var updatedValue = currentValue.replace(originalKey + "|", "");
+        $("#siftGodownInputBox").val(updatedValue);
+        $("#tableSiftYarnData tr").each(function (index) {
+            $(this).find("td:eq(1)").text(index + 1);
+        });
+     }
+    function yarnsift(abc) {
+        debugger;
+        if (!abc) return;
+        var parts = abc.split("_");
+        if (parts.length < 4) return;
+        var SrNo = parts[0];
+        var BillToPartyID = parts[1];
+        var YarnMaterialID = parts[2];
+        var YarnColorID = parts[3];
+        var GodownID = $("#ddlGodownMaster").val();
+
+        var $stockSpan = $("#spanStock_" + SrNo);
+        var $inputBox = $("#txtinputstock_" + SrNo);
+        var TextStock = parseInt($inputBox.val()) || 0;
+        var AvailableStock = parseInt($stockSpan.text()) || 0;
+        if (!TextStock) {
+            $inputBox.addClass("is-invalid");
+            notes.show("Please Mention No Of Box.", { type: 'danger' });
+            return;
+        }
+
+        if (TextStock > AvailableStock) {
+            $inputBox.addClass("is-invalid");
+            notes.show("Please Mention Below Stock Value.", { type: 'danger' });
+            return;
+        }
+
+        $inputBox.removeClass("is-invalid");
+        $("#tblSpanCompanyName").html($("#span_Name_" + SrNo).html());
+        $("#tblSpanYarnMaterial").html($("#span_Material_" + SrNo).html());
+        $("#tblSpanYarnColor").html($("#span_Color_" + SrNo).html());
+        $("#tblSpanColorCode").html($("#span_Code_" + SrNo).html());
+        $("#tblSpanNoOfBox").html(TextStock);
+
+        $("#txtBillToPartyID").val(BillToPartyID);
+        $("#txtYarnMaterialID").val(YarnMaterialID);
+        $("#txtYarnColorID").val(YarnColorID);
+        $("#txtTextStock").val(TextStock);
+        var formData = new FormData();
+        formData.append('BillToPartyID', BillToPartyID);
+        formData.append('YarnMaterialID', YarnMaterialID);
+        formData.append('YarnColorID', YarnColorID);
+        formData.append('GodownID', GodownID);
+
+        var siftGodownInputBox = $("#siftGodownInputBox").val() || "";
+        formData.append(
+            'siftGodownInputBox',
+            siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : ""
+        );
 
         $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardDetailID,
-            data: "{ 'id':'" + YarnInwardDetailID + "' }",
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutwardSiftMaster',
+            data: formData,
             dataType: 'json',
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                //window.location.href = '/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID;
-                window.open('/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
-            },
-            error: function (request, status, error) {
 
-            }
-        });
+                var list = response.listYarnOutwardMaster || [];
+                var $tbody = $("#tblYarnSift");
 
+                $tbody.empty();
 
-    }
-    function yarnInwardCheck(YarnInwardDetailID) {
-        var checkid = "#" + YarnInwardDetailID;
-
-        //alert(YarnInwardDetailID);
-        //chk_30023
-        var YIDID = YarnInwardDetailID.split('_')[1] + "|";
-        var tr = "#tr" + YarnInwardDetailID.split('_')[1];
-        var txtYarnInwardDetailIDs = $("#txtYarnInwardDetailIDs").val();
-        //alert(YIDID);
-
-        if ($(checkid).prop('checked') == true) {
-            //do something
-            //alert("check");
-            $("#txtYarnInwardDetailIDs").val(txtYarnInwardDetailIDs + YIDID);
-            $(tr).css("background-color", "lightskyblue");
-        }
-        else {
-            $("#txtYarnInwardDetailIDs").val(txtYarnInwardDetailIDs.replace(YIDID, ""));
-            $(tr).css("background-color", "");
-            //alert("Not check");
-        }
-
-        //alert(YarnInwardDetailID);
-
-    }
-    function SaveSiftYarnBox() {
-        var BillToPartyID = $("#txtBillToPartyID").val();
-        var YarnMaterialID = $("#txtYarnMaterialID").val();
-        var YarnColorID = $("#txtYarnColorID").val();
-        var TextStock = $("#txtTextStock").val();
-        var YarnInwardDetailID = $("#txtYarnInwardDetailIDs").val();
-        var GodownLocationID = $("#txtGodownLocationID").val().slice(0, -1);
-        var TotalNoOfBox = 0;
-        for (var i = 0; i < GodownLocationID.split(',').length; i++) {
-            var InpuNoOfBox = "#txtNoOfBox_" + GodownLocationID.split(',')[i];
-            if ($(InpuNoOfBox).val() == "") {
-                TotalNoOfBox = parseInt(TotalNoOfBox) + parseInt(0);
-            }
-            else {
-                TotalNoOfBox = parseInt(TotalNoOfBox) + parseInt($(InpuNoOfBox).val());
-            }
-        }
-
-        $("#hTotalNoOfBox").html(TotalNoOfBox);
-        var SpanNoOfBox = $("#tblSpanNoOfBox").html();
-
-        if (parseInt(TotalNoOfBox) == parseInt(SpanNoOfBox)) {
-            var siftGodownInputBoxArray = $("#siftGodownInputBox").val();
-            var siftGodownInputBox = "";
-
-            for (var i = 0; i < GodownLocationID.split(',').length; i++) {
-               var InpuNoOfBox = "#txtNoOfBox_" + GodownLocationID.split(',')[i];
-                  if ($(InpuNoOfBox).val() != "0") {
-                    siftGodownInputBox += "(" + GodownLocationID.split(',')[i] + "," + BillToPartyID + "," + YarnMaterialID + "," + YarnColorID + "," + $(InpuNoOfBox).val() + ")|";
+                if (!list.length) {
+                    $("#hTotalNoOfBox").html(0);
+                    return;
                 }
-            }
-                $("#siftGodownInputBox").val(siftGodownInputBoxArray + siftGodownInputBox);
-            displaySiftData();
-            $("#btnClose").click();
-        }
 
-        
-    }
-    function displaySiftData() {    
-        var siftGodownInputBox = $("#siftGodownInputBox").val();
-        //alert(siftGodownInputBox.slice(0, -1).replace(/\|/g, ','));
-        if (siftGodownInputBox != "") {
-            var formData = new FormData();
-            formData.append('GodownInputBoxss', siftGodownInputBox.slice(0, -1).replace(/\|/g, ','));
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getSiftYarnOutwardMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
+                var temp = "";
+                var srno = 1;
+                var RemainingStock = TextStock;
+                var locationIds = [];
 
-                    $("#btnClose").click();
-               
+                list.forEach(function (item) {
 
-                    var dataTable = $('#tableSiftYarnData');
-                    var temp = "";
+                    var maxBox = parseInt(item.NoOfBox) || 0;
+                    var MentionNoOfBox = 0;
 
-                    var srno = parseInt(0) + parseInt(1);
-                    var siftGodownInputBox = "";
-
-                    for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
-
-                        temp += "<tr>";
-                        var allids = "(" + response.listYarnOutwardMaster[i].GodownLocationID + "," + response.listYarnOutwardMaster[i].BillToPartyID + "," + response.listYarnOutwardMaster[i].YarnMaterialID + "," + response.listYarnOutwardMaster[i].YarnColorID + "," + response.listYarnOutwardMaster[i].NoOfBox + ")";
-                        siftGodownInputBox += "(" + response.listYarnOutwardMaster[i].GodownLocationID + "," + response.listYarnOutwardMaster[i].BillToPartyID + "," + response.listYarnOutwardMaster[i].YarnMaterialID + "," + response.listYarnOutwardMaster[i].YarnColorID + "," + response.listYarnOutwardMaster[i].NoOfBox + ")|";
-                        temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='yarnbacksift(\"" + allids + "\")'><img src='/img/left-rrow.png' title='Sift Back Yarn' style='width: 40%;'/></a>";
-                        temp += "<input type='hidden' id='txtsiftid_" + response.listYarnOutwardMaster[i].GodownLocationID + "' value='" + allids + "' class='form-control' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)' />";
-                        temp += "</td>";
-                        temp += "<td>" + srno++ + "</td>";
-                        temp += "<td><span id='span_Name_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].CompanyName + "</span></td>";
-                        temp += "<td><span id='span_Material_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].YarnMaterial + "</span></td>";
-                        temp += "<td><span id='span_Color_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].YarnColor + "</span></td>";
-                        temp += "<td><span id='span_Code_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].YarnColorCode + "</span></td>";
-                        temp += "<td><span id='span_LocationTitle_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].LocationTitle + "</span></td>";
-                        temp += "<td><span id='span_NoOfBox_" + response.listYarnOutwardMaster[i].GodownLocationID + "'>" + response.listYarnOutwardMaster[i].NoOfBox + "</span></td>";
-                        temp += "</tr>";
-
+                    if (RemainingStock > 0) {
+                        MentionNoOfBox = Math.min(RemainingStock, maxBox);
+                        RemainingStock -= MentionNoOfBox;
                     }
-                    $("#tableSiftYarnData").empty();
-                    dataTable.append(temp);
-                    $('#tableYarnOutward').empty();
-                    GridBindData();
 
+                    temp += `
+                     <tr 
+                         data-billto="${item.BillToPartyID}"
+                         data-godownlocationid="${item.GodownLocationID}"
+                         data-yarncolorid="${item.YarnColorID}"
+                         data-yarnmaterialid="${item.YarnMaterialID}"
+                         data-companyname="${item.CompanyName}"
+                         data-yarnmaterial="${item.YarnMaterial}"
+                         data-yarncolor="${item.YarnColor}"
+                         data-yarncolorcode="${item.YarnColorCode}">
 
-                },
-                error: function (request, status, error) {
-                }
-            });
+                         <td>${srno}</td>
+                         <td>${item.GodownTitle}</td>
+                         <td>${item.LocationTitle}</td>
+                         <td>${maxBox}</td>
+                         <td>
+                             <input type="tel"
+                                 class="form-control txtNoOfBox"
+                                 id="txtNoOfBox_${item.GodownLocationID}"
+                                 data-max="${maxBox}"
+                                 value="${MentionNoOfBox}"
+                                 maxlength="2"
+                                 style="width:60px; min-height:30px;"
+                                 onkeypress="return (event.charCode>=48 && event.charCode<=57)"
+                                 onkeyup="GodownNoOfBox(this)" />
+                         </td>
+                     </tr>`;
 
+                    locationIds.push(item.GodownLocationID);
+                    srno++;
+                });
 
+                $tbody.append(temp);
 
+                $("#hTotalNoOfBox").html(TextStock);
+                $("#txtGodownLocationID").val(locationIds.join(",") + ",");
 
-        }
-        else {
-            $("#tableSiftYarnData").empty();
-            GridBindData();
-        }
+                HideAlreadySifted();
 
-    }
-    function yarnbacksift(siftGodownInputBox) {
-        var abc = $("#siftGodownInputBox").val();
-        var xyz = siftGodownInputBox.split("_")[0] + "|";
-        //alert(YarnInwardDetailID);
-
-
-        //var abc = "(27,7,40,43,2)|(28,7,40,43,1)|(1002,7,40,43,3)|(1002,7,40,43,2)|(1002,7,40,43,1)|";
-        //var xyz = "(1002,7,40,43,6)|";
-
-        // remove ending |
-        abc = abc.replace(/\|$/, '');
-        xyz = xyz.replace(/\|$/, '');
-
-        // split xyz
-        var xyzParts = xyz.replace(/[()]/g, '').split(',');
-        var matchKey = xyzParts.slice(0, 4).join(',');
-        var xyzTotal = parseInt(xyzParts[4]);
-
-        // split abc records
-        var records = abc.split('|');
-
-        var sum = 0;
-        var indexesToRemove = [];
-
-        // calculate sum for matching records
-        records.forEach(function (rec, index) {
-            var parts = rec.replace(/[()]/g, '').split(',');
-            if (parts.slice(0, 4).join(',') === matchKey) {
-                sum += parseInt(parts[4]);
-                indexesToRemove.push(index);
+                setTimeout(function () {
+                    $("#btnSaveSiftYarnBox").focus();
+                }, 300);
             }
         });
 
-        // remove records only if sum matches xyz
-        if (sum === xyzTotal) {
-            records = records.filter(function (_, index) {
-                return !indexesToRemove.includes(index);
-            });
-        }
-
-        // final result
-        var result = records.join('|') + (records.length ? '|' : '');
-
-        console.log(result);
-
-
-
-        //alert(result);
-
-        $("#siftGodownInputBox").val(result);
-
-        //var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
-        //$("#siftYarnInwardDetailID").val(siftYarnInwardDetailID.replace(YarnInwardDetailID, ""));
-
-
-        displaySiftData();
-
+        $("#btnShiftModel").click();
     }
     function checkSave() {
-
-
         var PartyId = document.getElementById("ddlParty");
         var OutwardListNo = document.getElementById("ListNo");
         var OutwardListDate = document.getElementById("ListDate");
         var GodownManagerUserAccountId = document.getElementById("ddlYarnGodownManager");
-
-
         if (validate(PartyId) == false) {
-
             validate(PartyId);
             notes.show("Please Select Sundry Creditors Party.", {
                 type: 'danger',
@@ -1548,7 +1685,6 @@
         }
         else
             if (validate(OutwardListNo) == false) {
-
                 validate(OutwardListNo);
                 notes.show("Please Mention List No.", {
                     type: 'danger',
@@ -1558,7 +1694,6 @@
             }
             else
                 if (validate(OutwardListDate) == false) {
-
                     validate(OutwardListDate);
                     notes.show("Please Mention List Date.", {
                         type: 'danger',
@@ -1569,7 +1704,6 @@
                 else
 
                     if (validate(GodownManagerUserAccountId) == false) {
-
                         validate(GodownManagerUserAccountId);
                         notes.show("Please Select Godown Manager.", {
                             type: 'danger',
@@ -1610,7 +1744,6 @@
                                 success: function (response) {
                                     if (response.Code == 201) {
                                         clearAll();
-
                                         notes.show(response.Message, {
                                             type: 'success',
 
@@ -1620,8 +1753,6 @@
                                         $("#cancelbtn").click();
                                     }
                                     else {
-
-
                                         notess.show(response.Message, {
                                             type: 'danger',
 
@@ -1629,16 +1760,12 @@
                                     }
                                 },
                                 error: function (error) {
-
-
                                     notess.show(response.Message, {
                                         type: 'danger',
 
                                     });
-
                                 }
                             });
-
                         }
 
     }

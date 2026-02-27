@@ -760,35 +760,16 @@
 
 
     });
-
-
-
-
-
-
-
-
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
-
-
-    //var strGodownLocationID = "";
-    //var strBillToPartyID = "";
-    //var strYarnMaterialID = "";
-    //var strYarnColorID = "";
-    //var strInpuNoOfBox = "";
-
-
-
-
+    var GodownIDs = "";
+    var TotalInwardStockAry = "";
+    var TotalOutwardStockAry = "";
+    var TotalExistingOutwardStockAry = "";
     function ViewRecordQueryString(DecryptID) {
 
 
@@ -873,7 +854,7 @@
         });
 
     }
-       function getDefaultCompany() {
+    function getDefaultCompany() {
         $.ajax({
             type: "GET",
             url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
@@ -986,10 +967,6 @@
                 return true;
             }
     }
-    var GodownIDs = "";   
-    var TotalInwardStockAry = "";
-    var TotalOutwardStockAry = "";
-    var TotalExistingOutwardStockAry = "";
     function allArray() {
 
         console.log(TotalInwardStockAry);
@@ -1135,7 +1112,6 @@
         $("#select2-ddlYarnColor-container").html(Color);
         //displayData();
     } 
-    
     function showBarcodeRecords(YarnInwardDetailID) {
         //alert(YarnInwardDetailID);
 
@@ -1249,8 +1225,6 @@
 
 
     }
-
-  
     function checkSave() {
 
 
@@ -1369,10 +1343,6 @@
                         }
 
     }
-
-
-
-
     function getOutwardDetail() {
 
         var formData = new FormData();
@@ -1571,7 +1541,6 @@
         });
 
     }
-
     function displayData() {
 
         var GodownID = $("#ddlGodownMaster").val();
@@ -1646,7 +1615,6 @@
         }
 
     }
-
     function yarnsift(abc) {
         //alert(abc);
 
@@ -1810,7 +1778,6 @@
         }
 
     }
-
     function yarnbacksift(siftGodownInputBox) {
         debugger;
         var abc = $("#siftGodownInputBox").val();
@@ -1870,8 +1837,6 @@
         displaySiftData();
 
     }
-
-
     function StockCalculation(abc) {
         //alert(abc.value);
         //alert(abc.id.split('_')[1]);
@@ -1899,7 +1864,6 @@
         //var SpanStock = "#" + abc.id;
 
     }
-
     function GodownNoOfBox(abc) {
         var GodownLocationID = abc.id.split('_')[1];
         var spanValue = "#span_" + GodownLocationID;
@@ -1975,7 +1939,6 @@
         //alert(TotalNoOfBox);
 
     }
-
     function ViewYarnOutWardRecordQueryString(DecryptID) {
         debugger;
 
@@ -2046,9 +2009,6 @@
         });
 
     }
-
-
-
     function displaySiftData() {
 
 
