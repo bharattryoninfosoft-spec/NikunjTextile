@@ -2,21 +2,22 @@
 using NikunjTextile.Class;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
-using System.Globalization;
-using System.Text.RegularExpressions;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace NikunjTextile
 {
@@ -21682,14 +21683,13 @@ namespace NikunjTextile
 
             var request = HttpContext.Current.Request;
             YarnOutwardMasterResponce listYarnOutwardMasterResponce = new YarnOutwardMasterResponce();
-
             List<TotalInwardStockArray> listTotalInwardStockArray = new List<TotalInwardStockArray>();
             List<TotalOutwardStockArray> listTotalOutwardStockArray = new List<TotalOutwardStockArray>();
             List<TotalExistingOutwardStockArray> listTotalExistingOutwardStockArray = new List<TotalExistingOutwardStockArray>();
-
+            List<YarnOutwardMaster> YarnOutwardcondition = new List<YarnOutwardMaster>();
             YarnOutwardMasterResponce ilist = new YarnOutwardMasterResponce();
             //ilist.YarnOutwardID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnOutwardID"]);
-            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
+            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);     
 
             string abc = HttpContext.Current.Request.Params["YarnOutwardID"];
             string lastCharacter = abc.Substring(abc.Length - 6);
@@ -21704,8 +21704,39 @@ namespace NikunjTextile
                 ilist.YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnOutwardID"])));
             }
 
-            //Upload Cate Master
+
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                //aLL sTOCK
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.CommandText = @"select* from YarnOutwardMaster with (Nolock) where YarnOutwardID = '" + ilist.YarnOutwardID + "'";
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                        yarnOutward.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
+                        yarnOutward.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
+                        yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
+                        yarnOutward.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
+                        yarnOutward.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"]);
+                        yarnOutward.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"]);
+                        yarnOutward.UserAccountId = Convert.ToInt32(rdr["UserAccountId"]);
+                        yarnOutward.FinancialYearID = Convert.ToInt32(rdr["FinancialYearID"]);
+                        yarnOutward.CompanyId = Convert.ToInt32(rdr["CompanyId"]);
+                        yarnOutward.GodownID = Convert.ToInt32(rdr["GodownMasterID"]);
+                        YarnOutwardcondition.Add(yarnOutward);
+                    }
+
+                }
+            }            
+            
             using (SqlConnection con = new SqlConnection(cs))
             {
                 //aLL sTOCK
@@ -21735,7 +21766,7 @@ namespace NikunjTextile
                                     ) as t1
                                     where (1=1) and Stock > 0 
                                     group by t1.BillToPartyID, t1.CompanyName,
-                                    t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode  ";
+                                    t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode";
 
 
 
@@ -21808,15 +21839,15 @@ namespace NikunjTextile
                 //aLL eXISTING OUTWARD STOCK 
                 cmd.CommandText = @"
                                     select t1.Stock,
-                                    t1.BillToPartyID, PM.PartyName, T1.YarnMaterialID, YMM.YarnMaterial,
+                                    t1.BillToPartyID, PM.PartyName, t1.GodownMasterID,T1.YarnMaterialID, YMM.YarnMaterial,
                                     T1.YarnColorID, YCM.YarnColor, YCM.YarnColorCode, t1.GodownLocationID, GLM.LocationTitle
                                     from(
-	                                    select SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID, YOM.YarnOutwardID
+	                                    select SUM(YOD.NoOfBox) as Stock,YOM.GodownMasterID, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID, YOM.YarnOutwardID
 	                                    from YarnOutwardDetail YOD
 	                                    LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
 	                                    where YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
 	                                    and YOM.YarnOutwardID = " + ilist.YarnOutwardID + @"
-	                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOM.YarnOutwardID, YOD.GodownLocationID
+	                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOM.YarnOutwardID,YOM.GodownMasterID, YOD.GodownLocationID
                                     ) as t1
                                     LEFT JOIN PartyMaster PM ON t1.BillToPartyID =  PM.PartyId
                                     LEFT JOIN YarnMaterialMaster YMM ON t1.YarnMaterialID = YMM.YarnMaterialID
@@ -21840,6 +21871,7 @@ namespace NikunjTextile
                         condition.Stock = Convert.ToInt32(rdr3["Stock"].ToString());
                         condition.GodownLocationID = Convert.ToInt32(rdr3["GodownLocationID"].ToString());
                         condition.LocationTitle = rdr3["LocationTitle"].ToString();
+                        condition.GodownMasterID = Convert.ToInt32(rdr3["GodownMasterID"].ToString());
                         listTotalExistingOutwardStockArray.Add(condition);
                     }
 
@@ -21852,7 +21884,7 @@ namespace NikunjTextile
                 listYarnOutwardMasterResponce.listTotalInwardStockArray = listTotalInwardStockArray;
                 listYarnOutwardMasterResponce.listTotalOutwardStockArray = listTotalOutwardStockArray;
                 listYarnOutwardMasterResponce.listTotalExistingOutwardStockArray = listTotalExistingOutwardStockArray;
-
+                listYarnOutwardMasterResponce.YarnOutwardcondition = YarnOutwardcondition;
                 con.Close();
             }
 
@@ -21922,170 +21954,9 @@ namespace NikunjTextile
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
 
-
-
                 if (ilist.SiftGodownLocationId != "")
                 {
-
-                    //cmd.CommandText = @"select (t2.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-                    //                 t2.BillToPartyID, t2.CompanyName, t2.YarnMaterialID,
-                    //                    t2.YarnMaterial, t2.YarnColorID, t2.YarnColor,
-                    //                    t2.YarnColorCode from(
-                    //                 select CASE 
-                    //                   WHEN (t1.Stock - ISNULL(t2.Stock,0)) < 0 THEN 0
-                    //                   ELSE (t1.Stock - ISNULL(t2.Stock,0))
-                    //                  END AS Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                    //                  t1.YarnColorID, t1.YarnColor,
-                    //                  t1.YarnColorCode from (
-                    //                  select ISNULL(SUM(Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName,
-                    //                  t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode from
-                    //                  (
-                    //                   select  YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName as 'CompanyName',
-                    //                   YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode , YIDD.Stock
-                    //                   from YarnInwardMaster YIM
-                    //                   LEFT JOIN 
-                    //                   (
-                    //                    select YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName from YarnPOMaster YPM
-                    //                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-                    //                   )YPM ON YIM.YarnPOID = YPM.YarnPOID
-                    //                   LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
-                    //                   LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
-                    //                   LEFT JOIN (select COUNT(*) as Stock, YarnInwardID from YarnInwardDetail 
-                    //                                        where GodownLocationID in (select GodownLocationID from GodownLocationMaster where GodownID = '" + ilist.GodownID + @"')
-                    //                   group by YarnInwardID
-                    //                      ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
-                    //                  ) as t1
-                    //                  where (1=1)  " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-                    //                  group by t1.BillToPartyID, t1.CompanyName,
-                    //                  t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode  
-                    //                 ) as t1 
-                    //                 LEFT JOIN 
-                    //                 (
-                    //                  select SUM(t1.InputNoOfBox) as Stock,
-                    //                  t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
-                    //                  from(
-                    //                   SELECT
-                    //                    GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID,  ISNULL(SUM(InputNoOfBox),0) as InputNoOfBox
-                    //                   FROM (
-                    //                    SELECT * FROM (VALUES
-                    //                     " + ilist.SiftGodownLocationId + @"
-                    //                    ) AS V ( GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
-                    //                   ) X 
-                    //                   GROUP BY GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID
-                    //                  ) as t1
-                    //                  group by t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
-                    //                 ) as t2
-                    //                 ON  t1.BillToPartyID = t2.BillToPartyID
-                    //                 AND t1.YarnMaterialID = t2.YarnMaterialID
-                    //                 AND t1.YarnColorID = t2.YarnColorID
-                    //                ) as t2 
-                    //                LEFT JOIN 
-                    //                (
-
-                    //                      SELECT SUM(YOD.NoOfBox) AS Stock, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID
-                    //                     FROM YarnOutwardDetail YOD
-                    //                     LEFT JOIN YarnOutwardMaster YOM  ON YOD.YarnOutwardID = YOM.YarnOutwardID
-                    //                     WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-                    //                     AND NOT EXISTS
-                    //                     (
-                    //                      SELECT 1 FROM (
-                    //                          VALUES " + ilist.updatesiftGodownInputBox + @"
-                    //                           ) AS V (GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
-                    //                      WHERE 
-                    //                       V.GodownLocationID = YOD.GodownLocationID
-                    //                       AND V.BillToPartyID = YOD.BillToPartyID
-                    //                       AND V.YarnMaterialID = YOD.YarnMaterialID
-                    //                       AND V.YarnColorID = YOD.YarnColorID
-                    //                       AND V.InputNoOfBox = YOD.NoOfBox
-                    //                     )
-                    //                     GROUP BY  YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID
-
-                    //                ) YOD ON  t2.BillToPartyID = YOD.BillToPartyID
-                    //                AND t2.YarnMaterialID = YOD.YarnMaterialID
-                    //                AND t2.YarnColorID = YOD.YarnColorID
-                    //                where (t2.Stock - ISNULL(YOD.Stock, 0)) > 0;
-                    //                ";                    //cmd.CommandText = @"select (t2.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-                    //                 t2.BillToPartyID, t2.CompanyName, t2.YarnMaterialID,
-                    //                    t2.YarnMaterial, t2.YarnColorID, t2.YarnColor,
-                    //                    t2.YarnColorCode from(
-                    //                 select CASE 
-                    //                   WHEN (t1.Stock - ISNULL(t2.Stock,0)) < 0 THEN 0
-                    //                   ELSE (t1.Stock - ISNULL(t2.Stock,0))
-                    //                  END AS Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                    //                  t1.YarnColorID, t1.YarnColor,
-                    //                  t1.YarnColorCode from (
-                    //                  select ISNULL(SUM(Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName,
-                    //                  t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode from
-                    //                  (
-                    //                   select  YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName as 'CompanyName',
-                    //                   YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode , YIDD.Stock
-                    //                   from YarnInwardMaster YIM
-                    //                   LEFT JOIN 
-                    //                   (
-                    //                    select YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName from YarnPOMaster YPM
-                    //                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-                    //                   )YPM ON YIM.YarnPOID = YPM.YarnPOID
-                    //                   LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
-                    //                   LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
-                    //                   LEFT JOIN (select COUNT(*) as Stock, YarnInwardID from YarnInwardDetail 
-                    //                                        where GodownLocationID in (select GodownLocationID from GodownLocationMaster where GodownID = '" + ilist.GodownID + @"')
-                    //                   group by YarnInwardID
-                    //                      ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
-                    //                  ) as t1
-                    //                  where (1=1)  " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-                    //                  group by t1.BillToPartyID, t1.CompanyName,
-                    //                  t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode  
-                    //                 ) as t1 
-                    //                 LEFT JOIN 
-                    //                 (
-                    //                  select SUM(t1.InputNoOfBox) as Stock,
-                    //                  t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
-                    //                  from(
-                    //                   SELECT
-                    //                    GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID,  ISNULL(SUM(InputNoOfBox),0) as InputNoOfBox
-                    //                   FROM (
-                    //                    SELECT * FROM (VALUES
-                    //                     " + ilist.SiftGodownLocationId + @"
-                    //                    ) AS V ( GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
-                    //                   ) X 
-                    //                   GROUP BY GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID
-                    //                  ) as t1
-                    //                  group by t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
-                    //                 ) as t2
-                    //                 ON  t1.BillToPartyID = t2.BillToPartyID
-                    //                 AND t1.YarnMaterialID = t2.YarnMaterialID
-                    //                 AND t1.YarnColorID = t2.YarnColorID
-                    //                ) as t2 
-                    //                LEFT JOIN 
-                    //                (
-
-                    //                      SELECT SUM(YOD.NoOfBox) AS Stock, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID
-                    //                     FROM YarnOutwardDetail YOD
-                    //                     LEFT JOIN YarnOutwardMaster YOM  ON YOD.YarnOutwardID = YOM.YarnOutwardID
-                    //                     WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-                    //                     AND NOT EXISTS
-                    //                     (
-                    //                      SELECT 1 FROM (
-                    //                          VALUES " + ilist.updatesiftGodownInputBox + @"
-                    //                           ) AS V (GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
-                    //                      WHERE 
-                    //                       V.GodownLocationID = YOD.GodownLocationID
-                    //                       AND V.BillToPartyID = YOD.BillToPartyID
-                    //                       AND V.YarnMaterialID = YOD.YarnMaterialID
-                    //                       AND V.YarnColorID = YOD.YarnColorID
-                    //                       AND V.InputNoOfBox = YOD.NoOfBox
-                    //                     )
-                    //                     GROUP BY  YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID
-
-                    //                ) YOD ON  t2.BillToPartyID = YOD.BillToPartyID
-                    //                AND t2.YarnMaterialID = YOD.YarnMaterialID
-                    //                AND t2.YarnColorID = YOD.YarnColorID
-                    //                where (t2.Stock - ISNULL(YOD.Stock, 0)) > 0;
-                    //                ";
-
-
-
-                    cmd.CommandText = @"	select  
+                  cmd.CommandText = @"	select  
                                         (t2.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
                                         t2.BillToPartyID, t2.CompanyName, t2.YarnMaterialID,
                                         t2.YarnMaterial, t2.YarnColorID, t2.YarnColor,
@@ -22148,8 +22019,6 @@ namespace NikunjTextile
                                         AND t2.YarnMaterialID = YOD.YarnMaterialID
                                         AND t2.YarnColorID = YOD.YarnColorID
                                         WHERE t2.Stock > 0";
-
-
                 }
                 else
                 {
@@ -22225,19 +22094,13 @@ namespace NikunjTextile
                         condition.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
                         condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
                         condition.Stock = Convert.ToInt32(rdr["Stock"].ToString());
-
-
                         listUser.Add(condition);
                     }
                 }
-
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
             }
-
-
-
             response.Code = 200;
             response.Message = "Success";
             response.listYarnOutwardMaster = listUser;
@@ -22620,7 +22483,169 @@ namespace NikunjTextile
             return;
         }
 
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void UpdateYarnOutwardSiftMaster()
+        {
+            JavaScriptSerializer js;
+            List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
+            YarnOutwardMasterResponce response = new YarnOutwardMasterResponce();
 
+            var request = HttpContext.Current.Request;
+            YarnOutwardMaster ilist = new YarnOutwardMaster();
+
+            ilist.BillToPartyID = Convert.ToInt32(HttpContext.Current.Request.Params["BillToPartyID"]);
+            ilist.YarnMaterialID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnMaterialID"]);
+            ilist.YarnColorID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
+            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
+            //ilist.YarnInwardDetailIDss = HttpContext.Current.Request.Params["YarnInwardDetailIDss"];
+            ilist.siftGodownInputBox = HttpContext.Current.Request.Params["siftGodownInputBox"];
+
+
+            string abc = HttpContext.Current.Request.Params["YarnOutwardID"];
+            string lastCharacter = abc.Substring(abc.Length - 6);
+
+            if (lastCharacter != "%3d%3d")
+            {
+                string InvoiceId = HttpContext.Current.Request.Params["YarnOutwardID"].Replace("==", "") + "%3d%3d";
+                ilist.YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+            }
+            else
+            {
+                ilist.YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnOutwardID"])));
+            }   
+
+            string CompanyName = "";
+            if (ilist.BillToPartyID != 0)
+            {
+                CompanyName = " and YPM.BillToPartyID = " + ilist.BillToPartyID + " ";
+            }
+
+            string YarnMaterial = "";
+            if (ilist.YarnMaterialID != 0)
+            {
+                YarnMaterial = " and YarnMaterialID = " + ilist.YarnMaterialID + " ";
+            }
+
+            string YarnColor = "";
+            if (ilist.YarnColorID != 0)
+            {
+                YarnColor = " and YarnColorID = " + ilist.YarnColorID + " ";
+            }
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = @"SELECT   (t2.NoOfBox - ISNULL(YOD.UsedStock,0)) AS NoOfBox,t2.GodownLocationID,t2.GodownTitle,t2.LocationTitle,t2.BillToPartyID,t2.YarnMaterialID, t2.YarnColorID, GM.GodownTitle AS GodownName,
+        GLM.LocationTitle AS GodownLocationName,PM.PartyName AS CompanyName,YMM.YarnMaterial,YCM.YarnColor,YCM.YarnColorCode
+          FROM ( SELECT  t3.GodownLocationID,COUNT(t3.GodownLocationID) AS NoOfBox,GM.GodownTitle,GLM.LocationTitle,
+                '" + ilist.BillToPartyID + @"' AS BillToPartyID, '" + ilist.YarnMaterialID + @"' AS YarnMaterialID,'" + ilist.YarnColorID + @"' AS YarnColorID
+              FROM (SELECT T2.* FROM (SELECT YID.* FROM
+                (SELECT ROW_NUMBER() OVER ( PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC ) AS rn,* FROM YarnInterchangeMaster ) AS t1
+                LEFT JOIN YarnInwardDetail YID ON t1.YarnInwardDetailID = YID.YarnInwardDetailID
+                WHERE t1.rn = 1 AND t1.YarnInwardDetailID IN 
+                (  SELECT YarnInwardDetailID FROM YarnInwardDetail WHERE YarnInwardID IN (  SELECT YIM.YarnInwardID   FROM YarnInwardMaster YIM
+                    LEFT JOIN YarnPOMaster YPM ON YIM.YarnPOID = YPM.YarnPOID
+                    WHERE YPM.BillToPartyID = '" + ilist.BillToPartyID + @"' AND YarnMaterialID =  '" + ilist.YarnMaterialID + @"'  AND YarnColorID = '" + ilist.YarnColorID + @"' )
+                )
+                UNION ALL  SELECT *  FROM YarnInwardDetail
+                    WHERE YarnInwardID IN (SELECT YIM.YarnInwardID FROM YarnInwardMaster YIM
+                            LEFT JOIN YarnPOMaster YPM ON YIM.YarnPOID = YPM.YarnPOID
+                        WHERE YPM.BillToPartyID = '" + ilist.BillToPartyID + @"'
+                          AND YarnMaterialID = '" + ilist.YarnMaterialID + @"'
+                          AND YarnColorID = '" + ilist.YarnColorID + @"'
+                    )
+                  AND YarnInwardDetailID NOT IN ( SELECT DISTINCT YarnInwardDetailID FROM YarnInterchangeMaster ) ) AS T2 ) AS t3
+                                LEFT JOIN GodownLocationMaster GLM 
+                                    ON t3.GodownLocationID = GLM.GodownLocationID
+                                LEFT JOIN GodownMaster GM 
+                                    ON GLM.GodownID = GM.GodownID
+                                WHERE t3.GodownLocationID IN (
+                                    SELECT GodownLocationID 
+                                    FROM GodownLocationMaster 
+                                    WHERE GodownID = '" + ilist.GodownID + @"'
+                                )
+                                GROUP BY 
+                                    t3.GodownLocationID, 
+                                    GM.GodownTitle, 
+                                    GLM.LocationTitle
+                            ) AS t2
+                            LEFT JOIN GodownLocationMaster GLM 
+                                ON t2.GodownLocationID = GLM.GodownLocationID
+                            LEFT JOIN GodownMaster GM 
+                                ON GLM.GodownID = GM.GodownID
+                            LEFT JOIN PartyMaster PM 
+                                ON t2.BillToPartyID = PM.PartyId
+                            LEFT JOIN YarnMaterialMaster YMM 
+                                ON t2.YarnMaterialID = YMM.YarnMaterialID
+                            LEFT JOIN YarnColorMaster YCM 
+                                ON t2.YarnColorID = YCM.YarnColorID
+                           LEFT JOIN
+								(
+									SELECT 
+										YOD.GodownLocationID,
+										YOD.BillToPartyID,
+										YOD.YarnMaterialID,
+										YOD.YarnColorID,
+										SUM(YOD.NoOfBox) AS UsedStock
+									FROM YarnOutwardDetail YOD
+									INNER JOIN YarnOutwardMaster YOM 
+										ON YOD.YarnOutwardID = YOM.YarnOutwardID
+									WHERE YOM.CompanyId =
+										  (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+									  AND YOD.YarnOutwardID <> '" + ilist.YarnOutwardID + @"'                            
+									GROUP BY
+										YOD.GodownLocationID,
+										YOD.BillToPartyID,
+										YOD.YarnMaterialID,
+										YOD.YarnColorID
+								) YOD
+								ON  t2.BillToPartyID = YOD.BillToPartyID
+								AND t2.YarnMaterialID = YOD.YarnMaterialID
+								AND t2.YarnColorID = YOD.YarnColorID
+								AND t2.GodownLocationID = YOD.GodownLocationID
+                                   where (t2.NoOfBox - ISNULL(YOD.UsedStock,0)) > 0";
+                    con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster condition = new YarnOutwardMaster();
+                        condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
+                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
+                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
+                        condition.NoOfBox = Convert.ToInt32(rdr["NoOfBox"].ToString());
+                        condition.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
+                        condition.GodownTitle = rdr["GodownTitle"].ToString().ToUpper();
+                        condition.LocationTitle = rdr["LocationTitle"].ToString().ToUpper();
+                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
+                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
+                        condition.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
+                        condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
+                        listUser.Add(condition);
+                    }
+                }
+
+                rdr.Close();
+                cmd.Dispose();
+                con.Close();
+            }
+
+
+
+            response.Code = 200;
+            response.Message = "Success";
+            response.listYarnOutwardMaster = listUser;
+
+            js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+            return;
+        }
 
         // View Yarn Out Ward
         [WebMethod]
@@ -22973,6 +22998,7 @@ namespace NikunjTextile
             ilist.siftGodownInputBox = HttpContext.Current.Request.Params["siftGodownInputBox"];
             ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
             ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
+            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
 
             try
             {
@@ -22982,23 +23008,32 @@ namespace NikunjTextile
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
-
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    string sql = String.Format("Insert Into YarnOutwardMaster  (DateAndTime, PartyId, OutwardListNo, OutwardListDate, GodownManagerUserAccountId, UserAccountId, FinancialYearID, CompanyId)  OUTPUT INSERTED.YarnOutwardID Values " +
-                                    " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + ilist.PartyId + "', '" + ilist.OutwardListNo + "', '" + DateTime.ParseExact(ilist.OutwardListDates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "', '" + ilist.GodownManagerUserAccountId + "', '" + ilist.UserAccountId + "', (select FinancialYearID from FinancialYearMaster where IsDefault = 1), (select CompanyId from CompanyMaster where is_default = 1) )");
+                    cmd.CommandText = @"
+                                        INSERT INTO YarnOutwardMaster
+                                        (DateAndTime, PartyId, OutwardListNo, OutwardListDate,
+                                         GodownManagerUserAccountId, UserAccountId,
+                                         FinancialYearID, CompanyId, GodownMasterID)
+                                        OUTPUT INSERTED.YarnOutwardID
+                                        VALUES
+                                        (@DateAndTime, @PartyId, @OutwardListNo, @OutwardListDate,
+                                         @GodownManagerUserAccountId, @UserAccountId,
+                                         (select FinancialYearID from FinancialYearMaster where IsDefault = 1),
+                                         (select CompanyId from CompanyMaster where is_default = 1),
+                                         @GodownMasterID)";
+                    cmd.Parameters.AddWithValue("@DateAndTime", dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") );
+                    cmd.Parameters.AddWithValue("@PartyId", ilist.PartyId);
+                    cmd.Parameters.AddWithValue("@OutwardListNo", ilist.OutwardListNo);
+                    cmd.Parameters.AddWithValue("@OutwardListDate",
+                        DateTime.ParseExact(ilist.OutwardListDates,"dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", ilist.GodownManagerUserAccountId);
+                    cmd.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+                    cmd.Parameters.AddWithValue("@GodownMasterID", ilist.GodownID);
                     con.Open();
-                    cmd.CommandText = sql;
-                    //i = cmd.ExecuteNonQuery();
                     Int64 YarnOutwardID = Convert.ToInt64(cmd.ExecuteScalar());
                     cmd.Dispose();
-
-
                     if (YarnOutwardID > 0)
                     {
-
-
                         string[] siftGodownInputBox = ilist.siftGodownInputBox.Split('|');
-
                         for (int j = 0; j < siftGodownInputBox.Length - 1; j++)
                         {
                             string GodownInput = siftGodownInputBox[j].Replace("(", "").Replace(")", "");
@@ -23015,7 +23050,6 @@ namespace NikunjTextile
                             cmd2.CommandType = System.Data.CommandType.Text;
                             string sqls = String.Format("Insert Into YarnOutwardDetail  (DateAndTime, YarnOutwardID, BillToPartyID, YarnMaterialID, YarnColorID, GodownLocationID, NoOfBox, UserAccountId) Values " +
                                             " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + YarnOutwardID + "', '" + BillToPartyID + "', '" + YarnMaterialID + "', '" + YarnColorID + "', '" + GodownLocationID + "', '" + InpuNoOfBox + "', '" + ilist.UserAccountId + "'  )");
-
                             cmd2.CommandText = sqls;
                             //i = cmd2.ExecuteNonQuery();
                             int i = Convert.ToInt32(cmd2.ExecuteNonQuery());
@@ -23072,190 +23106,158 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateYarnOutwardMaster()
         {
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-
-            var request = HttpContext.Current.Request;
+            DateTime indianTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
             CommanResponse comman = new CommanResponse();
             YarnOutwardMaster ilist = new YarnOutwardMaster();
 
-            //ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
-            ilist.YarnOutwardID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnOutwardID"]);
-            ilist.PartyId = Convert.ToInt32(HttpContext.Current.Request.Params["PartyId"]);
-            ilist.OutwardListNo = Convert.ToInt32(HttpContext.Current.Request.Params["OutwardListNo"]);
-            ilist.GodownManagerUserAccountId = Convert.ToInt32(HttpContext.Current.Request.Params["GodownManagerUserAccountId"]);
-            ilist.OutwardListDates = HttpContext.Current.Request.Params["OutwardListDate"];
-            //ilist.siftYarnInwardDetailID = HttpContext.Current.Request.Params["siftYarnInwardDetailID"];
-            ilist.siftGodownInputBox = HttpContext.Current.Request.Params["siftGodownInputBox"];
-            ilist.updatesiftGodownInputBox = HttpContext.Current.Request.Params["updatesiftGodownInputBox"];
-            ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-            ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
-
             try
             {
+                var request = HttpContext.Current.Request;
 
+                // ===== Decrypt ID =====
+                string encryptedId = request.Params["YarnOutwardID"];
+                string lastCharacter = encryptedId.Substring(encryptedId.Length - 6);
+
+                if (lastCharacter != "%3d%3d")
+                {
+                    encryptedId = encryptedId.Replace("==", "") + "%3d%3d";
+                }
+
+                ilist.YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(encryptedId)));
+
+                // ===== Assign Parameters =====
+                ilist.PartyId = Convert.ToInt32(request.Params["PartyId"]);
+                ilist.OutwardListNo = Convert.ToInt32(request.Params["OutwardListNo"]);
+                ilist.GodownManagerUserAccountId = Convert.ToInt32(request.Params["GodownManagerUserAccountId"]);
+                ilist.OutwardListDates = request.Params["OutwardListDate"];
+                ilist.siftGodownInputBox = request.Params["siftGodownInputBox"];
+                ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
+                ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
+                ilist.GodownID = Convert.ToInt32(Context.Request.Cookies["GodownID"]);
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
                 using (SqlConnection con = new SqlConnection(cs))
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = con;
-
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    string sql = String.Format("update YarnOutwardMaster set DateAndTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', PartyId = '" + ilist.PartyId + "', " +
-                        "   OutwardListNo = '" + ilist.OutwardListNo + "', OutwardListDate = '" + DateTime.ParseExact(ilist.OutwardListDates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "', " +
-                        "   GodownManagerUserAccountId = '" + ilist.GodownManagerUserAccountId + "', UserAccountId = '" + ilist.UserAccountId + "', " +
-                        "   CompanyId = (select CompanyId from CompanyMaster where is_default = 1)  where YarnOutwardID = '" + ilist.YarnOutwardID + "' ");
                     con.Open();
-                    cmd.CommandText = sql;
-                    Int64 OutwardID = cmd.ExecuteNonQuery();
-                    //Int64 YarnOutwardID = Convert.ToInt64(cmd.ExecuteScalar());
-                    cmd.Dispose();
-
-
-                    if (OutwardID > 0)
+                    SqlTransaction tran = con.BeginTransaction();
+                    try
                     {
+                        #region UPDATE MASTER
+                        SqlCommand cmd = new SqlCommand(@"
+                    UPDATE YarnOutwardMaster
+                    SET DateAndTime = @DateAndTime,
+                        PartyId = @PartyId,
+                        OutwardListNo = @OutwardListNo,
+                        OutwardListDate = @OutwardListDate,
+                        GodownManagerUserAccountId = @ManagerId,
+                        UserAccountId = @UserId,
+                        CompanyId = @CompanyId,
+                        GodownMasterID=@GodownMasterID
 
+                    WHERE YarnOutwardID = @YarnOutwardID", con, tran);
 
-                        string[] siftGodownInputBox = ilist.siftGodownInputBox.Split('|');
-                        string[] updatesiftGodownInputBox = ilist.updatesiftGodownInputBox.Split('|');
+                        cmd.Parameters.AddWithValue("@DateAndTime", indianTime);
+                        cmd.Parameters.AddWithValue("@PartyId", ilist.PartyId);
+                        cmd.Parameters.AddWithValue("@OutwardListNo", ilist.OutwardListNo);
+                        cmd.Parameters.AddWithValue("@OutwardListDate",
+                            DateTime.ParseExact(ilist.OutwardListDates, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+                        cmd.Parameters.AddWithValue("@ManagerId", ilist.GodownManagerUserAccountId);
+                        cmd.Parameters.AddWithValue("@UserId", ilist.UserAccountId);
+                        cmd.Parameters.AddWithValue("@CompanyId", ilist.CompanyId);
+                        cmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
+                        cmd.Parameters.AddWithValue("@GodownMasterID", ilist.GodownID);
 
-                        for (int j = 0; j < siftGodownInputBox.Length - 1; j++)
+                        int masterUpdated = cmd.ExecuteNonQuery();
+
+                        if (masterUpdated <= 0)
                         {
-                            string GodownInput = siftGodownInputBox[j].Replace("(", "").Replace(")", "");
-
-                            int GodownLocationID = Convert.ToInt32(GodownInput.Split(',')[0]);
-                            int BillToPartyID = Convert.ToInt32(GodownInput.Split(',')[1]);
-                            int YarnMaterialID = Convert.ToInt32(GodownInput.Split(',')[2]);
-                            int YarnColorID = Convert.ToInt32(GodownInput.Split(',')[3]);
-                            int InpuNoOfBox = Convert.ToInt32(GodownInput.Split(',')[4]);
-
-                            SqlCommand cmd2 = new SqlCommand();
-                            cmd2.Connection = con;
-                            cmd2.CommandText = @"select * from YarnOutwardDetail 
-                                            where YarnOutwardID = '" + ilist.YarnOutwardID + @"' 
-                                            and GodownLocationID = '" + GodownLocationID + @"' 
-                                            and BillToPartyID = '" + BillToPartyID + @"'  and YarnMaterialID = '" + YarnMaterialID + @"' 
-                                            and YarnColorID = '" + YarnColorID + @"'  and NoOfBox = '" + InpuNoOfBox + @"' ";
-
-                            SqlDataReader rdr = cmd2.ExecuteReader();
-
-                            if (rdr.HasRows)
-                            {
-                                rdr.Close();
-                                cmd2.CommandType = System.Data.CommandType.Text;
-                                string sqls = String.Format("update YarnOutwardDetail set DateAndTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', " +
-                                    " BillToPartyID = '" + BillToPartyID + "', " +
-                                    " YarnMaterialID = '" + YarnMaterialID + "', YarnColorID = '" + YarnColorID + "', " +
-                                    " GodownLocationID = '" + GodownLocationID + "', NoOfBox = '" + InpuNoOfBox + "', " +
-                                    " UserAccountId = '" + ilist.UserAccountId + "'  where YarnOutwardID = '" + ilist.YarnOutwardID + "' " +
-                                    " and GodownLocationID = '" + GodownLocationID + "'" +
-                                    " and BillToPartyID = '" + BillToPartyID + "'  and YarnMaterialID = '" + YarnMaterialID + "' " +
-                                    " and YarnColorID = '" + YarnColorID + "'  and NoOfBox = '" + InpuNoOfBox + @"' ");
-
-                                cmd2.CommandText = sqls;
-                                //i = cmd2.ExecuteNonQuery();
-                                int i = Convert.ToInt32(cmd2.ExecuteNonQuery());
-                                cmd2.Dispose();
-                            }
-                            else
-                            {
-                                rdr.Close();
-                                cmd2.CommandType = System.Data.CommandType.Text;
-                                string sqls = String.Format("Insert Into YarnOutwardDetail  (DateAndTime, YarnOutwardID, BillToPartyID, YarnMaterialID, YarnColorID, GodownLocationID, NoOfBox, UserAccountId) Values " +
-                                                " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + ilist.YarnOutwardID + "', '" + BillToPartyID + "', '" + YarnMaterialID + "', '" + YarnColorID + "', '" + GodownLocationID + "', '" + InpuNoOfBox + "', '" + ilist.UserAccountId + "'  )");
-
-                                cmd2.CommandText = sqls;
-                                //i = cmd2.ExecuteNonQuery();
-                                int i = Convert.ToInt32(cmd2.ExecuteNonQuery());
-                                cmd2.Dispose();
-                            }
-
-
-
-
+                            tran.Rollback();
+                            comman.Code = 404;
+                            comman.Message = "Yarn Outward not found.";
+                            WriteResponse(comman);
+                            return;
                         }
 
+                        #endregion
 
 
+                        #region DELETE OLD DETAILS
 
-                        if (updatesiftGodownInputBox.Length > 0)
+                        SqlCommand deleteOld = new SqlCommand(@"
+                    DELETE FROM YarnOutwardDetail 
+                    WHERE YarnOutwardID = @YarnOutwardID", con, tran);
+
+                        deleteOld.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
+                        deleteOld.ExecuteNonQuery();
+
+                        #endregion
+
+
+                        #region INSERT NEW DETAILS
+
+                        if (!string.IsNullOrEmpty(ilist.siftGodownInputBox))
                         {
-                            for (int k = 0; k < updatesiftGodownInputBox.Length - 1; k++)
+                            string[] details = ilist.siftGodownInputBox.Split('|');
+
+                            foreach (string item in details)
                             {
+                                if (string.IsNullOrWhiteSpace(item)) continue;
 
-                                string GodownInput = updatesiftGodownInputBox[k].Replace("(", "").Replace(")", "");
+                                string clean = item.Replace("(", "").Replace(")", "");
+                                string[] values = clean.Split(',');
 
-                                int GodownLocationID = Convert.ToInt32(GodownInput.Split(',')[0]);
-                                int BillToPartyID = Convert.ToInt32(GodownInput.Split(',')[1]);
-                                int YarnMaterialID = Convert.ToInt32(GodownInput.Split(',')[2]);
-                                int YarnColorID = Convert.ToInt32(GodownInput.Split(',')[3]);
-                                int InpuNoOfBox = Convert.ToInt32(GodownInput.Split(',')[4]);
+                                SqlCommand insertCmd = new SqlCommand(@"
+                            INSERT INTO YarnOutwardDetail
+                            (DateAndTime, YarnOutwardID, BillToPartyID,
+                             YarnMaterialID, YarnColorID,
+                             GodownLocationID, NoOfBox, UserAccountId)
+                            VALUES
+                            (@DateAndTime, @YarnOutwardID, @BillTo,
+                             @Material, @Color, @LocationId, @Box, @UserId)", con, tran);
 
+                                insertCmd.Parameters.AddWithValue("@DateAndTime", indianTime);
+                                insertCmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
+                                insertCmd.Parameters.AddWithValue("@LocationId", Convert.ToInt32(values[0]));
+                                insertCmd.Parameters.AddWithValue("@BillTo", Convert.ToInt32(values[1]));
+                                insertCmd.Parameters.AddWithValue("@Material", Convert.ToInt32(values[2]));
+                                insertCmd.Parameters.AddWithValue("@Color", Convert.ToInt32(values[3]));
+                                insertCmd.Parameters.AddWithValue("@Box", Convert.ToInt32(values[4]));
+                                insertCmd.Parameters.AddWithValue("@UserId", ilist.UserAccountId);
 
-                                SqlCommand cmd2 = new SqlCommand();
-                                cmd2.Connection = con;
-                                cmd2.CommandType = System.Data.CommandType.Text;
-                                string sqls = String.Format(@"delete from YarnOutwardDetail 
-                                                        where YarnOutwardID = '" + ilist.YarnOutwardID + @"' 
-                                            and GodownLocationID = '" + GodownLocationID + @"' 
-                                            and BillToPartyID = '" + BillToPartyID + @"'  and YarnMaterialID = '" + YarnMaterialID + @"' 
-                                            and YarnColorID = '" + YarnColorID + @"'  and NoOfBox = '" + InpuNoOfBox + @"' ");
-
-                                cmd2.CommandText = sqls;
-                                //i = cmd2.ExecuteNonQuery();
-                                int i = Convert.ToInt32(cmd2.ExecuteNonQuery());
-                                cmd2.Dispose();
-
-
-
-
+                                insertCmd.ExecuteNonQuery();
                             }
-
                         }
 
-                        con.Close();
-                        comman.Code = 201;
-                        comman.Message = "Yarn Outward has been saved successfully.";
+                        #endregion
+
+                        tran.Commit();
+
+                        comman.Code = 200;
+                        comman.Message = "Yarn Outward updated successfully.";
                     }
-                    else
+                    catch (Exception)
                     {
-                        con.Close();
-                        comman.Code = 410;
-                        comman.Message = "This Yarn Outward is already Exists.";
+                        tran.Rollback();
+                        throw;
                     }
-
-
-
-                    con.Close();
                 }
-
-
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
-                if (ex.Number == 2601 || ex.Number == 2627)
-                {
-                    comman.Code = 405;
-                    comman.Message = "Cannot insert duplicate values..";
-
-                }
-                else
-                {
-                    comman.Code = 410;
-                    comman.Message = "Problem has been occurred while submitting your data.";
-                }
+                comman.Code = 500;
+                comman.Message = "Error while updating data.";
             }
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(comman));
+
+            WriteResponse(comman);
         }
 
 
-
-
-
-
-
+        private void WriteResponse(CommanResponse response)
+        {
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+        }
 
         // View Yarn Outward
         [WebMethod]

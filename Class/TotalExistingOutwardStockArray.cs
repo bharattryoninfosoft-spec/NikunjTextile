@@ -15,7 +15,7 @@ namespace NikunjTextile.Class
         public string YarnColor { get; set; }
         public string YarnColorCode { get; set; }
         public int Stock { get; set; }
-
+        public int GodownMasterID { get; set; }
         public int GodownLocationID { get; set; }
         public string LocationTitle { get; set; }
         public int YarnOutwardID { get; set; }

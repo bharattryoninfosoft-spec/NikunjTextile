@@ -197,8 +197,7 @@
                                                 <div class="col-4">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty(this.value)">
-                                                            <option value="0"></option>
+                                                        <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty(this.value)">                                                       
                                                             <option value="1">Sundry Creditors</option>
                                                             <option value="2">Sundry Debtors</option>
                                                             <option value="3">Job Work</option>
@@ -1412,7 +1411,7 @@
         $("#tblYarnSift tr").each(function () {
 
             var $modalRow = $(this);
-
+            console.log("$modalRow", $modalRow);
             var locationId = $modalRow.data("godownlocationid");
             var billTo = $modalRow.data("billto");
             var material = $modalRow.data("yarnmaterialid");
@@ -1436,6 +1435,7 @@
                 if (!match) return;
 
                 var parts = match[1].split(",");
+                console.log("parts", parts);
                 if (parts.length < 5) return;
 
                 if (locationId == parts[0] &&
@@ -1609,7 +1609,7 @@
                 var srno = 1;
                 var RemainingStock = TextStock;
                 var locationIds = [];
-
+                stockAssigned = false
                 list.forEach(function (item) {
 
                     var maxBox = parseInt(item.NoOfBox) || 0;
@@ -1675,6 +1675,7 @@
         var OutwardListNo = document.getElementById("ListNo");
         var OutwardListDate = document.getElementById("ListDate");
         var GodownManagerUserAccountId = document.getElementById("ddlYarnGodownManager");
+        var GodownID = $("#ddlGodownMaster").val();
         if (validate(PartyId) == false) {
             validate(PartyId);
             notes.show("Please Select Sundry Creditors Party.", {
@@ -1723,7 +1724,6 @@
                         else {
 
                             var siftGodownInputBox = $("#siftGodownInputBox").val();
-
                             var formData = new FormData();
                             formData.append('PartyId', PartyId.value);
                             formData.append('OutwardListNo', OutwardListNo.value);
@@ -1731,6 +1731,7 @@
                             formData.append('GodownManagerUserAccountId', GodownManagerUserAccountId.value);
                             //formData.append('siftGodownInputBox', siftGodownInputBox.slice(0, -1));
                             formData.append('siftGodownInputBox', siftGodownInputBox);
+                            formData.append('GodownID', GodownID);
 
                             //alert("PartyId " + PartyId.value + " OutwardListNo " + OutwardListNo.value + " OutwardListDate " + OutwardListDate.value + " GodownManagerUserAccountId " + GodownManagerUserAccountId.value + " siftGodownInputBox " + siftGodownInputBox.slice(0, -1));
 

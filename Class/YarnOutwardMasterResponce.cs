@@ -22,5 +22,7 @@ namespace NikunjTextile.Class
         public List<TotalInwardStockArray> listTotalInwardStockArray { get; set; }
         public List<TotalOutwardStockArray> listTotalOutwardStockArray { get; set; }
         public List<TotalExistingOutwardStockArray> listTotalExistingOutwardStockArray { get; set; }
+        public List<YarnOutwardMaster> YarnOutwardcondition { get; set; }
+
     }
 }
