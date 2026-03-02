@@ -18,6 +18,7 @@ using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
+using System.Windows.Input;
 
 namespace NikunjTextile
 {
@@ -21687,6 +21688,7 @@ namespace NikunjTextile
             List<TotalOutwardStockArray> listTotalOutwardStockArray = new List<TotalOutwardStockArray>();
             List<TotalExistingOutwardStockArray> listTotalExistingOutwardStockArray = new List<TotalExistingOutwardStockArray>();
             List<YarnOutwardMaster> YarnOutwardcondition = new List<YarnOutwardMaster>();
+            List<PartyMaster> listPartyMaster = new List<PartyMaster>();
             YarnOutwardMasterResponce ilist = new YarnOutwardMasterResponce();
             //ilist.YarnOutwardID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnOutwardID"]);
             ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);     
@@ -21706,37 +21708,64 @@ namespace NikunjTextile
 
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            int partyId = 0;
+
             using (SqlConnection con = new SqlConnection(cs))
             {
-                //aLL sTOCK
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"select* from YarnOutwardMaster with (Nolock) where YarnOutwardID = '" + ilist.YarnOutwardID + "'";
+                cmd.CommandText = @"SELECT * 
+                        FROM YarnOutwardMaster WITH (NOLOCK) 
+                        WHERE YarnOutwardID = @YarnOutwardID";
+
+                cmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
+
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
-                        yarnOutward.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
-                        yarnOutward.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
-                        yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                        yarnOutward.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
-                        yarnOutward.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"]);
-                        yarnOutward.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"]);
-                        yarnOutward.UserAccountId = Convert.ToInt32(rdr["UserAccountId"]);
-                        yarnOutward.FinancialYearID = Convert.ToInt32(rdr["FinancialYearID"]);
-                        yarnOutward.CompanyId = Convert.ToInt32(rdr["CompanyId"]);
-                        yarnOutward.GodownID = Convert.ToInt32(rdr["GodownMasterID"]);
-                        YarnOutwardcondition.Add(yarnOutward);
-                    }
 
+                if (rdr.Read())
+                {
+                    YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+
+                    yarnOutward.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
+                    yarnOutward.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
+                    yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
+                    yarnOutward.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
+                    yarnOutward.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"]);
+                    yarnOutward.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"]);
+                    yarnOutward.UserAccountId = Convert.ToInt32(rdr["UserAccountId"]);
+                    yarnOutward.FinancialYearID = Convert.ToInt32(rdr["FinancialYearID"]);
+                    yarnOutward.CompanyId = Convert.ToInt32(rdr["CompanyId"]);
+                    yarnOutward.GodownID = Convert.ToInt32(rdr["GodownID"]);
+
+                    partyId = yarnOutward.PartyId;   // ✅ Store PartyId here
+
+                    YarnOutwardcondition.Add(yarnOutward);
                 }
-            }            
-            
+            }
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = @"SELECT SundryParty, PartyName, PartyId FROM PartyMaster  WHERE PartyId = @PartyId";
+                cmd.Parameters.AddWithValue("@PartyId", partyId);
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    PartyMaster partyMasters = new PartyMaster();
+                    partyMasters.PartyId = Convert.ToInt32(rdr["PartyId"]);
+                    partyMasters.SundryParty = rdr["SundryParty"].ToString();
+                    partyMasters.PartyName = rdr["PartyName"].ToString();
+
+                    listPartyMaster.Add(partyMasters);
+                }
+            }
+
             using (SqlConnection con = new SqlConnection(cs))
             {
                 //aLL sTOCK
@@ -21839,15 +21868,15 @@ namespace NikunjTextile
                 //aLL eXISTING OUTWARD STOCK 
                 cmd.CommandText = @"
                                     select t1.Stock,
-                                    t1.BillToPartyID, PM.PartyName, t1.GodownMasterID,T1.YarnMaterialID, YMM.YarnMaterial,
+                                    t1.BillToPartyID, PM.PartyName, t1.GodownID,T1.YarnMaterialID, YMM.YarnMaterial,
                                     T1.YarnColorID, YCM.YarnColor, YCM.YarnColorCode, t1.GodownLocationID, GLM.LocationTitle
                                     from(
-	                                    select SUM(YOD.NoOfBox) as Stock,YOM.GodownMasterID, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID, YOM.YarnOutwardID
+	                                    select SUM(YOD.NoOfBox) as Stock,YOM.GodownID, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID, YOM.YarnOutwardID
 	                                    from YarnOutwardDetail YOD
 	                                    LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
 	                                    where YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
 	                                    and YOM.YarnOutwardID = " + ilist.YarnOutwardID + @"
-	                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOM.YarnOutwardID,YOM.GodownMasterID, YOD.GodownLocationID
+	                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOM.YarnOutwardID,YOM.GodownID, YOD.GodownLocationID
                                     ) as t1
                                     LEFT JOIN PartyMaster PM ON t1.BillToPartyID =  PM.PartyId
                                     LEFT JOIN YarnMaterialMaster YMM ON t1.YarnMaterialID = YMM.YarnMaterialID
@@ -21871,7 +21900,7 @@ namespace NikunjTextile
                         condition.Stock = Convert.ToInt32(rdr3["Stock"].ToString());
                         condition.GodownLocationID = Convert.ToInt32(rdr3["GodownLocationID"].ToString());
                         condition.LocationTitle = rdr3["LocationTitle"].ToString();
-                        condition.GodownMasterID = Convert.ToInt32(rdr3["GodownMasterID"].ToString());
+                        condition.GodownID = Convert.ToInt32(rdr3["GodownID"].ToString());
                         listTotalExistingOutwardStockArray.Add(condition);
                     }
 
@@ -21885,6 +21914,7 @@ namespace NikunjTextile
                 listYarnOutwardMasterResponce.listTotalOutwardStockArray = listTotalOutwardStockArray;
                 listYarnOutwardMasterResponce.listTotalExistingOutwardStockArray = listTotalExistingOutwardStockArray;
                 listYarnOutwardMasterResponce.YarnOutwardcondition = YarnOutwardcondition;
+                listYarnOutwardMasterResponce.listPartyMaster = listPartyMaster;
                 con.Close();
             }
 
@@ -23012,14 +23042,14 @@ namespace NikunjTextile
                                         INSERT INTO YarnOutwardMaster
                                         (DateAndTime, PartyId, OutwardListNo, OutwardListDate,
                                          GodownManagerUserAccountId, UserAccountId,
-                                         FinancialYearID, CompanyId, GodownMasterID)
+                                         FinancialYearID, CompanyId, GodownID)
                                         OUTPUT INSERTED.YarnOutwardID
                                         VALUES
                                         (@DateAndTime, @PartyId, @OutwardListNo, @OutwardListDate,
                                          @GodownManagerUserAccountId, @UserAccountId,
                                          (select FinancialYearID from FinancialYearMaster where IsDefault = 1),
                                          (select CompanyId from CompanyMaster where is_default = 1),
-                                         @GodownMasterID)";
+                                         @GodownID)";
                     cmd.Parameters.AddWithValue("@DateAndTime", dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") );
                     cmd.Parameters.AddWithValue("@PartyId", ilist.PartyId);
                     cmd.Parameters.AddWithValue("@OutwardListNo", ilist.OutwardListNo);
@@ -23027,7 +23057,7 @@ namespace NikunjTextile
                         DateTime.ParseExact(ilist.OutwardListDates,"dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", ilist.GodownManagerUserAccountId);
                     cmd.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
-                    cmd.Parameters.AddWithValue("@GodownMasterID", ilist.GodownID);
+                    cmd.Parameters.AddWithValue("@GodownID", ilist.GodownID);
                     con.Open();
                     Int64 YarnOutwardID = Convert.ToInt64(cmd.ExecuteScalar());
                     cmd.Dispose();
@@ -23134,7 +23164,7 @@ namespace NikunjTextile
                 ilist.siftGodownInputBox = request.Params["siftGodownInputBox"];
                 ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
                 ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
-                ilist.GodownID = Convert.ToInt32(Context.Request.Cookies["GodownID"]);
+                ilist.GodownID = Convert.ToInt32(request.Params["GodownID"]);
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
                 using (SqlConnection con = new SqlConnection(cs))
                 {
@@ -23152,7 +23182,7 @@ namespace NikunjTextile
                         GodownManagerUserAccountId = @ManagerId,
                         UserAccountId = @UserId,
                         CompanyId = @CompanyId,
-                        GodownMasterID=@GodownMasterID
+                        GodownID=@GodownID
 
                     WHERE YarnOutwardID = @YarnOutwardID", con, tran);
 
@@ -23165,7 +23195,7 @@ namespace NikunjTextile
                         cmd.Parameters.AddWithValue("@UserId", ilist.UserAccountId);
                         cmd.Parameters.AddWithValue("@CompanyId", ilist.CompanyId);
                         cmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
-                        cmd.Parameters.AddWithValue("@GodownMasterID", ilist.GodownID);
+                        cmd.Parameters.AddWithValue("@GodownID", ilist.GodownID);
 
                         int masterUpdated = cmd.ExecuteNonQuery();
 
@@ -23232,7 +23262,7 @@ namespace NikunjTextile
 
                         tran.Commit();
 
-                        comman.Code = 200;
+                        comman.Code = 201;
                         comman.Message = "Yarn Outward updated successfully.";
                     }
                     catch (Exception)
@@ -23250,6 +23280,10 @@ namespace NikunjTextile
 
             WriteResponse(comman);
         }
+
+
+
+
 
 
         private void WriteResponse(CommanResponse response)

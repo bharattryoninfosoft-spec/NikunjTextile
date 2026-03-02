@@ -1635,10 +1635,10 @@
                 $("#txtGodownLocationID").val(locationIds.join(",") + ",");
 
                 HideAlreadySifted();
-
-                setTimeout(function () {
-                    $("#btnSaveSiftYarnBox").focus();
-                }, 300);
+                
+                $('#modalYarnSift').on('shown.bs.modal', function () {
+                    $("#btnSaveSiftYarnBox").trigger("focus");
+                });
             }
         });
 

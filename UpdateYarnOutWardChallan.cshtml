@@ -635,7 +635,7 @@
         //let number = 1234567.89654654654;
         //let formatted = number.toLocaleString("en-IN");
         //console.log(formatted);
-
+        $('#ddlParty').empty();
         var liSelected;
         $(document).keydown(function (key) {
             var li = $('li');
@@ -735,7 +735,7 @@
                 'border-color': '#fff transparent transparent transparent'
             });
 
-
+        $('#ddlParty').empty();
 
 
         $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
@@ -802,7 +802,7 @@
                     $("#ListNo").val(response.listYarnOutwardMaster[i].OutwardListNo);
                     $("#ListDate").val(response.listYarnOutwardMaster[i].OutwardListDates);
                     $("#SundryParty").val(response.listYarnOutwardMaster[i].SundryParty);
-
+                    $('#ddlParty').empty();
                     changeSundryPartyId(response.listYarnOutwardMaster[i].SundryParty + "|" + response.listYarnOutwardMaster[i].PartyId);
 
 
@@ -977,7 +977,6 @@
             contentType: false,
             processData: false,
             success: function (response) {
-
                 if (response.listPartyMaster.length > 0) {
                     var tempPartyName = "";
                     tempPartyName = "<option value='0'> Select Party </option>";
@@ -991,11 +990,6 @@
                     $('#ddlParty').empty();
                     $("#ddlParty").prop('disabled', true)
                 }
-
-
-
-
-
             },
             error: function (request, status, error) {
             }
@@ -1031,7 +1025,7 @@
             processData: false,
             success: function (response) {
 
-
+                $('#ddlParty').empty();
                 if (response.listPartyMaster.length > 0) {
                     $('#ddlParty').empty();
 
@@ -1193,7 +1187,7 @@
                         $('#ddlParty').empty();
 
                         var tempPartyName = "";
-
+                     
                         tempPartyName = "<option value='0'> Select Party </option>";
                         $('#ddlParty').append(tempPartyName);
 
@@ -1340,7 +1334,7 @@
                         $("#ListNo").val('0')
                     }
 
-
+                    $('#ddlParty').empty();
                     GridBindData();
 
                     setTimeout(function () {
@@ -1366,6 +1360,7 @@
         var YarnColorID = $("#ddlYarnColor").val();
         var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
         var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
+        $('#ddlParty').empty();
         if (GodownID != "0") {
             var formData = new FormData();
             formData.append('GodownID', GodownID);
@@ -1791,7 +1786,6 @@
             var modalMaxQty = parseInt($modalRow.find("td:eq(3)").text()) || 0;
             var balance = parseInt($("#tblSpanNoOfBox").text()) || 0; // 🔥 outside loop
             var usedQty = 0;
-            console.log("balance", balance);
             $("#tableSiftYarnData tr").each(function () {
 
                 var anchor = $(this).find("a[onclick]");
@@ -1813,8 +1807,6 @@
                     usedQty += parseInt(parts[4]) || 0;
                 }
             });
-
-
             var remaining = modalMaxQty - usedQty;
             if (remaining < 0) remaining = 0;
             var textbox = $modalRow.find(".txtNoOfBox");
@@ -1841,7 +1833,7 @@
         var OutwardListNo = document.getElementById("ListNo");
         var OutwardListDate = document.getElementById("ListDate");
         var GodownManagerUserAccountId = document.getElementById("ddlYarnGodownManager");
-        var GodownID = document.getElementById("ddlGodownMaster");
+        var GodownID = $("#ddlGodownMaster").val();
 
 
         if (validate(PartyId) == false) {
@@ -1918,6 +1910,7 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    console.log(response)
                                     if (response.Code == 201) {
                                         clearAll();
 
@@ -2160,14 +2153,15 @@
 
                 HideAlreadySifted();
 
-                setTimeout(function () {
-                    $("#btnSaveSiftYarnBox").focus();
-                }, 300);
+                $('#modalYarnSift').on('shown.bs.modal', function () {
+                    $("#btnSaveSiftYarnBox").trigger("focus");
+                });
             }
         });
 
         $("#btnShiftModel").click();
     }
+
 
     function ViewYarnOutWardRecordQueryString(DecryptID) {
         debugger;
@@ -2188,16 +2182,20 @@
             dataType: 'json',
             contentType: false,
             processData: false,
-            success: function (response) {
-                console.log(response);
+            success: function (response) {            
                 var list = response.listTotalExistingOutwardStockArray || [];
                 var godownMasterID = response.YarnOutwardcondition?.[0]?.GodownID ?? 0;
                 var PartyId = response.YarnOutwardcondition?.[0]?.PartyId ?? 0;
                 var GodownManagerUserAccountId = response.YarnOutwardcondition?.[0]?.GodownManagerUserAccountId ?? 0;
-                console.log("godownMasterID", response.YarnOutwardcondition);
-                $("#ddlGodownMaster").val(godownMasterID).trigger("change");     
-                $("#ddlParty").val(PartyId).trigger("change");
+                var SundryParty = response.listPartyMaster?.[0]?.SundryParty ?? 0;
+                $("#SundryParty").val(SundryParty).trigger("change");
+               
+                changeSundryPartyId(SundryParty + "|" + PartyId);
+                console.log("SundryParty + " | " + PartyId", SundryParty + "|" + PartyId);
+                $("#ddlGodownMaster").val(godownMasterID).trigger("change");
+                //$("#ddlParty").val(PartyId).trigger("change");
                 $("#ddlYarnGodownManager").val(GodownManagerUserAccountId).trigger("change");
+              
                 $("#ddlGodownMaster").prop("disabled", true);
                 var $tbody = $("#tblYarnSift");
 
@@ -2250,6 +2248,8 @@
                     }
 
                     dataTable.append(temp);
+                    $('#ddlParty').empty();
+                 
                     $("#siftGodownInputBox").val(locationIds.join("|") + "|");
 
                 }
