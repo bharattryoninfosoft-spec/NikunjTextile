@@ -1788,57 +1788,50 @@
             var billTo = $modalRow.data("billto");
             var material = $modalRow.data("yarnmaterialid");
             var color = $modalRow.data("yarncolorid");
-
-            var modalMaxQty =
-                parseInt($modalRow.find("td:eq(3)").text()) || 0;
+            var modalMaxQty = parseInt($modalRow.find("td:eq(3)").text()) || 0;
+            var balance = parseInt($("#tblSpanNoOfBox").text()) || 0; // 🔥 outside loop
             var usedQty = 0;
+            console.log("balance", balance);
             $("#tableSiftYarnData tr").each(function () {
+
                 var anchor = $(this).find("a[onclick]");
                 if (!anchor.length) return;
+
                 var onclickText = anchor.attr("onclick");
                 var match = onclickText.match(/"\((.*?)\)"/);
                 if (!match) return;
+
                 var parts = match[1].split(",");
+                console.log("parts", parts);
                 if (parts.length < 5) return;
+
                 if (locationId == parts[0] &&
                     billTo == parts[1] &&
                     material == parts[2] &&
                     color == parts[3]) {
+
                     usedQty += parseInt(parts[4]) || 0;
                 }
             });
+
+
             var remaining = modalMaxQty - usedQty;
             if (remaining < 0) remaining = 0;
+            var textbox = $modalRow.find(".txtNoOfBox");
+            $modalRow.find("td:eq(3)").text(remaining);
             if (remaining === 0) {
-                var textbox = $modalRow.find(".txtNoOfBox");
-                textbox.val(0).prop("disabled", true).addClass("bg-light");
+                modalMaxQty = usedQty;
+                textbox.val(remaining).prop("disabled", true).addClass("bg-light");
                 $modalRow.hide();
-            } else {
-                var remaining = modalMaxQty - usedQty;
-                if (remaining > 0) {
-                    if (usedQty <= modalMaxQty) {
-                        modalMaxQty = usedQty;
-                        stockAssigned = true;
-                        $modalRow.find("td:eq(3)").text(remaining);
-                        var textbox = $modalRow.find(".txtNoOfBox");
-                        textbox.val(usedQty).trigger("change");
-                    } else {
-                        MentionNoOfBox = 0;
-                    }
-                }
-                textbox.prop("disabled", false).removeClass("bg-light");
+                return;
             }
-        });
+            if (balance <= 0) {
+                $modalRow.find("td:eq(3)").text(remaining);
+                textbox.val(remaining);
+                return;
+            }
 
-        // 🔹 Total update
-        var total = 0;
-        $("#tblYarnSift .txtNoOfBox").each(function () {
-            total += parseInt($(this).val()) || 0;
         });
-        $("#tableYarnOutward tbody tr").each(function (index) {
-            $(this).find("td:eq(1)").text(index + 1);
-        });
-        $("#hTotalNoOfBox").html(total);
     }
     function checkSave() {
         debugger;
