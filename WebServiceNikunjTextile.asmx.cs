@@ -13245,9 +13245,10 @@ namespace NikunjTextile
                     con.Open();
 
                     // Check GSTIN
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN";
+                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and SundryParty=@SundryParty ";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN);
+                    cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         if (rdr.Read())
@@ -13262,9 +13263,10 @@ namespace NikunjTextile
                     }
 
                     // Check PAN
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN";
+                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and SundryParty=@SundryParty";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@PAN", ilist.PanNo);
+                    cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         if (rdr.Read())
@@ -13279,9 +13281,10 @@ namespace NikunjTextile
                     }
 
                     // Check MobileNo
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo";
+                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and SundryParty=@SundryParty";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
+                    cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         if (rdr.Read())
@@ -13301,7 +13304,7 @@ namespace NikunjTextile
                     cmd.CommandType = System.Data.CommandType.Text;
 
                     string sql = String.Format("Insert Into PartyMaster (CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email, BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode, BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty) OUTPUT INSERTED.PartyId Values " +
-                                    " ((select CompanyId from companymaster where is_default = 1), '" + ilist.UserAccountId + "', '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', @PartyName, '" + ilist.SundryParty + "' , '" + ilist.MobileNo + "', '" + ilist.AlterMobileNo + "', '" + ilist.Email + "', @BillingAddress, @ShippingAddress, '" + ilist.IsSameAddress + "', '" + ilist.GSTIN + "', '" + ilist.PanNo + "', '" + ilist.State + "', '" + ilist.City + "', '" + ilist.Pincode + "',   " +
+                                    " ((select CompanyId from companymaster where is_default = 1), '" + ilist.UserAccountId + "', '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ilist.SundryParty + "', @PartyName, '" + ilist.MobileNo + "', '" + ilist.AlterMobileNo + "', '" + ilist.Email + "', @BillingAddress, @ShippingAddress, '" + ilist.IsSameAddress + "', '" + ilist.GSTIN + "', '" + ilist.PanNo + "', '" + ilist.State + "', '" + ilist.City + "', '" + ilist.Pincode + "',   " +
                                     "   @BankHolderName, '" + ilist.BankAccountNo + "', '" + ilist.BankIFSCCode + "', @BankName, @BankBranch, '" + ilist.IsActiveParty + "')");
 
                     cmd.CommandText = sql;
@@ -13647,10 +13650,11 @@ namespace NikunjTextile
                         con.Open();
 
                         // Check GSTIN
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and GSTIN != @tempGSTIN";
+                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and GSTIN != @tempGSTIN and SundryParty=@SundryParty";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN);
                         cmd.Parameters.AddWithValue("@tempGSTIN", ilist.tempGSTIN);
+                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                         using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
                             if (rdr.Read())
@@ -13665,10 +13669,11 @@ namespace NikunjTextile
                         }
 
                         // Check PAN
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and PAN != @tempPAN";
+                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and PAN != @tempPAN and SundryParty=@SundryParty";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@PAN", ilist.PanNo);
                         cmd.Parameters.AddWithValue("@tempPAN", ilist.tempPanNo);
+                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                         using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
                             if (rdr.Read())
@@ -13683,9 +13688,10 @@ namespace NikunjTextile
                         }
 
                         // Check MobileNo
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and MobileNo != @MobileNo";
+                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and MobileNo != @MobileNo and SundryParty=@SundryParty";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
+                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                         using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
                             if (rdr.Read())
@@ -13713,8 +13719,6 @@ namespace NikunjTextile
                         cmd.Parameters.Add("@BankHolderName", SqlDbType.NVarChar).Value = ilist.BankHolderName;
                         cmd.Parameters.Add("@BankName", SqlDbType.NVarChar).Value = ilist.BankName;
                         cmd.Parameters.Add("@BankBranch", SqlDbType.NVarChar).Value = ilist.BankBranch;
-
-
 
                         i = cmd.ExecuteNonQuery();
                         cmd.Dispose();
@@ -13853,14 +13857,6 @@ namespace NikunjTextile
         }
 
 
-
-
-
-
-
-
-
-
         // ******************************************   Godown Manager Master *******************************
 
 
@@ -13986,11 +13982,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownManagerMasterPaggination()
@@ -14047,9 +14038,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
 
         // View Party Master
         [WebMethod]
@@ -14120,10 +14108,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownManagerMasterById(string id)
@@ -14176,10 +14160,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14299,8 +14279,6 @@ namespace NikunjTextile
             }
         }
 
-
-
         // Delete Party Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14383,31 +14361,7 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // ******************************************   Yarn Requirement Master *******************************
-
-
-
-
-
-
+       // ******************************************   Yarn Requirement Master *******************************
 
         [WebMethod]
         public List<string> GetAutoYarnCompanyName(string term)
@@ -14428,7 +14382,6 @@ namespace NikunjTextile
                 return listCountryName;
             }
         }
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14482,16 +14435,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14605,12 +14548,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14788,8 +14725,6 @@ namespace NikunjTextile
 
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getPartyDetails()
@@ -14864,8 +14799,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownDetails()
@@ -14923,10 +14856,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnMaterial()
@@ -14976,8 +14905,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15030,8 +14957,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15095,9 +15020,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnReqCompanyColorCode()
@@ -15157,9 +15079,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15280,10 +15199,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15382,8 +15297,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnRequirementMasterPaggination()
@@ -15446,8 +15359,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15538,10 +15449,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15725,11 +15632,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateYarnRequirementMasterMaster()
@@ -15876,33 +15778,7 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************   Yarn PO Master *******************************
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -16046,8 +15922,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertYarnPOMasterMaster()
@@ -16158,11 +16032,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
 
         // View Design Entry Form
         [WebMethod]
@@ -16353,8 +16222,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnPOMasterPaggination()
@@ -16421,9 +16288,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -16653,10 +16517,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteYarnPOMaster()
@@ -16746,10 +16606,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -16901,33 +16757,7 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************   Yarn Inward Master *******************************
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -17078,12 +16908,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnPOinward()
@@ -17233,10 +17057,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
+        
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnPendingPODetails()
@@ -17317,14 +17138,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -17433,9 +17246,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnColorCodeinward()
@@ -17528,8 +17338,6 @@ namespace NikunjTextile
 
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnTotalWeightinward()
@@ -17605,8 +17413,6 @@ namespace NikunjTextile
 
 
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -17751,9 +17557,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarninwardEmptyGodownBox()
@@ -17817,11 +17620,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -18035,13 +17833,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
-
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -18242,11 +18033,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -18559,19 +18345,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -18739,8 +18512,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnInwardMasterPaggination()
@@ -18809,9 +18580,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -18938,11 +18706,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -19100,14 +18863,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnBarcodeYarnInwardDetailID()
@@ -19202,11 +18957,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnBarcodeYarnInwardID()
@@ -19300,15 +19050,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
-
-
-
-
 
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -19415,10 +19156,6 @@ namespace NikunjTextile
 
         // ******************************************   Yarn Inter change *******************************
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getLocationDetails()
@@ -19475,14 +19212,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -19991,10 +19720,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnInterChangeMaterial()
@@ -20061,16 +19786,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -20142,12 +19857,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarncodeChangeBoxNo()
@@ -20218,11 +19927,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -20464,13 +20168,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnInterChangeLedgerTable()
@@ -20557,12 +20254,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -20651,16 +20342,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -20888,17 +20569,7 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
-
-
-
-        // ******************************  Yarn OUt Ward ******************
-
+       #region Yarn OUt Ward
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnOutWardDropDownData()
@@ -21027,9 +20698,7 @@ namespace NikunjTextile
 
 
                 //Godown Manager
-                cmd.CommandText = @"
-                                     select * from UserAccountMaster where UserRole = 'Watchman' and AllowLogin = 1
-                                   ";
+                cmd.CommandText = @"select * from UserAccountMaster where UserRole = 'Watchman' and AllowLogin = 1";
 
 
                 SqlDataReader rdr5 = cmd.ExecuteReader();
@@ -21673,9 +21342,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -22364,11 +22030,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getUpdateYarnOutwardSiftMaster()
@@ -23006,8 +22667,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertYarnOutwardMaster()
@@ -23125,12 +22784,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -23281,11 +22934,6 @@ namespace NikunjTextile
             WriteResponse(comman);
         }
 
-
-
-
-
-
         private void WriteResponse(CommanResponse response)
         {
             JavaScriptSerializer js = new JavaScriptSerializer();
@@ -23376,8 +23024,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnOutwardMasterPaggination()
@@ -23446,11 +23092,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -23598,10 +23239,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteYarnOutwardMaster()
@@ -23691,7 +23328,7 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
+        #endregion
 
 
 

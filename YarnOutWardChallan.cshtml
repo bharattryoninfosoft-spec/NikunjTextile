@@ -211,7 +211,7 @@
                                                 <div class="col-4">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="ddlGodownMaster" class="select-single detail " title="Select Godown Master" data-live-search="true" style="background-color:aqua;" onchange="GridBindData()">
+                                                        <select id="ddlGodownMaster" class="select-single detail " title="Select Godown Master" data-live-search="true" style="background-color:aqua;" onchange="ChangeGodownMaster()">
                                                             <option value="-1">Select Godown </option>
                                                         </select>
                                                         <div class="field-placeholder">Select Godown<sup style="color:red;">*</sup></div>
@@ -243,7 +243,7 @@
 
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange="GridBindData()">
+                                                        <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange=" GridBindData()">
                                                             <option value="-1">Select Yarn Company</option>
                                                         </select>
                                                         <div class="field-placeholder">Yarn Company</div>
@@ -260,7 +260,7 @@
                                                 <div class="col-4">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="GridBindData()">
+                                                        <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="GridBindData();">
                                                             <option value="-1">Yarn Material</option>
                                                         </select>
                                                         <div class="field-placeholder">Yarn Material</div>
@@ -477,11 +477,11 @@
 <script>
 
     $(document).ready(function () {
-
+     
         //let number = 1234567.89654654654;
         //let formatted = number.toLocaleString("en-IN");
         //console.log(formatted);
-
+      
         var liSelected;
         $(document).keydown(function (key) {
             var li = $('li');
@@ -593,6 +593,7 @@
 
 
     });
+    var isColorLoaded = false;
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
@@ -921,11 +922,9 @@
     function changeSundryParty(abc) {
 
         var SundryParty = $("#SundryParty").val();
-
-
         var formData = new FormData();
         formData.append('SundryParty', SundryParty);
-
+        var isColorLoaded = false;
 
         $.ajax({
             type: "POST",
@@ -981,24 +980,92 @@
         var ColorCode = $("#ddlYarnColorCode option:selected").text();
         //alert(ColorCode);
         $("#select2-ddlYarnColorCode-container").html(ColorCode);
-        GridBindData();
+        GridBindData();        
         $("#tableSiftYarnData").empty();
+    }
+    function ChangeYarnCompany()
+    {
+        GridBindData();
+    }
+    function ChangeGodownMaster()
+    {
+        GridBindData();
     }
     function ChangeYarnColorCode(YarnColorID) {
         $("#ddlYarnColor").val(YarnColorID);
-        var Color = $("#ddlYarnColor option:selected").text();
+        var Color = $("#ddlYarnColor option:selected").text(); 
         //alert(ColorCode);
         $("#select2-ddlYarnColor-container").html(Color);
         GridBindData();
         $("#tableSiftYarnData").empty();
+    }  
+    function Yrancolor(list) {
+        var selectedColor = $("#ddlYarnColor").val();  // store selected
+        $('#ddlYarnColor').empty();
+        $('#ddlYarnColorCode').empty();
+        $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
+        $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
+
+        var uniqueColors = {};
+
+        for (var i = 0; i < list.length; i++) {
+
+            var colorID = list[i].YarnColorID;
+
+            if (!uniqueColors[colorID]) {
+
+                $('#ddlYarnColor').append(
+                    "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
+                );
+
+                $('#ddlYarnColorCode').append(
+                    "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
+                );
+
+                uniqueColors[colorID] = true;
+            }
+        }
+
+        // ✅ restore selected value
+        $("#ddlYarnColor").val(selectedColor);
+        $("#ddlYarnColorCode").val(selectedColor);
     }
+    function YarnMaterial(list) {
+        var selectedColor = $("#ddlYarnMaterial").val();
+        $('#ddlYarnMaterial').empty();
+        var tempPartyName = "";
+        $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
+        var uniqueColors = {};
+
+        for (var i = 0; i < list.length; i++) {
+
+            var YarnMaterialID = list[i].YarnMaterialID;
+
+            if (!uniqueColors[YarnMaterialID]) {
+
+                $('#ddlYarnMaterial').append(
+                    "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
+                );
+                uniqueColors[YarnMaterialID] = true;
+            }
+        }
+
+        // ✅ restore selected value
+        $("#ddlYarnMaterial").val(selectedColor);
+    }
+
+    $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial")
+        .change(function () {
+            isColorLoaded = false;   // reset flag
+            GridBindData();
+        });
+
     function GridBindData() {
-        debugger;
-        var GodownID = $("#ddlGodownMaster").val();
-        var BillToPartyID = $("#ddlYarnCompany").val();
-        var YarnMaterialID = $("#ddlYarnMaterial").val();
-        var YarnColorID = $("#ddlYarnColor").val();
-        var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+        var GodownID = $("#ddlGodownMaster").val()||0;
+        var BillToPartyID = $("#ddlYarnCompany").val()||0;
+        var YarnMaterialID = $("#ddlYarnMaterial").val()||0;
+        var YarnColorID = $("#ddlYarnColor").val()||0;
+        var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val()||0;
         var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
         if (GodownID != "0") {
             var formData = new FormData();
@@ -1016,7 +1083,13 @@
                 processData: false,
 
                 success: function (response) {
-                    var temp = "";
+                    var temp = "";  
+                    if (!isColorLoaded) {
+                        Yrancolor(response.listYarnOutwardMaster);
+                        YarnMaterial(response.listYarnOutwardMaster);
+                        isColorLoaded = true;
+                    }
+                    $("#tableYarnOutward").empty();
                     var dataTable = $('#tableYarnOutward');
                     if (response.listYarnOutwardMaster.length > 0) {
                         //alert(response.listYarnOutwardMaster.length);
@@ -1035,13 +1108,11 @@
                                 temp += " <input type='hidden' id='txtid_" + srno + "' value='" + allids + "' class='form-control' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)'  /></td>";
                                 temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='StockTransferSiftTo(\"" + allids + "\")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
                                 temp += "</tr>";
-
-                            }
-                            $("#tableYarnOutward").empty();
-                            dataTable.append(temp);
-
+                            }                                                  
+                            dataTable.append(temp);                     
+                           
                         }
-
+                       
                     }
 
                 }

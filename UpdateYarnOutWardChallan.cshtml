@@ -222,7 +222,7 @@
                                                 <div class="col-4">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty()">                                                   
+                                                        <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty()">
                                                             <option value="1">Sundry Creditors</option>
                                                             <option value="2">Sundry Debtors</option>
                                                             <option value="3">Job Work</option>
@@ -268,7 +268,7 @@
 
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange="GridBindData()">
+                                                        <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange="ChangeYarnCompany(this.value)">
                                                             <option value="-1">Select Yarn Company</option>
                                                         </select>
                                                         <div class="field-placeholder">Yarn Company</div>
@@ -289,7 +289,7 @@
 
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
-                                                        <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="GridBindData()">
+                                                        <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="ChangeYarnMaterial(this.value)">
                                                             <option value="-1">Yarn Material</option>
                                                         </select>
                                                         <div class="field-placeholder">Yarn Material</div>
@@ -629,9 +629,11 @@
 
 
 
-<script>
 
-    $(document).ready(function () { 
+<script>
+    var isColorLoaded = false;
+    var PartyId = 0;
+    $(document).ready(function () {
         //let number = 1234567.89654654654;
         //let formatted = number.toLocaleString("en-IN");
         //console.log(formatted);
@@ -769,13 +771,8 @@
     var TotalOutwardStockAry = "";
     var TotalExistingOutwardStockAry = "";
     function ViewRecordQueryString(DecryptID) {
-
-
         var formData = new FormData();
         formData.append('YarnOutwardID', DecryptID);
-
-        var PartyId = 0;
-
         $.ajax({
             type: "POST",
             url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
@@ -1005,17 +1002,11 @@
 
     }
     function changeSundryPartyId(abc) {
-
-
-
+        debugger;
         var SundryParty = abc.split('|')[0];
         var PartyID = abc.split('|')[1];
-
-
         var formData = new FormData();
         formData.append('SundryParty', SundryParty);
-
-
         $.ajax({
             type: "POST",
             url: '/WebServiceNikunjTextile.asmx/getSundryPartyMaster',
@@ -1024,16 +1015,11 @@
             contentType: false,
             processData: false,
             success: function (response) {
-
-                $('#ddlParty').empty();
                 if (response.listPartyMaster.length > 0) {
                     $('#ddlParty').empty();
-
                     var tempPartyName = "";
-
                     tempPartyName = "<option value='0'> Select Party </option>";
                     $('#ddlParty').append(tempPartyName);
-
                     for (var i = 0; i < response.listPartyMaster.length; i++) {
                         if (PartyID == response.listPartyMaster[i].PartyId) {
                             tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "' selected> " + response.listPartyMaster[i].PartyName + " </option>";
@@ -1075,7 +1061,7 @@
         var ColorCode = $("#ddlYarnColorCode option:selected").text();
         //alert(ColorCode);
         $("#select2-ddlYarnColorCode-container").html(ColorCode);
-        // GridBindData();
+        //GridBindData();
     }
     function ChangeYarnColorCode(YarnColorID) {
         $("#ddlYarnColor").val(YarnColorID);
@@ -1084,10 +1070,28 @@
         $("#select2-ddlYarnColor-container").html(Color);
         //GridBindData();
     }
+    function ChangeYarnMaterial(YarnMaterialID) {
+        debugger;
+        $("#ddlYarnMaterial").val(YarnMaterialID);
+        var YarnMaterialID = $("#ddlYarnMaterial option:selected").text();
+        //alert(ColorCode);
+        $("#select2-ddlYarnMaterial-container").html(YarnMaterialID);
+        //GridBindData();
+    }
+    function ChangeYarnCompany(YarnCompanyID) {
+        debugger;
+        $("#ddlYarnCompany").val(YarnCompanyID);
+        var YarnCompanyID = $("#ddlYarnCompany option:selected").text();
+        //alert(ColorCode);
+        $("#select2-ddlYarnCompany-container").html(YarnCompanyID);
+        //GridBindData();
+    }
+    $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial")
+        .change(function () {
+            isColorLoaded = false;   // reset flag            
+            //GridBindData();
+        });
     function showBarcodeRecords(YarnInwardDetailID) {
-        //alert(YarnInwardDetailID);
-
-
         var DecryptID = "";
 
         $.ajax({
@@ -1109,6 +1113,60 @@
         });
 
 
+    }
+    function Yrancolor(list) {
+        var selectedColor = $("#ddlYarnColor").val();  // store selected
+        $('#ddlYarnColor').empty();
+        $('#ddlYarnColorCode').empty();
+        $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
+        $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
+
+        var uniqueColors = {};
+
+        for (var i = 0; i < list.length; i++) {
+
+            var colorID = list[i].YarnColorID;
+
+            if (!uniqueColors[colorID]) {
+
+                $('#ddlYarnColor').append(
+                    "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
+                );
+
+                $('#ddlYarnColorCode').append(
+                    "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
+                );
+
+                uniqueColors[colorID] = true;
+            }
+        }
+
+        // ✅ restore selected value
+        $("#ddlYarnColor").val(selectedColor);
+        $("#ddlYarnColorCode").val(selectedColor);
+    }
+    function YarnMaterial(list) {
+        var selectedColor = $("#ddlYarnMaterial").val();
+        $('#ddlYarnMaterial').empty();
+        var tempPartyName = "";
+        $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
+        var uniqueColors = {};
+
+        for (var i = 0; i < list.length; i++) {
+
+            var YarnMaterialID = list[i].YarnMaterialID;
+
+            if (!uniqueColors[YarnMaterialID]) {
+
+                $('#ddlYarnMaterial').append(
+                    "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
+                );
+                uniqueColors[YarnMaterialID] = true;
+            }
+        }
+
+        // ✅ restore selected value
+        $("#ddlYarnMaterial").val(selectedColor);
     }
     function yarnInwardCheck(YarnInwardDetailID) {
         var checkid = "#" + YarnInwardDetailID;
@@ -1187,7 +1245,7 @@
                         $('#ddlParty').empty();
 
                         var tempPartyName = "";
-                     
+
                         tempPartyName = "<option value='0'> Select Party </option>";
                         $('#ddlParty').append(tempPartyName);
 
@@ -1227,7 +1285,7 @@
                         $("#ddlYarnCompany").prop('disabled', true)
                     }
 
-                   //Yarn Material
+                    //Yarn Material
                     if (response.listYarnMaterialMaster.length > 0) {
                         $('#ddlYarnMaterial').empty();
 
@@ -1360,6 +1418,8 @@
         var YarnColorID = $("#ddlYarnColor").val();
         var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
         var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
+     
+    
         $('#ddlParty').empty();
         if (GodownID != "0") {
             var formData = new FormData();
@@ -1378,7 +1438,15 @@
 
                 success: function (response) {
                     var temp = "";
+                
                     var dataTable = $('#tableYarnOutward');
+                    if (!isColorLoaded) {
+                        Yrancolor(response.listYarnOutwardMaster);
+                        YarnMaterial(response.listYarnOutwardMaster);
+                        isColorLoaded = true;
+                        
+                    }
+
                     if (response.listYarnOutwardMaster.length > 0) {
                         //alert(response.listYarnOutwardMaster.length);
                         var srno = parseInt(0) + parseInt(1);
@@ -1399,14 +1467,11 @@
 
                             }
                             $("#tableYarnOutward").empty();
-
-                            ddlGodownMaster
                             dataTable.append(temp);
-
+                          
                         }
 
                     }
-
                 }
             })
         }
@@ -1626,7 +1691,7 @@
                 if (newStock === 0) {
                     $row.hide();
                 }
-             
+
             }
         });
         $("#tableYarnOutward tr:visible").each(function (index) {
@@ -1905,7 +1970,7 @@
                             $.ajax({
                                 type: "POST",
                                 url: '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardMaster',
-                                data: formData,                             
+                                data: formData,
                                 dataType: 'json',
                                 contentType: false,
                                 processData: false,
@@ -1974,14 +2039,14 @@
                 var stockSpan = $row.find("span[id^='spanStock_']");
                 var currentStock = parseInt(stockSpan.text()) || 0;
                 var newStock = currentStock + qty;
-                stockSpan.text(newStock);        
+                stockSpan.text(newStock);
                 if (newStock > 0) {
-                    $row.show(); 
+                    $row.show();
                     rowFound = true;
                 }
             }
         });
-         if (!rowFound) {
+        if (!rowFound) {
 
             var $tbody = $("#tableYarnOutward");
             var temp = "";
@@ -2162,7 +2227,6 @@
         $("#btnShiftModel").click();
     }
 
-
     function ViewYarnOutWardRecordQueryString(DecryptID) {
         debugger;
         var dataArray = [];
@@ -2182,20 +2246,20 @@
             dataType: 'json',
             contentType: false,
             processData: false,
-            success: function (response) {            
+            success: function (response) {
                 var list = response.listTotalExistingOutwardStockArray || [];
                 var godownMasterID = response.YarnOutwardcondition?.[0]?.GodownID ?? 0;
                 var PartyId = response.YarnOutwardcondition?.[0]?.PartyId ?? 0;
                 var GodownManagerUserAccountId = response.YarnOutwardcondition?.[0]?.GodownManagerUserAccountId ?? 0;
                 var SundryParty = response.listPartyMaster?.[0]?.SundryParty ?? 0;
                 $("#SundryParty").val(SundryParty).trigger("change");
-               
+
                 changeSundryPartyId(SundryParty + "|" + PartyId);
                 console.log("SundryParty + " | " + PartyId", SundryParty + "|" + PartyId);
                 $("#ddlGodownMaster").val(godownMasterID).trigger("change");
                 //$("#ddlParty").val(PartyId).trigger("change");
                 $("#ddlYarnGodownManager").val(GodownManagerUserAccountId).trigger("change");
-              
+
                 $("#ddlGodownMaster").prop("disabled", true);
                 var $tbody = $("#tblYarnSift");
 
@@ -2249,7 +2313,6 @@
 
                     dataTable.append(temp);
                     $('#ddlParty').empty();
-                 
                     $("#siftGodownInputBox").val(locationIds.join("|") + "|");
 
                 }
