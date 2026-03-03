@@ -20665,65 +20665,29 @@ namespace NikunjTextile
 
                 rdr.Close();
 
-                 if (YarnOutwardID > 0)
-                 {
                     //Yarn Material
-                    cmd.CommandText = @"SELECT 
-	                                    (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-	                                    t1.BillToPartyID,  t1.CompanyName,  t1.YarnMaterialID, t1.YarnMaterial,  t1.YarnColorID,  t1.YarnColor, t1.YarnColorCode
-                                    FROM 
-                                    (
-                                        SELECT 
-                                            ISNULL(SUM(t1.Stock),0) as Stock,  t1.BillToPartyID,  t1.CompanyName, t1.YarnMaterialID, 
-                                            t1.YarnMaterial,  t1.YarnColorID,  t1.YarnColor,  t1.YarnColorCode 
-                                        FROM
-                                        (
-                                            SELECT  
-                                                YIM.YarnInwardID,  YIM.YarnPOID,  YPM.BillToPartyID,  YPM.PartyName AS CompanyName,
-                                                YIM.YarnMaterialID,  YMM.YarnMaterial,  YIM.YarnColorID,  YCM.YarnColor,  YCM.YarnColorCode, 
-                                                YIDD.Stock
+                    cmd.CommandText = @"SELECT YIM.YarnMaterialID,YMM.YarnMaterial
                                             FROM YarnInwardMaster YIM
-                                            LEFT JOIN 
-                                            (
-                                                SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
-                                                FROM YarnPOMaster YPM
-                                                LEFT JOIN PartyMaster PM 
-                                                    ON YPM.BillToPartyID = PM.PartyId
-                                            ) YPM 
-                                                ON YIM.YarnPOID = YPM.YarnPOID
                                             LEFT JOIN YarnMaterialMaster YMM 
                                                 ON YIM.YarnMaterialID = YMM.YarnMaterialID
-                                            LEFT JOIN YarnColorMaster YCM 
-                                                ON YIM.YarnColorID = YCM.YarnColorID
-                                            LEFT JOIN 
-                                            (
-                                                SELECT COUNT(*) AS Stock, YarnInwardID 
-                                                FROM YarnInwardDetail 
-                                                WHERE GodownLocationID IN 
-                                                (
-                                                    SELECT GodownLocationID 
-                                                    FROM GodownLocationMaster 
-                                                    WHERE GodownID = '" + GodownID + @"'
-                                                )
-                                                 " + YarnInwardDetails + @" 
+
+                                            LEFT JOIN (
+                                                SELECT YarnInwardID, COUNT(*) AS InStock
+                                                FROM YarnInwardDetail
                                                 GROUP BY YarnInwardID
-                                            ) YIDD 
-                                                ON YIM.YarnInwardID = YIDD.YarnInwardID
-                                        ) AS t1
-                                        where (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @" 
-                                        GROUP BY  t1.BillToPartyID,  t1.CompanyName, t1.YarnMaterialID,  t1.YarnMaterial, 
-                                            t1.YarnColorID,  t1.YarnColor,  t1.YarnColorCode  
-                                    ) AS t1
-                                    LEFT JOIN 
-                                    (
-	                                    select SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID from YarnOutwardDetail YOD
-                                    LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
-                                    where YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
-                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID 
-                                    ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID
-                                    AND t1.YarnMaterialID = YOD.YarnMaterialID
-                                    AND t1.YarnColorID = YOD.YarnColorID
-                                    where (t1.Stock - ISNULL(YOD.Stock, 0)) > 0
+                                            ) INWARD ON YIM.YarnInwardID = INWARD.YarnInwardID
+
+                                            LEFT JOIN (
+                                                SELECT 
+                                                    YOD.YarnMaterialID,
+                                                    YOD.YarnColorID,
+                                                    SUM(YOD.NoOfBox) AS OutStock
+                                                FROM YarnOutwardDetail YOD
+                                                GROUP BY YOD.YarnMaterialID, YOD.YarnColorID
+                                            ) OUTWARD ON YIM.YarnMaterialID = OUTWARD.YarnMaterialID
+                                            GROUP BY YIM.YarnMaterialID,YMM.YarnMaterial
+
+                                            HAVING ISNULL(SUM(OUTWARD.OutStock),0) > 0
                                    ";
                     SqlDataReader rdr2 = cmd.ExecuteReader();
 
@@ -20740,89 +20704,38 @@ namespace NikunjTextile
                     }
                     rdr2.Close();
 
-                }
-                else
-                {
-                    cmd.CommandText = @" select YarnMaterialID, YarnMaterial from YarnMaterialMaster where YarnMaterialID in (
-                                            select Distinct(YarnMaterialID) from YarnInwardMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1))";
-                    SqlDataReader rdr2 = cmd.ExecuteReader();
-
-                    if (rdr2.HasRows)
-                    {
-                        while (rdr2.Read())
-                        {
-                            YarnMaterialMaster condition = new YarnMaterialMaster();
-                            condition.YarnMaterialID = Convert.ToInt32(rdr2["YarnMaterialID"].ToString());
-                            condition.YarnMaterial = rdr2["YarnMaterial"].ToString().ToUpper();
-                            listYarnMaterialMaster.Add(condition);
-                        }
-
-                    }
-                    rdr2.Close();
-                }
-              
-
-           
-
-                if (YarnOutwardID > 0)
-                {
+        
                     //Yarn Color
                     cmd.CommandText = @"SELECT 
-	                                    (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-	                                    t1.BillToPartyID,  t1.CompanyName,  t1.YarnMaterialID, t1.YarnMaterial,  t1.YarnColorID,  t1.YarnColor, t1.YarnColorCode
-                                    FROM 
-                                    (
-                                        SELECT 
-                                            ISNULL(SUM(t1.Stock),0) as Stock,  t1.BillToPartyID,  t1.CompanyName, t1.YarnMaterialID, 
-                                            t1.YarnMaterial,  t1.YarnColorID,  t1.YarnColor,  t1.YarnColorCode 
-                                        FROM
-                                        (
-                                            SELECT  
-                                                YIM.YarnInwardID,  YIM.YarnPOID,  YPM.BillToPartyID,  YPM.PartyName AS CompanyName,
-                                                YIM.YarnMaterialID,  YMM.YarnMaterial,  YIM.YarnColorID,  YCM.YarnColor,  YCM.YarnColorCode, 
-                                                YIDD.Stock
-                                            FROM YarnInwardMaster YIM
-                                            LEFT JOIN 
-                                            (
-                                                SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
-                                                FROM YarnPOMaster YPM
-                                                LEFT JOIN PartyMaster PM 
-                                                    ON YPM.BillToPartyID = PM.PartyId
-                                            ) YPM 
-                                                ON YIM.YarnPOID = YPM.YarnPOID
-                                            LEFT JOIN YarnMaterialMaster YMM 
-                                                ON YIM.YarnMaterialID = YMM.YarnMaterialID
-                                            LEFT JOIN YarnColorMaster YCM 
-                                                ON YIM.YarnColorID = YCM.YarnColorID
-                                            LEFT JOIN 
-                                            (
-                                                SELECT COUNT(*) AS Stock, YarnInwardID 
-                                                FROM YarnInwardDetail 
-                                                WHERE GodownLocationID IN 
-                                                (
-                                                    SELECT GodownLocationID 
-                                                    FROM GodownLocationMaster 
-                                                    WHERE GodownID = '" + GodownID + @"'
-                                                )
-                                                " + YarnInwardDetails + @" 
-                                                GROUP BY YarnInwardID
-                                            ) YIDD 
-                                                ON YIM.YarnInwardID = YIDD.YarnInwardID
-                                        ) AS t1
-                                        where (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @" 
-                                        GROUP BY  t1.BillToPartyID,  t1.CompanyName, t1.YarnMaterialID,  t1.YarnMaterial, 
-                                            t1.YarnColorID,  t1.YarnColor,  t1.YarnColorCode  
-                                    ) AS t1
-                                    LEFT JOIN 
-                                    (
-	                                    select SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID from YarnOutwardDetail YOD
-                                    LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
-                                    where YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
-                                    group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID 
-                                    ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID
-                                    AND t1.YarnMaterialID = YOD.YarnMaterialID
-                                    AND t1.YarnColorID = YOD.YarnColorID
-                                    where (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
+                                            YIM.YarnColorID,
+                                            YCM.YarnColor,
+                                            YCM.YarnColorCode
+                                        FROM YarnInwardMaster YIM
+
+                                        LEFT JOIN YarnColorMaster YCM 
+                                            ON YIM.YarnColorID = YCM.YarnColorID
+
+                                        LEFT JOIN (
+                                            SELECT YarnInwardID, COUNT(*) AS InStock
+                                            FROM YarnInwardDetail
+                                            GROUP BY YarnInwardID
+                                        ) INWARD ON YIM.YarnInwardID = INWARD.YarnInwardID
+
+                                        LEFT JOIN (
+                                            SELECT 
+                                                YarnMaterialID,
+                                                YarnColorID,
+                                                SUM(NoOfBox) AS OutStock
+                                            FROM YarnOutwardDetail
+                                            GROUP BY YarnMaterialID, YarnColorID
+                                        ) OUTWARD 
+                                            ON YIM.YarnMaterialID = OUTWARD.YarnMaterialID
+                                            AND YIM.YarnColorID = OUTWARD.YarnColorID
+                                        --WHERE YIM.YarnMaterialID = @YarnMaterialID
+                                        GROUP BY YIM.YarnColorID,YCM.YarnColor,YCM.YarnColorCode
+
+                                        HAVING 
+                                        ISNULL(SUM(OUTWARD.OutStock),0) > 0";
                     SqlDataReader rdr3 = cmd.ExecuteReader();
                     if (rdr3.HasRows)
                     {
@@ -20838,31 +20751,7 @@ namespace NikunjTextile
                     }
 
                     rdr3.Close();
-                }
-                else
-                {
-                    cmd.CommandText = @"
-                                    select YarnColorID, YarnColor, YarnColorCode from YarnColorMaster where YarnColorID in (
-	                                select Distinct(YarnColorID) from YarnInwardMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1))";
-                    SqlDataReader rdr3 = cmd.ExecuteReader();
-                    if (rdr3.HasRows)
-                    {
-                        while (rdr3.Read())
-                        {
-                            YarnColorMaster condition = new YarnColorMaster();
-                            condition.YarnColorID = Convert.ToInt32(rdr3["YarnColorID"].ToString());
-                            condition.YarnColor = rdr3["YarnColor"].ToString().ToUpper();
-                            condition.YarnColorCode = rdr3["YarnColorCode"].ToString().ToUpper();
-                            listYarnColorMaster.Add(condition);
-                        }
-
-                    }
-
-                    rdr3.Close();
-                }
-                   
-
-
+             
                 //Company Master
                 cmd.CommandText = @"
                                     select PartyId, PartyName from PartyMaster where PartyId in
@@ -23160,10 +23049,11 @@ namespace NikunjTextile
 
                 cmd.CommandText = @"select * from (
 	                                select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num, 
-	                                YOM.*, UAM.UserAccountName, UAM.UserAccountMobileNo, PM.PartyName, PM.MobileNo, PM.SundryParty
+	                                YOM.*, UAM.UserAccountName, UAM.UserAccountMobileNo, PM.PartyName, PM.MobileNo, PM.SundryParty,GM.GodownTitle
                                     from YarnOutwardMaster YOM
 	                                LEFT JOIN UserAccountMaster UAM ON YOM.GodownManagerUserAccountId = UAM.UserAccountId
                                     LEFT JOIN PartyMaster PM ON YOM.PartyId = PM.PartyId
+                                    LEFT JOIN GodownMaster GM ON YOM.GodownID = GM.GodownID 
 	                                where YOM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)
 		                                and YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
 		                                " + ilist.SearchRequirementNo + @"
@@ -23191,7 +23081,7 @@ namespace NikunjTextile
                         condition.UserAccountName = rdr["UserAccountName"].ToString().ToUpper();
                         condition.UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString();
                         condition.SundryParty = rdr["SundryParty"].ToString();
-
+                        condition.GodownTitle = rdr["GodownTitle"].ToString();
                         listUser.Add(condition);
                     }
                 }
