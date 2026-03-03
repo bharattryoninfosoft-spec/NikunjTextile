@@ -51,7 +51,7 @@ namespace NikunjTextile.Class
         public string PhotoOfInward { get; set; }
         public string isUploadPhoto { get; set; }
         public string DeleteYarnInwardDetail { get; set; }
-
+        public int PartyId { get; set; }
 
 
         public string YarnColorCode { get; set; }

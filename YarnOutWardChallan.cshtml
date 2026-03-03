@@ -744,7 +744,6 @@
 
                             tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
                             $('#ddlParty').append(tempPartyName);
-
                         }
 
                     }
@@ -775,14 +774,6 @@
                         $('#ddlYarnCompany').empty();
                         $("#ddlYarnCompany").prop('disabled', true)
                     }
-
-
-
-
-
-
-
-
                     //Yarn Material
                     if (response.listYarnMaterialMaster.length > 0) {
                         $('#ddlYarnMaterial').empty();
@@ -802,15 +793,6 @@
                         $('#ddlYarnMaterial').empty();
                         $("#ddlYarnMaterial").prop('disabled', true)
                     }
-
-
-
-
-
-
-
-
-
                     //Yarn Color
                     if (response.listYarnColorMaster.length > 0) {
                         $('#ddlYarnColor').empty();
@@ -835,11 +817,6 @@
                         $("#ddlYarnColor").prop('disabled', true)
                         $("#ddlYarnColorCode").prop('disabled', true)
                     }
-
-
-
-
-
                     //Godown Manager
                     if (response.listUserAccountMaster.length > 0) {
                         $('#ddlYarnGodownManager').empty();
@@ -859,12 +836,7 @@
                         $('#ddlYarnGodownManager').empty();
                         $("#ddlYarnGodownManager").prop('disabled', true)
                     }
-
-
-
-
-
-                    //Godown Master
+                   //Godown Master
                     if (response.listGodownMaster.length > 0) {
                         $('#ddlGodownMaster').empty();
 
@@ -889,11 +861,6 @@
                         $('#ddlGodownMaster').empty();
                         $("#ddlGodownMaster").prop('disabled', true)
                     }
-
-
-
-
-
                     //alert(response.listYarnOutwardMaster.length);
                     //Yarn Outward List No
                     if (response.listYarnOutwardMaster.length > 0) {
@@ -903,11 +870,7 @@
                     else {
                         $("#ListNo").val('0')
                     }
-
-
                     GridBindData();
-
-
                 }
 
             },
@@ -999,66 +962,66 @@
         GridBindData();
         $("#tableSiftYarnData").empty();
     }  
-    function Yrancolor(list) {
-        var selectedColor = $("#ddlYarnColor").val();  // store selected
-        $('#ddlYarnColor').empty();
-        $('#ddlYarnColorCode').empty();
-        $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
-        $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
+    //function Yrancolor(list) {
+    //    var selectedColor = $("#ddlYarnColor").val();  // store selected
+    //    $('#ddlYarnColor').empty();
+    //    $('#ddlYarnColorCode').empty();
+    //    $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
+    //    $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
 
-        var uniqueColors = {};
+    //    var uniqueColors = {};
 
-        for (var i = 0; i < list.length; i++) {
+    //    for (var i = 0; i < list.length; i++) {
 
-            var colorID = list[i].YarnColorID;
+    //        var colorID = list[i].YarnColorID;
 
-            if (!uniqueColors[colorID]) {
+    //        if (!uniqueColors[colorID]) {
 
-                $('#ddlYarnColor').append(
-                    "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
-                );
+    //            $('#ddlYarnColor').append(
+    //                "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
+    //            );
 
-                $('#ddlYarnColorCode').append(
-                    "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
-                );
+    //            $('#ddlYarnColorCode').append(
+    //                "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
+    //            );
 
-                uniqueColors[colorID] = true;
-            }
-        }
+    //            uniqueColors[colorID] = true;
+    //        }
+    //    }
 
-        // ✅ restore selected value
-        $("#ddlYarnColor").val(selectedColor);
-        $("#ddlYarnColorCode").val(selectedColor);
-    }
-    function YarnMaterial(list) {
-        var selectedColor = $("#ddlYarnMaterial").val();
-        $('#ddlYarnMaterial').empty();
-        var tempPartyName = "";
-        $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
-        var uniqueColors = {};
+    //    // ✅ restore selected value
+    //    $("#ddlYarnColor").val(selectedColor);
+    //    $("#ddlYarnColorCode").val(selectedColor);
+    //}
+    //function YarnMaterial(list) {
+    //    var selectedColor = $("#ddlYarnMaterial").val();
+    //    $('#ddlYarnMaterial').empty();
+    //    var tempPartyName = "";
+    //    $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
+    //    var uniqueColors = {};
 
-        for (var i = 0; i < list.length; i++) {
+    //    for (var i = 0; i < list.length; i++) {
 
-            var YarnMaterialID = list[i].YarnMaterialID;
+    //        var YarnMaterialID = list[i].YarnMaterialID;
 
-            if (!uniqueColors[YarnMaterialID]) {
+    //        if (!uniqueColors[YarnMaterialID]) {
 
-                $('#ddlYarnMaterial').append(
-                    "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
-                );
-                uniqueColors[YarnMaterialID] = true;
-            }
-        }
+    //            $('#ddlYarnMaterial').append(
+    //                "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
+    //            );
+    //            uniqueColors[YarnMaterialID] = true;
+    //        }
+    //    }
 
-        // ✅ restore selected value
-        $("#ddlYarnMaterial").val(selectedColor);
-    }
+    //    // ✅ restore selected value
+    //    $("#ddlYarnMaterial").val(selectedColor);
+    //}
 
-    $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial")
-        .change(function () {
-            isColorLoaded = false;   // reset flag
-            GridBindData();
-        });
+    //$("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial")
+    //    .change(function () {
+    //        isColorLoaded = false;   // reset flag
+    //        GridBindData();
+    //    });
 
     function GridBindData() {
         var GodownID = $("#ddlGodownMaster").val()||0;
@@ -1084,11 +1047,11 @@
 
                 success: function (response) {
                     var temp = "";  
-                    if (!isColorLoaded) {
-                        Yrancolor(response.listYarnOutwardMaster);
-                        YarnMaterial(response.listYarnOutwardMaster);
-                        isColorLoaded = true;
-                    }
+                    //if (!isColorLoaded) {
+                    //    Yrancolor(response.listYarnOutwardMaster);
+                    //    YarnMaterial(response.listYarnOutwardMaster);
+                    //    isColorLoaded = true;
+                    //}
                     $("#tableYarnOutward").empty();
                     var dataTable = $('#tableYarnOutward');
                     if (response.listYarnOutwardMaster.length > 0) {
@@ -1109,8 +1072,7 @@
                                 temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='StockTransferSiftTo(\"" + allids + "\")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
                                 temp += "</tr>";
                             }                                                  
-                            dataTable.append(temp);                     
-                           
+                            dataTable.append(temp);        
                         }
                        
                     }

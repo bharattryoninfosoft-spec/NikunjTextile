@@ -216,7 +216,7 @@
 
 
 
-                                                <input type="text" id="hYarnOutwardID" class="form-control" />
+                                                <input type="hidden" id="hYarnOutwardID" class="form-control" />
 
                                                 <div class="col-4"></div>
                                                 <div class="col-4">
@@ -253,6 +253,7 @@
 
 
                                                     <div class="field-wrapper">
+                                                        <input type="hidden" id="ddlPartytextbox" class="form-control" />
                                                         <select id="ddlParty" class="select-single detail" title="Select Party" data-live-search="true">
                                                             <option value="-1">Select Party </option>
                                                         </select>
@@ -392,8 +393,8 @@
                                             <div class="col-12">
                                                 <div class="form-section-header light-bg" style="text-align: center; margin: 0; padding: 0; background-color: transparent !important; font-size: large; "> SIFT/ MOVE TO &nbsp; <i class="fa fa fa-arrow-right"></i></div>
                                                 <input type="text" id="siftYarnInwardDetailID" class="form-control" placeholder="Yarn Inward DetailI D" title="YarnInwardDetailID" />
-                                                <input type="text" id="siftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
-                                                <input type="text" id="updatesiftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
+                                                <input type="hidden" id="siftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
+                                                <input type="hidden" id="updatesiftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
                                             </div>
                                         </div>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
@@ -637,7 +638,6 @@
         //let number = 1234567.89654654654;
         //let formatted = number.toLocaleString("en-IN");
         //console.log(formatted);
-        $('#ddlParty').empty();
         var liSelected;
         $(document).keydown(function (key) {
             var li = $('li');
@@ -737,9 +737,6 @@
                 'border-color': '#fff transparent transparent transparent'
             });
 
-        $('#ddlParty').empty();
-
-
         $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
         $("#select2-ddlYarnGodownManager-container").css("color", "white");
 
@@ -749,16 +746,7 @@
             .css({
                 'border-color': '#fff transparent transparent transparent'
             });
-
-
-
         GetAllDropDownData();
-
-
-
-
-
-
     });
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
@@ -799,8 +787,7 @@
                     $("#ListNo").val(response.listYarnOutwardMaster[i].OutwardListNo);
                     $("#ListDate").val(response.listYarnOutwardMaster[i].OutwardListDates);
                     $("#SundryParty").val(response.listYarnOutwardMaster[i].SundryParty);
-                    $('#ddlParty').empty();
-                    changeSundryPartyId(response.listYarnOutwardMaster[i].SundryParty + "|" + response.listYarnOutwardMaster[i].PartyId);
+                     changeSundryPartyId(response.listYarnOutwardMaster[i].SundryParty + "|" + response.listYarnOutwardMaster[i].PartyId);
 
 
                     /* ---------- Yarn Requirement Detail  ---------- */
@@ -1047,28 +1034,20 @@
             }
         });
 
-
-
-
-
-
-
-
-
-    }
+   }
     function ChangeYarnColor(YarnColorID) {
         $("#ddlYarnColorCode").val(YarnColorID);
         var ColorCode = $("#ddlYarnColorCode option:selected").text();
         //alert(ColorCode);
         $("#select2-ddlYarnColorCode-container").html(ColorCode);
-        //GridBindData();
+        GridBindData();
     }
     function ChangeYarnColorCode(YarnColorID) {
         $("#ddlYarnColor").val(YarnColorID);
         var Color = $("#ddlYarnColor option:selected").text();
         //alert(ColorCode);
         $("#select2-ddlYarnColor-container").html(Color);
-        //GridBindData();
+        GridBindData();
     }
     function ChangeYarnMaterial(YarnMaterialID) {
         debugger;
@@ -1076,7 +1055,7 @@
         var YarnMaterialID = $("#ddlYarnMaterial option:selected").text();
         //alert(ColorCode);
         $("#select2-ddlYarnMaterial-container").html(YarnMaterialID);
-        //GridBindData();
+        GridBindData();
     }
     function ChangeYarnCompany(YarnCompanyID) {
         debugger;
@@ -1086,11 +1065,6 @@
         $("#select2-ddlYarnCompany-container").html(YarnCompanyID);
         //GridBindData();
     }
-    $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial")
-        .change(function () {
-            isColorLoaded = false;   // reset flag            
-            //GridBindData();
-        });
     function showBarcodeRecords(YarnInwardDetailID) {
         var DecryptID = "";
 
@@ -1221,11 +1195,13 @@
 
     }
     function GetAllDropDownData() {
-
+        var GodownID = $("#ddlGodownMaster").val();
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        var DecryptID=(hashes[0].split('=')[1]);
         var formData = new FormData();
         //formData.append('SaleInvoiceID', SaleInvoiceID);
-
-
+        formData.append('GodownID', GodownID);
+        formData.append('YarnOutwardID', DecryptID);
 
         $.ajax({
             type: "POST",
@@ -1235,22 +1211,17 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
-                //alert(response.Code);
-
+                console.log("response.YarnInwardMasterData", response.YarnInwardMasterData);
+                //alert(response.Code);                
+                
                 if (response.Code == "200") {
-
                     //Party Name
                     if (response.listPartyMaster.length > 0) {
                         $('#ddlParty').empty();
-
                         var tempPartyName = "";
-
                         tempPartyName = "<option value='0'> Select Party </option>";
                         $('#ddlParty').append(tempPartyName);
-
                         for (var i = 0; i < response.listPartyMaster.length; i++) {
-
                             tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
                             $('#ddlParty').append(tempPartyName);
 
@@ -1391,10 +1362,11 @@
                     else {
                         $("#ListNo").val('0')
                     }
-
-                    $('#ddlParty').empty();
                     GridBindData();
-
+                    var PartyId = response.YarnInwardMasterData?.[0]?.PartyId;
+                    console.log("PartyId", PartyId);
+                    $("#ddlPartytextbox").val(PartyId); 
+                    $("#ddlParty").val(PartyId).trigger("change");
                     setTimeout(function () {
                         var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
                         ViewYarnOutWardRecordQueryString(hashes[0].split('=')[1]);
@@ -1417,10 +1389,7 @@
         var YarnMaterialID = $("#ddlYarnMaterial").val();
         var YarnColorID = $("#ddlYarnColor").val();
         var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
-        var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
-     
-    
-        $('#ddlParty').empty();
+        var siftSiftGodownLocationId = $("#siftGodownInputBox").val();    
         if (GodownID != "0") {
             var formData = new FormData();
             formData.append('GodownID', GodownID);
@@ -1438,15 +1407,8 @@
 
                 success: function (response) {
                     var temp = "";
-                
+                    $("#tableYarnOutward").empty();
                     var dataTable = $('#tableYarnOutward');
-                    if (!isColorLoaded) {
-                        Yrancolor(response.listYarnOutwardMaster);
-                        YarnMaterial(response.listYarnOutwardMaster);
-                        isColorLoaded = true;
-                        
-                    }
-
                     if (response.listYarnOutwardMaster.length > 0) {
                         //alert(response.listYarnOutwardMaster.length);
                         var srno = parseInt(0) + parseInt(1);
@@ -1466,9 +1428,11 @@
                                 temp += "</tr>";
 
                             }
-                            $("#tableYarnOutward").empty();
+                           
                             dataTable.append(temp);
-                          
+                            var PartyId = $("#ddlPartytextbox").val();
+                            console.log("ddlPartytextbox", PartyId);
+                            $("#ddlParty").val(PartyId).trigger("change");
                         }
 
                     }
@@ -2226,7 +2190,6 @@
 
         $("#btnShiftModel").click();
     }
-
     function ViewYarnOutWardRecordQueryString(DecryptID) {
         debugger;
         var dataArray = [];
@@ -2257,7 +2220,7 @@
                 changeSundryPartyId(SundryParty + "|" + PartyId);
                 console.log("SundryParty + " | " + PartyId", SundryParty + "|" + PartyId);
                 $("#ddlGodownMaster").val(godownMasterID).trigger("change");
-                //$("#ddlParty").val(PartyId).trigger("change");
+               
                 $("#ddlYarnGodownManager").val(GodownManagerUserAccountId).trigger("change");
 
                 $("#ddlGodownMaster").prop("disabled", true);
@@ -2312,7 +2275,6 @@
                     }
 
                     dataTable.append(temp);
-                    $('#ddlParty').empty();
                     $("#siftGodownInputBox").val(locationIds.join("|") + "|");
 
                 }
@@ -2324,5 +2286,5 @@
             }
         });
 
-    }
+    }   
 </script>
