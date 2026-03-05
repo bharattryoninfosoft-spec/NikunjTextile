@@ -17,4 +17,5 @@ namespace NikunjTextile.Class
         public string LocationTitle { get; set; }
         public int YarnInwardID { get; set; }
     }
+
 }

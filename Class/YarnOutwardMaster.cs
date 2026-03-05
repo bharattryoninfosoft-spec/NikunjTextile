@@ -58,8 +58,8 @@ namespace NikunjTextile.Class
         public string GodownInputBoxss { get; set; }
         public string SiftGodownLocationId { get; set; }
         public string siftGodownInputBox { get; set; }
-
-
+        public string Address { get; set; }
+        public int ChallanNo { get; set; }
 
 
 

@@ -20873,9 +20873,8 @@ namespace NikunjTextile
         public void getYarnOutwardMaster()
         {
             JavaScriptSerializer js;
-            List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
+                List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
             YarnOutwardMasterResponce response = new YarnOutwardMasterResponce();
-
             var request = HttpContext.Current.Request;
             YarnOutwardMaster ilist = new YarnOutwardMaster();
             ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
@@ -20884,19 +20883,16 @@ namespace NikunjTextile
             ilist.YarnColorID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
             ilist.YarnInwardDetailIDss = HttpContext.Current.Request.Params["YarnInwardDetailIDss"];
             ilist.SiftGodownLocationId = HttpContext.Current.Request.Params["SiftGodownLocationId"];
-
             string CompanyName = "";
             if (ilist.BillToPartyID != 0)
             {
                 CompanyName = " and t1.BillToPartyID = " + ilist.BillToPartyID + " ";
             }
-
             string YarnMaterial = "";
             if (ilist.YarnMaterialID != 0)
             {
                 YarnMaterial = " and t1.YarnMaterialID = " + ilist.YarnMaterialID + " ";
             }
-
             string YarnColor = "";
             if (ilist.YarnColorID != 0)
             {
@@ -23033,7 +23029,6 @@ namespace NikunjTextile
             ilist.SearchRequirementNo = HttpContext.Current.Request.Params["SearchRequirementNo"];
             ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
 
-
             if (ilist.SearchRequirementNo != "")
             {
                 ilist.SearchRequirementNo = " and (UAM.UserAccountName LIKE '%" + ilist.SearchRequirementNo + "%' OR UAM.UserAccountMobileNo LIKE '%" + ilist.SearchRequirementNo + "%' or YOM.OutwardListNo LIKE '%" + ilist.SearchRequirementNo + "%' OR PM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or PM.MobileNo LIKE '%" + ilist.SearchRequirementNo + "%'  ) ";
@@ -23407,7 +23402,417 @@ namespace NikunjTextile
 
         }
         #endregion
+        #region YARN OUTWARD Scan
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getDisplayYarnOutwardScanMaster()
+        {
+            JavaScriptSerializer js;
+            List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
+            YarnOutwardMasterResponce response = new YarnOutwardMasterResponce();
 
+            var request = HttpContext.Current.Request;
+            YarnOutwardMaster ilist = new YarnOutwardMaster();
+
+            ilist.SearchRequirementNo = HttpContext.Current.Request.Params["SearchRequirementNo"];
+            ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
+
+            if (ilist.SearchRequirementNo != "")
+            {
+                ilist.SearchRequirementNo = " and (YOM.OutwardListNo LIKE '%" + ilist.SearchRequirementNo + "%' OR PM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or PM.MobileNo LIKE '%" + ilist.SearchRequirementNo + "%'  ) ";
+            }
+
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.CommandText = @"
+                        SELECT * FROM (
+                                select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num,
+                                Yom.YarnOutwardID,Yom.OutwardListNo,YOM.DateAndTime,PM.PartyName,PM.MobileNo, ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox  FROM YarnOutwardMaster YOM
+                                LEFT JOIN PartyMaster PM  ON YOM.PartyId = PM.PartyId
+                                LEFT JOIN GodownMaster GM ON YOM.GodownID = GM.GodownID 
+                                LEFT JOIN (SELECT YarnOutwardID, SUM(NoOfBox) AS TotalNoOfBox FROM YarnOutwardDetail  GROUP BY YarnOutwardID ) YD 
+                                    ON YOM.YarnOutwardID = YD.YarnOutwardID
+                                WHERE YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)         
+                                AND YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                                    " + ilist.SearchRequirementNo + @"
+                                    AND YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @"
+                        ) A  WHERE A.row_num between " + (Convert.ToInt32(ilist.startFrom) + 1) + @" and " + (Convert.ToInt32(ilist.startFrom) + 30) + @"
+                                                        order by A.YarnOutwardID desc";
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster condition = new YarnOutwardMaster();
+                        condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"].ToString());
+                        condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());                      
+                        condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");                      
+                        condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"].ToString());                   
+                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();                                                                  
+                        condition.MobileNo = rdr["MobileNo"].ToString();                                                                  
+                        condition.BoxNo = rdr["TotalNoOfBox"].ToString();    
+                        listUser.Add(condition);
+                    }
+                }
+
+                rdr.Close();
+                cmd.Dispose();
+                con.Close();
+            }
+
+
+            response.Code = 200;
+            response.Message = "Success";
+            response.listYarnOutwardMaster = listUser;
+
+            js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+            return;
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getYarnOutwardMasterScanPaggination()
+        {
+            JavaScriptSerializer js;
+            List<PagginationMaster> listUser = new List<PagginationMaster>();
+            PagginationMasterResponse response = new PagginationMasterResponse();
+
+            var request = HttpContext.Current.Request;
+            PagginationMaster ilist = new PagginationMaster();
+
+            ilist.SearchString = HttpContext.Current.Request.Params["SearchRequirementNo"];
+
+
+            string SearchString = "";
+            if (ilist.SearchString != "")
+            {
+                SearchString = " and (UAM.UserAccountName LIKE '%" + ilist.SearchString + "%' OR UAM.UserAccountMobileNo LIKE '%" + ilist.SearchString + "%' or YOM.OutwardListNo LIKE '%" + ilist.SearchString + "%') ";
+            }
+
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.CommandText = @"    
+                                    select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination from (
+	                                select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num, 
+	                                YOM.*, UAM.UserAccountName, UAM.UserAccountMobileNo from YarnOutwardMaster YOM
+	                                LEFT JOIN UserAccountMaster UAM ON YOM.GodownManagerUserAccountId = UAM.UserAccountId
+	                                where YOM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)
+		                                and YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
+                                            AND YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @" 
+
+                                        " + SearchString + @"
+                                ) as t1 
+                                ";
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        PagginationMaster condition = new PagginationMaster();
+                        condition.Total = Convert.ToInt32(rdr["Total"].ToString());
+                        condition.Paggination = Convert.ToInt32(rdr["Paggination"].ToString());
+                        listUser.Add(condition);
+                    }
+                }
+
+                rdr.Close();
+                cmd.Dispose();
+                con.Close();
+            }
+
+            response.Code = 1;
+            response.Message = "Success";
+            response.listPagginationMaster = listUser;
+
+            js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+            return;
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getYarnOutwardScan()
+        {
+            var request = HttpContext.Current.Request;
+            List<YarnOutwardMaster> listPartyMaster = new List<YarnOutwardMaster>();
+
+            int YarnOutwardID = 0;
+            int ChallanNo = 0;
+            string abc = request.Params["YarnOutwardID"];
+            string lastCharacter = abc.Substring(abc.Length - 6);
+
+            if (lastCharacter != "%3d%3d")
+            {
+                string InvoiceId = request.Params["YarnOutwardID"].Replace("==", "") + "%3d%3d";
+                YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+            }
+            else
+            {
+                YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(request.Params["YarnOutwardID"])));
+            }
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = CommandType.Text;
+
+                cmd.CommandText = @"SELECT ISNULL(MAX(ChallanNo),0) + 1 AS ChallanNo FROM YARNOUTWARDScanMaster";
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    ChallanNo = Convert.ToInt32(rdr["ChallanNo"]);
+
+                }
+            }
+
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = CommandType.Text;
+
+                cmd.CommandText = @"SELECT 
+                            Pm.PartyId,
+                            PM.PartyName AS YarnCompany,
+                            Pm.BillingAddress AS Address,
+                            YMM.YarnMaterialID AS YarnMaterialID,
+                            YMM.YarnMaterial AS YarnMaterial,
+                            YCM.YarnColorID AS YarnColorID,
+                            YCM.YarnColor AS YarnColour,
+                            YCM.YarnColorCode AS Code,
+		                    GLM.GodownLocationID,
+                            GLM.LocationTitle AS Location,
+                            N.BoxNo
+                            FROM YarnOutwardDetail YOD
+                            INNER JOIN YarnOutwardMaster YM 
+                                ON YM.YarnOutwardID = YOD.YarnOutwardID
+                            LEFT JOIN PartyMaster PM 
+                                ON YM.PartyId = PM.PartyId
+                            LEFT JOIN YarnMaterialMaster YMM  
+                                ON YMM.YarnMaterialID = YOD.YarnMaterialID
+                            LEFT JOIN YarnColorMaster YCM  
+                                ON YCM.YarnColorID = YOD.YarnColorID
+                            LEFT JOIN GodownLocationMaster GLM  
+                                ON GLM.GodownLocationID = YOD.GodownLocationID
+                            CROSS APPLY
+                            (
+                                SELECT TOP (YOD.NoOfBox)
+                                ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
+                                FROM master..spt_values
+                            ) N
+                            WHERE YOD.YarnOutwardID = @YarnOutwardID";
+
+                cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                    yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
+                     yarnOutward.PartyName = rdr["YarnCompany"].ToString();
+                     yarnOutward.Address = rdr["Address"].ToString();
+                    yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
+                    yarnOutward.YarnMaterial = rdr["YarnMaterial"].ToString();
+                    yarnOutward.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
+                    yarnOutward.YarnColor = rdr["YarnColour"].ToString();
+                    yarnOutward.YarnColorCode = rdr["Code"].ToString();
+                    yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
+                    yarnOutward.LocationTitle = rdr["Location"].ToString();
+                    yarnOutward.BoxNo =(rdr["BoxNo"].ToString());
+                    yarnOutward.ChallanNo = ChallanNo;                    
+                    listPartyMaster.Add(yarnOutward);
+                }
+            }
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            Context.Response.Write(js.Serialize(listPartyMaster));
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void GetBoxWeight(string BoxNo)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            YarnInwardDetail yarnOutward = new YarnInwardDetail();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT * FROM YarnInwardDetail WHERE BarcodeNo=@BarcodeNo", con);
+                cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.Read())
+                {
+                    yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
+                    yarnOutward.BoxNo = rdr["BoxNo"].ToString();
+                    yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
+                    yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
+                    yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
+                    yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                }
+            }
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            Context.Response.Write(js.Serialize(yarnOutward));
+        }
+        [WebMethod]
+        public void SaveYARNOUTWARDScanMaster(YarnOutwardScanMasterModel model)
+        {
+            SqlTransaction tran = null;
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            CommanResponse comman = new CommanResponse();
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+                    tran = con.BeginTransaction();
+
+                    int YarnOutwardID = 0;
+                    string abc = model.YarnOutwardID.ToString();
+                    string lastCharacter = abc.Substring(abc.Length - 6);
+
+                    if (lastCharacter != "%3d%3d")
+                    {
+                        string InvoiceId = model.YarnOutwardID.ToString().Replace("==", "") + "%3d%3d";
+                        YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                    }
+                    else
+                    {
+                        YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(model.YarnOutwardID.ToString())));
+                    }
+
+                    int YarnOutwardScanID = 0;
+
+                    SqlCommand cmd = new SqlCommand(@"
+                        INSERT INTO YARNOUTWARDScanMaster
+                            (
+                                DateAndTime,
+                                YarnOutwardID,
+                                ChallanNo,
+                                ChallanDate,
+                                TotalBox,
+                                TotalWeight,
+                                UserAccountId,
+                                FinancialYearID,
+                                CompanyId
+                            )
+                            VALUES
+                            (
+                                GETDATE(),
+                                @YarnOutwardID,
+                                @ChallanNo,
+                                @ChallanDate,
+                                @TotalBox,
+                                @TotalWeight,
+                                @UserAccountId,
+                                @FinancialYearID,
+                                @CompanyId
+                            )SELECT SCOPE_IDENTITY()", con, tran);
+                    cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+                    cmd.Parameters.AddWithValue("@ChallanNo", model.ChallanNo);
+                    cmd.Parameters.AddWithValue("@ChallanDate", model.ChallanDate);
+                    cmd.Parameters.AddWithValue("@TotalBox", model.TotalBox);
+                    cmd.Parameters.AddWithValue("@TotalWeight", model.TotalWeight);
+                    cmd.Parameters.AddWithValue("@UserAccountId", 0);
+                    cmd.Parameters.AddWithValue("@FinancialYearID",0);
+                    cmd.Parameters.AddWithValue("@CompanyId", 0);
+
+                    YarnOutwardScanID = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    foreach (var item in model.Details)
+                    {
+                        SqlCommand cmdDetail = new SqlCommand(@"
+                    INSERT INTO YARNOUTWARDScanMasterDetails
+                    (
+                        DateAndTime,
+                        YarnOutwardScanID,
+                        YarnMaterial,
+                        YarnColour,
+                        GodownLocationID,
+                        PartyID,
+                        BarcodeNo,
+                        NetWeight,
+                        BoxNo
+                    )
+                    VALUES
+                    (
+                        GETDATE(),
+                        @YarnOutwardScanID,
+                        @YarnMaterial,
+                        @YarnColour,
+                        @GodownLocationID,
+                        @PartyID,
+                        @BarcodeNo,
+                        @NetWeight,
+                        @BoxNo
+                    )", con, tran);
+
+                                            cmdDetail.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
+                                            cmdDetail.Parameters.AddWithValue("@YarnMaterial", item.YarnMaterialID);
+                                            cmdDetail.Parameters.AddWithValue("@YarnColour", item.YarnColorID);
+                                            cmdDetail.Parameters.AddWithValue("@GodownLocationID", item.GodownLocationID);
+                                            cmdDetail.Parameters.AddWithValue("@PartyID", model.PartyId);
+                                            cmdDetail.Parameters.AddWithValue("@BarcodeNo", item.BoxNo);
+                                            cmdDetail.Parameters.AddWithValue("@NetWeight", item.NetWeight);
+                                            cmdDetail.Parameters.AddWithValue("@BoxNo", item.BoxNo);
+
+                                            cmdDetail.ExecuteNonQuery();
+                                        }
+
+                                        tran.Commit();
+
+                                        comman.Code = 201;
+                                        comman.Message = "Yarn Outward saved successfully.";
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (tran != null && tran.Connection != null)
+                                    {
+                                        tran.Rollback();
+                                    }
+
+                                    comman.Code = 500;
+                                    comman.Message = ex.Message;
+                                }
+
+                                WriteResponse(comman);
+                            }
+        #endregion
 
 
 

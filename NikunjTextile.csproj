@@ -563,6 +563,7 @@
     <Compile Include="Class\YarnOutwardDetail.cs" />
     <Compile Include="Class\YarnOutwardMaster.cs" />
     <Compile Include="Class\YarnOutwardMasterResponce.cs" />
+    <Compile Include="Class\YARNOUTWARDScanMaster.cs" />
     <Compile Include="Class\YarnPODetails.cs" />
     <Compile Include="Class\YarnPOMaster.cs" />
     <Compile Include="Class\YarnPOMasterResponse.cs" />
@@ -628,6 +629,7 @@
     <Content Include="UpdateYarnPO.cshtml" />
     <Content Include="UpdateYarnInward.cshtml" />
     <Content Include="UpdateYarnOutWardChallan.cshtml" />
+    <Content Include="UpdateYarnOutWardScan.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -647,6 +649,8 @@
     <Content Include="YarnBoxMultiBarcode.cshtml" />
     <Content Include="YarnOutWardChallan.cshtml" />
     <Content Include="YarnOutWardChallanDetails.cshtml" />
+    <Content Include="YarnOutWardScanDetails.cshtml" />
+    <Content Include="YarnOutWardScan.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AadharUpload\" />
