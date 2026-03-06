@@ -45,3 +45,13 @@ packages/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Visual Studio publish profile user files
+*.pubxml.user
+
+# Build folders
+bin/
+obj/
+
+# Visual Studio
+.vs/
