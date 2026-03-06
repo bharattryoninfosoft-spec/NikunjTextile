@@ -24,3 +24,24 @@ publish/
 
 # IIS Express
 .config/
+
+# Build folders
+bin/
+obj/
+Release/
+Debug/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+
+# NuGet packages
+packages/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -23755,31 +23755,13 @@ namespace NikunjTextile
                     int YarnOutwardScanID = 0;
 
                     SqlCommand cmd = new SqlCommand(@"
-            INSERT INTO YARNOUTWARDScanMaster
-            (
-                DateAndTime,
-                YarnOutwardID,
-                ChallanNo,
-                ChallanDate,
-                TotalBox,
-                TotalWeight,
-                UserAccountId,
-                FinancialYearID,
-                CompanyId
-            )
-            VALUES
-            (
-                GETDATE(),
-                @YarnOutwardID,
-                @ChallanNo,
-                @ChallanDate,
-                @TotalBox,
-                @TotalWeight,
-                @UserAccountId,
-                (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
-                (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-            )
-            SELECT SCOPE_IDENTITY()", con, tran);
+                         INSERT INTO YARNOUTWARDScanMaster
+                         (DateAndTime,YarnOutwardID,ChallanNo,ChallanDate,TotalBox,TotalWeight,UserAccountId,FinancialYearID,CompanyId)
+                         VALUES
+                         (GETDATE(),@YarnOutwardID,@ChallanNo,@ChallanDate,@TotalBox,@TotalWeight,@UserAccountId,
+                             (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
+                             (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                         )SELECT SCOPE_IDENTITY()", con, tran);
 
                     cmd.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
                     cmd.Parameters.Add("@ChallanNo", SqlDbType.VarChar).Value = ChallanNo ?? "";
@@ -23787,42 +23769,16 @@ namespace NikunjTextile
                     cmd.Parameters.Add("@TotalBox", SqlDbType.Int).Value = Convert.ToInt32(TotalBox);
                     cmd.Parameters.Add("@TotalWeight", SqlDbType.Decimal).Value = Convert.ToDecimal(TotalWeight);
                     cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
-
                     YarnOutwardScanID = Convert.ToInt32(cmd.ExecuteScalar());
-
                     int i = 0;
-
                     while (Context.Request.Form["Details[" + i + "].BoxNo"] != null)
                     {
                         SqlCommand cmdDetail = new SqlCommand(@"
                 INSERT INTO YARNOUTWARDScanMasterDetails
-                (
-                    DateAndTime,
-                    YarnOutwardScanID,
-                    YarnMaterial,
-                    YarnColour,
-                    GodownLocationID,
-                    PartyID,
-                    BarcodeNo,
-                    NetWeight,
-                    BoxNo,
-                    YarnInwardDetailID,
-                    UserAccountId
-                )
+                (DateAndTime,YarnOutwardScanID,YarnMaterial,YarnColour,GodownLocationID,PartyID,BarcodeNo,NetWeight,BoxNo,YarnInwardDetailID,
+                    UserAccountId )
                 VALUES
-                (
-                    GETDATE(),
-                    @YarnOutwardScanID,
-                    @YarnMaterial,
-                    @YarnColour,
-                    @GodownLocationID,
-                    @PartyID,
-                    @BarcodeNo,
-                    @NetWeight,
-                    @BoxNo,
-                    @YarnInwardDetailID,
-                    @UserAccountId
-                )", con, tran);
+                (GETDATE(),@YarnOutwardScanID,@YarnMaterial,@YarnColour, @GodownLocationID,@PartyID,@BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId )", con, tran);
 
                         cmdDetail.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
                         cmdDetail.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnMaterialID"]);
@@ -23834,22 +23790,13 @@ namespace NikunjTextile
                         cmdDetail.Parameters.Add("@BoxNo", SqlDbType.VarChar).Value = Context.Request.Form["Details[" + i + "].BoxNo"];
                         cmdDetail.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnInwardDetailID"]);
                         cmdDetail.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
-
                         cmdDetail.ExecuteNonQuery();
                         i++;
                     }
-
-                    SqlCommand cmdUpdate = new SqlCommand(@"
-            UPDATE YARNOUTWARDMaster
-            SET IsScanStutas = 1
-            WHERE YarnOutwardID = @YarnOutwardID", con, tran);
-
+                    SqlCommand cmdUpdate = new SqlCommand(@"UPDATE YARNOUTWARDMaster  SET IsScanStutas = 1 WHERE YarnOutwardID = @YarnOutwardID", con, tran);
                     cmdUpdate.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
-
                     cmdUpdate.ExecuteNonQuery();
-
                     tran.Commit();
-
                     comman.Code = 201;
                     comman.Message = "Yarn Outward saved successfully.";
                 }
