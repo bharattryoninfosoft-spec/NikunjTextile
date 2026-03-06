@@ -1857,7 +1857,6 @@
 
                             var siftGodownInputBox = $("#siftGodownInputBox").val();
                             var updatesiftGodownInputBox = $("#updatesiftGodownInputBox").val();
-
                             var formData = new FormData();
                             formData.append('YarnOutwardID', YarnOutwardID);
                             formData.append('PartyId', PartyId.value);
@@ -1885,29 +1884,21 @@
 
                                         notes.show(response.Message, {
                                             type: 'success',
-
                                         });
                                         window.location.href = 'YarnOutWardChallanDetails';
                                         //GridBindData(0);
                                         $("#cancelbtn").click();
                                     }
                                     else {
-
-
                                         notess.show(response.Message, {
                                             type: 'danger',
-
                                         });
                                     }
                                 },
                                 error: function (error) {
-
-
                                     notess.show(response.Message, {
                                         type: 'danger',
-
                                     });
-
                                 }
                             });
 
@@ -1951,11 +1942,9 @@
             }
         });
         if (!rowFound) {
-
             var $tbody = $("#tableYarnOutward");
             var temp = "";
             var lastId = 0;
-
             $tbody.find("span[id^='span_Name_']").each(function () {
                 var id = $(this).attr("id");   // span_Name_3
                 var num = parseInt(id.split("_")[2]);
@@ -1963,7 +1952,6 @@
                     lastId = num;
                 }
             });
-
             var newId = lastId + 1;
             var srno = $tbody.find("tr:has(td)").length + 1;
             var allids = newId + "_" + partyId + "_" + materialId + "_" + colorId;

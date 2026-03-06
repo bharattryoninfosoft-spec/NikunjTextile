@@ -13,7 +13,6 @@ namespace NikunjTextile.Class
         public string ChallanDate { get; set; }
         public int TotalBox { get; set; }
         public decimal TotalWeight { get; set; }
-
         public List<YarnOutwardScanDetailModel> Details { get; set; }
     }
 
@@ -24,5 +23,6 @@ namespace NikunjTextile.Class
         public int GodownLocationID { get; set; }
         public string BoxNo { get; set; }
         public decimal NetWeight { get; set; }
+        public int YarnInwardDetailID { get; set; }
     }
 }

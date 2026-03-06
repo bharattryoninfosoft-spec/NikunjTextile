@@ -1189,13 +1189,11 @@ namespace NikunjTextile
                         condition.AlterMobileNo = rdr["AlterMobileNo"].ToString();
                         condition.Email = rdr["Email"].ToString();
                         condition.BusinessAddress = rdr["BusinessAddress"].ToString();
-
                         condition.GSTIN = rdr["GSTIN"].ToString();
                         condition.State = rdr["State"].ToString();
                         condition.BusinessType = rdr["BusinessType"].ToString();
                         condition.BusinessCategory = rdr["BusinessCategory"].ToString();
                         condition.BusinessDescription = rdr["BusinessDescription"].ToString();
-
                         condition.BankName = rdr["BankName"].ToString();
                         condition.ACNo = rdr["ACNo"].ToString();
                         condition.IFSC = rdr["IFSC"].ToString();
@@ -1205,8 +1203,6 @@ namespace NikunjTextile
                         condition.BarcodeTitle = rdr["BarcodeTitle"].ToString();
                         condition.SetCreditPercentage = rdr["SetCreditPercentage"].ToString();
                         condition.SupportNumber = rdr["SupportNumber"].ToString();
-
-
                         listUser.Add(condition);
                     }
                 }
@@ -23405,7 +23401,7 @@ namespace NikunjTextile
         #region YARN OUTWARD Scan
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void getDisplayYarnOutwardScanMaster()
+        public void GetDisplayYarnoutwardScanMaster()
         {
             JavaScriptSerializer js;
             List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
@@ -23438,7 +23434,7 @@ namespace NikunjTextile
                                 LEFT JOIN GodownMaster GM ON YOM.GodownID = GM.GodownID 
                                 LEFT JOIN (SELECT YarnOutwardID, SUM(NoOfBox) AS TotalNoOfBox FROM YarnOutwardDetail  GROUP BY YarnOutwardID ) YD 
                                     ON YOM.YarnOutwardID = YD.YarnOutwardID
-                                WHERE YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)         
+                                WHERE YOM.IsScanStutas = 0 AND YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)         
                                 AND YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
                                     " + ilist.SearchRequirementNo + @"
                                     AND YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @"
@@ -23481,7 +23477,7 @@ namespace NikunjTextile
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void getYarnOutwardMasterScanPaggination()
+        public void GetYarnOutwardMasterScanPaggination()
         {
             JavaScriptSerializer js;
             List<PagginationMaster> listUser = new List<PagginationMaster>();
@@ -23549,7 +23545,7 @@ namespace NikunjTextile
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void getYarnOutwardScan()
+        public void GetYarnOutwardScan()
         {
             var request = HttpContext.Current.Request;
             List<YarnOutwardMaster> listPartyMaster = new List<YarnOutwardMaster>();
@@ -23594,7 +23590,7 @@ namespace NikunjTextile
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"SELECT 
+                cmd.CommandText = @"SELECT                            
                             Pm.PartyId,
                             PM.PartyName AS YarnCompany,
                             Pm.BillingAddress AS Address,
@@ -23632,10 +23628,10 @@ namespace NikunjTextile
 
                 while (rdr.Read())
                 {
-                    YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                    YarnOutwardMaster yarnOutward = new YarnOutwardMaster();                   
                     yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                     yarnOutward.PartyName = rdr["YarnCompany"].ToString();
-                     yarnOutward.Address = rdr["Address"].ToString();
+                    yarnOutward.PartyName = rdr["YarnCompany"].ToString();
+                    yarnOutward.Address = rdr["Address"].ToString();
                     yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
                     yarnOutward.YarnMaterial = rdr["YarnMaterial"].ToString();
                     yarnOutward.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
@@ -23659,12 +23655,25 @@ namespace NikunjTextile
         public void GetBoxWeight(string BoxNo)
         {
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
             YarnInwardDetail yarnOutward = new YarnInwardDetail();
-
+            CommanResponse comman = new CommanResponse();
+            JavaScriptSerializer js = new JavaScriptSerializer();
             using (SqlConnection con = new SqlConnection(cs))
             {
-                SqlCommand cmd = new SqlCommand("SELECT * FROM YarnInwardDetail WHERE BarcodeNo=@BarcodeNo", con);
+                SqlCommand cmd = new SqlCommand(@"
+                           IF EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails WHERE BarcodeNo = @BarcodeNo)
+                                BEGIN
+                                    SELECT 'EXIST' AS Status, NULL AS YarnInwardDetailID, NULL AS BoxNo, 
+                                           NULL AS NetWeight, NULL AS BarcodeNo, NULL AS GodownLocationID, NULL AS YarnInwardID
+                                END
+                                ELSE
+                                BEGIN
+                                    SELECT 'OK' AS Status, YarnInwardDetailID, BoxNo, NetWeight, BarcodeNo, GodownLocationID, YarnInwardID
+                                    FROM YarnInwardDetail
+                                    WHERE BarcodeNo = @BarcodeNo
+                                END
+                        ", con);
+
                 cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
 
                 con.Open();
@@ -23672,26 +23681,36 @@ namespace NikunjTextile
 
                 if (rdr.Read())
                 {
-                    yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
-                    yarnOutward.BoxNo = rdr["BoxNo"].ToString();
-                    yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
-                    yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
-                    yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
-                    yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                    if(rdr["Status"] != DBNull.Value && rdr["Status"].ToString() == "EXIST")
+                    {
+                        comman.Code = 410;
+                        comman.Message = $"This Box {BoxNo } already scanned.";               
+                        js.MaxJsonLength = Int32.MaxValue;
+                        Context.Response.Write(js.Serialize(comman));
+                        return; 
+                    }       
+                    else
+                    {
+                        comman.Code = 201;
+                        yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
+                        yarnOutward.BoxNo = rdr["BoxNo"].ToString();
+                        yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
+                        yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
+                        yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
+                        yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                    }
                 }
             }
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
-
             Context.Response.Write(js.Serialize(yarnOutward));
         }
         [WebMethod]
-        public void SaveYARNOUTWARDScanMaster(YarnOutwardScanMasterModel model)
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void SaveYarnoutwardScanMaster()
         {
             SqlTransaction tran = null;
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
+            JavaScriptSerializer js = new JavaScriptSerializer();
             CommanResponse comman = new CommanResponse();
 
             try
@@ -23701,139 +23720,154 @@ namespace NikunjTextile
                     con.Open();
                     tran = con.BeginTransaction();
 
-                    int YarnOutwardID = 0;
-                    string abc = model.YarnOutwardID.ToString();
-                    string lastCharacter = abc.Substring(abc.Length - 6);
+                    string encYarnOutwardID = Context.Request.Form["YarnOutwardID"];
+                    string ChallanNo = Context.Request.Form["ChallanNo"];
+                    string ChallanDate = Context.Request.Form["ChallanDate"];
+                    string TotalBox = Context.Request.Form["TotalBox"];
+                    string TotalWeight = Context.Request.Form["TotalWeight"];
+                    string PartyId = Context.Request.Form["PartyId"];
 
-                    if (lastCharacter != "%3d%3d")
+                    int YarnOutwardID = 0;
+
+                    if (!string.IsNullOrEmpty(encYarnOutwardID))
                     {
-                        string InvoiceId = model.YarnOutwardID.ToString().Replace("==", "") + "%3d%3d";
-                        YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                        string lastCharacter = encYarnOutwardID.Substring(encYarnOutwardID.Length - 6);
+
+                        if (lastCharacter != "%3d%3d")
+                        {
+                            string InvoiceId = HttpContext.Current.Request.Params["YarnOutwardID"].Replace("==", "") + "%3d%3d";
+                            YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                        }
+                        else
+                        {
+                            YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnOutwardID"])));
+                        }
+
                     }
-                    else
+
+                    int UserAccountId = 0;
+
+                    if (Context.Request.Cookies["UserIDs"] != null)
                     {
-                        YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(model.YarnOutwardID.ToString())));
+                        UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
                     }
 
                     int YarnOutwardScanID = 0;
 
                     SqlCommand cmd = new SqlCommand(@"
-                        INSERT INTO YARNOUTWARDScanMaster
-                            (
-                                DateAndTime,
-                                YarnOutwardID,
-                                ChallanNo,
-                                ChallanDate,
-                                TotalBox,
-                                TotalWeight,
-                                UserAccountId,
-                                FinancialYearID,
-                                CompanyId
-                            )
-                            VALUES
-                            (
-                                GETDATE(),
-                                @YarnOutwardID,
-                                @ChallanNo,
-                                @ChallanDate,
-                                @TotalBox,
-                                @TotalWeight,
-                                @UserAccountId,
-                                @FinancialYearID,
-                                @CompanyId
-                            )SELECT SCOPE_IDENTITY()", con, tran);
-                    cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
-                    cmd.Parameters.AddWithValue("@ChallanNo", model.ChallanNo);
-                    cmd.Parameters.AddWithValue("@ChallanDate", model.ChallanDate);
-                    cmd.Parameters.AddWithValue("@TotalBox", model.TotalBox);
-                    cmd.Parameters.AddWithValue("@TotalWeight", model.TotalWeight);
-                    cmd.Parameters.AddWithValue("@UserAccountId", 0);
-                    cmd.Parameters.AddWithValue("@FinancialYearID",0);
-                    cmd.Parameters.AddWithValue("@CompanyId", 0);
+            INSERT INTO YARNOUTWARDScanMaster
+            (
+                DateAndTime,
+                YarnOutwardID,
+                ChallanNo,
+                ChallanDate,
+                TotalBox,
+                TotalWeight,
+                UserAccountId,
+                FinancialYearID,
+                CompanyId
+            )
+            VALUES
+            (
+                GETDATE(),
+                @YarnOutwardID,
+                @ChallanNo,
+                @ChallanDate,
+                @TotalBox,
+                @TotalWeight,
+                @UserAccountId,
+                (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
+                (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+            )
+            SELECT SCOPE_IDENTITY()", con, tran);
+
+                    cmd.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
+                    cmd.Parameters.Add("@ChallanNo", SqlDbType.VarChar).Value = ChallanNo ?? "";
+                    cmd.Parameters.Add("@ChallanDate", SqlDbType.Date).Value = string.IsNullOrEmpty(ChallanDate) ? (object)DBNull.Value : Convert.ToDateTime(ChallanDate);
+                    cmd.Parameters.Add("@TotalBox", SqlDbType.Int).Value = Convert.ToInt32(TotalBox);
+                    cmd.Parameters.Add("@TotalWeight", SqlDbType.Decimal).Value = Convert.ToDecimal(TotalWeight);
+                    cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
 
                     YarnOutwardScanID = Convert.ToInt32(cmd.ExecuteScalar());
 
-                    foreach (var item in model.Details)
+                    int i = 0;
+
+                    while (Context.Request.Form["Details[" + i + "].BoxNo"] != null)
                     {
                         SqlCommand cmdDetail = new SqlCommand(@"
-                    INSERT INTO YARNOUTWARDScanMasterDetails
-                    (
-                        DateAndTime,
-                        YarnOutwardScanID,
-                        YarnMaterial,
-                        YarnColour,
-                        GodownLocationID,
-                        PartyID,
-                        BarcodeNo,
-                        NetWeight,
-                        BoxNo
-                    )
-                    VALUES
-                    (
-                        GETDATE(),
-                        @YarnOutwardScanID,
-                        @YarnMaterial,
-                        @YarnColour,
-                        @GodownLocationID,
-                        @PartyID,
-                        @BarcodeNo,
-                        @NetWeight,
-                        @BoxNo
-                    )", con, tran);
+                INSERT INTO YARNOUTWARDScanMasterDetails
+                (
+                    DateAndTime,
+                    YarnOutwardScanID,
+                    YarnMaterial,
+                    YarnColour,
+                    GodownLocationID,
+                    PartyID,
+                    BarcodeNo,
+                    NetWeight,
+                    BoxNo,
+                    YarnInwardDetailID,
+                    UserAccountId
+                )
+                VALUES
+                (
+                    GETDATE(),
+                    @YarnOutwardScanID,
+                    @YarnMaterial,
+                    @YarnColour,
+                    @GodownLocationID,
+                    @PartyID,
+                    @BarcodeNo,
+                    @NetWeight,
+                    @BoxNo,
+                    @YarnInwardDetailID,
+                    @UserAccountId
+                )", con, tran);
 
-                                            cmdDetail.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
-                                            cmdDetail.Parameters.AddWithValue("@YarnMaterial", item.YarnMaterialID);
-                                            cmdDetail.Parameters.AddWithValue("@YarnColour", item.YarnColorID);
-                                            cmdDetail.Parameters.AddWithValue("@GodownLocationID", item.GodownLocationID);
-                                            cmdDetail.Parameters.AddWithValue("@PartyID", model.PartyId);
-                                            cmdDetail.Parameters.AddWithValue("@BarcodeNo", item.BoxNo);
-                                            cmdDetail.Parameters.AddWithValue("@NetWeight", item.NetWeight);
-                                            cmdDetail.Parameters.AddWithValue("@BoxNo", item.BoxNo);
+                        cmdDetail.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                        cmdDetail.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnMaterialID"]);
+                        cmdDetail.Parameters.Add("@YarnColour", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnColorID"]);
+                        cmdDetail.Parameters.Add("@GodownLocationID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].GodownLocationID"]);
+                        cmdDetail.Parameters.Add("@PartyID", SqlDbType.Int).Value = Convert.ToInt32(PartyId);
+                        cmdDetail.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = Context.Request.Form["Details[" + i + "].BoxNo"];
+                        cmdDetail.Parameters.Add("@NetWeight", SqlDbType.Decimal).Value = Convert.ToDecimal(Context.Request.Form["Details[" + i + "].NetWeight"]);
+                        cmdDetail.Parameters.Add("@BoxNo", SqlDbType.VarChar).Value = Context.Request.Form["Details[" + i + "].BoxNo"];
+                        cmdDetail.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnInwardDetailID"]);
+                        cmdDetail.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
 
-                                            cmdDetail.ExecuteNonQuery();
-                                        }
+                        cmdDetail.ExecuteNonQuery();
+                        i++;
+                    }
 
-                                        tran.Commit();
+                    SqlCommand cmdUpdate = new SqlCommand(@"
+            UPDATE YARNOUTWARDMaster
+            SET IsScanStutas = 1
+            WHERE YarnOutwardID = @YarnOutwardID", con, tran);
 
-                                        comman.Code = 201;
-                                        comman.Message = "Yarn Outward saved successfully.";
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    if (tran != null && tran.Connection != null)
-                                    {
-                                        tran.Rollback();
-                                    }
+                    cmdUpdate.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
 
-                                    comman.Code = 500;
-                                    comman.Message = ex.Message;
-                                }
+                    cmdUpdate.ExecuteNonQuery();
 
-                                WriteResponse(comman);
-                            }
+                    tran.Commit();
+
+                    comman.Code = 201;
+                    comman.Message = "Yarn Outward saved successfully.";
+                }
+            }
+            catch (Exception ex)
+            {
+                if (tran != null && tran.Connection != null)
+                {
+                    tran.Rollback();
+                }
+
+                comman.Code = 500;
+                comman.Message = ex.Message;
+            }
+
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(comman));
+        }
         #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

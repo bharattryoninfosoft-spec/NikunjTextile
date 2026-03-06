@@ -194,7 +194,7 @@
     <script>
         $(document).ready(function () {
             var today = new Date().toISOString().split('T')[0];
-
+            getDefaultCompany();
             $("#ChallanDate").val(today);
             //let number = 1234567.89654654654;
             //let formatted = number.toLocaleString("en-IN");
@@ -398,6 +398,7 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
+                    console.log("Company",response)
                     if (response.Code == 200 || response.Code == "200") {
                         $("#company-id").val(response.listCompanyMaster[0].CompanyId);
                         $("#company-default").html(response.listCompanyMaster[0].CompanyName);
@@ -426,7 +427,7 @@
                 data: "{ 'userName':'0' }",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (data, status) {              
+                success: function (data, status) {            
                     if (data.d == "false") {
                         window.location.replace("/Index");
                     }
@@ -509,7 +510,7 @@
 
             $.ajax({
                 type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardScan',
+                url: '/WebServiceNikunjTextile.asmx/GetYarnOutwardScan',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
@@ -521,8 +522,6 @@
                         var PartyName = response[0].PartyName || "";
                         var Address = response[0].Address || "";
                         var ChallanNo = response[0].ChallanNo || "0";
-
-
                         $("#PartyId").val(PartyId).prop("readonly", true);
                         $("#PartyName").val(PartyName).prop("readonly", true);
                         $("#Address").val(Address).prop("readonly", true);
@@ -533,7 +532,9 @@
                     tbody.empty();
                     $.each(response, function (i, v) {
                       
-                        var row = `<tr>                         
+                        var row = `<tr>  
+                                    <td hidden class="YarnInwardDetailID"></td>
+                                    <td hidden id="PartyId">${v.PartyId}</td>
                                     <td>${v.PartyName}</td>
                                     <td hidden id="YarnMaterialID">${v.YarnMaterialID}</td>
                                     <td>${v.YarnMaterial}</td>
@@ -563,20 +564,38 @@
             var weightCell = row.find(".weight");
 
             if ($(this).val().trim() === "") {
-                weightCell.text(0);   // reset weight
-                calculateTotals();    // update totals
+                weightCell.text(0);
+                calculateTotals();
             }
-
 
             if (e.key === "Enter" || e.key === "Tab") {
 
                 e.preventDefault();
 
-                var boxNo = $(this).val();
-                var row = $(this).closest("tr");
+                var boxNo = $(this).val().trim();
+                var currentInput = $(this);
+                var row = currentInput.closest("tr");
                 var weightCell = row.find(".weight");
 
                 if (boxNo == "") return;
+
+                // 🔹 Check duplicate BoxNo in table
+                var isDuplicate = false;
+                $(".Boxon").not(currentInput).each(function () {
+                    if ($(this).val().trim() === boxNo) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                });
+
+                if (isDuplicate) {
+                    notes.show("Box No " + boxNo + " already entered", {
+                        type: 'danger'
+                    });                 
+                    currentInput.val('');
+                    currentInput.focus();
+                    return;
+                }
 
                 $.ajax({
                     type: "POST",
@@ -585,25 +604,33 @@
                     dataType: "json",
 
                     success: function (response) {
+                        if (response.Code == 410) {
+                            notes.show("This Box " + boxNo + " already scanned", {
+                                type: 'danger'
+                            });                           
+                            var boxInput = row.find(".Boxon");
+                            boxInput.val('');
+                            boxInput.focus().select();
+                        }
+                        else {
 
-                        var weight = response.NetWeight || 0;
+                            var weight = response.NetWeight || 0;
+                            var inwardId = response.YarnInwardDetailID || 0;
 
-                        weightCell.text(weight);
+                            weightCell.text(weight);
+                            row.find(".YarnInwardDetailID").text(inwardId);
 
-                        calculateTotals();   // ⭐ update totals
+                            calculateTotals();
 
-                        // move cursor to next row
-                        row.next().find(".Boxon").focus();
+                            row.next().find(".Boxon").focus();
+                        }
                     },
 
                     error: function () {
                         alert("Box not found");
                     }
-
                 });
-
             }
-
         });
         function calculateTotals() {
 
@@ -626,83 +653,88 @@
             $("#totalWeight").text(totalWeight.toFixed(2));
         }
         function checkSave() {
-            debugger;
+
             var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
             var YarnOutwardID = hashes[0].split('=')[1];
-            var PartyId = $("#PartyId").val();
-            var ChallanNo = $("#ChallanNo").val();
-            var ChallanDate = $("#ChallanDate").val();
-            var TotalBox = $("#totalBox").text();
-            var TotalWeight = $("#totalWeight").text();
 
-            var detailList = [];
+            var formData = new FormData();
 
-            $("#tblYarnOutwardBody tr").each(function () {
+            formData.append("YarnOutwardID", YarnOutwardID);
+            formData.append("PartyId", $("#PartyId").val());
+            formData.append("ChallanNo", $("#ChallanNo").val());
+            formData.append("ChallanDate", $("#ChallanDate").val());
+            formData.append("TotalBox", $("#totalBox").text());
+            formData.append("TotalWeight", $("#totalWeight").text());
 
-                var YarnMaterialID = $(this).find("#YarnMaterialID").text();
-                var YarnColorID = $(this).find("#YarnColorID").text();
-                var GodownLocationID = $(this).find("#GodownLocationID").text();
-                var BoxNo = $(this).find(".Boxon").val();
-                var NetWeight = $(this).find(".weight").text();
+            var isValid = true;
+            var rowNo = 0;
 
-                if (BoxNo != "") {
+            $("#tblYarnOutwardBody tr").each(function (i) {
 
-                    detailList.push({
-                        YarnMaterialID: YarnMaterialID,
-                        YarnColorID: YarnColorID,
-                        GodownLocationID: GodownLocationID,
-                        BoxNo: BoxNo,
-                        NetWeight: NetWeight
+                var row = $(this);
+
+                var YarnMaterialID = row.find("#YarnMaterialID").text();
+                var YarnColorID = row.find("#YarnColorID").text();
+                var GodownLocationID = row.find("#GodownLocationID").text();
+                var BoxNo = row.find(".Boxon").val();
+                var NetWeight = row.find(".weight").text();
+                var YarnInwardDetailID = row.find(".YarnInwardDetailID").text();
+
+                rowNo = i + 1;
+
+                if (BoxNo == "" || BoxNo == null) {
+
+                    notes.show("Please fill BoxNo in Row " + rowNo, {
+                        type: 'danger'
                     });
 
+                    isValid = false;
+                    return false; 
                 }
+
+                formData.append("Details[" + i + "].YarnMaterialID", YarnMaterialID);
+                formData.append("Details[" + i + "].YarnColorID", YarnColorID);
+                formData.append("Details[" + i + "].GodownLocationID", GodownLocationID);
+                formData.append("Details[" + i + "].BoxNo", BoxNo);
+                formData.append("Details[" + i + "].NetWeight", NetWeight);
+                formData.append("Details[" + i + "].YarnInwardDetailID", YarnInwardDetailID);
 
             });
 
-            if (detailList.length == 0) {
-                alert("Please enter atleast one Box");
-                return;
-            }
-
-            var data = {
-                YarnOutwardID: YarnOutwardID,
-                PartyId: PartyId,
-                ChallanNo: ChallanNo,
-                ChallanDate: ChallanDate,
-                TotalBox: TotalBox,
-                TotalWeight: TotalWeight,
-                Details: detailList
-            };
+            if (!isValid) return;
 
             $.ajax({
                 type: "POST",
-                url: "/WebServiceNikunjTextile.asmx/SaveYARNOUTWARDScanMaster",
-                data: JSON.stringify({ model: data }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
+                url: "/WebServiceNikunjTextile.asmx/SaveYarnoutwardScanMaster",
+                data: formData,
+                processData: false,
+                contentType: false,
 
-                success: function (response) {
+                success: function (res) {
 
-                    var res = response.d;
+                    var data = JSON.parse(res);
 
-                    if (res.Code == 200) {
+                    if (data.Code == 201) {
 
-                        alert(res.Message);
-                        window.location.href = "YarnOutWardScanDetails";
+                        notes.show(data.Message, {
+                            type: 'success'
+                        });
 
-                    }
-                    else {
+                        window.location.href = 'YarnOutWardScanDetails';
 
-                        alert(res.Message);
+                    } else {
+
+                        notes.show(data.Message, {
+                            type: 'danger'
+                        });
 
                     }
 
                 },
-                error: function (err) {
-
-                    console.log(err);
-
+                error: function (xhr) {
+                    console.log(xhr.responseText);
                 }
+
             });
 
         }
