@@ -15,7 +15,7 @@
 // Custom Scroll Fixed Height 200px
 $(function() {
 	$('.sidebarMenuScroll').slimScroll({
-		height: "calc(100vh - 250px)",
+		height: "calc(100vh - 150px)",
 		color: '#d6dbe6',
 		alwaysVisible: false,
 		size: "5px",

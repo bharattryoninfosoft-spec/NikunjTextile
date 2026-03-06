@@ -193,8 +193,7 @@
     </script>
     <script>
         $(document).ready(function () {
-            var today = new Date().toISOString().split('T')[0];
-            getDefaultCompany();
+            var today = new Date().toISOString().split('T')[0];   
             $("#ChallanDate").val(today);
             //let number = 1234567.89654654654;
             //let formatted = number.toLocaleString("en-IN");
@@ -203,7 +202,6 @@
             $(document).keydown(function (key) {
                 var li = $('li');
                 switch (parseInt(key.which, 10)) {
-
                     case 27:
                         $("#DivDDLItemDetail").hide();
                         $("#DivAddItem").show();
@@ -211,7 +209,6 @@
                         $("#CloseItemModel").click();
                         $("#cancelbtn").click();
                         $("#cancelItembtn").click();
-
                         break;
 
                     case 40:
@@ -265,7 +262,7 @@
             $('.active, .show, .current-page').removeClass('active show current-page');
             $("#YarnForm-tab").addClass("active");
             $("#tab-YarnForm").addClass("show active");
-            $("#aYarnOutWardChallan").addClass("current-page");
+            $("#aYarnOutWardScanDetails").addClass("current-page");
             FunctionIsLogin();
             $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
             $("#select2-ddlGodownMaster-container").css("color", "white");
@@ -302,6 +299,11 @@
             }, 1000);
          
         });
+        $(document).on("keyup change", "#tblYarnOutwardBody input", function () {
+            checkInputs();
+        });
+           $("#savebtn").prop("disabled", true);
+
         var notes = $('#notes').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
@@ -312,6 +314,28 @@
         var TotalInwardStockAry = "";
         var TotalOutwardStockAry = "";
         var TotalExistingOutwardStockAry = "";
+        function checkInputs() {
+            var isValid = true;
+
+            $("#tblYarnOutwardBody tr").each(function () {
+                $(this).find("input").each(function () {
+                    if ($(this).val().trim() === "") {
+                        isValid = false;
+                        return false;
+                    }
+                });
+
+                if (!isValid) {
+                    return false;
+                }
+            });
+
+            if (isValid) {
+                $("#savebtn").prop("disabled", false);
+            } else {
+                $("#savebtn").prop("disabled", true);
+            }
+        }
         function ViewRecordQueryString(DecryptID) {
             var formData = new FormData();
             formData.append('YarnOutwardID', DecryptID);
@@ -567,6 +591,7 @@
                 weightCell.text(0);
                 calculateTotals();
             }
+      
 
             if (e.key === "Enter" || e.key === "Tab") {
 
@@ -619,7 +644,16 @@
 
                             weightCell.text(weight);
                             row.find(".YarnInwardDetailID").text(inwardId);
-
+                            if (inwardId == "0" || inwardId == "")
+                            {
+                                notes.show("This Box " + boxNo + " invalid", {
+                                    type: 'danger'
+                                }); 
+                                var boxInput = row.find(".Boxon");
+                                boxInput.val('');
+                                boxInput.focus().select();
+                                return false;
+                            }
                             calculateTotals();
 
                             row.next().find(".Boxon").focus();
@@ -702,7 +736,7 @@
             });
 
             if (!isValid) return;
-
+           
             $.ajax({
                 type: "POST",
                 url: "/WebServiceNikunjTextile.asmx/SaveYarnoutwardScanMaster",
