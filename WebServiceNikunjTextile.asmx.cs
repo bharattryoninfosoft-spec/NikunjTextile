@@ -33,14 +33,8 @@ namespace NikunjTextile
     [System.Web.Script.Services.ScriptService]
     public class WebServiceNikunjTextile : System.Web.Services.WebService
     {
-
-
-
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         //UserLogin Web Service 
-
-
-
 
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
@@ -65,7 +59,6 @@ namespace NikunjTextile
             }
             return clearText;
         }
-
 
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
@@ -92,11 +85,6 @@ namespace NikunjTextile
             return cipherText;
         }
 
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDecryptID(string id)
@@ -120,9 +108,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getEncryptID(string id)
@@ -146,16 +131,8 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
-
-        private readonly Random _random = new Random();
+       private readonly Random _random = new Random();
         // Generates a random string with a given size.
-
-
         public string RandomString(int size, bool lowerCase = false)
         {
             var builder = new StringBuilder(size);
@@ -177,10 +154,6 @@ namespace NikunjTextile
 
             return lowerCase ? builder.ToString().ToLower() : builder.ToString().ToUpper();
         }
-
-
-
-
         // ***** Image Compress ********
         private void GenerateThumbnails(double scaleFactor, Stream sourcePath, string targetPath)
         {
@@ -202,10 +175,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
-
         private void GenerateThumbnailsV2(double scaleFactor, Stream sourceStream, string targetPath)
         {
             string dir = Path.GetDirectoryName(targetPath);
@@ -232,9 +201,6 @@ namespace NikunjTextile
                 }
             }
         }
-
-
-
         //MD5 Encrypt Password
         static string getMd5Hash(string input)
         { // Create a new instance of the MD5CryptoServiceProvider object.
@@ -249,11 +215,6 @@ namespace NikunjTextile
             // Return the hexadecimal string.
             return sBuilder.ToString().ToUpper();
         }
-
-
-
-
-
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         public string checkLoginUsername(string username)
@@ -262,6 +223,7 @@ namespace NikunjTextile
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
+
                 SqlCommand cmd;
                 cmd = new SqlCommand();
                 cmd.Connection = con;
@@ -308,9 +270,6 @@ namespace NikunjTextile
             }
             return msg;
         }
-
-
-
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         public string checkLoginStatus()
@@ -335,51 +294,103 @@ namespace NikunjTextile
             return msg;
 
         }
+        [WebMethod]
+        public void UserLogin(string username, string Password)
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
 
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                MD5 md5Hasher = MD5.Create();
+                byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(Password));
 
+                StringBuilder sBuilder = new StringBuilder();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sBuilder.Append(data[i].ToString("x2"));
+                }
+
+                Password = sBuilder.ToString().ToUpper();
+
+                SqlCommand cmd = new SqlCommand(
+                    @"SELECT * FROM UserAccountMaster 
+              WHERE UserAccountMobileNo=@username 
+              AND UserAccountPassword=@password", con);
+
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@password", Password);
+
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+
+                if (rdr.Read())
+                {
+                    var result = new
+                    {
+                        success = true,
+                        message = "Login Successfully",
+                        data = new
+                        {
+                            UserAccountId = rdr["UserAccountId"].ToString(),
+                            UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString(),
+                            UserAccountName = rdr["UserAccountName"].ToString(),
+                            UserRole = rdr["UserRole"].ToString(),
+                            UserAccountEmail = rdr["UserAccountEmail"].ToString(),
+                            UserAccountProfile = rdr["UserAccountProfile"].ToString(),
+                            AllowLogin = rdr["AllowLogin"].ToString()
+                        }
+                    };
+
+                    Context.Response.Write(js.Serialize(result));
+                }
+                else
+                {
+                    var result = new
+                    {
+                        success = false,
+                        message = "Invalid Username or Password",
+                        data = (object)null
+                    };
+
+                    Context.Response.Write(js.Serialize(result));
+                }
+            }
+
+            Context.ApplicationInstance.CompleteRequest(); 
+        }
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         public string Logout()
         {
-
             System.Web.HttpCookie nameCookie = new System.Web.HttpCookie("UserID");
             nameCookie.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(nameCookie);
-
             System.Web.HttpCookie UserIdCookie = new System.Web.HttpCookie("UserIDs");
             UserIdCookie.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(UserIdCookie);
-
             System.Web.HttpCookie StaffnameCookie = new System.Web.HttpCookie("UserName");
             StaffnameCookie.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(StaffnameCookie);
-
             System.Web.HttpCookie CompanyID = new System.Web.HttpCookie("CompanyID");
             CompanyID.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(CompanyID);
-
             System.Web.HttpCookie CompanyName = new System.Web.HttpCookie("CompanyName");
             CompanyName.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(CompanyName);
-
-
             System.Web.HttpCookie CompanyState = new System.Web.HttpCookie("CompanyState");
             CompanyState.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(CompanyState);
-
-
             System.Web.HttpCookie FinacialYearDefaultID = new System.Web.HttpCookie("FinacialYearDefaultID");
             FinacialYearDefaultID.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(FinacialYearDefaultID);
-
-
-
-
             return "done";
         }
-
-
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         public string getLoginDetails(string username, string password)
@@ -487,11 +498,6 @@ namespace NikunjTextile
             return msg;
 
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string getItemUnit()
@@ -530,9 +536,6 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string getGSTSlabList()
@@ -573,15 +576,6 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertCompanyMaster()
@@ -711,9 +705,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCompanyMasterById(string id)
@@ -781,8 +772,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -976,8 +965,6 @@ namespace NikunjTextile
             }
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteCompanyMaster()
@@ -1090,12 +1077,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
         // View Company Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1156,8 +1137,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1222,9 +1201,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string getStates()
@@ -1265,10 +1241,6 @@ namespace NikunjTextile
             return jsSerializer.Serialize(parentRow);
         }
 
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string getDropDownCopanyMaster()
@@ -1308,11 +1280,6 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-
-
-
-
-
 
         // View User Master
         [WebMethod]
@@ -1375,8 +1342,6 @@ namespace NikunjTextile
             return;
         }
 
-
-
         // Edit User Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1436,8 +1401,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1568,10 +1531,6 @@ namespace NikunjTextile
             }
         }
 
-
-
-
-
         // Delete User Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1691,9 +1650,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertUserMaster()
@@ -1789,12 +1745,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
-
-
-
-
-
         // ******************************************    GST Slab Master *******************************
 
         // View GST Slab
@@ -1849,8 +1799,6 @@ namespace NikunjTextile
 
         }
 
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGstSlabById(string id)
@@ -1901,7 +1849,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1981,7 +1928,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(comman));
         }
 
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void editGstMaster()
@@ -2057,7 +2003,6 @@ namespace NikunjTextile
                 Context.Response.Write(js.Serialize(comman));
             }
         }
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -2146,21 +2091,7 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Yarn Quality Master *******************************
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -2246,7 +2177,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]

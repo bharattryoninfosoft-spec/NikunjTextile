@@ -609,6 +609,7 @@
     <Content Include="GodownMaster.cshtml" />
     <Content Include="LocationMaster.cshtml" />
     <Content Include="GodownManagerMaster.cshtml" />
+    <Content Include="ImageCompressor.cshtml" />
     <None Include="packages.config" />
     <Content Include="vendor\summernote\fonts\summernote.eot" />
     <Content Include="vendor\summernote\fonts\summernote.ttf" />
