@@ -8,97 +8,123 @@
 
 <style>
 
-/*    body {
-        font-family: Arial;
-        background: #f3b39d;
+   .content-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        margin: 0;
-        overflow: hidden;
-    }*/
-
-    .container {
-        width: 650px;
-        height: 500px;
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        display: flex;
-        flex-direction: column;
+        height: 80vh;
     }
 
-    h2 {
+    .upload-card {
+        width: 500px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .upload-title {
         text-align: center;
-        color: #888;
-        margin-bottom: 20px;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        color: #333;
     }
 
-    .upload-area {
-        border: 2px dashed #ccc;
-        padding: 30px;
-        text-align: center;
-        cursor: pointer;
+    .form-label {
+        font-weight: 600;
+        color: #555;
     }
 
-    .file-list {
+    .form-control {
+        height: 42px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .move-btn {
+        width: 100%;
         margin-top: 20px;
-        flex: 1;
-        overflow-y: auto;
+        background: #4e73df;
+        border: none;
+        padding: 10px;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: 0.3s;
     }
 
-    .file-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-    }
+        .move-btn:hover {
+            background: #224abe;
+        }
 
-    .preview {
-        width: 60px;
-        height: 60px;
-        margin-right: 10px;
-        object-fit: cover;
-        border-radius: 5px;
-    }
-
-    .progress {
-        flex: 1;
-        background: #eee;
-        height: 6px;
-        border-radius: 5px;
-        margin-top: 5px;
-    }
-
-    .progress-bar {
-        height: 6px;
-        background: #ff5a7a;
-        width: 0%;
-        border-radius: 5px;
-    }
-
-    .percent {
-        margin-left: 10px;
+    .path-icon {
+        position: absolute;
+        left: 10px;
+        top: 10px;
         color: #777;
     }
+
+    .input-group {
+        position: relative;
+    }
+
+        .input-group input {
+            padding-left: 35px;
+        }
+        #loaderOverlay{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.loader{
+    border:6px solid #f3f3f3;
+    border-top:6px solid #4e73df;
+    border-radius:50%;
+    width:50px;
+    height:50px;
+    animation: spin 1s linear infinite;
+}
+
+@@keyframes spin{
+    0%{ transform:rotate(0deg); }
+    100%{ transform:rotate(360deg); }
+}
 </style>
 
 <div class="content-wrapper">
-    <div class="container">
-        <h2>UPLOAD PROJECTS</h2>
-        <button id="uploadBtn">Upload & Compress</button>
 
-        <div id="msg"></div>
-        <br><br>
+    <div class="upload-card">
 
-        <div class="upload-area" id="dropArea">
-            Drop files here or Click
-            <input type="file" id="fileInput" multiple accept="image/*" hidden>
+        <div class="upload-title">
+            <i class="fa fa-image"></i> Compress BMP Images
         </div>
 
-        <div id="preview"></div>
-        <div id="fileList" class="file-list"></div>
+        <label class="form-label">Source Path</label>
+
+        <div class="input-group">
+            <i class="fa fa-folder path-icon"></i>
+            <input type="text" id="sourcePath" class="form-control" placeholder="Enter Folder Path">
+
+        </div>
+        <button id="moveBtn" class="move-btn" onclick="MoveImages()">
+            <span id="btnText">
+                <i class="fa fa-upload"></i> Compress Images
+            </span>
+
+            <span id="btnLoader" style="display:none;">
+                <i class="fa fa-spinner fa-spin"></i> Processing...
+            </span>
+        </button>
+
     </div>
 
 </div>
@@ -161,7 +187,7 @@
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.title = "Create Yarn PO - Nikunj Textile";
     $('body').addClass('fullscreen');
@@ -384,132 +410,60 @@
     }
 </script>
 <script>
-    let dropArea = document.getElementById("dropArea");
-    let fileInput = document.getElementById("fileInput");
-    let fileList = document.getElementById("fileList");
-    let selectedFiles = [];
+    function MoveImages() {
 
-    dropArea.onclick = () => fileInput.click();
+        var path = $("#sourcePath").val();
 
-    fileInput.addEventListener("change", function (e) {
-
-        selectedFiles = e.target.files;
-        fileList.innerHTML = "";
-
-        for (let file of selectedFiles) {
-            previewUpload(file);
-        }
-
-    });
-
-    dropArea.addEventListener("dragover", e => e.preventDefault());
-
-    dropArea.addEventListener("drop", e => {
-
-        e.preventDefault();
-
-        selectedFiles = e.dataTransfer.files;
-
-        fileList.innerHTML = "";
-
-        for (let file of selectedFiles) {
-            previewUpload(file);
-        }
-
-    });
-
-    function previewUpload(file) {
-
-        let reader = new FileReader();
-
-        reader.onload = function (e) {
-
-            let div = document.createElement("div");
-            div.className = "file-item";
-
-            div.innerHTML = `
-        <img src="${e.target.result}" class="preview">
-
-        <div style="flex:1">
-            <div>${file.name}</div>
-
-            <div class="progress">
-                <div class="progress-bar"></div>
-            </div>
-        </div>
-
-        <div class="percent">0%</div>
-        `;
-
-            fileList.appendChild(div);
-
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-
-    $("#uploadBtn").click(function () {
-
-        var files = $("#fileInput")[0].files;
-
-        if (files.length == 0) {
-            alert("Please select images");
-            return;
-        }
-
-        var formData = new FormData();
-
-        fileList.innerHTML = "";
-
-        for (var i = 0; i < files.length; i++) {
-
-            previewUpload(files[i]);   // ✅ correct
-            formData.append("file" + i, files[i]);
-
-        }
+        $("#btnText").hide();
+        $("#btnLoader").show();
+        $("#moveBtn").prop("disabled", true);
 
         $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/UploadCompressImages",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-
-            xhr: function () {
-
-                var xhr = new window.XMLHttpRequest();
-
-                xhr.upload.addEventListener("progress", function (evt) {
-
-                    if (evt.lengthComputable) {
-
-                        var percent = Math.round((evt.loaded / evt.total) * 100);
-
-                        $(".progress-bar").css("width", percent + "%");
-                        $(".percent").text(percent + "%");
-
-                    }
-
-                }, false);
-
-                return xhr;
-            },
+            url: '/WebServiceNikunjTextile.asmx/MoveBmpImages',
+            type: 'POST',
+            data: { sourcePath: path },
 
             success: function (res) {
 
-                $(".progress-bar").css("width", "100%");
-                $(".percent").text("100%");
-                alert("Images Compressed Successfully");
+                var data = typeof res === "string" ? JSON.parse(res) : res;
 
+                if (data.Code == 200) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.Message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                } else {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: data.Message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                }
+
+                $("#btnText").show();
+                $("#btnLoader").hide();
+                $("#moveBtn").prop("disabled", false);
             },
 
-            error: function (err) {
-                console.log(err);
+            error: function () {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong!'
+                });
+
+                $("#btnText").show();
+                $("#btnLoader").hide();
+                $("#moveBtn").prop("disabled", false);
             }
-
         });
-
-    });
-
+    }
 </script>

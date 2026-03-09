@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Results;
+using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
@@ -20460,12 +20461,7 @@ namespace NikunjTextile
 
                         }
                     }
-
-
-
                 }
-
-
             }
             catch (SqlException ex)
             {
@@ -24009,15 +24005,55 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-        #endregion
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void MoveBmpImages(string sourcePath)
+        {
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            ApiResponse response = new ApiResponse();
 
+            try
+            {
+                string destPath = Path.Combine(sourcePath, "CompressImages");
+
+                if (!Directory.Exists(destPath))
+                    Directory.CreateDirectory(destPath);
+
+                string[] bmpFiles = Directory.GetFiles(sourcePath, "*.bmp");
+
+                foreach (string file in bmpFiles)
+                {
+                    using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    {
+                        string fileName = Path.GetFileName(file);
+                        string newPath = Path.Combine(destPath, fileName);
+
+                        GenerateThumbnailsV2(0.5, fs, newPath);
+                    }
+                }
+
+                response.Code = 200;
+                response.Message = "Success";
+            }
+            catch (Exception ex)
+            {
+                response.Code = 500;
+                response.Message = ex.Message;
+            }
+
+            Context.Response.Write(js.Serialize(response));
+            Context.Response.Flush();
+            Context.Response.SuppressContent = true;
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
+        }
+        #endregion
         #region Moblie APP API
         [WebMethod]
         public void UserLoginAPI(string Username, string Password)
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
-
+    
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             using (SqlConnection con = new SqlConnection(cs))
