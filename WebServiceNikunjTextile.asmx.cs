@@ -24408,7 +24408,7 @@ namespace NikunjTextile
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
         [WebMethod]
-        public void SaveYarnoutwardScanMaster(YarnOutwardScanMasterRequestAPI model)
+        public void SaveYarnoutwardScanMasterAPI(YarnOutwardScanMasterRequestAPI model)
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
