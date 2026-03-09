@@ -1,2468 +1,515 @@
-﻿<!doctype html>
-<html lang="en">
-
-
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Meta -->
-    <meta name="description" content="Nikung Textile">
-    <meta name="author" content="Nikunj Textile">
-    <link rel="shortcut icon" href="img/fav.png">
-
-    <!-- Title -->
-    <title>Company Master - Nikung Textile</title>
-
-    <!-- *************
-        ************ Common Css Files *************
-    ************ -->
-    <!-- Bootstrap css -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-
-    <!-- Icomoon Font Icons css -->
-    <link rel="stylesheet" href="fonts/style.css">
-
-    <!-- Main css -->
-    <link rel="stylesheet" href="css/main.css">
-
-
-    <!-- *************
-        ************ Vendor Css Files *************
-    ************ -->
-    <!-- Mega Menu -->
-    <link rel="stylesheet" href="vendor/megamenu/css/megamenu.css">
-
-    <!-- Search Filter JS -->
-    <link rel="stylesheet" href="vendor/search-filter/search-filter.css">
-    <link rel="stylesheet" href="vendor/search-filter/custom-search-filter.css">
-
-    <!-- Data Tables -->
-    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4.css" />
-    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4-custom.css" />
-    <link href="vendor/datatables/buttons.bs.css" rel="stylesheet" />
-    <!-- Date Range CSS -->
-    <link rel="stylesheet" href="vendor/daterange/daterange.css">
-
-    <!-- Bootstrap Select CSS -->
-    <link rel="stylesheet" href="vendor/bs-select/bs-select.css" />
-    <!-- Uploader CSS -->
-    <link rel="stylesheet" href="vendor/dropzone/dropzone.min.css" />
-    <!-- Select2 CSS -->
-    @*<link rel="stylesheet" href="~/css/select2.min.css" />*@
-
-
-    <style>
-        .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
-            display: none;
-        }
-
-        .alert {
-            display: none;
-        }
-
-        .is-valid {
-            border-color: rgba(25,135,84,.9) !important;
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-        }
-
-        .is-invalid {
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-            border-color: rgba(220,53,69,.9) !important;
-        }
-
-        .view-more-styl-class {
-            text-align: center;
-        }
-    </style>
-
-</head>
-<body style="overflow:hidden;">
-
-    <!-- Loading wrapper start -->
-    <!--
-    <div id="loading-wrapper">
-        <div class="spinner-border"></div>
-        Loading...
-    </div>
-    -->
-    <!-- Loading wrapper end -->
-    <!-- Page wrapper start -->
-    <div class="page-wrapper">
-
-        <!-- Sidebar wrapper start -->
-        <nav class="sidebar-wrapper">
-
-            <!-- Sidebar content start -->
-            <div class="sidebar-tabs">
-
-                <!-- Tabs nav start -->
-                <div class="nav" role="tablist" aria-orientation="vertical">
-
-                    <a href="#" class="logo">
-                        <img src="img/logo.svg" alt="Tryon InfoSoft">
-                    </a>
-
-                    <a class="nav-link" id="home-tab" data-bs-toggle="tab" href="#tab-home" role="tab" aria-controls="tab-home" aria-selected="false">
-                        <i class="icon-home2"></i>
-                        <span class="nav-link-text">Dashboard</span>
-                    </a>
-
-                    <a class="nav-link" id="master-tab" data-bs-toggle="tab" href="#tab-Master" role="tab" aria-controls="tab-product" aria-selected="true">
-                        <i class="icon-layers2"></i>
-                        <span class="nav-link-text">Master</span>
-                    </a>
-
-
-                    <a class="nav-link" id="EntryForm-tab" data-bs-toggle="tab" href="#tab-EntryForm" role="tab" aria-controls="tab-EntryForm" aria-selected="true">
-                        <i class="icon-layers2"></i>
-                        <span class="nav-link-text">Entry Form</span>
-                    </a>
-
-                    <a class="nav-link active" id="forms-tab" data-bs-toggle="tab" href="#tab-forms" role="tab" aria-controls="tab-forms" aria-selected="false">
-                        <i class="icon-edit1"></i>
-                        <span class="nav-link-text">Utility</span>
-                    </a>
-
-                </div>
-                <!-- Tabs nav end -->
-                <!-- Tabs content start -->
-                <div class="tab-content">
-
-                    <!-- Chat tab -->
-                    <div class="tab-pane fade" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
-
-                        <!-- Tab content header start -->
-                        <div class="tab-pane-header">
-                            Dashboard
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="Dashboard">Dashboard</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- Pages tab -->
-                    <div class="tab-pane fade" id="tab-Master" role="tabpanel" aria-labelledby="master-tab">
-                        <!-- Tab content header start -->
-                        <div class="tab-pane-header">
-                            Master Page
-                        </div>
-                        <!-- Tab content header end -->
-                        <!-- Sidebar menu starts -->
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="/YarnQuality" id="aYarnQuality">Yarn Quality</a>
-                                    </li>
-                                    <li>
-                                        <a href="/YarnColor" id="aYarnColor">Yarn Color</a>
-                                    </li>
-                                    <li>
-                                        <a href="/Designer" id="aDesigner">Designer</a>
-                                    </li>
-                                    <li>
-                                        <a href="/Sketcher" id="aSketcher">Sketcher</a>
-                                    </li>
-                                    <li>
-                                        <a href="/WarpQuality" id="aWarpQuality">Warp Quality</a>
-                                    </li>
-                                    <li>
-                                        <a href="/TypeMaster" id="aType">Type</a>
-                                    </li>
-                                    <li>
-                                        <a href="/MaterialMaster" id="aMaterial">Material</a>
-                                    </li>
-                                    <li>
-                                        <a href="/YarnMaterialMaster" id="aYarnMaterial">Yarn Material</a>
-                                    </li>
-                                </ul>
-
-                            </div>
-                        </div>
-                        <!-- Sidebar menu ends -->
-                        <!-- Sidebar actions starts -->
-                        <!-- Sidebar actions ends -->
-                    </div>
-
-
-
-                    <!-- Pages tab -->
-                    <div class="tab-pane fade" id="tab-EntryForm" role="tabpanel" aria-labelledby="EntryForm-tab">
-
-                        <!-- Tab content header start -->
-                        <div class="tab-pane-header">
-                            Entry Form Page
-                        </div>
-                        <!-- Tab content header end -->
-                        <!-- Sidebar menu starts -->
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="/CreateDesignEntry" id="aCreateDesignEntry">Create Design Entry</a>
-                                    </li>
-                                    <li>
-                                        <a href="/DesignEntry" id="aDesignEntry">Design Entry</a>
-                                    </li>
-                                </ul>
-
-                            </div>
-                        </div>
-                        <!-- Sidebar menu ends -->
-                        <!-- Sidebar actions starts -->
-                        <!-- Sidebar actions ends -->
-
-                    </div>
-
-
-                    <!-- Forms tab -->
-                    <div class="tab-pane fade show active " id="tab-forms" role="tabpanel" aria-labelledby="forms-tab">
-
-                        <!-- Tab content header start -->
-                        <div class="tab-pane-header">
-                            Utility
-                        </div>
-                        <!-- Tab content header end -->
-                        <!-- Sidebar menu starts -->
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="CompanyMaster" id="aCompanyMaster" class="current-page">Company Master</a>
-                                    </li>
-                                    <li>
-                                        <a href="UserAccount" id="aUserAccount">User Master</a>
-                                    </li>
-                                    <li>
-                                        <a href="GstSlabMaster" id="aGstSlabMaster">Gst Slab</a>
-                                    </li>
-                                    <li>
-                                        <a href="FinancialYear" id="aFinancialYear">Financial Year</a>
-                                    </li>
-                                    <li>
-                                        <a href="ImageCompressor" id="aImageCompressor">Image Compressor</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-                <!-- Tabs content end -->
-
-            </div>
-            <!-- Sidebar content end -->
-
-        </nav>
-        <!-- Sidebar wrapper end -->
-        <!-- *************
-            ************ Main container start *************
-        ************* -->
-        <div class="main-container">
-
-            <!-- Page header starts -->
-            <div class="page-header">
-
-                <!-- Row start -->
-                <div class="row gutters">
-                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 col-9">
-
-                        <!-- Search container start -->
-                        <div class="search-container">
-
-                            <!-- Toggle sidebar start -->
-                            <div class="toggle-sidebar" id="toggle-sidebar">
-                                <i class="icon-menu"></i>
-                            </div>
-                            <!-- Toggle sidebar end -->
-                            <!-- Mega Menu Start -->
-                            <!-- Mega Menu End -->
-                            <!-- Search input group start -->
-                            <div class="ui fluid category search">
-
-                            </div>
-                            <!-- Search input group end -->
-
-                        </div>
-                        <!-- Search container end -->
-
-                    </div>
-                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-3">
-
-                        <!-- Header actions start -->
-                        <ul class="header-actions">
-
-                            <li class="dropdown">
-                                <a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
-                                    <span class="avatar">
-                                        <img src="img/user.svg" alt="User Avatar">
-                                        <span class="status busy"></span>
-                                    </span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end md" aria-labelledby="userSettings">
-                                    <div class="header-profile-actions">
-                                        <a href="javascript:void(0)" onclick="logout()"><i class="icon-log-out1"></i>Logout</a>
-                                    </div>
-                                </div>
-                            </li>
-
-                        </ul>
-                        <!-- Header actions end -->
-
-                    </div>
-                </div>
-                <!-- Row end -->
-
-            </div>
-            <!-- Page header ends -->
-            <!-- Content wrapper scroll start -->
-            <div class="content-wrapper-scroll">
-
-                <!-- Content wrapper start -->
-                <div class="content-wrapper">
-
-
-                    <!-- Row start from here-->
-                    <div class="row">
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
-                            <!-- Card start -->
-                            <div class="card">
-                                <div class="card-body">
-
-                                    <div class="custom-tabs-container">
-                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <a class="nav-link active" onclick="getDefaultCompany()" id="first-tab" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true">Default Company</a>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <a class="nav-link" id="second-tab" data-bs-toggle="tab" href="#second" role="tab" aria-controls="second" aria-selected="false">Company List</a>
-                                            </li>
-                                        </ul>
-                                        <div class="form-section-header">Company Master</div>
-                                        <div class="tab-content" id="myTabContent">
-                                            <div class="tab-pane fade show active" id="first" role="tabpanel">
-
-                                                <div id="add-alert-default" class="alert alert-success" role="alert">
-                                                    Record has been updated Successfully.
-                                                </div>
-                                                <br />
-                                                <div class="row gutters">
-                                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                        <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                                            <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                                                <input type="file" id="upload-image-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
-                                                                <input type="hidden" id="upload-image-temp-default" value="" />
-                                                                <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;"><label id="upload-image-default-preview" for="upload-image-default">Upload Company Logo.</label></div>
-                                                            </div>
-
-                                                            <div style="text-align:center;padding-top:10px;">
-                                                                <button class="btn btn-outline-primary" onclick="clearImageDefault()">Clear Logo</button>
-                                                            </div>
-
-                                                        </div>
-                                                        <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                                            <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                                                <input type="file" id="upload-sign-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
-                                                                <input type="hidden" id="upload-sign-temp-default" value="" />
-                                                                <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;"><label id="upload-sign-default-preview" for="upload-sign-default">Upload Signature.</label></div>
-
-                                                            </div>
-
-                                                            <div style="text-align:center;padding-top:10px;">
-                                                                <button class="btn btn-outline-primary" onclick="clearSignatureDefault()">Clear Signature</button>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                                                        <div class="row gutters">
-                                                            <div class="col-6">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="company-name-default" type="text" class="form-control clear-field" onfocusout="validate(this)">
-                                                                    <div class="field-placeholder">Company Name</div>
-                                                                    <div class="company-name-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="company-name-default-invalid-feedback invalid-feedback">Please Provide Company Name</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="phone-default" type="tel" class="form-control clear-field" onfocusout="validate(this)" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                                    <div class="field-placeholder">Phone</div>
-                                                                    <div class="phone-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="phone-default-invalid-feedback invalid-feedback">Please Provide Phone Number</div>
-                                                                    <div class="phone-default-less-feedback invalid-feedback">Invalid Number</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="email-default" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
-                                                                    <input type="hidden" id="email-temp-default" value="" />
-                                                                    <input type="hidden" id="phone-temp-default" value="" />
-                                                                    <div class="field-placeholder">Email</div>
-                                                                    <div class="email-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="email-default-invalid-feedback invalid-feedback">Please Provide Proper Email</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <div class="form-check form-check-inline">
-                                                                        <br />
-                                                                        <input id="setDefault-default" class="form-check-input" type="checkbox" value="1" disabled>
-                                                                        <label class="form-check-label" for="setDefault-default">Set As Default</label>
-                                                                    </div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-6 password-field">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="alt-phone-default" type="tel" class="form-control clear-field" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                                    <div class="field-placeholder">Alternate Phone</div>
-                                                                    <div class="alt-phone-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="alt-phone-default-invalid-feedback invalid-feedback">Please Provide Alternate Phone Number</div>
-                                                                    <div class="alt-phone-default-less-feedback invalid-feedback">Invalid Number</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                                <!-- Field wrapper start -->
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-6 password-field">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    @*<select class="select-single js-states" title="Select Product Category" data-live-search="true">
-                                                                            <option>Mobiles</option>
-                                                                            <option>Books</option>
-                                                                            <option selected>Clothing</option>
-                                                                            <option>Electronics</option>
-                                                                            <option>Food</option>
-                                                                            <option>Games</option>
-                                                                            <option>Gifts</option>
-                                                                            <option>Laptops</option>
-                                                                            <option>Mobiles</option>
-                                                                            <option>Music</option>
-                                                                            <option>Office</option>
-                                                                            <option>Pharmacy</option>
-                                                                            <option>Sports</option>
-                                                                            <option>Toys</option>
-                                                                        </select>
-                                                                        <div class="field-placeholder">Single Select</div>*@
-
-
-                                                                    @*<select id="single" class="select-single js-states">
-                                                                            <option value="Java">Java</option>
-                                                                            <option value="Javascript">Javascript</option>
-                                                                            <option value="PHP" selected>PHP</option>
-                                                                            <option value="Visual Basic">Visual Basic</option>
-                                                                        </select>*@
-
-                                                                    <select id="state-default" class="select-single js-states" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                        <option value="-1">-- Select State --</option>
-                                                                    </select>
-
-
-                                                                    @*<select id="state-default" onfocusout="validate(this)" class="form-control clear-field">
-                                                                            <option value="-1">-- Select State --</option>
-                                                                            <option value="abc">Ok</option>
-                                                                        </select>*@
-                                                                    <div class="field-placeholder">State</div>
-                                                                    <div class="state-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="state-default-invalid-feedback invalid-feedback">Please Select State</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                                <!-- Field wrapper start -->
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <textarea id="address-default" class="form-control clear-field" onfocusout="validate(this)" placeholder="Company Address"></textarea>
-                                                                    <div class="field-placeholder">Address</div>
-                                                                    <div class="address-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="address-default-invalid-feedback invalid-feedback">Please Provide Address</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                                <!-- Field wrapper start -->
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-6" style="display:none">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <select id="business-type-default" class="select-single js-states clear-field" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                        @*<option value="0">-- Select State --</option>*@
-                                                                    </select>
-                                                                    @*<select id="business-type-default" onfocusout="validate(this)" class="form-control clear-field">
-                                                                            <option value="-1">-- Select --</option>
-                                                                            <option value="abc">Ok</option>
-                                                                        </select>*@
-                                                                    <div class="field-placeholder">Business Type</div>
-                                                                    <div class="business-type-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="business-type-default-invalid-feedback invalid-feedback">Please Select Business Type</div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-6" style="display:none">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <select id="business-cate-default" class="select-single js-states clear-field" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                        <option value="-1">-- Select State --</option>
-                                                                    </select>
-                                                                    @*<select id="business-cate-default" onfocusout="validate(this)" class="form-control clear-field">
-                                                                            <option value="-1">-- Select --</option>
-                                                                            <option value="abc">ok</option>
-                                                                        </select>*@
-                                                                    <div class="field-placeholder">Business Category</div>
-                                                                    <div class="business-cate-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="business-cate-default-invalid-feedback invalid-feedback">Please Select Business Category</div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12" style="display:none">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <textarea id="description-default" class="form-control clear-field" onfocusout="validate(this)" placeholder="Business Description"></textarea>
-                                                                    <div class="field-placeholder">Business Description</div>
-                                                                    <div class="description-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="description-default-invalid-feedback invalid-feedback">Please Provide Description</div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="bank-name-default" type="text" class="form-control clear-field" onfocusout="validate(this)">
-                                                                    <div class="field-placeholder">Bank Name</div>
-                                                                    <div class="bank-name-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="bank-name-default-invalid-feedback invalid-feedback">Please Provide Bank Name</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="ifsc-default" maxlength="11" type="text" class="form-control clear-field" onfocusout="checkIFSC(this.value)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode>=48 && event.charCode<=57) || event.charCode == 32)">
-                                                                    <div class="field-placeholder">IFSC</div>
-                                                                    <div class="ifsc-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="ifsc-default-invalid-feedback invalid-feedback">Please Provide IFSC Code</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="acNumber-default" type="text" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode>=48 && event.charCode<=57) || event.charCode == 32)">
-                                                                    <div class="field-placeholder">Account Number</div>
-                                                                    <div class="acNumber-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="acNumber-default-invalid-feedback invalid-feedback">Please Provide Account Number</div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <div class="field-wrapper">
-                                                                    <label>Are you GST Registered?</label>
-                                                                    <!-- Field wrapper start -->
-                                                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                                                    <div class="form-check form-check-inline">
-                                                                        <input id="gstStat-default" class="form-check-input" type="checkbox" value="1" checked onclick="checkGSTDefault()" style="cursor:pointer;">
-                                                                        <label class="form-check-label" for="gstStat-default">Yes</label>
-                                                                    </div>
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-12 gst-clear-default">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper">
-                                                                    <input id="gst-default" type="text" class="form-control clear-field" min="15" maxlength="15" onkeyup="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                                    <div class="field-placeholder">GSTIN</div>
-                                                                    <div class="gst-default-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="gst-default-invalid-feedback invalid-feedback" id="GSTErrorDefault">Please Provide Valid GSTIN</div>
-
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-3 gst-clear-default" style="display:none;">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper" style="display:none;">
-                                                                    <input id="BarcodeTitle" type="text" class="form-control clear-field" min="15" maxlength="15" @*onkeyup="validate(this)"*@>
-                                                                    <div class="field-placeholder">Barcode Title</div>
-                                                                    <div class="BarcodeTitle-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="BarcodeTitle-invalid-feedback invalid-feedback" id="GSTErrorDefault">Please Provide Valid Barcode Title</div>
-
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-3 gst-clear-default" style="display:none;">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper" style="display:none;">
-                                                                    <input id="SetCreditPercentage" type="text" class="form-control clear-field" min="15" maxlength="15" @*onkeyup="validate(this)"*@>
-                                                                    <div class="field-placeholder">Set Credit Percentage</div>
-                                                                    <div class="SetCreditPercentage-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="SetCreditPercentage-invalid-feedback invalid-feedback" id="GSTErrorDefault">Please Provide Set Credit Percentage</div>
-
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                            <div class="col-3 gst-clear-default" style="display:none;">
-                                                                <!-- Field wrapper start -->
-                                                                <div class="field-wrapper" style="display:none;">
-                                                                    <input id="SupportNumber" type="tel" class="form-control clear-field" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                                    <div class="field-placeholder">Support Number</div>
-                                                                    <div class="SupportNumber-valid-feedback valid-feedback">Looks good!</div>
-                                                                    <div class="SupportNumber-invalid-feedback invalid-feedback">Please Provide Support Number</div>
-
-                                                                </div>
-                                                                <!-- Field wrapper end -->
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <br />
-                                                <input id="edit-id-default" type="hidden" value="" />
-                                                <div style="text-align:center;">
-                                                    <button id="editbtn-default" type="button" class="btn btn-primary" onclick="checkEditDefault()">Update Company</button>
-                                                </div>
-                                            </div>
-
-
-                                            <div class="tab-pane fade" id="second" role="tabpanel">
-
-
-                                                <input type="hidden" id="rowStartCount" value="" />
-
-                                                <div class="card-header-lg">
-                                                    <button id="AddCompayModel" style="float:right; margin-top:-20px;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Company</button>
-                                                    <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
-                                                        <div class="modal-dialog modal-lg" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="addNewContactLabel">Add Company</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true"></span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <div id="add-alert" class="alert alert-success" role="alert">
-                                                                        Record has been saved Successfully.
-                                                                    </div>
-                                                                    <br />
-                                                                    <div class="row gutters">
-                                                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                                                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                                                                    <input type="file" id="upload-image" style="display:none;" onchange="saveImage(this)" accept="image/*" />
-                                                                                    <input type="hidden" id="upload-image-temp" value="" />
-                                                                                    <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;"><label id="upload-image-preview" for="upload-image">Upload Company Logo.</label></div>
-
-                                                                                </div>
-
-                                                                                <div style="text-align:center;padding-top:10px;">
-                                                                                    <button class="btn btn-outline-primary" onclick="clearImage()">Clear Logo</button>
-                                                                                </div>
-
-                                                                            </div>
-                                                                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                                                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                                                                    <input type="file" id="upload-sign" style="display:none;" onchange="saveImage(this)" accept="image/*" />
-                                                                                    <input type="hidden" id="upload-sign-temp" value="" />
-                                                                                    <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;"><label id="upload-sign-preview" for="upload-sign">Upload Signature.</label></div>
-
-                                                                                </div>
-
-                                                                                <div style="text-align:center;padding-top:10px;">
-                                                                                    <button class="btn btn-outline-primary" onclick="clearSignature()">Clear Signature</button>
-                                                                                </div>
-
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                                                                            <div class="row gutters">
-                                                                                <div class="col-6">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="company-name" type="text" class="form-control clear-field" onfocusout="validate(this)">
-                                                                                        <div class="field-placeholder">Company Name <sup style="color:red;">*</sup></div>
-                                                                                        <div class="company-name-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="company-name-invalid-feedback invalid-feedback">Please Provide Company Name</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="phone" type="tel" class="form-control clear-field" onfocusout="validate(this)" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                                                        <input type="hidden" id="phone-temp" value="" />
-                                                                                        <div class="field-placeholder">Phone <sup style="color:red;">*</sup></div>
-                                                                                        <div class="phone-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="phone-invalid-feedback invalid-feedback">Please Provide Phone Number</div>
-                                                                                        <div class="phone-less-feedback invalid-feedback">Invalid Number</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-6">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="email" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
-                                                                                        <input type="hidden" id="email-temp" value="" />
-                                                                                        <div class="field-placeholder">Email <sup style="color:red;">*</sup></div>
-                                                                                        <div class="email-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="email-invalid-feedback invalid-feedback">Please Provide Proper Email</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <div class="form-check form-check-inline">
-                                                                                            <br />
-                                                                                            <input id="setDefault" class="form-check-input" type="checkbox" value="1">
-                                                                                            <label class="form-check-label" for="setDefault">Set As Default</label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-6 password-field">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="alt-phone" type="tel" class="form-control clear-field" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                                                        <div class="field-placeholder">Alternate Phone</div>
-                                                                                        <div class="alt-phone-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="alt-phone-invalid-feedback invalid-feedback">Please Provide Alternate Phone Number</div>
-                                                                                        <div class="alt-phone-less-feedback invalid-feedback">Invalid Number</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-6 password-field">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    @*<div class="field-wrapper">
-                                                                                            <select class="select-single js-states" title="Select Product Category" data-live-search="true">
-                                                                                                <option>Mobiles</option>
-                                                                                                <option>Books</option>
-                                                                                                <option>Clothing</option>
-                                                                                                <option>Electronics</option>
-                                                                                                <option>Food</option>
-                                                                                                <option>Games</option>
-                                                                                                <option>Gifts</option>
-                                                                                                <option>Laptops</option>
-                                                                                                <option>Mobiles</option>
-                                                                                                <option>Music</option>
-                                                                                                <option>Office</option>
-                                                                                                <option>Pharmacy</option>
-                                                                                                <option>Sports</option>
-                                                                                                <option>Toys</option>
-                                                                                            </select>
-                                                                                            <div class="field-placeholder">Single Select</div>
-                                                                                        </div>*@
-
-                                                                                    <div class="field-wrapper">
-                                                                                        <select id="state" class="select-single js-states clear-field" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                                            <option value="-1">-- Select State --</option>
-                                                                                        </select>
-                                                                                        <div class="field-placeholder">State <sup style="color:red;">*</sup></div>
-                                                                                        @*<select class="select-single js-states form-control clear-field" title="Select State" data-live-search="true">
-                                                                                                <option value="-1">-- Select State --</option>
-                                                                                                <option value="abc">Ok</option>
-                                                                                            </select>*@
-
-                                                                                        <div class="state-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="state-invalid-feedback invalid-feedback">Please Select State</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-12">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <textarea id="address" class="form-control clear-field" onfocusout="validate(this)" placeholder="Company Address"></textarea>
-                                                                                        <div class="field-placeholder">Address <sup style="color:red;">*</sup></div>
-                                                                                        <div class="address-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="address-invalid-feedback invalid-feedback">Please Provide Address</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-6" style="display:none">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <select id="business-type" class="select-single js-states clear-field" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                                            <option value="-1">-- Select State --</option>
-                                                                                        </select>
-                                                                                        @*<select id="business-type" onfocusout="validate(this)" class="form-control clear-field">
-                                                                                                <option value="-1">-- Select --</option>
-                                                                                                <option value="abc">Ok</option>
-                                                                                            </select>*@
-                                                                                        <div class="field-placeholder">Business Type</div>
-                                                                                        <div class="business-type-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="business-type-invalid-feedback invalid-feedback">Please Select Business Type</div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-6" style="display:none">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <select id="business-cate" class="select-single js-states clear-field" title="Select State" data-live-search="true" onfocusout="validate(this)">
-                                                                                            <option value="-1">-- Select State --</option>
-                                                                                        </select>
-                                                                                        @*<select id="business-cate" onfocusout="validate(this)" class="form-control clear-field">
-                                                                                                <option value="-1">-- Select --</option>
-                                                                                                <option value="abc">ok</option>
-                                                                                            </select>*@
-                                                                                        <div class="field-placeholder">Business Category</div>
-                                                                                        <div class="business-cate-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="business-cate-invalid-feedback invalid-feedback">Please Select Business Category</div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-12" style="display:none">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <textarea id="description" class="form-control clear-field" onfocusout="validate(this)" placeholder="Business Description"></textarea>
-                                                                                        <div class="field-placeholder">Business Description</div>
-                                                                                        <div class="description-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="description-invalid-feedback invalid-feedback">Please Provide Description</div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="col-6">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="bank-name" type="text" class="form-control clear-field" onfocusout="validate(this)">
-                                                                                        <div class="field-placeholder">Bank Name <sup style="color:red;">*</sup></div>
-                                                                                        <div class="bank-name-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="bank-name-invalid-feedback invalid-feedback">Please Provide Bank Name</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-6">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="ifsc" type="text" class="form-control clear-field" maxlength="11" onfocusout="checkIFSC(this.value)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode>=48 && event.charCode<=57) || event.charCode == 32)">
-                                                                                        <div class="field-placeholder">IFSC <sup style="color:red;">*</sup></div>
-                                                                                        <div class="ifsc-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="ifsc-invalid-feedback invalid-feedback">Opps! Invalid IFSC Code.</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-12">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        <input id="acNumber" type="text" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode>=48 && event.charCode<=57) || event.charCode == 32)">
-                                                                                        <div class="field-placeholder">Account Number <sup style="color:red;">*</sup></div>
-                                                                                        <div class="acNumber-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="acNumber-invalid-feedback invalid-feedback">Please Provide Account Number</div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-12">
-                                                                                    <div class="field-wrapper">
-                                                                                        <label>Are you GST Registered?</label>
-                                                                                        <!-- Field wrapper start -->
-                                                                                        &nbsp;&nbsp;&nbsp;&nbsp;
-                                                                                        <div class="form-check form-check-inline">
-                                                                                            <input id="gstStat" class="form-check-input" type="checkbox" value="1" checked onclick="checkGST()" style="cursor:pointer;">
-                                                                                            <label class="form-check-label" for="gstStat">Yes</label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                                <div class="col-12 gst-clear">
-                                                                                    <!-- Field wrapper start -->
-                                                                                    <div class="field-wrapper">
-                                                                                        @*<input id="gst" type="text" class="form-control clear-field" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                                                            <div class="field-placeholder">GSTIN</div>
-                                                                                            <div class="gst-valid-feedback valid-feedback">Looks good!</div>
-                                                                                            <div class="gst-invalid-feedback invalid-feedback">Please Provide GSTIN</div>*@
-
-                                                                                        <input id="gst" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                                                        <div class="field-placeholder">GSTIN</div>
-                                                                                        <div class="gst-valid-feedback valid-feedback">Looks good!</div>
-                                                                                        <div class="gst-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
-
-
-                                                                                    </div>
-                                                                                    <!-- Field wrapper end -->
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <input id="edit-id" type="hidden" />
-                                                                <div class="modal-footer">
-                                                                    <button id="cancelbtn" type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()">Save</button>
-                                                                    <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div style="float:none;clear:both;">
-                                                    <br />
-                                                </div>
-
-                                                <div class="row gutters">
-                                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
-                                                        <div class="card">
-                                                            <div class="card-body">
-
-                                                                <div class="table-responsive">
-                                                                    <table id="copy-print-csv" class="table table-hover table-bordered m-0">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Company Name</th>
-                                                                                @*<th>Business Type</th>
-                                                                                    <th>Business Category</th>*@
-                                                                                <th>Mobile No</th>
-                                                                                <th>Email</th>
-                                                                                <th>State</th>
-                                                                                <th>Is Default</th>
-                                                                                <th>Actions</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="view-more-styl-class">
-                                                    <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
-                                                    <br /><br /><br />
-                                                </div>
-
-
-
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <!-- Card end -->
-
-                        </div>
-                    </div>
-
-                    <!-- Row end to here -->
-
-                </div>
-                <!-- Content wrapper end -->
-                <!-- App footer start -->
-                <div class="app-footer">
-                    <script>document.write(new Date().getFullYear())</script> © My-Billing Design & Develop by <a href="https://www.tryoninfosoft.com" target="_blank" title="Website Design and Development, Software Development and Mobile Apps Development Company in Surat.">TRYON INFOSOFT</a>
-                </div>
-                <!-- App footer end -->
-
-            </div>
-            <!-- Content wrapper scroll end -->
-
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<style>
+
+/*    body {
+        font-family: Arial;
+        background: #f3b39d;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+    }*/
+
+    .container {
+        width: 650px;
+        height: 500px;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+    }
+
+    h2 {
+        text-align: center;
+        color: #888;
+        margin-bottom: 20px;
+    }
+
+    .upload-area {
+        border: 2px dashed #ccc;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .file-list {
+        margin-top: 20px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .preview {
+        width: 60px;
+        height: 60px;
+        margin-right: 10px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .progress {
+        flex: 1;
+        background: #eee;
+        height: 6px;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background: #ff5a7a;
+        width: 0%;
+        border-radius: 5px;
+    }
+
+    .percent {
+        margin-left: 10px;
+        color: #777;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container">
+        <h2>UPLOAD PROJECTS</h2>
+        <button id="uploadBtn">Upload & Compress</button>
+
+        <div id="msg"></div>
+        <br><br>
+
+        <div class="upload-area" id="dropArea">
+            Drop files here or Click
+            <input type="file" id="fileInput" multiple accept="image/*" hidden>
         </div>
-        <!-- *************
-            ************ Main container end *************
-        ************* -->
 
+        <div id="preview"></div>
+        <div id="fileList" class="file-list"></div>
     </div>
-    <!-- Page wrapper end -->
-    <!-- *************
-        ************ Required JavaScript Files *************
-    ************* -->
-    <!-- Required jQuery first, then Bootstrap Bundle JS -->
 
-    <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-    <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-    <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-    <script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+</div>
 
-    <!-- select2 JS -->
-    @*<script src="https://tryoninfosoft.web.app/sr/select2.min.js"></script>*@
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
 
-    <!-- *************
-        ************ Vendor Js Files *************
-    ************* -->
-    <!-- Megamenu JS -->
-    <script src="vendor/megamenu/js/megamenu.js"></script>
-    <script src="vendor/megamenu/js/custom.js"></script>
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
 
-    <!-- Slimscroll JS -->
-    <script src="vendor/slimscroll/slimscroll.min.js"></script>
-    <script src="vendor/slimscroll/custom-scrollbar.js"></script>
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
 
-    <!-- Search Filter JS -->
-    <script src="vendor/search-filter/search-filter.js"></script>
-    <script src="vendor/search-filter/custom-search-filter.js"></script>
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
 
-    <!-- Rating JS -->
-    <script src="vendor/rating/raty.js"></script>
-    <script src="vendor/rating/raty-custom.js"></script>
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
 
-    <!-- Data Tables -->
-    <script src="vendor/datatables/dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
 
-    <!-- Custom Data tables -->
-    <script src="vendor/datatables/custom/custom-datatables.js"></script>
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
 
-    <!-- Download / CSV / Copy / Print -->
-    <script src="vendor/datatables/buttons.min.js"></script>
-    <script src="vendor/datatables/jszip.min.js"></script>
-    <script src="vendor/datatables/pdfmake.min.js"></script>
-    <script src="vendor/datatables/vfs_fonts.js"></script>
-    <script src="vendor/datatables/html5.min.js"></script>
-    <script src="vendor/datatables/buttons.print.min.js"></script>
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
 
-    <!-- Date Range JS -->
-    <script src="vendor/daterange/daterange.js"></script>
-    <script src="vendor/daterange/custom-daterange.js"></script>
-    <!-- Bootstrap Select JS -->
-    <script src="vendor/bs-select/bs-select.min.js"></script>
-    <script src="vendor/bs-select/bs-select-custom.js"></script>
+<!-- Custom Data tables -->
+<script src="vendor/datatables/custom/custom-datatables.js"></script>
 
-    <!-- Dropzone JS -->
-    <script src="vendor/dropzone/dropzone.min.js"></script>
-    <!-- Main Js Required -->
-    <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
 
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
 
-
-    <script>
-
-        $(document).ready(function () {
-
-            //$('.active, .show, .current-page').removeClass('active show current-page');
-
-            //$("#forms-tab").addClass("active");
-            //$("#tab-forms").addClass("show active");
-            //$("#aCompanyMaster").addClass("current-page");
-
-            displayData(0);
-
-            //longfunctionfirst(getBusinessTypes);
-            //longfunctionfirst(getBusinessCat);
-            //longfunctionfirst(getStates);
-
-            //--longfunctionfirst(getDefaultCompany);
-
-            //getBusinessTypes();
-            //getBusinessCat();
-            //getStates();
-            getDefaultCompany();
-            //--FunctionIsLogin();
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
 
 
+<script>
+    document.title = "Create Yarn PO - Nikunj Textile";
+    $('body').addClass('fullscreen');
+</script>
+<script>
+    $(document).ready(function () {
+        var liSelected;
+        $(document).keydown(function (key) {
+            var li = $('li');
+            switch (parseInt(key.which, 10)) {
+                case 27:
+                    $("#DivDDLItemDetail").hide();
+                    $("#DivAddItem").show();
+                    //Esc Key
+                    $("#CloseItemModel").click();
+                    $("#cancelbtn").click();
+                    $("#cancelItembtn").click();
+                    break;
 
-            // Shortcut Key
-            $(document).keydown(function (key) {
-                switch (parseInt(key.which, 10)) {
-                    case 27:
-                        //Esc Key
-                        $("#cancelbtn").click();
-                        break;
-                    //case 18 && 79:
-                    //    // alt + o
-                    //   $("#addcompaymodel").click();
-                    //    //addnewcontact
-                    //    break;
-                    default:
-                        //alert(key.which);
-                        break;
-                }
-            });
+                case 40:
+                    //alert("40");
+                    //divItemListRecords
+                    //if ($("#divItemListRecords").length > 0) {
+                    //alert(("#items-list").length);
+                    if (liSelected) {
+                        //alert("hel");
+                        liSelected.removeClass('selected');
+                        next = liSelected.next();
+                        if (next.length > 0) {
+                            liSelected = next.addClass('selected');
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                    } else {
+                        liSelected = li.eq(0).addClass('selected');
+                    }
+                    //}
+                    break;
 
+                case 38:
+                    //alert("38");
+                    //if ($("#divItemListRecords").length > 0) {
+                    if (liSelected) {
+                        liSelected.removeClass('selected');
+                        next = liSelected.prev();
+                        if (next.length > 0) {
+                            liSelected = next.addClass('selected');
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                    } else {
+                        liSelected = li.last().addClass('selected');
+                    }
+                    //}
+                    break;
 
-
-
+                //case (18 && 79):
+                //    // Alt + O
+                //    $("#AddPartyModel").click();
+                //    //addnewcontact
+                //    break;
+                default:
+                    //alert(key.which);
+                    break;
+            }
         });
-
-        function longfunctionfirst(callback) {
-            setTimeout(function () {
-                if (typeof callback == 'function')
-                    callback();
-            }, 10);
-        };
-
-        function checkIFSC(code) {
-            console.log(code);
-            if (code.length == 11) {
-
-                var ifscurl = "https://ifsc.razorpay.com/" + code;
-
-                $.ajax({
-                    type: "GET",
-                    url: ifscurl,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.length != 0) {
-                            $("#bank-name").val(response.BANK.replace(/"|'/g, ''));
-                            $(".ifsc-invalid-feedback").html("Opps! Invalid IFSC Code.");
-                            $("#ifsc").addClass("is-invalid");
-                            $("#ifsc").removeClass("is-valid");
-                            $(".ifsc-invalid-feedback").hide();
-                            $(".ifsc-valid-feedback").show();
-                        }
-                        else {
-                            $(".ifsc-invalid-feedback").show();
-                            $(".ifsc-valid-feedback").hide();
-                            $("#BankName").val('');
-                            $("#ifsc").addClass("is-valid");
-                            $("#ifsc").removeClass("is-invalid");
-                        }
-                    },
-                    error: function (request, status, error) {
-                        $(".ifsc-invalid-feedback").show();
-                        $(".ifsc-invalid-feedback").html("Opps! Invalid IFSC Code.");
-                        $(".ifsc-valid-feedback").hide();
-                        $("#BankName").val('');
-                        $("#ifsc").addClass("is-invalid");
-                        $("#ifsc").removeClass("is-valid");
-                    }
-                });
-            }
-            else {
-                $(".ifsc-invalid-feedback").show();
-                $(".ifsc-invalid-feedback").html("Please mention valid IFSC code.");
-                $(".ifsc-valid-feedback").hide();
-                $("#BankName").val('');
-                $("#ifsc").addClass("is-invalid");
-                $("#ifsc").removeClass("is-valid");
-            }
-        }
-
-
-
-
-
-
-        function FunctionIsLogin() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-                data: "{ 'userName':'0' }",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    console.log(data);
-                    if (data.d == "false") {
-                        window.location.replace("/Index");
-                    }
-                },
-                error: function (request, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-
-
-        var selectedState = "";
-
-        function getDefaultCompany() {
-            //alert("secound");
-            $.ajax({
-                type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    console.log(response);
-                    if (response.Code == 200 || response.Code == "200") {
-                        if (response.listCompanyMaster.length != 0) {
-                            $("#edit-id-default").val(response.listCompanyMaster[0].CompanyId);
-                            $("#company-name-default").val(response.listCompanyMaster[0].CompanyName);
-                            $('#email-default').val(response.listCompanyMaster[0].Email);
-                            $('#phone-default').val(response.listCompanyMaster[0].MobileNo);
-                            $('#alt-phone-default').val(response.listCompanyMaster[0].AlterMobileNo);
-                            //selectedState = response.listCompanyMaster[0].State;
-                            //$('#state-default').val(response.listCompanyMaster[0].State);
-                            //$('#state-default').val('24-Gujarat');
-                            //$('#state-default [value=24-Gujarat]').attr('selected', 'true');
-
-                            //$('#business-type-default').val(response.listCompanyMaster[0].BusinessType);
-                            //$('#business-cate-default').val(response.listCompanyMaster[0].BusinessCategory);
-
-                            longfunctionfirst(getStates(response.listCompanyMaster[0].State));
-                            //longfunctionfirst(getBusinessTypes(response.listCompanyMaster[0].BusinessType));
-                            //longfunctionfirst(getBusinessCat(response.listCompanyMaster[0].BusinessCategory));
-
-
-
-                            $('#address-default').val(response.listCompanyMaster[0].BusinessAddress);
-                            $('#description-default').val(response.listCompanyMaster[0].BusinessDescription);
-                            $('#bank-name-default').val(response.listCompanyMaster[0].BankName);
-                            $('#ifsc-default').val(response.listCompanyMaster[0].IFSC);
-                            $('#acNumber-default').val(response.listCompanyMaster[0].ACNo);
-                            $('#BarcodeTitle').val(response.listCompanyMaster[0].BarcodeTitle);
-                            $('#SetCreditPercentage').val(response.listCompanyMaster[0].SetCreditPercentage);
-                            $('#SupportNumber').val(response.listCompanyMaster[0].SupportNumber);
-
-                            if (response.listCompanyMaster[0].GSTIN == "" || response.listCompanyMaster[0].GSTIN == null) {
-                                $("#gstStat-default").prop('checked', false);
-                                $('#gst-default').val("");
-                                $('.gst-clear-default').hide();
-                            }
-                            else {
-                                $("#gstStat-default").prop('checked', true);
-                                $('#gst-default').val(response.listCompanyMaster[0].GSTIN);
-                                $('.gst-clear-default').show();
-                            }
-
-                            $("#setDefault-default").prop('checked', true);
-                            $("#setDefault-default").attr('disabled', true);
-                            $("#upload-image-temp-default").val(response.listCompanyMaster[0].CompanyLogo);
-                            var imgStr = "<img src='" + response.listCompanyMaster[0].CompanyLogo + "' style='height:200px;width:200px;margin-top:-54px;'>";
-                            $("#upload-image-default-preview").html(imgStr);
-                            $("#upload-image-default-preview").css('color', 'initial');
-
-                            $("#upload-sign-temp-default").val(response.listCompanyMaster[0].Sign);
-                            imgStr = "<img src='" + response.listCompanyMaster[0].Sign + "' style='height:200px;width:200px;margin-top:-54px;'>";
-                            $("#upload-sign-default-preview").html(imgStr);
-                            $("#upload-sign-default-preview").css('color', 'initial');
-                        }
-                    }
-                    else {
-                        $("#add-alert-default").removeClass("alert-success");
-                        $("#add-alert-default").addClass("alert-danger");
-                        $("#add-alert-default").html(response.Message);
-                        $("#add-alert-default").show();
-                    }
-
-                },
-                error: function (request, status, error) {
-                    $("#add-alert").removeClass("alert-success");
-                    $("#add-alert").addClass("alert-danger");
-                    $("#add-alert").html(response.Message);
-                    $("#add-alert").show();
-                }
-            });
-        }
-
-
-
-        function getBusinessTypes(BusinsType) {
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getBusinessTypes',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#business-type option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#business-type-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $('#business-type').append("<option value='-1'> -- Select -- </option>");
-                    $('#business-type-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (BusinsType == admin.BusinessTypeID) {
-                            appendTemp = "<option value=" + admin.BusinessTypeID + " selected>" + admin.BusinessTypeTitle + "</option >";
-                        }
-                        else {
-                            appendTemp = "<option value=" + admin.BusinessTypeID + ">" + admin.BusinessTypeTitle + "</option >";
-                        }
-
-
-                        $('#business-type').append(appendTemp);
-                        $('#business-type-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
-                }
-            });
-        }
-
-
-        function getBusinessCat(BusinessCat) {
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getBusinessCates',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#business-cate option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#business-cate-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $('#business-cate').append("<option value='-1'> -- Select -- </option>");
-                    $('#business-cate-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (BusinessCat == admin.IndustryTypeID) {
-                            appendTemp = "<option value=" + admin.IndustryTypeID + " selected>" + admin.IndustryTypeTitle + "</option >";
-                        }
-                        else {
-                            appendTemp = "<option value=" + admin.IndustryTypeID + ">" + admin.IndustryTypeTitle + "</option >";
-                        }
-
-
-
-                        $('#business-cate').append(appendTemp);
-                        $('#business-cate-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
-                }
-            });
-        }
-
-
-        function getStates(StateCode) {
-
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getStates',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#state option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#state-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-
-                    $('#state').append("<option value='-1'> -- Select -- </option>");
-                    $('#state-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (admin.GSTStateCode == StateCode) {
-                            appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                        }
-                        else {
-                            //appendTemp = "<option value=" + admin.GSTStateCode + "-" + admin.StateTitle + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                        }
-
-                        $('#state').append(appendTemp);
-                        $('#state-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
-                }
-            });
-        }
-
-
-        function checkGSTDefault() {
-            if ($("#gstStat-default").prop("checked") == true) {
-                $(".gst-clear-default").show();
-            }
-            else {
-                $(".gst-clear-default").hide();
-            }
-        }
-
-
-        function checkGST() {
-            if ($("#gstStat").prop("checked") == true) {
-                $(".gst-clear").show();
-            }
-            else {
-                $(".gst-clear").hide();
-            }
-        }
-
-        function displayData(rowStartCheck) {
-            var rowStart = 0;
-            if (rowStartCheck != 0) {
-                rowStart = parseInt($("#rowStartCount").val()) + 10;
-                $("#rowStartCount").val(rowStart);
-            }
-            else {
-                rowStart = 0;
-                $("#rowStartCount").val("0");
-            }
-            $.ajax({
-                type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getCompanyMaster?startFrom=' + rowStart,
-                data: "{ 'startFrom':'" + rowStart + "' }",
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-
-                    //console.log(response);
-
-                    if (rowStart == 0) {
-                        $("#copy-print-csv tbody").empty();
-                    }
-                    var dataTable = $('#copy-print-csv');
-                    var temp = "";
-                    var operation = "";
-                    if (response.listCompanyMaster.length < 10) {
-                        $("#view-more-btn").hide();
-                    }
-                    else {
-                        $("#view-more-btn").show();
-                    }
-                    var deleteStr = "";
-
-                    if (response.listCompanyMaster.length == 2) {
-                        $("#AddCompayModel").hide();
-                    }
-                    else {
-                        $("#AddCompayModel").show();
-                    }
-
-                    for (var i = 0; i < response.listCompanyMaster.length; i++) {
-                        if (response.listCompanyMaster[i].is_default == "1" || response.listCompanyMaster[i].is_default == 1) {
-                            operation = "<span class='badge bg-success'>Yes</span>";
-                            deleteStr = "";
-                        }
-                        else {
-                            operation = "<span class='badge bg-danger'>No</span>";
-                            deleteStr = "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionCompanyDelete(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-x-circle text-danger'></i></a>";
-                        }
-                        //temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td><td>" + response.listCompanyMaster[i].BusinessType + "</td><td>" + response.listCompanyMaster[i].BusinessCategory + "</td><td>" + response.listCompanyMaster[i].MobileNo + "</td><td>" + response.listCompanyMaster[i].Email + "</td><td>" + response.listCompanyMaster[i].State + "</td><td>" + operation + "</td>";
-                        temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td><td>" + response.listCompanyMaster[i].MobileNo + "</td><td>" + response.listCompanyMaster[i].Email + "</td><td>" + response.listCompanyMaster[i].StateTitle + "</td><td>" + operation + "</td>";
-                        temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;" + deleteStr + "</div></td>";
-                        temp += "</tr>";
-
-                    }
-
-                    dataTable.append(temp);
-                },
-                error: function (request, status, error) {
-                }
-            });
-        }
-
-
-
-        function showRecords(id) {
-            clearAll();
-            $("#upload-image-temp").val("");
-            $("#upload-sign-temp").val("");
-            $("#upload-image").val("");
-            $("#upload-sign").val("");
-            $("#edit-id").val(id);
-            $("#savebtn").hide();
-            $("#editbtn").show();
-            $("#addNewContactLabel").html("Edit Company");
-            $.ajax({
-                type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterById?id=' + id,
-                data: "{ 'id':'" + id + "' }",
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 200 || response.Code == "200") {
-                        $("#company-name").val(response.listCompanyMaster[0].CompanyName);
-                        $('#email').val(response.listCompanyMaster[0].Email);
-                        $('#phone').val(response.listCompanyMaster[0].MobileNo);
-                        $('#alt-phone').val(response.listCompanyMaster[0].AlterMobileNo);
-
-
-                        longfunctionfirst(getStatess(response.listCompanyMaster[0].State));
-                        longfunctionfirst(getBusinessTypess(response.listCompanyMaster[0].BusinessType));
-                        longfunctionfirst(getBusinessCatss(response.listCompanyMaster[0].BusinessCategory));
-
-                        //$('#state').val(response.listCompanyMaster[0].State);
-                        //$('#business-type').val(response.listCompanyMaster[0].BusinessType);
-                        //$('#business-cate').val(response.listCompanyMaster[0].BusinessCategory);
-
-                        $('#address').val(response.listCompanyMaster[0].BusinessAddress);
-                        $('#description').val(response.listCompanyMaster[0].BusinessDescription);
-                        $('#bank-name').val(response.listCompanyMaster[0].BankName);
-                        $('#ifsc').val(response.listCompanyMaster[0].IFSC);
-                        $('#acNumber').val(response.listCompanyMaster[0].ACNo);
-                        $('#SupportNumber').val(response.listCompanyMaster[0].SupportNumber);
-
-                        if (response.listCompanyMaster[0].GSTIN == "" || response.listCompanyMaster[0].GSTIN == null) {
-                            $("#gstStat").prop('checked', false);
-                            $('#gst').val("");
-                            $('.gst-clear').hide();
-                        }
-                        else {
-                            $("#gstStat").prop('checked', true);
-                            $('#gst').val(response.listCompanyMaster[0].GSTIN);
-                            $('.gst-clear').show();
-                        }
-
-
-                        if (response.listCompanyMaster[0].is_default == "1") {
-                            $("#setDefault").prop('checked', true);
-                            $("#setDefault").attr('disabled', true);
-                        }
-                        else {
-                            $("#setDefault").prop('checked', false);
-                            $("#setDefault").attr('disabled', false);
-                        }
-                        $("#upload-image-temp").val(response.listCompanyMaster[0].CompanyLogo);
-                        var imgStr = "<img src='" + response.listCompanyMaster[0].CompanyLogo + "' style='height:200px;width:200px;margin-top:-54px;'>";
-                        $("#upload-image-preview").html(imgStr);
-                        $("#upload-image-preview").css('color', 'initial');
-
-                        $("#upload-sign-temp").val(response.listCompanyMaster[0].Sign);
-                        imgStr = "<img src='" + response.listCompanyMaster[0].Sign + "' style='height:200px;width:200px;margin-top:-54px;'>";
-                        $("#upload-sign-preview").html(imgStr);
-                        $("#upload-sign-preview").css('color', 'initial');
-
-                    }
-                    else {
-                        $("#add-alert").removeClass("alert-success");
-                        $("#add-alert").addClass("alert-danger");
-                        $("#add-alert").html(response.Message);
-                        $("#add-alert").show();
-                    }
-
-                },
-                error: function (request, status, error) {
-                    $("#add-alert").removeClass("alert-success");
-                    $("#add-alert").addClass("alert-danger");
-                    $("#add-alert").html(response.Message);
-                    $("#add-alert").show();
-                }
+        $('.active, .show, .current-page').removeClass('active show current-page');
+        $("#YarnForm-tab").addClass("active");
+        $("#tab-YarnForm").addClass("show active");
+        $("#aYarnOutWardScanDetails").addClass("current-page");
+        FunctionIsLogin();
+        $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
+        $("#select2-ddlGodownMaster-container").css("color", "white");
+        $('#ddlGodownMaster')
+            .next('.select2-container')
+            .find('.select2-selection__arrow b')
+            .css({
+                'border-color': '#fff transparent transparent transparent'
             });
 
-        }
 
+        $("#select2-ddlParty-container").css("background-color", "lightslategrey");
+        $("#select2-ddlParty-container").css("color", "white");
 
-
-
-
-        function getBusinessTypess(BusinsType) {
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getBusinessTypes',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#business-type option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#business-type-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $('#business-type').append("<option value='-1'> -- Select -- </option>");
-                    //$('#business-type-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (BusinsType == admin.BusinessTypeID) {
-                            appendTemp = "<option value=" + admin.BusinessTypeID + " selected>" + admin.BusinessTypeTitle + "</option >";
-                        }
-                        else {
-                            appendTemp = "<option value=" + admin.BusinessTypeID + ">" + admin.BusinessTypeTitle + "</option >";
-                        }
-
-
-                        $('#business-type').append(appendTemp);
-                        //$('#business-type-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
-                }
+        $('#ddlParty')
+            .next('.select2-container')
+            .find('.select2-selection__arrow b')
+            .css({
+                'border-color': '#fff transparent transparent transparent'
             });
-        }
 
+        $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
+        $("#select2-ddlYarnGodownManager-container").css("color", "white");
 
-        function getBusinessCatss(BusinessCat) {
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getBusinessCates',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#business-cate option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#business-cate-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $('#business-cate').append("<option value='-1'> -- Select -- </option>");
-                    //$('#business-cate-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (BusinessCat == admin.IndustryTypeID) {
-                            appendTemp = "<option value=" + admin.IndustryTypeID + " selected>" + admin.IndustryTypeTitle + "</option >";
-                        }
-                        else {
-                            appendTemp = "<option value=" + admin.IndustryTypeID + ">" + admin.IndustryTypeTitle + "</option >";
-                        }
-
-
-
-                        $('#business-cate').append(appendTemp);
-                        //$('#business-cate-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
-                }
+        $('#ddlYarnGodownManager')
+            .next('.select2-container')
+            .find('.select2-selection__arrow b')
+            .css({
+                'border-color': '#fff transparent transparent transparent'
             });
-        }
-
-
-        function getStatess(StateCode) {
-
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getStates',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#state option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    $("#state-default option[value]").each(function () {
-                        $(this).remove();
-                    });
-
-                    $('#state').append("<option value='-1'> -- Select -- </option>");
-                    //$('#state-default').append("<option value='-1'> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-
-                        if (admin.GSTStateCode == StateCode) {
-                            appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                        }
-                        else {
-                            //appendTemp = "<option value=" + admin.GSTStateCode + "-" + admin.StateTitle + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                        }
-
-                        $('#state').append(appendTemp);
-                        //$('#state-default').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) {
+    });
+    var notes = $('#notes').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+    var notess = $('#notess').notify({
+        removeIcon: '<i class="icon-close"></i>'
+    });
+    function getDefaultCompany() {
+        $.ajax({
+            type: "GET",
+            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log("Company", response)
+                if (response.Code == 200 || response.Code == "200") {
+                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
                 }
-            });
-        }
+            },
+            error: function (request, status, error) {
+                //$("#add-alert").removeClass("alert-success");
+                //$("#add-alert").addClass("alert-danger");
+                //$("#add-alert").html(response.Message);
+                //$("#add-alert").show();
 
-
-
-
-
-
-        function successGetEmployeeByIDFuntion(data) {
-        }
-
-        function failureGetEmployeeByIDFunction(request, status, error) {
-        }
-
-
-        function clearAll() {
-            $("#savebtn").show();
-            $("#editbtn").hide();
-            $("#addNewContactLabel").html("Add Company");
-            $("#add-alert").hide();
-            $("#setDefault").prop('checked', false);
-            $("#setDefault").attr('disabled', false);
-            $("#company-name").val('');
-            $('#email').val('');
-            $('#phone').val('');
-            $('#alt-phone').val('');
-            $('#state').val('-1');
-            $('#business-type').val('-1');
-            $('#business-cate').val('-1');
-            $('#address').val('');
-            $('#description').val('');
-            $('#bank-name').val('');
-            $('#ifsc').val('');
-            $('#acNumber').val('');
-            $("#gstStat").prop("checked", true);
-            $('#gst').val('');
-            $('.gst-clear').show();
-            $(".clear-field").removeClass("is-valid is-invalid");
-
-            $(".invalid-feedback").hide();
-            $(".valid-feedback").hide();
-
-            $("#upload-image-preview").html("Upload Company Logo.");
-            $("#upload-image-preview").css('color', 'initial');
-
-            $("#upload-sign-preview").html("Upload Signature.");
-            $("#upload-sign-preview").css('color', 'initial');
-        }
-
-        function checkSave() {
-            var image = document.getElementById('upload-image');
-            var sign = document.getElementById('upload-sign');
-            var name = document.getElementById('company-name');
-            var bname = document.getElementById('bank-name');
-            var ifsc = document.getElementById('ifsc');
-            var email = document.getElementById('email');
-            var phone = document.getElementById('phone');
-            var address = document.getElementById('address');
-            var accNo = document.getElementById('acNumber');
-            var description = document.getElementById('description');
-            var altPhone = document.getElementById('alt-phone');
-            var state = document.getElementById('state');
-            var type = document.getElementById('business-type');
-            var category = document.getElementById('business-cate');
-            var gst = document.getElementById('gst');
-
-            //if (saveImage(image) == false || ($("#gstStat").prop("checked") == true && $("#gst").val() == "") || validate(accNo) == false || validate(ifsc) == false || validate(bname) == false || validate(address) == false || validate(description) == false || /*saveImageSign(sign) == false ||*/ validate(state) == false || validate(type) == false || validate(category) == false || validate(name) == false || validateEmail(email.value, email) == false || validate(phone) == false) {
-            if (saveImage(image) == false || ($("#gstStat").prop("checked") == true && $("#gst").val() == "") || validate(accNo) == false || validate(ifsc) == false || validate(bname) == false || validate(address) == false || /*saveImageSign(sign) == false ||*/ validate(state) == false || validate(name) == false || validateEmail(email.value, email) == false || validate(phone) == false) {
-                validate(name);
-                validateEmail(email.value, email);
-                validate(phone);
-                validate(accNo);
-                saveImage(image);
-                validate(bname);
-                validate(ifsc);
-                //saveImageSign(sign);
-                validate(state);
-                //validate(type);
-                if ($("#gstStat").prop("checked") == true) {
-                    validate(gst);
-                }
-                //validate(category);
-                //validate(description);
-                validate(address);
-            }
-            else {
-                var gstTemp = "";
-                var isDefault = "";
-                if ($("#gstStat").prop("checked") == true) {
-                    gstTemp = gst.value;
-                }
-                else {
-                    gstTemp = "";
-                }
-
-                if ($("#setDefault").prop("checked") == true) {
-                    isDefault = "1";
-                }
-                else {
-                    isDefault = "";
-                }
-
-                var formData = new FormData();
-                formData.append('CompanyNames', name.value);
-                formData.append('Email', email.value);
-                formData.append('AlterMobileNo', altPhone.value);
-                formData.append('MobileNo', phone.value);
-                formData.append('is_default', isDefault);
-                formData.append('State', state.value);
-                formData.append('BusinessAddress', address.value);
-                formData.append('BusinessType', '1');
-                formData.append('BusinessCategory', '1');
-                formData.append('BusinessDescription', '');
-                formData.append('BankName', bname.value);
-                formData.append('IFSC', ifsc.value);
-                formData.append('ACNo', accNo.value);
-                formData.append('GSTIN', gstTemp);
-                formData.append('Sign', sign.files[0]);
-                formData.append('CompanyLogo', image.files[0]);
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertCompanyMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-
-                            clearAll();
-
-                            $("#add-alert").addClass("alert-success");
-                            $("#add-alert").removeClass("alert-danger");
-                            $("#add-alert").html(response.Message);
-                            $("#add-alert").show();
-                            displayData(0);
-
-                        }
-                        else {
-                            $("#add-alert").removeClass("alert-success");
-                            $("#add-alert").addClass("alert-danger");
-                            $("#add-alert").html(response.Message);
-                            $("#add-alert").show();
-                        }
-                    },
-                    error: function (error) {
-                        $("#add-alert").removeClass("alert-success");
-                        $("#add-alert").addClass("alert-danger");
-                        $("#add-alert").html(response.Message);
-                        $("#add-alert").show();
-                    }
+                notes.show(request.statusText, {
+                    type: 'danger',
+                    //title: 'Opps.!',
+                    //icon: '<i class="icon-alert-triangle"></i>'
                 });
 
 
             }
-        }
-
-
-
-        function logout() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/Logout',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    if (data.d == "done") {
-                        window.location.replace("/Index");
-                    }
-                },
-                error: function (request, status, error) {
+        });
+    }
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "false") {
+                    window.location.replace("/Index");
                 }
-            });
-        }
-
-
-
-
-        function checkEditDefault() {
-
-
-
-            var id = $("#edit-id-default").val();
-            var image = document.getElementById('upload-image-default');
-            var sign = document.getElementById('upload-sign-default');
-            var name = document.getElementById('company-name-default');
-            var bname = document.getElementById('bank-name-default');
-            var ifsc = document.getElementById('ifsc-default');
-            var email = document.getElementById('email-default');
-            var phone = document.getElementById('phone-default');
-            var address = document.getElementById('address-default');
-            var accNo = document.getElementById('acNumber-default');
-            var description = document.getElementById('description-default');
-            var altPhone = document.getElementById('alt-phone-default');
-            var state = document.getElementById('state-default');
-            var type = document.getElementById('business-type-default');
-            var category = document.getElementById('business-cate-default');
-            var gst = document.getElementById('gst-default');
-            var BarcodeTitle = document.getElementById('BarcodeTitle');
-            var SetCreditPercentage = document.getElementById('SetCreditPercentage');
-            var SupportNumber = document.getElementById('SupportNumber');
-
-            if (id == "") {
-                $("#add-alert-default").removeClass("alert-success");
-                $("#add-alert-default").addClass("alert-danger");
-                $("#add-alert-default").html("Please Add Company Before Updating.");
-                $("#add-alert-default").show();
-
-
+            },
+            error: function (request, status, error) {
+                console.log(error);
             }
-            else if (($("#gstStat-default").prop("checked") == true && $("#gst-default").val() == "") || validate(accNo) == false || validate(ifsc) == false || validate(bname) == false || validate(address) == false || validate(description) == false || validate(state) == false || validate(name) == false || validate(phone) == false || validate(SetCreditPercentage) == false || validate(SupportNumber) == false) {
-                alert("Hello");
-                validate(name);
-                /*validateEmail(email.value, email);*/
-                validate(phone);
-                validate(accNo);
-                validate(bname);
-                validate(ifsc);
-                validate(state);
-                validate(type);
-                if ($("#gstStat-default").prop("checked") == true) {
-                    validate(gst);
+        });
+    }
+    function logout() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/Logout',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                if (data.d == "done") {
+                    window.location.replace("/Index");
                 }
-                validate(category);
-                validate(description);
-                validate(address);
-                validate(SetCreditPercentage);
-                validate(SupportNumber);
-
+            },
+            error: function (request, status, error) {
             }
-            else {
-                var imagetemp = image.files[0];
-                if (image.files[0] == undefined) {
-                    imagetemp = $("#upload-image-temp-default").val();
-                }
-                var signtemp = sign.files[0];
-                if (sign.files[0] == undefined) {
-                    signtemp = $("#upload-sign-temp-default").val();
-                }
+        });
+    }
+    function clearAll() {
+        getDefaultCompany();
+        $("#savebtn").show();
+        $("#Updatebtn").hide();
+        $("#addNewContactLabel").html("Add Design Entry Form");
+        $("#add-alert").hide();
 
-                var phonetemp = "";
-                var emailtemp = "";
-                if ($("#email-temp-default").val() != $("#email-default").val()) {
-                    emailtemp = $("#email-default").val();
-                }
-                if ($("#phone-temp-default").val() != $("#phone-default").val()) {
-                    phonetemp = $("#phone-default").val();
-                }
+        $("#YarnColor").val('');
 
-                var gstTemp = "";
-                var isDefault = "";
-                if ($("#gstStat-default").prop("checked") == true) {
-                    gstTemp = gst.value;
-                }
-                else {
-                    gstTemp = "";
-                }
+        $(".company-invalid-feedback").hide();
 
-                if ($("#setDefault-default").prop("checked") == true) {
-                    isDefault = "1";
-                }
-                else {
-                    isDefault = "";
-                }
+        $(".clear-field").removeClass("is-valid is-invalid");
+        $(".invalid-feedback").hide();
+        $(".valid-feedback").hide();
+    }
+    function validate(code) {
+        //alert(code);
+        //alert(code.id + "  " + code.value);
+        //console.log(code.id + " Hello" + code.value);
 
-                var formData = new FormData();
-                formData.append('CompanyNames', name.value);
-                formData.append('Email', emailtemp);
-                formData.append('AlterMobileNo', altPhone.value);
-                formData.append('MobileNo', phonetemp);
-                formData.append('is_default', isDefault);
-                formData.append('State', state.value);
-                formData.append('BusinessAddress', address.value);
-                formData.append('BusinessType', type.value);
-                formData.append('BusinessCategory', category.value);
-                formData.append('BusinessDescription', description.value);
-                formData.append('BankName', bname.value);
-                formData.append('IFSC', ifsc.value);
-                formData.append('ACNo', accNo.value);
-                formData.append('GSTIN', gstTemp);
-                formData.append('Sign', signtemp);
-                formData.append('CompanyLogo', imagetemp);
-                formData.append('CompanyIds', id);
-                formData.append('BarcodeTitle', BarcodeTitle.value);
-                formData.append('SetCreditPercentage', SetCreditPercentage.value);
-                formData.append('SupportNumber', SupportNumber.value);
+        //code.value = code.value.replace(/\s+/g, ' ').trim();
+        var errorMessageValid = "." + code.id + "-valid-feedback";
+        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+        $(".invalid-feedback .valid-feedback").hide();
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/editCompanyMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
+        //alert(code.value);
 
+        if (code.value == "0") {
 
-                            $("#add-alert-default").addClass("alert-success");
-                            $("#add-alert-default").removeClass("alert-danger");
-                            $("#add-alert-default").html(response.Message);
-                            $("#add-alert-default").show();
-
-                            getDefaultCompany();
-                            displayData(0);
-                        }
-                        else {
-                            $("#add-alert-default").removeClass("alert-success");
-                            $("#add-alert-default").addClass("alert-danger");
-                            $("#add-alert-default").html(response.Message);
-                            $("#add-alert-default").show();
-                        }
-                    },
-                    error: function (error) {
-                        $("#add-alert-default").removeClass("alert-success");
-                        $("#add-alert-default").addClass("alert-danger");
-                        $("#add-alert-default").html(response.Message);
-                        $("#add-alert-default").show();
-                    }
-                });
-            }
+            document.getElementById(code.id).classList.remove("is-valid");
+            document.getElementById(code.id).classList.add("is-invalid");
+            $(errorMessageInvalid).show();
+            return false;
         }
+        else
+            if (code.value == "") {
 
-        function checkEdit() {
-            var id = $("#edit-id").val();
-            var image = document.getElementById('upload-image');
-            var sign = document.getElementById('upload-sign');
-            var name = document.getElementById('company-name');
-            var bname = document.getElementById('bank-name');
-            var ifsc = document.getElementById('ifsc');
-            var email = document.getElementById('email');
-            var phone = document.getElementById('phone');
-            var address = document.getElementById('address');
-            var accNo = document.getElementById('acNumber');
-            var description = document.getElementById('description');
-            var altPhone = document.getElementById('alt-phone');
-            var state = document.getElementById('state');
-            var type = document.getElementById('business-type');
-            var category = document.getElementById('business-cate');
-            var gst = document.getElementById('gst');
-
-            if (validate(accNo) == false || validate(ifsc) == false || validate(bname) == false || validate(address) == false || validate(state) == false || validate(name) == false || validate(phone) == false) {
-
-
-
-                validate(name);
-                validateEmail(email.value, email);
-                validate(phone);
-                validate(accNo);
-                validate(bname);
-                validate(ifsc);
-                validate(state);
-                validate(type);
-                if ($("#gstStat").prop("checked") == true) {
-                    validate(gst);
-                }
-                validate(category);
-                validate(description);
-                validate(address);
-            }
-            else {
-                var imagetemp = image.files[0];
-                if (image.files[0] == undefined) {
-                    imagetemp = $("#upload-image-temp").val();
-                }
-                var signtemp = sign.files[0];
-                if (sign.files[0] == undefined) {
-                    signtemp = $("#upload-sign-temp").val();
-                }
-
-                var phonetemp = "";
-                var emailtemp = "";
-                if ($("#email-temp").val() != $("#email").val()) {
-                    emailtemp = $("#email").val();
-                }
-                if ($("#phone-temp").val() != $("#phone").val()) {
-                    phonetemp = $("#phone").val();
-                }
-
-                var gstTemp = "";
-                var isDefault = "";
-                if ($("#gstStat").prop("checked") == true) {
-                    gstTemp = gst.value;
-                }
-                else {
-                    gstTemp = "";
-                }
-
-                if ($("#setDefault").prop("checked") == true) {
-                    isDefault = "1";
-                }
-                else {
-                    isDefault = "";
-                }
-
-                var formData = new FormData();
-                formData.append('CompanyNames', name.value);
-                formData.append('Email', emailtemp);
-                formData.append('AlterMobileNo', altPhone.value);
-                formData.append('MobileNo', phonetemp);
-                formData.append('is_default', isDefault);
-                formData.append('State', state.value);
-                formData.append('BusinessAddress', address.value);
-                formData.append('BusinessType', type.value);
-                formData.append('BusinessCategory', category.value);
-                formData.append('BusinessDescription', description.value);
-                formData.append('BankName', bname.value);
-                formData.append('IFSC', ifsc.value);
-                formData.append('ACNo', accNo.value);
-                formData.append('GSTIN', gstTemp);
-                formData.append('Sign', signtemp);
-                formData.append('CompanyLogo', imagetemp);
-                formData.append('CompanyIds', id);
-
-
-
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/editCompanyMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-
-                            clearAll();
-
-                            $("#add-alert").addClass("alert-success");
-                            $("#add-alert").removeClass("alert-danger");
-                            $("#add-alert").html(response.Message);
-                            $("#add-alert").show();
-
-
-
-                            displayData(0);
-
-                        }
-                        else {
-                            $("#add-alert").removeClass("alert-success");
-                            $("#add-alert").addClass("alert-danger");
-                            $("#add-alert").html(response.Message);
-                            $("#add-alert").show();
-                        }
-                    },
-                    error: function (error) {
-                        $("#add-alert").removeClass("alert-success");
-                        $("#add-alert").addClass("alert-danger");
-                        $("#add-alert").html(response.Message);
-                        $("#add-alert").show();
-                    }
-                });
-            }
-        }
-
-
-        function saveImage(input) {
-            var previewStr = "#" + input.id + "-preview";
-            if (input.files && input.files[0]) {
-                var fildr = new FileReader();
-                fildr.onload = function (e) {
-                    var imgStr = "<img src='" + e.target.result + "' style='height:200px;width:200px;margin-top:-54px;'>";
-                    $(previewStr).html(imgStr);
-                    $(previewStr).css('color', 'initial');
-                }
-                fildr.readAsDataURL(input.files[0]);
-                return true;
-            }
-            else {
-                var message = "";
-                if (input.id == "upload-image" || input.id == "upload-image-default") {
-                    message = "Company Logo Is Needed.";
-                }
-                else {
-                    message = "Signature Is Needed.";
-                }
-                $(previewStr).html(message);
-                $(previewStr).css('color', 'red');
-                return false;
-            }
-        }
-
-        function clearImageDefault() {
-            $("#upload-image-default-preview").html("Upload Company Logo.");
-            $("#upload-image-default").val("");
-        }
-
-        function clearSignatureDefault() {
-            $("#upload-sign-default-preview").html("Upload Signature.");
-            $("#upload-sign-default").val("");
-        }
-
-        function clearImage() {
-            $("#upload-image-preview").html("Upload Company Logo.");
-            $("#upload-image").val("");
-        }
-
-        function clearSignature() {
-            $("#upload-sign-preview").html("Upload Signature.");
-            $("#upload-sign").val("");
-        }
-
-        function functionCompanyDelete(abc) {
-            if (confirm('Are you sure you want to delete this record?')) {
-                var formData = new FormData();
-                formData.append('CompanyIds', abc);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/DeleteCompanyMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 200) {
-                            displayData(0);
-                        }
-                        else {
-                            alert("Problem has been occurred while submitting your data.");
-                        }
-                    },
-                    error: function (error) {
-                        alert("Problem has been occurred while submitting your data.");
-                    }
-                });
-            }
-
-        }
-
-        function validateEmail(email, element) {
-            const re = /^(([^<>()[\]\\.,;:\s@@\"]+(\.[^<>()[\]\\.,;:\s@@\"]+)*)|(\".+\"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            email = email.replace(/\s+/g, ' ').trim();
-            var idStr = "#" + element.id;
-            var errorMessageValid = "." + element.id + "-valid-feedback";
-            var errorMessageInvalid = "." + element.id + "-invalid-feedback";
-            if (email == "") {
-                //document.getElementById(element.id).classList.remove("is-valid");
-                //document.getElementById(element.id).classList.add("is-invalid");
-                //$(errorMessageValid).hide(); $(errorMessageInvalid).show();
-                return true;
-            }
-            else if (!re.test(String(email).toLowerCase())) {
-                document.getElementById(element.id).classList.remove("is-valid");
-                document.getElementById(element.id).classList.add("is-invalid");
-                $(errorMessageValid).hide(); $(errorMessageInvalid).show();
-                return false;
-            }
-            else {
-                document.getElementById(element.id).classList.add("is-valid");
-                document.getElementById(element.id).classList.remove("is-invalid");
-                $(errorMessageValid).show(); $(errorMessageInvalid).hide();
-                return true;
-            }
-        }
-
-        function validate(code) {
-            code.value = code.value.replace(/\s+/g, ' ').trim();
-            var errorMessageValid = "." + code.id + "-valid-feedback";
-            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
-            $(".invalid-feedback .valid-feedback").hide();
-            if (code.value == "" || code.value == "0") {
                 document.getElementById(code.id).classList.remove("is-valid");
                 document.getElementById(code.id).classList.add("is-invalid");
                 $(errorMessageInvalid).show();
-                $(".phone-less-feedback").hide();
-                $(".alt-phone-invalid-feedback").hide();
-                $(".phone-invalid-feedback").hide();
-                $(".phone-default-invalid-feedback").hide();
                 return false;
-            }
-            else if ((code.id == "phone" || code.id == "alt-phone" || code.id == "phone-default") && code.value.length != 10) {
-                document.getElementById(code.id).classList.remove("is-valid");
-                document.getElementById(code.id).classList.add("is-invalid");
-                if (code.id == "phone") {
-                    $(".phone-less-feedback").show();
-                    $(".phone-invalid-feedback").hide();
-                } else if (code.id == "alt-phone") {
-                    $(".alt-phone-less-feedback").show();
-                    $(".alt-phone-invalid-feedback").hide();
-                }
-                else if (code.id == "phone-default") {
-                    $(".phone-default-less-feedback").show();
-                    $(".phone-default-invalid-feedback").hide();
-                }
-
-                return false;
-            }
-            else if ((code.id == "business-type" || code.id == "business-cate" || code.id == "state" || code.id == "business-type-default" || code.id == "business-cate-default" || code.id == "state-default")) {
-
-                if (code.value != "-1") {
-                    document.getElementById(code.id).classList.add("is-valid");
-                    document.getElementById(code.id).classList.remove("is-invalid");
-                    $(errorMessageValid).show();
-                    $(errorMessageInvalid).hide();
-                    return true;
-                }
-                else {
-                    $(errorMessageInvalid).show();
-                    document.getElementById(code.id).classList.add("is-invalid");
-                    document.getElementById(code.id).classList.remove("is-valid");
-                    return false;
-                }
-            }
-            else if ((code.id == "gst")) {
-
-
-                if (code.value.length == 2) {
-                    $('#state').val(code.value);
-                }
-
-                if (code.value.length == 15) {
-
-
-                    $("#gst").val(code.value.toUpperCase());
-                    let gstVal = code.value.toUpperCase();
-                    let eMMessage = "No Errors";
-                    let statecode = gstVal.substring(0, 2);
-                    let patternstatecode = /^[0-9]{2}$/
-                    let threetoseven = gstVal.substring(2, 7);
-                    let patternthreetoseven = /^[A-Z]{5}$/
-                    let seventoten = gstVal.substring(7, 11);
-                    let patternseventoten = /^[0-9]{4}$/
-                    let Twelveth = gstVal.substring(11, 12);
-                    let patternTwelveth = /^[A-Z]{1}$/
-                    let Thirteen = gstVal.substring(12, 13);
-                    let patternThirteen = /^[1-9A-Z]{1}$/
-                    let fourteen = gstVal.substring(13, 14);
-                    let patternfourteen = /^Z$/
-                    let fifteen = gstVal.substring(14, 15);
-                    let patternfifteen = /^[0-9A-Z]{1}$/
-                    if (gstVal.length != 15) {
-                        eMMessage = 'Length should be restricted to 15 digits and should not allow anything more or less';
-
-                    } else if (!patternstatecode.test(statecode)) {
-                        eMMessage = 'First two characters of GSTIN should be numbers';
-
-                    } else if (!patternthreetoseven.test(threetoseven)) {
-                        eMMessage = 'Third to seventh characters of GSTIN should be alphabets';
-
-                    } else if (!patternseventoten.test(seventoten)) {
-                        eMMessage = 'Eighth to Eleventh characters of GSTIN should be numbers';
-
-                    } else if (!patternTwelveth.test(Twelveth)) {
-                        eMMessage = 'Twelveth character of GSTIN should be alphabet';
-
-                    } else if (!patternThirteen.test(Thirteen)) {
-                        eMMessage = 'Thirteen characters of GSTIN can be either alphabet or numeric';
-
-                    } else if (!patternfourteen.test(fourteen)) {
-                        eMMessage = 'fourteen characters of GSTIN should be Z';
-
-                    } else if (!patternfifteen.test(fifteen)) {
-                        eMMessage = 'fifteen characters of GSTIN can be either alphabet or numeric';
-                    }
-                    //console.log(eMMessage)
-
-                    if (eMMessage == "No Errors") {
-                        $("#GSTError").html("Valid GSTIN");
-                        document.getElementById(code.id).classList.add("is-valid");
-                        document.getElementById(code.id).classList.remove("is-invalid");
-                        $(errorMessageValid).show();
-                        $(errorMessageInvalid).hide();
-                        return true;
-                    }
-                    else {
-                        $("#GSTError").html(eMMessage);
-                        document.getElementById(code.id).classList.remove("is-valid");
-                        document.getElementById(code.id).classList.add("is-invalid");
-                        $(errorMessageInvalid).show();
-                        return false;
-                    }
-
-                }
-                else {
-
-                    document.getElementById(code.id).classList.add("");
-                    //document.getElementById(code.id).classList.remove("is-invalid");
-                    $(errorMessageValid).hide();
-                    $(errorMessageInvalid).hide();
-
-                    $("#GSTError").html("");
-
-                    //document.getElementById(code.id).classList.remove("is-valid");
-                    //document.getElementById(code.id).classList.add("is-invalid");
-                    //$(errorMessageInvalid).show();
-                    return false;
-                }
-
-            }
-            else if ((code.id == "gst-default")) {
-
-
-                if (code.value.length == 2) {
-                    $('#state').val(code.value);
-                }
-
-                if (code.value.length == 15) {
-
-
-                    $("#gst-default").val(code.value.toUpperCase());
-                    let gstVal = code.value.toUpperCase();
-                    let eMMessage = "No Errors";
-                    let statecode = gstVal.substring(0, 2);
-                    let patternstatecode = /^[0-9]{2}$/
-                    let threetoseven = gstVal.substring(2, 7);
-                    let patternthreetoseven = /^[A-Z]{5}$/
-                    let seventoten = gstVal.substring(7, 11);
-                    let patternseventoten = /^[0-9]{4}$/
-                    let Twelveth = gstVal.substring(11, 12);
-                    let patternTwelveth = /^[A-Z]{1}$/
-                    let Thirteen = gstVal.substring(12, 13);
-                    let patternThirteen = /^[1-9A-Z]{1}$/
-                    let fourteen = gstVal.substring(13, 14);
-                    let patternfourteen = /^Z$/
-                    let fifteen = gstVal.substring(14, 15);
-                    let patternfifteen = /^[0-9A-Z]{1}$/
-                    if (gstVal.length != 15) {
-                        eMMessage = 'Length should be restricted to 15 digits and should not allow anything more or less';
-
-                    } else if (!patternstatecode.test(statecode)) {
-                        eMMessage = 'First two characters of GSTIN should be numbers';
-
-                    } else if (!patternthreetoseven.test(threetoseven)) {
-                        eMMessage = 'Third to seventh characters of GSTIN should be alphabets';
-
-                    } else if (!patternseventoten.test(seventoten)) {
-                        eMMessage = 'Eighth to Eleventh characters of GSTIN should be numbers';
-
-                    } else if (!patternTwelveth.test(Twelveth)) {
-                        eMMessage = 'Twelveth character of GSTIN should be alphabet';
-
-                    } else if (!patternThirteen.test(Thirteen)) {
-                        eMMessage = 'Thirteen characters of GSTIN can be either alphabet or numeric';
-
-                    } else if (!patternfourteen.test(fourteen)) {
-                        eMMessage = 'fourteen characters of GSTIN should be Z';
-
-                    } else if (!patternfifteen.test(fifteen)) {
-                        eMMessage = 'fifteen characters of GSTIN can be either alphabet or numeric';
-                    }
-                    //console.log(eMMessage)
-
-                    if (eMMessage == "No Errors") {
-                        $("#GSTErrorDefault").html("Valid GSTIN");
-                        document.getElementById(code.id).classList.add("is-valid");
-                        document.getElementById(code.id).classList.remove("is-invalid");
-                        $(errorMessageValid).show();
-                        $(errorMessageInvalid).hide();
-                        return true;
-                    }
-                    else {
-                        $("#GSTErrorDefault").html(eMMessage);
-                        document.getElementById(code.id).classList.remove("is-valid");
-                        document.getElementById(code.id).classList.add("is-invalid");
-                        $(errorMessageInvalid).show();
-                        return false;
-                    }
-
-                }
-                else {
-
-                    document.getElementById(code.id).classList.add("");
-                    //document.getElementById(code.id).classList.remove("is-invalid");
-                    $(errorMessageValid).hide();
-                    $(errorMessageInvalid).hide();
-
-                    $("#GSTError").html("");
-
-                    //document.getElementById(code.id).classList.remove("is-valid");
-                    //document.getElementById(code.id).classList.add("is-invalid");
-                    //$(errorMessageInvalid).show();
-                    return false;
-                }
-
             }
             else {
                 document.getElementById(code.id).classList.add("is-valid");
                 document.getElementById(code.id).classList.remove("is-invalid");
                 $(errorMessageValid).show();
                 $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
                 return true;
             }
+    }
+</script>
+<script>
+    let dropArea = document.getElementById("dropArea");
+    let fileInput = document.getElementById("fileInput");
+    let fileList = document.getElementById("fileList");
+    let selectedFiles = [];
+
+    dropArea.onclick = () => fileInput.click();
+
+    fileInput.addEventListener("change", function (e) {
+
+        selectedFiles = e.target.files;
+        fileList.innerHTML = "";
+
+        for (let file of selectedFiles) {
+            previewUpload(file);
         }
 
+    });
 
-    </script>
+    dropArea.addEventListener("dragover", e => e.preventDefault());
 
-</body>
+    dropArea.addEventListener("drop", e => {
+
+        e.preventDefault();
+
+        selectedFiles = e.dataTransfer.files;
+
+        fileList.innerHTML = "";
+
+        for (let file of selectedFiles) {
+            previewUpload(file);
+        }
+
+    });
+
+    function previewUpload(file) {
+
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+
+            let div = document.createElement("div");
+            div.className = "file-item";
+
+            div.innerHTML = `
+        <img src="${e.target.result}" class="preview">
+
+        <div style="flex:1">
+            <div>${file.name}</div>
+
+            <div class="progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="percent">0%</div>
+        `;
+
+            fileList.appendChild(div);
+
+        };
+
+        reader.readAsDataURL(file);
+    }
 
 
-</html>
+    $("#uploadBtn").click(function () {
+
+        var files = $("#fileInput")[0].files;
+
+        if (files.length == 0) {
+            alert("Please select images");
+            return;
+        }
+
+        var formData = new FormData();
+
+        fileList.innerHTML = "";
+
+        for (var i = 0; i < files.length; i++) {
+
+            previewUpload(files[i]);   // ✅ correct
+            formData.append("file" + i, files[i]);
+
+        }
+
+        $.ajax({
+            url: "/WebServiceNikunjTextile.asmx/UploadCompressImages",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            xhr: function () {
+
+                var xhr = new window.XMLHttpRequest();
+
+                xhr.upload.addEventListener("progress", function (evt) {
+
+                    if (evt.lengthComputable) {
+
+                        var percent = Math.round((evt.loaded / evt.total) * 100);
+
+                        $(".progress-bar").css("width", percent + "%");
+                        $(".percent").text(percent + "%");
+
+                    }
+
+                }, false);
+
+                return xhr;
+            },
+
+            success: function (res) {
+
+                $(".progress-bar").css("width", "100%");
+                $(".percent").text("100%");
+                alert("Images Compressed Successfully");
+
+            },
+
+            error: function (err) {
+                console.log(err);
+            }
+
+        });
+
+    });
+
+</script>

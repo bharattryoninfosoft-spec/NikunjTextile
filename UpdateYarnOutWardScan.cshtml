@@ -44,6 +44,7 @@
                                                 <div class="col-3">
                                                     <div class="field-wrapper">
                                                         <input type="hidden" class="form-control" id="PartyId" placeholder="PartyId" value="" />
+                                                        <input type="hidden" class="form-control" id="YarnOutwardScanID" placeholder="YarnOutwardScanID" value="">
                                                         <input type="text" class="form-control" id="ChallanNo" placeholder="ChallanNo" value="">
                                                         <div class="field-placeholder">Challan No<sup style="color:red;">*</sup></div>
                                                         <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
@@ -534,7 +535,7 @@
 
             $.ajax({
                 type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/GetYarnOutwardScan',
+                url: '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardScan',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
@@ -546,7 +547,9 @@
                         var PartyName = response[0].PartyName || "";
                         var Address = response[0].Address || "";
                         var ChallanNo = response[0].ChallanNo || "0";
+                        var YarnOutwardScanID = response[0].YarnOutwardScanID || "0";
                         $("#PartyId").val(PartyId).prop("readonly", true);
+                        $("#YarnOutwardScanID").val(YarnOutwardScanID).prop("readonly", true);
                         $("#PartyName").val(PartyName).prop("readonly", true);
                         $("#Address").val(Address).prop("readonly", true);
                         $("#ChallanNo").val(ChallanNo).prop("readonly", true);
@@ -567,12 +570,12 @@
                                     <td>${v.YarnColorCode}</td>
                                     <td hidden id="GodownLocationID">${v.GodownLocationID}</td>
                                     <td>${v.LocationTitle}</td>
-                                    <td><input type="text" class="form-control Boxon" /></td>
-                                    <td class="weight">0</td>
+                                    <td><input type="text" class="form-control Boxon" value="${v.BoxNo}" /></td>
+                                    <td class="weight">${v.NetWeight}</td>
                                     </tr>`;
 
                         tbody.append(row);
-
+                        calculateTotals();
                     });
 
                 },
@@ -583,7 +586,8 @@
 
         }
         $(document).on("keydown", ".Boxon", function (e) {
-
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var YarnOutwardID = (hashes[0].split('=')[1]);
             var row = $(this).closest("tr");
             var weightCell = row.find(".weight");
 
@@ -624,8 +628,8 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "/WebServiceNikunjTextile.asmx/GetBoxWeight",
-                    data: { BoxNo: boxNo },
+                    url: "/WebServiceNikunjTextile.asmx/UpdateBoxWeight",
+                    data: { BoxNo: boxNo, YarnOutwardID: YarnOutwardID },
                     dataType: "json",
 
                     success: function (response) {
@@ -692,9 +696,9 @@
 
             var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
             var YarnOutwardID = hashes[0].split('=')[1];
-
+            var YarnOutwardScanID = $("#YarnOutwardScanID").val()
             var formData = new FormData();
-
+            formData.append("YarnOutwardScanID", YarnOutwardScanID);
             formData.append("YarnOutwardID", YarnOutwardID);
             formData.append("PartyId", $("#PartyId").val());
             formData.append("ChallanNo", $("#ChallanNo").val());

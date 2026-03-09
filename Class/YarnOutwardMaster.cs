@@ -7,7 +7,7 @@ namespace NikunjTextile.Class
 {
     public class YarnOutwardMaster
     {
-
+        public int YarnOutwardScanID { get; set; }
         public int YarnOutwardID { get; set; }
         public DateTime DateAndTime { get; set; }
         public string DateAndTimes { get; set; }
