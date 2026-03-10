@@ -548,12 +548,21 @@
                         var Address = response[0].Address || "";
                         var ChallanNo = response[0].ChallanNo || "0";
                         var YarnOutwardScanID = response[0].YarnOutwardScanID || "0";
+                        var ChallanDate = response[0].ChallanDate || "0";
                         $("#PartyId").val(PartyId).prop("readonly", true);
                         $("#YarnOutwardScanID").val(YarnOutwardScanID).prop("readonly", true);
                         $("#PartyName").val(PartyName).prop("readonly", true);
                         $("#Address").val(Address).prop("readonly", true);
                         $("#ChallanNo").val(ChallanNo).prop("readonly", true);
+                        var ms = parseInt(ChallanDate.substr(6));
+                        var date = new Date(ms);
 
+                        var formattedDate =
+                            date.getFullYear() + "-" +
+                            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                            ("0" + date.getDate()).slice(-2);
+                        var d = new Date(parseInt(ChallanDate.substr(6)));
+                        $("#ChallanDate").val(d.toISOString().split("T")[0]);
                     }
                     var tbody = $("#tblYarnOutwardBody");
                     tbody.empty();
@@ -561,8 +570,9 @@
                       
                         var row = `<tr>  
                                     <td hidden class="YarnInwardDetailID"></td>
-                                    <td hidden id="PartyId">${v.PartyId}</td>
-                                    <td>${v.PartyName}</td>
+                                        <td hidden id="PartyId">${v.PartyId}</td>
+                                      <td hidden id="CompanyName">${v.CompanyId}</td>
+                                     <td>${v.CompanyName}</td>
                                     <td hidden id="YarnMaterialID">${v.YarnMaterialID}</td>
                                     <td>${v.YarnMaterial}</td>
                                     <td hidden id="YarnColorID">${v.YarnColorID}</td>

@@ -1,6 +1,42 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<style>
+
+    @@media print {
+
+        @@page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .modal-body {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+
+        #printArea {
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            zoom: 80%; /* resize content */
+        }
+
+        img {
+            max-width: 180px;
+        }
+
+        button,
+        .btn,
+        .modal-footer {
+            display: none !important;
+        }
+    }
+</style>
 
 
 
@@ -24,7 +60,7 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
-                    <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
+                    <div class="modal-body"  id="printArea" style=" overflow: initial !important; height:500px !important;">
 
 
                         <div class="row gutters">
@@ -355,6 +391,7 @@
                     <input id="catedit-id" type="hidden" />
                     <div id="notess"></div>
                     <div class="modal-footer">
+                              <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary" >Print</button>
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -1122,7 +1159,18 @@
 
     }
 
+    function printModalBody() {
 
+        var printContents = document.querySelector(".modal-body").innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+        location.reload();
+    }
 
 
 </script>

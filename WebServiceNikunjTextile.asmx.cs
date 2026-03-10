@@ -2272,10 +2272,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditYarnQualityMaster()
@@ -2362,10 +2358,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteYarnQualityMaster()
@@ -2426,9 +2418,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_ItemCategoryQueue()
@@ -2506,24 +2495,7 @@ namespace NikunjTextile
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Yarn Color Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertYarnColorMaster()
@@ -2610,7 +2582,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
 
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -2742,9 +2713,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
 
         // Get Edit Party Category Master 
         [WebMethod]
@@ -23565,7 +23533,9 @@ namespace NikunjTextile
 
                 cmd.CommandText = @"SELECT                            
                             Pm.PartyId,
-                            PM.PartyName AS YarnCompany,
+                            PM.PartyName,
+							PM1.PartyId AS YarnCompanyId,
+                            PM1.PartyName AS YarnCompany,
                             Pm.BillingAddress AS Address,
                             YMM.YarnMaterialID AS YarnMaterialID,
                             YMM.YarnMaterial AS YarnMaterial,
@@ -23580,6 +23550,7 @@ namespace NikunjTextile
                                 ON YM.YarnOutwardID = YOD.YarnOutwardID
                             LEFT JOIN PartyMaster PM 
                                 ON YM.PartyId = PM.PartyId
+                            LEFT JOIN PartyMaster PM1 ON YOD.BillToPartyID = PM1.PartyId
                             LEFT JOIN YarnMaterialMaster YMM  
                                 ON YMM.YarnMaterialID = YOD.YarnMaterialID
                             LEFT JOIN YarnColorMaster YCM  
@@ -23603,7 +23574,9 @@ namespace NikunjTextile
                 {
                     YarnOutwardMaster yarnOutward = new YarnOutwardMaster();                   
                     yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                    yarnOutward.PartyName = rdr["YarnCompany"].ToString();
+                    yarnOutward.PartyName = (rdr["PartyName"].ToString());
+                    yarnOutward.CompanyId = Convert.ToInt32(rdr["YarnCompanyId"].ToString());
+                    yarnOutward.CompanyName = rdr["YarnCompany"].ToString();
                     yarnOutward.Address = rdr["Address"].ToString();
                     yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
                     yarnOutward.YarnMaterial = rdr["YarnMaterial"].ToString();
@@ -23689,7 +23662,7 @@ namespace NikunjTextile
             int YarnOutwardScanID = 0;
             string abc = request.Params["YarnOutwardID"];
             string lastCharacter = abc.Substring(abc.Length - 6);
-
+            DateTime ChallanDate = Convert.ToDateTime("1990-01-01");
             if (lastCharacter != "%3d%3d")
             {
                 string InvoiceId = request.Params["YarnOutwardID"].Replace("==", "") + "%3d%3d";
@@ -23707,7 +23680,7 @@ namespace NikunjTextile
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"select ChallanNo,YarnOutwardScanID from YARNOUTWARDScanMaster WHERE YarnOutwardID = @YarnOutwardID;";
+                cmd.CommandText = @"select ChallanNo,YarnOutwardScanID,ChallanDate from YARNOUTWARDScanMaster WHERE YarnOutwardID = @YarnOutwardID;";
                 cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -23716,7 +23689,7 @@ namespace NikunjTextile
                 {
                     ChallanNo = Convert.ToInt32(rdr["ChallanNo"]);
                     YarnOutwardScanID = Convert.ToInt32(rdr["YarnOutwardScanID"]);
-
+                   ChallanDate = rdr.GetDateTime(rdr.GetOrdinal("ChallanDate"));
                 }
             }
 
@@ -23727,8 +23700,10 @@ namespace NikunjTextile
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"SELECT   Pm.PartyId,
-                                                    PM.PartyName AS YarnCompany,
+                cmd.CommandText = @"SELECT     Pm.PartyId,
+                            PM.PartyName,
+							PM1.PartyId AS YarnCompanyId,
+                            PM1.PartyName AS YarnCompany,
                                                     Pm.BillingAddress AS Address,
                                                     YMM.YarnMaterialID AS YarnMaterialID,
                                                     YMM.YarnMaterial AS YarnMaterial,
@@ -23741,8 +23716,10 @@ namespace NikunjTextile
 							                        D.NetWeight
 							                        FROM YARNOUTWARDScanMaster M
                         LEFT JOIN YARNOUTWARDScanMasterDetails D ON M.YarnOutwardScanID = D.YarnOutwardScanID
-                        LEFT JOIN PartyMaster PM   ON D.PartyId = PM.PartyId
+                        LEFT JOIN PartyMaster PM   ON D.PartyId = PM.PartyId						
                         LEFT JOIN YarnMaterialMaster YMM  ON YMM.YarnMaterialID = D.YarnMaterial
+						LEFT JOIN YarnOutwardDetail YOD  ON M.YarnOutwardID = YOD.YarnOutwardID
+					    LEFT JOIN PartyMaster PM1 ON YOD.BillToPartyID = PM1.PartyId
                         LEFT JOIN YarnColorMaster YCM  ON YCM.YarnColorID = D.YarnColour
                         LEFT JOIN GodownLocationMaster GLM  ON GLM.GodownLocationID = D.GodownLocationID
                         WHERE M.YarnOutwardID = @YarnOutwardID";
@@ -23755,8 +23732,11 @@ namespace NikunjTextile
                 while (rdr.Read())
                 {
                     YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                    yarnOutward.NetWeight =Convert.ToDecimal(rdr["NetWeight"]);
                     yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                    yarnOutward.PartyName = rdr["YarnCompany"].ToString();
+                    yarnOutward.PartyName = (rdr["PartyName"].ToString());
+                    yarnOutward.CompanyId = Convert.ToInt32(rdr["YarnCompanyId"].ToString());
+                    yarnOutward.CompanyName = rdr["YarnCompany"].ToString();
                     yarnOutward.Address = rdr["Address"].ToString();
                     yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
                     yarnOutward.YarnMaterial = rdr["YarnMaterial"].ToString();
@@ -23766,9 +23746,9 @@ namespace NikunjTextile
                     yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
                     yarnOutward.LocationTitle = rdr["Location"].ToString();
                     yarnOutward.BoxNo = (rdr["BoxNo"].ToString());
-                    yarnOutward.NetWeight =Convert.ToDecimal(rdr["NetWeight"]);
                     yarnOutward.ChallanNo = ChallanNo;
                     yarnOutward.YarnOutwardScanID = YarnOutwardScanID;
+                    yarnOutward.ChallanDate = ChallanDate;
                     listPartyMaster.Add(yarnOutward);
                 }
             }
@@ -24014,26 +23994,30 @@ namespace NikunjTextile
 
             try
             {
+                if (!Directory.Exists(sourcePath))
+                    throw new Exception("Source folder not found.");
+
                 string destPath = Path.Combine(sourcePath, "CompressImages");
 
-                if (!Directory.Exists(destPath))
-                    Directory.CreateDirectory(destPath);
+                // Create destination folder safely
+                Directory.CreateDirectory(destPath);
 
                 string[] bmpFiles = Directory.GetFiles(sourcePath, "*.bmp");
 
                 foreach (string file in bmpFiles)
                 {
-                    using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
-                    {
-                        string fileName = Path.GetFileName(file);
-                        string newPath = Path.Combine(destPath, fileName);
+                    string fileName = Path.GetFileNameWithoutExtension(file) + ".jpg";
+                    string newPath = Path.Combine(destPath, fileName);
 
+                    // Open file without locking
+                    using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
                         GenerateThumbnailsV2(0.5, fs, newPath);
                     }
                 }
 
                 response.Code = 200;
-                response.Message = "Success";
+                response.Message = " Images compressed successfully";
             }
             catch (Exception ex)
             {
@@ -24041,10 +24025,10 @@ namespace NikunjTextile
                 response.Message = ex.Message;
             }
 
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
             Context.Response.Write(js.Serialize(response));
-            Context.Response.Flush();
-            Context.Response.SuppressContent = true;
-            HttpContext.Current.ApplicationInstance.CompleteRequest();
+            Context.Response.End();
         }
         #endregion
         #region Moblie APP API
@@ -24274,34 +24258,37 @@ namespace NikunjTextile
                         cmd.CommandType = CommandType.Text;
 
                         cmd.CommandText = @"SELECT                            
-            Pm.PartyId,
-            PM.PartyName AS YarnCompany,
-            Pm.BillingAddress AS Address,
-            YMM.YarnMaterialID,
-            YMM.YarnMaterial,
-            YCM.YarnColorID,
-            YCM.YarnColor AS YarnColour,
-            YCM.YarnColorCode AS Code,
-            GLM.GodownLocationID,
-            GLM.LocationTitle AS Location,
-            N.BoxNo
-            FROM YarnOutwardDetail YOD
-            INNER JOIN YarnOutwardMaster YM 
-                ON YM.YarnOutwardID = YOD.YarnOutwardID
-            LEFT JOIN PartyMaster PM 
-                ON YM.PartyId = PM.PartyId
-            LEFT JOIN YarnMaterialMaster YMM  
-                ON YMM.YarnMaterialID = YOD.YarnMaterialID
-            LEFT JOIN YarnColorMaster YCM  
-                ON YCM.YarnColorID = YOD.YarnColorID
-            LEFT JOIN GodownLocationMaster GLM  
-                ON GLM.GodownLocationID = YOD.GodownLocationID
-            CROSS APPLY
-            (
-                SELECT TOP (YOD.NoOfBox)
-                ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
-                FROM master..spt_values
-            ) N
+                            Pm.PartyId,
+                            PM.PartyName,
+							PM1.PartyId AS YarnCompanyId,
+                            PM1.PartyName AS YarnCompany,
+                            Pm.BillingAddress AS Address,
+                            YMM.YarnMaterialID AS YarnMaterialID,
+                            YMM.YarnMaterial AS YarnMaterial,
+                            YCM.YarnColorID AS YarnColorID,
+                            YCM.YarnColor AS YarnColour,
+                            YCM.YarnColorCode AS Code,
+		                    GLM.GodownLocationID,
+                            GLM.LocationTitle AS Location,
+                            N.BoxNo
+                            FROM YarnOutwardDetail YOD
+                            INNER JOIN YarnOutwardMaster YM 
+                                ON YM.YarnOutwardID = YOD.YarnOutwardID
+                            LEFT JOIN PartyMaster PM 
+                                ON YM.PartyId = PM.PartyId
+                            LEFT JOIN PartyMaster PM1 ON YOD.BillToPartyID = PM1.PartyId
+                            LEFT JOIN YarnMaterialMaster YMM  
+                                ON YMM.YarnMaterialID = YOD.YarnMaterialID
+                            LEFT JOIN YarnColorMaster YCM  
+                                ON YCM.YarnColorID = YOD.YarnColorID
+                            LEFT JOIN GodownLocationMaster GLM  
+                                ON GLM.GodownLocationID = YOD.GodownLocationID
+                            CROSS APPLY
+                            (
+                                SELECT TOP (YOD.NoOfBox)
+                                ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
+                                FROM master..spt_values
+                            ) N
             WHERE YOD.YarnOutwardID = @YarnOutwardID";
 
                         cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
@@ -24314,16 +24301,18 @@ namespace NikunjTextile
                             YarnOutwardMasterAPI yarnOutward = new YarnOutwardMasterAPI();
 
                             yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                            yarnOutward.PartyName = rdr["YarnCompany"].ToString();
+                            yarnOutward.PartyName = (rdr["PartyName"].ToString());
+                            yarnOutward.CompanyId = Convert.ToInt32(rdr["YarnCompanyId"].ToString());
+                            yarnOutward.CompanyName = rdr["YarnCompany"].ToString();
                             yarnOutward.Address = rdr["Address"].ToString();
-                            yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"]);
+                            yarnOutward.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
                             yarnOutward.YarnMaterial = rdr["YarnMaterial"].ToString();
-                            yarnOutward.YarnColorID = Convert.ToInt32(rdr["YarnColorID"]);
+                            yarnOutward.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
                             yarnOutward.YarnColor = rdr["YarnColour"].ToString();
                             yarnOutward.YarnColorCode = rdr["Code"].ToString();
-                            yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
+                            yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
                             yarnOutward.LocationTitle = rdr["Location"].ToString();
-                            yarnOutward.BoxNo = rdr["BoxNo"].ToString();
+                            yarnOutward.BoxNo = (rdr["BoxNo"].ToString());                      
 
                             yarnOutwards.Add(yarnOutward);
                         }

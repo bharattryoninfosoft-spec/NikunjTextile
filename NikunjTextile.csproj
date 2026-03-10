@@ -133,6 +133,7 @@
     <Content Include="img\consulting.svg" />
     <Content Include="img\consulting2.png" />
     <Content Include="img\dashed-circles-dark.svg" />
+    <Content Include="img\docs\bmp.png" />
     <Content Include="img\docs\doc.svg" />
     <Content Include="img\docs\pdf.svg" />
     <Content Include="img\docs\ppt.svg" />

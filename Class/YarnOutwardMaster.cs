@@ -10,6 +10,7 @@ namespace NikunjTextile.Class
         public int YarnOutwardScanID { get; set; }
         public int YarnOutwardID { get; set; }
         public DateTime DateAndTime { get; set; }
+        public DateTime ChallanDate { get; set; }
         public string DateAndTimes { get; set; }
         public int OutwardListNo { get; set; }
         public DateTime OutwardListDate { get; set; }

@@ -46,7 +46,8 @@ namespace NikunjTextile.Class.API
         public int PartyId { get; set; }
         public string PartyName { get; set; }
         public string Address { get; set; }
-
+        public int CompanyId { get; set; }
+        public string CompanyName { get; set; }
         public int YarnMaterialID { get; set; }
         public string YarnMaterial { get; set; }
 
