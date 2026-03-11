@@ -114,13 +114,3 @@ namespace NikunjTextile.Class.API
         public int YarnCompany { get; set; }
     }
 }
-YarnOutwardScanID
-DateAndTime
-YarnOutwardID
-ChallanNo
-ChallanDate
-TotalBox
-TotalWeight
-UserAccountId
-FinancialYearID
-CompanyId
