@@ -638,7 +638,7 @@
         var YarnColour = row.find(".YarnColorID").text();
         var GodownLocationID = row.find(".GodownLocationID").text();
         var YarnCompany = row.find(".CompanyId").text();
-
+        var boxNoCell = row.find(".Boxon");
         var weightCell = row.find(".weight");
         var boxNoCell = row.find(".Boxon");
         if (BarcodeNo === "") {
@@ -694,8 +694,9 @@
 
                             var weight = response.NetWeight || 0;
                             var inwardId = response.YarnInwardDetailID || 0;
-
+                            var boxNo = response.BoxNo || 0;
                             weightCell.text(weight);
+                            boxNoCell.text(boxNo);
                             row.find(".YarnInwardDetailID").text(inwardId);
                             if (inwardId == "0" || inwardId == "") {
                                 notes.show("This Box " + BarcodeNo + " invalid", {

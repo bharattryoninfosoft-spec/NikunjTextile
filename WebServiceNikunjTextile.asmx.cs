@@ -23751,31 +23751,53 @@ END
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"SELECT     Pm.PartyId,
-                            PM.PartyName,
-							PM1.PartyId AS YarnCompanyId,
-                            PM1.PartyName AS YarnCompany,
-                                                    Pm.BillingAddress AS Address,
-                                                    YMM.YarnMaterialID AS YarnMaterialID,
-                                                    YMM.YarnMaterial AS YarnMaterial,
-                                                    YCM.YarnColorID AS YarnColorID,
-                                                    YCM.YarnColor AS YarnColour,
-                                                    YCM.YarnColorCode AS Code,
-		                                            GLM.GodownLocationID,
-                                                    GLM.LocationTitle AS Location,
-                                                    D.YarnInwardDetailID,
-                                                    D.BoxNo ,
-                                                    D.BarcodeNo ,
-							                        D.NetWeight
-							                        FROM YARNOUTWARDScanMaster M
-                        LEFT JOIN YARNOUTWARDScanMasterDetails D ON M.YarnOutwardScanID = D.YarnOutwardScanID
-                        LEFT JOIN PartyMaster PM   ON D.PartyId = PM.PartyId						
-                        LEFT JOIN YarnMaterialMaster YMM  ON YMM.YarnMaterialID = D.YarnMaterial
-						LEFT JOIN YarnOutwardDetail YOD  ON M.YarnOutwardID = YOD.YarnOutwardID
-					    LEFT JOIN PartyMaster PM1 ON YOD.BillToPartyID = PM1.PartyId
-                        LEFT JOIN YarnColorMaster YCM  ON YCM.YarnColorID = D.YarnColour
-                        LEFT JOIN GodownLocationMaster GLM  ON GLM.GodownLocationID = D.GodownLocationID
-                        WHERE M.YarnOutwardID = @YarnOutwardID";
+                cmd.CommandText = @"SELECT 
+    PM.PartyId,
+    PM.PartyName,
+
+    PM1.PartyId AS YarnCompanyId,
+    PM1.PartyName AS YarnCompany,
+
+    PM.BillingAddress AS Address,
+
+    D.YarnMaterial AS YarnMaterialID,
+    YMM.YarnMaterial,
+
+    YCM.YarnColorID,
+    YCM.YarnColor AS YarnColour,
+    YCM.YarnColorCode AS Code,
+
+    GLM.GodownLocationID,
+    GLM.LocationTitle AS Location,
+
+    D.YarnInwardDetailID,
+    D.BoxNo,
+    D.BarcodeNo,
+    D.NetWeight
+
+FROM YARNOUTWARDScanMasterDetails D
+
+INNER JOIN YARNOUTWARDScanMaster M
+    ON M.YarnOutwardScanID = D.YarnOutwardScanID
+
+INNER JOIN PartyMaster PM
+    ON D.PartyId = PM.PartyId
+
+INNER JOIN YarnMaterialMaster YMM
+    ON YMM.YarnMaterialID = D.YarnMaterial
+
+INNER JOIN YarnColorMaster YCM
+    ON YCM.YarnColorID = D.YarnColour
+
+INNER JOIN GodownLocationMaster GLM
+    ON GLM.GodownLocationID = D.GodownLocationID
+
+INNER JOIN PartyMaster PM1
+    ON PM1.PartyId =
+       (SELECT TOP 1 BillToPartyID 
+        FROM YarnOutwardDetail 
+        WHERE YarnOutwardID = M.YarnOutwardID)
+        WHERE M.YarnOutwardID = @YarnOutwardID";
 
                 cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
 
