@@ -1,48 +1,6 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
-<style>
-
-@@media print {
-
-    @@page{
-        size: A4;
-        margin: 0;
-    }
-
-    body{
-        margin:0;
-        padding:0;
-    }
-
-    .modal-body{
-        max-height:none !important;
-        overflow:visible !important;
-    }
-
-    #printArea{
-        width:210mm;          /* A4 width */
-        min-height:297mm;     /* A4 height */
-        zoom:80%;             /* resize content */
-    }
-
-    img{
-        max-width:180px;
-    }
-
-    button,
-    .btn,
-    .modal-footer{
-        display:none !important;
-    }
-
-}
-
-</style>
-
-
-
-
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
@@ -1590,17 +1548,47 @@
         }
 
     }
+    //function printModalBody() {
+
+    //    var printContents = document.querySelector(".modal-body").innerHTML;
+    //    var originalContents = document.body.innerHTML;
+
+    //    document.body.innerHTML = printContents;
+
+    //    window.print();
+
+    //    document.body.innerHTML = originalContents;
+    //    location.reload();
+    //}
+
+
     function printModalBody() {
 
-        var printContents = document.querySelector(".modal-body").innerHTML;
-        var originalContents = document.body.innerHTML;
+        var table = document.querySelector(".modal-body").innerHTML;
 
-        document.body.innerHTML = printContents;
+        var html = `
+    <html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        ${table}
+    </body>
+    </html>`;
 
-        window.print();
+        var blob = new Blob([html], {
+            type: "application/vnd.ms-excel"
+        });
 
-        document.body.innerHTML = originalContents;
-        location.reload();
+        var url = URL.createObjectURL(blob);
+
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "DesignColorMatching.xls";
+        a.click();
+
+        URL.revokeObjectURL(url);
+
     }
 </script>
 

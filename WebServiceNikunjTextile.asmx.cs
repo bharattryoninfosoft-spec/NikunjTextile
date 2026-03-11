@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using iText.Html2pdf;
+using iText.Kernel.Pdf;
+using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
 using System;
@@ -13,6 +15,9 @@ using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23598,7 +23603,7 @@ namespace NikunjTextile
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void GetBoxWeight(string BoxNo)
+        public void GetBoxWeight(string BarcodeNo, int YarnMaterial, int YarnColour, int GodownLocationID, int YarnCompany)
         {
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             YarnInwardDetail yarnOutward = new YarnInwardDetail();
@@ -23607,21 +23612,67 @@ namespace NikunjTextile
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand(@"
-                           IF EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails WHERE BarcodeNo = @BarcodeNo)
-                                BEGIN
-                                    SELECT 'EXIST' AS Status, NULL AS YarnInwardDetailID, NULL AS BoxNo, 
-                                           NULL AS NetWeight, NULL AS BarcodeNo, NULL AS GodownLocationID, NULL AS YarnInwardID
-                                END
-                                ELSE
-                                BEGIN
-                                    SELECT 'OK' AS Status, YarnInwardDetailID, BoxNo, NetWeight, BarcodeNo, GodownLocationID, YarnInwardID
-                                    FROM YarnInwardDetail
-                                    WHERE BarcodeNo = @BarcodeNo
-                                END
+                           IF EXISTS (
+    SELECT 1 
+    FROM YARNOUTWARDScanMasterDetails YOSD
+    LEFT JOIN YarnInwardDetail YID ON YOSD.YarnInwardDetailID = YID.YarnInwardDetailID
+    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+    WHERE YOSD.BarcodeNo = @BarcodeNo 
+      AND YOSD.YarnMaterial = @YarnMaterial 
+      AND YOSD.YarnColour = @YarnColour 
+      AND YOSD.GodownLocationID = @GodownLocationID
+      AND YOSD.YarnCompany = @YarnCompany
+)
+BEGIN
+    SELECT 
+        'EXIST' AS Status,
+        NULL AS YarnInwardDetailID,
+        NULL AS BoxNo,
+        NULL AS NetWeight,
+        NULL AS BarcodeNo,
+        NULL AS GodownLocationID,
+        NULL AS YarnInwardID
+END
+ELSE
+BEGIN
+    SELECT 
+        'OK' AS Status,
+        YID.YarnInwardDetailID,
+        YID.BoxNo,
+        YID.NetWeight,
+        YID.BarcodeNo,
+        GLM.GodownLocationID,
+        GLM.LocationTitle,
+        YID.YarnInwardID,
+        YMM.YarnMaterialID,
+        YMM.YarnMaterial,
+        YCM.YarnColorID,
+        YCM.YarnColor,
+        YCM.YarnColorCode,
+        PM.PartyId,
+        PM.PartyName
+    FROM YarnInwardDetail YID
+    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
+    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
+    LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
+    WHERE YID.BarcodeNo = @BarcodeNo
+      AND YMM.YarnMaterialID = @YarnMaterial
+      AND YCM.YarnColorID = @YarnColour
+      AND YID.GodownLocationID = @GodownLocationID
+      AND YPM.BillToPartyID = @YarnCompany
+END
                         ", con);
 
-                cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
-
+                cmd.Parameters.AddWithValue("@BarcodeNo", BarcodeNo);
+                cmd.Parameters.AddWithValue("@YarnMaterial", YarnMaterial);
+                cmd.Parameters.AddWithValue("@YarnColour", YarnColour);
+                cmd.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
+                cmd.Parameters.AddWithValue("@YarnCompany", YarnCompany);
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -23630,7 +23681,7 @@ namespace NikunjTextile
                     if(rdr["Status"] != DBNull.Value && rdr["Status"].ToString() == "EXIST")
                     {
                         comman.Code = 410;
-                        comman.Message = $"This Box {BoxNo } already scanned.";               
+                        comman.Message = $"This Box {BarcodeNo} already scanned.";               
                         js.MaxJsonLength = Int32.MaxValue;
                         Context.Response.Write(js.Serialize(comman));
                         return; 
@@ -23713,6 +23764,7 @@ namespace NikunjTextile
 		                                            GLM.GodownLocationID,
                                                     GLM.LocationTitle AS Location,
                                                     D.BoxNo ,
+                                                    D.BarcodeNo ,
 							                        D.NetWeight
 							                        FROM YARNOUTWARDScanMaster M
                         LEFT JOIN YARNOUTWARDScanMasterDetails D ON M.YarnOutwardScanID = D.YarnOutwardScanID
@@ -23746,6 +23798,7 @@ namespace NikunjTextile
                     yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
                     yarnOutward.LocationTitle = rdr["Location"].ToString();
                     yarnOutward.BoxNo = (rdr["BoxNo"].ToString());
+                    yarnOutward.BarcodeNo = (rdr["BarcodeNo"].ToString());
                     yarnOutward.ChallanNo = ChallanNo;
                     yarnOutward.YarnOutwardScanID = YarnOutwardScanID;
                     yarnOutward.ChallanDate = ChallanDate;
@@ -23856,7 +23909,7 @@ namespace NikunjTextile
                     string TotalBox = Context.Request.Form["TotalBox"];
                     string TotalWeight = Context.Request.Form["TotalWeight"];
                     string PartyId = Context.Request.Form["PartyId"];
-                    string scanId = Context.Request.Form["YarnOutwardScanID"];
+                    string scanId = Context.Request.Form["YarnOutwardScanID"];                  
 
                     int YarnOutwardScanID = string.IsNullOrEmpty(scanId) ? 0 : Convert.ToInt32(scanId);
                     int YarnOutwardID = 0;
@@ -23930,34 +23983,28 @@ namespace NikunjTextile
 
                     int i = 0;
 
-                    while (Context.Request.Form["Details[" + i + "].BoxNo"] != null)
+                    while (Context.Request.Form["Details[" + i + "].BarcodeNo"] != null)
                     {
                         SqlCommand cmdDetail = new SqlCommand(@"
                 INSERT INTO YARNOUTWARDScanMasterDetails
                 (DateAndTime,YarnOutwardScanID,YarnMaterial,YarnColour,GodownLocationID,PartyID,
-                 BarcodeNo,NetWeight,BoxNo,YarnInwardDetailID,UserAccountId)
+                 BarcodeNo,NetWeight,BoxNo,YarnInwardDetailID,UserAccountId,YarnCompany)
                 VALUES
                 (GETDATE(),@YarnOutwardScanID,@YarnMaterial,@YarnColour,@GodownLocationID,@PartyID,
-                 @BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId)", con, tran);
+                 @BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId,@YarnCompany)", con, tran);
+
 
                         cmdDetail.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
-                        cmdDetail.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value =
-                            Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnMaterialID"]);
-                        cmdDetail.Parameters.Add("@YarnColour", SqlDbType.Int).Value =
-                            Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnColorID"]);
-                        cmdDetail.Parameters.Add("@GodownLocationID", SqlDbType.Int).Value =
-                            Convert.ToInt32(Context.Request.Form["Details[" + i + "].GodownLocationID"]);
+                        cmdDetail.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnMaterialID"]);
+                        cmdDetail.Parameters.Add("@YarnColour", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnColorID"]);
+                        cmdDetail.Parameters.Add("@GodownLocationID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].GodownLocationID"]);
                         cmdDetail.Parameters.Add("@PartyID", SqlDbType.Int).Value = Convert.ToInt32(PartyId);
-                        cmdDetail.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value =
-                            Context.Request.Form["Details[" + i + "].BoxNo"];
-                        cmdDetail.Parameters.Add("@NetWeight", SqlDbType.Decimal).Value =
-                            Convert.ToDecimal(Context.Request.Form["Details[" + i + "].NetWeight"]);
-                        cmdDetail.Parameters.Add("@BoxNo", SqlDbType.VarChar).Value =
-                            Context.Request.Form["Details[" + i + "].BoxNo"];
-                        cmdDetail.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value =
-                            Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnInwardDetailID"]);
-                        cmdDetail.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
-
+                        cmdDetail.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value =Context.Request.Form["Details[" + i + "].BarcodeNo"];
+                        cmdDetail.Parameters.Add("@NetWeight", SqlDbType.Decimal).Value =Convert.ToDecimal(Context.Request.Form["Details[" + i + "].NetWeight"]);
+                        cmdDetail.Parameters.Add("@BoxNo", SqlDbType.VarChar).Value = Context.Request.Form["Details[" + i + "].BoxNo"];
+                        cmdDetail.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnInwardDetailID"]);
+                        cmdDetail.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;                            
+                        cmdDetail.Parameters.Add("@YarnCompany", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnCompany"]);
                         cmdDetail.ExecuteNonQuery();
                         i++;
                     }
@@ -24029,6 +24076,51 @@ namespace NikunjTextile
             Context.Response.ContentType = "application/json";
             Context.Response.Write(js.Serialize(response));
             Context.Response.End();
+        }
+
+        [WebMethod]
+        public void GetYarnBoxDetails(int GodownLocationID, int YarnMaterial, int YarnColour, int YarnCompany)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            List<YarnInwardDetail> list = new List<YarnInwardDetail>();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+                              SELECT YID.*
+                        FROM YarnInwardDetail YID
+                        Inner Join YarnInwardMaster YIM On YIM.YarnInwardID=YID.YarnInwardID 
+                        LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
+                        LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+                        WHERE YID.GodownLocationID = @GodownLocationID
+                        And YIM.YarnMaterialID=@YarnMaterial
+                        ANd YIM.YarnColorID=@YarnColour
+                        And YPM.BillToPartyID=@YarnCompany
+                        AND NOT EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails YOSD WHERE YOSD.BarcodeNo = YID.BarcodeNo)", con);
+
+                cmd.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
+                cmd.Parameters.AddWithValue("@YarnMaterial", YarnMaterial);
+                cmd.Parameters.AddWithValue("@YarnColour", YarnColour);
+                cmd.Parameters.AddWithValue("@YarnCompany", YarnCompany);
+
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    list.Add(new YarnInwardDetail
+                    {
+                        BoxNo = rdr["BoxNo"].ToString(),
+                        BarcodeNo = rdr["BarcodeNo"].ToString(),
+                        NetWeight = Convert.ToDecimal(rdr["NetWeight"])
+                    });
+                }
+            }
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            Context.Response.Write(js.Serialize(list));
         }
         #endregion
         #region Moblie APP API
@@ -24362,8 +24454,8 @@ namespace NikunjTextile
                 HttpContext.Current.ApplicationInstance.CompleteRequest();
             }
         }
-        [WebMethod]        
-        public void GetBoxWeightAPI(string BoxNo)
+        [WebMethod]
+        public void GetBoxWeightAPI(string BoxNo, int YarnMaterial, int YarnColour, int GodownLocationID, int YarnCompany)
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
@@ -24378,51 +24470,89 @@ namespace NikunjTextile
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand(@"
-            IF EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails WHERE BarcodeNo = @BarcodeNo)
-            BEGIN
-                SELECT 'EXIST' AS Status, NULL AS YarnInwardDetailID, NULL AS BoxNo, 
-                       NULL AS NetWeight, NULL AS BarcodeNo, NULL AS GodownLocationID, NULL AS YarnInwardID
-            END
-            ELSE
-            BEGIN
-                SELECT 'OK' AS Status, YarnInwardDetailID, BoxNo, NetWeight, BarcodeNo, GodownLocationID, YarnInwardID
-                FROM YarnInwardDetail
-                WHERE BarcodeNo = @BarcodeNo
-            END
-        ", con);
+                            IF EXISTS (
+                                SELECT 1 
+                                FROM YARNOUTWARDScanMasterDetails YOSD
+                                WHERE YOSD.BarcodeNo = @BarcodeNo 
+                                  AND YOSD.YarnMaterial = @YarnMaterial 
+                                  AND YOSD.YarnColour = @YarnColour 
+                                  AND YOSD.GodownLocationID = @GodownLocationID
+                                  AND YOSD.YarnCompany = @YarnCompany
+                            )
+                            BEGIN
+                                SELECT 'EXIST' AS Status
+                            END
+                            ELSE
+                            BEGIN
+                                SELECT 
+                                    'OK' AS Status,
+                                    YID.YarnInwardDetailID,
+                                    YID.BoxNo,
+                                    YID.NetWeight,
+                                    YID.BarcodeNo,
+                                    GLM.GodownLocationID,
+                                    GLM.LocationTitle,
+                                    YID.YarnInwardID,
+                                    YMM.YarnMaterialID,
+                                    YMM.YarnMaterial,
+                                    YCM.YarnColorID,
+                                    YCM.YarnColor,
+                                    YCM.YarnColorCode,
+                                    PM.PartyId,
+                                    PM.PartyName
+                                FROM YarnInwardDetail YID
+                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+                                LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
+                                LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
+                                LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
+                                WHERE YID.BarcodeNo = @BarcodeNo
+                                  AND YMM.YarnMaterialID = @YarnMaterial
+                                  AND YCM.YarnColorID = @YarnColour
+                                  AND YID.GodownLocationID = @GodownLocationID
+                                  AND YM.YarnCompany = @YarnCompany
+                            END
+                            ", con);
 
-                cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
+                cmd.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = BoxNo;
+                cmd.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = YarnMaterial;
+                cmd.Parameters.Add("@YarnColour", SqlDbType.Int).Value = YarnColour;
+                cmd.Parameters.Add("@GodownLocationID", SqlDbType.Int).Value = GodownLocationID;
+                cmd.Parameters.Add("@YarnCompany", SqlDbType.Int).Value = YarnCompany;
 
                 con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
 
-                if (rdr.Read())
+                using (SqlDataReader rdr = cmd.ExecuteReader())
                 {
-                    if (rdr["Status"].ToString() == "EXIST")
+                    if (rdr.Read())
                     {
-                        response.Code = 410;
-                        response.Message = $"This Box {BoxNo} already scanned.";
-                        response.Data = null;
+                        if (rdr["Status"].ToString() == "EXIST")
+                        {
+                            response.Code = 410;
+                            response.Message = $"This Box {BoxNo} already scanned.";
+                            response.Data = null;
+                        }
+                        else
+                        {
+                            yarnOutward.YarnInwardDetailID = rdr["YarnInwardDetailID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnInwardDetailID"]) : 0;
+                            yarnOutward.BoxNo = rdr["BoxNo"]?.ToString();
+                            yarnOutward.NetWeight = rdr["NetWeight"] != DBNull.Value ? Convert.ToDecimal(rdr["NetWeight"]) : 0;
+                            yarnOutward.BarcodeNo = rdr["BarcodeNo"]?.ToString();
+                            yarnOutward.GodownLocationID = rdr["GodownLocationID"] != DBNull.Value ? Convert.ToInt32(rdr["GodownLocationID"]) : 0;
+                            yarnOutward.YarnInwardID = rdr["YarnInwardID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnInwardID"]) : 0;
+
+                            response.Code = 200;
+                            response.Message = "Success";
+                            response.Data = yarnOutward;
+                        }
                     }
                     else
                     {
-                        yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
-                        yarnOutward.BoxNo = rdr["BoxNo"].ToString();
-                        yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
-                        yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
-                        yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
-                        yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
-
-                        response.Code = 200;
-                        response.Message = "Success";
-                        response.Data = yarnOutward;
+                        response.Code = 404;
+                        response.Message = "Box not found.";
+                        response.Data = null;
                     }
-                }
-                else
-                {
-                    response.Code = 404;
-                    response.Message = "Box not found.";
-                    response.Data = null;
                 }
             }
 
@@ -24452,13 +24582,6 @@ namespace NikunjTextile
 
                     int YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(model.YarnOutwardID)));
 
-                    int UserAccountId = 0;
-
-                    if (Context.Request.Cookies["UserIDs"] != null)
-                    {
-                        UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-                    }
-
                     int YarnOutwardScanID = model.YarnOutwardScanID;
 
                     // INSERT MASTER
@@ -24478,7 +24601,7 @@ namespace NikunjTextile
                         cmdInsert.Parameters.AddWithValue("@ChallanDate", (object)model.ChallanDate ?? DBNull.Value);
                         cmdInsert.Parameters.AddWithValue("@TotalBox", model.TotalBox);
                         cmdInsert.Parameters.AddWithValue("@TotalWeight", model.TotalWeight);
-                        cmdInsert.Parameters.AddWithValue("@UserAccountId", UserAccountId);
+                        cmdInsert.Parameters.AddWithValue("@UserAccountId", model.UserId);
 
                         YarnOutwardScanID = Convert.ToInt32(cmdInsert.ExecuteScalar());
                     }
@@ -24525,7 +24648,7 @@ namespace NikunjTextile
                         cmdDetail.Parameters.AddWithValue("@NetWeight", item.NetWeight);
                         cmdDetail.Parameters.AddWithValue("@BoxNo", item.BoxNo);
                         cmdDetail.Parameters.AddWithValue("@YarnInwardDetailID", item.YarnInwardDetailID);
-                        cmdDetail.Parameters.AddWithValue("@UserAccountId", UserAccountId);
+                        cmdDetail.Parameters.AddWithValue("@UserAccountId", model.UserId);
 
                         cmdDetail.ExecuteNonQuery();
                     }

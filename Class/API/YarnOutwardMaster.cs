@@ -99,6 +99,7 @@ namespace NikunjTextile.Class.API
         public int TotalBox { get; set; }
         public decimal TotalWeight { get; set; }
         public int PartyId { get; set; }
+        public int UserId { get; set; }
         public List<YarnOutwardScanDetailRequestAPI> Details { get; set; }
     }
 

@@ -4,7 +4,12 @@
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+<style>
+    .row-green {
+        background-color: #28a745;
+        color: white;
+    }
+</style>
 
 
 <div class="content-wrapper">
@@ -115,7 +120,34 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="divMatchingColor">
+                        <div class="modal fade" id="yarnBoxModal">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Yarn Box Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Box No</th>
+                                                    <th>Barcode</th>
+                                                    <th>Net Weight</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody id="tblBoxDetails"></tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+                            </div>
                         </div>
                         <br />
                         <div class="modal-footer">
@@ -556,20 +588,20 @@
                 var tbody = $("#tblYarnOutwardBody");
                 tbody.empty();
                 $.each(response, function (i, v) {
-
                     var row = `<tr>
+                                    <td hidden class="YarnMaterialID">${v.YarnMaterialID}</td>      
+                                    <td hidden class="YarnColorID">${v.YarnColorID}</td>
+                                    <td hidden class="GodownLocationID">${v.GodownLocationID}</td>
                                     <td hidden class="YarnInwardDetailID"></td>
                                     <td hidden id="PartyId">${v.PartyId}</td>
-                                     <td hidden id="CompanyName">${v.CompanyId}</td>
-                                    <td>${v.CompanyName}</td>
-                                    <td hidden id="YarnMaterialID">${v.YarnMaterialID}</td>
-                                    <td>${v.YarnMaterial}</td>
-                                    <td hidden id="YarnColorID">${v.YarnColorID}</td>
+                                    <td hidden class="CompanyId">${v.CompanyId}</td>                              
+                                    <td hidden class="Boxon">${v.boxNo}</td>                            
+                                    <td>${v.CompanyName}</td>                                    
+                                    <td>${v.YarnMaterial}</td>                               
                                     <td>${v.YarnColor}</td>
-                                    <td>${v.YarnColorCode}</td>
-                                    <td hidden id="GodownLocationID">${v.GodownLocationID}</td>
-                                    <td>${v.LocationTitle}</td>
-                                    <td><input type="text" class="form-control Boxon" /></td>
+                                    <td>${v.YarnColorCode}</td>                                     
+                                    <td><a href="javascript:void(0)" onclick="functionYarnInwardDetailId(this)"><u>${v.LocationTitle}</u></a> </td>                                  
+                                    <td><input type="text" class="form-control BarcodeNo" /></td>
                                     <td class="weight">0</td>
                                     </tr>`;
 
@@ -584,41 +616,44 @@
         });
 
     }
-    $(document).on("keydown", ".Boxon", function (e) {
+    $(document).on("keydown", ".BarcodeNo", function (e) {
 
-        var row = $(this).closest("tr");
+        var currentInput = $(this);
+        var row = currentInput.closest("tr");
+
+        var BarcodeNo = currentInput.val().trim();
+        var YarnMaterial = row.find(".YarnMaterialID").text();
+        var YarnColour = row.find(".YarnColorID").text();
+        var GodownLocationID = row.find(".GodownLocationID").text();
+        var YarnCompany = row.find(".CompanyId").text();
+
         var weightCell = row.find(".weight");
-
-        if ($(this).val().trim() === "") {
+        var boxNoCell = row.find(".Boxon");
+        if (BarcodeNo === "") {
             weightCell.text(0);
             calculateTotals();
+            return;
         }
-
 
         if (e.key === "Enter" || e.key === "Tab") {
 
             e.preventDefault();
 
-            var boxNo = $(this).val().trim();
-            var currentInput = $(this);
-            var row = currentInput.closest("tr");
-            var weightCell = row.find(".weight");
-
-            if (boxNo == "") return;
-
-            // 🔹 Check duplicate BoxNo in table
+            // 🔹 Check duplicate BarcodeNo in table
             var isDuplicate = false;
-            $(".Boxon").not(currentInput).each(function () {
-                if ($(this).val().trim() === boxNo) {
+
+            $(".BarcodeNo").not(currentInput).each(function () {
+                if ($(this).val().trim() === BarcodeNo) {
                     isDuplicate = true;
                     return false;
                 }
             });
 
             if (isDuplicate) {
-                notes.show("Box No " + boxNo + " already entered", {
+                notes.show("Box No " + BarcodeNo + " already entered", {
                     type: 'danger'
                 });
+
                 currentInput.val('');
                 currentInput.focus();
                 return;
@@ -627,40 +662,51 @@
             $.ajax({
                 type: "POST",
                 url: "/WebServiceNikunjTextile.asmx/GetBoxWeight",
-                data: { BoxNo: boxNo },
+                data: {        
+                    BarcodeNo: BarcodeNo,
+                    YarnMaterial: YarnMaterial,
+                    YarnColour: YarnColour,
+                    GodownLocationID: GodownLocationID,
+                    YarnCompany: YarnCompany
+                },
                 dataType: "json",
 
                 success: function (response) {
+
                     if (response.Code == 410) {
-                        notes.show("This Box " + boxNo + " already scanned", {
+
+                        notes.show("This Box " + BarcodeNo + " already scanned", {
                             type: 'danger'
                         });
-                        var boxInput = row.find(".Boxon");
-                        boxInput.val('');
-                        boxInput.focus().select();
+
+                        currentInput.val('');
+                        currentInput.focus().select();
+                        return;
                     }
-                    else {
 
-                        var weight = response.NetWeight || 0;
-                        var inwardId = response.YarnInwardDetailID || 0;
+                    var weight = response.NetWeight || 0;
+                    var inwardId = response.YarnInwardDetailID || 0;
+                    var boxNo = response.BoxNo || 0;
 
-                        weightCell.text(weight);
-                        row.find(".YarnInwardDetailID").text(inwardId);
-                        if (inwardId == "0" || inwardId == "") {
-                            notes.show("This Box " + boxNo + " invalid", {
-                                type: 'danger'
-                            });
-                            var boxInput = row.find(".Boxon");
-                            boxInput.val('');
-                            boxInput.focus().select();
-                            calculateTotals();
-                            return false;
+                    weightCell.text(weight);
+                    boxNoCell.text(boxNo);
+                    row.find(".YarnInwardDetailID").text(inwardId);
 
-                        }
+                    if (inwardId == "0" || inwardId == "") {
+
+                        notes.show("This Box " + boxNo + " invalid", {
+                            type: 'danger'
+                        });
+
+                        currentInput.val('');
+                        currentInput.focus().select();
                         calculateTotals();
-
-                        row.next().find(".Boxon").focus();
+                        return;
                     }
+
+                    calculateTotals();
+
+                    row.next().find(".BarcodeNo").focus();
                 },
 
                 error: function () {
@@ -676,7 +722,7 @@
 
         $("#tblYarnOutwardBody tr").each(function () {
 
-            var box = $(this).find(".Boxon").val();
+            var box = $(this).find(".BarcodeNo").val();
             var weight = parseFloat($(this).find(".weight").text()) || 0;
 
             if (box != "") {
@@ -689,8 +735,72 @@
         $("#totalBox").text(totalBox);
         $("#totalWeight").text(totalWeight.toFixed(2));
     }
-    function checkSave() {
+    function functionYarnInwardDetailId(el) {
 
+        var row = $(el).closest("tr");
+
+        var YarnMaterial = row.find(".YarnMaterialID").text();
+        var YarnColour = row.find(".YarnColorID").text();
+        var GodownLocationID = row.find(".GodownLocationID").text();
+        var YarnCompany = row.find(".CompanyId").text();
+
+        $("#yarnBoxModal").modal("show");
+
+        $.ajax({
+            type: "POST",
+            url: "/WebServiceNikunjTextile.asmx/GetYarnBoxDetails",
+            data: {
+                GodownLocationID: GodownLocationID,
+                YarnMaterial: YarnMaterial,
+                YarnColour: YarnColour,
+                YarnCompany: YarnCompany
+            },
+            dataType: "json",
+
+            success: function (response) {
+
+                var tbody = $("#tblBoxDetails");
+                tbody.empty();
+
+                $.each(response, function (i, v) {
+
+                    var rowHtml = `<tr data-barcode="${v.BarcodeNo}">
+                                <td>${v.BoxNo}</td>
+                                <td>${v.BarcodeNo}</td>
+                                <td>${v.NetWeight}</td>
+                               </tr>`;
+
+                    tbody.append(rowHtml);
+                });
+
+                highlightScannedBoxes();
+            },
+
+            error: function () {
+                alert("Error loading box data");
+            }
+        });
+    }
+    function highlightScannedBoxes() {
+
+        // remove previous highlight
+        $("#tblBoxDetails tr").removeClass("row-green");
+
+        $(".BarcodeNo").each(function () {
+
+            var scannedBarcode = $(this).val().trim();
+
+            if (scannedBarcode != "") {
+
+                $("#tblBoxDetails tr[data-barcode='" + scannedBarcode + "']")
+                    .addClass("row-green");
+            }
+
+        });
+
+    }
+    function checkSave() {
+        debugger;
         var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
         var YarnOutwardID = hashes[0].split('=')[1];
         var YarnOutwardScanID = $("#YarnOutwardScanID").val()
@@ -709,17 +819,18 @@
         $("#tblYarnOutwardBody tr").each(function (i) {
 
             var row = $(this);
-
-            var YarnMaterialID = row.find("#YarnMaterialID").text();
-            var YarnColorID = row.find("#YarnColorID").text();
-            var GodownLocationID = row.find("#GodownLocationID").text();
-            var BoxNo = row.find(".Boxon").val();
+            var YarnMaterialID = row.find(".YarnMaterialID").text();
+            var YarnColorID = row.find(".YarnColorID").text();
+            var GodownLocationID = row.find(".GodownLocationID").text();
+            var BarcodeNo = row.find(".BarcodeNo").val();
+            var Boxon = row.find(".Boxon").text();
             var NetWeight = row.find(".weight").text();
             var YarnInwardDetailID = row.find(".YarnInwardDetailID").text();
-
+            var YarnCompany = row.find(".CompanyId").text();
+            console.log("YarnCompany", Boxon);
             rowNo = i + 1;
 
-            if (BoxNo == "" || BoxNo == null) {
+            if (BarcodeNo == "" || BarcodeNo == null) {
 
                 notes.show("Please fill BoxNo in Row " + rowNo, {
                     type: 'danger'
@@ -732,10 +843,12 @@
             formData.append("Details[" + i + "].YarnMaterialID", YarnMaterialID);
             formData.append("Details[" + i + "].YarnColorID", YarnColorID);
             formData.append("Details[" + i + "].GodownLocationID", GodownLocationID);
-            formData.append("Details[" + i + "].BoxNo", BoxNo);
+            formData.append("Details[" + i + "].BoxNo", Boxon);
+            formData.append("Details[" + i + "].BarcodeNo", BarcodeNo);
             formData.append("Details[" + i + "].NetWeight", NetWeight);
             formData.append("Details[" + i + "].YarnInwardDetailID", YarnInwardDetailID);
-
+            formData.append("Details[" + i + "].YarnCompany", YarnCompany);
+            console.log("Details YarnCompany", YarnCompany);
         });
 
         if (!isValid) return;
