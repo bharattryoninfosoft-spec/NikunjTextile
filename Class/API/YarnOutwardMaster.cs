@@ -109,6 +109,7 @@ namespace NikunjTextile.Class.API
         public int YarnColorID { get; set; }
         public int GodownLocationID { get; set; }
         public string BoxNo { get; set; }
+        public string BarcodeNo { get; set; }
         public decimal NetWeight { get; set; }
         public int YarnInwardDetailID { get; set; }
         public int YarnCompany { get; set; }

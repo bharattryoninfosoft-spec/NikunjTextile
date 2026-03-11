@@ -24679,13 +24679,12 @@ END
                         cmdDetail.Parameters.AddWithValue("@YarnColour", item.YarnColorID);
                         cmdDetail.Parameters.AddWithValue("@GodownLocationID", item.GodownLocationID);
                         cmdDetail.Parameters.AddWithValue("@PartyID", model.PartyId);
-                        cmdDetail.Parameters.AddWithValue("@BarcodeNo", item.BoxNo);
+                        cmdDetail.Parameters.AddWithValue("@BarcodeNo", item.BarcodeNo);
                         cmdDetail.Parameters.AddWithValue("@NetWeight", item.NetWeight);
                         cmdDetail.Parameters.AddWithValue("@BoxNo", item.BoxNo);
                         cmdDetail.Parameters.AddWithValue("@YarnInwardDetailID", item.YarnInwardDetailID);
                         cmdDetail.Parameters.AddWithValue("@UserAccountId", model.UserId);
                         cmdDetail.Parameters.AddWithValue("@YarnCompany", item.YarnCompany);
-
                         cmdDetail.ExecuteNonQuery();
                     }
 
