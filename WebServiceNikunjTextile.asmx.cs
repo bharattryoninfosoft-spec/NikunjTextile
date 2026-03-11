@@ -23763,6 +23763,7 @@ END
                                                     YCM.YarnColorCode AS Code,
 		                                            GLM.GodownLocationID,
                                                     GLM.LocationTitle AS Location,
+                                                    D.YarnInwardDetailID,
                                                     D.BoxNo ,
                                                     D.BarcodeNo ,
 							                        D.NetWeight
@@ -23800,6 +23801,7 @@ END
                     yarnOutward.BoxNo = (rdr["BoxNo"].ToString());
                     yarnOutward.BarcodeNo = (rdr["BarcodeNo"].ToString());
                     yarnOutward.ChallanNo = ChallanNo;
+                    yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"].ToString());
                     yarnOutward.YarnOutwardScanID = YarnOutwardScanID;
                     yarnOutward.ChallanDate = ChallanDate;
                     listPartyMaster.Add(yarnOutward);
@@ -24632,12 +24634,12 @@ END
                     foreach (var item in model.Details)
                     {
                         SqlCommand cmdDetail = new SqlCommand(@"
-                INSERT INTO YARNOUTWARDScanMasterDetails
+                 INSERT INTO YARNOUTWARDScanMasterDetails
                 (DateAndTime,YarnOutwardScanID,YarnMaterial,YarnColour,GodownLocationID,PartyID,
-                BarcodeNo,NetWeight,BoxNo,YarnInwardDetailID,UserAccountId)
+                 BarcodeNo,NetWeight,BoxNo,YarnInwardDetailID,UserAccountId,YarnCompany)
                 VALUES
                 (GETDATE(),@YarnOutwardScanID,@YarnMaterial,@YarnColour,@GodownLocationID,@PartyID,
-                @BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId)", con, tran);
+                 @BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId,@YarnCompany)", con, tran);
 
                         cmdDetail.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
                         cmdDetail.Parameters.AddWithValue("@YarnMaterial", item.YarnMaterialID);
@@ -24649,6 +24651,7 @@ END
                         cmdDetail.Parameters.AddWithValue("@BoxNo", item.BoxNo);
                         cmdDetail.Parameters.AddWithValue("@YarnInwardDetailID", item.YarnInwardDetailID);
                         cmdDetail.Parameters.AddWithValue("@UserAccountId", model.UserId);
+                        cmdDetail.Parameters.AddWithValue("@YarnCompany", item.YarnCompany);
 
                         cmdDetail.ExecuteNonQuery();
                     }

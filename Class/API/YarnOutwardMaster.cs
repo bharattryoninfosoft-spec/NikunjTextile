@@ -111,5 +111,16 @@ namespace NikunjTextile.Class.API
         public string BoxNo { get; set; }
         public decimal NetWeight { get; set; }
         public int YarnInwardDetailID { get; set; }
+        public int YarnCompany { get; set; }
     }
 }
+YarnOutwardScanID
+DateAndTime
+YarnOutwardID
+ChallanNo
+ChallanDate
+TotalBox
+TotalWeight
+UserAccountId
+FinancialYearID
+CompanyId
