@@ -24494,50 +24494,61 @@ INNER JOIN PartyMaster PM1
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand(@"
-                            IF EXISTS (
-                                SELECT 1 
-                                FROM YARNOUTWARDScanMasterDetails YOSD
-                                WHERE YOSD.BarcodeNo = @BarcodeNo 
-                                  AND YOSD.YarnMaterial = @YarnMaterial 
-                                  AND YOSD.YarnColour = @YarnColour 
-                                  AND YOSD.GodownLocationID = @GodownLocationID
-                                  AND YOSD.YarnCompany = @YarnCompany
-                            )
-                            BEGIN
-                                SELECT 'EXIST' AS Status
-                            END
-                            ELSE
-                            BEGIN
-                                SELECT 
-                                    'OK' AS Status,
-                                    YID.YarnInwardDetailID,
-                                    YID.BoxNo,
-                                    YID.NetWeight,
-                                    YID.BarcodeNo,
-                                    GLM.GodownLocationID,
-                                    GLM.LocationTitle,
-                                    YID.YarnInwardID,
-                                    YMM.YarnMaterialID,
-                                    YMM.YarnMaterial,
-                                    YCM.YarnColorID,
-                                    YCM.YarnColor,
-                                    YCM.YarnColorCode,
-                                    PM.PartyId,
-                                    PM.PartyName
-                                FROM YarnInwardDetail YID
-                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
-                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
-                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-                                LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
-                                LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
-                                LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
-                                WHERE YID.BarcodeNo = @BarcodeNo
-                                  AND YMM.YarnMaterialID = @YarnMaterial
-                                  AND YCM.YarnColorID = @YarnColour
-                                  AND YID.GodownLocationID = @GodownLocationID
-                                  AND YM.YarnCompany = @YarnCompany
-                            END
-                            ", con);
+                           IF EXISTS (
+    SELECT 1 
+    FROM YARNOUTWARDScanMasterDetails YOSD
+    LEFT JOIN YarnInwardDetail YID ON YOSD.YarnInwardDetailID = YID.YarnInwardDetailID
+    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+    WHERE YOSD.BarcodeNo = @BarcodeNo 
+      AND YOSD.YarnMaterial = @YarnMaterial 
+      AND YOSD.YarnColour = @YarnColour 
+      AND YOSD.GodownLocationID = @GodownLocationID
+      AND YOSD.YarnCompany = @YarnCompany
+)
+BEGIN
+    SELECT 
+        'EXIST' AS Status,
+        NULL AS YarnInwardDetailID,
+        NULL AS BoxNo,
+        NULL AS NetWeight,
+        NULL AS BarcodeNo,
+        NULL AS GodownLocationID,
+        NULL AS YarnInwardID
+END
+ELSE
+BEGIN
+    SELECT 
+        'OK' AS Status,
+        YID.YarnInwardDetailID,
+        YID.BoxNo,
+        YID.NetWeight,
+        YID.BarcodeNo,
+        GLM.GodownLocationID,
+        GLM.LocationTitle,
+        YID.YarnInwardID,
+        YMM.YarnMaterialID,
+        YMM.YarnMaterial,
+        YCM.YarnColorID,
+        YCM.YarnColor,
+        YCM.YarnColorCode,
+        PM.PartyId,
+        PM.PartyName
+    FROM YarnInwardDetail YID
+    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
+    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
+    LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
+    WHERE YID.BarcodeNo = @BarcodeNo
+      AND YMM.YarnMaterialID = @YarnMaterial
+      AND YCM.YarnColorID = @YarnColour
+      AND YID.GodownLocationID = @GodownLocationID
+      AND YPM.BillToPartyID = @YarnCompany
+END
+                        ", con);
 
                 cmd.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = BoxNo;
                 cmd.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = YarnMaterial;
