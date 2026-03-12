@@ -28,6 +28,7 @@ using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
+using System.Web.Services.Description;
 using System.Windows.Input;
 
 namespace NikunjTextile
@@ -24168,7 +24169,7 @@ INNER JOIN PartyMaster PM1
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
-    
+
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             using (SqlConnection con = new SqlConnection(cs))
@@ -24185,7 +24186,9 @@ INNER JOIN PartyMaster PM1
                 Password = sBuilder.ToString().ToUpper();
 
                 SqlCommand cmd = new SqlCommand(
-                @"SELECT * FROM UserAccountMaster WHERE UserAccountMobileNo=@username AND UserAccountPassword=@password", con);
+                @"SELECT * FROM UserAccountMaster 
+          WHERE UserAccountMobileNo=@username 
+          AND UserAccountPassword=@password", con);
 
                 cmd.Parameters.AddWithValue("@username", Username);
                 cmd.Parameters.AddWithValue("@password", Password);
@@ -24194,49 +24197,58 @@ INNER JOIN PartyMaster PM1
                 SqlDataReader rdr = cmd.ExecuteReader();
 
                 JavaScriptSerializer js = new JavaScriptSerializer();
+                object result;
 
                 if (rdr.Read())
                 {
-                    var result = new
-                    {
-                        success = true,
-                        message = "Login Successfully",
-                        data = new
-                        {
-                            UserAccountId = rdr["UserAccountId"].ToString(),
-                            UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString(),
-                            UserAccountName = rdr["UserAccountName"].ToString(),
-                            UserRole = rdr["UserRole"].ToString(),
-                            UserAccountEmail = rdr["UserAccountEmail"].ToString(),
-                            UserAccountProfile = rdr["UserAccountProfile"].ToString(),
-                            AllowLogin = rdr["AllowLogin"].ToString()
-                        }
-                    };
+                    string allowLogin = rdr["AllowLogin"].ToString();
 
-                    Context.Response.Write(js.Serialize(result));
-                    Context.Response.Flush();
-                    Context.Response.SuppressContent = true;
-                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                    if (allowLogin == "1")
+                    {
+                        result = new
+                        {
+                            success = true,
+                            message = "Login Successfully",
+                            data = new
+                            {
+                                UserAccountId = rdr["UserAccountId"].ToString(),
+                                UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString(),
+                                UserAccountName = rdr["UserAccountName"].ToString(),
+                                UserRole = rdr["UserRole"].ToString(),
+                                UserAccountEmail = rdr["UserAccountEmail"].ToString(),
+                                UserAccountProfile = rdr["UserAccountProfile"].ToString(),
+                                AllowLogin = allowLogin
+                            }
+                        };
+                    }
+                    else
+                    {
+                        result = new
+                        {
+                            success = false,
+                            message = "This user is not allowed to login",
+                            data = (object)null
+                        };
+                    }
                 }
                 else
                 {
-                    var result = new
+                    result = new
                     {
                         success = false,
                         message = "Invalid Username or Password",
                         data = (object)null
                     };
-                    Context.Response.Write(js.Serialize(result));
-                    Context.Response.Flush();
-                    Context.Response.SuppressContent = true;
-                    HttpContext.Current.ApplicationInstance.CompleteRequest();
                 }
 
-        
+                Context.Response.Write(js.Serialize(result));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
             }
         }
         [WebMethod]        
-        public void GetDisplayYarnoutwardScanMasterAPI(string Status, string SearchRequirementNo = "", int pageNumber = 1, int pageSize = 30)
+        public void GetDisplayYarnoutwardScanMasterAPI(string Status,int UserId, string SearchRequirementNo = "", int pageNumber = 1, int pageSize = 30)
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
@@ -24291,6 +24303,7 @@ INNER JOIN PartyMaster PM1
             WHERE YOM.IsScanStutas = @ScanStatus
             AND YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
             AND YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+            AND YOM.GodownManagerUserAccountId=@GodownManagerUserAccountId
             " + searchQuery + @"
         ) A
         WHERE row_num BETWEEN @StartRow AND @EndRow
@@ -24299,6 +24312,7 @@ INNER JOIN PartyMaster PM1
                 cmd.Parameters.AddWithValue("@ScanStatus", scanStatus);
                 cmd.Parameters.AddWithValue("@StartRow", startRow);
                 cmd.Parameters.AddWithValue("@EndRow", endRow);
+                cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -24313,7 +24327,6 @@ INNER JOIN PartyMaster PM1
                     condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                     condition.MobileNo = rdr["MobileNo"].ToString();
                     condition.BoxNo = rdr["TotalNoOfBox"].ToString();
-
                     listUser.Add(condition);
                 }
 
@@ -24335,7 +24348,6 @@ INNER JOIN PartyMaster PM1
             }
 
             int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-
             response.Code = 200;
             response.Message = "Success";
             response.TotalRecords = totalRecords;
