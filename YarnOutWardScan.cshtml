@@ -134,6 +134,7 @@
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
+                                                    <th>Select</th>
                                                     <th>Box No</th>
                                                     <th>Barcode</th>
                                                     <th>Net Weight</th>
@@ -735,14 +736,15 @@
         $("#totalBox").text(totalBox);
         $("#totalWeight").text(totalWeight.toFixed(2));
     }
+    var currentRow;
     function functionYarnInwardDetailId(el) {
 
-        var row = $(el).closest("tr");
+        currentRow = $(el).closest("tr");   // store row
 
-        var YarnMaterial = row.find(".YarnMaterialID").text();
-        var YarnColour = row.find(".YarnColorID").text();
-        var GodownLocationID = row.find(".GodownLocationID").text();
-        var YarnCompany = row.find(".CompanyId").text();
+        var YarnMaterial = currentRow.find(".YarnMaterialID").text();
+        var YarnColour = currentRow.find(".YarnColorID").text();
+        var GodownLocationID = currentRow.find(".GodownLocationID").text();
+        var YarnCompany = currentRow.find(".CompanyId").text();
 
         $("#yarnBoxModal").modal("show");
 
@@ -765,11 +767,17 @@
                 $.each(response, function (i, v) {
 
                     var rowHtml = `<tr data-barcode="${v.BarcodeNo}">
-                                <td>${v.BoxNo}</td>
-                                <td>${v.BarcodeNo}</td>
-                                <td>${v.NetWeight}</td>
-                               </tr>`;
-
+                                                <td>
+                                                    <input type="checkbox" class="selectBox"
+                                                          data-YarnInwardDetailID="${v.YarnInwardDetailID}"
+                                                           data-barcode="${v.BarcodeNo}"
+                                                           data-boxno="${v.BoxNo}"
+                                                           data-weight="${v.NetWeight}">
+                                                </td>
+                                                <td>${v.BoxNo}</td>
+                                                <td>${v.BarcodeNo}</td>
+                                                <td>${v.NetWeight}</td>
+                                        </tr>`;
                     tbody.append(rowHtml);
                 });
 
@@ -781,19 +789,55 @@
             }
         });
     }
+    $(document).on("change", ".selectBox", function () {
+
+        if ($(this).is(":checked")) {
+
+            var barcode = $(this).data("barcode");
+            var boxno = $(this).data("boxno");
+            var weight = $(this).data("weight");
+            var YarnInwardDetailID = $(this).data("yarninwarddetailid");
+
+            currentRow.find(".BarcodeNo").val(barcode);
+            currentRow.find(".Boxon").text(boxno);
+            currentRow.find(".weight").text(weight);
+            currentRow.find(".YarnInwardDetailID").text(YarnInwardDetailID);
+            calculateTotals();
+
+            $("#yarnBoxModal").modal("hide");
+
+            currentRow.next().find(".BarcodeNo").focus();
+            checkInputs(); 
+        }
+
+    });
+
     function highlightScannedBoxes() {
 
-        // remove previous highlight
+        // pehle sab row ka color remove
         $("#tblBoxDetails tr").removeClass("row-green");
 
-        $(".BarcodeNo").each(function () {
+        // main table ke barcode check karo
+        $("#tblYarnOutwardBody .BarcodeNo").each(function () {
 
             var scannedBarcode = $(this).val().trim();
 
-            if (scannedBarcode != "") {
+            if (scannedBarcode !== "") {
 
-                $("#tblBoxDetails tr[data-barcode='" + scannedBarcode + "']")
-                    .addClass("row-green");
+                $("#tblBoxDetails .selectBox").each(function () {
+
+                    var modalBarcode = $(this).data("barcode");
+
+                    if (modalBarcode == scannedBarcode) {
+
+                        $(this).closest("tr").addClass("row-green");
+
+                        // checkbox disable bhi kar do
+                        $(this).prop("disabled", true);
+                    }
+
+                });
+
             }
 
         });

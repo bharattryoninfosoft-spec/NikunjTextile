@@ -24152,6 +24152,7 @@ INNER JOIN PartyMaster PM1
                 {
                     list.Add(new YarnInwardDetail
                     {
+                        YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"].ToString()),
                         BoxNo = rdr["BoxNo"].ToString(),
                         BarcodeNo = rdr["BarcodeNo"].ToString(),
                         NetWeight = Convert.ToDecimal(rdr["NetWeight"])
@@ -24568,7 +24569,7 @@ BEGIN
     LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
     LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
     LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
-    LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
+    LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.YarnInterchangeID
     WHERE YID.BarcodeNo = @BarcodeNo
       AND YMM.YarnMaterialID = @YarnMaterial
       AND YCM.YarnColorID = @YarnColour
