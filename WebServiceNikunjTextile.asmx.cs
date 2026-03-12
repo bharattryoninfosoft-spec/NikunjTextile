@@ -20382,15 +20382,6 @@ namespace NikunjTextile
                                     // -------------------------------
                                     cmd3.Dispose();
 
-
-
-
-
-
-
-
-
-
                                     SqlCommand cmd4 = new SqlCommand();
                                     cmd4.Connection = cons;
                                     cmd4.CommandType = CommandType.Text;
@@ -20408,12 +20399,16 @@ namespace NikunjTextile
                                     cmd4.Parameters.AddWithValue("@GID", rdr["GodownID"]);
                                     cmd4.Parameters.AddWithValue("@GLID", ilist.GodownLocationID);
                                     cmd4.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-
-
-
                                     i = cmd4.ExecuteNonQuery();
+
+                                    SqlCommand cmdUpdateMaster = new SqlCommand(@"UPDATE YarnInwardDetail  SET YarnInterchangeID = @GodownLocationID WHERE YarnInwardDetailID = @YarnInwardDetailID", con);
+                                    cmdUpdateMaster.Parameters.AddWithValue("@GodownLocationID", ilist.GodownLocationID);
+                                    cmdUpdateMaster.Parameters.AddWithValue("@YarnInwardDetailID", rdr["YarnInwardDetailID"]);
+                                    cmdUpdateMaster.ExecuteNonQuery();
+
                                     if (i > 0)
                                     {
+                       
                                         comman.Code = 201;
                                         comman.Message = "Record has been saved successfully.";
                                     }
@@ -23915,7 +23910,7 @@ INNER JOIN PartyMaster PM1
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             JavaScriptSerializer js = new JavaScriptSerializer();
             CommanResponse comman = new CommanResponse();
-
+            YarnInwardDetail yarnOutward = new YarnInwardDetail();
             try
             {
                 using (SqlConnection con = new SqlConnection(cs))
@@ -23980,9 +23975,28 @@ INNER JOIN PartyMaster PM1
                     }
                     else
                     {
+                        SqlCommand getOldIsscandata = new SqlCommand(
+                        @"SELECT YarnInwardDetailID  FROM YARNOUTWARDScanMasterDetails  WHERE YarnOutwardScanID = @YarnOutwardScanID", con, tran);
+                        getOldIsscandata.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                        SqlDataReader rdr = getOldIsscandata.ExecuteReader();
+                        List<int> oldIds = new List<int>();
+                        while (rdr.Read())
+                        {
+                            oldIds.Add(Convert.ToInt32(rdr["YarnInwardDetailID"]));
+                        }
+                        rdr.Close();                        
+                        foreach (var id in oldIds)
+                        {
+                            SqlCommand updateOld = new SqlCommand(@"
+        UPDATE YarnInwardDetail  SET IsScanStutas = 0,IsScanUpdateDateTime = '1900-01-01 00:00:00.000' WHERE YarnInwardDetailID = @YarnInwardDetailID", con, tran);
+
+                            updateOld.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value = id;
+
+                            updateOld.ExecuteNonQuery();
+                        }
+
                         SqlCommand cmdUpdate = new SqlCommand(@"
-                UPDATE YARNOUTWARDScanMaster  SET ChallanNo=@ChallanNo,ChallanDate=@ChallanDate,TotalBox=@TotalBox,TotalWeight=@TotalWeight
-                                    WHERE YarnOutwardScanID=@YarnOutwardScanID", con, tran);
+                UPDATE YARNOUTWARDScanMaster  SET ChallanNo=@ChallanNo,ChallanDate=@ChallanDate,TotalBox=@TotalBox,TotalWeight=@TotalWeight WHERE YarnOutwardScanID=@YarnOutwardScanID", con, tran);
 
                         cmdUpdate.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
                         cmdUpdate.Parameters.Add("@ChallanNo", SqlDbType.VarChar).Value = ChallanNo ?? "";
@@ -23996,13 +24010,13 @@ INNER JOIN PartyMaster PM1
                         SqlCommand cmdDelete = new SqlCommand(
                             "DELETE FROM YARNOUTWARDScanMasterDetails WHERE YarnOutwardScanID=@YarnOutwardScanID",
                             con, tran);
-
                         cmdDelete.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
                         cmdDelete.ExecuteNonQuery();
+                        
+
                     }
 
                     int i = 0;
-
                     while (Context.Request.Form["Details[" + i + "].BarcodeNo"] != null)
                     {
                         SqlCommand cmdDetail = new SqlCommand(@"
@@ -24012,7 +24026,6 @@ INNER JOIN PartyMaster PM1
                 VALUES
                 (GETDATE(),@YarnOutwardScanID,@YarnMaterial,@YarnColour,@GodownLocationID,@PartyID,
                  @BarcodeNo,@NetWeight,@BoxNo,@YarnInwardDetailID,@UserAccountId,@YarnCompany)", con, tran);
-
 
                         cmdDetail.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
                         cmdDetail.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnMaterialID"]);
@@ -24026,7 +24039,13 @@ INNER JOIN PartyMaster PM1
                         cmdDetail.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;                            
                         cmdDetail.Parameters.Add("@YarnCompany", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnCompany"]);
                         cmdDetail.ExecuteNonQuery();
+
+                        SqlCommand cmdYarnInwardDetail = new SqlCommand(@"
+                        UPDATE YarnInwardDetail  SET IsScanStutas = 1 , IsScanUpdateDateTime=GetDate() WHERE YarnInwardDetailID = @YarnInwardDetailID", con, tran);
+                        cmdYarnInwardDetail.Parameters.Add("@YarnInwardDetailID", SqlDbType.Int).Value = Convert.ToInt32(Context.Request.Form["Details[" + i + "].YarnInwardDetailID"]);
+                        cmdYarnInwardDetail.ExecuteNonQuery();
                         i++;
+
                     }
 
                     SqlCommand cmdUpdateMaster = new SqlCommand(@"
@@ -24683,12 +24702,14 @@ END
                         cmdDetail.Parameters.AddWithValue("@UserAccountId", model.UserId);
                         cmdDetail.Parameters.AddWithValue("@YarnCompany", item.YarnCompany);
                         cmdDetail.ExecuteNonQuery();
+                        SqlCommand cmdYarnInwardDetail = new SqlCommand(@"
+                        UPDATE YarnInwardDetail  SET IsScanStutas = 1 , IsScanUpdateDateTime=GetDate() WHERE YarnInwardDetailID = @YarnInwardDetailID", con, tran);
+                        cmdYarnInwardDetail.Parameters.AddWithValue("@YarnInwardDetailID", item.YarnInwardDetailID);
+                        cmdYarnInwardDetail.ExecuteNonQuery();
                     }
 
                     SqlCommand cmdUpdateMaster = new SqlCommand(@"
-            UPDATE YARNOUTWARDMaster
-            SET IsScanStutas = 1
-            WHERE YarnOutwardID = @YarnOutwardID", con, tran);
+            UPDATE YARNOUTWARDMaster  SET IsScanStutas = 1 WHERE YarnOutwardID = @YarnOutwardID", con, tran);
 
                     cmdUpdateMaster.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
                     cmdUpdateMaster.ExecuteNonQuery();
