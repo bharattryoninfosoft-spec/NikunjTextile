@@ -20363,7 +20363,8 @@ namespace NikunjTextile
                                     cmd3.Parameters.AddWithValue("@YPDID", rdr["YarnPODetailID"]);
                                     cmd3.Parameters.AddWithValue("@GID", rdr["GodownID"]);
                                     cmd3.Parameters.AddWithValue("@GLID", rdr["GodownLocationID"]);
-                                    cmd3.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
+                                    cmd3.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);                       
+
 
                                     i = cmd3.ExecuteNonQuery();
                                     if (i > 0)
@@ -20408,6 +20409,8 @@ namespace NikunjTextile
                                     cmd4.Parameters.AddWithValue("@GLID", ilist.GodownLocationID);
                                     cmd4.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
 
+
+
                                     i = cmd4.ExecuteNonQuery();
                                     if (i > 0)
                                     {
@@ -20419,13 +20422,6 @@ namespace NikunjTextile
                                         comman.Code = 410;
                                         comman.Message = "Problem has been occurred while submitting your data.";
                                     }
-
-
-
-
-
-
-
                                 }
 
                                 cons.Close();
@@ -24605,6 +24601,7 @@ END
 
             ApiResponse response = new ApiResponse();
 
+            JavaScriptSerializer js = new JavaScriptSerializer();
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             SqlTransaction tran = null;
 
@@ -24615,7 +24612,7 @@ END
                     con.Open();
                     tran = con.BeginTransaction();
 
-                    int YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(model.YarnOutwardID)));
+                    int YarnOutwardID = Convert.ToInt32(model.YarnOutwardID);
 
                     int YarnOutwardScanID = model.YarnOutwardScanID;
 
@@ -24699,25 +24696,16 @@ END
                     tran.Commit();
 
                     response.Code = 200;
-                    response.Message = "Yarn Outward saved successfully.";
-                    Context.Response.Flush();
-                    Context.Response.SuppressContent = true;
-                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                    response.Message = "Yarn Outward saved successfully.";                   
                 }
             }
             catch (Exception ex)
             {
                 if (tran != null)
                     tran.Rollback();
-
                 response.Code = 500;
-                response.Message = ex.Message;
-                Context.Response.Flush();
-                Context.Response.SuppressContent = true;
-                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                response.Message = ex.Message;               
             }
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
             Context.Response.Flush();
