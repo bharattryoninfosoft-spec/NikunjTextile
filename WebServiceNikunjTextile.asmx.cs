@@ -1,5 +1,6 @@
 ﻿using iText.Html2pdf;
 using iText.Kernel.Pdf;
+using iText.Layout.Element;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
@@ -24163,6 +24164,279 @@ INNER JOIN PartyMaster PM1
             JavaScriptSerializer js = new JavaScriptSerializer();
             Context.Response.Write(js.Serialize(list));
         }
+        [WebMethod]
+        public string GetInwardTable()
+        {
+            var list = new List<object>();
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+        SELECT *
+        FROM YarnInwardMaster YIM
+        INNER JOIN YarnInwardDetail YID
+            ON YIM.YarnInwardID = YID.YarnInwardID
+        LEFT JOIN YarnPOMaster YPM
+            ON YPM.YarnPOID = YIM.YarnPOID
+        LEFT JOIN PartyMaster PM
+            ON PM.PartyId = YPM.BillToPartyID
+        ORDER BY YIM.YarnInwardDate DESC", con);
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    list.Add(new
+                    {
+                        YarnInwardDate = Convert.ToDateTime(rdr["YarnInwardDate"]).ToString("yyyy-MM-dd"),
+                        ChallanNo = rdr["ChallanNo"].ToString(),
+                        PartyName = rdr["PartyName"].ToString(),
+                        BoxNo = rdr["BoxNo"].ToString(),
+                        NetWeight = rdr["NetWeight"].ToString()
+                    });
+                }
+            }
+
+            return new JavaScriptSerializer().Serialize(list);
+        }
+        [WebMethod]
+        public string GetYarnReport(int ReportType, string DateFrom, string DateTo, int MaterialID, int ColorID, int GodownID, int LocationID, int PartyID)
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_YarnReports", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@ReportType", ReportType);
+                    cmd.Parameters.AddWithValue("@DateFrom", string.IsNullOrEmpty(DateFrom) ? (object)DBNull.Value : DateFrom);
+                    cmd.Parameters.AddWithValue("@DateTo", string.IsNullOrEmpty(DateTo) ? (object)DBNull.Value : DateTo);
+                    cmd.Parameters.AddWithValue("@MaterialID", MaterialID == 0 ? (object)DBNull.Value : MaterialID);
+                    cmd.Parameters.AddWithValue("@ColorID", ColorID == 0 ? (object)DBNull.Value : ColorID);
+                    cmd.Parameters.AddWithValue("@GodownID", GodownID == 0 ? (object)DBNull.Value : GodownID);
+                    cmd.Parameters.AddWithValue("@LocationID", LocationID == 0 ? (object)DBNull.Value : LocationID);
+                    cmd.Parameters.AddWithValue("@PartyID", PartyID == 0 ? (object)DBNull.Value : PartyID);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetMaterial()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT YarnMaterialID,YarnMaterial FROM YarnMaterialMaster", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetColor()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT YarnColorID, YarnColor FROM YarnColorMaster ORDER BY YarnColor", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetGodown()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT GodownID, GodownTitle FROM GodownMaster ORDER BY GodownTitle", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetLocation()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT GodownLocationID, LocationTitle FROM GodownLocationMaster ORDER BY LocationTitle", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetParty()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT PartyId, PartyName FROM PartyMaster ORDER BY PartyName", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetCompany()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT CompanyID,CompanyName FROM CompanyMaster Where is_default=1 ORDER BY CompanyName", con);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetYarnColorCode()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT YarnColorCode FROM YarnColorMaster GROUP BY YarnColorCode ORDER BY YarnColorCode", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetBoxNo()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT DISTINCT BoxNo FROM YarnInwardDetail WHERE BoxNo IS NOT NULL AND BoxNo <> '' ORDER BY BoxNo", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetFinancialYear()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "select * from FinancialYearMaster where isdefault=1", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+                var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+
+
+        public List<Dictionary<string, object>> DataTableToList(DataTable dt)
+        {
+            var list = new List<Dictionary<string, object>>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+
+                foreach (DataColumn col in dt.Columns)
+                {
+                    dict[col.ColumnName] = row[col];
+                }
+
+                list.Add(dict);
+            }
+
+            return list;
+        }
         #endregion
         #region Moblie APP API
         [WebMethod]
@@ -24208,7 +24482,7 @@ INNER JOIN PartyMaster PM1
                     {
                         result = new
                         {
-                            success = true,
+                            success = true,                  
                             message = "Login Successfully",
                             data = new
                             {
