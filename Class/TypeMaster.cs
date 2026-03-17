@@ -20,5 +20,6 @@ namespace NikunjTextile.Class
         public string ProductSrNo { get; set; }
         public string searchTyre { get; set; }
         public string startFrom { get; set; }
+        public int UnitId { get; set; }
     }
 }

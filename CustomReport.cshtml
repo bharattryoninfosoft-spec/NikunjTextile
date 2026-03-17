@@ -1,7 +1,26 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<style>
+    div.dt-buttons {
+        float: none !important;
+    }
+    div.dt-buttons {
+        float: left;
+    }
+    .dt-buttons {
+        display: flex !important;
+        gap: 5px;
+    }
 
+        .dt-buttons .dt-button {
+            display: inline-block !important;
+            background: #0d6efd;
+            color: #fff;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
+</style>
 <div class="content-wrapper">
     <div class="container-fluid">
 
@@ -12,28 +31,29 @@
 
                 <div class="card p-3">
 
-                    <h5>Filters</h5>
+                    <h5 class="d-flex justify-content-between align-items-center">
+                        Filters
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="OpenFilterModal()">
+                            Load Report
+                        </button>
+                    </h5>
 
 
                     <div class="field-wrapper">
-                        <input type="date" id="dateFrom" class="form-control datepicker">
+                        <input type="date" id="dateFrom" class="form-control">
                         <div class="field-placeholder">Start Date</div>
                     </div>
                     <div class="field-wrapper">
-                        <input type="date" id="dateTo" class="form-control datepicker">
-                        <div class="field-placeholder">End Date</div>
+                        <select id="BillToID" class="select-single detail" title="Select Color Code" data-live-search="true">
+                            <option value="0">Company Name</option>
+                        </select>
+                        <div class="field-placeholder">Company Name</div>
                     </div>
                     <div class="field-wrapper">
-                        <select id="CompanyID" class="select-single detail" title="Select Color Code" data-live-search="true">
-                            <option value="0">Company</option>
+                        <select id="ShippedToID" class="select-single detail" title="Select Color Code" data-live-search="true">
+                            <option value="0">Party Name</option>
                         </select>
-                        <div class="field-placeholder">Company</div>
-                    </div>
-                    <div class="field-wrapper">
-                        <select id="PartyID" class="select-single detail" title="Select Color Code" data-live-search="true">
-                            <option value="0">Party</option>
-                        </select>
-                        <div class="field-placeholder">Party</div>
+                        <div class="field-placeholder">Party Name</div>
                     </div>
                     <div class="field-wrapper">
                         <select id="MaterialID" class="select-single detail" title="Select Yarn Company" data-live-search="true">
@@ -73,13 +93,17 @@
                         <div class="field-placeholder">Location</div>
                     </div>
 
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-primary w-45" onclick="LoadReport()">
+                            Search
+                        </button>
+                        <button type="button" class="btn btn-secondary w-45" onclick="ResetFilters()">
+                            Reset
+                        </button>
+                    </div>
 
 
 
-
-                    <button class="btn btn-primary w-100" onclick="LoadReport(1)">
-                        Search
-                    </button>
 
                 </div>
 
@@ -87,118 +111,72 @@
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
-
-                        <div class="custom-tabs-container">
-
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link active"  data-report="1" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(1)">
-                                        Current Stock
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" data-report="2" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(2)">
-                                        Godown Stock
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" data-report="3"data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(3)">
-                                        Location Stock
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link"  data-report="4" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(4)">
-                                        Material Stock
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" data-report="5" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(5)">
-                                        Yarn Inward
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link"  data-report="6" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(6)">
-                                        Yarn Outward
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link"  data-report="8" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(8)">
-                                        Yarn PO
-                                    </a>
-                                </li>
-
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link"  data-report="9" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(9)">
-                                        Supplier Purchase
-                                    </a>
-                                </li>
-
-                            </ul>
-
+                        <div class="table-responsive">
+                            <table id="reportTable" class="table table-bordered table-striped w-100">
+                            </table>
                         </div>
-                        <br/>
-                        <table id="reportTable"
-                               class="table table-bordered table-striped w-100">
-                        </table>
                     </div>
                 </div>
-                <!-- RIGHT REPORT PANEL -->
-                <!--<div class="col-md-9">
+            </div>
+            <!-- Save Filter Modal -->
+            <div class="modal fade" id="saveFilterModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
 
-                    <div class="mb-3">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link active" id="first-tab" data-bs-toggle="tab" href="#first" role="tab" aria-controls="first" aria-selected="true" onclick="LoadReport(1)">Current Stock</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="second-tab" data-bs-toggle="tab" href="#second" role="tab" aria-controls="second" aria-selected="false">Second Tab</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="third-tab" data-bs-toggle="tab" href="#third" role="tab" aria-controls="third" aria-selected="false">Third Tab</a>
-                            </li>
-                        </ul>
-                        <button class="btn" onclick="LoadReport(1)">Current Stock</button>
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title">Save Filter</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
 
-                        <button class="btn" onclick="LoadReport(2)">Godown Stock</button>
+                        <div class="modal-body">
+                            <label>Filter Name</label>
+                            <input type="text" id="txtFilterName" class="form-control" placeholder="Enter Filter Name">
+                        </div>
 
-                        <button class="btn" onclick="LoadReport(3)">Location Stock</button>
-
-                        <button class="btn" onclick="LoadReport(4)">Material Stock</button>
-
-                        <button class="btn" onclick="LoadReport(5)">Yarn Inward</button>
-
-                        <button class="btn" onclick="LoadReport(6)">Yarn Outward</button>-->
-
-                        @*<button class="btn btn-dark btn-sm" onclick="LoadReport(7)">Interchange</button>*@
-
-                        <!--<button class="btn" onclick="LoadReport(8)">Yarn PO</button>
-
-                        <button class="btn" onclick="LoadReport(9)">Supplier Purchase</button>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button id="btnSaveFilterFinal" class="btn btn-success">Save</button>
+                        </div>
 
                     </div>
-
-
-
-                </div>-->
-
+                </div>
             </div>
+            <!-- Load Filter Modal -->
+            <div class="modal fade" id="loadFilterModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
 
+                        <div class="modal-header bg-secondary text-white">
+                            <h5 class="modal-title">Load Report </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <table class="table table-bordered table-hover" id="tblFilterList">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Report Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-</div>
-<!-- Content wrapper end -->
     </div>
+    <!-- Content wrapper end -->
+</div>
 <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
-
 <!-- *************
     ************ Vendor Js Files *************
 ************* -->
@@ -251,6 +229,18 @@
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!-- Buttons CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+<!-- Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<!-- Excel & PDF support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script>
     document.title = "Custom Report - Nikunj Textile";
     $('body').addClass('fullscreen');
@@ -268,8 +258,19 @@
         $(".nav-tabs .nav-link").attr("aria-selected", "false");
         $(".nav-tabs .nav-link[data-report='1']").addClass("active");
         $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");
+        $(document).ready(function () {
+
+            var today = new Date();
+
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+
+            var formatted = yyyy + "-" + mm + "-" + dd; // for input type="date"
+            $("#dateFrom").val(formatted);
+        });
         FunctionIsLogin();
-        BindFinancialYearMaster();   
+        //BindFinancialYearMaster();
         BindMaterial();
         BindColor();
         BindGodown();
@@ -278,7 +279,7 @@
         BindCompany();
         BindYarnColorCode();
         BindBox();
-      
+
 
     });
     var table = $('#tblInward').DataTable();
@@ -400,15 +401,9 @@
     function ValidateDates() {
 
         var from = $("#dateFrom").val();
-        var to = $("#dateTo").val();
 
-        if (from == "" || to == "") {
-            alert("Please select From Date and To Date");
-            return false;
-        }
-
-        if (new Date(from) > new Date(to)) {
-            alert("From Date cannot be greater than To Date");
+        if (from == "") {
+            alert("Please select Date");
             return false;
         }
 
@@ -453,7 +448,6 @@
         });
 
     }
-
     function BindColor() {
 
         $("#ColorID").empty();
@@ -549,9 +543,6 @@
         });
     }
     function BindParty() {
-
-
-
         $.ajax({
             url: "/WebServiceNikunjTextile.asmx/GetParty",
             type: "POST",
@@ -562,16 +553,14 @@
                 if (typeof data === "string") {
                     data = JSON.parse(data);
                 }
-                $("#PartyID").empty();
-                $("#PartyID").append('<option value="0">All Party</option>');
+
+                $("#BillToID, #ShippedToID").empty();               
+                $("#BillToID").append('<option value="0">All Company Name</option>');
+                $("#ShippedToID").append('<option value="0">All Party Name</option>');
                 $.each(data, function (i, item) {
-
-                    $("#PartyID").append(
-                        '<option value="' + item.PartyId + '">' +
-                        item.PartyName +
-                        '</option>'
-                    );
-
+                    var opt = '<option value="' + item.PartyId + '">' + item.PartyName + '</option>';
+                    $("#BillToID").append(opt);
+                    $("#ShippedToID").append(opt);
                 });
 
             }
@@ -666,8 +655,8 @@
                 $.each(data, function (i, item) {
 
                     $("#BoxNo").append(
-                        '<option value="' + item.BoxNo + '">' +
-                        item.BoxNo +
+                        '<option value="' + item.BoxNo + '" data-barcode="' + item.BarcodeNo + '">' +
+                        item.BoxNo + ' (' + item.BarcodeNo + ')' +
                         '</option>'
                     );
 
@@ -702,66 +691,54 @@
 
                 if (typeof data === "string") {
                     data = JSON.parse(data);
-                }          
+                }
                 if (data && data.length > 0) {
 
                     $("#dateFrom").val(formatDate(data[0].StartDate));
                     $("#dateTo").val(formatDate(data[0].EndDate));
 
-                   
 
-                    LoadReport(1);
-                   
+
+                    LoadReport();
+
                 }
 
             }
         });
     }
-    $(document).on("click", ".report-tab", function () {
+    function LoadReport() {
 
-        var reportType = $(this).data("report");
-
-        LoadReport(reportType);
-
-    });
-    function LoadReport(type) {
-
-        if (!ValidateDates()) {
-            return;
-        }
+        if (!ValidateDates()) return;
 
         var from = $("#dateFrom").val();
-        var to = $("#dateTo").val();
         var MaterialID = $("#MaterialID").val() || 0;
         var ColorID = $("#ColorID").val() || 0;
         var GodownID = $("#GodownID").val() || 0;
         var LocationID = $("#LocationID").val() || 0;
-        var PartyID = $("#PartyID").val() || 0;
-        var CompanyID = $("#CompanyID").val() || 0;
         var YarnColorCode = $("#YarnColorCode").val() || "";
         var BoxNo = $("#BoxNo").val() || "";
-
+        var BarcodeNo = $("#BoxNo option:selected").data("barcode") || "";
+        var BillToID = $("#BillToID").val() || 0;
+        var ShippedToID = $("#ShippedToID").val() || 0;
 
         $.ajax({
             url: "/WebServiceNikunjTextile.asmx/GetYarnReport",
             type: "POST",
             data: JSON.stringify({
-
-                ReportType: type,
                 DateFrom: from,
-                DateTo: to,
                 MaterialID: MaterialID,
                 ColorID: ColorID,
                 GodownID: GodownID,
                 LocationID: LocationID,
-                PartyID: PartyID,
-                CompanyID: CompanyID,
+                CompanyID: BillToID,
+                PartyID: ShippedToID,
                 YarnColorCode: YarnColorCode,
-                BoxNo: BoxNo
-
+                BoxNo: BoxNo,
+                BarcodeNo: BarcodeNo
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+
             success: function (res) {
 
                 var data = res.d;
@@ -775,46 +752,207 @@
                 }
 
                 if ($.fn.DataTable.isDataTable('#reportTable')) {
-                    $('#reportTable').DataTable().destroy();
+                    $('#reportTable').DataTable().clear().destroy();
                 }
 
                 $("#reportTable").empty();
-           
+
                 $("#reportTable").DataTable({
                     data: data,
                     columns: Object.keys(data[0]).map(function (key) {
-
-                        if (key === "YarnInwardDate" || key === "DateAndTime" || key === "PODate") {
-                            return {
-                                data: key,
-                                title: key,
-                                render: function (value) {
-
-                                    if (!value) return "";
-
-                                    var timestamp = parseInt(value.substr(6));
-                                    var date = new Date(timestamp);
-
-                                    var day = ("0" + date.getDate()).slice(-2);
-                                    var month = ("0" + (date.getMonth() + 1)).slice(-2);
-                                    var year = date.getFullYear();
-
-                                    return day + "-" + month + "-" + year;
-                                }
-                            };
-                        }
-
                         return { data: key, title: key };
                     }),
 
+                    dom: '<"row mb-2"<"col-md-6"B><"col-md-6 text-end"f>>rtip',
+
+                    buttons: [
+                        {
+                            extend: 'pdf',
+                            text: '<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF',
+                            orientation: 'landscape', // 🔥 important
+                            pageSize: 'A4',
+                            title: 'Custom Report - Nikunj Textile',
+                            className: 'btn btn-danger',
+                            customize: function (doc) {
+                                // 🔥 Center title
+                                doc.content[0].alignment = 'center';
+                                doc.content[0].fontSize = 14;
+                                doc.content[0].bold = true;
+                                // 🔥 Table full width
+                                var table = doc.content[1].table;
+                                var colCount = table.body[0].length;
+                                table.widths = Array(colCount).fill('*');
+                                // 🔥 Header style
+                                doc.styles.tableHeader = {
+                                    fillColor: '#2d4154',
+                                    color: 'white',
+                                    alignment: 'center',
+                                    bold: true,
+                                    fontSize: 10
+                                };
+                                // 🔥 Body alignment
+                                doc.defaultStyle.fontSize = 9;
+                                // 🔥 Layout padding
+                                doc.content[1].layout = {
+                                    paddingLeft: function () { return 5; },
+                                    paddingRight: function () { return 5; },
+                                    paddingTop: function () { return 4; },
+                                    paddingBottom: function () { return 4; }
+                                };
+                            }
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel',
+                            className: 'btn btn-success'
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="fa fa-print" aria-hidden="true"></i> Print',
+                            className: 'btn btn-primary'
+                        },                      
+                        {
+                            text: '<i class="fa fa-save"></i> Save',
+                            className: 'btn btn-warning',
+                            action: function () {
+                                // Open modal
+                                $("#txtFilterName").val("");
+                                $("#saveFilterModal").modal("show");
+                            }
+                        }
+                    ],
+
                     responsive: true,
                     pageLength: 25,
-                     lengthChange: false,   // hide "Show entries"
-                    info: false            // hide "Showing X of Y"
-                });             
+                    lengthChange: false,
+                    info: false
+                });
+            }
+
+        });
+    }
+    $("#btnSaveFilterFinal").click(function () {
+        debugger;
+        var filterName = $("#txtFilterName").val().trim();
+
+        if (filterName === "") {
+            alert("Please enter filter name ❗");
+            return;
+        }
+        // 🔥 Collect filter data
+        var filterData = {
+            DateFrom: $("#dateFrom").val(),
+            MaterialID: $("#MaterialID").val() || 0,
+            ColorID: $("#ColorID").val() || 0,
+            GodownID: $("#GodownID").val() || 0,
+            LocationID: $("#LocationID").val() || 0,
+            BillToID: $("#BillToID").val() || 0,
+            ShippedToID: $("#ShippedToID").val() || 0,
+            YarnColorCode: $("#YarnColorCode").val() || "",
+            BoxNo: $("#BoxNo").val() || "",
+            BarcodeNo: $("#BoxNo option:selected").data("barcode") || ""
+        };
+
+        $.ajax({
+            url: "/WebServiceNikunjTextile.asmx/SaveDynamicReport",
+            type: "POST",
+            data: JSON.stringify({
+                ReportName: "Yarn STOCK Report",   // you can make dynamic later
+                FilterName: filterName,
+                FilterJson: JSON.stringify(filterData)
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                alert("Filter saved successfully ✅");
+                $("#saveFilterModal").modal("hide");
+            },
+            error: function () {
+                alert("Error saving ❌");
+            }
+        });
+
+    });
+    function ResetFilters() {
+        $("#MaterialID").val('0').trigger("change");
+        $("#ColorID").val('0').trigger("change");
+        $("#GodownID").val('0').trigger("change");
+        $("#LocationID").val('0').trigger("change");
+        $("#BillToID").val('0').trigger("change");
+        $("#ShippedToID").val('0').trigger("change");
+        $("#YarnColorCode").val('').trigger("change");
+        $("#BoxNo").val('').trigger("change");        
+        LoadReport();   
+    }
+    function OpenFilterModal() {
+
+        $("#loadFilterModal").modal("show");
+
+        var reportName = "YarnStockReport"; // 🔥 dynamic later if needed
+
+        $.ajax({
+            url: "/WebServiceNikunjTextile.asmx/GetSavedFilters",
+            type: "POST",
+            data: JSON.stringify({ ReportName: reportName }), // ✅ pass parameter
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+
+                var data = JSON.parse(res.d);
+
+                var tbody = $("#tblFilterList tbody");
+                tbody.empty();
+
+                var i = 1;
+
+                data.forEach(function (item) {
+
+                    var row = `<tr>
+                    <td>${i}</td>
+                    <td>${item.FilterName}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary applyFilterBtn"
+                            data-json='${item.FilterJson.replace(/'/g, "&apos;")}'>
+                            Apply
+                        </button>
+                    </td>
+                </tr>`;
+
+                    tbody.append(row);
+                    i++;
+                });
             }
         });
     }
+    $(document).on("click", ".applyFilterBtn", function () {
+
+        var json = $(this).attr("data-json");
+        var filter = JSON.parse(json);
+
+        // 🔥 Apply values
+        $("#dateFrom").val(filter.DateFrom);
+        $("#MaterialID").val(filter.MaterialID).trigger('change');
+        $("#ColorID").val(filter.ColorID).trigger('change');
+        $("#GodownID").val(filter.GodownID).trigger('change');
+        $("#LocationID").val(filter.LocationID).trigger('change');
+        $("#BillToID").val(filter.BillToID).trigger('change');
+        $("#ShippedToID").val(filter.ShippedToID).trigger('change');
+        $("#YarnColorCode").val(filter.YarnColorCode);
+        $("#BoxNo").val(filter.BoxNo).trigger('change');
+
+        // Barcode handle
+        if (filter.BarcodeNo) {
+            $("#BoxNo option").each(function () {
+                if ($(this).data("barcode") == filter.BarcodeNo) {
+                    $(this).prop("selected", true);
+                }
+            });
+        }
+        // Close modal
+        $("#loadFilterModal").modal("hide");
+        // 🔥 Load report
+        LoadReport()
+    });
 </script>
 
 

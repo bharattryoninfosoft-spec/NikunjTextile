@@ -30,6 +30,7 @@ using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.Services.Description;
+using System.Web.UI.WebControls;
 using System.Windows.Input;
 
 namespace NikunjTextile
@@ -5154,6 +5155,7 @@ namespace NikunjTextile
             ilist.IsActive = Convert.ToInt32(HttpContext.Current.Request.Params["IsActive"]);
             ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
             ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
+            ilist.UnitId = Convert.ToInt32(HttpContext.Current.Request.Params["UnitId"]);
 
             try
             {
@@ -5179,8 +5181,8 @@ namespace NikunjTextile
 
                     rdr.Close();
                     cmd.CommandType = System.Data.CommandType.Text;
-                    string sql = String.Format("Insert Into TypeMaster  (DateAndTime,Type, IsActive, Position, CompanyId, UserAccountId) Values " +
-                                    " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', @Type, '" + ilist.IsActive + "', '" + Position + "', '" + ilist.CompanyId + "', '" + ilist.UserAccountId + "')");
+                    string sql = String.Format("Insert Into TypeMaster  (DateAndTime,Type, IsActive, Position, CompanyId, UserAccountId,UnitId) Values " +
+                                    " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', @Type, '" + ilist.IsActive + "', '" + Position + "', '" + ilist.CompanyId + "', '" + ilist.UserAccountId + "','" + ilist.UnitId + "')");
 
                     cmd.CommandText = sql;
                     cmd.Parameters.Add("@Type", SqlDbType.NVarChar).Value = ilist.Type.ToUpper();
@@ -5378,6 +5380,7 @@ namespace NikunjTextile
                         condition.TypeID = Convert.ToInt32(rdr["TypeID"].ToString());
                         condition.Type = rdr["Type"].ToString().ToUpper();
                         condition.IsActive = Convert.ToInt32(rdr["IsActive"].ToString());
+                        condition.UnitId = Convert.ToInt32(rdr["UnitId"].ToString());
                         listUser.Add(condition);
                     }
                 }
@@ -5415,6 +5418,7 @@ namespace NikunjTextile
             ilist.IsActive = Convert.ToInt32(HttpContext.Current.Request.Params["IsActive"]);
             ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
             ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
+            ilist.UnitId = Convert.ToInt32(HttpContext.Current.Request.Params["UnitId"]);
 
 
             try
@@ -5437,11 +5441,12 @@ namespace NikunjTextile
                         cmd.Connection = con;
                         cmd.CommandType = System.Data.CommandType.Text;
                         cmd.CommandType = System.Data.CommandType.Text;
-                        string sql = String.Format("Update TypeMaster set Type = @Type, IsActive = '" + ilist.IsActive + "', UserAccountId = '" + ilist.UserAccountId + "', CompanyId = '" + ilist.CompanyId + "' where " +
+                        string sql = String.Format("Update TypeMaster set Type = @Type,UnitId=@UnitId, IsActive = '" + ilist.IsActive + "', UserAccountId = '" + ilist.UserAccountId + "', CompanyId = '" + ilist.CompanyId + "' where " +
                                     " TypeID = '" + ilist.TypeID + "' ");
 
                         cmd.CommandText = sql;
                         cmd.Parameters.Add("@Type", SqlDbType.NVarChar).Value = ilist.Type.ToUpper();
+                        cmd.Parameters.Add("@UnitId", SqlDbType.Int).Value = ilist.UnitId;
 
                         con.Open();
                         i = cmd.ExecuteNonQuery();
@@ -9140,7 +9145,7 @@ namespace NikunjTextile
 
 
         [WebMethod]
-        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]    
         public void UpdateTbl_YarnMaterialQueue()
         {
             JavaScriptSerializer js;
@@ -24201,7 +24206,7 @@ INNER JOIN PartyMaster PM1
             return new JavaScriptSerializer().Serialize(list);
         }
         [WebMethod]
-        public string GetYarnReport(int ReportType, string DateFrom, string DateTo, int MaterialID, int ColorID, int GodownID, int LocationID, int PartyID)
+        public string GetYarnReport(string DateFrom, int MaterialID, int ColorID, int GodownID, int LocationID,int CompanyID, int PartyID, string YarnColorCode, string BoxNo, string BarcodeNo)
         {
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
@@ -24210,20 +24215,24 @@ INNER JOIN PartyMaster PM1
 
             DataTable dt = new DataTable();
 
+
             using (SqlConnection con = new SqlConnection(cs))
             {
                 using (SqlCommand cmd = new SqlCommand("sp_YarnReports", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@ReportType", ReportType);
+                    // ✅ Updated parameters
                     cmd.Parameters.AddWithValue("@DateFrom", string.IsNullOrEmpty(DateFrom) ? (object)DBNull.Value : DateFrom);
-                    cmd.Parameters.AddWithValue("@DateTo", string.IsNullOrEmpty(DateTo) ? (object)DBNull.Value : DateTo);
                     cmd.Parameters.AddWithValue("@MaterialID", MaterialID == 0 ? (object)DBNull.Value : MaterialID);
                     cmd.Parameters.AddWithValue("@ColorID", ColorID == 0 ? (object)DBNull.Value : ColorID);
                     cmd.Parameters.AddWithValue("@GodownID", GodownID == 0 ? (object)DBNull.Value : GodownID);
                     cmd.Parameters.AddWithValue("@LocationID", LocationID == 0 ? (object)DBNull.Value : LocationID);
-                    cmd.Parameters.AddWithValue("@PartyID", PartyID == 0 ? (object)DBNull.Value : PartyID);
+                    cmd.Parameters.AddWithValue("@BillToID", CompanyID == 0 ? (object)DBNull.Value : CompanyID);
+                    cmd.Parameters.AddWithValue("@ShippedToID", PartyID == 0 ? (object)DBNull.Value : PartyID);             
+                    cmd.Parameters.AddWithValue("@YarnColorCode", string.IsNullOrEmpty(YarnColorCode) ? (object)DBNull.Value : YarnColorCode);
+                    cmd.Parameters.AddWithValue("@BoxNo", string.IsNullOrEmpty(BoxNo) ? (object)DBNull.Value : BoxNo);
+                    cmd.Parameters.AddWithValue("@BarcodeNo", string.IsNullOrEmpty(BarcodeNo) ? (object)DBNull.Value : BarcodeNo);
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
@@ -24321,9 +24330,6 @@ INNER JOIN PartyMaster PM1
         [WebMethod]
         public string GetParty()
         {
-            Context.Response.Clear();
-            Context.Response.ContentType = "application/json";
-
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             DataTable dt = new DataTable();
@@ -24387,7 +24393,28 @@ INNER JOIN PartyMaster PM1
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand(
-                    "SELECT DISTINCT BoxNo FROM YarnInwardDetail WHERE BoxNo IS NOT NULL AND BoxNo <> '' ORDER BY BoxNo", con);
+                    "SELECT DISTINCT BoxNo,BarcodeNo FROM YarnInwardDetail WHERE BoxNo IS NOT NULL AND BoxNo <> '' ORDER BY BoxNo", con);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]     
+        public string GetUnitMaster()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT UnitId, UnitCode, Unit FROM UnitMaster ORDER BY UnitId", con);
 
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 da.Fill(dt);
@@ -24417,8 +24444,6 @@ INNER JOIN PartyMaster PM1
 
             return new JavaScriptSerializer().Serialize(data);
         }
-
-
         public List<Dictionary<string, object>> DataTableToList(DataTable dt)
         {
             var list = new List<Dictionary<string, object>>();
@@ -24436,6 +24461,107 @@ INNER JOIN PartyMaster PM1
             }
 
             return list;
+        }
+
+        [WebMethod]
+        public string SaveDynamicReport(string ReportName, string FilterName, string FilterJson)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            int UserAccountId = 0;
+            if (Context.Request.Cookies["UserIDs"] != null)
+            {
+                UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
+            }
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = @"INSERT INTO DynamicReportMaster
+                        (ReportName, FilterName, FilterJson, IsActive, UserAccountId, FinancialYearID, CompanyId)
+                        VALUES
+                        (@ReportName, @FilterName, @FilterJson, 1, @UserAccountId, (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
+                 (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1))";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@ReportName", ReportName);
+                    cmd.Parameters.AddWithValue("@FilterName", FilterName);
+                    cmd.Parameters.AddWithValue("@FilterJson", FilterJson);
+                    cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return "Success";
+        }
+        [WebMethod]
+        public string GetBrokerList()
+        {
+            try
+            {
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    string query = @"SELECT 
+                                BrokerId,
+                                BrokerCode,
+                                BrokerName,
+                                FirmName,
+                                MobileNo,
+                                CityName,
+                                CommissionRate,
+                                IsActive
+                             FROM BrokerMaster
+                             ORDER BY BrokerId DESC";
+
+                    SqlDataAdapter da = new SqlDataAdapter(query, con);                
+                    da.Fill(dt);
+                     
+                }
+                var data = DataTableToList(dt);
+                return new JavaScriptSerializer().Serialize(data);
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(ex.Message);
+            }
+        }
+        [WebMethod]
+        public string GetSavedFilters(string ReportName)
+        {
+            List<object> list = new List<object>();
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = @"SELECT ReportId, ReportName, FilterName, FilterJson 
+                         FROM DynamicReportMaster 
+                         WHERE ReportName = @ReportName AND IsActive = 1";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@ReportName", ReportName);
+
+                    con.Open();
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    while (dr.Read())
+                    {
+                        list.Add(new
+                        {
+                            ReportId = dr["ReportId"],
+                            ReportName = dr["ReportName"].ToString(),
+                            FilterName = dr["FilterName"].ToString(),
+                            FilterJson = dr["FilterJson"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return JsonConvert.SerializeObject(list);
         }
         #endregion
         #region Moblie APP API

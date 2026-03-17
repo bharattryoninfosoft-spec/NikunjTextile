@@ -657,6 +657,7 @@
     <Compile Include="Class\TotalOutwardStockArray.cs" />
     <Compile Include="Class\TypeMaster.cs" />
     <Compile Include="Class\TypeMasterResponse.cs" />
+    <Compile Include="Class\UnitMaster.cs" />
     <Compile Include="Class\UserAccountMaster.cs" />
     <Compile Include="Class\UserAccountMasterResponce.cs" />
     <Compile Include="Class\WarpQualityMaster.cs" />
@@ -724,6 +725,8 @@
     <Content Include="GodownManagerMaster.cshtml" />
     <Content Include="ImageCompressor.cshtml" />
     <Content Include="CustomReport.cshtml" />
+    <Content Include="BrokerMaster.cshtml" />
+    <Content Include="ItemMaster.cshtml" />
     <None Include="packages.config" />
     <Content Include="vendor\summernote\fonts\summernote.eot" />
     <Content Include="vendor\summernote\fonts\summernote.ttf" />
@@ -745,6 +748,7 @@
     <Content Include="UpdateYarnInward.cshtml" />
     <Content Include="UpdateYarnOutWardChallan.cshtml" />
     <Content Include="UpdateYarnOutWardScan.cshtml" />
+    <Content Include="TransportMaster.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
