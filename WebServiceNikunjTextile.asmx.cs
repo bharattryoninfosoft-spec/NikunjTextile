@@ -22651,80 +22651,110 @@ namespace NikunjTextile
 
             try
             {
-
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
                 using (SqlConnection con = new SqlConnection(cs))
                 {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = con;
-                    cmd.CommandText = @"
-                                        INSERT INTO YarnOutwardMaster
-                                        (DateAndTime, PartyId, OutwardListNo, OutwardListDate,
-                                         GodownManagerUserAccountId, UserAccountId,
-                                         FinancialYearID, CompanyId, GodownID)
-                                        OUTPUT INSERTED.YarnOutwardID
-                                        VALUES
-                                        (@DateAndTime, @PartyId, @OutwardListNo, @OutwardListDate,
-                                         @GodownManagerUserAccountId, @UserAccountId,
-                                         (select FinancialYearID from FinancialYearMaster where IsDefault = 1),
-                                         (select CompanyId from CompanyMaster where is_default = 1),
-                                         @GodownID)";
-                    cmd.Parameters.AddWithValue("@DateAndTime", dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") );
-                    cmd.Parameters.AddWithValue("@PartyId", ilist.PartyId);
-                    cmd.Parameters.AddWithValue("@OutwardListNo", ilist.OutwardListNo);
-                    cmd.Parameters.AddWithValue("@OutwardListDate",
-                        DateTime.ParseExact(ilist.OutwardListDates,"dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd"));
-                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", ilist.GodownManagerUserAccountId);
-                    cmd.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
-                    cmd.Parameters.AddWithValue("@GodownID", ilist.GodownID);
                     con.Open();
-                    Int64 YarnOutwardID = Convert.ToInt64(cmd.ExecuteScalar());
-                    cmd.Dispose();
-                    if (YarnOutwardID > 0)
+
+                    using (SqlTransaction trans = con.BeginTransaction())
                     {
-                        string[] siftGodownInputBox = ilist.siftGodownInputBox.Split('|');
-                        for (int j = 0; j < siftGodownInputBox.Length - 1; j++)
+                        try
                         {
-                            string GodownInput = siftGodownInputBox[j].Replace("(", "").Replace(")", "");
+                            // ✅ MASTER INSERT
+                            SqlCommand cmd = new SqlCommand(@"
+                    INSERT INTO YarnOutwardMaster
+                    (DateAndTime, PartyId, OutwardListNo, OutwardListDate,
+                     GodownManagerUserAccountId, UserAccountId,
+                     FinancialYearID, CompanyId, GodownID)
+                    OUTPUT INSERTED.YarnOutwardID
+                    VALUES
+                    (@DateAndTime, @PartyId, @OutwardListNo, @OutwardListDate,
+                     @GodownManagerUserAccountId, @UserAccountId,
+                     (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
+                     (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1),
+                     @GodownID)", con, trans);
 
-                            int GodownLocationID = Convert.ToInt32(GodownInput.Split(',')[0]);
-                            int BillToPartyID = Convert.ToInt32(GodownInput.Split(',')[1]);
-                            int YarnMaterialID = Convert.ToInt32(GodownInput.Split(',')[2]);
-                            int YarnColorID = Convert.ToInt32(GodownInput.Split(',')[3]);
-                            int InpuNoOfBox = Convert.ToInt32(GodownInput.Split(',')[4]);
+                            cmd.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
+                            cmd.Parameters.AddWithValue("@PartyId", ilist.PartyId);
+                            cmd.Parameters.AddWithValue("@OutwardListNo", ilist.OutwardListNo);
+                            cmd.Parameters.AddWithValue("@OutwardListDate",
+                                DateTime.ParseExact(ilist.OutwardListDates, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+                            cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", ilist.GodownManagerUserAccountId);
+                            cmd.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+                            cmd.Parameters.AddWithValue("@GodownID", ilist.GodownID);
 
-                            SqlCommand cmd2 = new SqlCommand();
-                            cmd2.Connection = con;
+                            long YarnOutwardID = Convert.ToInt64(cmd.ExecuteScalar());
 
-                            cmd2.CommandType = System.Data.CommandType.Text;
-                            string sqls = String.Format("Insert Into YarnOutwardDetail  (DateAndTime, YarnOutwardID, BillToPartyID, YarnMaterialID, YarnColorID, GodownLocationID, NoOfBox, UserAccountId) Values " +
-                                            " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + YarnOutwardID + "', '" + BillToPartyID + "', '" + YarnMaterialID + "', '" + YarnColorID + "', '" + GodownLocationID + "', '" + InpuNoOfBox + "', '" + ilist.UserAccountId + "'  )");
-                            cmd2.CommandText = sqls;
-                            //i = cmd2.ExecuteNonQuery();
-                            int i = Convert.ToInt32(cmd2.ExecuteNonQuery());
-                            cmd2.Dispose();
+                            if (YarnOutwardID <= 0)
+                            {
+                                trans.Rollback();
+                                comman.Code = 410;
+                                comman.Message = "This Yarn Outward already exists.";
+                                return;
+                            }
 
+                            // ✅ DETAIL INSERT
+                            string[] siftGodownInputBox = ilist.siftGodownInputBox.Split('|');
+
+                            foreach (var item in siftGodownInputBox)
+                            {
+                                if (string.IsNullOrWhiteSpace(item)) continue;
+
+                                string clean = item.Replace("(", "").Replace(")", "");
+                                var parts = clean.Split(',');
+
+                                if (parts.Length < 5)
+                                    continue;
+
+                                // ✅ Safe parsing (no crash)
+                                int GodownLocationID = int.TryParse(parts[0], out var g) ? g : 0;
+                                int BillToPartyID = int.TryParse(parts[1], out var b) ? b : 0;
+                                int YarnMaterialID = int.TryParse(parts[2], out var m) ? m : 0;
+                                int YarnColorID = int.TryParse(parts[3], out var c) ? c : 0;
+                                int InpuNoOfBox = int.TryParse(parts[4], out var q) ? q : 0;
+
+                                // ✅ Optional field (6th value)
+                                int YarnRequirementDetailID = (parts.Length > 5 && int.TryParse(parts[5], out var y)) ? y : 0;
+
+                                // 🔥
+
+                                SqlCommand cmd2 = new SqlCommand(@"
+                        INSERT INTO YarnOutwardDetail
+                        (DateAndTime, YarnOutwardID, BillToPartyID, YarnMaterialID,
+                         YarnColorID, GodownLocationID, NoOfBox, UserAccountId,
+                         YarnRequirementDetailID, YarnRequirementDateTime)
+                        VALUES
+                        (@DateAndTime, @YarnOutwardID, @BillToPartyID, @YarnMaterialID,
+                         @YarnColorID, @GodownLocationID, @NoOfBox, @UserAccountId,
+                         @YarnRequirementDetailID, GETDATE())", con, trans);
+
+                                cmd2.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
+                                cmd2.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+                                cmd2.Parameters.AddWithValue("@BillToPartyID", BillToPartyID);
+                                cmd2.Parameters.AddWithValue("@YarnMaterialID", YarnMaterialID);
+                                cmd2.Parameters.AddWithValue("@YarnColorID", YarnColorID);
+                                cmd2.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
+                                cmd2.Parameters.AddWithValue("@NoOfBox", InpuNoOfBox);
+                                cmd2.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+                                cmd2.Parameters.AddWithValue("@YarnRequirementDetailID", YarnRequirementDetailID);
+
+                                cmd2.ExecuteNonQuery();
+                            }
+
+                            // ✅ COMMIT
+                            trans.Commit();
+
+                            comman.Code = 201;
+                            comman.Message = "Yarn Outward has been saved successfully.";
                         }
-
-
-
-                        con.Close();
-                        comman.Code = 201;
-                        comman.Message = "Yarn Outward has been saved successfully.";
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            throw;
+                        }
                     }
-                    else
-                    {
-                        con.Close();
-                        comman.Code = 410;
-                        comman.Message = "This Yarn Outward is already Exists.";
-                    }
-
-
-
-                    con.Close();
                 }
-
-
             }
             catch (SqlException ex)
             {
@@ -22844,37 +22874,51 @@ namespace NikunjTextile
 
                             foreach (string item in details)
                             {
-                                if (string.IsNullOrWhiteSpace(item)) continue;
-
                                 string clean = item.Replace("(", "").Replace(")", "");
-                                string[] values = clean.Split(',');
+                                var parts = clean.Split(',');
 
-                                SqlCommand insertCmd = new SqlCommand(@"
-                            INSERT INTO YarnOutwardDetail
-                            (DateAndTime, YarnOutwardID, BillToPartyID,
-                             YarnMaterialID, YarnColorID,
-                             GodownLocationID, NoOfBox, UserAccountId)
-                            VALUES
-                            (@DateAndTime, @YarnOutwardID, @BillTo,
-                             @Material, @Color, @LocationId, @Box, @UserId)", con, tran);
+                                if (parts.Length < 5)
+                                    continue;
 
-                                insertCmd.Parameters.AddWithValue("@DateAndTime", indianTime);
-                                insertCmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
-                                insertCmd.Parameters.AddWithValue("@LocationId", Convert.ToInt32(values[0]));
-                                insertCmd.Parameters.AddWithValue("@BillTo", Convert.ToInt32(values[1]));
-                                insertCmd.Parameters.AddWithValue("@Material", Convert.ToInt32(values[2]));
-                                insertCmd.Parameters.AddWithValue("@Color", Convert.ToInt32(values[3]));
-                                insertCmd.Parameters.AddWithValue("@Box", Convert.ToInt32(values[4]));
-                                insertCmd.Parameters.AddWithValue("@UserId", ilist.UserAccountId);
+                                // ✅ Safe parsing (no crash)
+                                int GodownLocationID = int.TryParse(parts[0], out var g) ? g : 0;
+                                int BillToPartyID = int.TryParse(parts[1], out var b) ? b : 0;
+                                int YarnMaterialID = int.TryParse(parts[2], out var m) ? m : 0;
+                                int YarnColorID = int.TryParse(parts[3], out var c) ? c : 0;
+                                int InpuNoOfBox = int.TryParse(parts[4], out var q) ? q : 0;
 
-                                insertCmd.ExecuteNonQuery();
+                                // ✅ Optional field (6th value)
+                                int YarnRequirementDetailID = (parts.Length > 5 && int.TryParse(parts[5], out var y)) ? y : 0;
+
+                                // 🔥
+
+                                SqlCommand cmd2 = new SqlCommand(@"
+                                    INSERT INTO YarnOutwardDetail
+                                    (DateAndTime, YarnOutwardID, BillToPartyID, YarnMaterialID,
+                                     YarnColorID, GodownLocationID, NoOfBox, UserAccountId,
+                                     YarnRequirementDetailID, YarnRequirementDateTime)
+                                    VALUES
+                                    (@DateAndTime, @YarnOutwardID, @BillToPartyID, @YarnMaterialID,
+                                     @YarnColorID, @GodownLocationID, @NoOfBox, @UserAccountId,
+                                     @YarnRequirementDetailID, GETDATE())", con, tran);
+
+                                cmd2.Parameters.AddWithValue("@DateAndTime", indianTime);
+                                cmd2.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
+                                cmd2.Parameters.AddWithValue("@BillToPartyID", BillToPartyID);
+                                cmd2.Parameters.AddWithValue("@YarnMaterialID", YarnMaterialID);
+                                cmd2.Parameters.AddWithValue("@YarnColorID", YarnColorID);
+                                cmd2.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
+                                cmd2.Parameters.AddWithValue("@NoOfBox", InpuNoOfBox);
+                                cmd2.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+                                cmd2.Parameters.AddWithValue("@YarnRequirementDetailID", YarnRequirementDetailID);
+
+                                cmd2.ExecuteNonQuery();
                             }
+
+                            #endregion
+
+                            tran.Commit();
                         }
-
-                        #endregion
-
-                        tran.Commit();
-
                         comman.Code = 201;
                         comman.Message = "Yarn Outward updated successfully.";
                     }
@@ -23287,6 +23331,34 @@ namespace NikunjTextile
 
             // try it ur self  yes sir  please
 
+        }
+        [WebMethod]
+        public string GetPendingYarn(int partyId)
+        {
+            DataTable dt = new DataTable();
+            string query = @"
+       SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+    (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+        JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+        JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+        JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+        JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+        LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+        WHERE YRM.PartyId = @PartyId
+        GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+    YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";    
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@PartyId", partyId);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);           
         }
         #endregion
         #region YARN OUTWARD Scan

@@ -864,7 +864,6 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-
                 const Toast = Swal.mixin({
                     toast: true,
                     position: 'top-end',
@@ -872,12 +871,10 @@
                     timer: 3000,
                     timerProgressBar: true
                 });
-
                 Toast.fire({
                     icon: 'success',
                     title: 'Filter saved successfully ✅'
                 });
-
                 $("#saveFilterModal").modal("hide");
             },
             error: function () {
