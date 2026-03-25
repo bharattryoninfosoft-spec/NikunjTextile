@@ -40,8 +40,9 @@ namespace NikunjTextile.Class
         public int YarnMaterialID { get; set; }
         public int YarnColorID { get; set; }
         
+        public string BrokerCode { get; set; }
 
- 
+
 
     }
 }

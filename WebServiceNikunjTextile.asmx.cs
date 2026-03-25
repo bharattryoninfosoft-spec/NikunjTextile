@@ -13095,7 +13095,6 @@ namespace NikunjTextile
 
         // ******************************************   Party Master *******************************
 
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertPartyMaster()
@@ -13129,7 +13128,7 @@ namespace NikunjTextile
             ilist.BankBranch = HttpContext.Current.Request.Params["BankBranch"];
             ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
             ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
-
+            ilist.BrokerCode = (HttpContext.Current.Request.Params["BrokerCode"]);
             try
             {
 
@@ -13205,17 +13204,49 @@ namespace NikunjTextile
 
                     cmd.CommandType = System.Data.CommandType.Text;
 
-                    string sql = String.Format("Insert Into PartyMaster (CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email, BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode, BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty) OUTPUT INSERTED.PartyId Values " +
-                                    " ((select CompanyId from companymaster where is_default = 1), '" + ilist.UserAccountId + "', '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "','" + ilist.SundryParty + "', @PartyName, '" + ilist.MobileNo + "', '" + ilist.AlterMobileNo + "', '" + ilist.Email + "', @BillingAddress, @ShippingAddress, '" + ilist.IsSameAddress + "', '" + ilist.GSTIN + "', '" + ilist.PanNo + "', '" + ilist.State + "', '" + ilist.City + "', '" + ilist.Pincode + "',   " +
-                                    "   @BankHolderName, '" + ilist.BankAccountNo + "', '" + ilist.BankIFSCCode + "', @BankName, @BankBranch, '" + ilist.IsActiveParty + "')");
+                    string sql = String.Format(@"
+                                                INSERT INTO PartyMaster 
+                                                (
+                                                    CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email,
+                                                    BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode,
+                                                    BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty, BrokerCode
+                                                )
+                                                OUTPUT INSERTED.PartyId
+                                                VALUES
+                                                (
+                                                    (SELECT CompanyId FROM companymaster WHERE is_default = 1),
+                                                    '" + ilist.UserAccountId + @"',
+                                                    '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + @"',
+                                                    '" + ilist.SundryParty + @"',
+                                                    @PartyName,
+                                                    '" + ilist.MobileNo + @"',
+                                                    '" + ilist.AlterMobileNo + @"',
+                                                    '" + ilist.Email + @"',
+                                                    @BillingAddress,
+                                                    @ShippingAddress,
+                                                    '" + ilist.IsSameAddress + @"',
+                                                    '" + ilist.GSTIN + @"',
+                                                    '" + ilist.PanNo + @"',
+                                                    '" + ilist.State + @"',
+                                                    '" + ilist.City + @"',
+                                                    '" + ilist.Pincode + @"',
+                                                    @BankHolderName,
+                                                    '" + ilist.BankAccountNo + @"',
+                                                    '" + ilist.BankIFSCCode + @"',
+                                                    @BankName,
+                                                    @BankBranch,
+                                                    '" + ilist.IsActiveParty + @"',
+                                                    '" + ilist.BrokerCode + @"'
+                                                )");
+                                 cmd.CommandText = sql;
 
-                    cmd.CommandText = sql;
-                    cmd.Parameters.Add("@PartyName", SqlDbType.NVarChar).Value = ilist.PartyName;
-                    cmd.Parameters.Add("@BillingAddress", SqlDbType.NVarChar).Value = ilist.BillingAddress;
-                    cmd.Parameters.Add("@ShippingAddress", SqlDbType.NVarChar).Value = ilist.ShippingAddress;
-                    cmd.Parameters.Add("@BankHolderName", SqlDbType.NVarChar).Value = ilist.BankHolderName;
-                    cmd.Parameters.Add("@BankName", SqlDbType.NVarChar).Value = ilist.BankName;
-                    cmd.Parameters.Add("@BankBranch", SqlDbType.NVarChar).Value = ilist.BankBranch;
+                       
+                                cmd.Parameters.AddWithValue("@PartyName", ilist.PartyName);
+                                cmd.Parameters.AddWithValue("@BillingAddress", ilist.BillingAddress);
+                                cmd.Parameters.AddWithValue("@ShippingAddress", ilist.ShippingAddress);
+                                cmd.Parameters.AddWithValue("@BankHolderName", ilist.BankHolderName);                            
+                                cmd.Parameters.AddWithValue("@BankName", ilist.BankName);
+                                cmd.Parameters.AddWithValue("@BankBranch", ilist.BankBranch);                     
 
 
                     Int64 PartyId = Convert.ToInt64(cmd.ExecuteScalar());
@@ -13476,6 +13507,7 @@ namespace NikunjTextile
                         condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
                         condition.SundryParty = rdr["SundryParty"].ToString().ToUpper();
                         condition.IsActiveParty = Convert.ToInt32(rdr["IsActiveParty"].ToString());
+                        condition.BrokerCode = (rdr["BrokerCode"].ToString());
                         listUser.Add(condition);
                     }
                 }
@@ -13535,6 +13567,7 @@ namespace NikunjTextile
             ilist.BankBranch = HttpContext.Current.Request.Params["BankBranch"];
             ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
             ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
+            ilist.BrokerCode = (HttpContext.Current.Request.Params["BrokerCode"]);
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con1 = new SqlConnection(cs))
@@ -13611,7 +13644,7 @@ namespace NikunjTextile
 
                         string sql = String.Format("Update PartyMaster set UserAccountId = '" + ilist.UserAccountId + "', DateAndTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', SundryParty ='" + ilist.SundryParty + "', PartyName = @PartyName , MobileNo = '" + ilist.MobileNo + "', AlterMobileNo = '" + ilist.AlterMobileNo + "'," +
                             "  Email = '" + ilist.Email + "', BillingAddress =  @BillingAddress, ShippingAddress = @ShippingAddress, IsSameAddress = '" + ilist.IsSameAddress + "', GSTIN = '" + ilist.GSTIN + "', PAN= '" + ilist.PanNo + "', State = '" + ilist.State + "', " +
-                            " City= '" + ilist.City + "', Pincode = '" + ilist.Pincode + "', BankHolderName = @BankHolderName, BankAccountNo = '" + ilist.BankAccountNo + "', BankIFSCCode = '" + ilist.BankIFSCCode + "', BankName = @BankName, BankBranch = @BankBranch, IsActiveParty = '" + ilist.IsActiveParty + "' " +
+                            " City= '" + ilist.City + "', Pincode = '" + ilist.Pincode + "', BankHolderName = @BankHolderName, BankAccountNo = '" + ilist.BankAccountNo + "', BankIFSCCode = '" + ilist.BankIFSCCode + "', BankName = @BankName, BankBranch = @BankBranch, IsActiveParty = '" + ilist.IsActiveParty + "', BrokerCode='" + ilist.BrokerCode + "' " +
                             " where PartyId = '" + ilist.PartyId + "' ");
 
                         cmd.CommandText = sql;
