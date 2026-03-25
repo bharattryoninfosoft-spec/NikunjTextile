@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Web;
 
 namespace NikunjTextile.Class
@@ -73,4 +74,70 @@ namespace NikunjTextile.Class
 
         public List<YarnOutwardDetail> listYarnOutwardDetail { get; set; }
     }
+    public class YarnOutwardMasterModel
+    {
+        public int YarnOutwardID { get; set; }
+        public DateTime DateAndTime { get; set; }
+        public int GodownID { get; set; }
+        public int PartyId { get; set; }
+        public int OutwardListNo { get; set; }
+        public DateTime OutwardListDate { get; set; } 
+        public int GodownManagerUserAccountId { get; set; }
+        public Boolean IsScanStutas { get; set; }
+        public int UserAccountId { get; set; }
+        public int FinancialYearID { get; set; }
+        public int CompanyId { get; set; }
+    }
+
+    public class YarnOutwardDetailModel
+    {
+        public int YarnOutwardDetailID { get; set; }
+        public DateTime DateAndTime { get; set; }
+        public int YarnOutwardID { get; set; }
+        public int BillToPartyID { get; set; }
+        public int YarnMaterialID { get; set; }
+        public int YarnColorID { get; set; }
+        public string YarnColorCode { get; set; }
+        public int GodownLocationID { get; set; }
+        public int NoOfBox { get; set; }
+        public int UserAccountId { get; set; }
+        public int YarnRequirementDetailID { get; set; }
+        public DateTime YarnRequirementDateTime { get; set; }
+       
+    }
+    public class YarnOutwardEditResponse
+    {
+        public YarnOutwardMasterModel Master { get; set; }
+        public List<YarnOutwardDetailModel> Detail { get; set; }
+    }
+    public class UpdateYarnOutwardMasterModel
+    {
+        public int YarnOutwardID { get; set; }
+        public DateTime DateAndTime { get; set; }
+        public int GodownID { get; set; }
+        public int PartyId { get; set; }
+        public int OutwardListNo { get; set; }
+        public string OutwardListDate { get; set; }
+        public int GodownManagerUserAccountId { get; set; }
+        public Boolean IsScanStutas { get; set; }
+        public int UserAccountId { get; set; }
+        public int FinancialYearID { get; set; }
+        public int CompanyId { get; set; }
+        public string CompanyName { get; set; }
+        public string YarnMaterial { get; set; }
+        public string YarnColor { get; set; }
+        public string YarnColorCode { get; set; }
+        public string LocationTitle { get; set; }
+        public int Stock { get; set; }
+        public int YarnOutwardDetailID { get; set; }
+        public int BillToPartyID { get; set; }
+        public int YarnMaterialID { get; set; }
+        public int YarnColorID { get; set; }
+        public int GodownLocationID { get; set; }
+        public int NoOfBox { get; set; }
+        public int YarnRequirementDetailID { get; set; }
+        public DateTime YarnRequirementDateTime { get; set; }
+    }
+
+   
 }

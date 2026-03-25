@@ -2,60 +2,131 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<style>
+    #tblBroker {
+        width: 100% !important;
+    }
 
+        #tblBroker td, #tblBroker th {
+            vertical-align: middle !important;
+            font-size: 13px;
+            padding: 8px 10px;
+        }
 
+        #tblBroker td {
+            white-space: nowrap;
+        }
+
+            #tblBroker td:nth-child(4) { /* Address column */
+                white-space: normal;
+                max-width: 250px;
+                word-break: break-word;
+            }
+
+        #tblBroker th {
+            background-color: #1f6ed4;
+            color: #fff;
+            font-weight: 500;
+        }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        margin-bottom: 10px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .fa {
+        font-size: 14px;
+    }
+</style>
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
-    <input type="hidden" id="rowStartCount" value="" />
-    <div id="notes"></div>
+    <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
+        <div class="toast-body bg-success text-white">
+            Saved Successfully
+        </div>
+    </div>
     <div class="card-header-lg">
-        <div class="modal fade" id="brokerModal">
-            <div class="modal-dialog">
+        <div class="modal fade" id="brokerModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
 
+                    <!-- Header -->
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Broker</h5>
+                        <h5 class="modal-title" id="brokerModalLabel">Add Broker</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="modal-body">
+                    <!-- Body -->
+                    <div class="modal-body" id="brokerForm">
+                        <input type="hidden" id="BrokerId" value="0">
+                        <div class="row">
+                            <!-- Broker Code -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="BrokerCode" readonly>
+                                    <div class="field-placeholder">Broker Code</div>
+                                </div>
+                            </div>
 
-                        <input type="hidden" id="BrokerId">
+                            <!-- Broker Name -->
+                            <div class="col-5">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="BrokerName">
+                                    <div class="field-placeholder">Broker Name <span style="color:red">*</span></div>
+                                    <div class="invalid-feedback">Broker Name is required</div>
+                                </div>
+                            </div>
+                            <!-- Mobile -->
+                            <div class="col-5">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="MobileNo" maxlength="10">
+                                    <div class="field-placeholder">Mobile <span style="color:red">*</span></div>
+                                    <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                                </div>
+                            </div>
 
-                        <div class="mb-2">
-                            <label>Broker Code</label>
-                            <input type="text" id="BrokerCode" class="form-control">
+                            <!-- Address -->
+                            <div class="col-5">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="Address">
+                                    <div class="field-placeholder">Address</div>
+                                </div>
+                            </div>
+                            <!-- City -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="CityName">
+                                    <div class="field-placeholder">City</div>
+                                </div>
+                            </div>
+                            <!-- Commission -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="number" class="form-control" id="CommissionRate" maxlength="3">
+                                    <div class="field-placeholder">Commission (%)</div>
+                                </div>
+                            </div>
+                            <!-- Status -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <select class="form-control" id="IsActive">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                    <div class="field-placeholder">Status</div>
+                                </div>
+                            </div>
+
                         </div>
-
-                        <div class="mb-2">
-                            <label>Broker Name</label>
-                            <input type="text" id="BrokerName" class="form-control">
-                        </div>
-
-                        <div class="mb-2">
-                            <label>Firm Name</label>
-                            <input type="text" id="FirmName" class="form-control">
-                        </div>
-
-                        <div class="mb-2">
-                            <label>Mobile</label>
-                            <input type="text" id="MobileNo" class="form-control">
-                        </div>
-
-                        <div class="mb-2">
-                            <label>City</label>
-                            <input type="text" id="CityName" class="form-control">
-                        </div>
-
-                        <div class="mb-2">
-                            <label>Commission %</label>
-                            <input type="number" id="CommissionRate" class="form-control">
-                        </div>
-
                     </div>
-
-                    <div class="modal-footer">
+                    <!-- Footer -->
+                    <div class="modal-footer" id="brokerForm">
                         <button class="btn btn-success" onclick="saveBroker()">Save</button>
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -63,20 +134,22 @@
                 </div>
             </div>
         </div>
+
+        <button class="btn btn-primary" style="float:right;" data-bs-toggle="modal" data-bs-target="#brokerModal">
+            <i class="fa fa-plus"></i> Add Broker
+        </button>
     </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
     <!-- Row start -->
-    <div class="row gutters">      
+    <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
             <div class="card">
                 <div class="card-body">
-                    <button style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#brokerModal">
-                        <i class="fa fa-plus"></i> Add Broker
-                    </button>
-                    <br />
-                    <br />
                     <div class="form-section-header">Broker Master</div>
-
                     <div class="table-responsive">
                         <table id="tblBroker" class="table table-bordered table-striped w-100">
                         </table>
@@ -87,9 +160,9 @@
 
         </div>
     </div>
+    <!-- Row end -->
 </div>
-
-
+<!-- Content wrapper end -->
 <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
@@ -141,7 +214,7 @@
 <script src="vendor/dropzone/dropzone.min.js"></script>
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script>
@@ -154,15 +227,17 @@
         $("#master-tab").addClass("active");
         $("#tab-Master").addClass("show active");
         $("#aBrokerMaster").addClass("current-page");
+
         FunctionIsLogin();
         LoadBrokerList();
-      });
+    });
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
+
     function getDefaultCompany() {
         $.ajax({
             type: "GET",
@@ -176,16 +251,11 @@
                     $("#company-default").html(response.listCompanyMaster[0].CompanyName);
                 }
             },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
+            error: function (request, status, error) {        
 
                 notes.show(request.statusText, {
                     type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
+                    
                 });
 
 
@@ -251,48 +321,252 @@
     function bindBrokerTable(data) {
 
         if ($.fn.DataTable.isDataTable('#tblBroker')) {
-            $('#tblBroker').DataTable().clear().destroy();        }
-
+            $('#tblBroker').DataTable().clear().destroy();
+        }
         $('#tblBroker').DataTable({
             data: data,
+            autoWidth: false,   // 🔥 important
+
             columns: [
-                { data: "BrokerId", title: "ID" },
-                { data: "BrokerCode", title: "Code" },
-                { data: "BrokerName", title: "Name" },
-                { data: "FirmName", title: "Firm" },
+                { data: "BrokerCode", title: "Broker Code" },
+                { data: "BrokerName", title: "Broker Name" },
                 { data: "MobileNo", title: "Mobile" },
+
+                {
+                    data: "Address",
+                    title: "Address",
+                    render: function (data) {
+                        return `<div style="white-space:normal;">${data || '-'}</div>`;
+                    }
+                },
+
                 { data: "CityName", title: "City" },
-                { data: "CommissionRate", title: "Commission %" },
+
+                {
+                    data: "CommissionRate",
+                    title: "Commission (%)",
+                    render: d => parseFloat(d).toFixed(2)
+                },
+
                 {
                     data: "IsActive",
                     title: "Status",
-                    render: function (data) {
-                        return data ? '<span class="badge bg-success">Active</span>'
-                            : '<span class="badge bg-danger">Inactive</span>';
-                    }
+                    className: "text-center",
+                    render: d => d
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>'
                 },
+
                 {
                     data: "BrokerId",
                     title: "Action",
-                    render: function (data) {
+                    className: "text-center",
+                    orderable: false,
+                    render: function (id) {
                         return `
-                            
-                            <i class="fa fa-edit text-primary edit" data-id="${data}" style="cursor:pointer; margin-right:10px;" title="Edit"></i>
-                            <i class="fa fa-eye text-secondary view" data-id="${data}" style="cursor:pointer; margin-right:10px;" title="View"></i>
-                            
-                            <i class="fa fa-trash text-danger delete" data-id="${data}" style="cursor:pointer;" title="Delete"></i>
-                        `;
+                    <i class="fa fa-edit text-primary edit me-2" data-id="${id}"></i>
+                    <i class="fa fa-eye text-dark view me-2" data-id="${id}"></i>
+                    <i class="fa fa-trash text-danger delete" data-id="${id}"></i>
+                `;
                     }
                 }
-           
             ],
+
             responsive: true,
             pageLength: 10,
             lengthChange: false,
-            info: false
+            info: false,
+            ordering: false
+        });       
+    }
+    $('#brokerModal').on('show.bs.modal', function () {
+
+        if ($('#BrokerId').val() == 0) {
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetNextBrokerCode',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: '{}', // MUST for ASMX
+
+                success: function (response) {
+                    $('#BrokerCode').val(response.d); // ⚠️ .d required
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+
+        }
+
+    });
+    $('.form-control').on('input', function () {
+        $(this).removeClass('is-invalid');
+    });
+    $('#tblBroker').on('click', '.edit', function () {
+        let id = $(this).data('id');
+        getBrokerById(id, "edit");
+    });
+    $('#tblBroker').on('click', '.view', function () {
+        let id = $(this).data('id');       
+        getBrokerById(id, "view");
+    });
+    $('#tblBroker').on('click', '.delete', function () {
+        let id = $(this).data('id');
+        deleteBroker(id);
+    });
+    function getBrokerById(id, mode) {
+
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/GetBrokerById',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({ BrokerId: id }),
+
+            success: function (res) {
+
+                let data = res.d;
+
+                // Fill form
+                $('#BrokerId').val(data.BrokerId);
+                $('#BrokerCode').val(data.BrokerCode);
+                $('#BrokerName').val(data.BrokerName);
+                $('#MobileNo').val(data.MobileNo);
+                $('#Address').val(data.Address);
+                $('#CityName').val(data.CityName);
+                $('#CommissionRate').val(data.CommissionRate);
+                $('#IsActive').val(data.IsActive.toString());
+
+                // Mode handling
+                if (mode === "view") {
+                    $('#brokerModalLabel').text("View Broker");
+                    disableForm(true);
+                } else {
+                    $('#brokerModalLabel').text("Edit Broker");
+                    disableForm(false);
+                }
+
+                $('#brokerModal').modal('show');
+            }
         });
-    }  
+    }
+    function deleteBroker(id) {
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this broker!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/DeleteBroker',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({ BrokerId: id }),
+
+                    success: function (res) {
+
+                        if (res.d === "success") {
+
+                            Swal.fire("Deleted!", "Broker removed successfully", "success");
+
+                            LoadBrokerList(); // 🔄 reload table
+
+                        } else {
+                            Swal.fire("Error", res.d, "error");
+                        }
+                    }
+                });
+
+            }
+
+        });
+    }
+    function disableForm(flag) {
+        $('#brokerForm input, #brokerForm select , #brokerForm button').prop('disabled', flag);
+    }
+    function showToast(type, msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: type,
+            title: msg,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
+    function saveBroker() {
+
+        let isValid = true;
+
+        $('.form-control').removeClass('is-invalid');
+
+        let mobile = $('#MobileNo').val().trim();
+
+        // Broker Name
+        if (!$('#BrokerName').val().trim()) {
+            $('#BrokerName').addClass('is-invalid');
+            isValid = false;
+        }
+
+        // Mobile Required
+        if (!mobile) {
+            $('#MobileNo').addClass('is-invalid');
+            isValid = false;
+        }
+        // Mobile Format Check
+        else if (!/^[6-9]\d{9}$/.test(mobile)) {
+            $('#MobileNo').addClass('is-invalid');
+            $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        var obj = {
+            BrokerId: $('#BrokerId').val(),
+            BrokerCode: $('#BrokerCode').val(),
+            BrokerName: $('#BrokerName').val(),
+            MobileNo: mobile,
+            Address: $('#Address').val(),
+            CityName: $('#CityName').val(),
+            CommissionRate: $('#CommissionRate').val() || 0,
+            IsActive: $('#IsActive').val() === "true"
+        };
+
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/SaveBroker',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({ obj: obj }),
+
+            success: function (res) {
+                if (res.d === "success") {
+                    showToast('success', 'Saved Successfully');
+                    $('#brokerModal').modal('hide');
+                    LoadBrokerList();
+                }
+                else {
+                    showToast('error', 'Something went wrong');
+                }
+            }
+        });
+    }
+
 </script>
+
+
+
+
 
 
 

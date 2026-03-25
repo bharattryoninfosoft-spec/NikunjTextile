@@ -2,78 +2,155 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<style>
+    #tblTransport {
+        width: 100% !important;
+    }
 
+        #tblTransport td, #tblTransport th {
+            vertical-align: middle !important;
+            font-size: 13px;
+            padding: 8px 10px;
+        }
 
+        #tblTransport td {
+            white-space: nowrap;
+        }
+
+            #tblTransport td:nth-child(4) { /* Address column */
+                white-space: normal;
+                max-width: 250px;
+                word-break: break-word;
+            }
+
+        #tblTransport th {
+            background-color: #1f6ed4;
+            color: #fff;
+            font-weight: 500;
+        }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        margin-bottom: 10px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .fa {
+        font-size: 14px;
+    }
+</style>
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
-    <input type="hidden" id="rowStartCount" value="" />
-    <div id="notes"></div>
+    <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
+        <div class="toast-body bg-success text-white">
+            Saved Successfully
+        </div>
+    </div>
     <div class="card-header-lg">
-        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Color Group</button>
-        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+        <div class="modal fade" id="TransportModal">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
+
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addNewContactLabel">Add Color Group</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true"></span>
-                        </button>
+                        <h5 id="transportModalLabel">Add Transport</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
+
                     <div class="modal-body">
-                        <div id="add-alert" class="alert alert-success" role="alert">
-                            Record has been saved Successfully.
-                        </div>
-                        <br />
+                        <input type="hidden" id="TransportId" value="0">
 
-                        <div class="row gutters">
-                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
-                                <div class="row gutters">
-                                    <div class="col-6">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <input type="text" id="ColorGroup" name="ColorGroup" class="form-control clear-field" onfocusout="validate(this)">
-                                            <div class="field-placeholder">Color Group<sup style="color:red;">*</sup></div>
-                                            <div class="ColorGroup-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ColorGroup-invalid-feedback invalid-feedback">Please Mention Color Group</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-                                    </div>
+                        <div class="row g-3">
 
-
-
-                                    <div class="col-6">
-
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <div class="form-check form-check-inline">
-                                                <br />
-                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
-                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
-
-                                            </div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-                                    </div>
-
-
-
-
+                            <!-- Transport Code -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="TransportCode" readonly>
+                                    <div class="field-placeholder">Transport Code</div>
                                 </div>
                             </div>
+
+                            <!-- Transport Name -->
+                            <div class="col-4">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="TransportName">
+                                    <div class="field-placeholder">Transport Name <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Transport Name is required</div>
+                                </div>
+                            </div>
+
+                            <!-- ContactPerson -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="ContactPerson">
+                                    <div class="field-placeholder">ContactPerson <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Contact Person is required</div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="MobileNo" maxlength="10">
+                                    <div class="field-placeholder">Mobile <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-5">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="Address">
+                                    <div class="field-placeholder">Address</div>
+                                </div>
+                            </div>
+
+                            <!-- City -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="CityName">
+                                    <div class="field-placeholder">City</div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Type -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="VehicleType">
+                                    <div class="field-placeholder">Vehicle Type</div>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <select class="form-control" id="IsActive">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                    <div class="field-placeholder">Status</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                    <input id="edit-id" type="hidden" />
-                    <div id="notess"></div>
+
                     <div class="modal-footer">
-                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
-                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
-                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
-                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-success" id="btnSaveTransport" onclick="saveTransport()">Save</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
+
                 </div>
             </div>
         </div>
+
+        <button class="btn btn-primary" style="float:right;" data-bs-toggle="modal" data-bs-target="#TransportModal">
+            <i class="fa fa-plus"></i> Add Transport
+        </button>
     </div>
     <div style="float:none;clear:both;">
         <br />
@@ -85,38 +162,9 @@
 
             <div class="card">
                 <div class="card-body">
-                    <div class="form-section-header">Color Group</div>
-                    <br />
-                    <div class="row gutters">
-
-
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                        </div>
-
-
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <!-- Field wrapper start -->
-                            <div class="field-wrapper">
-                                <input id="search-Color-Group" placeholder="Search Color Group." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
-                                <div class="field-placeholder">Search Color Group.</div>
-                            </div>
-                            <!-- Field wrapper end -->
-                        </div>
-
-                    </div>
+                    <div class="form-section-header">TransportMaster</div>
                     <div class="table-responsive">
-                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
-                            <thead>
-                                <tr style="background-color: #1273eb;">
-                                    <th style="color:white;">Sr No</th>
-                                    <th style="color:white;">Color Group</th>
-                                    <th style="color:white;">Is Active</th>
-                                    <!--<th>Position</th>-->
-                                    <th style="color:white;">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
+                        <table id="tblTransport" class="table table-bordered table-striped w-100">
                         </table>
                     </div>
 
@@ -125,28 +173,9 @@
 
         </div>
     </div>
-    <div class="view-more-styl-class">
-        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
-        <br /><br /><br />
-    </div>
     <!-- Row end -->
-
 </div>
 <!-- Content wrapper end -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
@@ -198,70 +227,95 @@
 <script src="vendor/dropzone/dropzone.min.js"></script>
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script>
-    document.title = "Color Group - Nikunj Textile";
+    document.title = "TransportMaster - Nikunj Textile";
 </script>
-
-
-
 <script>
 
     $(document).ready(function () {
-
-
         $('.active, .show, .current-page').removeClass('active show current-page');
-
         $("#master-tab").addClass("active");
         $("#tab-Master").addClass("show active");
-        $("#aColorGroup").addClass("current-page");
+        $("#aTransportMaster").addClass("current-page");
 
         FunctionIsLogin();
-
-
-        displayData(0);
-        //getDefaultCompany();
-
-
-
-
-        // Shortcut Key
-        //$(document).keydown(function (key) {
-        //    switch (parseInt(key.which, 10)) {
-        //        case 27:
-        //            //Esc Key
-        //            $("#cancelbtn").click();
-        //            break;
-        //        case 18 && 79:
-        //            // Alt + O
-        //            $("#AddFinacialYearModel").click();
-        //            //addnewcontact
-        //            break;
-        //        default:
-        //            //alert(key.which);
-        //            break;
-        //    }
-        //});
-
-
+        LoadTransportList();
     });
-
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
+    $('#TransportModal').on('show.bs.modal', function () {
 
+        // Only for ADD
+        if ($('#TransportId').val() == 0) {
 
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetNextTransportCode',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: '{}',
 
+                success: function (res) {
+                    $('#TransportCode').val(res.d);
+                }
+            });
 
+        }
+    });
+    $('#tblTransport').on('click', '.edit', function () {
+        debugger;
+        let id = $(this).data('id');
+        getTransportById(id, "edit");
+    });
 
+    $('#tblTransport').on('click', '.view', function () {
+        let id = $(this).data('id');
+        getTransportById(id, "view");
+    });
 
+    $('#tblTransport').on('click', '.delete', function () {
+        let id = $(this).data('id');
+        deleteTransport(id);
+    });
+    $('.form-control').on('input', function () {
+        $(this).removeClass('is-invalid');
+    });
+    function addTransport() {
+
+        $('#TransportForm')[0]?.reset();
+        $('#TransportId').val(0);
+        $('#transportModal').modal('show');
+    }
+    function LoadTransportList() {
+
+        $.ajax({
+            url: "/WebServiceNikunjTextile.asmx/GetTransportList",
+            type: "POST",
+            data: "{}",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (res) {
+
+                var data = res.d;
+
+                if (typeof data === "string") {
+                    data = JSON.parse(data);
+                }
+                console.log("LoadTransportList", res);
+                bindTransportTable(data);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
     function getDefaultCompany() {
         $.ajax({
             type: "GET",
@@ -276,22 +330,16 @@
                 }
             },
             error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
 
                 notes.show(request.statusText, {
                     type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
+
                 });
 
 
             }
         });
     }
-
     function FunctionIsLogin() {
         $.ajax({
             type: "POST",
@@ -310,7 +358,6 @@
             }
         });
     }
-
     function logout() {
         $.ajax({
             type: "POST",
@@ -326,613 +373,197 @@
             }
         });
     }
+    function bindTransportTable(data) {
 
+        if ($.fn.DataTable.isDataTable('#tblTransport')) {
+            $('#tblTransport').DataTable().clear().destroy();
+        }
 
-
-    function functionSearch() {
-        //displayPagginationData();
-        displayData(0);
+        $('#tblTransport').DataTable({
+            data: data,
+            columns: [
+                { data: "TransportCode", title: "Code" },
+                { data: "TransportName", title: "Transport Name" },
+                { data: "MobileNo", title: "Mobile" },
+                { data: "CityName", title: "City" },
+                { data: "VehicleType", title: "Vehicle" },
+                {
+                    data: "IsActive",
+                    title: "Status",
+                    render: d => d
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-danger">Inactive</span>'
+                },
+                {
+                    data: "TransportId",
+                    title: "Action",
+                    render: function (id) {
+                        return `
+                                <i class="fa fa-edit text-primary edit" data-id="${id}" style="cursor:pointer"></i>
+                                <i class="fa fa-eye text-secondary view ms-2" data-id="${id}" style="cursor:pointer"></i>
+                                <i class="fa fa-trash text-danger delete ms-2" data-id="${id}" style="cursor:pointer"></i>
+                            `;
+                    }
+                }
+            ],
+            responsive: true,
+            pageLength: 10,
+            lengthChange: false,
+            info: false,
+            ordering: false
+        });
     }
+    function showToast(type, msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: type,
+            title: msg,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
+    function saveTransport() {
+        let isValid = true;
 
-    function displayData(rowStartCheck) {
-        var rowStart = 0;
-        if (rowStartCheck != 0) {
-            rowStart = parseInt($("#rowStartCount").val()) + 10;
-            $("#rowStartCount").val(rowStart);
+        $('.form-control').removeClass('is-invalid');
+
+        let mobile = $('#MobileNo').val().trim();
+
+        // Broker Name
+        if (!$('#TransportName').val().trim()) {
+            $('#TransportName').addClass('is-invalid');
+            isValid = false;
         }
-        else {
-            rowStart = 0;
-            $("#rowStartCount").val("0");
+        if (!$('#ContactPerson').val().trim()) {
+            $('#ContactPerson').addClass('is-invalid');
+            isValid = false;
+        }
+        // Mobile Required
+        if (!mobile) {
+            $('#MobileNo').addClass('is-invalid');
+            isValid = false;
+        }
+        // Mobile Format Check
+        else if (!/^[6-9]\d{9}$/.test(mobile)) {
+            $('#MobileNo').addClass('is-invalid');
+            $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+            isValid = false;
         }
 
-        var searchColorGroup = $("#search-Color-Group").val();
+        if (!isValid) return;
 
-        var formData = new FormData();
-        formData.append('SearchColorGroup', searchColorGroup);
-        formData.append('startFrom', rowStart);
+        let obj = {
+            TransportId: parseInt($('#TransportId').val()) || 0,
+            TransportName: $('#TransportName').val(),
+            FirmName: $('#FirmName').val(),
+            ContactPerson: $('#ContactPerson').val(),
+            Email: $('#Email').val(),
+            MobileNo: $('#MobileNo').val(),
+            AlternateMobileNo: $('#AlternateMobileNo').val(),
+            Address: $('#Address').val(),
+            CityName: $('#CityName').val(),
+            PANCard: $('#PANCard').val(),
+            GSTNo: $('#GSTNo').val(),
+            VehicleType: $('#VehicleType').val(),
+            IsActive: $('#IsActive').val() === "true"
+        };
 
         $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/getColorGroupMaster',
-            data: formData,
+            url: '/WebServiceNikunjTextile.asmx/SaveTransport',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ obj: obj }),
+            success: function (res) {
+
+                if (res.d === "success") {
+                    showToast('success', 'Saved Successfully');
+                    $('#TransportModal').modal('hide');
+                    LoadTransportList();
+                }
+            }
+        });
+    }
+    function getTransportById(id, mode) {
+
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/GetTransportById',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
+            data: JSON.stringify({ TransportId: id }),
 
+            success: function (res) {
 
+                let d = res.d;
 
-                //$.ajax({
-                //    type: "GET",
-                //    url: '/WebServiceNikunjTextile.asmx/getColorGroupMaster?startFrom=' + rowStart,
-                //    //getItemCat
-                //    data: "{ 'startFrom':'" + rowStart + "' }",
-                //    dataType: 'json',
-                //    contentType: false,
-                //    processData: false,
-                //    success: function (response) {
+                $('#TransportId').val(d.TransportId);
+                $('#TransportCode').val(d.TransportCode);
+                $('#TransportName').val(d.TransportName);
+                $('#FirmName').val(d.FirmName);
+                $('#ContactPerson').val(d.ContactPerson);
+                $('#Email').val(d.Email);
+                $('#MobileNo').val(d.MobileNo);
+                $('#AlternateMobileNo').val(d.AlternateMobileNo);
+                $('#Address').val(d.Address);
+                $('#CityName').val(d.CityName);
+                $('#PANCard').val(d.PANCard);
+                $('#GSTNo').val(d.GSTNo);
+                $('#VehicleType').val(d.VehicleType);
+                $('#IsActive').val(d.IsActive.toString());
 
-                console.log(response);
-
-                if (rowStart == 0) {
-                    $("#copy-print-csv tbody").empty();
+                if (mode === "view") {
+                    disableTransportForm(true);
+                    $('#btnSaveTransport').hide();
+                    $('#transportModalLabel').text("View Transport");
+                } else {
+                    disableTransportForm(false);
+                    $('#btnSaveTransport').show();
+                    $('#transportModalLabel').text("Edit Transport");
                 }
-                var dataTable = $('#copy-print-csv');
-                var temp = "";
-                var operation = "";
-                if (response.listColorGroupMaster.length < 10) {
-                    $("#view-more-btn").hide();
-                }
-                else {
-                    $("#view-more-btn").show();
-                }
 
-                var SrNo = rowStart + 1;
-                for (var i = 0; i < response.listColorGroupMaster.length; i++) {
+                $('#TransportModal').modal('show');
+            }
+        });
+    }
+    function disableTransportForm(flag) {
+        $('#TransportModal input, #TransportModal select').prop('disabled', flag);
+        $('#TransportModal input, #TransportModal select ').prop('disabled', flag);
+    }
+    function deleteTransport(id) {
 
-                    var Top = i - 1;
-                    var Previous = i + 1;
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Delete this transport?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes"
+        }).then((result) => {
 
-                    //console.log(response.listColorGroupMaster[Previous].ColorGroupID);
+            if (result.isConfirmed) {
 
-                    var ActionPosition = "";
-                    if (response.listColorGroupMaster.length != 1) {
-                        if (i == 0) {
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/DeleteTransport',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ TransportId: id }),
 
-                            var PostDown = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Previous].ColorGroupID + "," + response.listColorGroupMaster[Previous].Position;
+                    success: function (res) {
 
-                            ActionPosition += "<input type='hidden' id='PostDown_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostDown + "' /> ";
-                            ActionPosition += "<span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
-                            //ActionPosition += "<button type='button' class='btn btn-primary' style='font-size: 6px;' onclick='functionCakeCategoryUp(" + response.listColorGroupMaster[i].ColorGroupID + ")'><i class='fa fa-arrow-up fa-2x'></i></button>  &nbsp;";
+                        if (res.d === "success") {
+                            showToast('success', 'Deleted Successfully');
+                            LoadTransportList();
                         }
-                        else
-                            if (i == parseInt(response.listColorGroupMaster.length - 1)) {
-
-                                var PostUp = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Top].ColorGroupID + "," + response.listColorGroupMaster[Top].Position;
-
-                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostUp + "' /> </span>";
-                                ActionPosition += "<span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
-                            }
-                            else {
-
-                                var PostUp = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Top].ColorGroupID + "," + response.listColorGroupMaster[Top].Position;
-                                var PostDown = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Previous].ColorGroupID + "," + response.listColorGroupMaster[Previous].Position;
-
-                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostUp + "' /><span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
-                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
-                            }
-
                     }
-
-                    temp += "<tr>";
-                    temp += "<td>" + SrNo++ + "</td>";
-                    temp += "<td>" + response.listColorGroupMaster[i].ColorGroup + "</td>";
-
-                    if (response.listColorGroupMaster[i].IsActive == "1") {
-                        temp += "<td><span class='badge bg-success'>Active</span></td>";
-                    }
-                    else {
-                        temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
-                    }
-
-                    //temp += "<td>" + ActionPosition + "</td>";
-                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listColorGroupMaster[i].ColorGroupID + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;&nbsp; <a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listColorGroupMaster[i].ColorGroupID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
-                    temp += "</tr>";
-                }
-
-                dataTable.append(temp);
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-
-
-
-
-
-
-
-    function clearAll() {
-        getDefaultCompany();
-        $("#savebtn").show();
-        $("#editbtn").hide();
-        $("#addNewContactLabel").html("Add Color Group");
-        $("#add-alert").hide();
-
-        $("#ColorGroup").val('');
-
-        $(".company-invalid-feedback").hide();
-
-        $(".clear-field").removeClass("is-valid is-invalid");
-        $(".invalid-feedback").hide();
-        $(".valid-feedback").hide();
-    }
-
-
-
-    function checkSaveView() {
-
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-            //$("#isDefault").attr('value', 'true');
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-
-            var formData = new FormData();
-            formData.append('ColorGroup', ColorGroup);
-            formData.append('IsActive', IsActive);
-
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 201) {
-                        clearAll();
-
-                        notes.show(response.Message, {
-                            type: 'success',
-
-                        });
-                        displayData(0);
-                        $("#cancelbtn").click();
-                    }
-                    else {
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-                }
-            });
-        }
-    }
-
-
-    function checkSave() {
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-
-            var formData = new FormData();
-            formData.append('ColorGroup', ColorGroup);
-            formData.append('IsActive', IsActive);
-
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 201) {
-                        clearAll();
-
-                        notess.show(response.Message, {
-                            type: 'success',
-
-                        });
-                        displayData(0);
-
-                    }
-                    else {
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-                }
-            });
-        }
-
-
-
-
-
-
-    }
-
-
-
-
-    function checkEdit() {
-        var id = $("#edit-id").val();
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-
-            var formData = new FormData();
-            formData.append('ColorGroupID', id);
-            formData.append('ColorGroup', ColorGroup);
-            formData.append('IsActive', IsActive);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/EditColorGroupMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 201) {
-
-                        clearAll();
-
-                        $('#ColorGroup').val('');
-                        notes.show(response.Message, {
-                            type: 'success',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                        displayData(0);
-
-                        $("#cancelbtn").click();
-                    }
-                    else {
-                        //$("#add-alert").removeClass("alert-success");
-                        //$("#add-alert").addClass("alert-danger");
-                        //$("#add-alert").html(response.Message);
-                        //$("#add-alert").show();
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-                }
-            });
-        }
-    }
-
-
-
-
-
-
-    function showRecords(id) {
-
-        clearAll();
-        $("#edit-id").val(id);
-        $("#saveViewbtn").hide();
-        $("#savebtn").hide();
-        $("#editbtn").show();
-        $("#addNewContactLabel").html("Edit Color Group");
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getColorGroupMasterById?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    //console.log(response.listColorGroupMaster[0].ItemCategoryTitle);
-
-
-                    $("#ColorGroup").val(response.listColorGroupMaster[0].ColorGroup);
-
-                    if (response.listColorGroupMaster[0].IsActive == "1") {
-                        $("#IsActive").prop('checked', true);
-                    }
-                    else {
-                        $("#IsActive").prop('checked', false);
-                    }
-
-                }
-                else {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-                }
-
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-
-                notess.show(response.Message, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-            }
-        });
-
-    }
-
-
-
-
-
-    function functionYarnDelete(id) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            var formData = new FormData();
-            formData.append('ColorGroupID', id);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 200) {
-
-                        notes.show("Color Group deleted successfully.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                        displayData(0);
-                    }
-                    else {
-                        //alert("Problem has been occurred while submitting your data.");
-
-                        notes.show("Problem has been occurred while deleting Color Group .", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    // alert("Problem has been occurred while submitting your data.");
-
-                    notes.show("Problem has been occurred while deleting Color Group.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-                }
-            });
-        }
-
-    }
-
-
-
-
-    function onPostUp(QueueNo) {
-
-        var down = $("#PostUp_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ColorGroupQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
                 });
             }
         });
-
-
-
     }
-
-
-
-    function onPostDown(QueueNo) {
-
-        var down = $("#PostDown_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ColorGroupQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-            }
-        });
-
-
-
-    }
-
-
-
-    function validate(code) {
-        code.value = code.value.replace(/\s+/g, ' ').trim();
-        var errorMessageValid = "." + code.id + "-valid-feedback";
-        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
-        $(".invalid-feedback .valid-feedback").hide();
-        if (code.value == "") {
-            //if (code.id == "name") {
-            //    $(".company-invalid-feedback").show();
-            //}
-            document.getElementById(code.id).classList.remove("is-valid");
-            document.getElementById(code.id).classList.add("is-invalid");
-            $(errorMessageInvalid).show();
-            return false;
-        }
-        
-        else {
-            document.getElementById(code.id).classList.add("is-valid");
-            document.getElementById(code.id).classList.remove("is-invalid");
-            $(errorMessageValid).show();
-            $(errorMessageInvalid).hide();
-            $(".company-invalid-feedback").show();
-            return true;
-        }
-    }
-
 </script>
+
+
+
+
 
 
 

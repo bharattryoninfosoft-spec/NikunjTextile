@@ -610,6 +610,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class\API\YarnOutwardMaster.cs" />
+    <Compile Include="Class\BrokerMaster.cs" />
     <Compile Include="Class\ColorGroupMaster.cs" />
     <Compile Include="Class\ColorGroupMasterResponse.cs" />
     <Compile Include="Class\ColorMatching.cs" />
@@ -641,6 +642,7 @@
     <Compile Include="Class\GodownMasterResponse.cs" />
     <Compile Include="Class\GstSlabMaster.cs" />
     <Compile Include="Class\GstSlabMasterResponse.cs" />
+    <Compile Include="Class\ItemMasterModel.cs" />
     <Compile Include="Class\LocationMaster.cs" />
     <Compile Include="Class\LocationMasterResponse.cs" />
     <Compile Include="Class\MaterialMaster.cs" />
@@ -655,6 +657,7 @@
     <Compile Include="Class\TotalExistingOutwardStockArray.cs" />
     <Compile Include="Class\TotalInwardStockArray.cs" />
     <Compile Include="Class\TotalOutwardStockArray.cs" />
+    <Compile Include="Class\TransportMaster.cs" />
     <Compile Include="Class\TypeMaster.cs" />
     <Compile Include="Class\TypeMasterResponse.cs" />
     <Compile Include="Class\UnitMaster.cs" />
@@ -749,6 +752,7 @@
     <Content Include="UpdateYarnOutWardChallan.cshtml" />
     <Content Include="UpdateYarnOutWardScan.cshtml" />
     <Content Include="TransportMaster.cshtml" />
+    <Content Include="UpdateYarnOutWardChallanNew.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -770,6 +774,7 @@
     <Content Include="YarnOutWardChallanDetails.cshtml" />
     <Content Include="YarnOutWardScanDetails.cshtml" />
     <Content Include="YarnOutWardScan.cshtml" />
+    <Content Include="YarnOutWardChallanNEW.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AadharUpload\" />

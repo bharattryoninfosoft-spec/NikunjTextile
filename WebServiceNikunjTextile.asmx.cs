@@ -240,7 +240,7 @@ namespace NikunjTextile
                 cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = "select * from UserAccountMaster where UserAccountEmail = '" + username + "' or UserAccountMobileNo = '" + username + "'";
+                cmd.CommandText = " select * from UserAccountMaster where UserAccountEmail = '" + username + "' or UserAccountMobileNo = '" + username + "'";
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -20491,14 +20491,14 @@ namespace NikunjTextile
                     YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnOutwardID"])));
                 }
             }
-         
+
             string CompanyName = "";
             string YarnMaterial = "";
             string YarnColor = "";
             string YarnInwardDetails = "";
             //YarnOutwardMasterResponce ilist = new YarnOutwardMasterResponce();
             //ilist.YarnInwardDetailIDs = HttpContext.Current.Request.Params["YarnInwardDetailID"];
-          
+
             //Upload Cate Master
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
@@ -20574,7 +20574,7 @@ namespace NikunjTextile
                                             ) OUTWARD ON YIM.YarnMaterialID = OUTWARD.YarnMaterialID
                                             GROUP BY YIM.YarnMaterialID,YMM.YarnMaterial
 
-                                            HAVING ISNULL(SUM(OUTWARD.OutStock),0) > 0
+                                            HAVING ISNULL(SUM(INWARD.InStock),0) > 0
                                    ";
                     SqlDataReader rdr2 = cmd.ExecuteReader();
 
@@ -20593,8 +20593,7 @@ namespace NikunjTextile
 
         
                     //Yarn Color
-                    cmd.CommandText = @"SELECT 
-                                            YIM.YarnColorID,
+                    cmd.CommandText = @"SELECT YIM.YarnColorID,
                                             YCM.YarnColor,
                                             YCM.YarnColorCode
                                         FROM YarnInwardMaster YIM
@@ -20622,7 +20621,7 @@ namespace NikunjTextile
                                         GROUP BY YIM.YarnColorID,YCM.YarnColor,YCM.YarnColorCode
 
                                         HAVING 
-                                        ISNULL(SUM(OUTWARD.OutStock),0) > 0";
+                                        ISNULL(SUM(INWARD.InStock),0) > 0";
                     SqlDataReader rdr3 = cmd.ExecuteReader();
                     if (rdr3.HasRows)
                     {
@@ -20966,8 +20965,434 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getYarnOutwardMasterNew()
+        {
+            JavaScriptSerializer js;
+            List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
+            YarnOutwardMasterResponce response = new YarnOutwardMasterResponce();
+            var request = HttpContext.Current.Request;
+            YarnOutwardMaster ilist = new YarnOutwardMaster();
+            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
+            ilist.BillToPartyID = Convert.ToInt32(HttpContext.Current.Request.Params["BillToPartyID"]);
+            ilist.YarnMaterialID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnMaterialID"]);
+            ilist.YarnColorID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
+            ilist.YarnInwardDetailIDss = HttpContext.Current.Request.Params["YarnInwardDetailIDss"];
+            ilist.SiftGodownLocationId = HttpContext.Current.Request.Params["SiftGodownLocationId"];
+            string CompanyName = "";
+            if (ilist.BillToPartyID != 0)
+            {
+                CompanyName = " and t1.BillToPartyID = " + ilist.BillToPartyID + " ";
+            }
+            string YarnMaterial = "";
+            if (ilist.YarnMaterialID != 0)
+            {
+                YarnMaterial = " and t1.YarnMaterialID = " + ilist.YarnMaterialID + " ";
+            }
+            string YarnColor = "";
+            if (ilist.YarnColorID != 0)
+            {
+                YarnColor = " and t1.YarnColorID = " + ilist.YarnColorID + " ";
+            }
 
 
+            string YarnInwardDetails = "";
+            //if (ilist.YarnInwardDetailIDss != "")
+            //{
+            //    YarnInwardDetails = " and YarnInwardDetailID not in (" + ilist.YarnInwardDetailIDss + ") ";
+            //}
+
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+
+
+                if (ilist.SiftGodownLocationId != "")
+                {
+
+                    cmd.CommandText = @"select (t2.Stock) AS Stock, 
+                                        t2.BillToPartyID, t2.CompanyName, t2.YarnMaterialID,
+                                        t2.YarnMaterial, t2.YarnColorID, t2.YarnColor,
+                                        t2.YarnColorCode from
+                                        (
+	                                        select CASE 
+		                                        WHEN (t1.Stock - ISNULL(t2.Stock,0)) < 0 THEN 0
+		                                        ELSE (t1.Stock - ISNULL(t2.Stock,0))
+	                                        END AS Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+	                                        t1.YarnColorID, t1.YarnColor,
+	                                        t1.YarnColorCode from 
+	                                        (
+		                                        select ISNULL(SUM(Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName,
+		                                        t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode from
+		                                        (
+			                                        select  YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName as 'CompanyName',
+			                                        YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode , YIDD.Stock
+			                                        from YarnInwardMaster YIM
+			                                        LEFT JOIN 
+			                                        (
+				                                        select YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName from YarnPOMaster YPM
+				                                        LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
+			                                        )YPM ON YIM.YarnPOID = YPM.YarnPOID
+			                                        LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
+			                                        LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
+			                                        LEFT JOIN 
+			                                        (
+				                                        select COUNT(*) as Stock, YarnInwardID from YarnInwardDetail 
+						                                        where GodownLocationID in (select GodownLocationID from GodownLocationMaster where GodownID = '" + ilist.GodownID + @"')
+						                                        group by YarnInwardID
+			                                        ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
+		                                        ) as t1
+		                                        where (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"   
+		                                        group by t1.BillToPartyID, t1.CompanyName,
+		                                        t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode  
+	                                        ) as t1 
+	                                        LEFT JOIN 
+	                                        (
+		                                        select SUM(t1.InputNoOfBox) as Stock,
+		                                        t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
+		                                        from
+		                                        (
+			                                        SELECT
+				                                        GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID,  ISNULL(SUM(InputNoOfBox),0) as InputNoOfBox
+			                                        FROM (
+				                                        SELECT * FROM (VALUES
+					                                        " + ilist.SiftGodownLocationId + @"
+				                                        ) AS V ( GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
+			                                        ) X 
+			                                        GROUP BY GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID
+		                                        ) as t1
+		                                        group by t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
+	                                        ) as t2
+	                                        ON  t1.BillToPartyID = t2.BillToPartyID
+	                                        AND t1.YarnMaterialID = t2.YarnMaterialID
+	                                        AND t1.YarnColorID = t2.YarnColorID
+                                        ) as t2
+                                        WHERE t2.Stock > 0";
+
+
+                }
+                else
+                {
+
+                    cmd.CommandText = @"
+                                        SELECT 
+                                            (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
+                                            t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+                                            t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
+                                            t1.GodownLocationID, t1.LocationTitle   
+                                        FROM 
+                                        (
+                                            SELECT 
+                                                ISNULL(SUM(t1.Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, 
+                                                t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
+                                                t1.GodownLocationID, t1.LocationTitle 
+                                            FROM
+                                            (
+                                                SELECT  
+                                                    YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName AS CompanyName,
+                                                    YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode,
+                                                    GL.LocationTitle, YIDD.GodownLocationID, YIDD.Stock
+                                                FROM YarnInwardMaster YIM
+                                                LEFT JOIN 
+                                                (
+                                                    SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
+                                                    FROM YarnPOMaster YPM
+                                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
+                                                ) YPM ON YIM.YarnPOID = YPM.YarnPOID
+                                                LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
+                                                LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
+                                                LEFT JOIN 
+                                                (
+                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.GodownLocationID
+                                                    FROM YarnInwardDetail YID 
+                                                    WHERE YID.GodownLocationID IN 
+                                                    (
+                                                        SELECT GodownLocationID FROM GodownLocationMaster WHERE GodownID = '" + ilist.GodownID + @"'
+                                                    )
+                                                    " + YarnInwardDetails + @" 
+                                                    GROUP BY YID.YarnInwardID, YID.GodownLocationID
+                                                ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
+                                                LEFT JOIN GodownLocationMaster GL ON YIDD.GodownLocationID = GL.GodownLocationID
+                                            ) AS t1
+                                            WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
+                                            GROUP BY t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+                                                     t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, t1.LocationTitle, t1.GodownLocationID
+                                        ) AS t1
+                                        LEFT JOIN 
+                                        (
+                                            SELECT 
+                                                SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, 
+                                                YOD.YarnColorID, YOD.GodownLocationID 
+                                            FROM YarnOutwardDetail YOD
+                                            LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
+                                            WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                                            GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
+                                        ) YOD ON t1.BillToPartyID = YOD.BillToPartyID
+                                          AND t1.YarnMaterialID = YOD.YarnMaterialID
+                                          AND t1.YarnColorID = YOD.YarnColorID
+                                          AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
+                                        WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
+                }
+
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster condition = new YarnOutwardMaster();
+                        condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
+                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
+                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
+                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
+                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
+                        condition.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
+                        condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
+                        condition.Stock = Convert.ToInt32(rdr["Stock"].ToString());
+                        condition.LocationTitle = rdr["LocationTitle"].ToString();
+                        condition.GodownLocationID =Convert.ToInt32(rdr["GodownLocationID"].ToString());
+                        listUser.Add(condition);
+                    }
+                }
+
+                rdr.Close();
+                cmd.Dispose();
+                con.Close();
+            }
+
+
+
+            response.Code = 200;
+            response.Message = "Success";
+            response.listYarnOutwardMaster = listUser;
+
+            js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+            return;
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getUpdateYarnOutwardMasterNew()
+        {
+            JavaScriptSerializer js;
+            List<YarnOutwardMaster> listUser = new List<YarnOutwardMaster>();
+            YarnOutwardMasterResponce response = new YarnOutwardMasterResponce();
+            var request = HttpContext.Current.Request;
+            YarnOutwardMaster ilist = new YarnOutwardMaster();
+            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
+            ilist.BillToPartyID = Convert.ToInt32(HttpContext.Current.Request.Params["BillToPartyID"]);
+            ilist.YarnMaterialID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnMaterialID"]);
+            ilist.YarnColorID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
+            ilist.YarnInwardDetailIDss = HttpContext.Current.Request.Params["YarnInwardDetailIDss"];
+            ilist.SiftGodownLocationId = HttpContext.Current.Request.Params["SiftGodownLocationId"];
+            string CompanyName = "";
+            if (ilist.BillToPartyID != 0)
+            {
+                CompanyName = " and t1.BillToPartyID = " + ilist.BillToPartyID + " ";
+            }
+            string YarnMaterial = "";
+            if (ilist.YarnMaterialID != 0)
+            {
+                YarnMaterial = " and t1.YarnMaterialID = " + ilist.YarnMaterialID + " ";
+            }
+            string YarnColor = "";
+            if (ilist.YarnColorID != 0)
+            {
+                YarnColor = " and t1.YarnColorID = " + ilist.YarnColorID + " ";
+            }
+
+
+            string YarnInwardDetails = "";
+            //if (ilist.YarnInwardDetailIDss != "")
+            //{
+            //    YarnInwardDetails = " and YarnInwardDetailID not in (" + ilist.YarnInwardDetailIDss + ") ";
+            //}
+
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+
+
+                if (ilist.SiftGodownLocationId != "")
+                {
+
+                    cmd.CommandText = @"select (t2.Stock) AS Stock, 
+                                        t2.BillToPartyID, t2.CompanyName, t2.YarnMaterialID,
+                                        t2.YarnMaterial, t2.YarnColorID, t2.YarnColor,
+                                        t2.YarnColorCode from
+                                        (
+	                                        select CASE 
+		                                        WHEN (t1.Stock - ISNULL(t2.Stock,0)) < 0 THEN 0
+		                                        ELSE (t1.Stock - ISNULL(t2.Stock,0))
+	                                        END AS Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+	                                        t1.YarnColorID, t1.YarnColor,
+	                                        t1.YarnColorCode from 
+	                                        (
+		                                        select ISNULL(SUM(Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName,
+		                                        t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode from
+		                                        (
+			                                        select  YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName as 'CompanyName',
+			                                        YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode , YIDD.Stock
+			                                        from YarnInwardMaster YIM
+			                                        LEFT JOIN 
+			                                        (
+				                                        select YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName from YarnPOMaster YPM
+				                                        LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
+			                                        )YPM ON YIM.YarnPOID = YPM.YarnPOID
+			                                        LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
+			                                        LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
+			                                        LEFT JOIN 
+			                                        (
+				                                        select COUNT(*) as Stock, YarnInwardID from YarnInwardDetail 
+						                                        where GodownLocationID in (select GodownLocationID from GodownLocationMaster where GodownID = '" + ilist.GodownID + @"')
+						                                        group by YarnInwardID
+			                                        ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
+		                                        ) as t1
+		                                        where (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"   
+		                                        group by t1.BillToPartyID, t1.CompanyName,
+		                                        t1.YarnMaterialID, t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode  
+	                                        ) as t1 
+	                                        LEFT JOIN 
+	                                        (
+		                                        select SUM(t1.InputNoOfBox) as Stock,
+		                                        t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
+		                                        from
+		                                        (
+			                                        SELECT
+				                                        GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID,  ISNULL(SUM(InputNoOfBox),0) as InputNoOfBox
+			                                        FROM (
+				                                        SELECT * FROM (VALUES
+					                                        " + ilist.SiftGodownLocationId + @"
+				                                        ) AS V ( GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID, InputNoOfBox)
+			                                        ) X 
+			                                        GROUP BY GodownLocationID, BillToPartyID, YarnMaterialID, YarnColorID
+		                                        ) as t1
+		                                        group by t1.BillToPartyID, t1.YarnMaterialID, t1.YarnColorID
+	                                        ) as t2
+	                                        ON  t1.BillToPartyID = t2.BillToPartyID
+	                                        AND t1.YarnMaterialID = t2.YarnMaterialID
+	                                        AND t1.YarnColorID = t2.YarnColorID
+                                        ) as t2
+                                        WHERE t2.Stock > 0";
+
+
+                }
+                else
+                {
+
+                    cmd.CommandText = @"
+                                        SELECT 
+                                            (t1.Stock) AS Stock, 
+                                            t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+                                            t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
+                                            t1.GodownLocationID, t1.LocationTitle   
+                                        FROM 
+                                        (
+                                            SELECT 
+                                                ISNULL(SUM(t1.Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, 
+                                                t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
+                                                t1.GodownLocationID, t1.LocationTitle 
+                                            FROM
+                                            (
+                                                SELECT  
+                                                    YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName AS CompanyName,
+                                                    YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode,
+                                                    GL.LocationTitle, YIDD.GodownLocationID, YIDD.Stock
+                                                FROM YarnInwardMaster YIM
+                                                LEFT JOIN 
+                                                (
+                                                    SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
+                                                    FROM YarnPOMaster YPM
+                                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
+                                                ) YPM ON YIM.YarnPOID = YPM.YarnPOID
+                                                LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
+                                                LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
+                                                LEFT JOIN 
+                                                (
+                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.GodownLocationID
+                                                    FROM YarnInwardDetail YID 
+                                                    WHERE YID.GodownLocationID IN 
+                                                    (
+                                                        SELECT GodownLocationID FROM GodownLocationMaster WHERE GodownID = '" + ilist.GodownID + @"'
+                                                    )
+                                                    " + YarnInwardDetails + @" 
+                                                    GROUP BY YID.YarnInwardID, YID.GodownLocationID
+                                                ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
+                                                LEFT JOIN GodownLocationMaster GL ON YIDD.GodownLocationID = GL.GodownLocationID
+                                            ) AS t1
+                                            WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
+                                            GROUP BY t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
+                                                     t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, t1.LocationTitle, t1.GodownLocationID
+                                        ) AS t1
+                                        LEFT JOIN 
+                                        (
+                                            SELECT 
+                                                SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, 
+                                                YOD.YarnColorID, YOD.GodownLocationID 
+                                            FROM YarnOutwardDetail YOD
+                                            LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
+                                            WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                                            GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
+                                        ) YOD ON t1.BillToPartyID = YOD.BillToPartyID
+                                          AND t1.YarnMaterialID = YOD.YarnMaterialID
+                                          AND t1.YarnColorID = YOD.YarnColorID
+                                          AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
+                                        WHERE (t1.Stock) > 0";
+                }
+
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.HasRows)
+                {
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster condition = new YarnOutwardMaster();
+                        condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
+                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
+                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
+                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
+                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
+                        condition.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
+                        condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
+                        condition.Stock = Convert.ToInt32(rdr["Stock"].ToString());
+                        condition.LocationTitle = rdr["LocationTitle"].ToString();
+                        condition.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
+                        listUser.Add(condition);
+                    }
+                }
+
+                rdr.Close();
+                cmd.Dispose();
+                con.Close();
+            }
+
+
+
+            response.Code = 200;
+            response.Message = "Success";
+            response.listYarnOutwardMaster = listUser;
+
+            js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(response));
+            return;
+        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateYarnIndwradMaster()
@@ -21342,9 +21767,7 @@ namespace NikunjTextile
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-                cmd.CommandText = @"SELECT * 
-                        FROM YarnOutwardMaster WITH (NOLOCK) 
-                        WHERE YarnOutwardID = @YarnOutwardID";
+                cmd.CommandText = @"SELECT * FROM YarnOutwardMaster WITH (NOLOCK) WHERE YarnOutwardID = @YarnOutwardID";
 
                 cmd.Parameters.AddWithValue("@YarnOutwardID", ilist.YarnOutwardID);
 
@@ -21364,7 +21787,7 @@ namespace NikunjTextile
                     yarnOutward.UserAccountId = Convert.ToInt32(rdr["UserAccountId"]);
                     yarnOutward.FinancialYearID = Convert.ToInt32(rdr["FinancialYearID"]);
                     yarnOutward.CompanyId = Convert.ToInt32(rdr["CompanyId"]);
-                    yarnOutward.GodownID = Convert.ToInt32(rdr["GodownID"]);
+                    yarnOutward.GodownID = Convert.ToInt32(rdr["GodownID"]);               
 
                     partyId = yarnOutward.PartyId;   // ✅ Store PartyId here
 
@@ -21539,7 +21962,7 @@ namespace NikunjTextile
                 listYarnOutwardMasterResponce.listTotalInwardStockArray = listTotalInwardStockArray;
                 listYarnOutwardMasterResponce.listTotalOutwardStockArray = listTotalOutwardStockArray;
                 listYarnOutwardMasterResponce.listTotalExistingOutwardStockArray = listTotalExistingOutwardStockArray;
-                listYarnOutwardMasterResponce.YarnOutwardcondition = YarnOutwardcondition;
+                //listYarnOutwardMasterResponce.YarnOutwardcondition = YarnOutwardcondition;
                 listYarnOutwardMasterResponce.listPartyMaster = listPartyMaster;
                 con.Close();
             }
@@ -21551,6 +21974,121 @@ namespace NikunjTextile
             return;
 
 
+        }
+        [WebMethod]
+        public string GetYarnOutwardForEdit(string YarnOutwardID)
+        {
+            try
+            {
+                YarnOutwardEditResponse result = new YarnOutwardEditResponse
+                {
+                    Master = new YarnOutwardMasterModel(),
+                    Detail = new List<YarnOutwardDetailModel>()
+                };
+
+                // 🔥 Decode + Decrypt
+                string decoded = HttpUtility.UrlDecode(YarnOutwardID);
+
+                if (!decoded.EndsWith("=="))
+                    decoded += "==";
+
+                int id = Convert.ToInt32(Decrypt(decoded));
+
+                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                {
+                    con.Open();
+
+                    // ============================
+                    // ✅ MASTER
+                    // ============================
+                    SqlCommand cmd = new SqlCommand(@"
+                SELECT * FROM YarnOutwardMaster WHERE YarnOutwardID = @ID", con);
+
+                    cmd.Parameters.AddWithValue("@ID", id);
+
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        result.Master = new YarnOutwardMasterModel
+                        {
+                            YarnOutwardID = Convert.ToInt32(dr["YarnOutwardID"]),
+                            PartyId = Convert.ToInt32(dr["PartyId"]),
+                            GodownID = Convert.ToInt32(dr["GodownID"]),
+                            OutwardListDate =Convert.ToDateTime(dr["OutwardListDate"]),
+                            GodownManagerUserAccountId = Convert.ToInt32(dr["GodownManagerUserAccountId"]),
+                            OutwardListNo = Convert.ToInt32(dr["OutwardListNo"])
+                        };
+                    }
+                    dr.Close();
+
+                    // ============================
+                    // ✅ DETAIL
+                    // ============================
+                    cmd = new SqlCommand(@"
+               
+                SELECT YarnMaterialID, YOD.YarnColorID,YCM.YarnColorCode,GodownLocationID, NoOfBox, YarnRequirementDetailID
+                FROM YarnOutwardDetail YOD 
+                Join YarnColorMaster YCM On YCM.YarnColorID=YOd.YarnColorID 
+                WHERE YOD.YarnOutwardID = @ID", con);
+
+                    cmd.Parameters.AddWithValue("@ID", id);
+
+                    dr = cmd.ExecuteReader();
+
+                    while (dr.Read())
+                    {
+                        result.Detail.Add(new YarnOutwardDetailModel
+                        {
+                            YarnMaterialID = Convert.ToInt32(dr["YarnMaterialID"]),
+                            YarnColorID = Convert.ToInt32(dr["YarnColorID"]),
+                            YarnColorCode = (dr["YarnColorCode"].ToString().ToUpper()),
+                            GodownLocationID = Convert.ToInt32(dr["GodownLocationID"]),
+                            NoOfBox = Convert.ToInt32(dr["NoOfBox"]),
+                            YarnRequirementDetailID = Convert.ToInt32(dr["YarnRequirementDetailID"])
+                        });
+                    }
+                    dr.Close();
+
+                    // ============================
+                    // ✅ GET YarnRequirementID (BEST JOIN)
+                    // ============================
+                    List<int> requirementIds = new List<int>();
+
+                    cmd = new SqlCommand(@"
+                SELECT DISTINCT YRD.YarnRequirementID  FROM YarnOutwardDetail YOD
+                JOIN YarnRequirementDetail YRD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+                WHERE YOD.YarnOutwardID = @ID", con);
+
+                    cmd.Parameters.AddWithValue("@ID", id);
+
+                    dr = cmd.ExecuteReader();
+
+                    while (dr.Read())
+                    {
+                        requirementIds.Add(Convert.ToInt32(dr["YarnRequirementID"]));
+                    }
+                    dr.Close();
+
+                    // ============================
+                    // ✅ RETURN FINAL JSON
+                    // ============================
+                    return new JavaScriptSerializer().Serialize(new
+                    {
+                        Status = 1,
+                        Data = result,
+                        YarnRequirementIDs = requirementIds   // 🔥 extra
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
         }
         // View Yarn Out Ward
         [WebMethod]
@@ -23333,32 +23871,192 @@ namespace NikunjTextile
 
         }
         [WebMethod]
-        public string GetPendingYarn(int partyId)
+        public string GetPendingYarn(int partyId, int? yarnMaterialID, int? yarnColorID)
         {
             DataTable dt = new DataTable();
-            string query = @"
-       SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
-    (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
-        JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
-        JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
-        JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
-        JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-        LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-        WHERE YRM.PartyId = @PartyId
-        GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
-    YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";    
+            string query = @"SELECT YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate FROM YarnRequirementMaster YRM
+JOIN YarnRequirementDetail YRD  ON YRD.YarnRequirementID = YRM.YarnRequirementID
+JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId 
+WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID)
+    AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
+GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate";
+    //        string query = @"
+    //   SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+    //(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+    //    JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+    //    JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+    //    JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+    //    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+    //    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+    //    WHERE YRM.PartyId = @PartyId
+    //    GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+    //YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";    
 
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@PartyId", partyId);
+                    cmd.Parameters.AddWithValue("@YarnColorID", yarnColorID);
+                    cmd.Parameters.AddWithValue("@YarnMaterialID", yarnMaterialID);
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
                 }
             }
             var data = DataTableToList(dt);
             return new JavaScriptSerializer().Serialize(data);           
+        }
+        [WebMethod]
+        public string GetPendingYarnDetails(int YarnRequirementID)
+        {
+            DataTable dt = new DataTable();
+            string query = @"
+               SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+            (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+                JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+                JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+                JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+                JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+                LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+                WHERE YRD.YarnRequirementID = @YarnRequirementID
+                GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+            YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@YarnRequirementID", YarnRequirementID);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        public string GetUpdatePendingYarnDetails(int YarnRequirementID)
+        {
+            DataTable dt = new DataTable();
+            string query = @"
+               SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+            (YRD.NoofBoxes) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+                JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+                JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+                JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+                JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+                LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+                WHERE YRD.YarnRequirementID = @YarnRequirementID
+                GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+            YRD.NoofBoxes,YRD.YarnRequirementDetailID";
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@YarnRequirementID", YarnRequirementID);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        // New Method SaveYarnOutward
+        [WebMethod]
+        public string SavedataYarnOutward(YarnOutwardMasterModel master, List<YarnOutwardDetailModel> detail)
+        {
+            try
+            {
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                DataTable dt = new DataTable();
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+
+                    int UserAccountId = GetCookieValue();
+                    var (FinancialYearID, CompanyId) = GetDefaultIds();
+                    SqlCommand cmd = new SqlCommand("sp_SaveYarnOutward_JSON", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@GodownID", master.GodownID);
+                    cmd.Parameters.AddWithValue("@PartyId", master.PartyId);
+
+                    // This line now works safely because master.OutwardListDate is a string
+                    cmd.Parameters.Add("@OutwardListDate", SqlDbType.Date).Value = Convert.ToDateTime(master.OutwardListDate);
+
+                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", master.GodownManagerUserAccountId);
+                    cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
+                    cmd.Parameters.AddWithValue("@FinancialYearID", FinancialYearID);
+                    cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
+
+                    string jsonData = new JavaScriptSerializer().Serialize(detail);
+                    cmd.Parameters.AddWithValue("@DetailJSON", jsonData);
+
+                    con.Open();
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+
+                    var data = DataTableToList(dt);
+                    return new JavaScriptSerializer().Serialize(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Return a structured error object so your frontend 'success' block can still parse it
+                return new JavaScriptSerializer().Serialize(new { Status = 0, Message = ex.Message });
+            }
+        }
+        [WebMethod]
+        public string UpdateYarnOutward(YarnOutwardMasterModel master, List<YarnOutwardDetailModel> detail)
+        {
+            try
+            {
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    int UserAccountId = GetCookieValue();
+                    var (FinancialYearID, CompanyId) = GetDefaultIds();
+
+                    SqlCommand cmd = new SqlCommand("sp_UpdateYarnOutward_JSON", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // 🔥 IMPORTANT (for update)
+                    cmd.Parameters.AddWithValue("@YarnOutwardID", master.YarnOutwardID);
+
+                    cmd.Parameters.AddWithValue("@GodownID", master.GodownID);
+                    cmd.Parameters.AddWithValue("@PartyId", master.PartyId);
+
+                    cmd.Parameters.Add("@OutwardListDate", SqlDbType.Date)
+                       .Value = Convert.ToDateTime(master.OutwardListDate);
+
+                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", master.GodownManagerUserAccountId);
+                    cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
+                    cmd.Parameters.AddWithValue("@FinancialYearID", FinancialYearID);
+                    cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
+
+                    // JSON Convert
+                    string jsonData = new JavaScriptSerializer().Serialize(detail);
+                    cmd.Parameters.AddWithValue("@DetailJSON", jsonData);
+
+                    con.Open();
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+
+                    var data = DataTableToList(dt);
+                    return new JavaScriptSerializer().Serialize(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
         }
         #endregion
         #region YARN OUTWARD Scan
@@ -24534,7 +25232,6 @@ INNER JOIN PartyMaster PM1
 
             return list;
         }
-
         [WebMethod]
         public string SaveDynamicReport(string ReportName, string FilterName, string FilterJson)
         {
@@ -24564,41 +25261,6 @@ INNER JOIN PartyMaster PM1
             }
 
             return "Success";
-        }
-        [WebMethod]
-        public string GetBrokerList()
-        {
-            try
-            {
-                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-                DataTable dt = new DataTable();
-
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-                    string query = @"SELECT 
-                                BrokerId,
-                                BrokerCode,
-                                BrokerName,
-                                FirmName,
-                                MobileNo,
-                                CityName,
-                                CommissionRate,
-                                IsActive
-                             FROM BrokerMaster
-                             ORDER BY BrokerId DESC";
-
-                    SqlDataAdapter da = new SqlDataAdapter(query, con);                
-                    da.Fill(dt);
-                     
-                }
-                var data = DataTableToList(dt);
-                return new JavaScriptSerializer().Serialize(data);
-            }
-            catch (Exception ex)
-            {
-                return new JavaScriptSerializer().Serialize(ex.Message);
-            }
         }
         [WebMethod]
         public string GetSavedFilters(string ReportName)
@@ -24636,6 +25298,691 @@ INNER JOIN PartyMaster PM1
             return JsonConvert.SerializeObject(list);
         }
         #endregion
+        #region Broker Master
+        [WebMethod]
+        public string GetBrokerList()
+        {
+            try
+            {
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    string query = @"SELECT  BrokerId,BrokerCode,BrokerName,MobileNo,Address,CityName,CommissionRate,IsActive FROM BrokerMaster ORDER BY BrokerId DESC";
+                    SqlDataAdapter da = new SqlDataAdapter(query, con);
+                    da.Fill(dt);
+                }
+                var data = DataTableToList(dt);
+                return new JavaScriptSerializer().Serialize(data);
+            }
+            catch (Exception ex)
+            {
+                return new JavaScriptSerializer().Serialize(ex.Message);
+            }
+        }
+        [WebMethod]
+        public string GetNextBrokerCode()
+        {
+            string result = "";
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = @"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode, 3, LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+
+                int maxCode = Convert.ToInt32(cmd.ExecuteScalar());
+                int nextCode = maxCode + 1;
+
+                result = "BR" + nextCode.ToString("D3"); // BR001
+            }
+
+            return result;
+        }
+        [WebMethod]
+        public BrokerMaster GetBrokerById(int BrokerId)
+        {
+            BrokerMaster obj = new BrokerMaster();
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = "SELECT * FROM BrokerMaster WHERE BrokerId = @BrokerId";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
+
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    obj.BrokerId = Convert.ToInt32(dr["BrokerId"]);
+                    obj.BrokerCode = dr["BrokerCode"].ToString();
+                    obj.BrokerName = dr["BrokerName"].ToString();
+                    obj.MobileNo = dr["MobileNo"].ToString();
+                    obj.Address = dr["Address"].ToString();
+                    obj.CityName = dr["CityName"].ToString();
+                    obj.CommissionRate = Convert.ToDecimal(dr["CommissionRate"]);
+                    obj.IsActive = Convert.ToBoolean(dr["IsActive"]);
+                }
+            }
+
+            return obj;
+        }
+        [WebMethod]
+        public string DeleteBroker(int BrokerId)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    string query = "DELETE FROM BrokerMaster WHERE BrokerId = @BrokerId";
+
+                    SqlCommand cmd = new SqlCommand(query, con);
+                    cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        [WebMethod]
+        public string SaveBroker(BrokerMaster obj)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    // ✅ Safe UserId from Cookie
+                    int userId = GetCookieValue();
+
+                    // ✅ Get Default FY & Company (one time)
+                    int financialYearId = 0, companyId = 0;
+
+                    SqlCommand cmdDefault = new SqlCommand(@"SELECT (SELECT TOP 1 FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),(SELECT TOP 1 CompanyId FROM CompanyMaster WHERE is_default = 1)", con);
+
+                    SqlDataReader dr = cmdDefault.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        financialYearId = dr[0] != DBNull.Value ? Convert.ToInt32(dr[0]) : 0;
+                        companyId = dr[1] != DBNull.Value ? Convert.ToInt32(dr[1]) : 0;
+                    }
+                    dr.Close();
+
+                    // ✅ Duplicate Mobile Check
+                    SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM BrokerMaster WHERE MobileNo=@MobileNo AND BrokerId<>@BrokerId", con);
+                    checkCmd.Parameters.Add("@MobileNo", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                    checkCmd.Parameters.Add("@BrokerId", SqlDbType.Int).Value = obj.BrokerId;
+
+                    if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                        return "Mobile number already exists";
+
+                    // ✅ Generate Broker Code
+                    SqlCommand cmdCode = new SqlCommand(@"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode,3,LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster", con);
+
+                    int max = Convert.ToInt32(cmdCode.ExecuteScalar());
+                    string newCode = "BR" + (max + 1).ToString("D3");
+
+                    if (obj.BrokerId == 0)
+                    {
+                        // 🔥 INSERT
+                        SqlCommand cmd = new SqlCommand(@"
+                    INSERT INTO BrokerMaster
+                    (BrokerCode,BrokerName,FirmName,Email,MobileNo,Address,CityName,PANCard,GSTNo,CommissionRate,IsActive,UserAccountId,FinancialYearID,CompanyId,DateAndTime)
+                    VALUES
+                    (@Code,@Name,@Firm,@Email,@Mobile,@Address,@City,@PAN,@GST,@Commission,@Active,@UserId,@FY,@Company,GETDATE())", con);
+
+                        cmd.Parameters.Add("@Code", SqlDbType.VarChar).Value = newCode;
+                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                        cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                        cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;
+                        cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;
+                        cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@FY", SqlDbType.Int).Value = financialYearId;
+                        cmd.Parameters.Add("@Company", SqlDbType.Int).Value = companyId;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        // 🔥 UPDATE
+                        SqlCommand cmd = new SqlCommand(@"
+                    UPDATE BrokerMaster SET
+                    BrokerName=@Name,
+                    FirmName=@Firm,
+                    Email=@Email,
+                    MobileNo=@Mobile,
+                    Address=@Address,
+                    CityName=@City,
+                    PANCard=@PAN,
+                    GSTNo=@GST,
+                    CommissionRate=@Commission,
+                    IsActive=@Active
+                    WHERE BrokerId=@Id", con);
+
+                        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = obj.BrokerId;
+                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                        cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                        cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;
+                        cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
+        #region  Transport Master
+        [WebMethod]
+        public List<TransportMaster> GetTransportList()
+        {
+            List<TransportMaster> list = new List<TransportMaster>();
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = @"SELECT TransportId,TransportCode,TransportName,FirmName,ContactPerson,Email,MobileNo,AlternateMobileNo,Address,CityName,PANCard,
+                        GSTNo,VehicleType,IsActive FROM TransportMaster ORDER BY TransportId DESC";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new TransportMaster
+                    {
+                        TransportId = Convert.ToInt32(dr["TransportId"]),
+                        TransportCode = dr["TransportCode"].ToString(),
+                        TransportName = dr["TransportName"].ToString(),
+                        FirmName = dr["FirmName"].ToString(),
+                        ContactPerson = dr["ContactPerson"].ToString(),
+                        Email = dr["Email"].ToString(),
+                        MobileNo = dr["MobileNo"].ToString(),
+                        AlternateMobileNo = dr["AlternateMobileNo"].ToString(),
+                        Address = dr["Address"].ToString(),
+                        CityName = dr["CityName"].ToString(),
+                        PANCard = dr["PANCard"].ToString(),
+                        GSTNo = dr["GSTNo"].ToString(),
+                        VehicleType = dr["VehicleType"].ToString(),
+                        IsActive = Convert.ToBoolean(dr["IsActive"])
+                    });
+                }
+            }
+
+            return list;
+        }
+        [WebMethod]
+        public string GetNextTransportCode()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                con.Open();
+
+                string query = @"SELECT ISNULL(MAX(CAST(SUBSTRING(TransportCode,3,LEN(TransportCode)) AS INT)),0) FROM TransportMaster";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                int maxCode = Convert.ToInt32(cmd.ExecuteScalar());
+                int nextCode = maxCode + 1;
+
+                string newCode = "TR" + nextCode.ToString("D3"); // TR001
+
+                return newCode;
+            }
+        }
+        [WebMethod]
+        public string SaveTransport(TransportMaster obj)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    int userId = GetCookieValue();
+                    var (fyId, compId) = GetDefaultIds();
+
+                    // 🔹 Generate Code
+                    string codeQuery = @"SELECT ISNULL(MAX(CAST(SUBSTRING(TransportCode,3,LEN(TransportCode)) AS INT)),0) FROM TransportMaster";
+                    SqlCommand cmdCode = new SqlCommand(codeQuery, con);
+                    int max = Convert.ToInt32(cmdCode.ExecuteScalar());
+                    string code = "TR" + (max + 1).ToString("D3");
+
+                    if (obj.TransportId == 0)
+                    {
+                        // ✅ INSERT
+                        string q = @"INSERT INTO TransportMaster
+                (TransportCode,TransportName,FirmName,ContactPerson,Email,MobileNo,AlternateMobileNo,Address,CityName,PANCard,GSTNo,VehicleType,IsActive,UserAccountId,FinancialYearID,CompanyId,DateAndTime)
+                VALUES
+                (@Code,@Name,@Firm,@Contact,@Email,@Mobile,@AltMobile,@Address,@City,@PAN,@GST,@Vehicle,@Active,@UserId,@FY,@Comp,GETDATE())";
+
+                        SqlCommand cmd = new SqlCommand(q, con);
+
+                        cmd.Parameters.Add("@Code", SqlDbType.VarChar).Value = code;
+                        cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.TransportName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Contact", SqlDbType.NVarChar).Value = obj.ContactPerson ?? "";
+                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                        cmd.Parameters.Add("@AltMobile", SqlDbType.VarChar).Value = obj.AlternateMobileNo ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                        cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                        cmd.Parameters.Add("@Vehicle", SqlDbType.NVarChar).Value = obj.VehicleType ?? "";
+                        cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;
+                        cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@FY", SqlDbType.Int).Value = fyId;
+                        cmd.Parameters.Add("@Comp", SqlDbType.Int).Value = compId;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        // ✅ UPDATE
+                        string q = @"UPDATE TransportMaster SET TransportName=@Name,FirmName=@Firm, ContactPerson=@Contact, Email=@Email,MobileNo=@Mobile,
+                AlternateMobileNo=@AltMobile,Address=@Address,CityName=@City,PANCard=@PAN,GSTNo=@GST,VehicleType=@Vehicle,IsActive=@Active WHERE TransportId=@Id";
+
+                        SqlCommand cmd = new SqlCommand(q, con);
+
+                        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = obj.TransportId;
+                        cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.TransportName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Contact", SqlDbType.NVarChar).Value = obj.ContactPerson ?? "";
+                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                        cmd.Parameters.Add("@AltMobile", SqlDbType.VarChar).Value = obj.AlternateMobileNo ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                        cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                        cmd.Parameters.Add("@Vehicle", SqlDbType.NVarChar).Value = obj.VehicleType ?? "";
+                        cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;                   
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        [WebMethod]
+        public string DeleteTransport(int TransportId)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("DELETE FROM TransportMaster WHERE TransportId=@Id", con);
+                cmd.Parameters.AddWithValue("@Id", TransportId);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+            return "success";
+        }
+        [WebMethod]
+        public TransportMaster GetTransportById(int TransportId)
+        {
+            TransportMaster obj = new TransportMaster();
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT * FROM TransportMaster WHERE TransportId=@Id", con);
+                cmd.Parameters.AddWithValue("@Id", TransportId);
+
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    obj.TransportId = Convert.ToInt32(dr["TransportId"]);
+                    obj.TransportCode = dr["TransportCode"].ToString();
+                    obj.TransportName = dr["TransportName"].ToString();
+                    obj.FirmName = dr["FirmName"].ToString();
+                    obj.ContactPerson = dr["ContactPerson"].ToString();
+                    obj.Email = dr["Email"].ToString();
+                    obj.MobileNo = dr["MobileNo"].ToString();
+                    obj.AlternateMobileNo = dr["AlternateMobileNo"].ToString();
+                    obj.Address = dr["Address"].ToString();
+                    obj.CityName = dr["CityName"].ToString();
+                    obj.PANCard = dr["PANCard"].ToString();
+                    obj.GSTNo = dr["GSTNo"].ToString();
+                    obj.VehicleType = dr["VehicleType"].ToString();
+                    obj.IsActive = Convert.ToBoolean(dr["IsActive"]);
+                }
+            }
+
+            return obj;
+        }
+
+        private int GetCookieValue()
+        {
+           
+               int UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
+               return UserAccountId;
+           
+        }
+        private (int financialYearId, int companyId) GetDefaultIds()
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            int fyId = 0, compId = 0;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                // 1. Create the command
+                SqlCommand cmd = new SqlCommand(@"
+            SELECT 
+                (SELECT TOP 1 FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
+                (SELECT TOP 1 CompanyId FROM CompanyMaster WHERE is_default = 1)", con);
+
+                // 🔥 2. OPEN THE CONNECTION (This was missing)
+                con.Open();
+
+                // 3. Execute
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        fyId = dr[0] != DBNull.Value ? Convert.ToInt32(dr[0]) : 0;
+                        compId = dr[1] != DBNull.Value ? Convert.ToInt32(dr[1]) : 0;
+                    }
+                } // dr.Close() is called automatically here by 'using'
+
+                return (fyId, compId);
+            } // con.Close() is called automatically here by 'using'
+        }
+        #endregion
+        #region Item Master
+        [WebMethod]
+        public string GetItemById(int ItemId)
+        {
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM ItemMaster WHERE ItemId = @ItemId", con);
+                    cmd.Parameters.AddWithValue("@ItemId", ItemId);
+
+                    con.Open();
+                    SqlDataReader dr = cmd.ExecuteReader();
+
+                    if (dr.Read())
+                    {
+                        var data = new
+                        {
+                            ItemId = dr["ItemId"],
+                            ItemCode = dr["ItemCode"],
+                            ItemName = dr["ItemName"],
+                            UnitId = dr["UnitId"],
+                            HSNCode = dr["HSNCode"],
+                            GSTSLABId = dr["GSTSLABId"],
+                            PurchaseRate = dr["PurchaseRate"],
+                            SaleRate = dr["SaleRate"],
+                            OpeningStock = dr["OpeningStock"],
+                            MinStockLevel = dr["MinStockLevel"],
+                            Description = dr["Description"],
+                            IsActive = dr["IsActive"],
+                            BarcodeNo = dr["BarcodeNo"]
+                        };
+
+                        return Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        {
+                            Status = 1,
+                            Data = data
+                        });
+                    }
+                }
+
+                return Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    Status = 0,
+                    Message = "Item not found"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
+        }
+        [WebMethod]
+        public string GetItemDropdownData()
+        {
+            var Designers = new List<object>();
+            var Units = new List<object>();
+            var GST = new List<object>();
+
+            string connStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                con.Open();
+
+                // 🔹 DesignerMaster
+                using (SqlCommand cmd1 = new SqlCommand("SELECT DesignerID, DesignerCode, DesignerName FROM DesignerMaster", con))
+                using (SqlDataReader dr1 = cmd1.ExecuteReader())
+                {
+                    while (dr1.Read())
+                    {
+                        Designers.Add(new
+                        {
+                            DesignerID = Convert.ToInt32(dr1["DesignerID"]),
+                            DesignerCode = dr1["DesignerCode"].ToString(),
+                            DesignerName = dr1["DesignerName"].ToString()
+                        });
+                    }
+                }
+
+                // 🔹 UnitMaster
+                using (SqlCommand cmd2 = new SqlCommand("SELECT UnitId, UnitCode FROM UnitMaster", con))
+                using (SqlDataReader dr2 = cmd2.ExecuteReader())
+                {
+                    while (dr2.Read())
+                    {
+                        Units.Add(new
+                        {
+                            UnitId = Convert.ToInt32(dr2["UnitId"]),
+                            UnitCode = dr2["UnitCode"].ToString()
+                        });
+                    }
+                }
+
+                // 🔹 GSTSLABMaster
+                using (SqlCommand cmd3 = new SqlCommand("SELECT GSTSLABId, GSTSLABName, GST FROM GSTSLABMaster", con))
+                using (SqlDataReader dr3 = cmd3.ExecuteReader())
+                {
+                    while (dr3.Read())
+                    {
+                        GST.Add(new
+                        {
+                            GSTSLABId = Convert.ToInt32(dr3["GSTSLABId"]),
+                            GSTSLABName = dr3["GSTSLABName"].ToString(),
+                            GST = Convert.ToDecimal(dr3["GST"])
+                        });
+                    }
+                }
+            }
+
+            var result = new
+            {
+                Designers,
+                Units,
+                GST
+            };
+
+            // 🔥 Convert to JSON string
+            return new JavaScriptSerializer().Serialize(result);
+        }
+        [WebMethod]
+        public string SaveItem(ItemMasterModel model)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                {
+                    int userId = GetCookieValue();
+                    var (fyId, compId) = GetDefaultIds();
+                    using (SqlCommand cmd = new SqlCommand("sp_SaveItemMaster", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@ItemId", model.ItemId);
+                        cmd.Parameters.AddWithValue("@DateAndTime", (object)model.DateAndTime ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@ItemCode", model.ItemCode);
+                        cmd.Parameters.AddWithValue("@ItemName", model.ItemName);
+                        cmd.Parameters.AddWithValue("@UnitId", model.UnitId);
+                        cmd.Parameters.AddWithValue("@HSNCode", model.HSNCode);
+                        cmd.Parameters.AddWithValue("@GSTSLABId", model.GSTSLABId);
+                        cmd.Parameters.AddWithValue("@PurchaseRate", model.PurchaseRate);
+                        cmd.Parameters.AddWithValue("@SaleRate", model.SaleRate);
+                        cmd.Parameters.AddWithValue("@OpeningStock", model.OpeningStock);
+                        cmd.Parameters.AddWithValue("@MinStockLevel", model.MinStockLevel);
+                        cmd.Parameters.AddWithValue("@Description", model.Description ?? " ");
+                        cmd.Parameters.AddWithValue("@IsActive", model.IsActive);
+                        cmd.Parameters.AddWithValue("@BarcodeNo", model.BarcodeNo);
+                        cmd.Parameters.AddWithValue("@UserAccountId", userId);
+                        cmd.Parameters.AddWithValue("@FinancialYearID", fyId);
+                        cmd.Parameters.AddWithValue("@CompanyId", compId);
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 1,
+                    Message = "Saved Successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
+        }
+        [WebMethod]
+        public string GetItemMasterList()
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"
+                SELECT IM.ItemId,IM.ItemCode,DM.DesignerName ItemName,UM.Unit,GM.GSTSLABName,IM.HSNCode,IM.SaleRate,IM.IsActive  FROM ItemMaster IM
+                        LEFT JOIN DesignerMaster DM ON IM.ItemCode = DM.DesignerCode
+                        LEFT JOIN UnitMaster UM ON IM.UnitId = UM.UnitId
+                        LEFT JOIN GSTSLABMaster GM ON IM.GSTSLABId = GM.GSTSLABId", con))
+                    {
+                        con.Open();
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        da.Fill(dt);
+                    }
+                }
+
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 1,
+                    Data = dt
+                });
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
+        }
+        [WebMethod]
+        public string DeleteItem(int ItemId)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM ItemMaster WHERE ItemId=@ItemId", con))
+                    {
+                        cmd.Parameters.AddWithValue("@ItemId", ItemId);
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 1,
+                    Message = "Deleted successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = 0,
+                    Message = ex.Message
+                });
+            }
+        }
+        #endregion
+
+
         #region Moblie APP API
         [WebMethod]
         public void UserLoginAPI(string Username, string Password)

@@ -14,7 +14,7 @@
     <div id="notes"></div>
     <div class="card-header-lg">
 
-        <a href="YarnOutWardChallan" style="float:right;" class="btn btn-primary">Add Yarn Outward List</a>
+        <a href="YarnOutWardChallannew" style="float:right;" class="btn btn-primary">Add Yarn Outward List</a>
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
@@ -731,7 +731,7 @@
             success: function (response) {
                 console.log(response);
                 DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                window.location.href = '/UpdateYarnOutWardChallan?id=' + response.listEncryptDecrypt[0].DecryptID;
+                window.location.href = '/UpdateYarnOutWardChallanNew?id=' + response.listEncryptDecrypt[0].DecryptID;
             },
             error: function (request, status, error) {
 
