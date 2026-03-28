@@ -822,7 +822,7 @@
                     console.log(response);
 
 
-                    var imgStr = "<img src='" + response.listDesignColorMatchingForm[0].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>";
+                    var imgStr = `<img src="https://weavelanesoft.in/${response.listDesignColorMatchingForm[0].PhotoOfDesign}" style="width:100%;margin-top:-54px;">`;
                     $("#upload-PhotoOfDesign-default-preview").html(imgStr);
                     $("#upload-PhotoOfDesign-default-preview").css('color', 'initial');
 
@@ -1056,7 +1056,9 @@
 
                     if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
                         //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
-                        var imgStr = "<img src='" + listDesignColorMatchingDetails[0][i].ColorMatchingPhoto + "' style='width:100%;margin-top:-54px;'>";
+                        var imgStr = `<img src="https://weavelanesoft.in/${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}" 
+                style="width:100%;margin-top:-54px;">`;
+                      
                         $("#upload-ColorMatching-default-preview").html(imgStr);
                         $("#upload-ColorMatching-default-preview").css('color', 'initial');
                         //alert(imgStr);

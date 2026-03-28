@@ -11,6 +11,7 @@ namespace NikunjTextile.Class
         public string Message { get; set; }
         public List<DesignEntryForm> listDesignEntryForm { get; set; }
         public List<DesignerMaster> listDesignerMaster { get; set; }
+        public List<DesignSelectionModel> DesignSelectionModel { get; set; }
         public List<MaterialMaster> listMaterialMaster { get; set; }
         public List<SketcherMaster> listSketcherMaster { get; set; }
         public List<TypeMaster> listTypeMaster { get; set; }

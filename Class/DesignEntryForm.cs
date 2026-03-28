@@ -54,7 +54,67 @@ namespace NikunjTextile.Class
         public string startFrom { get; set; }
         public List<DesignEntryWeftData> listDesignEntryWeftData { get; set; }
         public List<DesignFormWarpData> listDesignFormWarpData { get; set; }
+        public string UnitCode { get; set; }
+        public int UnitId { get; set; }
 
 
+    }
+    public class DesignSelectionModel
+    {
+        public int DesignEntryFormID { get; set; }
+        public Int64 DesignColorMatchingFormIDs { get; set; }
+        public int DesignColorMatchingFormID { get; set; }
+        public string DesignNo { get; set; }
+        public string DesignerCode { get; set; }
+        public int TypeID { get; set; }
+        public string Type { get; set; }
+        public string UnitCode { get; set; }
+        public int UnitId { get; set; }
+        public int ColorGroupID { get; set; }
+        public string ColorGroup { get; set; }
+    }
+    public class DesignEntryDataFormResponse
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+
+        public List<DesignModel> Designs { get; set; }
+        public List<TypeModel> Types { get; set; }
+        public List<UnitModel> Units { get; set; }
+        public List<ColorGroupModel> ColorGroups { get; set; }
+    }
+    public class DesignModel
+    {
+        public int DesignEntryFormID { get; set; }
+        public int DesignColorMatchingFormID { get; set; }
+        public string DesignNo { get; set; }
+        public string DesignerCode { get; set; }
+
+        public int TypeID { get; set; }          // ✅ ADD
+        public string Type { get; set; }
+
+        public int UnitId { get; set; }          // ✅ ADD
+        public string UnitCode { get; set; }
+
+        public int ColorGroupID { get; set; }    // ✅ ADD
+        public string ColorGroup { get; set; }
+    }
+
+    public class TypeModel
+    {
+        public int TypeID { get; set; }
+        public string Type { get; set; }
+    }
+
+    public class UnitModel
+    {
+        public int UnitId { get; set; }
+        public string UnitCode { get; set; }
+    }
+
+    public class ColorGroupModel
+    {
+        public int ColorGroupID { get; set; }
+        public string ColorGroup { get; set; }
     }
 }

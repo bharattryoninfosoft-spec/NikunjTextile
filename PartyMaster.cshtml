@@ -826,16 +826,12 @@
     }
     function toggleShippingAddress() {
         if ($("#chcekAddress").prop("checked") == true) {
-
             $("#shippingAddress").attr("disabled", true);
             $("#shippingAddress").val($("#billingAddress").val());
             //$('#shippingAddress').prop('disabled', true);
         }
         else {
-
             $("#shippingAddress").attr("disabled", false);
-
-
         }
     }
     function checkShippingAdd() {

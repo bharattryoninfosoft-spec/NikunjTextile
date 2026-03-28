@@ -652,6 +652,7 @@
     <Compile Include="Class\PagginationMasterResponse.cs" />
     <Compile Include="Class\PartyMaster.cs" />
     <Compile Include="Class\PartyMasterResponse.cs" />
+    <Compile Include="Class\SaleOrderEntry.cs" />
     <Compile Include="Class\SketcherMaster.cs" />
     <Compile Include="Class\SketcherMasterResponse.cs" />
     <Compile Include="Class\TotalExistingOutwardStockArray.cs" />
@@ -730,6 +731,7 @@
     <Content Include="CustomReport.cshtml" />
     <Content Include="BrokerMaster.cshtml" />
     <Content Include="ItemMaster.cshtml" />
+    <Content Include="ListSaleOrderEntry.cshtml" />
     <None Include="packages.config" />
     <Content Include="vendor\summernote\fonts\summernote.eot" />
     <Content Include="vendor\summernote\fonts\summernote.ttf" />
@@ -753,6 +755,7 @@
     <Content Include="UpdateYarnOutWardScan.cshtml" />
     <Content Include="TransportMaster.cshtml" />
     <Content Include="UpdateYarnOutWardChallanNew.cshtml" />
+    <Content Include="SaleOrderEntry.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
