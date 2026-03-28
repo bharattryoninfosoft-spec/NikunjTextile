@@ -43,8 +43,20 @@
     .fa {
         font-size: 14px;
     }
+
     .mt-3 {
         margin-top: 2rem !important;
+    }
+    .select2-selection.is-invalid {
+        border: 1px solid #dc3545 !important;
+    }
+
+    .select2-container + .invalid-feedback {
+        display: none;
+    }
+
+    .select2-container.is-invalid + .invalid-feedback {
+        display: block;
     }
 </style>
 
@@ -72,6 +84,7 @@
                         <input type="hidden" id="BarcodeNo" value="" />
                         <div class="row g-3">
                             <!-- Item Code -->
+
                             <div class="col-2">
                                 <div class="field-wrapper">
                                     <input type="text" class="form-control" id="ItemCode" readonly>
@@ -80,46 +93,57 @@
                             </div>
 
                             <!-- Item Name -->
-                            <div class="col-3">
+                            <div class="col-4">
                                 <div class="field-wrapper">
-                                    <select id="ItemName" class="form-control">
+                                    <select id="ItemName" class="select-single detail form-control" data-live-search="true">
                                         <option value="">Select</option>
                                     </select>
                                     <div class="field-placeholder">Item Name <span class="text-danger">*</span></div>
+                                    <div class="ItemName-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="ItemName-invalid-feedback invalid-feedback">Please Select Item Name</div>
                                 </div>
                             </div>
                             <!-- Unit -->
                             <div class="col-3">
                                 <div class="field-wrapper">
-                                    <select id="UnitId" class="form-control">
+                                    <select id="UnitId" class="select-single detail form-control" data-live-search="true">
                                         <option value="">Select</option>
                                     </select>
-                                    <div class="field-placeholder">Unit</div>
+                                    <div class="field-placeholder">Unit <span class="text-danger">*</span></div>
+                                    <div class="UnitId-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="UnitId-invalid-feedback invalid-feedback">Please Select Unit </div>
                                 </div>
                             </div>
 
                             <!-- GST -->
                             <div class="col-3">
                                 <div class="field-wrapper">
-                                    <select id="GSTSLABId" class="form-control">
+                                    <select id="GSTSLABId" class="select-single detail form-control" data-live-search="true">
                                         <option value="">Select</option>
                                     </select>
-                                    <div class="field-placeholder">GST (%)</div>
+                                    <div class="field-placeholder">GST (%) <span class="text-danger">*</span></div>
+                                    <div class="GSTSLABId-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="GSTSLABId-invalid-feedback invalid-feedback">Please Select GST</div>
                                 </div>
                             </div>
 
                             <!-- HSN Code -->
                             <div class="col-3">
                                 <div class="field-wrapper">
-                                    <input type="text" class="form-control" id="HSNCode">
-                                    <div class="field-placeholder">HSN Code</div>
+                                    <input type="number" class="form-control" id="HSNCode" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                    <div class="field-placeholder">HSN Code <span class="text-danger">*</span></div>
+                                    <div class="HSNCode-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="HSNCode-invalid-feedback invalid-feedback">Input HSN Code</div>
                                 </div>
                             </div>
                             <!-- Sale Rate -->
                             <div class="col-3">
                                 <div class="field-wrapper">
-                                    <input type="number" class="form-control" id="SaleRate">
-                                    <div class="field-placeholder">Sale Rate</div>
+                                    <input id="SaleRate" type="text" class="form-control" maxlength="10" inputmode="decimal" placeholder="0.00" oninput="validateDecimal(this)">
+
+                                    <div class="field-placeholder">Sale Rate <span class="text-danger">*</span></div>
+                                    <div class="SaleRate-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="SaleRate-invalid-feedback invalid-feedback">Input Sale Rate</div>
                                 </div>
                             </div>
 
@@ -132,9 +156,10 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="modal-footer">                        
+                    <div class="modal-footer">
                         <button type="button" id="saveBtn" class="btn btn-success px-4" onclick="saveItem()">
-                            Save
+                            <span id="btnText">Save</span>
+                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
                         </button>
                         <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
                             Close
@@ -251,6 +276,9 @@
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
 
 <script>
     document.title = "Item Master - Nikunj Textile";
@@ -274,6 +302,43 @@
     });
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
+    });
+
+    $('#ItemName,#UnitId,#GSTSLABId').select2('destroy').select2({
+        dropdownParent: $('#itemModal'),
+        width: '100%'
+    });
+    $("#ItemName, #UnitId, #GSTSLABId").on("change", function () {
+
+        let container = $(this).next('.select2-container');
+
+        container.find('.select2-selection').removeClass("is-invalid");
+        container.removeClass("is-invalid");
+    });
+
+    function validateDecimal(el) {
+
+        let value = el.value;
+
+        // Remove invalid characters
+        value = value.replace(/[^0-9.]/g, '');
+
+        // Allow only one dot
+        let parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
+
+        // Limit to 2 decimal places
+        if (parts[1]) {
+            parts[1] = parts[1].substring(0, 2);
+            value = parts[0] + '.' + parts[1];
+        }
+
+        el.value = value;
+    }
+    $("input").on("input", function () {
+        $(this).removeClass("is-invalid");
     });
     function getDefaultCompany() {
         $.ajax({
@@ -363,8 +428,16 @@
         let id = $(this).data("id");
         openItemModal(id, "view");
     });
-    function openItemModal(id, mode) {
+    $('#itemModal').on('hidden.bs.modal', function () {
+        $(this).find('input, textarea').val('');
+        $(this).find('input[type="checkbox"]').prop('checked', false);
+        $(this).find('select').val(null).trigger('change');
+        $("#SaleRate").removeClass("is-valid is-invalid").val('');
+        $("#HSNCode").removeClass("is-valid is-invalid").val('');
 
+    });
+    function openItemModal(id, mode) {
+        debugger;
         $("#itemModal").modal("show");
         if (mode === "add") {
             $("#itemModalTitle").text("Add Item");
@@ -443,7 +516,7 @@
                 deleteItem(id);
             }
         });
-    }); 
+    });
     $(document).on("change", "#ItemName", function () {
 
         let designerCode = $(this).find("option:selected").data("code") || "";
@@ -532,8 +605,8 @@
                 $("#ItemName").empty().append('<option value="">Select</option>');
                 $.each(data.Designers, function (i, item) {
                     $("#ItemName").append(`
-                        <option value="${item.DesignerID}" 
-                                data-code="${item.DesignerCode}" 
+                        <option value="${item.DesignerID}"
+                                data-code="${item.DesignerCode}"
                                 data-name="${item.DesignerName}">
                             ${item.DesignerCode} - ${item.DesignerName}
                         </option>
@@ -547,7 +620,7 @@
 
                 $("#GSTSLABId").empty().append('<option value="">Select</option>');
                 $.each(data.GST, function (i, item) {
-                    $("#GSTSLABId").append(`<option value="${item.GSTSLABId}">${item.GST}%</option>`);
+                    $("#GSTSLABId").append(`<option value="${item.GSTSLABId}">${item.GSTSLABName}%</option>`);
                 });
             }
         });
@@ -564,6 +637,80 @@
     }
     function saveItem() {
         debugger;
+
+        let isValid = true;
+
+        // Reset
+        $(".form-control").removeClass("is-valid is-invalid");
+        $(".select2-selection").removeClass("is-invalid");
+
+        // =========================
+        // ITEM NAME
+        // =========================
+        let item = $("#ItemName").val();
+        if (!item) {
+            let container = $("#ItemName").next('.select2-container');
+
+            container.find('.select2-selection').addClass("is-invalid");
+            container.addClass("is-invalid");
+
+            isValid = false;
+        }
+
+        // =========================
+        // UNIT
+        // =========================
+        let unit = $("#UnitId").val();
+        if (!unit) {
+            let container = $("#UnitId").next('.select2-container');
+
+            container.find('.select2-selection').addClass("is-invalid");
+            container.addClass("is-invalid");
+
+            isValid = false;
+        }
+
+        // =========================
+        // GST
+        // =========================
+        let gst = $("#GSTSLABId").val();
+        if (!gst) {
+            let container = $("#GSTSLABId").next('.select2-container');
+
+            container.find('.select2-selection').addClass("is-invalid");
+            container.addClass("is-invalid");
+
+            isValid = false;
+        }
+
+        let hsn = $("#HSNCode").val().trim();
+
+        if (hsn === "") {
+            $("#HSNCode").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#HSNCode").removeClass("is-invalid").addClass("is-valid");
+        }
+
+        let rate = $("#SaleRate").val().trim();
+
+        if (rate === "" || isNaN(rate)) {
+            $("#SaleRate").addClass("is-invalid");
+            isValid = false;
+        } else {
+            $("#SaleRate").removeClass("is-invalid").addClass("is-valid");
+        }
+
+        // =========================
+        // STOP
+        // =========================
+        if (!isValid) return;
+
+        $("#btnText").text("Saving...");
+        $("#btnLoader").removeClass("d-none");
+        $("#saveBtn").prop("disabled", true);
+
+
         var milliseconds = jQuery.now()
         let model = {
             ItemId: parseInt($("#ItemId").val()) || 0,
@@ -576,8 +723,8 @@
             SaleRate: parseFloat($("#SaleRate").val()) || 0,
             OpeningStock: parseFloat($("#OpeningStock").val()) || 0,
             MinStockLevel: parseFloat($("#MinStockLevel").val()) || 0,
-            Description: $("#Description").val()||'',
-            IsActive: $("#IsActive").is(":checked"),   
+            Description: $("#Description").val() || '',
+            IsActive: $("#IsActive").is(":checked"),
             BarcodeNo: $("#BarcodeNo").val() || milliseconds,
         };
 
@@ -592,12 +739,14 @@
             dataType: 'json',
 
             success: function (res) {
-
+                $("#btnText").text("Save");
+                $("#btnLoader").addClass("d-none");
+                $("#saveBtn").prop("disabled", false);
                 // 🔥 IMPORTANT CHANGE
                 let data = JSON.parse(res.d);
 
                 if (data.Status == 1) {
-                    showToast('success', 'Saved Successfully');    
+                    showToast('success', 'Saved Successfully');
                     $('#itemModal').modal('hide');
                     loadItemMaster();
                 } else {
@@ -605,7 +754,7 @@
                 }
             },
             error: function () {
-               showToast('error', 'Something went wrong');
+                showToast('error', 'Something went wrong');
             }
         });
     }

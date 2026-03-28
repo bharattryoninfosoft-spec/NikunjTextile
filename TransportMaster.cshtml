@@ -244,12 +244,8 @@
         FunctionIsLogin();
         LoadTransportList();
     });
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
+    var notes = $('#notes').notify({ removeIcon: '<i class="icon-close"></i>' });
+    var notess = $('#notess').notify({removeIcon: '<i class="icon-close"></i>'});
     $('#TransportModal').on('show.bs.modal', function () {
 
         // Only for ADD
@@ -274,12 +270,10 @@
         let id = $(this).data('id');
         getTransportById(id, "edit");
     });
-
     $('#tblTransport').on('click', '.view', function () {
         let id = $(this).data('id');
         getTransportById(id, "view");
     });
-
     $('#tblTransport').on('click', '.delete', function () {
         let id = $(this).data('id');
         deleteTransport(id);
