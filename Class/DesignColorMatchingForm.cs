@@ -38,6 +38,7 @@ namespace NikunjTextile.Class
         public string WarpCheckBox { get; set; }
         public string WeftCheckBox { get; set; }
         public string startFrom { get; set; }
+        public decimal SaleRate { get; set; }
         public List<DesignEntryWeftData> listDesignEntryWeftData { get; set; }
         public List<DesignFormWarpData> listDesignFormWarpData { get; set; }
         public List<DesignColorMatchingDetails> listDesignColorMatchingDetails { get; set; }

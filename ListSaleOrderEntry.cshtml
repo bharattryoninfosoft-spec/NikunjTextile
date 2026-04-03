@@ -70,10 +70,12 @@
                     <div class="table-responsive">
                         <table id="saleOrderTable" class="table table-bordered table-striped">
                             <thead>
-                                <tr>
-                                    <th></th>
+                                <tr>                                
                                     <th>Order No</th>
                                     <th>Date</th>
+                                    <th>Party</th>
+                                    <th>Broker</th>                                                                  
+                                    <th>Transport</th>
                                     <th>Total Qty</th>
                                     <th>Invoice Amount</th>
                                     <th>Action</th>
@@ -269,44 +271,62 @@
         });
     }
     function bindDataTable(data) {
-
+        console.log("data", data);
         let table = $('#saleOrderTable').DataTable({
             destroy: true,
             data: data,
-
-            columns: [
-                {
-                    className: 'dt-control',
-                    orderable: false,
-                    data: null,
-                    defaultContent: '<span style="cursor:pointer;"><i class="fa fa-plus"></i></span>'
-                },
+            ordering: false,
+            
+            columns: [            
                 { data: 'OrderNo' },
-                { data: 'OrderDate' },
+                {
+                    data: 'OrderDate',
+                    render: function (data) {
+                        if (!data) return '';
+
+                        // ✅ Extract milliseconds from .NET format
+                        let match = /\/Date\((\d+)\)\//.exec(data);
+
+                        if (!match) return '';
+
+                        let d = new Date(parseInt(match[1]));
+
+                        let day = String(d.getDate()).padStart(2, '0');
+                        let month = String(d.getMonth() + 1).padStart(2, '0');
+                        let year = d.getFullYear();
+                        return `${day}-${month}-${year}`;
+                    }
+                },
+                { data: 'PartyName', defaultContent: '-' },
+                { data: 'BrokerName', defaultContent: '-' },
+                { data: 'TransportName', defaultContent: '-' },
                 { data: 'TotalQty' },
                 { data: 'InvoiceAmount' },
-                {  data: null,
+
+                {
+                    data: null,
                     render: function (data, type, row) {
+                        let encodedId = btoa(row.SaleOrderID);
+
                         return `
-                        <i class="fa fa-edit text-primary edit me-2" data-id="${row.SaleOrderID}"></i>
-                        <i class="fa fa-eye text-dark view me-2" data-id="${row.SaleOrderID}"></i>
-                        <i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}"></i>                           
+                            <i class="fa fa-edit text-primary edit me-2" data-id="${encodedId}" style="cursor:pointer;"></i>
+                            <i class="fa fa-eye text-dark view me-2" data-id="${encodedId}" style="cursor:pointer;"></i>
+                            <i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}" style="cursor:pointer;"></i>
                         `;
                     }
                 }
-            ],     
+            ],
             info: false,
             lengthChange: false
+
         });
 
         // ✅ FIX CLICK EVENT
         $('#saleOrderTable tbody').off('click');
 
         $('#saleOrderTable tbody').on('click', 'td.dt-control', function () {
-
             let tr = $(this).closest('tr');
             let row = table.row(tr);
-
             if (row.child.isShown()) {
                 row.child.hide();
                 tr.removeClass('shown');
@@ -317,52 +337,64 @@
                 $(this).html('<i class="fa fa-minus"></i>');
             }
         });
-    }
-    function formatDetails(order) {
+    }    
+    // EDIT
+    $(document).on('click', '.edit', function () {
+        let id = $(this).attr('data-id');
+        window.location.href = "/UpdateSaleOrderEntry?id=" + encodeURIComponent(id);
+    });
 
-        console.log("DETAIL CHECK:", order); // 🔍 DEBUG
+    // VIEW
+    $(document).on('click', '.view', function () {
 
-        if (!order.Details || order.Details.length === 0) {
-            return "<div style='padding:10px;'>No Details Found</div>";
-        }
+        let id = $(this).attr('data-id');
 
-        let html = `<div style="padding:10px;">`;
+        GetSaleOrderById
+    });
 
-        order.Details.forEach(d => {
+    // DELETE
+    $(document).on('click', '.delete', function () {
+        let id = $(this).data('id');
+        console.log("Delete Click:", id);
 
-            html += `
-        <div style="border:1px solid #ddd; margin-bottom:10px; padding:8px;">
-            <b>${d.DesignNo}</b> | Qty: ${d.Qty}
-        `;
-
-            if (d.SubDetails && d.SubDetails.length > 0) {
-
-                html += `<table class="table table-sm mt-2">
-                        <thead>
-                            <tr>
-                                <th>Colour</th>
-                                <th>Qty</th>
-                                <th>Unit</th>
-                            </tr>
-                        </thead><tbody>`;
-
-                d.SubDetails.forEach(s => {
-                    html += `
-                <tr>
-                    <td>${s.ColourName}</td>
-                    <td>${s.Qty}</td>
-                    <td>${s.Unit}</td>
-                </tr>`;
-                });
-
-                html += `</tbody></table>`;
+        Swal.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            showCancelButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteSaleOrder(id);
             }
-
-            html += `</div>`;
         });
+    });
+    function deleteSaleOrder(id) {
 
-        html += `</div>`;
-        return html;
+        $.ajax({
+            url: "/WebServiceNikunjTextile.asmx/DeleteSaleOrder",
+            type: "POST",
+            data: JSON.stringify({ SaleOrderID: id }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+
+            success: function (res) {
+
+                let data = res.d;
+
+                if (data.success) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Sale Order deleted successfully'
+                    });
+
+                    loadSaleOrders(); // 🔄 reload table
+                }
+                else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            }
+        });
     }
 </script>
 

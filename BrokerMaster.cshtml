@@ -85,7 +85,7 @@
                             <!-- Mobile -->
                             <div class="col-5">
                                 <div class="field-wrapper">
-                                    <input type="text" class="form-control" id="MobileNo" maxlength="10">
+                                    <input type="tel" class="form-control" id="MobileNo" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
                                     <div class="field-placeholder">Mobile <span style="color:red">*</span></div>
                                     <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
                                 </div>
@@ -108,7 +108,7 @@
                             <!-- Commission -->
                             <div class="col-3">
                                 <div class="field-wrapper">
-                                    <input type="number" class="form-control" id="CommissionRate" maxlength="3">
+                                    <input type="number" class="form-control" id="CommissionRate" maxlength="3" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
                                     <div class="field-placeholder">Commission (%)</div>
                                 </div>
                             </div>
@@ -127,7 +127,10 @@
                     </div>
                     <!-- Footer -->
                     <div class="modal-footer" id="brokerForm">
-                        <button class="btn btn-success" onclick="saveBroker()">Save</button>
+                        <button type="button" id="saveBtn" class="btn btn-success px-4" onclick="saveBroker()">
+                            <span id="btnText">Save</span>
+                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>                      
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
 
@@ -364,9 +367,9 @@
                     orderable: false,
                     render: function (id) {
                         return `
-                    <i class="fa fa-edit text-primary edit me-2" data-id="${id}"></i>
-                    <i class="fa fa-eye text-dark view me-2" data-id="${id}"></i>
-                    <i class="fa fa-trash text-danger delete" data-id="${id}"></i>
+                    <i class="fa fa-edit text-primary edit me-2" style="cursor:pointer;" data-id="${id}"></i>
+                    <i class="fa fa-eye text-dark view me-2" style="cursor:pointer;" data-id="${id}"></i>
+                    <i class="fa fa-trash text-danger delete" style="cursor:pointer;" data-id="${id}"></i>
                 `;
                     }
                 }
@@ -400,6 +403,11 @@
 
         }
 
+    });
+    $('#brokerModal').on('hidden.bs.modal', function () {
+        $(this).find('input, textarea').val('');
+        $(this).find('input[type="checkbox"]').prop('checked', false);
+        $(this).find('select').val(null).trigger('change');
     });
     $('.form-control').on('input', function () {
         $(this).removeClass('is-invalid');
@@ -439,16 +447,18 @@
                 $('#CommissionRate').val(data.CommissionRate);
                 $('#IsActive').val(data.IsActive.toString());
 
-                // Mode handling
-                if (mode === "view") {
-                    $('#brokerModalLabel').text("View Broker");
-                    disableForm(true);
-                } else {
-                    $('#brokerModalLabel').text("Edit Broker");
-                    disableForm(false);
-                }
 
-                $('#brokerModal').modal('show');
+
+                if (mode === "view") {
+                    $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", true);
+                    $('#brokerModalLabel').text("View Broker");
+                    $("#saveBtn").hide(); // hide save button
+                } else {
+                    $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", false);
+                    $('#brokerModalLabel').text("Edit Broker");
+                    $("#saveBtn").show();
+                }
+              $('#brokerModal').modal('show');
             }
         });
     }
@@ -490,9 +500,6 @@
 
         });
     }
-    function disableForm(flag) {
-        $('#brokerForm input, #brokerForm select , #brokerForm button').prop('disabled', flag);
-    }
     function showToast(type, msg) {
         Swal.fire({
             toast: true,
@@ -530,7 +537,9 @@
         }
 
         if (!isValid) return;
-
+        $("#btnText").text("Saving...");
+        $("#btnLoader").removeClass("d-none");
+        $("#saveBtn").prop("disabled", true);
         var obj = {
             BrokerId: $('#BrokerId').val(),
             BrokerCode: $('#BrokerCode').val(),
@@ -550,13 +559,24 @@
             data: JSON.stringify({ obj: obj }),
 
             success: function (res) {
+
+                // Reset loader
+                $("#btnText").text("Save");
+                $("#btnLoader").addClass("d-none");
+                $("#saveBtn").prop("disabled", false);
+
+                // ✅ HANDLE RESPONSE
                 if (res.d === "success") {
-                    showToast('success', 'Saved Successfully');
+
+                    showToast('success','Broker details saved successfully.');
                     $('#brokerModal').modal('hide');
                     LoadBrokerList();
-                }
-                else {
-                    showToast('error', 'Something went wrong');
+
+                } else {
+
+                    // 🔥 SHOW SERVER MESSAGE
+                    showToast('error', res.d);
+
                 }
             }
         });

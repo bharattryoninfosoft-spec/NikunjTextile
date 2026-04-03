@@ -213,7 +213,7 @@
 
                             <tbody id="orderBody">
                                 <tr>
-                                    <td colspan="10" class="no-data">
+                                    <td colspan="11" class="no-data">
                                         No Data Available In Table
                                     </td>
                                 </tr>
@@ -385,7 +385,7 @@
 
 
 
-                                                                
+
 
 
                                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -673,7 +673,7 @@
                                                         <div class="DesignNo-invalid-feedback invalid-feedback">Please Select Design No</div>
                                                     </div>
                                                 </div>
-                                                <div class="col-6" hidden>
+                                                <div class="col-6" hidden >
                                                     <div class="field-wrapper">
                                                         <select class="select-single detail" title="Select Color MatchingID" data-live-search="true" id="ColorMatchingID" onchange="getColorMatchingId(this)">
                                                         </select>
@@ -984,19 +984,30 @@
 
 
 <script>
+    let srNo = 1;
+    let subDetails = [];
+    let SaleOrderDetails = [];
+    let isEditMode = true;        // ✅ ADD THIS
+    let currentViewIndex = -1;
+    let currentId = null;
 
+    console.log("SaleOrderDetails", SaleOrderDetails);
     $(document).ready(function () {
         $('.active, .show, .current-page').removeClass('active show current-page');
         $("#YarnForm-tab").addClass("active");
         $("#tab-YarnForm").addClass("show active");
         $("#aYarnRequirement").addClass("current-page");
-        loadOrderNo();
+        const urlParams = new URLSearchParams(window.location.search);
+        //debugger;
+        const id = urlParams.get('id');
+
         FunctionIsLogin();
         bindPartyGST();
         bindBrokerDropdown();
         bindTransport();
         getItemGST();
         getStates(0);
+
         $("#PartyName").prop("disabled", true);
         $("#PartyAddress").prop("disabled", true);
         $("#Broker").prop("disabled", true);
@@ -1006,12 +1017,12 @@
         let year = today.getFullYear();
         let formattedDate = `${year}-${month}-${day}`; // ✅ IMPORTANT
         $("#OrderDate").val(formattedDate);
+        if (id) {
+            loadSaleOrder(id);
+            getDesignEntryForm();
+        }
     });
-    let srNo = 1;
-    let subDetails = [];
-    let SaleOrderDetails = [];
-    let isEditMode = false;        // ✅ ADD THIS
-    let currentViewIndex = -1;
+
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
@@ -1083,14 +1094,10 @@
         $("#PartyAddress").val(BillingAddress);
         $("#Broker").val(BrokerName);
 
-        console.log(partyId, partyName, gst, BillingAddress, BrokerCode, BrokerName);
+        //console.log(partyId, partyName, gst, BillingAddress, BrokerCode, BrokerName);
 
         // Example:
         // $("#txtPartyName").val(partyName);
-    });
-    $("#ddlColourGroup").on("change", function () {
-        let colorGroupId = $(this).val();
-        console.log("Selected ColorGroupID:", colorGroupId);
     });
     $('#designModal').on('shown.bs.modal', function () {
 
@@ -1142,10 +1149,9 @@
 
     });
     $("#DesignNo").on("change", function () {
-        
         let selected = $(this).find("option:selected");
         let val = $(this).val();
-
+        if (!val) return;
         if (val !== "") {
 
             let parts = val.split('|');
@@ -1258,7 +1264,7 @@
         }
     });
     $(document).on("click", ".deleteMain", function () {
-
+        debugger;
         const row = $(this).closest("tr");
         const index = row.data("index");
 
@@ -1283,7 +1289,7 @@
                 currentViewIndex = -1;
             }
 
-            bindMainTable();
+            bindMainTable()
             updateSummary();
 
             Swal.fire("Deleted!", "Item removed successfully.", "success");
@@ -1312,8 +1318,8 @@
         bindMainTable();
         updateSummary(); // 🔥 ADD THIS
     });
-    function openDesignModal() {              
-        
+    function openDesignModal() {
+
         $("#DesignNo").val('');
         $("#ColorMatchingID").empty();
         $("#divColorMatchingTable").empty();
@@ -1331,7 +1337,7 @@
             success: function (response) {
 
                 let data = JSON.parse(response.d);
-                console.log("GetDesignEntryData", data);
+                //console.log("GetDesignEntryData", data);
 
                 if (data.Code == 200) {
 
@@ -1507,7 +1513,7 @@
 
                 let data = JSON.parse(res.d); // 🔥 FIX
 
-                console.log("Parsed Data:", data);
+                //console.log("Parsed Data:", data);
 
                 $("#ddlPartyGST").empty();
                 $("#ddlPartyGST").append('<option value="-1">Select</option>');
@@ -1528,7 +1534,7 @@
                 });
             },
             error: function (err) {
-                console.log(err);
+                //console.log(err);
             }
         });
     }
@@ -1569,13 +1575,13 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, status) {
-                console.log(data);
+                //console.log(data);
                 if (data.d == "false") {
                     window.location.replace("/Index");
                 }
             },
             error: function (request, status, error) {
-                console.log(error);
+                //console.log(error);
             }
         });
     }
@@ -1606,7 +1612,7 @@
             dataType: 'json',
             success: function (response) {
                 let data = JSON.parse(response.d);
-                console.log("GetBrokerList", data);
+                //console.log("GetBrokerList", data);
                 $("#BrokerModel").empty().append('<option value="-1">Select</option>');
                 $("#ddlBroker").empty().append('<option value="-1">Select</option>');
                 $.each(data, function (i, item) {
@@ -1625,7 +1631,7 @@
                 });
             },
             error: function (err) {
-                console.log(err);
+                //console.log(err);
             }
         });
     }
@@ -1938,7 +1944,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
+                //console.log(response);
 
                 if (response.Code == "200") {
 
@@ -1990,7 +1996,7 @@
                 processData: false,
                 success: function (response) {
 
-                    console.log(response);
+                    //console.log(response);
 
                     // 🔥 IMAGE
                     let imgStr = `<img src="${response.listDesignColorMatchingForm[0].PhotoOfDesign}"  style="width:100%; height:100%;">`;
@@ -2350,7 +2356,7 @@
 
                     },
                     error: function (request, status, error) {
-                        // console.log(error);
+                        ////console.log(error);
                         document.getElementById(abc.id).classList.remove("is-valid");
                         document.getElementById(abc.id).classList.add("is-invalid");
 
@@ -2382,7 +2388,7 @@
         }
         else {
             //alert(code);
-            console.log(code.length);
+            //console.log(code.length);
             if (code.length == "6") {
                 //alert(code + " asd ");
                 var ifscurl = "https://api.postalpincode.in/pincode/" + code;
@@ -2392,7 +2398,7 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-                        console.log(response);
+                        //console.log(response);
 
 
                         if (response.length != 0) {
@@ -2423,7 +2429,7 @@
 
                     },
                     error: function (request, status, error) {
-                        // console.log(error);
+                        ////console.log(error);
                         document.getElementById(abc.id).classList.remove("is-valid");
                         document.getElementById(abc.id).classList.add("is-invalid");
 
@@ -2454,7 +2460,7 @@
 
                 let data = res.d; // ✅ FIX
 
-                console.log("GetTransportList", data);
+                //console.log("GetTransportList", data);
 
                 $("#ddlTransport").empty();
                 $("#ddlTransport").append('<option value="-1">Select Transport</option>');
@@ -2468,7 +2474,7 @@
                 });
             },
             error: function (err) {
-                console.log(err);
+                //console.log(err);
             }
         });
     }
@@ -2603,7 +2609,7 @@
                 //$('#GSTSLABId').append("<option value='0' selected> </option>");
                 for (var i = 0; i < jsonData.length; i++) {
                     admin = jsonData[i];
-                    appendTemp = `<option value="${admin.GSTSLABId}">
+                    appendTemp = `<option value="${admin.GSTSLABId}"  data-percent="${admin.IGST}">
                 ${admin.GSTSLABName}
               </option>`;
                     $('#GSTSLABId').append(appendTemp);
@@ -2618,7 +2624,7 @@
 
 
     }
-   
+
 
 
 
@@ -2662,7 +2668,7 @@
 
             if (existingRow.length > 0) {
                 let oldQty = parseFloat(existingRow.find("td:eq(5)").text()) || 0;
-                existingRow.find("td:eq(5)").text(oldQty + qty);
+                existingRow.find("td:eq(5)").text(qty);
             } else {
                 tbody.append(createSubRow(
                     designNo,
@@ -2682,11 +2688,12 @@
         updateSrNo();
     });
     $("#ddlColourGroup").on("change", function () {
-        debugger;
+        debugger;        
+        const item = SaleOrderDetails || {};
         let colorGroupId = $(this).val();
 
         // ✅ GET DESIGN VALUE CORRECTLY
-        let designVal = $("#DesignNo").val();
+        let designVal = $("#DesignNo").val() ;
 
         if (!designVal) return;
 
@@ -2695,8 +2702,8 @@
         let designEntryId = parts[0];
         let colorMatchingId = parts[1]; // ✅ correct
 
-        console.log("Selected ColorGroupID:", colorGroupId);
-        console.log("DesignColorMatchingFormID:", colorMatchingId);
+        //console.log("Selected ColorGroupID:", colorGroupId);
+        //console.log("DesignColorMatchingFormID:", colorMatchingId);
 
         if (!colorGroupId || !colorMatchingId) return;
 
@@ -2713,7 +2720,7 @@
             success: function (response) {
 
                 let data = JSON.parse(response.d);
-                console.log("Details:", data);
+                //console.log("Details:", data);
 
                 let $dropdown = $("#ColorMatchingID");
 
@@ -2730,7 +2737,7 @@
                     });
                     // ✅ Auto select first item (correct way)
                     let firstId = data.Data[0].DesignColorMatchingDetailsID;
-                    console.log("firstId", firstId);
+                    //console.log("firstId", firstId);
                     setTimeout(function () {
                         $dropdown.val(firstId).trigger('change');
                     }, 0);
@@ -2742,7 +2749,7 @@
             }
         });
 
-    });   
+    });
     $("#btnAddToOrder").click(function () {
         debugger;
         const designId = $("#DesignNo").val();
@@ -2841,11 +2848,11 @@
             SaleOrderDetails.push(obj);
         }
         currentViewIndex = -1;
-        isEditMode = false;        
-        
+        isEditMode = false;
+
         bindMainTable();
         updateSummary();
-        
+
         $("#itemTableBody").html(`
         <tr class="no-data">
             <td colspan="4" class="text-center">
@@ -2877,7 +2884,7 @@
         <td hidden>${designName}</td>
         <td hidden>${colorGroupName}</td>
         <td>${colorName}</td>
-        <td>${qty}</td>        
+        <td>${qty}</td>
         <td>${remark}</td>
 
         <td>
@@ -2886,56 +2893,13 @@
             </a>
         </td>
     </tr>`;
-    }  
-    function bindMainTable() {
-
-        const tbody = $("#orderBody");
-        tbody.empty();
-
-        if (!SaleOrderDetails.length) {
-            tbody.html(`
-       <tr class="no-data">
-           <td colspan="10" class="text-center">
-               No Data Available In Table
-           </td>
-       </tr>`);
-            return;
-        }
-
-        SaleOrderDetails.forEach((item, i) => {
-
-            tbody.append(`
-       <tr data-index="${i}">
-           <td>${i + 1}</td>
-           <td>${item.DesignNo}</td>
-           <td>${item.Type}</td>
-
-           <td>
-               ${item.SubDetails.map((x, index) => `
-                   <div style="display:flex; justify-content:space-between;">
-                       <span>${index + 1}. ${x.ColorMatchingName}</span>
-                       <span>${x.Qty}</span>
-                   </div>
-               `).join('')}
-           </td>
-
-           <td>${item.TotalQty}</td>
-           <td>${item.Unit}</td>
-           <td>${item.Rate.toFixed(2)}</td>
-           <td>${item.BrokerRate.toFixed(2)}</td>    
-           <td>${item.Amount.toFixed(2)}</td>
-                    <td>${item.Remark}</td>
-           <td>
-               <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
-               <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
-           </td>
-       </tr>`);
-        });
     }
     function updateSummary() {
-
+        debugger;
         let totalQty = 0;
         let totalAmount = 0;
+        console.log("SaleOrderDetails", SaleOrderDetails);
+   
 
         SaleOrderDetails.forEach(item => {
             totalQty += parseFloat(item.TotalQty) || 0;
@@ -2944,6 +2908,7 @@
 
         $("#totalQty").text(totalQty);
         $("#totalAmount").text(totalAmount.toFixed(2));
+        
 
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
@@ -2979,105 +2944,8 @@
 
         let invoiceAmount = finalAmount; //
     }
-    $(document).on("click", ".viewSub", function () {
 
-        const index = $(this).closest("tr").data("index");
 
-        currentViewIndex = index;
-        isEditMode = true;
-
-        const item = SaleOrderDetails[index];
-
-        bindSubTable(item.SubDetails);
-        bindFormFields(item);
-
-        let selectedId = item.SelectedColorId || item.SubDetails?.[0]?.ColorMatchingID;
-
-        if (selectedId) {
-            $("#ColorMatchingID").val(selectedId).trigger("change");
-            getColorMatchingId(document.getElementById("ColorMatchingID"));
-        }
-
-        $("#designModal").modal("show");
-    });
-    function bindSubTable(subData) {
-
-        const $tbody = $("#itemTableBody");
-        $tbody.empty();
-
-        if (!Array.isArray(subData) || subData.length === 0) {
-            $tbody.html(noDataRow());
-            return;
-        }
-
-        let rows = "";
-
-        subData.forEach((item, i) => {
-            debugger;
-            let designNo = item.DesignNo || "";
-            let designName = item.DesignName || "";
-            let colorGroupId = item.ColorGroupId || "";
-            let colorGroupName = item.ColorGroup || "";
-            let remark = item.Remark || "";
-            let colorId = item.ColorMatchingID || "";
-            let colorName = item.ColorMatchingName || "";
-            let qty = parseFloat(item.Qty) || 0;
-            let imageUrl = item.ImageUrl || "";
-            let saleRate = item.Rate || 0;
-
-            rows += `
-        <tr data-colorid="${colorId}" 
-            data-colorgroupid="${colorGroupId}" 
-            data-rate="${saleRate}"
-            data-img="${imageUrl}">
-
-            <td>${i + 1}</td>
-
-            <td hidden>${designNo}</td>
-            <td hidden>${designName}</td>
-            <td hidden>${colorGroupName}</td>
-
-            <td>             
-                ${colorName}
-            </td>
-
-            <td>${qty}</td>
-            <td>${remark}</td>
-
-            <td>
-                <a href="javascript:void(0)" class="deleteRow text-danger">
-                    <i class="fa fa-trash"></i>
-                </a>
-            </td>
-        </tr>`;
-        });
-
-        $tbody.html(rows);
-    }
-    function bindFormFields(item) {
-
-        // Design
-        $("#DesignNo").val(item.DesignId).trigger('change');
-
-        $("#TypeRow").val(item.TypeId);
-        $("#UnitRow").val(item.UnitId);
-
-        // Color Group
-        $("#ddlColourGroup").val(item.ColorGroupId);
-
-        // Remark
-        $("#Remark").val(item.Remark);
-
-        // Optional: Markup
-        $("#Markup").val(item.markup || 0);
-        setTimeout(() => {
-            let firstSub = item.SubDetails[0];
-            if (firstSub) {
-                $("#ColorMatchingID").val(firstSub.ColorMatchingID);
-            }
-            getColorMatchingId(document.getElementById("ColorMatchingID"));
-        }, 150);
-    }
     function escapeHtml(text) {
         return $("<div>").text(text || "").html();
     }
@@ -3121,148 +2989,6 @@
 
         updateSrNo();
     });
-    //function saveSaleOrder() {
-
-    //    if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
-    //        alert("Please add at least one design!");
-    //        return;
-    //    }
-
-    //    let totalQty = 0;
-    //    let totalAmount = 0;
-
-    //    SaleOrderDetails.forEach((item) => {
-
-            
-    //        item.ItemType = item.TypeId || "";
-            
-    //        item.DetailsRemark = item.DetailsRemark || item.Remark || "";
-    //        if (!item.SubDetails) {
-    //            item.SubDetails = [];
-    //        }            
-    //        item.SubDetails.forEach(sub => {
-
-    //            sub.ColourID = sub.ColorMatchingID || 0;
-    //            sub.ColourName = sub.ColorMatchingName || "";
-
-    //            // ✅ Ensure Unit always exists
-    //            sub.Unit = sub.Unit || item.Unit || "PCS";
-    //        });
-
-    //        // No of colours
-    //        item.NoOfColours = item.SubDetails.length;
-
-    //        // Qty from SubDetails
-    //        let rowQty = 0;
-    //        item.SubDetails.forEach(sub => {
-    //            rowQty += parseFloat(sub.Qty || 0);
-    //        });
-
-    //        item.Qty = rowQty;
-
-    //        // Amount
-    //        item.Amount = rowQty * parseFloat(item.Rate || 0);
-
-    //        // Totals
-    //        totalQty += rowQty;
-    //        totalAmount += item.Amount;
-    //    });
-
-    //    // =========================
-    //    // DISCOUNT
-    //    // =========================
-    //    let value = parseFloat($("#discountValue").val()) || 0;
-    //    let type = $("#discountType").val();
-
-    //    let discountAmount = 0;
-
-    //    if (type === "percent") {
-    //        discountAmount = (totalAmount * value) / 100;
-    //    } else {
-    //        discountAmount = value;
-    //    }
-
-    //    if (discountAmount > totalAmount) {
-    //        discountAmount = totalAmount;
-    //    }
-
-    //    $("#discountAmount").text(discountAmount.toFixed(2));
-
-    //    let afterDiscount = totalAmount - discountAmount;
-
-    //    // =========================
-    //    // GST
-    //    // =========================
-    //    let gstPercent = parseFloat($("#gstPercent").val()) || 0;
-    //    let gstAmount = (afterDiscount * gstPercent) / 100;
-
-    //    $("#gstAmount").text(gstAmount.toFixed(2));
-
-    //    let finalAmount = afterDiscount + gstAmount;
-
-    //    $("#invoiceAmount").text(finalAmount.toFixed(2));
-
-    //    let invoiceAmount = finalAmount.toFixed(2);
-
-    //    // =========================
-    //    // FINAL MODEL
-    //    // =========================
-    //    let model = {
-    //        SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
-    //        OrderNo: $("#OrderNo").val(),
-    //        OrderDate: $("#OrderDate").val(),
-    //        PartyID: parseInt($("#ddlPartyGST option:selected").val() || 0),
-    //        BrokerID: ($("#ddlBroker option:selected").val() || ""),
-    //        MarkupPercent: parseFloat($("#Markup").val() || 0),
-    //        TransportID: ($("#ddlTransport option:selected").val() || ""),
-    //        TotalQty: totalQty,
-    //        TotalAmount: totalAmount,
-    //        DiscountPercent: value,
-    //        DiscountAmount: discountAmount,
-    //        GSTPercent: gstPercent,
-    //        GSTAmount: gstAmount,
-    //        InvoiceAmount: invoiceAmount,
-    //        Remark: $("#MainRemark").val(),
-    //        Details: SaleOrderDetails
-    //    };
-
-    //    // ✅ DEBUG (VERY IMPORTANT)
-    //    console.log("FINAL SAVE MODEL:", model);
-
-    //    // =========================
-    //    // AJAX
-    //    // =========================
-    //    $.ajax({
-    //        url: "/WebServiceNikunjTextile.asmx/SaveSaleOrder",
-    //        type: "POST",
-    //        data: JSON.stringify({ model: model }),
-    //        contentType: "application/json; charset=utf-8",
-    //        dataType: "json",
-    //        success: function (res) {
-
-    //            let data = res.d;
-
-    //            if (data.success) {
-    //                notes.show("Saved Successfully ✅", {
-    //                    type: 'success',
-
-    //                });
-    //                window.location.href = 'listSaleOrderEntry';
-    //                $("#SaleOrderID").val(data.id);
-
-    //                console.log("Saved ID:", data.id);
-    //            } else {
-    //                alert(data.message);
-    //            }
-    //        },
-    //        error: function (err) {
-    //            console.error("Error:", err);
-    //            alert("Save Failed ❌");
-    //        }
-    //    });
-    //}
-
-
     function saveSaleOrder() {
 
         if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
@@ -3365,7 +3091,6 @@
             GSTAmount: gstAmount,
             InvoiceAmount: invoiceAmount,
             Remark: $("#MainRemark").val(),
-
             Details: SaleOrderDetails
         };
 
@@ -3404,6 +3129,260 @@
             }
         });
     }
+
+    // Edite
+
+    // ================= HELPERS =================
+    function formatDateFromDotNet(dateStr) {
+        if (!dateStr) return "";
+        let timestamp = parseInt(dateStr.replace(/\/Date\((\d+)\)\//, '$1'));
+        let date = new Date(timestamp);
+
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function calculateRow(item, markup) {
+        const rate = parseFloat(item.Rate) || 0;
+        const brokerRate = calculateBrokerRate(rate, markup);
+
+        return {
+            ...item,
+            BrokerRate: brokerRate,
+            Amount: (parseFloat(item.Qty) || 0) * brokerRate
+        };
+    }
+
+    function noDataRow() {
+        return `<tr class="no-data"><td colspan="5">No Data</td></tr>`;
+    }
+    // ================= LOAD DATA =================
+    function loadSaleOrder(id) {
+
+        const finalId = atob(decodeURIComponent(id));
+
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/GetSaleOrderById',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({ SaleOrderID: parseInt(finalId) }),
+
+            success: function (res) {
+
+                let data = res.d;
+                console.log("GetSaleOrderById", data.Data);
+                if (data && data.success && data.Data) {
+                    debugger; 
+                    $("#SaleOrderID").val(data.Data.SaleOrderID);
+                    $("#OrderNo").val(data.Data.OrderNo);
+                    $("#OrderDate").val(formatDateFromDotNet(data.Data.OrderDate));
+                    $("#totalQty").val(data.Data.TotalQty);
+                    $("#Markup").val(data.Data.MarkupPercent);
+                    $("#discountValue").val(data.Data.DiscountPercent);
+                    $("#discountAmount").val(data.Data.DiscountAmount);
+                    $("#totalAmount").val(data.Data.TotalAmount);
+                    $("#InvoiceAmount").val(data.Data.InvoiceAmount);
+                    $("#MainRemark").val(data.Data.Remark);
+                  
+                    let gstPercent = parseFloat(data.Data.GSTPercent) || 0;
+                    $("#GSTSLABId option").each(function () {
+                        let percent = parseFloat($(this).data("percent")) || 0;
+                        if (percent === gstPercent) {
+                            $("#GSTSLABId").val($(this).val());
+                        }
+                    });
+
+                    setTimeout(() => {
+                        $("#ddlPartyGST").val(data.Data.PartyID).trigger('change');
+                        $("#ddlBroker").val(data.Data.BrokerID).trigger('change');
+                        $("#ddlTransport").val(data.Data.TransportID).trigger('change');
+                        $("#GSTSLABId").trigger("change");
+                    }, 150);                                      
+                    SaleOrderDetails = [];
+                    if (data.Data.Details && data.Data.Details.length > 0) {
+                        data.Data.Details.forEach((item) => {
+                            let subDetails = []; // ✅ reset for each row
+                            if (item.SubDetails && item.SubDetails.length > 0) {
+                                item.SubDetails.forEach(sub => {
+                                    subDetails.push({
+                                        DesignNo: item.DesignId,
+                                        DesignName: item.DesignName,
+                                        ColorGroupId: item.ColorGroupId,
+                                        ColorGroup: item.ColorGroup,
+                                        Remark: item.DetailsRemark,
+                                        ColorMatchingID: sub.ColorDetailsID,
+                                        ColorMatchingName: sub.ColorMatchingName || sub.ColourName,
+                                        Qty: sub.Qty,
+                                        ImageUrl: sub.ImageUrl,
+                                        Rate: sub.Rate
+                                    });
+                                });
+                            }
+
+                            const obj = {
+                                DesignId: item.DesignId,
+                                DesignNo: item.DesignName,
+                                TypeId: item.TypeID,
+                                Type: item.Type,
+                                UnitId: item.UnitId,
+                                Unit: item.Unit,
+                                ColorGroupId: item.ColorGroupId,
+                                ColorGroup: item.ColorGroup,
+                                Remark: item.DetailsRemark,
+                                TotalQty: item.Qty,
+                                NoOfColors: subDetails.length,
+                                Rate: item.Rate,
+                                BrokerRate: item.BrokerRate || item.Rate,
+                                Amount: item.TotalQty * item.Rate,
+                                SubDetails: subDetails,
+                                SelectedColorId: subDetails[0]?.ColorMatchingID || null
+                            };
+
+                            SaleOrderDetails.push(obj); // ✅ only here
+                        });
+                    }
+                    bindMainTable()
+                    updateSummary();              
+          
+                } else {
+                    alert(data?.Message || "No data found");
+                }
+            },
+
+            error: function () {
+                alert("Error loading data");
+            }
+        });
+    }
+    function bindMainTable() {
+        debugger;
+        const tbody = $("#orderBody");
+        tbody.empty();
+
+        if (!SaleOrderDetails.length) {
+            tbody.html(`
+     <tr class="no-data">
+         <td colspan="10" class="text-center">
+             No Data Available In Table
+         </td>
+     </tr>`);
+            return;
+        }
+        let markup = parseFloat($("#Markup").val()) || 0;
+        SaleOrderDetails.forEach((item, i) => {
+         const brokerRate = calculateBrokerRate(item.Rate, markup);
+          item.BrokerRate = brokerRate;    
+
+            tbody.append(`
+                     <tr data-index="${i}">
+                         <td>${i + 1}</td>
+                         <td>${item.DesignName || item.DesignNo}</td>
+                         <td>${item.Type}</td>
+
+                         <td>
+                             ${item.SubDetails.map((x, index) => `
+                                 <div style="display:flex; justify-content:space-between;">
+                                     <span>${index + 1}. ${x.ColourName || x.ColorMatchingName}</span>
+                                     <span>${x.Qty}</span>
+                                 </div>
+                             `).join('')}
+                         </td>
+
+                         <td>${item.TotalQty}</td>
+                         <td>${item.Unit}</td>
+                         <td>${item.Rate.toFixed(2)}</td>
+                         <td>${item.BrokerRate.toFixed(2)}</td>    
+                         <td>${item.Amount.toFixed(2)}</td>
+                         <td>${item.DetailsRemark || item.Remark || ""}</td>
+                         <td>
+                             <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
+                             <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
+                         </td>
+                     </tr>`);
+        });
+    }
+    // ✅ CLICK EVENT
+    $(document).on("click", ".viewSub", function () {
+        debugger;
+        const index = $(this).closest("tr").data("index");
+        const item = SaleOrderDetails[index] || {};
+        const subData = item.SubDetails || [];
+
+        currentViewIndex = index;
+        isEditMode = true;
+
+        // ✅ Open modal
+        $("#designModal").modal("show");
+
+        // ✅ First sub item (safe)
+        const firstSub = subData[0] || {};
+
+        // ✅ Bind fields (single place)
+        $("#DesignNo").val(item.DesignId || item.DesignId).trigger('change');
+        $("#TypeRow").val(firstSub.TypeID || item.TypeId);
+        $("#UnitRow").val(firstSub.UnitId || item.UnitId);
+        $("#DesignSelectionRemark").val(firstSub.DetailsRemark || item.Remark);
+        $("#ddlColourGroup").val(firstSub.ColorGroupId || item.ColorGroupId).trigger('change');
+        // ✅ Table binding
+        const $tbody = $("#itemTableBody");
+        $tbody.empty();
+
+        if (!subData.length) {
+            $tbody.html(noDataRow());
+            return;
+        }
+
+        let rows = "";
+
+        subData.forEach((sub, i) => {
+
+            let colorId = sub.ColorMatchingID || sub.ColorDetailsID || "";
+            let colorName = sub.ColorMatchingName || sub.ColourName || "";
+            let qty = parseFloat(sub.Qty) || 0;
+            let remark = sub.Remark || sub.DetailsRemark || "";
+            let imageUrl = sub.ImageUrl || "";
+            let saleRate = sub.Rate || sub.SaleRate || 0;
+            let colorGroupId = sub.ColorGroupId || "";
+
+            rows += `
+        <tr data-colorid="${colorId}" 
+            data-colorgroupid="${colorGroupId}" 
+            data-rate="${saleRate}"
+            data-img="${imageUrl}">
+
+            <td>${i + 1}</td>
+
+            <td hidden>${sub.DesignNo || ""}</td>
+            <td hidden>${sub.DesignName || ""}</td>
+            <td hidden>${sub.ColorGroup || ""}</td>
+
+            <td>${colorName}</td>
+            <td>${qty}</td>
+            <td>${remark}</td>
+
+            <td>
+                <a href="javascript:void(0)" class="deleteRow text-danger">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </td>
+        </tr>`;
+        });
+
+        $tbody.html(rows);
+
+        // ✅ Color Matching bind (only once)
+        const selectedId = item.SelectedColorId || firstSub.ColorDetailsID;
+
+        if (selectedId) {
+            $("#ColorMatchingID").val(selectedId).trigger("change");
+
+            setTimeout(() => {
+                getColorMatchingId(document.getElementById("ColorMatchingID"));
+            }, 200);
+        }
+    });
+
+
 </script>
 
 

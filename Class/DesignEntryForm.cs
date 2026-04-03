@@ -52,6 +52,8 @@ namespace NikunjTextile.Class
         public string DesignCut { get; set; }
         public string SearchDesignNo { get; set; }
         public string startFrom { get; set; }
+        public decimal SaleRate { get; set; }
+        public string BarcodeNo { get; set; }
         public List<DesignEntryWeftData> listDesignEntryWeftData { get; set; }
         public List<DesignFormWarpData> listDesignFormWarpData { get; set; }
         public string UnitCode { get; set; }
@@ -83,22 +85,6 @@ namespace NikunjTextile.Class
         public List<UnitModel> Units { get; set; }
         public List<ColorGroupModel> ColorGroups { get; set; }
     }
-    public class DesignModel
-    {
-        public int DesignEntryFormID { get; set; }
-        public int DesignColorMatchingFormID { get; set; }
-        public string DesignNo { get; set; }
-        public string DesignerCode { get; set; }
-
-        public int TypeID { get; set; }          // ✅ ADD
-        public string Type { get; set; }
-
-        public int UnitId { get; set; }          // ✅ ADD
-        public string UnitCode { get; set; }
-
-        public int ColorGroupID { get; set; }    // ✅ ADD
-        public string ColorGroup { get; set; }
-    }
 
     public class TypeModel
     {
@@ -116,5 +102,24 @@ namespace NikunjTextile.Class
     {
         public int ColorGroupID { get; set; }
         public string ColorGroup { get; set; }
+    }
+    public class DesignModel
+    {
+        public int DesignEntryFormID { get; set; }
+        public int DesignColorMatchingFormID { get; set; }
+
+        public string DesignNo { get; set; }
+        public string DesignerCode { get; set; }
+
+        public int TypeID { get; set; }
+        public string Type { get; set; }
+
+        public int UnitId { get; set; }
+        public string UnitCode { get; set; }
+
+        public decimal SaleRate { get; set; }
+
+        // ✅ MULTI VALUE SUPPORT
+        public List<ColorGroupModel> ColorGroups { get; set; }
     }
 }

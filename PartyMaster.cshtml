@@ -24,12 +24,6 @@
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
-
-
-
-
-
-
                         <div class="row gutters" id="DivPartyMaster">
 
                             <div class="row gutters">
@@ -282,18 +276,18 @@
                                                 </div>
 
 
-                                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                                <!--<div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">-->
 
                                                     <!-- Field wrapper start -->
-                                                    <div class="field-wrapper">
+                                                    <!--<div class="field-wrapper">
                                                         <select id="Broker" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
                                                             <option value="-1">Select</option>
                                                         </select>
                                                         <div class="field-placeholder">Broker</div>
-                                                    </div>
+                                                    </div>-->
                                                     <!-- Field wrapper end -->
 
-                                                </div>
+                                                <!--</div>-->
                                                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                     <div class="field-wrapper">
                                                         <div class="form-check form-check-inline">
@@ -1263,7 +1257,7 @@
             var BankName = document.getElementById('BankName');
             var BankBranch = document.getElementById('BankBranch');
             var SundryParty = document.getElementById('SundryParty');
-            var Broker = $("#Broker").val();
+            //var Broker = $("#Broker").val();
 
             var IsActiveParty = "0";
             if ($("#chcekIsActiveParty").is(':checked')) {
@@ -1306,7 +1300,7 @@
             formData.append('BankBranch', BankBranch.value);
             formData.append('SundryParty', SundryParty.value);
             formData.append('IsActiveParty', IsActiveParty);
-            formData.append('BrokerCode', Broker);
+            //formData.append('BrokerCode', Broker);
 
 
             $.ajax({
@@ -1400,7 +1394,7 @@
             var BankName = document.getElementById('BankName');
             var BankBranch = document.getElementById('BankBranch');
             var SundryParty = document.getElementById('SundryParty');
-            var Broker = $("#Broker").val();
+       //     var Broker = $("#Broker").val();
 
             var IsActiveParty = "0";
             if ($("#chcekIsActiveParty").is(':checked')) {
@@ -1443,7 +1437,7 @@
             formData.append('BankBranch', BankBranch.value);
             formData.append('IsActiveParty', IsActiveParty);
             formData.append('SundryParty', SundryParty.value);
-            formData.append('BrokerCode', Broker);
+            //formData.append('BrokerCode', Broker);
 
 
             $.ajax({

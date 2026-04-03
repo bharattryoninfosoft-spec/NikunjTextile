@@ -551,9 +551,9 @@
                     data: null,
                     render: function (data, type, row) {
                         return `
-                    <i class="fa fa-edit text-primary edit me-2" data-id="${row.ItemId}"></i>
-                    <i class="fa fa-eye text-dark view me-2" data-id="${row.ItemId}"></i>
-                    <i class="fa fa-trash text-danger delete" data-id="${row.ItemId}"></i>
+                    <i class="fa fa-edit text-primary edit me-2" style="cursor:pointer;" data-id="${row.ItemId}"></i>
+                    <i class="fa fa-eye text-dark view me-2"  style="cursor:pointer;" data-id="${row.ItemId}"></i>
+                    <i class="fa fa-trash text-danger delete" style="cursor:pointer;" data-id="${row.ItemId}"></i>
                 `;
                     }
                 }
@@ -566,7 +566,7 @@
             pageLength: 10,
             lengthChange: false,
             info: false,
-            ordering: true
+            ordering: false
         });
     }
     function deleteItem(id) {
@@ -754,6 +754,9 @@
                 }
             },
             error: function () {
+                $("#btnText").text("Save");
+                $("#btnLoader").addClass("d-none");
+                $("#saveBtn").prop("disabled", false);
                 showToast('error', 'Something went wrong');
             }
         });

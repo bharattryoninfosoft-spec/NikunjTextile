@@ -317,7 +317,7 @@
                                         <input type="text" id="Remark" class="form-control" title="Remark">
                                         <div class="field-placeholder">Remark</div>
                                         @*<div class="Remark-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
+                <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
                                     </div>
                                 </div>
 
@@ -396,8 +396,20 @@
                                         <div class="field-placeholder">Design Cut<sup style="color:red;">*</sup></div>
                                     </div>
                                 </div>
-
-
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input id="SaleRate" type="text" class="form-control" maxlength="10" inputmode="decimal" placeholder="0.00" onfocusout="validate(this)" oninput="validateDecimal(this)">
+                                        <div class="field-placeholder">Sale Rate<sup style="color:red;">*</sup></div>
+                                        <div class="DesignCategory-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignCategory-invalid-feedback invalid-feedback">Mention Sale Rate</div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6" hidden>
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="BarcodeNo" name="BarcodeNo" title="BarcodeNo" class="form-control" readonly>
+                                        <div class="field-placeholder">BarcodeNo</div>
+                                    </div>
+                                </div>
                             </div>
 
 
@@ -1590,13 +1602,33 @@
 
     }
 
+    function validateDecimal(el) {
 
+        let value = el.value;
+
+        // Remove invalid characters
+        value = value.replace(/[^0-9.]/g, '');
+
+        // Allow only one dot
+        let parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
+
+        // Limit to 2 decimal places
+        if (parts[1]) {
+            parts[1] = parts[1].substring(0, 2);
+            value = parts[0] + '.' + parts[1];
+        }
+
+        el.value = value;
+    }
     function saveImage(input) {
         var previewStr = "#" + input.id + "-preview";
         if (input.files && input.files[0]) {
             var fildr = new FileReader();
             fildr.onload = function (e) {
-                var imgStr = "<img src='" + e.target.result + "' style='width:100%;margin-top:-54px;'>";
+                var imgStr = `<img src="https://test.weavelanesoft.in/${e.target.result}" style="width:100%;margin-top:-54px;">`;
                 $(previewStr).html(imgStr);
                 $(previewStr).css('color', 'initial');
             }
@@ -1638,14 +1670,6 @@
         $("#txttempPhotoOfSketch").val("");
     }
 
-
-
-
-
-
-
-
-
     function functionDesignEntryForm(DesignEntryFormID) {
 
         var formData = new FormData();
@@ -1672,12 +1696,22 @@
 
                     /* ---------- View Party Details ---------- */
 
+                    var designImg = response.listDesignEntryForm[i].PhotoOfDesign;
+                    var sketchImg = response.listDesignEntryForm[i].PhotoOfSketch;
 
-                    $("#upload-PhotoOfDesign-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
-                    if (response.listDesignEntryForm[i].PhotoOfSketch != "") {
-                        $("#upload-PhotoOfSketch-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
-                    }
+                    // Design Image
+                    var designStr = designImg
+                        ? `<img src="https://test.weavelanesoft.in/${designImg}" style="width:100%;margin-top:-54px;">`
+                        : `<img src="/images/no-image.png" style="width:100%;">`;
 
+                    $("#upload-PhotoOfDesign-default-preview").html(designStr);
+
+                    // Sketch Image
+                    var sketchStr = sketchImg
+                        ? `<img src="https://test.weavelanesoft.in/${sketchImg}" style="width:100%;margin-top:-54px;">`
+                        : `<img src="/images/no-image.png" style="width:100%;">`;
+
+                    $("#upload-PhotoOfSketch-default-preview").html(sketchStr);
 
                     $("#txtPhotoOfSketch").val(response.listDesignEntryForm[i].PhotoOfSketch);
 
@@ -1721,6 +1755,8 @@
                     $("#type").val(response.listDesignEntryForm[i].TypeID);
                     $("#DesignCategory").val(response.listDesignEntryForm[i].DesignCategoryID);
                     $("#DesignCut").val(response.listDesignEntryForm[i].DesignCut);
+                    $("#SaleRate").val(response.listDesignEntryForm[i].SaleRate);
+                    $("#BarcodeNo").val(response.listDesignEntryForm[i].BarcodeNo);
 
 
 
@@ -2286,7 +2322,10 @@
                     var ReedOnLoom = document.getElementById("ReedOnLoom");
                     var DesignCategory = document.getElementById("DesignCategory");
                     var DesignCut = document.getElementById("DesignCut");
-
+                    var SaleRate = document.getElementById("SaleRate");
+                    var input = document.getElementById("BarcodeNo");
+                    var BarcodeNo = input && input.value;
+                    console.log("BarcodeNo", BarcodeNo);
                     var isMatchCalculation = 1;
                     //alert(TotalWeftCard + " card " + TotalCard.value);
                     if (parseFloat(TotalWeftCard) != parseFloat(TotalCard.value)) {
@@ -2314,7 +2353,7 @@
                         if (validate(warnquality) == false ||
                             validate(Designer) == false || validate(DesignNo) == false ||
                             validate(PickOnLoom) == false || validate(TotalCard) == false ||
-                            validate(AveragePic) == false || validate(ReedOnLoom) == false || validate(type) == false) {
+                            validate(AveragePic) == false || validate(ReedOnLoom) == false || validate(SaleRate) == false || validate(type) == false) {
 
                             validate(warnquality);
 
@@ -2327,6 +2366,7 @@
                             validate(TotalCard);
                             validate(AveragePic);
                             validate(ReedOnLoom);
+                            validate(SaleRate);
                             validate(type);
 
 
@@ -2379,7 +2419,8 @@
                             else { listDesignEntryForm += '"DesignCategoryID":"' + DesignCategory.value + '",'; }
 
                             listDesignEntryForm += '"DesignCut":"' + DesignCut.value + '",';
-
+                            listDesignEntryForm += '"SaleRate":"' + SaleRate.value + '",';
+                            listDesignEntryForm += '"BarcodeNo":"' + BarcodeNo + '",';
                             //listDesignEntryForm += '"listDesignEntryWeftData":[';
 
                             var listWarpData = "";

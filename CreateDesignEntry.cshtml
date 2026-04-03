@@ -21,26 +21,16 @@
                     <div class="form-section-header">Create Design Entry Form</div>
                     <br />
                     <!--Images-->
-
-
-
-
-
                     <div class="row gutters">
-
-
-
                         <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                             <div id="dropzone-sm">
                                 <div class="row gutters">
                                     <div class="col-12" style=" text-align: center;">
                                         <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Import Existing Design No</div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                             <!-- Field wrapper start -->
                             <div id="dropzone-sm">
@@ -52,16 +42,11 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                     <br />
                     <div class="row gutters">
-
                         <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
                         </div>
-
-
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
@@ -79,14 +64,8 @@
                             </div>
                             <!-- Field wrapper end -->
                         </div>
-
-
-
-
                         <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                         </div>
-
-
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
@@ -345,7 +324,7 @@
                                         <input type="text" id="Remark" class="form-control" title="Remark">
                                         <div class="field-placeholder">Remark</div>
                                         @*<div class="Remark-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
+                <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
                                     </div>
                                 </div>
 
@@ -424,7 +403,20 @@
                                         <div class="field-placeholder">Design Cut<sup style="color:red;">*</sup></div>
                                     </div>
                                 </div>
-
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input id="SaleRate" type="text" class="form-control" maxlength="10" inputmode="decimal" placeholder="0.00" onfocusout="validate(this)" oninput="validateDecimal(this)">
+                                        <div class="field-placeholder">Sale Rate<sup style="color:red;">*</sup></div>
+                                        <div class="DesignCategory-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="DesignCategory-invalid-feedback invalid-feedback">>Mention Sale Rate</div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6" hidden>
+                                    <div class="field-wrapper" style=" margin-top: 0;">
+                                        <input type="text" id="BarcodeNo" name="BarcodeNo" title="BarcodeNo" class="form-control" readonly>
+                                        <div class="field-placeholder">BarcodeNo</div>
+                                    </div>
+                                </div>
                             </div>
 
 
@@ -494,7 +486,6 @@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
                                         </div>
                                     </div>
 
@@ -695,7 +686,27 @@
     });
 
 
+    function validateDecimal(el) {
 
+        let value = el.value;
+
+        // Remove invalid characters
+        value = value.replace(/[^0-9.]/g, '');
+
+        // Allow only one dot
+        let parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
+
+        // Limit to 2 decimal places
+        if (parts[1]) {
+            parts[1] = parts[1].substring(0, 2);
+            value = parts[0] + '.' + parts[1];
+        }
+
+        el.value = value;
+    }
 
 
     function validateFloatKeyPress(el, evt) {
@@ -2353,6 +2364,7 @@
 
                 }
                 else {
+                    var milliseconds = jQuery.now()
                     var DesignDate = document.getElementById("DesignDate");
                     var Designer = document.getElementById("DesignerID");
                     var Sketcher = document.getElementById("Sketcher");
@@ -2366,7 +2378,10 @@
                     var type = document.getElementById("type");
                     var DesignCategory = document.getElementById("DesignCategory");
                     var DesignCut = document.getElementById("DesignCut");
-
+                    var SaleRate = document.getElementById("SaleRate");
+                    var input = document.getElementById("BarcodeNo");
+                    var BarcodeNo = input && input.value ? input.value.trim() : milliseconds.toString();
+                    console.log("BarcodeNo", BarcodeNo);
                     var isMatchCalculation = 1;
 
                     console.log("TotalWeftCard " + TotalWeftCard + " TotalCard " + TotalCard.value);
@@ -2398,7 +2413,7 @@
                         if (validate(warnquality) == false ||
                             validate(Designer) == false || validate(DesignNo) == false ||
                             validate(PickOnLoom) == false || validate(TotalCard) == false ||
-                            validate(AveragePic) == false || validate(ReedOnLoom) == false || validate(type) == false) {
+                            validate(AveragePic) == false || validate(ReedOnLoom) == false || validate(SaleRate) == false || validate(type) == false) {
 
                             //alert("validate");
 
@@ -2412,6 +2427,7 @@
                             validate(TotalCard);
                             validate(AveragePic);
                             validate(ReedOnLoom);
+                            validate(SaleRate);
                             validate(type);
                             //validate(Material);
 
@@ -2458,6 +2474,8 @@
                             else { listDesignEntryForm += '"DesignCategoryID":"' + DesignCategory.value + '",'; }
 
                             listDesignEntryForm += '"DesignCut":"' + DesignCut.value + '",';
+                            listDesignEntryForm += '"SaleRate":"' + SaleRate.value + '",';
+                            listDesignEntryForm += '"BarcodeNo":"' + BarcodeNo + '",';
                             //listDesignEntryForm += '"listDesignEntryWeftData":[';
 
                             var listWarpData = "";

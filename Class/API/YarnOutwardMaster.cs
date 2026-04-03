@@ -8,6 +8,7 @@ namespace NikunjTextile.Class.API
     {
         public int Code { get; set; }
         public string Message { get; set; }
+        public bool success { get; set; }
     }
 
     // Generic API Response

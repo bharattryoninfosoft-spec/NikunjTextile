@@ -140,7 +140,10 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button class="btn btn-success" id="btnSaveTransport" onclick="saveTransport()">Save</button>
+                        <button type="button"  id="btnSaveTransport" class="btn btn-success px-4" onclick="saveTransport()">
+                            <span id="btnText">Save</span>
+                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>                      
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
 
@@ -260,9 +263,15 @@
 
                 success: function (res) {
                     $('#TransportCode').val(res.d);
+                    disableTransportForm(false);
+                    $('#btnSaveTransport').show();
+                    $('#transportModalLabel').text("New Transport");
                 }
+               
             });
-
+           
+              
+           
         }
     });
     $('#tblTransport').on('click', '.edit', function () {
@@ -280,6 +289,11 @@
     });
     $('.form-control').on('input', function () {
         $(this).removeClass('is-invalid');
+    });
+    $('#TransportModal').on('hidden.bs.modal', function () {
+        $(this).find('input, textarea').val('');
+        $(this).find('input[type="checkbox"]').prop('checked', false);
+        $(this).find('select').val(null).trigger('change');
     });
     function addTransport() {
 
@@ -446,7 +460,9 @@
         }
 
         if (!isValid) return;
-
+        $("#btnText").text("Saving...");
+        $("#btnLoader").removeClass("d-none");
+        $("#btnSaveTransport").prop("disabled", true);
         let obj = {
             TransportId: parseInt($('#TransportId').val()) || 0,
             TransportName: $('#TransportName').val(),
@@ -469,13 +485,26 @@
             contentType: 'application/json',
             data: JSON.stringify({ obj: obj }),
             success: function (res) {
-
+                $("#btnText").text("Save");
+                $("#btnLoader").addClass("d-none");
+                $("#btnSaveTransport").prop("disabled", false);
+                // 🔥 IMPORTANT CHANGE
                 if (res.d === "success") {
                     showToast('success', 'Saved Successfully');
                     $('#TransportModal').modal('hide');
                     LoadTransportList();
                 }
+                else {
+                    showToast('error', res.d);
+                }
+            },
+            error: function () {
+                $("#btnText").text("Save");
+                $("#btnLoader").addClass("d-none");
+                $("#btnSaveTransport").prop("disabled", false);
+                showToast('error', 'Something went wrong');
             }
+
         });
     }
     function getTransportById(id, mode) {
@@ -505,7 +534,6 @@
                 $('#GSTNo').val(d.GSTNo);
                 $('#VehicleType').val(d.VehicleType);
                 $('#IsActive').val(d.IsActive.toString());
-
                 if (mode === "view") {
                     disableTransportForm(true);
                     $('#btnSaveTransport').hide();
@@ -515,6 +543,7 @@
                     $('#btnSaveTransport').show();
                     $('#transportModalLabel').text("Edit Transport");
                 }
+                
 
                 $('#TransportModal').modal('show');
             }

@@ -704,14 +704,10 @@
                     temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
                     temp += "<td>" + response.listDesignEntryForm[i].DesignDates + "</td>";
                     temp += "<td>" + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + "</td>";
-                    temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:50px; height:50px;'></td>";
-                    if (response.listDesignEntryForm[i].PhotoOfSketch == "") {
-                        temp += "<td></td>";
-                    }
-                    else {
-                        temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:50px; height:50px;'></td>";
-                    }
-
+                    var designImg = response.listDesignEntryForm[i].PhotoOfDesign;
+                    var sketchImg = response.listDesignEntryForm[i].PhotoOfSketch;                    
+                    temp += `<td>${designImg ? `<img src="https://test.weavelanesoft.in/${designImg}" style="width:50px;height:50px;">`: ``}</td>`;                                       
+                    temp += `<td>${sketchImg ? `<img src="https://test.weavelanesoft.in/${sketchImg}" style="width:50px;height:50px;">`: ``}</td>`;
                     temp += "<td>" + response.listDesignEntryForm[i].WarpQuality + "</td>";
                     temp += "<td>" + response.listDesignEntryForm[i].PickOnLoom + "</td>";
                     temp += "<td>" + response.listDesignEntryForm[i].TotalCard + "</td>";
