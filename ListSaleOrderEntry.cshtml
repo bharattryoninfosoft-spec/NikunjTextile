@@ -170,10 +170,9 @@
 
 
         $('.active, .show, .current-page').removeClass('active show current-page');
-
-        $("#master-tab").addClass("active");
-        $("#tab-Master").addClass("show active");
-        $("#aColorGroup").addClass("current-page");
+        $("#finance-tab").addClass("active");
+        $("#tab-finance").addClass("show active");
+        $("#aSaleOrderEntry").addClass("current-page");
 
         FunctionIsLogin();
         loadSaleOrders();
@@ -286,11 +285,8 @@
 
                         // ✅ Extract milliseconds from .NET format
                         let match = /\/Date\((\d+)\)\//.exec(data);
-
                         if (!match) return '';
-
                         let d = new Date(parseInt(match[1]));
-
                         let day = String(d.getDate()).padStart(2, '0');
                         let month = String(d.getMonth() + 1).padStart(2, '0');
                         let year = d.getFullYear();

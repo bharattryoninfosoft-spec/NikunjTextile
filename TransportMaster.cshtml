@@ -102,15 +102,39 @@
                             </div>
 
                             <!-- Address -->
-                            <div class="col-5">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="field-wrapper">
                                     <input type="text" class="form-control" id="Address">
                                     <div class="field-placeholder">Address</div>
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div class="field-wrapper">
+                                    @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                    <input id="gstTransport" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <input id="gstTransport" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <div class="field-placeholder">GSTIN <sup class="text-danger">*</sup></div>
+                                    <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                                </div>
 
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div class="field-wrapper">
+                                    @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                    <input id="TransportPanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <input id="TransportPanNo" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <div class="field-placeholder">PAN No <sup class="text-danger">*</sup></div>
+                                    <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+
+                                </div>
+
+                            </div>
                             <!-- City -->
-                            <div class="col-2">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="field-wrapper">
                                     <input type="text" class="form-control" id="CityName">
                                     <div class="field-placeholder">City</div>
@@ -118,7 +142,7 @@
                             </div>
 
                             <!-- Vehicle Type -->
-                            <div class="col-3">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="field-wrapper">
                                     <input type="text" class="form-control" id="VehicleType">
                                     <div class="field-placeholder">Vehicle Type</div>
@@ -126,7 +150,7 @@
                             </div>
 
                             <!-- Status -->
-                            <div class="col-2">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="field-wrapper">
                                     <select class="form-control" id="IsActive">
                                         <option value="true">Active</option>
@@ -140,15 +164,13 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button"  id="btnSaveTransport" class="btn btn-success px-4" onclick="saveTransport()">
-                            <span id="btnText">Save</span>
-                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                        </button>                      
+                        <button class="btn btn-success" id="btnSaveTransport" onclick="saveTransport()">Save</button>
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
 
                 </div>
             </div>
+
         </div>
 
         <button class="btn btn-primary" style="float:right;" data-bs-toggle="modal" data-bs-target="#TransportModal">
@@ -443,6 +465,14 @@
             $('#TransportName').addClass('is-invalid');
             isValid = false;
         }
+        if (!$('#gstTransport').val().trim()) {
+            $('#gstTransport').addClass('is-invalid');
+            isValid = false;
+        }
+        if (!$('#TransportPanNo').val().trim()) {
+            $('#TransportPanNo').addClass('is-invalid');
+            isValid = false;
+        }
         if (!$('#ContactPerson').val().trim()) {
             $('#ContactPerson').addClass('is-invalid');
             isValid = false;
@@ -452,6 +482,7 @@
             $('#MobileNo').addClass('is-invalid');
             isValid = false;
         }
+
         // Mobile Format Check
         else if (!/^[6-9]\d{9}$/.test(mobile)) {
             $('#MobileNo').addClass('is-invalid');
@@ -459,10 +490,9 @@
             isValid = false;
         }
 
+
         if (!isValid) return;
-        $("#btnText").text("Saving...");
-        $("#btnLoader").removeClass("d-none");
-        $("#btnSaveTransport").prop("disabled", true);
+
         let obj = {
             TransportId: parseInt($('#TransportId').val()) || 0,
             TransportName: $('#TransportName').val(),
@@ -473,8 +503,8 @@
             AlternateMobileNo: $('#AlternateMobileNo').val(),
             Address: $('#Address').val(),
             CityName: $('#CityName').val(),
-            PANCard: $('#PANCard').val(),
-            GSTNo: $('#GSTNo').val(),
+            PANCard: $('#TransportPanNo').val(),
+            GSTNo: $('#gstTransport').val(),
             VehicleType: $('#VehicleType').val(),
             IsActive: $('#IsActive').val() === "true"
         };
@@ -485,26 +515,13 @@
             contentType: 'application/json',
             data: JSON.stringify({ obj: obj }),
             success: function (res) {
-                $("#btnText").text("Save");
-                $("#btnLoader").addClass("d-none");
-                $("#btnSaveTransport").prop("disabled", false);
-                // 🔥 IMPORTANT CHANGE
+
                 if (res.d === "success") {
                     showToast('success', 'Saved Successfully');
                     $('#TransportModal').modal('hide');
                     LoadTransportList();
                 }
-                else {
-                    showToast('error', res.d);
-                }
-            },
-            error: function () {
-                $("#btnText").text("Save");
-                $("#btnLoader").addClass("d-none");
-                $("#btnSaveTransport").prop("disabled", false);
-                showToast('error', 'Something went wrong');
             }
-
         });
     }
     function getTransportById(id, mode) {
@@ -530,8 +547,8 @@
                 $('#AlternateMobileNo').val(d.AlternateMobileNo);
                 $('#Address').val(d.Address);
                 $('#CityName').val(d.CityName);
-                $('#PANCard').val(d.PANCard);
-                $('#GSTNo').val(d.GSTNo);
+                $('#TransportPanNo').val(d.PANCard);
+                $('#gstTransport').val(d.GSTNo);
                 $('#VehicleType').val(d.VehicleType);
                 $('#IsActive').val(d.IsActive.toString());
                 if (mode === "view") {
@@ -582,6 +599,62 @@
             }
         });
     }
+    $("#gstTransport").on("input", function () {
+
+        let gstVal = $(this).val().toUpperCase().trim();
+        let element = this;
+
+        $(element).val(gstVal);
+
+        // store hidden
+        $("#gstTransportHidden").val(gstVal);
+
+        if (gstVal.length === 15) {
+
+            let pan = gstVal.substring(2, 12);
+
+            $("#TransportPanNo").val(pan);
+            $("#TransportPanNoHidden").val(pan);
+
+            // ✅ optional UI success
+            $(element).removeClass("is-invalid").addClass("is-valid");
+            $("#GSTError").hide();
+
+        } else {
+
+            $("#TransportPanNo").val("");
+            $("#TransportPanNoHidden").val("");
+
+            // ❌ mark invalid
+            $(element).removeClass("is-valid").addClass("is-invalid");
+
+            $("#GSTError").html("GSTIN must be 15 characters").show();
+        }
+    });
+    $("#TransportPanNo").on("input", function () {
+
+        let element = this; // ✅ FIX
+        let pan = $(element).val().toUpperCase().trim();
+
+        $(element).val(pan);
+
+        let pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+        if (pattern.test(pan)) {
+
+            $(element).removeClass("is-invalid").addClass("is-valid");
+            $("#PanNoError").hide();
+
+            return true;
+
+        } else {
+
+            $(element).removeClass("is-valid").addClass("is-invalid");
+            $("#PanNoError").html("Please Provide Valid PanNo Number").show();
+
+            return false;
+        }
+    });
 </script>
 
 

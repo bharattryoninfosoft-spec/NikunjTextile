@@ -148,7 +148,7 @@
                                 <div class="field-wrapper">
                                     <select id="ddlBroker" class="select-single detail form-control" title="Select Yarn Godown Manager" data-live-search="true">
                                     </select>
-                                    <div class="field-placeholder"> Broker</div>
+                                    <div class="field-placeholder"> Broker <sup style="color:red;">*</sup></div>
                                     <div class="ddlBroker-valid-feedback valid-feedback">Looks good!</div>
                                     <div class="ddlBroker-invalid-feedback invalid-feedback">Please Select Broker</div>
                                 </div>
@@ -201,6 +201,7 @@
                                     <th>Design No</th>
                                     <th>Type</th>
                                     <th>No of Colours</th>
+                                    <th>Colours</th>
                                     <th>Qty</th>
                                     <th>Unit</th>
                                     <th>Rate</th>
@@ -293,7 +294,27 @@
                             <i class="fa fa-arrow-left"></i> Back
                         </a>
 
-                        <button id="btnSave" class="btn btn-primary" onclick="saveSaleOrder()"> Save Sale Order </button>
+                        <div id="loaderOverlay" style="
+                                                   display:none;
+                                                   position:fixed;
+                                                   top:0;
+                                                   left:0;
+                                                   width:100%;
+                                                   height:100%;
+                                                   background:rgba(0,0,0,0.4);
+                                                   z-index:9999;
+                                                   justify-content:center;
+                                                   align-items:center;
+                                               ">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+
+                        <!-- ✅ Save Button (NORMAL PLACE) -->
+                        <button id="btnSave" class="btn btn-primary" onclick="saveSaleOrder()">
+                            Save Sale Order
+                        </button>
                     </div>
                     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
                         <div class="modal-dialog modal-xl" role="document">
@@ -347,7 +368,7 @@
                                                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                                                     <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                                                     <input id="gstintemp" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                                    <div class="field-placeholder">GSTIN</div>
+                                                                    <div class="field-placeholder">GSTIN<sup class="text-danger">*</sup></div>
                                                                     <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
                                                                     <div class="gstin-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
 
@@ -361,7 +382,7 @@
                                                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                                                     <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                                                     <input id="PanNotemp" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                                    <div class="field-placeholder">PAN No</div>
+                                                                    <div class="field-placeholder">PAN No<sup class="text-danger">*</sup></div>
                                                                     <div class="PanNo-valid-feedback valid-feedback">Looks good!</div>
                                                                     <div class="PanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
 
@@ -385,7 +406,7 @@
 
 
 
-                                                                
+
 
 
                                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -707,62 +728,73 @@
                                                     <div class="field-wrapper">
                                                         <select id="ddlColourGroup" class="select-single detail form-control" title="Select Color Group" data-live-search="true">
                                                         </select>
-                                                        <div class="field-placeholder"> Color Group <sup style="color:red;">*</sup></div>
+                                                        <div class="field-placeholder"> Color Group <span class="text-danger">*</span></div>
                                                         <div class="ddlColourGroup-valid-feedback valid-feedback">Looks good!</div>
                                                         <div class="ddlColourGroup-invalid-feedback invalid-feedback">Please Select Color Group</div>
                                                     </div>
                                                 </div>
-
-                                                <div class="row gutters mb-3">
-
-                                                    <!-- REMARK -->
-                                                    <div class="col-md-6">
-                                                        <div class="field-wrapper">
-                                                            <input type="text" id="DesignSelectionRemark" class="form-control">
-                                                            <div class="field-placeholder">Remark</div>
+                                                <div class="col-md-2">
+                                                    <div class="field-wrapper mb-0">
+                                                        <input type="number" id="ColorGroupQty" class="form-control form-control-sm">
+                                                        <div class="field-placeholder">
+                                                            Qty <span class="text-danger">*</span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <div class="field-wrapper">
-                                                            <input type="number" id="ColorGroupQty" class="form-control">
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <button type="button" id="ColorGroupAddbtn"
+                                                            class="btn btn-success w-100 btn-sm">
+                                                        Add All Colours
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center my-2">
+                                                <hr class="flex-grow-1 me-2">
+                                                <span class="fw-bold text-primary">Single Item Wise</span>
+                                                <hr class="flex-grow-1 ms-2">
+                                            </div>
+
+                                            <!-- 🔹 SINGLE ITEM -->
+                                            <div class="row gutters">
+
+                                                <div class="col-md-12">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" id="DesignSelectionRemark" class="form-control">
+                                                        <div class="field-placeholder">Remark</div>
+                                                    </div>
+                                                </div>
+                                                <div class="row align-items-center">
+
+                                                    <div class="col-md-6">
+                                                        <strong class="ColorMatchingName mb-0"></strong>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <div class="field-wrapper mb-0">
+                                                            <input type="number" id="ColorMatchingQty" class="form-control form-control-sm">
                                                             <div class="field-placeholder">
-                                                                Color Group Wise Qty <span class="text-danger">*</span>
+                                                                Qty <span class="text-danger">*</span>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <button type="button" id="ColorGroupAddbtn" class="btn btn-primary w-100">
-                                                            ADD Item Color Group
+
+                                                    <div class="col-md-4">
+                                                        <button type="button" id="ColorMatchingAddbtn"
+                                                                class="btn btn-primary w-100 btn-sm">
+                                                            Add Item
                                                         </button>
                                                     </div>
 
                                                 </div>
 
                                             </div>
-                                            <!-- QTY + BUTTON -->
-                                            <div class="d-flex align-items-center mb-3 gap-3">
-                                                <div class="field-wrapper">
-                                                    <!-- COLOR ID -->
-                                                    <strong class="ColorMatchingID" hidden></strong>
-                                                    <!-- COLOR NAME -->
-                                                    <strong class="ColorMatchingName" style="font-size: larger; min-width:200px;">
-                                                    </strong>
-                                                </div>
-                                                <!-- QTY INPUT -->
-                                                <div class="field-wrapper">
-                                                    <input type="number" id="ColorMatchingQty" class="form-control" style="width:120px;" placeholder="Qty">
-                                                    <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
-                                                </div>
-
-
-                                                <!-- BUTTON -->
-                                                <div class="field-wrapper">
-                                                    <button type="button" id="ColorMatchingAddbtn" class="btn btn-primary">
-                                                        ADD Item
-                                                    </button>
-                                                </div>
+                                            <br />
+                                            <div class="d-flex align-items-center my-2">
+                                                <span class="fw-bold text-danger" id="AlertsMsg"></span>
                                             </div>
-                                            <span id="AlertsMsg"></span>
+
                                             <!-- TABLE (SCROLLABLE) -->
                                             <div class="table-responsive flex-grow-1" style="max-height:500px;">
                                                 <table class="table table-bordered" id="SaleOrderSubDetails">
@@ -853,15 +885,39 @@
                                     </div>
 
                                     <!-- Address -->
-                                    <div class="col-5">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
                                             <input type="text" class="form-control" id="Address">
                                             <div class="field-placeholder">Address</div>
                                         </div>
                                     </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                            <input id="gstTransport" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                            <input id="gstTransport" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                            <div class="field-placeholder">GSTIN</div>
+                                            <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                                        </div>
 
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                            <input id="TransportPanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                            <input id="TransportPanNo" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                            <div class="field-placeholder">PAN No</div>
+                                            <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+
+                                        </div>
+
+                                    </div>
                                     <!-- City -->
-                                    <div class="col-2">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
                                             <input type="text" class="form-control" id="CityName">
                                             <div class="field-placeholder">City</div>
@@ -869,7 +925,7 @@
                                     </div>
 
                                     <!-- Vehicle Type -->
-                                    <div class="col-3">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
                                             <input type="text" class="form-control" id="VehicleType">
                                             <div class="field-placeholder">Vehicle Type</div>
@@ -877,7 +933,7 @@
                                     </div>
 
                                     <!-- Status -->
-                                    <div class="col-2">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
                                             <select class="form-control" id="IsActive">
                                                 <option value="true">Active</option>
@@ -987,9 +1043,9 @@
 
     $(document).ready(function () {
         $('.active, .show, .current-page').removeClass('active show current-page');
-        $("#YarnForm-tab").addClass("active");
-        $("#tab-YarnForm").addClass("show active");
-        $("#aYarnRequirement").addClass("current-page");
+        $("#finance-tab").addClass("active");
+        $("#tab-finance").addClass("show active");
+        $("#aSaleOrderEntry").addClass("current-page");
         loadOrderNo();
         FunctionIsLogin();
         bindPartyGST();
@@ -1117,6 +1173,7 @@
         $("#ColorMatchingQty").val('');
         $("#weftLength").val('');
         $("#warpLength").val('');
+    
 
         // ✅ Clear table
         $("#divColorMatchingTable").empty();
@@ -1191,7 +1248,7 @@
         }
     });
     $('#TransportModal').on('show.bs.modal', function () {
-
+        debugger;
         // Only for ADD
         if ($('#TransportId').val() == 0) {
 
@@ -1204,10 +1261,23 @@
 
                 success: function (res) {
                     $('#TransportCode').val(res.d);
+                    
                 }
             });
 
         }
+    });
+    $('#TransportModal').on('hidden.bs.modal', function () {
+
+        // ✅ Clear all inputs
+        $(this).find("input[type='text'], input[type='hidden'], textarea").val('');
+
+        // ✅ Clear dropdowns
+        $(this).find("select").val('').trigger('change');
+
+        // ✅ Remove validation UI
+        $(this).find(".form-control")
+            .removeClass("is-valid is-invalid");
     });
     $("#ColorMatchingAddbtn").click(function () {
 
@@ -1225,9 +1295,14 @@
 
         let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
 
+        // ❌ Duplicate not allowed
         if (existingRow.length > 0) {
-            let oldQty = parseFloat(existingRow.find("td:eq(5)").text()) || 0;
-            existingRow.find("td:eq(5)").text(oldQty + qty);
+            showError("This color already added");
+
+            // 🔥 highlight row
+            existingRow.addClass("table-danger");
+            setTimeout(() => existingRow.removeClass("table-danger"), 800);
+
             return;
         }
 
@@ -1248,9 +1323,17 @@
             colorName,
             qty,
             imageUrl,
-            saleRate   // 🔥 pass rate
+            saleRate
         ));
+
         updateSrNo();
+
+        // 🔥 RESET
+        $("#ColorMatchingQty").val("");
+        $("#DesignSelectionRemark").val("");
+        $("#ColorMatchingID").val("").trigger("change");
+        $(".ColorMatchingName").text("");
+
     });
     $("#ColorMatchingQty").keypress(function (e) {
         if (e.which === 13) {
@@ -2487,7 +2570,15 @@
 
         // Broker Name
         if (!$('#TransportName').val().trim()) {
-            $('#TransportName').addClass('is-invalid');
+            $('#TransportName').addClass('is-invalid');          
+            isValid = false;
+        }
+        if (!$('#gstTransport').val().trim()) {
+            $('#gstTransport').addClass('is-invalid');
+            isValid = false;
+        }
+        if (!$('#TransportPanNo').val().trim()) {
+            $('#TransportPanNo').addClass('is-invalid');
             isValid = false;
         }
         if (!$('#ContactPerson').val().trim()) {
@@ -2499,12 +2590,14 @@
             $('#MobileNo').addClass('is-invalid');
             isValid = false;
         }
+
         // Mobile Format Check
         else if (!/^[6-9]\d{9}$/.test(mobile)) {
             $('#MobileNo').addClass('is-invalid');
             $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
             isValid = false;
         }
+
 
         if (!isValid) return;
 
@@ -2518,8 +2611,8 @@
             AlternateMobileNo: $('#AlternateMobileNo').val(),
             Address: $('#Address').val(),
             CityName: $('#CityName').val(),
-            PANCard: $('#PANCard').val(),
-            GSTNo: $('#GSTNo').val(),
+            PANCard: $('#TransportPanNo').val(),
+            GSTNo: $('#gstTransport').val(),
             VehicleType: $('#VehicleType').val(),
             IsActive: $('#IsActive').val() === "true"
         };
@@ -2537,6 +2630,26 @@
                     LoadTransportList();
                 }
             }
+        });
+    }
+    function showToast(type, msg) {
+
+        const iconMap = {
+            success: "success",
+            error: "error",
+            danger: "error",
+            warning: "warning",
+            info: "info",
+            question: "question"
+        };
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: iconMap[type] || "info", // fallback
+            title: msg,
+            showConfirmButton: false,
+            timer: 2000
         });
     }
     function getTransportById(id, mode) {
@@ -2618,22 +2731,70 @@
 
 
     }
-   
+    $("#gstTransport").on("input", function () {
 
+        let gstVal = $(this).val().toUpperCase().trim();
+        let element = this;
 
+        $(element).val(gstVal);
 
+        // store hidden
+        $("#gstTransportHidden").val(gstVal);
 
+        if (gstVal.length === 15) {
 
+            let pan = gstVal.substring(2, 12);
 
+            $("#TransportPanNo").val(pan);
+            $("#TransportPanNoHidden").val(pan);
 
+            // ✅ optional UI success
+            $(element).removeClass("is-invalid").addClass("is-valid");
+            $("#GSTError").hide();
+
+        } else {
+
+            $("#TransportPanNo").val("");
+            $("#TransportPanNoHidden").val("");
+
+            // ❌ mark invalid
+            $(element).removeClass("is-valid").addClass("is-invalid");
+
+            $("#GSTError").html("GSTIN must be 15 characters").show();
+        }
+    });
+    $("#TransportPanNo").on("input", function () {
+
+        let element = this; // ✅ FIX
+        let pan = $(element).val().toUpperCase().trim();
+
+        $(element).val(pan);
+
+        let pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+        if (pattern.test(pan)) {
+
+            $(element).removeClass("is-invalid").addClass("is-valid");
+            $("#PanNoError").hide();
+
+            return true;
+
+        } else {
+
+            $(element).removeClass("is-valid").addClass("is-invalid");
+            $("#PanNoError").html("Please Provide Valid PanNo Number").show();
+
+            return false;
+        }
+    });
     // ColorGroupAddbtn
     $("#ColorGroupAddbtn").click(function () {
-
+        debugger;
         let qty = parseFloat($("#ColorGroupQty").val());
         let saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
 
         if (!qty || qty <= 0) {
-            showError("Please enter valid Qty");
+            showError("Enter valid Qty");
             return;
         }
 
@@ -2648,6 +2809,8 @@
         let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
         let remark = $("#DesignSelectionRemark").val() || "";
 
+        let duplicateFound = false; // 🔥 track duplicates
+
         $dropdown.find("option").each(function () {
 
             let colorId = $(this).val();
@@ -2655,31 +2818,39 @@
 
             if (!colorId) return;
 
-            // ✅ FIX: get image from option itself
             let imageUrl = $(this).attr("data-img") || "";
 
             let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
 
             if (existingRow.length > 0) {
-                let oldQty = parseFloat(existingRow.find("td:eq(5)").text()) || 0;
-                existingRow.find("td:eq(5)").text(oldQty + qty);
-            } else {
-                tbody.append(createSubRow(
-                    designNo,
-                    designName,
-                    colorGroupId,
-                    colorGroupName,
-                    remark,
-                    colorId,
-                    colorName,
-                    qty,
-                    imageUrl,   // ✅ now correct per color
-                    saleRate
-                ));
+                duplicateFound = true; // 🔥 mark duplicate
+                return; // skip only this color
             }
+
+            tbody.append(createSubRow(
+                designNo,
+                designName,
+                colorGroupId,
+                colorGroupName,
+                remark,
+                colorId,
+                colorName,
+                qty,
+                imageUrl,
+                saleRate
+            ));
         });
 
         updateSrNo();
+
+        // 🔥 show message once
+        if (duplicateFound) {
+            showError("Some colors already added");
+        }
+
+        // 🔥 RESET
+        $("#ColorGroupQty").val("");
+        $("#DesignSelectionRemark").val("");
     });
     $("#ddlColourGroup").on("change", function () {
         debugger;
@@ -2744,7 +2915,7 @@
 
     });   
     $("#btnAddToOrder").click(function () {
-        debugger;
+
         const designId = $("#DesignNo").val();
         const designName = $("#DesignNo option:selected").text().trim();
 
@@ -2759,57 +2930,45 @@
 
         const remark = $("#DesignSelectionRemark").val() || "";
 
-        // ✅ VALIDATIONS
-        if (!designId || designId == "-1") {
-            Swal.fire("Error", "Please select Design", "error");
-            return;
-        }
+        if (!designId || designId == "-1")
+            return Swal.fire("Error", "Select Design", "error");
 
-        if (!colorGroupId || colorGroupId == "-1") {
-            Swal.fire("Error", "Please select Color Group", "error");
-            return;
-        }
+        if (!colorGroupId || colorGroupId == "-1")
+            return Swal.fire("Error", "Select Color Group", "error");
 
-        // ✅ GET QTY FROM SUB TABLE (FIXED)
-        let subDetails = [];
-        let totalQty = 0;
+        let uniqueMap = {};
         let saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
+
+        // ✅ STEP 1: Collect colors (merge duplicate colors inside modal)
         $("#itemTableBody tr").not(".no-data").each(function () {
 
             let row = $(this);
 
             let colorId = row.attr("data-colorid");
             let colorName = row.find("td:eq(4)").text().trim();
-            let rowQty = parseFloat(row.find("td:eq(5)").text()) || 0;
-            let img = row.attr("data-img") || "";
+            let qty = parseFloat(row.find("td:eq(5)").text()) || 0;
 
-            totalQty += rowQty;
+            if (!colorId || qty <= 0) return;
 
-            subDetails.push({
-                DesignNo: designId,
-                DesignName: designName,
-                ColorGroupId: colorGroupId,
-                ColorGroup: colorGroupName,
-                Remark: remark,
-                ColorMatchingID: colorId,
-                ColorMatchingName: colorName,
-                Qty: rowQty,
-                ImageUrl: img,   // 🔥 FINAL IMAGE FIX
-                Rate: saleRate
-            });
+            if (uniqueMap[colorId]) {
+                uniqueMap[colorId].Qty += qty;
+            } else {
+                uniqueMap[colorId] = {
+                    ColorMatchingID: colorId,
+                    ColorMatchingName: colorName,
+                    Qty: qty,
+                    Rate: saleRate
+                };
+            }
         });
-        if (subDetails.length === 0) {
-            Swal.fire("Error", "Please add Color Matching first", "error");
-            return;
-        }
 
-        if (totalQty <= 0) {
-            Swal.fire("Error", "Invalid total Qty", "error");
-            return;
-        }
+        let subDetails = Object.values(uniqueMap);
 
+        if (subDetails.length === 0)
+            return Swal.fire("Error", "Add color first", "error");
 
-        // ✅ CREATE OBJECT
+        let totalQty = subDetails.reduce((sum, x) => sum + x.Qty, 0);
+
         const obj = {
             DesignId: designId,
             DesignNo: designName,
@@ -2825,38 +2984,58 @@
             Rate: saleRate,
             BrokerRate: saleRate,
             Amount: totalQty * saleRate,
-            SubDetails: subDetails,
-            SelectedColorId: subDetails[0]?.ColorMatchingID
+            SubDetails: subDetails
         };
 
-        // 🔥 MAIN LOGIC (ADD vs UPDATE)
+        // ✅ STEP 2: CHECK EXISTING BY DESIGN ONLY
+        let existingIndex = SaleOrderDetails.findIndex(item =>
+            item.DesignId === obj.DesignId
+        );
+
+        // ✅ STEP 3: DECISION (EDIT / MERGE / ADD)
         if (isEditMode && currentViewIndex !== -1) {
 
-            // ✅ UPDATE EXISTING
+            // ✏️ EDIT MODE
             SaleOrderDetails[currentViewIndex] = obj;
+
+        } else if (existingIndex !== -1) {
+
+            // 🔥 MERGE INTO SAME DESIGN ROW
+            let existing = SaleOrderDetails[existingIndex];
+
+            existing.TotalQty += obj.TotalQty;
+            existing.Amount += obj.Amount;
+
+            // ✅ Merge colors
+            obj.SubDetails.forEach(newItem => {
+
+                let match = existing.SubDetails.find(x => x.ColorMatchingID === newItem.ColorMatchingID);
+
+                if (match) {
+                    match.Qty += newItem.Qty;
+                } else {
+                    existing.SubDetails.push(newItem);
+                }
+
+            });
+
+            // ✅ Update No of Colors
+            existing.NoOfColors = existing.SubDetails.length;
 
         } else {
 
-            // ✅ ADD NEW
+            // ➕ NEW DESIGN ENTRY
             SaleOrderDetails.push(obj);
         }
+
+        // ✅ RESET STATE
         currentViewIndex = -1;
-        isEditMode = false;        
-        
+        isEditMode = false;
+
+        // ✅ UI UPDATE
         bindMainTable();
         updateSummary();
-        
-        $("#itemTableBody").html(`
-        <tr class="no-data">
-            <td colspan="4" class="text-center">
-                No Data Available In Table
-            </td>
-        </tr>
-    `);
-
-        $("#DesignSelectionRemark").val("");
-        $("#designModal").modal("hide");
-
+        resetModal();
     });
     function createSubRow(
         designNo,
@@ -2892,44 +3071,38 @@
         const tbody = $("#orderBody");
         tbody.empty();
 
-        if (!SaleOrderDetails.length) {
-            tbody.html(`
-       <tr class="no-data">
-           <td colspan="10" class="text-center">
-               No Data Available In Table
-           </td>
-       </tr>`);
+        if (SaleOrderDetails.length === 0) {
+            tbody.html(`<tr><td colspan="12" class="text-center">No Data</td></tr>`);
             return;
         }
 
-        SaleOrderDetails.forEach((item, i) => {
+        SaleOrderDetails.forEach((item, index) => {
 
-            tbody.append(`
-       <tr data-index="${i}">
-           <td>${i + 1}</td>
-           <td>${item.DesignNo}</td>
-           <td>${item.Type}</td>
+            let colorText = item.SubDetails.map((x, i) =>
+                `${i + 1}. ${x.ColorMatchingName} - ${x.Qty}`
+            ).join("<br>");
 
-           <td>
-               ${item.SubDetails.map((x, index) => `
-                   <div style="display:flex; justify-content:space-between;">
-                       <span>${index + 1}. ${x.ColorMatchingName}</span>
-                       <span>${x.Qty}</span>
-                   </div>
-               `).join('')}
-           </td>
+            let tr = `
+        <tr data-index="${index}">
+            <td>${index + 1}</td>
+            <td>${item.DesignNo}</td>
+            <td>${item.Type}</td>
+            <td>${item.NoOfColors}</td>
+            <td>${colorText}</td>
+            <td>${item.TotalQty}</td>
+            <td>${item.Unit}</td>
+            <td>${item.Rate}</td>
+            <td>${item.BrokerRate}</td>
+            <td>${item.Amount}</td>
+            <td>${item.Remark}</td>
+            <td>
+                <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
+                <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
+            </td>
+        </tr>
+        `;
 
-           <td>${item.TotalQty}</td>
-           <td>${item.Unit}</td>
-           <td>${item.Rate.toFixed(2)}</td>
-           <td>${item.BrokerRate.toFixed(2)}</td>    
-           <td>${item.Amount.toFixed(2)}</td>
-                    <td>${item.Remark}</td>
-           <td>
-               <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
-               <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
-           </td>
-       </tr>`);
+            tbody.append(tr);
         });
     }
     function updateSummary() {
@@ -2948,21 +3121,12 @@
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
 
-        let discountAmount = 0;
+        let discountAmount = (type === "percent")
+            ? (totalAmount * value) / 100
+            : value;
 
-        if (type === "percent") {
-
-            discountAmount = (totalAmount * value) / 100;
-
-        } else {
-
-            discountAmount = value;
-        }
-
-        // 🔥 Limit
-        if (discountAmount > totalAmount) {
+        if (discountAmount > totalAmount)
             discountAmount = totalAmount;
-        }
 
         $("#discountAmount").text(discountAmount.toFixed(2));
 
@@ -2975,9 +3139,7 @@
 
         let finalAmount = afterDiscount + gstAmount;
 
-        $("#invoiceAmount").text(finalAmount.toFixed(2)); // UI only
-
-        let invoiceAmount = finalAmount; //
+        $("#invoiceAmount").text(finalAmount.toFixed(2));
     }
     $(document).on("click", ".viewSub", function () {
 
@@ -2987,7 +3149,7 @@
         isEditMode = true;
 
         const item = SaleOrderDetails[index];
-
+        $("#DesignNo").val(item.DesignId || item.DesignId).trigger('change').prop("disabled", true);
         bindSubTable(item.SubDetails);
         bindFormFields(item);
 
@@ -3086,233 +3248,144 @@
         let row = $(this).closest("tr");
         let colorId = row.attr("data-colorid");
 
-        if (currentViewIndex !== -1) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this row!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
 
-            let subList = SaleOrderDetails[currentViewIndex].SubDetails;
+            if (result.isConfirmed) {
 
-            SaleOrderDetails[currentViewIndex].SubDetails =
-                subList.filter(x => x.ColorMatchingID != colorId);
+                if (currentViewIndex !== -1) {
 
-            updateMainTotals(currentViewIndex);
-        }
+                    let subList = SaleOrderDetails[currentViewIndex].SubDetails;
 
-        row.remove();
+                    SaleOrderDetails[currentViewIndex].SubDetails =
+                        subList.filter(x => x.ColorMatchingID != colorId);
 
-        let rows = $("#itemTableBody tr").not(".no-data");
+                    updateMainTotals(currentViewIndex);
+                }
 
-        if (rows.length === 0) {
+                row.remove();
 
-            $("#itemTableBody").html(noDataRow());
-            $("#ColorMatchingID").val("");
-            $("#upload-ColorMatching-default-preview").html("No Image");
+                let rows = $("#itemTableBody tr").not(".no-data");
 
-        } else {
+                if (rows.length === 0) {
 
-            let firstRow = rows.first();
-            let id = firstRow.attr("data-colorid");
+                    $("#itemTableBody").html(noDataRow());
+                    $("#ColorMatchingID").val("");
+                    $("#upload-ColorMatching-default-preview").html("No Image");
 
-            $("#ColorMatchingID").val(id).trigger("change");
-            getColorMatchingId(document.getElementById("ColorMatchingID"));
+                } else {
 
-            if (currentViewIndex !== -1) {
-                SaleOrderDetails[currentViewIndex].SelectedColorId = id;
+                    let firstRow = rows.first();
+                    let id = firstRow.attr("data-colorid");
+
+                    $("#ColorMatchingID").val(id).trigger("change");
+                    getColorMatchingId(document.getElementById("ColorMatchingID"));
+
+                    if (currentViewIndex !== -1) {
+                        SaleOrderDetails[currentViewIndex].SelectedColorId = id;
+                    }
+                }
+
+                updateSrNo();
+
+                // ✅ Success message after delete
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Row has been deleted successfully.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
             }
-        }
-
-        updateSrNo();
+        });
     });
-    //function saveSaleOrder() {
+    function resetModal() {
 
-    //    if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
-    //        alert("Please add at least one design!");
-    //        return;
-    //    }
+        $("#itemTableBody").html(`
+        <tr class="no-data">
+            <td colspan="6" class="text-center">No Data Available</td>
+        </tr>
+    `);
 
-    //    let totalQty = 0;
-    //    let totalAmount = 0;
-
-    //    SaleOrderDetails.forEach((item) => {
-
-            
-    //        item.ItemType = item.TypeId || "";
-            
-    //        item.DetailsRemark = item.DetailsRemark || item.Remark || "";
-    //        if (!item.SubDetails) {
-    //            item.SubDetails = [];
-    //        }            
-    //        item.SubDetails.forEach(sub => {
-
-    //            sub.ColourID = sub.ColorMatchingID || 0;
-    //            sub.ColourName = sub.ColorMatchingName || "";
-
-    //            // ✅ Ensure Unit always exists
-    //            sub.Unit = sub.Unit || item.Unit || "PCS";
-    //        });
-
-    //        // No of colours
-    //        item.NoOfColours = item.SubDetails.length;
-
-    //        // Qty from SubDetails
-    //        let rowQty = 0;
-    //        item.SubDetails.forEach(sub => {
-    //            rowQty += parseFloat(sub.Qty || 0);
-    //        });
-
-    //        item.Qty = rowQty;
-
-    //        // Amount
-    //        item.Amount = rowQty * parseFloat(item.Rate || 0);
-
-    //        // Totals
-    //        totalQty += rowQty;
-    //        totalAmount += item.Amount;
-    //    });
-
-    //    // =========================
-    //    // DISCOUNT
-    //    // =========================
-    //    let value = parseFloat($("#discountValue").val()) || 0;
-    //    let type = $("#discountType").val();
-
-    //    let discountAmount = 0;
-
-    //    if (type === "percent") {
-    //        discountAmount = (totalAmount * value) / 100;
-    //    } else {
-    //        discountAmount = value;
-    //    }
-
-    //    if (discountAmount > totalAmount) {
-    //        discountAmount = totalAmount;
-    //    }
-
-    //    $("#discountAmount").text(discountAmount.toFixed(2));
-
-    //    let afterDiscount = totalAmount - discountAmount;
-
-    //    // =========================
-    //    // GST
-    //    // =========================
-    //    let gstPercent = parseFloat($("#gstPercent").val()) || 0;
-    //    let gstAmount = (afterDiscount * gstPercent) / 100;
-
-    //    $("#gstAmount").text(gstAmount.toFixed(2));
-
-    //    let finalAmount = afterDiscount + gstAmount;
-
-    //    $("#invoiceAmount").text(finalAmount.toFixed(2));
-
-    //    let invoiceAmount = finalAmount.toFixed(2);
-
-    //    // =========================
-    //    // FINAL MODEL
-    //    // =========================
-    //    let model = {
-    //        SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
-    //        OrderNo: $("#OrderNo").val(),
-    //        OrderDate: $("#OrderDate").val(),
-    //        PartyID: parseInt($("#ddlPartyGST option:selected").val() || 0),
-    //        BrokerID: ($("#ddlBroker option:selected").val() || ""),
-    //        MarkupPercent: parseFloat($("#Markup").val() || 0),
-    //        TransportID: ($("#ddlTransport option:selected").val() || ""),
-    //        TotalQty: totalQty,
-    //        TotalAmount: totalAmount,
-    //        DiscountPercent: value,
-    //        DiscountAmount: discountAmount,
-    //        GSTPercent: gstPercent,
-    //        GSTAmount: gstAmount,
-    //        InvoiceAmount: invoiceAmount,
-    //        Remark: $("#MainRemark").val(),
-    //        Details: SaleOrderDetails
-    //    };
-
-    //    // ✅ DEBUG (VERY IMPORTANT)
-    //    console.log("FINAL SAVE MODEL:", model);
-
-    //    // =========================
-    //    // AJAX
-    //    // =========================
-    //    $.ajax({
-    //        url: "/WebServiceNikunjTextile.asmx/SaveSaleOrder",
-    //        type: "POST",
-    //        data: JSON.stringify({ model: model }),
-    //        contentType: "application/json; charset=utf-8",
-    //        dataType: "json",
-    //        success: function (res) {
-
-    //            let data = res.d;
-
-    //            if (data.success) {
-    //                notes.show("Saved Successfully ✅", {
-    //                    type: 'success',
-
-    //                });
-    //                window.location.href = 'listSaleOrderEntry';
-    //                $("#SaleOrderID").val(data.id);
-
-    //                console.log("Saved ID:", data.id);
-    //            } else {
-    //                alert(data.message);
-    //            }
-    //        },
-    //        error: function (err) {
-    //            console.error("Error:", err);
-    //            alert("Save Failed ❌");
-    //        }
-    //    });
-    //}
-
-
+        $("#DesignSelectionRemark").val("");
+        $("#designModal").modal("hide");
+    }
     function saveSaleOrder() {
+        let broker = $("#ddlBroker");
+        let transport = $("#ddlTransport");
+        let party = $("#ddlPartyGST");
 
-        if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
-            alert("Please add at least one design!");
-            return;
+        let isValid = true; // ✅ flag
+
+        // Transport validation
+        if (!transport.val() || transport.val() === "-1") {
+            transport.addClass("is-invalid").removeClass("is-valid");
+            showToast("error", "Please select Transport"); // ⚠️ use error not danger
+            isValid = false;
+        } else {
+            transport.addClass("is-valid").removeClass("is-invalid");
         }
 
+        // Broker validation
+        if (!broker.val() || broker.val() === "-1") {
+            broker.addClass("is-invalid").removeClass("is-valid");
+            showToast("error", "Please select Broker");
+            isValid = false;
+        } else {
+            broker.addClass("is-valid").removeClass("is-invalid");
+        }
+
+        // Party validation
+        if (!party.val() || party.val() === "-1") {
+            party.addClass("is-invalid").removeClass("is-valid");
+            showToast("error", "Please select Party");
+            isValid = false;
+        } else {
+            party.addClass("is-valid").removeClass("is-invalid");
+        }
+
+        // Design validation
+        if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
+            showToast("error", "Please add at least one design!");
+            isValid = false;
+        }
+
+        // ❌ Stop only after all checks
+        if (!isValid) return false;
+        
+        // ✅ SHOW LOADER HERE
+        showLoader();
+        $("#btnSave").prop("disabled", true);
         let totalQty = 0;
         let totalAmount = 0;
-
         SaleOrderDetails.forEach((item) => {
-
-
             item.ItemType = item.TypeId || "";
-
             item.DetailsRemark = item.DetailsRemark || item.Remark || "";
             if (!item.SubDetails) {
                 item.SubDetails = [];
             }
             item.SubDetails.forEach(sub => {
-
                 sub.ColourID = sub.ColorMatchingID || 0;
                 sub.ColourName = sub.ColorMatchingName || "";
-
-                // ✅ Ensure Unit always exists
                 sub.Unit = sub.Unit || item.Unit || "PCS";
             });
-
-            // No of colours
             item.NoOfColours = item.SubDetails.length;
-
-            // Qty from SubDetails
             let rowQty = 0;
             item.SubDetails.forEach(sub => {
                 rowQty += parseFloat(sub.Qty || 0);
             });
 
             item.Qty = rowQty;
-
-            // Amount
             item.Amount = rowQty * parseFloat(item.Rate || 0);
-
-            // Totals
             totalQty += rowQty;
             totalAmount += item.Amount;
         });
-
-        // =========================
-        // DISCOUNT
-        // =========================
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
 
@@ -3331,10 +3404,6 @@
         $("#discountAmount").text(discountAmount.toFixed(2));
 
         let afterDiscount = totalAmount - discountAmount;
-
-        // =========================
-        // GST
-        // =========================
         let gstPercent = parseFloat($("#gstPercent").val()) || 0;
         let gstAmount = (afterDiscount * gstPercent) / 100;
 
@@ -3345,10 +3414,6 @@
         $("#invoiceAmount").text(finalAmount.toFixed(2));
 
         let invoiceAmount = finalAmount.toFixed(2);
-
-        // =========================
-        // FINAL MODEL
-        // =========================
         let model = {
             SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
             OrderNo: $("#OrderNo").val(),
@@ -3365,16 +3430,9 @@
             GSTAmount: gstAmount,
             InvoiceAmount: invoiceAmount,
             Remark: $("#MainRemark").val(),
-
             Details: SaleOrderDetails
         };
-
-        // ✅ DEBUG (VERY IMPORTANT)
         console.log("FINAL SAVE MODEL:", model);
-
-        // =========================
-        // AJAX
-        // =========================
         $.ajax({
             url: "/WebServiceNikunjTextile.asmx/SaveSaleOrder",
             type: "POST",
@@ -3384,6 +3442,7 @@
             success: function (res) {
 
                 let data = res.d;
+                hideLoader(); // ✅ HIDE LOADER
 
                 if (data.success) {
                     notes.show("Saved Successfully ✅", {
@@ -3395,14 +3454,25 @@
 
                     console.log("Saved ID:", data.id);
                 } else {
+                    $("#btnSave").prop("disabled", false);
                     alert(data.message);
                 }
             },
             error: function (err) {
+
+                hideLoader(); // ✅ HIDE LOADER
+                $("#btnSave").prop("disabled", false);
                 console.error("Error:", err);
                 alert("Save Failed ❌");
             }
         });
+    }
+    function showLoader() {
+        $("#loaderOverlay").css("display", "flex");
+    }
+
+    function hideLoader() {
+        $("#loaderOverlay").hide();
     }
 </script>
 
