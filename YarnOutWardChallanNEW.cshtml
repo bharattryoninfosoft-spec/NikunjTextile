@@ -134,7 +134,7 @@
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
                                 <!-- Row start -->
                                 <div class="row gutters">
-                                    <div class="col-12">
+                                    <div class="col-12" hidden>
                                         <!-- Field wrapper start -->
                                         <div class="field-wrapper">
                                             <select id="ddlYarnPREQ" class="select-single detail form-control" title="Select Yarn Pending Requirement" data-live-search="true">
@@ -150,6 +150,7 @@
                                         <table class="table table-bordered table-striped" id="pendingYarnTable">
                                             <thead>
                                                 <tr>
+                                                    <th>Select</th>
                                                     <th>Party</th>
                                                     <th>Yarn Material</th>
                                                     <th>Yarn Color </th>
@@ -396,6 +397,9 @@
     function normalize(val) {
         return (val || "").toString().trim();
     }
+    function makeKey(material, color, code) {
+        return normalize(material) + "|" + normalize(color) + "|" + normalize(code);
+    }
     $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial").on("change", function () {
             isColorLoaded = false;   // reset flag
             GridBindData();
@@ -404,44 +408,35 @@
         var PartyId = $("#ddlParty").val();            
         var YarnMaterialID = $("#ddlYarnMaterial").val()||0;            
         var YarnColorID = $("#ddlYarnColor").val()||0;            
-        $('#ddlYarnPREQ').empty();
-        if (!PartyId || PartyId === "0") {
-            notes.show("Please Select Sundry Party.", {
-                type: 'danger',
-            });
-            return;
-        }
-        getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID);
-        
-        
+        loadAllYarnData(PartyId, YarnMaterialID, YarnColorID);
     });
-    $(document).on("change", "#ddlYarnPREQ", function () {
-        let tbody = $("#tableYarnOutward tbody");
-        tbody.empty();
-        GridBindData();
-        let YarnRequirementID = $(this).val();
-        // ❌ No selection / default
-        if (!YarnRequirementID || YarnRequirementID === "-1") {
+    //$(document).on("change", "#ddlYarnPREQ", function () {
+    //    let tbody = $("#tableYarnOutward tbody");
+    //    tbody.empty();
+    //    GridBindData();
+    //    let YarnRequirementID = $(this).val();
+    //    // ❌ No selection / default
+    //    if (!YarnRequirementID || YarnRequirementID === "-1") {
 
-            // 🔥 RESET EVERYTHING
-            isPendingAvailable = false;
-            pendingItemWise = {};
-            pendingDataGlobal = [];
+    //        // 🔥 RESET EVERYTHING
+    //        isPendingAvailable = false;
+    //        pendingItemWise = {};
+    //        pendingDataGlobal = [];
 
-            $("#pendingYarnTable tbody").html(
-                '<tr><td colspan="7" class="text-center">No Data</td></tr>'
-            );
+    //        $("#pendingYarnTable tbody").html(
+    //            '<tr><td colspan="7" class="text-center">No Data</td></tr>'
+    //        );
 
-            // ✅ Important: show all rows again
-            $("#tableYarnOutward tbody tr").show();
+    //        // ✅ Important: show all rows again
+    //        $("#tableYarnOutward tbody tr").show();
 
-            return;
-        }
+    //        return;
+    //    }
 
-        // ✅ Load pending data
-        getPendingYarnDetails(YarnRequirementID);
+    //    // ✅ Load pending data
+    //    getPendingYarnDetails();
     
-    });
+    //});
     $(document).on("focus", ".txtStockInput", function () {
         $(this).data("old", parseInt($(this).val()) || 0);
     });
@@ -940,7 +935,7 @@
         GridBindData();
         $("#tableSiftYarnData").empty();
     }
-    function GridBindData() {
+    function GridBindData(callback) {
         var GodownID = $("#ddlGodownMaster").val() || 0;
         var BillToPartyID = $("#ddlYarnCompany").val() || 0;
         var YarnMaterialID = $("#ddlYarnMaterial").val() || 0;
@@ -971,6 +966,7 @@
 
                     if (!data || data.length === 0) {
                         tbody.html('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                        if (callback) callback();
                         return;
                     }
 
@@ -1004,27 +1000,48 @@
                     `;
 
                         tbody.append(tr);
-                    });
-
-                    setTimeout(() => {
-                        highlightMatchedYarnRows();
-                    }, 100);
+                    }); 
+                    if (callback) callback(); // ✅ VERY IMPORTANT
+                },
+                error: function () {
+                    tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
+                    if (callback) callback();
                 }
             });
         }
     }
-    function getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID) {
+    function loadAllYarnData(PartyId, YarnMaterialID, YarnColorID) {
+
+        // ✅ Step 1: Bind outward grid FIRST
+        GridBindData(function () {
+
+            // ✅ Step 2: Then load pending yarn
+            getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID, function () {
+
+                // ✅ Step 3: Apply logic AFTER everything is ready
+                highlightMatchedYarnRows();
+                applyCheckboxVisibility();
+
+            });
+
+        });
+    }
+    function getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID, callback) {
 
         let tbody = $("#pendingYarnTable tbody");
 
         tbody.html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
+
+        // ✅ RESET
+        pendingDetailMap = {};
+        pendingItemWise = {};
+        isPendingAvailable = false;
 
         $.ajax({
             url: "/WebServiceNikunjTextile.asmx/GetPendingYarn",
             type: "POST",
             contentType: "application/json; charset=utf-8",
 
-            // ✅ Send all parameters
             data: JSON.stringify({
                 partyId: PartyId,
                 yarnMaterialID: YarnMaterialID,
@@ -1032,77 +1049,9 @@
             }),
 
             success: function (res) {
-                let data = res.d;
-              //console.log("GetPendingYarnDetails", data)
-                if (typeof data === "string") {
-                    data = JSON.parse(data);
-                }
-
-                tbody.html("");
-
-                if (!data || data.length === 0) {
-                    tbody.append('<tr><td colspan="7" class="text-center">No Data Found</td></tr>');
-                    return;
-                }
-
-                let ddl = $("#ddlYarnPREQ");
-                ddl.empty();
-                ddl.append('<option value="-1">Yarn Pending Requirement</option>');
-                let grouped = {};
-                $.each(data, function (i, item) {
-
-                    if (!grouped[item.YarnRequirementID]) {
-                        grouped[item.YarnRequirementID] = {
-                            YarnRequirementID: item.YarnRequirementID,
-                            PartyName: item.PartyName,
-                            RequirementNo: item.RequirementNo,
-                            RequirementDate: item.RequirementDate,
-                            TotalBoxes: 0   // ✅ MUST initialize
-                        };
-                    }
-
-                    // agar NoofBoxes nahi hai to 0 lo
-                    grouped[item.YarnRequirementID].TotalBoxes += (item.NoofBoxes || 0);
-                });
-                $.each(grouped, function (key, item) {
-
-                    let formattedDate = formatJsonDate(item.RequirementDate);
-
-                    ddl.append(`
-                      <option value="${item.YarnRequirementID}">
-                           ReqNo = ${item.RequirementNo} | ${item.PartyName} | ${formattedDate}
-                      </option>
-                  `);
-                });
-            },
-
-            error: function (err) {
-              //console.log(err);
-                tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
-            }
-        });
-    }
-    function getPendingYarnDetails(YarnRequirementID) {
-
-        let tbody = $("#pendingYarnTable tbody");
-
-        tbody.html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
-
-        // 🔥 RESET
-        pendingDetailMap = {};
-        pendingItemWise = {};
-        isPendingAvailable = false;
-
-        $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/GetPendingYarnDetails",
-            type: "POST",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ YarnRequirementID: YarnRequirementID }),
-
-            success: function (res) {
 
                 let data = res.d;
-
+                console.log("data", data);
                 if (typeof data === "string") {
                     data = JSON.parse(data);
                 }
@@ -1114,6 +1063,7 @@
                     isPendingAvailable = false;
                     tbody.html('<tr><td colspan="7">No Data Found</td></tr>');
                     $("#tableYarnOutward tbody tr").show();
+                    if (callback) callback();
                     return;
                 }
 
@@ -1121,8 +1071,13 @@
 
                 $.each(data, function (i, item) {
 
+                    let key =
+                        item.YarnMaterialID + "|" +
+                        item.YarnColorID + "|" +
+                        normalize(item.CompanyColourCode);
+
                     tbody.append(`
-                    <tr>
+                    <tr><td><input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.Id || ''}">REQ - ${item.YarnRequirementID}</td>
                         <td>${item.PartyName}</td>
                         <td>${item.YarnMaterial}</td>
                         <td>${item.YarnColor}</td>
@@ -1130,11 +1085,6 @@
                         <td>${item.NoofBoxes}</td>
                     </tr>
                 `);
-
-                    let key =
-                        item.YarnMaterialID + "|" +
-                        item.YarnColorID + "|" +
-                        normalize(item.CompanyColourCode);
 
                     pendingDetailMap[key] = item.YarnRequirementDetailID;
 
@@ -1145,9 +1095,11 @@
                     pendingItemWise[key] += (parseInt(item.NoofBoxes) || 0);
                 });
 
-                setTimeout(() => {
-                    highlightMatchedYarnRows();
-                }, 100);
+                if (callback) callback(); // ✅ no setTimeout
+            },
+            error: function () {
+                tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
+                if (callback) callback();
             }
         });
     }
@@ -1175,6 +1127,51 @@
                 '<tr><td colspan="8">No Matching Data</td></tr>'
             );
         }
+    }
+    function applyCheckboxVisibility() {
+
+        let outwardMap = {};
+
+        // 👉 Outward table keys
+        $(".txtStockInput").each(function () {
+            let key = $(this).data("key");
+            if (key) outwardMap[key] = true;
+        });
+
+        let tbody = $("#pendingYarnTable tbody");
+
+        let matchedRows = [];
+        let unmatchedRows = [];
+
+        // 👉 Loop pending rows
+        tbody.find("tr").each(function () {
+
+            let row = $(this);
+            let checkbox = row.find(".row-checkbox");
+            let key = checkbox.data("key");
+
+            if (outwardMap[key]) {
+
+                // ✅ enable
+                checkbox.prop("disabled", false);
+
+                matchedRows.push(row); // 👉 store for top
+
+            } else {
+
+                // ❌ disable
+                checkbox.prop("disabled", true);
+                checkbox.prop("checked", false);
+
+                unmatchedRows.push(row); // 👉 store for bottom
+            }
+        });
+
+        // 🔥 Reorder rows (matched first)
+        tbody.empty();
+
+        matchedRows.forEach(r => tbody.append(r));
+        unmatchedRows.forEach(r => tbody.append(r));
     }
     function saveYarnOutward() {
         // 1. Get Values using jQuery for consistency
@@ -1281,6 +1278,55 @@
             }
         });
     }
+    $(document).on("change", ".row-checkbox", function () {
 
+        let isChecked = $(this).is(":checked");
+        let key = normalize($(this).data("key"));
 
+        // 🔥 FIX: multiple checkbox sum (same key only)
+        let selectedBoxes = 0;
+
+        $(".row-checkbox:checked").each(function () {
+
+            let chk = $(this);
+
+            if (normalize(chk.data("key")) === key) {
+
+                let val = parseInt(
+                    chk.closest("tr").find("td:eq(5)").text()
+                ) || 0;
+
+                selectedBoxes += val;
+            }
+        });
+
+        let inputs = $(".txtStockInput").filter(function () {
+            return normalize($(this).data("key")) === key;
+        });
+
+        let total = 0;
+
+        if (isChecked || selectedBoxes > 0) {
+
+            inputs.each(function () {
+
+                let input = $(this);
+                let stock = parseInt(input.data("stock")) || 0;
+
+                let remaining = selectedBoxes - total;
+                let fillValue = Math.min(stock, remaining);
+
+                if (fillValue < 0) fillValue = 0;
+
+                input.val(fillValue);
+                input.data("old", fillValue);
+
+                total += fillValue;
+            });
+
+        } else {
+            inputs.val(0);
+            inputs.data("old", 0);
+        }
+    });
 </script>

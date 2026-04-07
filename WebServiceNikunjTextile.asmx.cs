@@ -23978,12 +23978,16 @@ namespace NikunjTextile
         public string GetPendingYarn(int partyId, int? yarnMaterialID, int? yarnColorID)
         {
             DataTable dt = new DataTable();
-            string query = @"SELECT YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate FROM YarnRequirementMaster YRM
-JOIN YarnRequirementDetail YRD  ON YRD.YarnRequirementID = YRM.YarnRequirementID
-JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId 
-WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID)
-    AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
-GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate";
+            string query = @"SELECT YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+    JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+    JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+    JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+	WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
+    GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
     //        string query = @"
     //   SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
     //(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
@@ -24011,7 +24015,7 @@ GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDat
             return new JavaScriptSerializer().Serialize(data);           
         }
         [WebMethod]
-        public string GetPendingYarnDetails(int YarnRequirementID)
+        public string GetPendingYarnDetails()
         {
             DataTable dt = new DataTable();
             string query = @"
@@ -24022,7 +24026,7 @@ GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDat
                 JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
                 JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
                 LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-                WHERE YRD.YarnRequirementID = @YarnRequirementID
+                --WHERE YRD.YarnRequirementID = @YarnRequirementID
                 GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
             YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
 
@@ -24030,7 +24034,7 @@ GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDat
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@YarnRequirementID", YarnRequirementID);
+                    //cmd.Parameters.AddWithValue("@YarnRequirementID", YarnRequirementID);
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
                 }
@@ -24039,26 +24043,28 @@ GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDat
             return new JavaScriptSerializer().Serialize(data);
         }
         [WebMethod]
-        public string GetUpdatePendingYarnDetails(int YarnRequirementID)
+        public string GetUpdatePendingYarnDetails(int partyId,int yarnColorID, int yarnMaterialID)
         {
             DataTable dt = new DataTable();
             string query = @"
-               SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
-            (YRD.NoofBoxes) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
-                JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
-                JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
-                JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
-                JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-                LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-                WHERE YRD.YarnRequirementID = @YarnRequirementID
-                GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
-            YRD.NoofBoxes,YRD.YarnRequirementDetailID";
+             SELECT YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+                (YRD.NoofBoxes) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+                    JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+                    JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+                    JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+                    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+                    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+	                WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
+                    GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+                YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes) > 0";
 
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@YarnRequirementID", YarnRequirementID);
+                    cmd.Parameters.AddWithValue("@PartyId", partyId);
+                    cmd.Parameters.AddWithValue("@YarnColorID", yarnColorID);
+                    cmd.Parameters.AddWithValue("@YarnMaterialID", yarnMaterialID);
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
                 }
