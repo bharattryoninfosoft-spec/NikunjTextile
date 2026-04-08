@@ -26507,9 +26507,9 @@ public object SaveSaleOrder(SaleOrderModel model)
 
                                     using (SqlCommand cmdDetail = new SqlCommand(@"
                                 INSERT INTO SaleOrderDetails
-                                (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount,DetailsRemark)
+                                (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
                                 VALUES
-                                (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount,@DetailsRemark);
+                                (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
 
                                 SELECT SCOPE_IDENTITY();", con, trans))
                                     {
@@ -26521,9 +26521,7 @@ public object SaveSaleOrder(SaleOrderModel model)
                                         cmdDetail.Parameters.AddWithValue("@Qty", SafeDecimal(d.Qty));
                                         cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
                                         cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
-                                        cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount));
-                                        cmdDetail.Parameters.AddWithValue("@DetailsRemark",d.DetailsRemark ?? "");
-
+                                        cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount)); 
                                         detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
                                     }
 
@@ -26534,9 +26532,9 @@ public object SaveSaleOrder(SaleOrderModel model)
                                         {
                                             using (SqlCommand cmdSub = new SqlCommand(@"
                                         INSERT INTO SaleOrderSubDetails
-                                        (DetailID, ColourID, ColourName, Qty, Unit)
+                                        (DetailID, ColourID, ColourName, Qty, Unit,Remark)
                                         VALUES
-                                        (@DetailID, @ColourID, @ColourName, @Qty, @Unit)",
+                                        (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)",
                                                 con, trans))
                                             {
                                                 cmdSub.Parameters.AddWithValue("@DetailID", detailId);
@@ -26544,7 +26542,7 @@ public object SaveSaleOrder(SaleOrderModel model)
                                                 cmdSub.Parameters.AddWithValue("@ColourName", s.ColourName ?? "");
                                                 cmdSub.Parameters.AddWithValue("@Qty", SafeDecimal(s.Qty));
                                                 cmdSub.Parameters.AddWithValue("@Unit", s.Unit ?? "");
-
+                                                cmdSub.Parameters.AddWithValue("@Remark", s.Remark ?? "");
                                                 cmdSub.ExecuteNonQuery();
                                             }
                                         }
@@ -26706,7 +26704,7 @@ public object SaveSaleOrder(SaleOrderModel model)
 SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
     SO.TotalQty,SO.TotalAmount,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
     SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
-    SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,D.DetailsRemark,    
+    SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
     ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
     ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
     ISNULL(CGM.ColorGroup, '') AS ColorGroup,
@@ -26766,8 +26764,7 @@ WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
                                     DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
                                     DesignName = rdr["DesignNo"]?.ToString(),
                                     ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                    ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                    DetailsRemark = rdr["DetailsRemark"]?.ToString(),
+                                    ColorGroup = rdr["ColorGroup"]?.ToString(),                   
                                     ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
                                     UnitId = SafeInt(rdr["UnitId"]?.ToString()),
                                     TypeID = SafeInt(rdr["TypeID"]?.ToString()),                               
@@ -26799,8 +26796,7 @@ WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
                                         Unit = rdr["Unit"]?.ToString(),
                                         TotalQty = SafeDecimal(rdr["TotalQty"]),
                                         Rate = SafeDecimal(rdr["Rate"]),
-                                        Amount = SafeDecimal(rdr["Amount"]),                                     
-                                        DetailsRemark = rdr["DetailsRemark"].ToString(),                                  
+                                        Amount = SafeDecimal(rdr["Amount"]),                                                                                             
                                         SaleRate = SafeDecimal(rdr["SaleRate"]),
                                         DesignId = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
                                         DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
@@ -26836,7 +26832,7 @@ WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
                                             DesignName = rdr["DesignNo"]?.ToString(),
                                             ColorGroupId = SafeInt(rdr["ColorGroupID"]),
                                             ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                            DetailsRemark = rdr["DetailsRemark"]?.ToString(),
+                                            Remark = rdr["SubRemark"]?.ToString(),
                                             ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
                                             UnitId = SafeInt(rdr["UnitId"]?.ToString()),
                                             TypeID = SafeInt(rdr["TypeID"]?.ToString()),

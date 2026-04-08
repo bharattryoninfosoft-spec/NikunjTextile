@@ -52,6 +52,7 @@ namespace NikunjTextile.Class
         public string ColourName { get; set; }
         public decimal Qty { get; set; }
         public string Unit { get; set; }
+        public string Remark { get; set; }
     }
     public class SaleOrderVM
     {
@@ -148,7 +149,7 @@ namespace NikunjTextile.Class
         public int ColorDetailsID { get; set; }
         public int UnitId { get; set; }
         public int TypeID { get; set; }
-        public string DetailsRemark { get; set; }
+        public string Remark { get; set; }
         
     }
     public class ColorMatchingDetailModel
