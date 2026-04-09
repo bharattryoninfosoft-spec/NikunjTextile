@@ -6,195 +6,195 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
-<div class="content-wrapper">    
+<div class="content-wrapper">
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-          <div class="card">
+            <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">Yarn Outward List</div>
-                        <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3;">
-                            <div id="notes"></div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                <!-- Row start -->
-                                <div class="row gutters">
-                                    <div class="col-2">
-                                        <div class="field-wrapper">
-                                            <input type="text" class="form-control" id="ListNo" placeholder="List No" value="1" readonly />
-                                            <div class="field-placeholder">List No<sup style="color:red;">*</sup></div>
-                                            <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ListNo-invalid-feedback invalid-feedback">Please Mention List No</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-2">
-                                        <div class="field-wrapper">
-                                            <input type="text" class="form-control datepicker" id="ListDate" placeholder="List No" value="1" />
-                                            <div class="field-placeholder">List Date<sup style="color:red;">*</sup></div>
-                                            <div class="ListDate-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ListDate-invalid-feedback invalid-feedback">Please Mention List Date</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnGodownManager" class="select-single detail form-control" title="Select Yarn Godown Manager" data-live-search="true">
-                                                <option value="-1">Yarn Godown Manager</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Godown Manager<sup style="color:red;">*</sup></div>
-                                            <div class="ddlYarnGodownManager-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ddlYarnGodownManager-invalid-feedback invalid-feedback">Please Select Godown Manager</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-                                    </div>
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty(this.value)">
-                                                <option value="1">Sundry Creditors</option>
-                                                <option value="2">Sundry Debtors</option>
-                                                <option value="3">Job Work</option>
-                                            </select>
-                                            <div class="field-placeholder">Select Sundry</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-                                    </div>
-
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlGodownMaster" class="select-single detail " title="Select Godown Master" data-live-search="true" style="background-color:aqua;" onchange="ChangeGodownMaster()">
-                                                <option value="-1">Select Godown </option>
-                                            </select>
-                                            <div class="field-placeholder">Select Godown<sup style="color:red;">*</sup></div>
-                                            <div class="ddlGodownMaster-valid-feedback valid-feedback"><!-- Looks good!--></div>
-                                            <div class="ddlGodownMaster-invalid-feedback invalid-feedback">Please Select Godown </div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-                                    </div>
-
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlParty" class="select-single detail" title="Select Party" data-live-search="true">
-                                                <option value="-1">Select Party </option>
-                                            </select>
-                                            <div class="field-placeholder">Sundry Party <sup style="color:red;">*</sup></div>
-                                            <div class="ddlParty-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ddlParty-invalid-feedback invalid-feedback">Please Select Sundry Creditors Party </div>
-                                        </div>
-                                        <!-- Field wrapper end -->
-
-                                    </div>
-
-                                    <div class="col-4">
-
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange=" GridBindData()">
-                                                <option value="-1">Select Yarn Company</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Company</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
+                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3;">
+                        <div id="notes"></div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <!-- Row start -->
+                            <div class="row gutters">
+                                <div class="col-2">
+                                    <div class="field-wrapper">
+                                        <input type="text" class="form-control" id="ListNo" placeholder="List No" value="1" readonly />
+                                        <div class="field-placeholder">List No<sup style="color:red;">*</sup></div>
+                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Mention List No</div>
                                     </div>
                                 </div>
-                                <div class="row gutters">
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="GridBindData();">
-                                                <option value="-1">Yarn Material</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Material</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
+                                <div class="col-2">
+                                    <div class="field-wrapper">
+                                        <input type="text" class="form-control datepicker" id="ListDate" placeholder="List No" value="1" />
+                                        <div class="field-placeholder">List Date<sup style="color:red;">*</sup></div>
+                                        <div class="ListDate-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ListDate-invalid-feedback invalid-feedback">Please Mention List Date</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnGodownManager" class="select-single detail form-control" title="Select Yarn Godown Manager" data-live-search="true">
+                                            <option value="-1">Yarn Godown Manager</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Godown Manager<sup style="color:red;">*</sup></div>
+                                        <div class="ddlYarnGodownManager-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ddlYarnGodownManager-invalid-feedback invalid-feedback">Please Select Godown Manager</div>
+                                    </div>
+                                    <!-- Field wrapper end -->
+                                </div>
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="SundryParty" class="form-control" name="SundryParty" onchange="changeSundryParty(this.value)">
+                                            <option value="1">Sundry Creditors</option>
+                                            <option value="2">Sundry Debtors</option>
+                                            <option value="3">Job Work</option>
+                                        </select>
+                                        <div class="field-placeholder">Select Sundry</div>
+                                    </div>
+                                    <!-- Field wrapper end -->
+                                </div>
 
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlGodownMaster" class="select-single detail " title="Select Godown Master" data-live-search="true" style="background-color:aqua;" onchange="ChangeGodownMaster()">
+                                            <option value="-1">Select Godown </option>
+                                        </select>
+                                        <div class="field-placeholder">Select Godown<sup style="color:red;">*</sup></div>
+                                        <div class="ddlGodownMaster-valid-feedback valid-feedback"><!-- Looks good!--></div>
+                                        <div class="ddlGodownMaster-invalid-feedback invalid-feedback">Please Select Godown </div>
                                     </div>
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)">
-                                                <option value="-1">Yarn Color</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Color</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
+                                    <!-- Field wrapper end -->
+                                </div>
+
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlParty" class="select-single detail" title="Select Party" data-live-search="true">
+                                            <option value="-1">Select Party </option>
+                                        </select>
+                                        <div class="field-placeholder">Sundry Party <sup style="color:red;">*</sup></div>
+                                        <div class="ddlParty-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ddlParty-invalid-feedback invalid-feedback">Please Select Sundry Creditors Party </div>
                                     </div>
-                                    <div class="col-4">
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)">
-                                                <option value="-1">Yarn Color Code</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Color Code</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
+                                    <!-- Field wrapper end -->
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnCompany" class="select-single detail" title="Select Yarn Company" data-live-search="true" onchange=" GridBindData()">
+                                            <option value="-1">Select Yarn Company</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Company</div>
                                     </div>
+                                    <!-- Field wrapper end -->
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
-                                <!-- Row start -->
-                                <div class="row gutters">
-                                    <div class="col-12" hidden>
-                                        <!-- Field wrapper start -->
-                                        <div class="field-wrapper">
-                                            <select id="ddlYarnPREQ" class="select-single detail form-control" title="Select Yarn Pending Requirement" data-live-search="true">
-                                                <option value="-1">Yarn Pending Requirement</option>
-                                            </select>
-                                            <div class="field-placeholder">Yarn Pending Requirement</div>
-                                            <div class="ddlYarnPREQ-valid-feedback valid-feedback">Looks good!</div>
-                                            <div class="ddlYarnPREQ-invalid-feedback invalid-feedback">Please Select Yarn Pending Requirement</div>
-                                        </div>
-                                        <!-- Field wrapper end -->
+                            <div class="row gutters">
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="GridBindData();">
+                                            <option value="-1">Yarn Material</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Material</div>
                                     </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-striped" id="pendingYarnTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Select</th>
-                                                    <th>Party</th>
-                                                    <th>Yarn Material</th>
-                                                    <th>Yarn Color </th>
-                                                    <th>Color Code </th>
-                                                    <th>No of Boxes</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td colspan="7" class="text-center">No Data</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    <!-- Field wrapper end -->
+
                                 </div>
-                                <!-- Row end -->
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)">
+                                            <option value="-1">Yarn Color</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Color</div>
+                                    </div>
+                                    <!-- Field wrapper end -->
+                                </div>
+                                <div class="col-4">
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)">
+                                            <option value="-1">Yarn Color Code</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Color Code</div>
+                                    </div>
+                                    <!-- Field wrapper end -->
+                                </div>
                             </div>
-                            <hr />
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                <br />
-                                <input type="hidden" id="siftYarnInwardDetailID" class="form-control" placeholder="Yarn Inward DetailI D" title="YarnInwardDetailID" />
-                                <input type="hidden" id="siftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
+                            <!-- Row start -->
+                            <div class="row gutters">
+                                <div class="col-12" hidden>
+                                    <!-- Field wrapper start -->
+                                    <div class="field-wrapper">
+                                        <select id="ddlYarnPREQ" class="select-single detail form-control" title="Select Yarn Pending Requirement" data-live-search="true">
+                                            <option value="-1">Yarn Pending Requirement</option>
+                                        </select>
+                                        <div class="field-placeholder">Yarn Pending Requirement</div>
+                                        <div class="ddlYarnPREQ-valid-feedback valid-feedback">Looks good!</div>
+                                        <div class="ddlYarnPREQ-invalid-feedback invalid-feedback">Please Select Yarn Pending Requirement</div>
+                                    </div>
+                                    <!-- Field wrapper end -->
+                                </div>
                                 <div class="table-responsive">
-                                    <table id="tableYarnOutward" class="table table-bordered table-striped">
+                                    <table class="table table-bordered table-striped" id="pendingYarnTable">
                                         <thead>
                                             <tr>
-                                                <th>No</th>
-                                                <th>Company_Name</th>
+                                                <th>Select</th>
+                                                <th>Party</th>
                                                 <th>Yarn Material</th>
-                                                <th>Yarn Color</th>
-                                                <th>Color Code</th>
-                                                <th>No Of Box in Stock</th>
-                                                <th>Location Title</th>
-                                                <th>No Of Box(Editable)</th>
+                                                <th>Yarn Color </th>
+                                                <th>Color Code </th>
+                                                <th>No of Boxes</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <tr>
+                                                <td colspan="7" class="text-center">No Data</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+                            <!-- Row end -->
                         </div>
-                
-                   
+                        <hr />
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <br />
+                            <input type="hidden" id="siftYarnInwardDetailID" class="form-control" placeholder="Yarn Inward DetailI D" title="YarnInwardDetailID" />
+                            <input type="hidden" id="siftGodownInputBox" class="form-control" placeholder="Godown Input Box" title="Godown Input Box" />
+                            <div class="table-responsive">
+                                <table id="tableYarnOutward" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Company_Name</th>
+                                            <th>Yarn Material</th>
+                                            <th>Yarn Color</th>
+                                            <th>Color Code</th>
+                                            <th>No Of Box in Stock</th>
+                                            <th>Location Title</th>
+                                            <th>No Of Box(Editable)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div class="text-end">
                         <a href="YarnOutWardChallanDetails" class="btn btn-light me-2">
                             <i class="fa fa-arrow-left"></i> Back
@@ -204,10 +204,10 @@
                             Save Yarn OutWard
                         </button>
                     </div>
-                      
-                  
-                     
- 
+
+
+
+
                 </div>
             </div>
         </div>
@@ -270,12 +270,16 @@
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.title = "Create Yarn PO - Nikunj Textile";
     $('body').addClass('fullscreen');
     $(document).ready(function () {
-       var liSelected;
+        var liSelected;
         $(document).keydown(function (key) {
             var li = $('li');
             switch (parseInt(key.which, 10)) {
@@ -390,10 +394,10 @@
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-    var isColorLoaded = false; 
+    var isColorLoaded = false;
     let pendingDetailMap = {};
     let pendingItemWise = {};
-    let isPendingAvailable =false;
+    let isPendingAvailable = false;
     function normalize(val) {
         return (val || "").toString().trim();
     }
@@ -401,13 +405,13 @@
         return normalize(material) + "|" + normalize(color) + "|" + normalize(code);
     }
     $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial").on("change", function () {
-            isColorLoaded = false;   // reset flag
-            GridBindData();
-        });
-    $("#ddlParty, #ddlYarnMaterial, #ddlYarnColor").on("change", function () {      
-        var PartyId = $("#ddlParty").val();            
-        var YarnMaterialID = $("#ddlYarnMaterial").val()||0;            
-        var YarnColorID = $("#ddlYarnColor").val()||0;            
+        isColorLoaded = false;   // reset flag
+        GridBindData();
+    });
+    $("#ddlParty, #ddlYarnMaterial, #ddlYarnColor").on("change", function () {
+        var PartyId = $("#ddlParty").val();
+        var YarnMaterialID = $("#ddlYarnMaterial").val() || 0;
+        var YarnColorID = $("#ddlYarnColor").val() || 0;
         loadAllYarnData(PartyId, YarnMaterialID, YarnColorID);
     });
     //$(document).on("change", "#ddlYarnPREQ", function () {
@@ -436,7 +440,7 @@
     //    // ✅ Load pending data
 
     //    getPendingYarnDetails();
-    
+
     //});
     $(document).on("focus", ".txtStockInput", function () {
         $(this).data("old", parseInt($(this).val()) || 0);
@@ -558,13 +562,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, status) {
-              //console.log(data);
                 if (data.d == "false") {
                     window.location.replace("/Index");
                 }
             },
             error: function (request, status, error) {
-              //console.log(error);
+                //console.log(error);
             }
         });
     }
@@ -647,7 +650,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
-              //console.log(response);
+                //console.log(response);
                 //alert(response.Code);
 
                 if (response.Code == "200") {
@@ -962,7 +965,6 @@
 
                     let data = response.listYarnOutwardMaster;
                     let tbody = $("#tableYarnOutward tbody");
-                    console.log("getYarnOutwardMasterNew", data);
                     tbody.empty();
 
                     if (!data || data.length === 0) {
@@ -1001,7 +1003,7 @@
                     `;
 
                         tbody.append(tr);
-                    }); 
+                    });
                     if (callback) callback(); // ✅ VERY IMPORTANT
                 },
                 error: function () {
@@ -1052,7 +1054,6 @@
             success: function (res) {
 
                 let data = res.d;
-                console.log("data", data);
                 if (typeof data === "string") {
                     data = JSON.parse(data);
                 }
@@ -1078,7 +1079,7 @@
                         normalize(item.CompanyColourCode);
 
                     tbody.append(`
-                    <tr><td><input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.Id || ''}">REQ - ${item.YarnRequirementID}</td>
+                    <tr><td><input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.YarnRequirementID}">REQ - ${item.YarnRequirementID}</td>
                         <td>${item.PartyName}</td>
                         <td>${item.YarnMaterial}</td>
                         <td>${item.YarnColor}</td>
@@ -1175,14 +1176,13 @@
         unmatchedRows.forEach(r => tbody.append(r));
     }
     function saveYarnOutward() {
-        // 1. Get Values using jQuery for consistency
+
         let partyId = parseInt($("#ddlParty").val()) || 0;
         let listNo = $("#ListNo").val();
         let listDate = $("#ListDate").val();
         let godownManager = parseInt($("#ddlYarnGodownManager").val()) || 0;
         let godownId = parseInt($("#ddlGodownMaster").val()) || 0;
-
-        // 2. Validation Logic
+        let sundrypartyid = parseInt($("#SundryParty").val()) || 0;
         if (partyId === 0) {
             notes.show("Please Select Sundry Creditors Party.", { type: 'danger' });
             return;
@@ -1199,51 +1199,81 @@
             notes.show("Please Select Godown Manager.", { type: 'danger' });
             return;
         }
-        // 3. Build Detail List
         let detailList = [];
+
+        // 🔥 IMPORTANT: clone global map (so original not destroyed)
+        let tempYarnMap = JSON.parse(JSON.stringify(globalYarnMap || {}));
+
         $("#tableYarnOutward tbody tr:visible").each(function () {
+
             let input = $(this).find(".txtStockInput");
             let qty = parseInt(input.val()) || 0;
+            if (qty <= 0) return;
+            let key = normalize(input.data("key"));
+            let materialId = parseInt(key.split("|")[0]);
+            let colorId = parseInt(key.split("|")[1]);
+            let locationId = parseInt(input.data("locationid"));
+            let yarnData = tempYarnMap[key] || [];
+            let remainingQty = qty;
+            for (let i = 0; i < yarnData.length; i++) {
+                if (remainingQty <= 0) break;
+                let item = yarnData[i];
+                if (item.stock <= 0) continue;
 
-            if (qty > 0) {
-                let key = input.data("key"); // Expects "MaterialID|ColorID"
+                let usedQty = Math.min(item.stock, remainingQty);
+
+                if (usedQty > 0) {
+
+                    detailList.push({
+                        BillToPartyID: partyId,
+                        YarnMaterialID: materialId,
+                        YarnColorID: colorId,
+                        GodownLocationID: locationId,
+                        NoOfBox: usedQty,
+                        YarnRequirementDetailID: item.id
+                    });
+
+                    // 🔥 reduce stock globally
+                    item.stock -= usedQty;
+                    remainingQty -= usedQty;
+                }
+            }
+
+            // fallback (no checkbox selected)
+            if (remainingQty > 0) {
                 detailList.push({
                     BillToPartyID: partyId,
-                    YarnMaterialID: parseInt(key.split("|")[0]),
-                    YarnColorID: parseInt(key.split("|")[1]),
-                    GodownLocationID: parseInt(input.data("locationid")),
-                    NoOfBox: qty,
-                    // Ensure pendingDetailMap exists in your global scope
-                    YarnRequirementDetailID: (typeof pendingDetailMap !== 'undefined') ? (pendingDetailMap[key] || 0) : 0
+                    YarnMaterialID: materialId,
+                    YarnColorID: colorId,
+                    GodownLocationID: locationId,
+                    NoOfBox: remainingQty,
+                    YarnRequirementDetailID: 0
                 });
             }
+
         });
-        let rawDate = $("#ListDate").val(); // 24/03/2026 OR 2026-03-24
-
-        let formattedDate = "";
-
-        // If coming as dd/MM/yyyy
-        if (rawDate.includes("/")) {
-            let parts = rawDate.split("/");
-            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // yyyy-MM-dd
-        } else {
-            formattedDate = rawDate; // already yyyy-MM-dd
-        }
 
         if (detailList.length === 0) {
-            notes.show("Enter at least one quantity value", { type: 'danger' });
+            notes.show("Enter at least one quantity", { type: 'danger' });
             return;
         }
 
-        // 4. Build Master Object (Names must match C# YarnOutwardMasterModel exactly)
+        // ✅ DATE FORMAT FIX
+        let rawDate = $("#ListDate").val();
+        let formattedDate = rawDate.includes("/")
+            ? rawDate.split("/").reverse().join("-")
+            : rawDate;
+
         let master = {
             GodownID: godownId,
             PartyId: partyId,
-            OutwardListDate: formattedDate, // String format "yyyy-MM-dd"
-            GodownManagerUserAccountId: godownManager
+            OutwardListDate: formattedDate,
+            GodownManagerUserAccountId: godownManager,
+            SundryPartyID: sundrypartyid
         };
 
-        // 5. AJAX Call
+        console.log("FINAL DETAIL LIST:", detailList);
+
         $.ajax({
             url: "/WebServiceNikunjTextile.asmx/SavedataYarnOutward",
             type: "POST",
@@ -1254,17 +1284,13 @@
                 detail: detailList
             }),
             success: function (res) {
-                // 1. ASMX returns data wrapped in .d.
-                // 2. Since your C# returns a serialized string, we parse it into an object/array.
-                let result = (typeof res.d === "string") ? JSON.parse(res.d) : res.d;
 
-                // 3. DataTableToList returns an array. Let's get the first record.
+                let result = typeof res.d === "string" ? JSON.parse(res.d) : res.d;
                 let data = Array.isArray(result) ? result[0] : result;
 
                 if (data && data.Status == 1) {
                     notes.show(data.Message, { type: 'success' });
 
-                    // 4. Redirect after a short delay so the user can see the success message
                     setTimeout(function () {
                         window.location.href = 'YarnOutWardChallanDetails';
                     }, 1500);
@@ -1275,17 +1301,85 @@
             },
             error: function (xhr) {
                 console.error(xhr.responseText);
-                notes.show("Critical Server Error. Check console.", { type: 'danger' });
+                notes.show("Server Error", { type: 'danger' });
             }
         });
     }
+    let globalYarnMap = {};
+    let selectionOrderMap = {};
+
     $(document).on("change", ".row-checkbox", function () {
 
-        let isChecked = $(this).is(":checked");
-        let key = normalize($(this).data("key"));
+        let currentChk = $(this);
+        let key = normalize(currentChk.data("key"));
 
-        // 🔥 FIX: multiple checkbox sum (same key only)
-        let selectedBoxes = 0;
+        // ✅ FIX: define inputs
+        let inputs = $(".txtStockInput").filter(function () {
+            return normalize($(this).data("key")) === key;
+        });
+
+        // debug log
+        inputs.each(function () {
+            let input = $(this);
+
+            console.log({
+                id: input.attr("id"),
+                locationId: input.data("locationid"),
+                value: input.val()
+            });
+        });
+
+        // ✅ Max capacity
+        let maxCapacity = 0;
+        inputs.each(function () {
+            maxCapacity += parseInt($(this).data("stock")) || 0;
+        });
+
+        // ✅ Already selected stock
+        let selectedStock = 0;
+
+        $(".row-checkbox:checked").not(currentChk).each(function () {
+
+            let chk = $(this);
+
+            if (normalize(chk.data("key")) === key) {
+                selectedStock += parseInt(
+                    chk.closest("tr").find("td:eq(5)").text()
+                ) || 0;
+            }
+        });
+
+        // ✅ Current checkbox stock
+        let currentStock = parseInt(
+            currentChk.closest("tr").find("td:eq(5)").text()
+        ) || 0;
+
+        // 🔥 VALIDATION
+        if (currentChk.is(":checked")) {
+
+            let tempTotal = selectedStock + currentStock;
+            let usableTemp = Math.min(tempTotal, maxCapacity);
+
+            if (usableTemp <= selectedStock) {
+
+                currentChk.prop("checked", false);
+
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Limit Reached",
+                        text: "Stock already fully allocated!"
+                    });
+                } else {
+                    alert("Stock already fully allocated!");
+                }
+
+                return;
+            }
+        }
+
+        // ✅ Build selectedData
+        let selectedData = [];
 
         $(".row-checkbox:checked").each(function () {
 
@@ -1293,41 +1387,48 @@
 
             if (normalize(chk.data("key")) === key) {
 
-                let val = parseInt(
+                let stock = parseInt(
                     chk.closest("tr").find("td:eq(5)").text()
                 ) || 0;
 
-                selectedBoxes += val;
+                selectedData.push({
+                    id: parseInt(chk.val()),
+                    stock: stock
+                });
             }
         });
 
-        let inputs = $(".txtStockInput").filter(function () {
-            return normalize($(this).data("key")) === key;
+        globalYarnMap[key] = selectedData;
+
+        let totalStock = selectedData.reduce((sum, x) => sum + x.stock, 0);
+        let usableStock = Math.min(totalStock, maxCapacity);
+
+        let totalFilled = 0;
+
+        // reset
+        inputs.val(0);
+
+        // refill
+        inputs.each(function () {
+
+            let input = $(this);
+            let max = parseInt(input.data("stock")) || 0;
+
+            let remaining = usableStock - totalFilled;
+
+            if (remaining <= 0) {
+                input.val(0);
+                return;
+            }
+
+            let fill = Math.min(max, remaining);
+
+            input.val(fill);
+            input.data("old", fill);
+
+            totalFilled += fill;
         });
 
-        let total = 0;
-
-        if (isChecked || selectedBoxes > 0) {
-
-            inputs.each(function () {
-
-                let input = $(this);
-                let stock = parseInt(input.data("stock")) || 0;
-
-                let remaining = selectedBoxes - total;
-                let fillValue = Math.min(stock, remaining);
-
-                if (fillValue < 0) fillValue = 0;
-
-                input.val(fillValue);
-                input.data("old", fillValue);
-
-                total += fillValue;
-            });
-
-        } else {
-            inputs.val(0);
-            inputs.data("old", 0);
-        }
+        console.log("globalYarnMap", globalYarnMap);
     });
 </script>

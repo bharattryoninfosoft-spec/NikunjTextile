@@ -271,8 +271,11 @@
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.title = "Create Yarn PO - Nikunj Textile";
     $('body').addClass('fullscreen');
@@ -763,7 +766,7 @@
                     }
                     else {
                         $("#ListNo").val('0')
-                    }                  
+                    }
                     GridBindData();
                     setTimeout(function () {
                         var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -932,7 +935,7 @@
             formData.append('SiftGodownLocationId', siftSiftGodownLocationId.slice(0, -1).replace(/\|/g, ','));
             $.ajax({
                 type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardMasterNew',
+                url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutwardMasterNew',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
@@ -1019,7 +1022,7 @@
         isPendingAvailable = false;
 
         $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/GetPendingYarn",
+            url: "/WebServiceNikunjTextile.asmx/GetUpdatePendingYarnDetails",
             type: "POST",
             contentType: "application/json; charset=utf-8",
 
@@ -1032,7 +1035,6 @@
             success: function (res) {
 
                 let data = res.d;
-
                 if (typeof data === "string") {
                     data = JSON.parse(data);
                 }
@@ -1044,7 +1046,6 @@
                     isPendingAvailable = false;
                     tbody.html('<tr><td colspan="7">No Data Found</td></tr>');
                     $("#tableYarnOutward tbody tr").show();
-
                     if (callback) callback();
                     return;
                 }
@@ -1059,17 +1060,14 @@
                         normalize(item.CompanyColourCode);
 
                     tbody.append(`
-                 <tr>
-                     <td>
-                         <input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.Id || ''}">
-                     </td>
-                     <td>${item.PartyName}</td>
-                     <td>${item.YarnMaterial}</td>
-                     <td>${item.YarnColor}</td>
-                     <td>${item.CompanyColourCode}</td>
-                     <td>${item.NoofBoxes}</td>
-                 </tr>
-             `);
+                   <tr><td><input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.YarnRequirementID}">REQ - ${item.YarnRequirementID}</td>
+                       <td>${item.PartyName}</td>
+                       <td>${item.YarnMaterial}</td>
+                       <td>${item.YarnColor}</td>
+                       <td>${item.CompanyColourCode}</td>
+                       <td>${item.NoofBoxes}</td>
+                   </tr>
+               `);
 
                     pendingDetailMap[key] = item.YarnRequirementDetailID;
 
@@ -1082,7 +1080,6 @@
 
                 if (callback) callback(); // ✅ no setTimeout
             },
-
             error: function () {
                 tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
                 if (callback) callback();
@@ -1127,7 +1124,7 @@
                     tbody.html('<tr><td colspan="7">No Data Found</td></tr>');
                     $("#tableYarnOutward tbody tr").show();
 
-                   // if (callback) callback();
+                    // if (callback) callback();
                     return;
                 }
 
@@ -1261,70 +1258,78 @@
                 let master = result.Data.Master;
                 let detail = result.Data.Detail;
                 let YarnRequirementIDs = result.YarnRequirementIDs;
-                console.log("master", master);
-                // Fill master
-                $("#ddlParty").val(master.PartyId).trigger("change");
+                console.log("detail", detail);
+                // =============================
+                // ✅ 1. FILL MASTER DATA
+                // =============================
+                $("#SundryParty").val(master.SundryPartyId).trigger("change");
                 $("#ListDate").val(formatJsonDate(master.OutwardListDate));
                 $("#ddlYarnGodownManager").val(master.GodownManagerUserAccountId).trigger("change");
                 $("#ListNo").val(master.OutwardListNo);
                 $("#YarnOutwardID").val(master.YarnOutwardID);
 
-                // Create map
-                let map = {};
-                detail.forEach(d => {
-                    let key = `${d.YarnMaterialID}|${d.YarnColorID}|${d.YarnColorCode}|${d.GodownLocationID}`;
-                    map[key] = d.NoOfBox;                 
-                });
-              
-                console.log("map", map);        
-                debugger;
+
                 setTimeout(() => {
+                    $("#ddlParty").val(master.PartyId).trigger("change");
+                    $("#ddlParty").prop("disabled", true);
+                }, 100);
+
+
+
+                setTimeout(() => {
+
+                    let map = {};
+
+                    detail.forEach(d => {
+
+                        let key = `${d.YarnMaterialID}|${d.YarnColorID}|${(d.YarnColorCode || '').toUpperCase()}|${d.GodownLocationID}`;
+
+                        if (!map[key]) {
+                            map[key] = 0;
+                        }
+
+                        map[key] += parseFloat(d.NoOfBox) || 0;
+                    });
+                    console.log("map", map)
                     $(".txtStockInput").each(function () {
 
                         let input = $(this);
-
-                        let key = (input.data("key") + "|" + input.data("locationid"));
-                        let stock = Number(input.data("stock")) || 0;
-
-                        if (map[key] !== undefined) {
-                            let editable = Number(map[key]);
-                            input.val(editable);
-                        } else {
-                            input.val(0);                            
-                        }
+                        let key = `${normalize(input.data("key"))}|${input.data("locationid")}`;
+                        input.val(map[key] || 0);
                     });
+                    $("#pendingYarnTable .row-checkbox").each(function () {
 
-                }, 300); // ⛔ still using timeout, but controlled
+                        let chk = $(this);
+                        let key = normalize(chk.data("key"));
+                        let detailId = parseInt(chk.val()); // ✅ THIS is YarnRequirementDetailID
 
-                // Requirement dropdown
-                if (YarnRequirementIDs?.length > 0) {
+                        let isMatched = detail.some(d => {
 
-                    let val = parseInt(YarnRequirementIDs[0]) || 0;
+                            let dKey = normalize(
+                                `${d.YarnMaterialID}|${d.YarnColorID}|${(d.YarnColorCode || '').toUpperCase()}`
+                            );
 
-                    setTimeout(() => {
-                        $("#ddlYarnPREQ").val(val).trigger("change.select2");
-                        $("#ddlYarnPREQ").prop("disabled", true);
-                        $("#ddlParty").prop("disabled", true);
-                        let Party = $("#ddlParty").val();
-                        getPendingYarnDetails(Party, 0, 0)
-                        highlightMatchedYarnRows();
-                    }, 400);
-                }
+                            return dKey === key && d.YarnRequirementDetailID === detailId;
+                        });
+
+                        chk.prop("checked", isMatched);
+                    });
+                }, 400);
+            },
+            error: function (err) {
+                console.error("Error:", err);
+                alert("Something went wrong!");
             }
         });
     }
     function saveYarnOutward() {
-        // 🔥 Get ID (important for update)
         let yarnOutwardID = parseInt($("#YarnOutwardID").val()) || 0;
-
-        // 1. Get Values
         let partyId = parseInt($("#ddlParty").val()) || 0;
         let listNo = $("#ListNo").val();
         let listDate = $("#ListDate").val();
         let godownManager = parseInt($("#ddlYarnGodownManager").val()) || 0;
         let godownId = parseInt($("#ddlGodownMaster").val()) || 0;
-
-        // 2. Validation
+        let sundrypartyid = parseInt($("#SundryParty").val()) || 0;
         if (partyId === 0) {
             notes.show("Please Select Sundry Creditors Party.", { type: 'danger' });
             return;
@@ -1341,71 +1346,84 @@
             notes.show("Please Select Godown Manager.", { type: 'danger' });
             return;
         }
-        let rawDate = $("#ListDate").val();
-        let formattedDate = "";
-
-        // Case 1: dd/MM/yyyy
-        if (rawDate.includes("/")) {
-            let parts = rawDate.split("/");
-            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        // Case 2: dd-MM-yyyy
-        else if (rawDate.includes("-") && rawDate.split("-")[0].length === 2) {
-            let parts = rawDate.split("-");
-            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        // Case 3: already yyyy-MM-dd
-        else {
-            formattedDate = rawDate;
-        }
-        // 3. Build Detail List
         let detailList = [];
+
+        // 🔥 IMPORTANT: clone global map (so original not destroyed)
+        let tempYarnMap = JSON.parse(JSON.stringify(globalYarnMap || {}));
 
         $("#tableYarnOutward tbody tr:visible").each(function () {
 
             let input = $(this).find(".txtStockInput");
             let qty = parseInt(input.val()) || 0;
+            if (qty <= 0) return;
+            let key = normalize(input.data("key"));
+            let materialId = parseInt(key.split("|")[0]);
+            let colorId = parseInt(key.split("|")[1]);
+            let locationId = parseInt(input.data("locationid"));
+            let yarnData = tempYarnMap[key] || [];
+            let remainingQty = qty;
+            for (let i = 0; i < yarnData.length; i++) {
+                if (remainingQty <= 0) break;
+                let item = yarnData[i];
+                if (item.stock <= 0) continue;
 
-            if (qty > 0) {
+                let usedQty = Math.min(item.stock, remainingQty);
 
-                let key = input.data("key"); // "MaterialID|ColorID"
+                if (usedQty > 0) {
 
+                    detailList.push({
+                        BillToPartyID: partyId,
+                        YarnMaterialID: materialId,
+                        YarnColorID: colorId,
+                        GodownLocationID: locationId,
+                        NoOfBox: usedQty,
+                        YarnRequirementDetailID: item.id
+                    });
+
+                    // 🔥 reduce stock globally
+                    item.stock -= usedQty;
+                    remainingQty -= usedQty;
+                }
+            }
+
+            // fallback (no checkbox selected)
+            if (remainingQty > 0) {
                 detailList.push({
                     BillToPartyID: partyId,
-                    YarnMaterialID: parseInt(key.split("|")[0]),
-                    YarnColorID: parseInt(key.split("|")[1]),
-                    GodownLocationID: parseInt(input.data("locationid")),
-                    NoOfBox: qty,
-                    YarnRequirementDetailID:
-                        (typeof pendingDetailMap !== 'undefined')
-                            ? (pendingDetailMap[key] || 0)
-                            : 0
+                    YarnMaterialID: materialId,
+                    YarnColorID: colorId,
+                    GodownLocationID: locationId,
+                    NoOfBox: remainingQty,
+                    YarnRequirementDetailID: 0
                 });
             }
+
         });
 
         if (detailList.length === 0) {
-            notes.show("Enter at least one quantity value", { type: 'danger' });
+            notes.show("Enter at least one quantity", { type: 'danger' });
             return;
         }
 
-        // 4. Master Object
+        // ✅ DATE FORMAT FIX
+        let rawDate = $("#ListDate").val();
+        let formattedDate = rawDate.includes("/")
+            ? rawDate.split("/").reverse().join("-")
+            : rawDate;
+
         let master = {
-            YarnOutwardID: yarnOutwardID,   // 🔥 important
+            YarnOutwardID: yarnOutwardID, 
             GodownID: godownId,
             PartyId: partyId,
             OutwardListDate: formattedDate,
-            GodownManagerUserAccountId: godownManager
+            GodownManagerUserAccountId: godownManager,
+            SundryPartyID: sundrypartyid
         };
 
-        // 🔥 Decide API (Save / Update)
-        let url = (yarnOutwardID > 0)
-            ? "/WebServiceNikunjTextile.asmx/UpdateYarnOutward"
-            : "/WebServiceNikunjTextile.asmx/SavedataYarnOutward";
+        console.log("FINAL DETAIL LIST:", detailList);
 
-        // 5. AJAX
         $.ajax({
-            url: url,
+            url: "/WebServiceNikunjTextile.asmx/UpdateYarnOutward",
             type: "POST",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -1415,11 +1433,10 @@
             }),
             success: function (res) {
 
-                let result = (typeof res.d === "string") ? JSON.parse(res.d) : res.d;
+                let result = typeof res.d === "string" ? JSON.parse(res.d) : res.d;
                 let data = Array.isArray(result) ? result[0] : result;
 
                 if (data && data.Status == 1) {
-
                     notes.show(data.Message, { type: 'success' });
 
                     setTimeout(function () {
@@ -1432,17 +1449,89 @@
             },
             error: function (xhr) {
                 console.error(xhr.responseText);
-                notes.show("Critical Server Error. Check console.", { type: 'danger' });
+                notes.show("Server Error", { type: 'danger' });
             }
-        });
+        });       
     }
+    function normalize(val) {
+        return (val || "").toString().toUpperCase().trim();
+    }
+    // ✅ Global maps
+    let globalYarnMap = {};
+    let selectionOrderMap = {};
+
     $(document).on("change", ".row-checkbox", function () {
 
-        let isChecked = $(this).is(":checked");
-        let key = normalize($(this).data("key"));
+        let currentChk = $(this);
+        let key = normalize(currentChk.data("key"));
 
-        // 🔥 FIX: multiple checkbox sum (same key only)
-        let selectedBoxes = 0;
+        // ✅ FIX: define inputs
+        let inputs = $(".txtStockInput").filter(function () {
+            return normalize($(this).data("key")) === key;
+        });
+
+        // debug log
+        inputs.each(function () {
+            let input = $(this);
+
+            console.log({
+                id: input.attr("id"),
+                locationId: input.data("locationid"),
+                value: input.val()
+            });
+        });
+
+        // ✅ Max capacity
+        let maxCapacity = 0;
+        inputs.each(function () {
+            maxCapacity += parseInt($(this).data("stock")) || 0;
+        });
+
+        // ✅ Already selected stock
+        let selectedStock = 0;
+
+        $(".row-checkbox:checked").not(currentChk).each(function () {
+
+            let chk = $(this);
+
+            if (normalize(chk.data("key")) === key) {
+                selectedStock += parseInt(
+                    chk.closest("tr").find("td:eq(5)").text()
+                ) || 0;
+            }
+        });
+
+        // ✅ Current checkbox stock
+        let currentStock = parseInt(
+            currentChk.closest("tr").find("td:eq(5)").text()
+        ) || 0;
+
+        // 🔥 VALIDATION
+        if (currentChk.is(":checked")) {
+
+            let tempTotal = selectedStock + currentStock;
+            let usableTemp = Math.min(tempTotal, maxCapacity);
+
+            if (usableTemp <= selectedStock) {
+
+                currentChk.prop("checked", false);
+
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Limit Reached",
+                        text: "Stock already fully allocated!"
+                    });
+                } else {
+                    alert("Stock already fully allocated!");
+                }
+
+                return;
+            }
+        }
+
+        // ✅ Build selectedData
+        let selectedData = [];
 
         $(".row-checkbox:checked").each(function () {
 
@@ -1450,41 +1539,49 @@
 
             if (normalize(chk.data("key")) === key) {
 
-                let val = parseInt(
+                let stock = parseInt(
                     chk.closest("tr").find("td:eq(5)").text()
                 ) || 0;
 
-                selectedBoxes += val;
+                selectedData.push({
+                    id: parseInt(chk.val()),
+                    stock: stock
+                });
             }
         });
 
-        let inputs = $(".txtStockInput").filter(function () {
-            return normalize($(this).data("key")) === key;
+        globalYarnMap[key] = selectedData;
+
+        let totalStock = selectedData.reduce((sum, x) => sum + x.stock, 0);
+        let usableStock = Math.min(totalStock, maxCapacity);
+
+        let totalFilled = 0;
+
+        // reset
+        inputs.val(0);
+
+        // refill
+        inputs.each(function () {
+
+            let input = $(this);
+            let max = parseInt(input.data("stock")) || 0;
+
+            let remaining = usableStock - totalFilled;
+
+            if (remaining <= 0) {
+                input.val(0);
+                return;
+            }
+
+            let fill = Math.min(max, remaining);
+
+            input.val(fill);
+            input.data("old", fill);
+
+            totalFilled += fill;
         });
 
-        let total = 0;
-
-        if (isChecked || selectedBoxes > 0) {
-
-            inputs.each(function () {
-
-                let input = $(this);
-                let stock = parseInt(input.data("stock")) || 0;
-
-                let remaining = selectedBoxes - total;
-                let fillValue = Math.min(stock, remaining);
-
-                if (fillValue < 0) fillValue = 0;
-
-                input.val(fillValue);
-                input.data("old", fillValue);
-
-                total += fillValue;
-            });
-
-        } else {
-            inputs.val(0);
-            inputs.data("old", 0);
-        }
+        console.log("globalYarnMap", globalYarnMap);
     });
+
 </script>

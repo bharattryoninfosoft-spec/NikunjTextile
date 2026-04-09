@@ -21026,8 +21026,8 @@ namespace NikunjTextile
                                     LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                     where YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
                                     group by YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID 
-                                    ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID
-                                    AND t1.YarnMaterialID = YOD.YarnMaterialID
+                                    ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID   AND
+                                        t1.YarnMaterialID = YOD.YarnMaterialID
                                     AND t1.YarnColorID = YOD.YarnColorID
                                     where (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
                 }
@@ -21237,8 +21237,8 @@ namespace NikunjTextile
                                             LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                             WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
                                             GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
-                                        ) YOD ON t1.BillToPartyID = YOD.BillToPartyID
-                                          AND t1.YarnMaterialID = YOD.YarnMaterialID
+                                        ) YOD ON  -- t1.BillToPartyID = YOD.BillToPartyID  AND 
+                                           t1.YarnMaterialID = YOD.YarnMaterialID
                                           AND t1.YarnColorID = YOD.YarnColorID
                                           AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
                                         WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
@@ -21400,7 +21400,7 @@ namespace NikunjTextile
 
                     cmd.CommandText = @"
                                         SELECT 
-                                            (t1.Stock) AS Stock, 
+                                            (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
                                             t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
                                             t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
                                             t1.GodownLocationID, t1.LocationTitle   
@@ -21451,11 +21451,11 @@ namespace NikunjTextile
                                             LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                             WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
                                             GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
-                                        ) YOD ON t1.BillToPartyID = YOD.BillToPartyID
-                                          AND t1.YarnMaterialID = YOD.YarnMaterialID
+                                        ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID  AND 
+                                           t1.YarnMaterialID = YOD.YarnMaterialID
                                           AND t1.YarnColorID = YOD.YarnColorID
                                           AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
-                                        WHERE (t1.Stock) > 0";
+                                        WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
                 }
 
 
@@ -22121,7 +22121,8 @@ namespace NikunjTextile
                             GodownID = Convert.ToInt32(dr["GodownID"]),
                             OutwardListDate =Convert.ToDateTime(dr["OutwardListDate"]),
                             GodownManagerUserAccountId = Convert.ToInt32(dr["GodownManagerUserAccountId"]),
-                            OutwardListNo = Convert.ToInt32(dr["OutwardListNo"])
+                            OutwardListNo = Convert.ToInt32(dr["OutwardListNo"]),
+                            SundryPartyId = Convert.ToInt32(dr["SundryPartyID"])
                         };
                     }
                     dr.Close();
@@ -22173,15 +22174,11 @@ namespace NikunjTextile
                         requirementIds.Add(Convert.ToInt32(dr["YarnRequirementID"]));
                     }
                     dr.Close();
-
-                    // ============================
-                    // ✅ RETURN FINAL JSON
-                    // ============================
                     return new JavaScriptSerializer().Serialize(new
                     {
                         Status = 1,
                         Data = result,
-                        YarnRequirementIDs = requirementIds   // 🔥 extra
+                        YarnRequirementIDs = requirementIds 
                     });
                 }
             }
@@ -23984,7 +23981,7 @@ namespace NikunjTextile
     JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
     JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
     JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementID
 	WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
     GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
 YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
@@ -24015,20 +24012,19 @@ YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD
             return new JavaScriptSerializer().Serialize(data);           
         }
         [WebMethod]
-        public string GetPendingYarnDetails()
+        public string GetPendingYarnDetails(int partyId, int? yarnMaterialID, int? yarnColorID)
         {
             DataTable dt = new DataTable();
             string query = @"
-               SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
-            (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
-                JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
-                JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
-                JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
-                JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-                LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-                --WHERE YRD.YarnRequirementID = @YarnRequirementID
-                GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
-            YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
+               SELECT YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+                            (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+                                JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+                                JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+                                JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+                                JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID                         
+	                            WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
+                                GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+                            YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
 
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
@@ -24052,8 +24048,7 @@ YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD
                     JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
                     JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
                     JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
-                    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-                    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+                    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID                 
 	                WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
                     GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
                 YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes) > 0";
@@ -24090,7 +24085,7 @@ YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD
 
                     cmd.Parameters.AddWithValue("@GodownID", master.GodownID);
                     cmd.Parameters.AddWithValue("@PartyId", master.PartyId);
-
+                    cmd.Parameters.AddWithValue("@SundryPartyID", master.SundryPartyId);
                     // This line now works safely because master.OutwardListDate is a string
                     cmd.Parameters.Add("@OutwardListDate", SqlDbType.Date).Value = Convert.ToDateTime(master.OutwardListDate);
 
@@ -24134,10 +24129,9 @@ YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD
 
                     // 🔥 IMPORTANT (for update)
                     cmd.Parameters.AddWithValue("@YarnOutwardID", master.YarnOutwardID);
-
                     cmd.Parameters.AddWithValue("@GodownID", master.GodownID);
                     cmd.Parameters.AddWithValue("@PartyId", master.PartyId);
-
+                    cmd.Parameters.AddWithValue("@SundryPartyID", master.SundryPartyId);
                     cmd.Parameters.Add("@OutwardListDate", SqlDbType.Date)
                        .Value = Convert.ToDateTime(master.OutwardListDate);
 

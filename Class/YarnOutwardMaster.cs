@@ -86,6 +86,7 @@ namespace NikunjTextile.Class
         public Boolean IsScanStutas { get; set; }
         public int UserAccountId { get; set; }
         public int FinancialYearID { get; set; }
+        public int SundryPartyId { get; set; }
         public int CompanyId { get; set; }
     }
 
