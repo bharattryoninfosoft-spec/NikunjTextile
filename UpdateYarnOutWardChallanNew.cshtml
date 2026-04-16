@@ -1456,6 +1456,167 @@
     function normalize(val) {
         return (val || "").toString().toUpperCase().trim();
     }
+    function checkSave() {
+        if (isSubmitting) return false;
+
+        isSubmitting = true;
+        toggleSaveLoader(true);
+
+        var InvoiceDate = document.getElementById('InvoiceDate');
+        var RequirementNo = document.getElementById('RequirementNo');
+        var PartyId = document.getElementById('ddlParty');
+
+        // ===============================
+        // ✅ BASIC VALIDATION
+        // ===============================
+        if (validate(InvoiceDate) == false || validate(RequirementNo) == false || validate(PartyId) == false) {
+
+            validate(InvoiceDate);
+            validate(RequirementNo);
+            validate(PartyId);
+
+            if (PartyId.value == "") {
+                notes.show('Please Select Party Name.', { type: 'danger' });
+            }
+
+            isSubmitting = false;
+            toggleSaveLoader(false);
+            return false;
+        }
+
+        var txtColorArray = $("#txtYarnDetailsArray").val();
+        var txtColorData = txtColorArray.slice(0, -1).split('|');
+
+        var isValid = 0;
+
+        // ===============================
+        // ✅ FIELD VALIDATION
+        // ===============================
+        for (var j = 1; j <= txtColorData.length; j++) {
+
+            var YM = document.getElementById("yarnMaterial" + j);
+            var YC = document.getElementById("YarnColor" + j);
+            var CN = document.getElementById("CompanyName" + j);
+            var CC = document.getElementById("ColorCode" + j);
+            var NOB = document.getElementById("NoOfBox" + j);
+
+            if (validate(YM) == false || validate(YC) == false || validate(CN) == false || validate(CC) == false || validate(NOB) == false) {
+
+                validate(YM);
+                validate(YC);
+                validate(CN);
+                validate(CC);
+                validate(NOB);
+
+                isValid++;
+            }
+        }
+
+        if (isValid != 0) {
+            notes.show("Please Fill all Fields.", { type: 'danger' });
+
+            isSubmitting = false;
+            toggleSaveLoader(false);
+            return false;
+        }
+
+        // ===============================
+        // 🔥 DUPLICATE CHECK
+        // ===============================
+        var duplicateMap = {};
+        var isDuplicate = false;
+
+        for (var j = 0; j < txtColorData.length; j++) {
+
+            var YMVal = $("#yarnMaterial" + txtColorData[j]).val();
+            var YCVal = $("#YarnColor" + txtColorData[j]).val();
+            var CNVal = $("#CompanyName" + txtColorData[j]).val();
+            var CCVal = $("#ColorCode" + txtColorData[j]).val();
+            var NOBVal = $("#NoOfBox" + txtColorData[j]).val();
+
+            var key = YMVal + "_" + YCVal + "_" + CNVal + "_" + CCVal + "_" + NOBVal;
+
+            if (duplicateMap[key]) {
+                notes.show("Duplicate entry found at row " + (j + 1), { type: 'danger' });
+
+                isSubmitting = false;
+                toggleSaveLoader(false);
+                return false;
+            } else {
+                duplicateMap[key] = true;
+            }
+        }
+
+        // ===============================
+        // ✅ BUILD JSON
+        // ===============================
+        var appendTemp = '';
+
+        for (var j = 0; j < txtColorData.length; j++) {
+
+            var YMVal = $("#yarnMaterial" + txtColorData[j]).val();
+            var YCVal = $("#YarnColor" + txtColorData[j]).val();
+            var CNVal = $("#CompanyName" + txtColorData[j]).val();
+            var CCVal = $("#ColorCode" + txtColorData[j]).val();
+            var NOBVal = $("#NoOfBox" + txtColorData[j]).val();
+
+            appendTemp += '{';
+            appendTemp += '"YarnMaterialID": "' + YMVal + '",';
+            appendTemp += '"YarnColorID": "' + YCVal + '",';
+            appendTemp += '"CompanyName": "' + CNVal + '",';
+            appendTemp += '"CompanyColourCode": "' + CCVal + '",';
+            appendTemp += '"NoofBoxes": "' + NOBVal + '"';
+            appendTemp += '},';
+        }
+
+        var YarnRequirementArray = '';
+
+        YarnRequirementArray += '{';
+        YarnRequirementArray += '"RequirementDates":"' + InvoiceDate.value + '", ';
+        YarnRequirementArray += '"RequirementNo":"' + RequirementNo.value + '",';
+        YarnRequirementArray += '"PartyId":"' + PartyId.value + '",';
+        YarnRequirementArray += '"listYarnRequirementDetail": [' + appendTemp.slice(0, -1) + ']';
+        YarnRequirementArray += '}';
+
+        console.log(YarnRequirementArray);
+        const formData = new FormData();
+        formData.append('YarnRequirementArray', YarnRequirementArray);
+
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/insertYarnRequirementMasterMaster',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+
+            success: function (response) {
+
+                if (response.Code == 200) {
+                    notes.show("Yarn Requirement Created Successfully.", { type: 'success' });
+                    window.location.href = 'YarnRequirement';
+                } else {
+                    notes.show(response.Message, { type: 'danger' });
+
+                    isSubmitting = false;
+                    toggleSaveLoader(false);
+                }
+            },
+
+            error: function () {
+                notes.show("Problem occurred while submitting your data.", { type: 'danger' });
+
+                isSubmitting = false;
+                toggleSaveLoader(false);
+            }
+        });
+    }
+    var isSubmitting = false;
+    function toggleSaveLoader(show) {
+        $("#savebtn").prop("disabled", show);
+        $("#btnText").toggle(!show);
+        $("#btnLoader").toggle(show);
+    }
     // ✅ Global maps
     let globalYarnMap = {};
     let selectionOrderMap = {};

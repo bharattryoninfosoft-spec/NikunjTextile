@@ -1,6 +1,7 @@
 ﻿using iText.Html2pdf;
 using iText.Kernel.Pdf;
 using iText.Layout.Element;
+using iText.StyledXmlParser.Jsoup.Select;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
@@ -14992,14 +14993,31 @@ namespace NikunjTextile
                 //    " where YarnMaterialID = '" + ilist.YarnMaterialID + "' and YarnColorID = '" + ilist.YarnColorID + "'" +
                 //    "order by YPM.PartyName Desc";
 
-                cmd.CommandText = "select * from PartyMaster where PartyID in( " +
-                    " select DISTINCT(YPM.BilltoPartyID) from YarnPODetails YPD" +
-                    " LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YPD.YarnPOID " +
-                    " where YPD.YarnMaterialID = '" + ilist.YarnMaterialID + "' " +
-                    " and YPD.YarnColorID = '" + ilist.YarnColorID + "' )";
+                cmd.CommandText = @"
+                                    SELECT 
+                                        PM.*,
+                                        CASE PM.SundryParty 
+                                            WHEN 1 THEN 'Creditors'
+                                            WHEN 2 THEN 'Debtors'
+                                            WHEN 3 THEN 'Job Work'
+                                            ELSE 'Unknown' 
+                                        END AS SundryPartyName
+                                    FROM PartyMaster PM
+                                    WHERE PM.PartyID IN (
+                                        SELECT DISTINCT YPM.BilltoPartyID
+                                        FROM YarnPODetails YPD
+                                        LEFT JOIN YarnPOMaster YPM 
+                                            ON YPM.YarnPOID = YPD.YarnPOID
+                                        WHERE YPD.YarnMaterialID = @YarnMaterialID
+                                          AND YPD.YarnColorID = @YarnColorID
+                                    )";
+
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@YarnMaterialID", ilist.YarnMaterialID);
+                cmd.Parameters.AddWithValue("@YarnColorID", ilist.YarnColorID);
+
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
-
                 if (rdr.HasRows)
                 {
                     while (rdr.Read())
@@ -15007,6 +15025,8 @@ namespace NikunjTextile
                         PartyMaster condition = new PartyMaster();
                         condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
                         condition.PartyName = rdr["PartyName"].ToString().ToUpper();
+                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();
+                        condition.SundryParty = rdr["SundryPartyName"].ToString().ToUpper();
                         listUser.Add(condition);
                     }
                 }
@@ -17753,17 +17773,29 @@ namespace NikunjTextile
                                 {
                                     if (myDetails.listYarnInwardDetail.Count > 0)
                                     {
-                                        foreach (YarnInwardDetail each in myDetails.listYarnInwardDetail)
-                                        {
+                                    
+                                            cmd.CommandText = @"INSERT INTO YarnInwardDetail 
+                                            (DateAndTime, BoxNo, NetWeight, BarcodeNo, GodownLocationID, YarnInwardID, UserAccountId, YarnInterchangeID, IsScanStutas, IsScanUpdateDateTime) 
+                                            VALUES 
+                                            (@Date, @Box, @Weight, @Barcode, @Loc, @InwardID, @User, @Interchange, @Status, @ScanDate)";
 
-                                            string sqls = String.Format("Insert Into YarnInwardDetail  (DateAndTime, BoxNo, NetWeight, BarcodeNo, GodownLocationID, YarnInwardID, UserAccountId) Values  " +
-                                                   " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.BoxNo.ToUpper() + "', '" + each.NetWeight + "', '" + each.BarcodeNo + "', '" + each.GodownLocationID + "', '" + id + "' , " +
-                                                   "  '" + UserAccountId + "' )");
+                                            foreach (YarnInwardDetail YD  in myDetails.listYarnInwardDetail)
+                                            {
+                                                cmd.Parameters.Clear();
+                                                cmd.Parameters.AddWithValue("@Date", dateTime_Indian);
+                                                cmd.Parameters.AddWithValue("@Box", YD.BoxNo.ToUpper());
+                                                cmd.Parameters.AddWithValue("@Weight", YD.NetWeight);
+                                                cmd.Parameters.AddWithValue("@Barcode", YD.BarcodeNo);
+                                                cmd.Parameters.AddWithValue("@Loc", YD.GodownLocationID);
+                                                cmd.Parameters.AddWithValue("@InwardID", id);
+                                                cmd.Parameters.AddWithValue("@User", UserAccountId);
+                                                cmd.Parameters.AddWithValue("@Interchange", YD.GodownLocationID);
+                                                cmd.Parameters.AddWithValue("@Status", 0);
+                                                cmd.Parameters.AddWithValue("@ScanDate", dateTime_Indian);
 
-                                            cmd.CommandText = sqls;
-                                            cmd.ExecuteNonQuery();
-
-                                        }
+                                                cmd.ExecuteNonQuery();
+                                            }
+                                        
                                     }
 
                                     con.Close();
@@ -20444,8 +20476,14 @@ namespace NikunjTextile
                                     cmd3.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
 
                                     i = cmd3.ExecuteNonQuery();
+                                 
+
                                     if (i > 0)
                                     {
+                                        SqlCommand cmdUpdateMaster = new SqlCommand(@"UPDATE YarnInwardDetail  SET YarnInterchangeID = @GodownLocationID WHERE YarnInwardDetailID = @YarnInwardDetailID", cons);
+                                        cmdUpdateMaster.Parameters.AddWithValue("@GodownLocationID", ilist.GodownLocationID);
+                                        cmdUpdateMaster.Parameters.AddWithValue("@YarnInwardDetailID", rdr["YarnInwardDetailID"]);
+                                        cmdUpdateMaster.ExecuteNonQuery();
                                         comman.Code = 201;
                                         comman.Message = "Record has been saved successfully.";
                                     }
@@ -20510,16 +20548,14 @@ namespace NikunjTextile
                                     cmd4.Parameters.AddWithValue("@GID", rdr["GodownID"]);
                                     cmd4.Parameters.AddWithValue("@GLID", ilist.GodownLocationID);
                                     cmd4.Parameters.AddWithValue("@UID", Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-                                    i = cmd4.ExecuteNonQuery();
-
-                                    SqlCommand cmdUpdateMaster = new SqlCommand(@"UPDATE YarnInwardDetail  SET YarnInterchangeID = @GodownLocationID WHERE YarnInwardDetailID = @YarnInwardDetailID", con);
-                                    cmdUpdateMaster.Parameters.AddWithValue("@GodownLocationID", ilist.GodownLocationID);
-                                    cmdUpdateMaster.Parameters.AddWithValue("@YarnInwardDetailID", rdr["YarnInwardDetailID"]);
-                                    cmdUpdateMaster.ExecuteNonQuery();
+                                    i = cmd4.ExecuteNonQuery();                                 
 
                                     if (i > 0)
                                     {
-                       
+                                        SqlCommand cmdUpdateMaster = new SqlCommand(@"UPDATE YarnInwardDetail  SET YarnInterchangeID = @GodownLocationID WHERE YarnInwardDetailID = @YarnInwardDetailID", cons);
+                                        cmdUpdateMaster.Parameters.AddWithValue("@GodownLocationID", ilist.GodownLocationID);
+                                        cmdUpdateMaster.Parameters.AddWithValue("@YarnInwardDetailID", rdr["YarnInwardDetailID"]);
+                                        cmdUpdateMaster.ExecuteNonQuery();
                                         comman.Code = 201;
                                         comman.Message = "Record has been saved successfully.";
                                     }
@@ -20697,35 +20733,9 @@ namespace NikunjTextile
 
         
                     //Yarn Color
-                    cmd.CommandText = @"SELECT YIM.YarnColorID,
-                                            YCM.YarnColor,
-                                            YCM.YarnColorCode
-                                        FROM YarnInwardMaster YIM
-
-                                        LEFT JOIN YarnColorMaster YCM 
-                                            ON YIM.YarnColorID = YCM.YarnColorID
-
-                                        LEFT JOIN (
-                                            SELECT YarnInwardID, COUNT(*) AS InStock
-                                            FROM YarnInwardDetail
-                                            GROUP BY YarnInwardID
-                                        ) INWARD ON YIM.YarnInwardID = INWARD.YarnInwardID
-
-                                        LEFT JOIN (
-                                            SELECT 
-                                                YarnMaterialID,
-                                                YarnColorID,
-                                                SUM(NoOfBox) AS OutStock
-                                            FROM YarnOutwardDetail
-                                            GROUP BY YarnMaterialID, YarnColorID
-                                        ) OUTWARD 
-                                            ON YIM.YarnMaterialID = OUTWARD.YarnMaterialID
-                                            AND YIM.YarnColorID = OUTWARD.YarnColorID
-                                        --WHERE YIM.YarnMaterialID = @YarnMaterialID
-                                        GROUP BY YIM.YarnColorID,YCM.YarnColor,YCM.YarnColorCode
-
-                                        HAVING 
-                                        ISNULL(SUM(INWARD.InStock),0) > 0";
+                    cmd.CommandText = @"select YPD.YarnColorID , YCM.YarnColor ,YPD.CompanyCode As YarnColorCode  from YarnPOMaster YPO 
+                                            LEFT JOIN YarnPODetails YPD ON YPD.YarnPOID = YPO.YarnPOID
+                                            LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YPd.YarnColorID";
                     SqlDataReader rdr3 = cmd.ExecuteReader();
                     if (rdr3.HasRows)
                     {
@@ -21184,65 +21194,80 @@ namespace NikunjTextile
                 else
                 {
 
-                    cmd.CommandText = @"
-                                        SELECT 
-                                            (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-                                            t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                                            t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
-                                            t1.GodownLocationID, t1.LocationTitle   
-                                        FROM 
-                                        (
-                                            SELECT 
-                                                ISNULL(SUM(t1.Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, 
-                                                t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
-                                                t1.GodownLocationID, t1.LocationTitle 
-                                            FROM
-                                            (
+                    cmd.CommandText = @"SELECT (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock,t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
+                                            t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
+                                        FROM (SELECT 
+                                                ISNULL(SUM(t1.Stock), 0) as Stock, 
+                                                t1.BillToPartyID, 
+                                                t1.CompanyName, 
+                                                t1.YarnMaterialID, 
+                                                t1.YarnMaterial, 
+                                                t1.YarnColorID, 
+                                                t1.YarnColor, 
+                                                t1.CompanyCode,
+                                                t1.YarnInterchangeID, 
+                                                t1.LocationTitle  
+                                            FROM (
                                                 SELECT  
-                                                    YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName AS CompanyName,
-                                                    YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode,
-                                                    GL.LocationTitle, YIDD.GodownLocationID, YIDD.Stock
+                                                    YIM.YarnInwardID, 
+                                                    YIM.YarnPOID, 
+                                                    YPM.BillToPartyID, 
+                                                    YPM.PartyName AS CompanyName,
+                                                    YIM.YarnMaterialID, 
+                                                    YMM.YarnMaterial, 
+                                                    YIM.YarnColorID, 
+                                                    YCM.YarnColor,  -- Added this to ensure it exists for the outer Group By
+                                                    YPD.CompanyCode, 
+                                                    GL.LocationTitle, 
+                                                    YIDD.YarnInterchangeID, -- Changed to YarnInterchangeID                                    
+                                                    YIDD.Stock
                                                 FROM YarnInwardMaster YIM
-                                                LEFT JOIN 
-                                                (
+                                                LEFT JOIN (
                                                     SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
                                                     FROM YarnPOMaster YPM
                                                     LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
                                                 ) YPM ON YIM.YarnPOID = YPM.YarnPOID
+                                                LEFT JOIN YarnPODetails YPD ON YIM.YarnPOID = YPD.YarnPOID 
+                                                    AND YIM.YarnMaterialID = YPD.YarnMaterialID 
+                                                    AND YIM.YarnColorID = YPD.YarnColorID
                                                 LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
                                                 LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
-                                                LEFT JOIN 
-                                                (
-                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.GodownLocationID
+                                                LEFT JOIN (
+                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.YarnInterchangeID -- Using YarnInterchangeID here
                                                     FROM YarnInwardDetail YID 
-                                                    WHERE YID.GodownLocationID IN 
-                                                    (
-                                                        SELECT GodownLocationID FROM GodownLocationMaster WHERE GodownID = '" + ilist.GodownID + @"'
+                                                    WHERE YID.GodownLocationID IN (
+                                                        SELECT GodownLocationID FROM GodownLocationMaster 
+                                                        WHERE GodownID = '" + ilist.GodownID + @"' AND ISNULL(YID.IsScanStutas, 0) <> 1 
                                                     )
                                                     " + YarnInwardDetails + @" 
-                                                    GROUP BY YID.YarnInwardID, YID.GodownLocationID
+                                                    GROUP BY YID.YarnInwardID, YID.YarnInterchangeID 
                                                 ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
-                                                LEFT JOIN GodownLocationMaster GL ON YIDD.GodownLocationID = GL.GodownLocationID
+                                                LEFT JOIN GodownLocationMaster GL ON YIDD.YarnInterchangeID = GL.GodownLocationID
                                             ) AS t1
                                             WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-                                            GROUP BY t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                                                     t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, t1.LocationTitle, t1.GodownLocationID
+                                            GROUP BY t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
+                                                t1.YarnColorID, 
+                                                t1.YarnColor, 
+                                                t1.CompanyCode, 
+                                                t1.LocationTitle, 
+                                               t1.YarnInterchangeID
                                         ) AS t1
-                                        LEFT JOIN 
-                                        (
+                                        LEFT JOIN (
                                             SELECT 
-                                                SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, 
-                                                YOD.YarnColorID, YOD.GodownLocationID 
+                                                SUM(YOD.NoOfBox) as Stock, 
+                                                YOD.BillToPartyID, 
+                                                YOD.YarnMaterialID, 
+                                                YOD.YarnColorID, 
+                                                YOD.GodownLocationID 
                                             FROM YarnOutwardDetail YOD
                                             LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                             WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
                                             GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
-                                        ) YOD ON  -- t1.BillToPartyID = YOD.BillToPartyID  AND 
-                                           t1.YarnMaterialID = YOD.YarnMaterialID
-                                          AND t1.YarnColorID = YOD.YarnColorID
-                                          AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
+                                        ) YOD ON t1.YarnMaterialID = YOD.YarnMaterialID
+                                            AND t1.YarnColorID = YOD.YarnColorID
+                                            AND t1.YarnInterchangeID = YOD.GodownLocationID
                                         WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
-                }
+                                            }
 
 
                 con.Open();
@@ -21253,16 +21278,18 @@ namespace NikunjTextile
                     while (rdr.Read())
                     {
                         YarnOutwardMaster condition = new YarnOutwardMaster();
-                        condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
-                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
-                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
-                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
-                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
-                        condition.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
-                        condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
-                        condition.Stock = Convert.ToInt32(rdr["Stock"].ToString());
-                        condition.LocationTitle = rdr["LocationTitle"].ToString();
-                        condition.GodownLocationID =Convert.ToInt32(rdr["GodownLocationID"].ToString());
+                        // Check for NULL before converting to Int32
+                        condition.BillToPartyID = rdr["BillToPartyID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["BillToPartyID"]);
+                        condition.YarnMaterialID = rdr["YarnMaterialID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnMaterialID"]);
+                        condition.YarnColorID = rdr["YarnColorID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnColorID"]);
+                        condition.Stock = rdr["Stock"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["Stock"]);
+                        condition.GodownLocationID = rdr["GodownLocationID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["GodownLocationID"]);
+                        // Safe string handling to avoid NullReferenceException
+                        condition.YarnMaterial = rdr["YarnMaterial"]?.ToString().ToUpper() ?? "";
+                        condition.YarnColor = rdr["YarnColor"]?.ToString().ToUpper() ?? "";
+                        condition.YarnColorCode = rdr["YarnColorCode"]?.ToString().ToUpper() ?? "";
+                        condition.CompanyName = rdr["CompanyName"]?.ToString().ToUpper() ?? "";
+                        condition.LocationTitle = rdr["LocationTitle"]?.ToString() ?? "";
                         listUser.Add(condition);
                     }
                 }
@@ -21398,66 +21425,80 @@ namespace NikunjTextile
                 else
                 {
 
-                    cmd.CommandText = @"
-                                        SELECT 
-                                            (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock, 
-                                            t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                                            t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
-                                            t1.GodownLocationID, t1.LocationTitle   
-                                        FROM 
-                                        (
-                                            SELECT 
-                                                ISNULL(SUM(t1.Stock),0) as Stock, t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, 
-                                                t1.YarnMaterial, t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, 
-                                                t1.GodownLocationID, t1.LocationTitle 
-                                            FROM
-                                            (
+                    cmd.CommandText = @"SELECT (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock,t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
+                                            t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
+                                        FROM (SELECT 
+                                                ISNULL(SUM(t1.Stock), 0) as Stock, 
+                                                t1.BillToPartyID, 
+                                                t1.CompanyName, 
+                                                t1.YarnMaterialID, 
+                                                t1.YarnMaterial, 
+                                                t1.YarnColorID, 
+                                                t1.YarnColor, 
+                                                t1.CompanyCode,
+                                                t1.YarnInterchangeID, 
+                                                t1.LocationTitle  
+                                            FROM (
                                                 SELECT  
-                                                    YIM.YarnInwardID, YIM.YarnPOID, YPM.BillToPartyID, YPM.PartyName AS CompanyName,
-                                                    YIM.YarnMaterialID, YMM.YarnMaterial, YIM.YarnColorID, YCM.YarnColor, YCM.YarnColorCode,
-                                                    GL.LocationTitle, YIDD.GodownLocationID, YIDD.Stock
+                                                    YIM.YarnInwardID, 
+                                                    YIM.YarnPOID, 
+                                                    YPM.BillToPartyID, 
+                                                    YPM.PartyName AS CompanyName,
+                                                    YIM.YarnMaterialID, 
+                                                    YMM.YarnMaterial, 
+                                                    YIM.YarnColorID, 
+                                                    YCM.YarnColor,  -- Added this to ensure it exists for the outer Group By
+                                                    YPD.CompanyCode, 
+                                                    GL.LocationTitle, 
+                                                    YIDD.YarnInterchangeID, -- Changed to YarnInterchangeID                                    
+                                                    YIDD.Stock
                                                 FROM YarnInwardMaster YIM
-                                                LEFT JOIN 
-                                                (
+                                                LEFT JOIN (
                                                     SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
                                                     FROM YarnPOMaster YPM
                                                     LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
                                                 ) YPM ON YIM.YarnPOID = YPM.YarnPOID
+                                                LEFT JOIN YarnPODetails YPD ON YIM.YarnPOID = YPD.YarnPOID 
+                                                    AND YIM.YarnMaterialID = YPD.YarnMaterialID 
+                                                    AND YIM.YarnColorID = YPD.YarnColorID
                                                 LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
                                                 LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
-                                                LEFT JOIN 
-                                                (
-                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.GodownLocationID
+                                                LEFT JOIN (
+                                                    SELECT COUNT(*) AS Stock, YarnInwardID, YID.YarnInterchangeID -- Using YarnInterchangeID here
                                                     FROM YarnInwardDetail YID 
-                                                    WHERE YID.GodownLocationID IN 
-                                                    (
-                                                        SELECT GodownLocationID FROM GodownLocationMaster WHERE GodownID = '" + ilist.GodownID + @"'
+                                                    WHERE YID.GodownLocationID IN (
+                                                        SELECT GodownLocationID FROM GodownLocationMaster 
+                                                        WHERE GodownID = '" + ilist.GodownID + @"' AND ISNULL(YID.IsScanStutas, 0) <> 1 
                                                     )
                                                     " + YarnInwardDetails + @" 
-                                                    GROUP BY YID.YarnInwardID, YID.GodownLocationID
+                                                    GROUP BY YID.YarnInwardID, YID.YarnInterchangeID 
                                                 ) YIDD ON YIM.YarnInwardID = YIDD.YarnInwardID
-                                                LEFT JOIN GodownLocationMaster GL ON YIDD.GodownLocationID = GL.GodownLocationID
+                                                LEFT JOIN GodownLocationMaster GL ON YIDD.YarnInterchangeID = GL.GodownLocationID
                                             ) AS t1
                                             WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-                                            GROUP BY t1.BillToPartyID, t1.CompanyName, t1.YarnMaterialID, t1.YarnMaterial, 
-                                                     t1.YarnColorID, t1.YarnColor, t1.YarnColorCode, t1.LocationTitle, t1.GodownLocationID
+                                            GROUP BY t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
+                                                t1.YarnColorID, 
+                                                t1.YarnColor, 
+                                                t1.CompanyCode, 
+                                                t1.LocationTitle, 
+                                               t1.YarnInterchangeID
                                         ) AS t1
-                                        LEFT JOIN 
-                                        (
+                                        LEFT JOIN (
                                             SELECT 
-                                                SUM(YOD.NoOfBox) as Stock, YOD.BillToPartyID, YOD.YarnMaterialID, 
-                                                YOD.YarnColorID, YOD.GodownLocationID 
+                                                SUM(YOD.NoOfBox) as Stock, 
+                                                YOD.BillToPartyID, 
+                                                YOD.YarnMaterialID, 
+                                                YOD.YarnColorID, 
+                                                YOD.GodownLocationID 
                                             FROM YarnOutwardDetail YOD
                                             LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                             WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
                                             GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
-                                        ) YOD ON  t1.BillToPartyID = YOD.BillToPartyID  AND 
-                                           t1.YarnMaterialID = YOD.YarnMaterialID
-                                          AND t1.YarnColorID = YOD.YarnColorID
-                                          AND t1.GodownLocationID = YOD.GodownLocationID -- JOIN on Location is necessary
+                                        ) YOD ON t1.YarnMaterialID = YOD.YarnMaterialID
+                                            AND t1.YarnColorID = YOD.YarnColorID
+                                            AND t1.YarnInterchangeID = YOD.GodownLocationID
                                         WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
                 }
-
 
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -23806,19 +23847,15 @@ namespace NikunjTextile
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
                         cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = @"select YOD.*, PM.PartyName as CompanyName, PM.MobileNo as CompanyMobileNo,
-                                            YMM.YarnMaterial, YCM.YarnColor, YCM.YarnColorCode, 
-                                            GLM.GodownID, GLM.GodownTitle, GLM.GodownAddress, GLM.LocationTitle
-                                            from YarnOutwardDetail YOD
-                                            LEFT JOIN PartyMaster PM ON YOD.BillToPartyID = PM.PartyId
-                                            LEFT JOIN YarnMaterialMaster YMM ON YOD.YarnMaterialID = YMM.YarnMaterialID
-                                            LEFT JOIN YarnColorMaster YCM ON YOD.YarnColorID = YCM.YarnColorID
-                                            LEFT JOIN 
-                                            (
-	                                            select GM.GodownID, GM.GodownTitle, GM.GodownAddress, GLM.GodownLocationID, GLM.LocationTitle
-	                                            from GodownMaster GM 
-	                                            LEFT JOIN GodownLocationMaster GLM ON GM.GodownID = GLM.GodownID
-                                            ) GLM ON YOD.GodownLocationID = GLM.GodownLocationID
+                        cmd1.CommandText = @"SELECT YOD.*, PM.PartyName as CompanyName, PM.MobileNo as CompanyMobileNo,YMM.YarnMaterial, YCM.YarnColor, YPD.CompanyCode YarnColorCode , 
+                                            GL.GodownID, GM.GodownTitle, GM.GodownAddress, GL.LocationTitle
+                                                    FROM YarnOutwardDetail YOD
+                                                    LEFT JOIN YarnPODetails YPD ON YOD.YarnColorID = YPD.YarnColorID
+                                                    LEFT JOIN PartyMaster PM ON YOD.BillToPartyID = PM.PartyId
+                                                    LEFT JOIN YarnMaterialMaster YMM  ON YOD.YarnMaterialID = YMM.YarnMaterialID
+                                                    LEFT JOIN YarnColorMaster YCM ON YOD.YarnColorID = YCM.YarnColorID
+                                                    LEFT JOIN GodownLocationMaster GL ON YOD.GodownLocationID = GL.GodownLocationID
+                                                    LEFT JOIN GodownMaster GM ON GL.GodownID = GM.GodownID
                                             where YOD.YarnOutwardID = '" + ilist.YarnOutwardID + @"'
                                             ";
                         SqlDataReader rdr1 = cmd1.ExecuteReader();
@@ -23981,21 +24018,24 @@ namespace NikunjTextile
     JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
     JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
     JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementID
-	WHERE YRM.PartyId = @PartyId AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
+	LEFT JOIN YarnPODetails YPD ON YPD.YarnMaterialID = YRD.YarnMaterialID AND YPD.YarnColorID = YRD.YarnColorID  
+	LEFT JOIN YarnPOMaster YPO ON YPO.YarnPOID = YPD.YarnPOID AND YPO.BilltoPartyID = YRM.PartyId 
+    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementID   AND YOD.YarnMaterialID = YRD.YarnMaterialID 
+    AND YOD.YarnColorID = YRD.YarnColorID 
+	WHERE YRM.PartyId = @PartyId  AND (@YarnColorID IS NULL OR @YarnColorID = 0 OR YRD.YarnColorID = @YarnColorID) AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
     GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
 YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
-    //        string query = @"
-    //   SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
-    //(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
-    //    JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
-    //    JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
-    //    JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
-    //    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-    //    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-    //    WHERE YRM.PartyId = @PartyId
-    //    GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
-    //YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";    
+                    //        string query = @"
+                    //   SELECT 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,    
+                    //(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
+                    //    JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
+                    //    JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
+                    //    JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
+                    //    JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
+                    //    LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
+                    //    WHERE YRM.PartyId = @PartyId
+                    //    GROUP BY 	YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,
+                    //YRD.NoofBoxes,YRD.YarnRequirementDetailID HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";    
 
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
@@ -26395,171 +26435,174 @@ ORDER BY SO.OrderNo DESC";
 
             return rate;
         }
-[WebMethod]
-public object SaveSaleOrder(SaleOrderModel model)
-        {
-            if (model == null)
-                return new { success = false, message = "Invalid data" };
-
-            try
-            {
-                int userAccountId = GetCookieValue();
-                var (financialYearId, companyId) = GetDefaultIds();
-
-                using (SqlConnection con = new SqlConnection(
-                    ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
-                {
-                    con.Open();
-
-                    using (SqlTransaction trans = con.BeginTransaction())
+        [WebMethod]
+        public object SaveSaleOrder(SaleOrderModel model)
                     {
+                        if (model == null)
+                            return new { success = false, message = "Invalid data" };
+
                         try
                         {
-                            int saleOrderId;
+                            int userAccountId = GetCookieValue();
+                            var (financialYearId, companyId) = GetDefaultIds();
 
-                            // ===============================
-                            // ✅ INSERT / UPDATE MASTER
-                            // ===============================
-                            using (SqlCommand cmd = new SqlCommand())
+                            using (SqlConnection con = new SqlConnection(
+                                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
                             {
-                                cmd.Connection = con;
-                                cmd.Transaction = trans;
+                                con.Open();
 
-                                if (model.SaleOrderID == 0)
+                                using (SqlTransaction trans = con.BeginTransaction())
                                 {
-                                    cmd.CommandText = @"
-                            INSERT INTO SaleOrder
-                            (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,
-                             TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                             GSTPercent, GSTAmount, InvoiceAmount, Remark,
-                             UserAccountId, FinancialYearID, CompanyId)
-                            VALUES
-                            (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent,
-                             @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                             @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,
-                             @UserAccountId, @FinancialYearID, @CompanyId);
-
-                            SELECT SCOPE_IDENTITY();";
-
-                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);
-                                    saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
-                                }
-                                else
-                                {
-                                    saleOrderId = model.SaleOrderID;
-
-                                    cmd.CommandText = @"
-                            UPDATE SaleOrder SET
-                                OrderNo=@OrderNo,
-                                OrderDate=@OrderDate,
-                                PartyID=@PartyID,
-                                BrokerID=@BrokerID,
-                                MarkupPercent=@MarkupPercent,
-                                TransportID=@TransportID,
-                                TotalQty=@TotalQty,
-                                TotalAmount=@TotalAmount,
-                                DiscountPercent=@DiscountPercent,
-                                DiscountAmount=@DiscountAmount,
-                                GSTPercent=@GSTPercent,
-                                GSTAmount=@GSTAmount,
-                                InvoiceAmount=@InvoiceAmount,
-                                Remark=@Remark
-                            WHERE SaleOrderID=@SaleOrderID";
-
-                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);
-                                    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
-
-                                    cmd.ExecuteNonQuery();
-
-                                    // 🔥 DELETE OLD DETAILS
-                                    new SqlCommand(@"
-                                DELETE FROM SaleOrderSubDetails 
-                                WHERE DetailID IN (
-                                    SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
-                                )", con, trans)
+                                    try
                                     {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
+                                        int saleOrderId;
 
-                                    new SqlCommand(@"
-                                DELETE FROM SaleOrderDetails WHERE SaleOrderID=@id",
-                                        con, trans)
-                                    {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
-                                }
-                            }
-
-                            // ===============================
-                            // ✅ INSERT DETAILS + SUBDETAILS
-                            // ===============================
-                            if (model.Details?.Any() == true)
-                            {
-                                foreach (var d in model.Details)
-                                {
-                                    int detailId;
-
-                                    using (SqlCommand cmdDetail = new SqlCommand(@"
-                                INSERT INTO SaleOrderDetails
-                                (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
-                                VALUES
-                                (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
-
-                                SELECT SCOPE_IDENTITY();", con, trans))
-                                    {
-                                        cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
-                                        cmdDetail.Parameters.AddWithValue("@DesignID", d.DesignID);
-                                        cmdDetail.Parameters.AddWithValue("@DesignNo", d.DesignNo ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@ItemType", d.ItemType ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@NoOfColours", SafeInt(d.NoOfColours));
-                                        cmdDetail.Parameters.AddWithValue("@Qty", SafeDecimal(d.Qty));
-                                        cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
-                                        cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount)); 
-                                        detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
-                                    }
-
-                                    // 🔹 SUB DETAILS
-                                    if (d.SubDetails?.Any() == true)
-                                    {
-                                        foreach (var s in d.SubDetails)
+                                        // ===============================
+                                        // ✅ INSERT / UPDATE MASTER
+                                        // ===============================
+                                        using (SqlCommand cmd = new SqlCommand())
                                         {
-                                            using (SqlCommand cmdSub = new SqlCommand(@"
-                                        INSERT INTO SaleOrderSubDetails
-                                        (DetailID, ColourID, ColourName, Qty, Unit,Remark)
-                                        VALUES
-                                        (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)",
-                                                con, trans))
+                                            cmd.Connection = con;
+                                            cmd.Transaction = trans;
+
+                                            if (model.SaleOrderID == 0)
                                             {
-                                                cmdSub.Parameters.AddWithValue("@DetailID", detailId);
-                                                cmdSub.Parameters.AddWithValue("@ColourID", SafeInt(s.ColourID));
-                                                cmdSub.Parameters.AddWithValue("@ColourName", s.ColourName ?? "");
-                                                cmdSub.Parameters.AddWithValue("@Qty", SafeDecimal(s.Qty));
-                                                cmdSub.Parameters.AddWithValue("@Unit", s.Unit ?? "");
-                                                cmdSub.Parameters.AddWithValue("@Remark", s.Remark ?? "");
-                                                cmdSub.ExecuteNonQuery();
+                                                cmd.CommandText = @"
+                                        INSERT INTO SaleOrder
+                                        (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,
+                                         TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
+                                         GSTPercent, GSTAmount, InvoiceAmount, Remark,
+                                         UserAccountId, FinancialYearID, CompanyId,DiscountType,AdditionalRemark,AdditionalValue)
+                                        VALUES
+                                        (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent,
+                                         @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
+                                         @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,
+                                         @UserAccountId, @FinancialYearID, @CompanyId,@DiscountType,@AdditionalRemark,@AdditionalValue);
+
+                                        SELECT SCOPE_IDENTITY();";
+
+                                                AddParams(cmd, model, userAccountId, financialYearId, companyId);
+                                                saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
+                                            }
+                                            else
+                                            {
+                                                saleOrderId = model.SaleOrderID;
+
+                                                cmd.CommandText = @"
+                                        UPDATE SaleOrder SET
+                                            OrderNo=@OrderNo,
+                                            OrderDate=@OrderDate,
+                                            PartyID=@PartyID,
+                                            BrokerID=@BrokerID,
+                                            MarkupPercent=@MarkupPercent,
+                                            TransportID=@TransportID,
+                                            TotalQty=@TotalQty,
+                                            TotalAmount=@TotalAmount,
+                                            DiscountPercent=@DiscountPercent,
+                                            DiscountAmount=@DiscountAmount,
+                                            GSTPercent=@GSTPercent,
+                                            GSTAmount=@GSTAmount,
+                                            InvoiceAmount=@InvoiceAmount,
+                                            Remark=@Remark,
+                                            DiscountType=@DiscountType,
+                                            AdditionalRemark=@AdditionalRemark,
+                                            AdditionalValue=@AdditionalValue
+                                            WHERE SaleOrderID=@SaleOrderID";
+
+                                                AddParams(cmd, model, userAccountId, financialYearId, companyId);
+                                                cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+
+                                                cmd.ExecuteNonQuery();
+
+                                                // 🔥 DELETE OLD DETAILS
+                                                new SqlCommand(@"
+                                            DELETE FROM SaleOrderSubDetails 
+                                            WHERE DetailID IN (
+                                                SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
+                                            )", con, trans)
+                                                {
+                                                    Parameters = { new SqlParameter("@id", saleOrderId) }
+                                                }.ExecuteNonQuery();
+
+                                                new SqlCommand(@"
+                                            DELETE FROM SaleOrderDetails WHERE SaleOrderID=@id",
+                                                    con, trans)
+                                                {
+                                                    Parameters = { new SqlParameter("@id", saleOrderId) }
+                                                }.ExecuteNonQuery();
                                             }
                                         }
+
+                                        // ===============================
+                                        // ✅ INSERT DETAILS + SUBDETAILS
+                                        // ===============================
+                                        if (model.Details?.Any() == true)
+                                        {
+                                            foreach (var d in model.Details)
+                                            {
+                                                int detailId;
+
+                                                using (SqlCommand cmdDetail = new SqlCommand(@"
+                                            INSERT INTO SaleOrderDetails
+                                            (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
+                                            VALUES
+                                            (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
+
+                                            SELECT SCOPE_IDENTITY();", con, trans))
+                                                {
+                                                    cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
+                                                    cmdDetail.Parameters.AddWithValue("@DesignID", d.DesignID);
+                                                    cmdDetail.Parameters.AddWithValue("@DesignNo", d.DesignNo ?? "");
+                                                    cmdDetail.Parameters.AddWithValue("@ItemType", d.ItemType ?? "");
+                                                    cmdDetail.Parameters.AddWithValue("@NoOfColours", SafeInt(d.NoOfColours));
+                                                    cmdDetail.Parameters.AddWithValue("@Qty", SafeDecimal(d.Qty));
+                                                    cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
+                                                    cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
+                                                    cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount)); 
+                                                    detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
+                                                }
+
+                                                // 🔹 SUB DETAILS
+                                                if (d.SubDetails?.Any() == true)
+                                                {
+                                                    foreach (var s in d.SubDetails)
+                                                    {
+                                                        using (SqlCommand cmdSub = new SqlCommand(@"
+                                                    INSERT INTO SaleOrderSubDetails
+                                                    (DetailID, ColourID, ColourName, Qty, Unit,Remark)
+                                                    VALUES
+                                                    (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)",
+                                                            con, trans))
+                                                        {
+                                                            cmdSub.Parameters.AddWithValue("@DetailID", detailId);
+                                                            cmdSub.Parameters.AddWithValue("@ColourID", SafeInt(s.ColourID));
+                                                            cmdSub.Parameters.AddWithValue("@ColourName", s.ColourName ?? "");
+                                                            cmdSub.Parameters.AddWithValue("@Qty", SafeDecimal(s.Qty));
+                                                            cmdSub.Parameters.AddWithValue("@Unit", s.Unit ?? "");
+                                                            cmdSub.Parameters.AddWithValue("@Remark", s.Remark ?? "");
+                                                            cmdSub.ExecuteNonQuery();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        trans.Commit();
+                                        return new { success = true, id = saleOrderId };
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        trans.Rollback();
+                                        return new { success = false, message = ex.Message };
                                     }
                                 }
                             }
-
-                            trans.Commit();
-                            return new { success = true, id = saleOrderId };
                         }
                         catch (Exception ex)
                         {
-                            trans.Rollback();
                             return new { success = false, message = ex.Message };
                         }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                return new { success = false, message = ex.Message };
-            }
-        }
         private void AddParams(SqlCommand cmd, SaleOrderModel model, int userId, int fyId, int companyId)
         {
             cmd.Parameters.Add("@OrderNo", SqlDbType.NVarChar).Value = model.OrderNo ?? "";
@@ -26579,6 +26622,9 @@ public object SaveSaleOrder(SaleOrderModel model)
             cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = userId;
             cmd.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = fyId;
             cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
+            cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = model.DiscountType;
+            cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = model.AdditionalRemark;
+            cmd.Parameters.Add("@AdditionalValue", SqlDbType.NVarChar).Value = model.AdditionalValue;            
         }
         [WebMethod]
         public string GetColorMatchingDetails(int designColorMatchingFormID, int colorGroupID)
@@ -26695,29 +26741,29 @@ public object SaveSaleOrder(SaleOrderModel model)
 
                 using (SqlConnection con = new SqlConnection(conStr))
                 using (SqlCommand cmd = new SqlCommand(@"
-SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
-    SO.TotalQty,SO.TotalAmount,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
-    SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
-    SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
-    ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-    ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-    ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
-    ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-    ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	ISNULL(DEFM.SaleRate, 0) AS SaleRate 
-FROM SaleOrder SO
-LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
-LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
-LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
-LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
-LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
-LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
-LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
-LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
-LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
-WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
-", con))
+                    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
+                        SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
+                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
+                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
+                        ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
+                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                        ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+	                    DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
+                        ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
+                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+	                    ISNULL(DEFM.SaleRate, 0) AS SaleRate 
+                    FROM SaleOrder SO
+                    LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
+                    LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
+                    LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
+                    LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
+                    LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
+                    LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
+                    LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
+                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
+                    LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
+                    WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
+                    ", con))
                 {
                     cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID; // ✅ FIXED (no AddWithValue)
 
@@ -26761,7 +26807,10 @@ WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
                                     ColorGroup = rdr["ColorGroup"]?.ToString(),                   
                                     ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
                                     UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),                               
+                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                    AdditionalValue= SafeDecimal(rdr["AdditionalValue"]),
+                                    AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
+                                    DiscountType = (rdr["AdditionalValue"].ToString()),
                                     Details = new List<SaleOrderDetailVM>()
                                 };
                             }

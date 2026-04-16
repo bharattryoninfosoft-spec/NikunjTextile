@@ -26,23 +26,44 @@
 
     .summary-card {
         background: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        font-size: 14px;
     }
 
     .summary-row {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 10px;
         padding: 8px 0;
-        border-bottom: 1px dashed #ddd;
-        font-size: 14px;
+        border-bottom: 1px dashed #eee;
     }
 
         .summary-row:last-child {
             border-bottom: none;
+        }
+
+        .summary-row span:first-child {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .summary-row span:last-child {
+            font-weight: 600;
+            color: #000;
+            min-width: 70px;
+            text-align: right;
+        }
+
+        .summary-row.total {
+            font-size: 16px;
             font-weight: bold;
         }
+
+            .summary-row.total span:last-child {
+                color: #0d6efd;
+            }
 
     #designModal .modal-body {
         max-height: 75vh;
@@ -348,59 +369,56 @@
 
 
                     <div class="col-sm-12 col-xl-4 ms-auto">
-                        <div class="summary-card">
+                        <div class="summary-card p-3">
 
+                            <!-- Qty -->
                             <div class="summary-row">
                                 <span>Qty</span>
                                 <span id="totalQty">0</span>
                             </div>
 
+                            <!-- Amount -->
                             <div class="summary-row">
                                 <span>Amount</span>
                                 <span id="totalAmount">0</span>
                             </div>
 
-                            <div class="summary-row align-items-center">
-                                <span>Add/Discount</span>
+                            <!-- Additional -->
+                            <div class="summary-row">
+                                <span>Additional</span>
+                                <div class="d-flex gap-2">
+                                    <input type="text" id="AdditionalText" class="form-control form-control-sm" placeholder="Remark">
+                                    <input type="number" id="AdditionalValue" class="form-control form-control-sm" placeholder="₹">
+                                </div>
+                                <span id="AdditionalAmount">0</span>
+                            </div>
 
-                                <div class="input-group" style="width:180px;">
-                                    <!-- 🔥 TYPE SELECT (JOINED) -->
-                                    <select id="discountType"
-                                            class="form-select form-select-sm"
-                                            style="max-width:70px;">
+                            <!-- Discount -->
+                            <div class="summary-row">
+                                <span>Discount</span>
+                                <div class="d-flex gap-2">
+                                    <select id="discountType" class="form-select form-control form-control-sm">
                                         <option value="percent">%</option>
                                         <option value="amount">₹</option>
                                     </select>
-                                    <!-- 🔥 VALUE INPUT -->
-                                    <input type="text"
-                                           id="discountValue"
-                                           class="form-control form-control-sm"
-                                           value="0">
-
-
-
+                                    <input type="number" id="discountValue" class="form-control form-control-sm" value="0">
                                 </div>
-
-                                <!-- 🔥 RESULT -->
                                 <span id="discountAmount">0</span>
                             </div>
 
-                            <div class="summary-row align-items-center">
+                            <!-- GST -->
+                            <div class="summary-row">
                                 <span>GST</span>
-
-                                <div class="d-flex align-items-center gap-5">
-
-                                    <!-- GST Dropdown -->
-                                    <select id="GSTSLABId" class="form-select">
-                                    </select>
-                                    <input type="text" id="gstPercent" class="form-control" hidden>
-                                    <!-- GST Amount -->
-                                    <span id="gstAmount">0</span>
-
-                                </div>
+                                <select id="GSTSLABId" class="form-select form-control form-control-sm"></select>
+                                <input type="text" id="gstPercent" class="form-control" hidden>
+                                <span id="gstAmount">0</span>
                             </div>
 
-                            <div class="summary-row fw-bold">
+                            <!-- Divider -->
+                            <hr class="my-2">
+
+                            <!-- Final -->
+                            <div class="summary-row total">
                                 <span>Invoice Amount</span>
                                 <span id="invoiceAmount">0</span>
                             </div>
@@ -1203,7 +1221,7 @@
         }
     });
     $("#GSTSLABId").on("change", function () {
-
+        debugger;
         let selectedText = $("#GSTSLABId option:selected").text();
 
         // 🔥 Extract number from text (e.g. "GST 5%" → 5)
@@ -3319,6 +3337,7 @@
         $("#totalQty").text(totalQty);
         $("#totalAmount").text(totalAmount.toFixed(2));
 
+        // 🔻 Discount
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
 
@@ -3333,12 +3352,23 @@
 
         let afterDiscount = totalAmount - discountAmount;
 
+        // ✅ ADD THIS BLOCK (Additional)
+        let additionalValue = parseFloat($("#AdditionalValue").val()) || 0;
+
+        // 👉 choose + or - (IMPORTANT)
+        let afterAdditional = afterDiscount + additionalValue;
+
+        // show in UI
+        $("#AdditionalAmount").text(additionalValue.toFixed(2));
+
+        // 🔻 GST
         let gstPercent = parseFloat($("#gstPercent").val()) || 0;
-        let gstAmount = (afterDiscount * gstPercent) / 100;
+        let gstAmount = (afterAdditional * gstPercent) / 100;
 
         $("#gstAmount").text(gstAmount.toFixed(2));
 
-        let finalAmount = afterDiscount + gstAmount;
+        // 🔻 Final
+        let finalAmount = afterAdditional + gstAmount;
 
         $("#invoiceAmount").text(finalAmount.toFixed(2));
     }
@@ -3605,14 +3635,16 @@
         }
 
         $("#discountAmount").text(discountAmount.toFixed(2));
-
+        let additionalValue = parseFloat($("#AdditionalValue").val()) || 0;
         let afterDiscount = totalAmount - discountAmount;
+        let afterAdditional = afterDiscount + additionalValue;
         let gstPercent = parseFloat($("#gstPercent").val()) || 0;
-        let gstAmount = (afterDiscount * gstPercent) / 100;
+        let gstAmount = (afterAdditional * gstPercent) / 100;
 
         $("#gstAmount").text(gstAmount.toFixed(2));
 
-        let finalAmount = afterDiscount + gstAmount;
+        // Final Amount
+        let finalAmount = afterAdditional + gstAmount;
 
         $("#invoiceAmount").text(finalAmount.toFixed(2));
 
@@ -3627,6 +3659,9 @@
             TransportID: ($("#ddlTransport option:selected").val() || ""),
             TotalQty: totalQty,
             TotalAmount: totalAmount,
+            DiscountType: ($("#discountType").val()||""),
+            AdditionalRemark: ($("#AdditionalText").val() || ""),
+            AdditionalValue: parseFloat($("#AdditionalValue").val() || 0),
             DiscountPercent: value,
             DiscountAmount: discountAmount,
             GSTPercent: gstPercent,
@@ -3708,7 +3743,9 @@
 
         updateSummary();
     });
-  
+    $("#AdditionalValue").on("input", function () {
+        updateSummary();
+    });
 
 </script>
 

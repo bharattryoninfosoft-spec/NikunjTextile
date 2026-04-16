@@ -57,7 +57,7 @@ namespace NikunjTextile.Class
         public string YarnColorCode { get; set; }
         public string BoxNo { get; set; }
         public string BarcodeNo { get; set; }
-        public decimal NetWeight { get; set; }
+        public decimal? NetWeight { get; set; }
         public Int32 YarnInwardDetailID { get; set; }
         public Int32 TotalBarcode { get; set; }
 

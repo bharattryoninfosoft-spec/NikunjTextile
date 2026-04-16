@@ -26,6 +26,9 @@ namespace NikunjTextile.Class
         public int UserAccountId { get; set; }
         public int FinancialYearID { get; set; }
         public int CompanyId { get; set; }
+        public string DiscountType { get; set; }
+        public  string AdditionalRemark { get; set; }
+        public string AdditionalValue { get; set; }
 
         public List<SaleOrderDetailModel> Details { get; set; }
     }
@@ -93,6 +96,9 @@ namespace NikunjTextile.Class
         public int UnitId { get; set; }
         public int TypeID { get; set; }
         public string DetailsRemark { get; set; }
+        public string DiscountType  { get; set; }
+        public string AdditionalRemark { get; set; }
+        public decimal AdditionalValue { get; set; }
         public List<SaleOrderDetailVM> Details { get; set; } = new List<SaleOrderDetailVM>();
     }
 

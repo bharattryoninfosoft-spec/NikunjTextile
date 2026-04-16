@@ -953,6 +953,7 @@
             formData.append('YarnMaterialID', YarnMaterialID);
             formData.append('YarnColorID', YarnColorID);
             formData.append('SiftGodownLocationId', siftSiftGodownLocationId.slice(0, -1).replace(/\|/g, ','));
+            let tbody = $("#pendingYarnTable tbody");
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/getYarnOutwardMasterNew',
@@ -960,7 +961,7 @@
                 dataType: 'json',
                 contentType: false,
                 processData: false,
-
+              
                 success: function (response) {
 
                     let data = response.listYarnOutwardMaster;
