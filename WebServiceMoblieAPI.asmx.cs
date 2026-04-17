@@ -1,16 +1,25 @@
-﻿using NikunjTextile.Class;
+﻿using iText.Forms.Xfdf;
+using iText.Kernel.Geom;
+using iText.Layout.Element;
+using NikunjTextile.Class;
 using NikunjTextile.Class.API;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Tls;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using System.Web.Http;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
+using System.Web.UI;
 
 namespace NikunjTextile
 {
@@ -20,6 +29,7 @@ namespace NikunjTextile
     public class WebServiceMoblieAPI : WebService
     {
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UserLoginAPI(string Username, string Password)
         {
             Context.Response.Clear();
@@ -103,6 +113,7 @@ namespace NikunjTextile
             }
         }
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void GetDisplayYarnoutwardScanMasterAPI(string Status, int UserId, string SearchRequirementNo = "", int pageNumber = 1, int pageSize = 30)
         {
             Context.Response.Clear();
@@ -215,6 +226,7 @@ namespace NikunjTextile
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void GetYarnOutwardScanAPI(int YarnOutwardID = 0)
         {
             try
@@ -361,6 +373,7 @@ namespace NikunjTextile
             }
         }
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void GetBoxWeightAPI(string BoxNo, int YarnMaterial, int YarnColour, int GodownLocationID, int YarnCompany)
         {
             Context.Response.Clear();
@@ -480,6 +493,7 @@ END
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void SaveYarnoutwardScanMasterAPI(YarnOutwardScanMasterRequestAPI model)
         {
             Context.Response.Clear();
@@ -599,6 +613,1124 @@ END
             Context.Response.Flush();
             Context.Response.SuppressContent = true;
             HttpContext.Current.ApplicationInstance.CompleteRequest();
-        }        
+        }
+        #region Sale Order Entry API
+        [WebMethod]
+        public void GetSaleOrderListAPI(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(conStr))
+                {
+                    con.Open();
+
+                    int offset = (page - 1) * pageSize;
+
+                    string query = @"
+            SELECT 
+                SO.SaleOrderID,
+                SO.OrderNo,
+                CONVERT(VARCHAR(10), SO.OrderDate, 120) AS OrderDate,
+                PM.PartyName,
+                BM.BrokerName,
+                TM.TransportName,
+                SO.TotalQty,
+                SO.InvoiceAmount
+            FROM SaleOrder SO
+            LEFT JOIN PartyMaster PM  ON SO.PartyId = PM.PartyId
+            LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
+            LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
+            ORDER BY SO.OrderNo DESC
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                    SqlCommand cmd = new SqlCommand(query, con);
+                    cmd.Parameters.AddWithValue("@Offset", offset);
+                    cmd.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    List<SaleOrderVM> list = new List<SaleOrderVM>();
+
+                    while (rdr.Read())
+                    {
+                        list.Add(new SaleOrderVM
+                        {
+                            SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
+                            OrderNo = rdr["OrderNo"].ToString(),
+                            OrderDate = Convert.ToDateTime(rdr["OrderDate"]),
+                            PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
+                            BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
+                            TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
+                            TotalQty = Convert.ToDecimal(rdr["TotalQty"]),
+                            InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"]),
+                        });
+                    }
+
+                    rdr.Close();
+
+                    int totalRecords = Convert.ToInt32(
+                        new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con).ExecuteScalar()
+                    );
+
+                    var response = new
+                    {
+                        Code = 200,
+                        success = true,
+                        Data = list,
+                        totalRecords = totalRecords,
+                        currentPage = page,
+                        pageSize = pageSize
+                    };
+
+                    JavaScriptSerializer js = new JavaScriptSerializer();
+                    js.MaxJsonLength = Int32.MaxValue;
+                    Context.Response.Write(js.Serialize(response));
+                    Context.Response.Flush();
+                    Context.Response.SuppressContent = true;
+                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Code = 400,
+                    success = false,
+                    message = ex.Message
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+                Context.Response.Write(js.Serialize(errorResponse));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+        }
+        [WebMethod]
+        public void GetDesignEntryDataAPI()
+        {
+            try { 
+            List<DesignModel> designList = new List<DesignModel>();
+            List<TypeModel> typeList = new List<TypeModel>();
+            List<UnitModel> unitList = new List<UnitModel>();
+            List<ColorGroupModel> colorList = new List<ColorGroupModel>();
+
+            HashSet<int> typeSet = new HashSet<int>();
+            HashSet<int> unitSet = new HashSet<int>();
+            HashSet<int> colorSet = new HashSet<int>();
+
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandType = CommandType.Text;
+
+                cmd.CommandText = @"
+                            SELECT 
+                                DEFM.DesignEntryFormID,
+                                DCMFM.DesignColorMatchingFormID,
+                                DEFM.DesignNo,
+                                DEFM.DesignerCode,
+                                DEFM.TypeID,
+                                TM.Type,
+                                ISNULL(UM.UnitCode, '') AS UnitCode,
+                                ISNULL(UM.UnitId, 0) AS UnitId,
+                                ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                                ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+                                ISNULL(DEFM.SaleRate, 0) AS SaleRate  
+                            FROM DesignEntryFormMaster DEFM
+                            INNER JOIN DesignColorMatchingFormMaster DCMFM 
+                                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+                            LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID
+                            LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
+                            LEFT JOIN DesignColorMatchingDetails DCMD 
+                                ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+                            LEFT JOIN ColorGroupMaster CGM 
+                                ON CGM.ColorGroupID = DCMD.ColorGroupID
+                            ORDER BY DEFM.DesignEntryFormID DESC";
+
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    int designId = Convert.ToInt32(rdr["DesignEntryFormID"]);
+
+                    // ✅ FIND EXISTING DESIGN
+                    var design = designList.FirstOrDefault(d => d.DesignEntryFormID == designId);
+
+                    if (design == null)
+                    {
+                        design = new DesignModel
+                        {
+                            DesignEntryFormID = designId,
+                            DesignColorMatchingFormID = rdr["DesignColorMatchingFormID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["DesignColorMatchingFormID"])
+                                : 0,
+
+                            DesignNo = rdr["DesignNo"].ToString().ToUpper(),
+                            DesignerCode = rdr["DesignerCode"].ToString().ToUpper(),
+
+                            TypeID = rdr["TypeID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["TypeID"])
+                                : 0,
+
+                            Type = rdr["Type"].ToString().ToUpper(),
+
+                            UnitId = rdr["UnitId"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["UnitId"])
+                                : 0,
+
+                            UnitCode = rdr["UnitCode"].ToString().ToUpper(),
+                            SaleRate = rdr["SaleRate"] != DBNull.Value
+                            ? Convert.ToDecimal(rdr["SaleRate"])
+                            : 0,
+
+                            ColorGroups = new List<ColorGroupModel>() // ✅ IMPORTANT
+                        };
+
+                        designList.Add(design);
+                    }
+
+                    // ✅ ADD MULTIPLE COLOR GROUPS
+                    if (rdr["ColorGroupID"] != DBNull.Value)
+                    {
+                        int colorId = Convert.ToInt32(rdr["ColorGroupID"]);
+
+                        if (!design.ColorGroups.Any(c => c.ColorGroupID == colorId))
+                        {
+                            design.ColorGroups.Add(new ColorGroupModel
+                            {
+                                ColorGroupID = colorId,
+                                ColorGroup = rdr["ColorGroup"].ToString()
+                            });
+                        }
+
+                        // ✅ GLOBAL COLOR LIST (for dropdown etc.)
+                        if (!colorSet.Contains(colorId))
+                        {
+                            colorSet.Add(colorId);
+                            colorList.Add(new ColorGroupModel
+                            {
+                                ColorGroupID = colorId,
+                                ColorGroup = rdr["ColorGroup"].ToString()
+                            });
+                        }
+                    }
+
+                    // ✅ TYPE LIST
+                    int typeId = rdr["TypeID"] != DBNull.Value ? Convert.ToInt32(rdr["TypeID"]) : 0;
+                    if (!typeSet.Contains(typeId))
+                    {
+                        typeSet.Add(typeId);
+                        typeList.Add(new TypeModel
+                        {
+                            TypeID = typeId,
+                            Type = rdr["Type"].ToString().ToUpper()
+                        });
+                    }
+
+                    // ✅ UNIT LIST
+                    int unitId = rdr["UnitId"] != DBNull.Value ? Convert.ToInt32(rdr["UnitId"]) : 0;
+                    if (!unitSet.Contains(unitId))
+                    {
+                        unitSet.Add(unitId);
+                        unitList.Add(new UnitModel
+                        {
+                            UnitId = unitId,
+                            UnitCode = rdr["UnitCode"].ToString().ToUpper()
+                        });
+                    }
+                }
+
+                rdr.Close();
+                con.Close();
+            }
+
+                // ✅ FINAL RESPONSE
+                DesignEntryDataResponse DataResponse = new DesignEntryDataResponse
+                {        
+                Designs = designList,
+                Types = typeList,
+                Units = unitList,
+                ColorGroups = colorList
+            };
+
+            var response = new
+            {
+                Code = 200,
+                success = true,
+                Data = DataResponse,           
+            };
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue; 
+            Context.Response.Write(js.Serialize(response));
+            Context.Response.Flush();
+            Context.Response.SuppressContent = true;
+            HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Code = 400,
+                    success = false,
+                    message = ex.Message
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+                Context.Response.Write(js.Serialize(errorResponse));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+        }
+        [WebMethod]
+        public void GetDefaultDataLoadAPI()
+        {
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                List<object> partyList = new List<object>();
+                List<object> brokerList = new List<object>();
+                List<object> transportList = new List<object>();
+
+                int nextOrderNo = 0;
+                DateTime serverDate = DateTime.Now;
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    // ✅ Party List
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT PartyId,PartyName,GSTIN,BillingAddress FROM PartyMaster ORDER BY PartyId DESC", con))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            partyList.Add(new
+                            {
+                                PartyId = dr["PartyId"],
+                                PartyName = dr["PartyName"].ToString(),
+                                GSTIN = dr["GSTIN"].ToString(),
+                                BillingAddress = dr["BillingAddress"].ToString()
+                            });
+                        }
+                        dr.Close();
+                    }
+
+                    // ✅ Broker List
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 BrokerId,BrokerCode,BrokerName,MobileNo FROM BrokerMaster ORDER BY BrokerId DESC", con))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            brokerList.Add(new
+                            {
+                                BrokerId = dr["BrokerId"],
+                                BrokerCode = dr["BrokerCode"].ToString(),
+                                BrokerName = dr["BrokerName"].ToString(),
+                                MobileNo = dr["MobileNo"].ToString()
+                            });
+                        }
+                        dr.Close();
+                    }
+
+                    // ✅ Transport List
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 TransportCode,TransportName,Address,CityName FROM TransportMaster ORDER BY TransportCode DESC", con))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            transportList.Add(new
+                            {
+                                TransportCode = dr["TransportCode"],
+                                TransportName = dr["TransportName"].ToString(),
+                                Address = dr["Address"].ToString(),
+                                CityName = dr["CityName"].ToString()
+                            });
+                        }
+                        dr.Close();
+                    }
+
+                    // ✅ Server Date
+                    using (SqlCommand cmd = new SqlCommand("SELECT GETDATE()", con))
+                    {
+                        serverDate = (DateTime)cmd.ExecuteScalar();
+                    }
+
+                    // ✅ Next Order No
+                    using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(OrderNo),0) + 1 FROM SaleOrder", con))
+                    {
+                        nextOrderNo = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+
+                var response = new
+                {
+                    Code = 200,
+                    success = true,
+                    Data = new
+                    {
+                        PartyList = partyList,
+                        BrokerList = brokerList,
+                        TransportList = transportList,
+                        ServerDate = serverDate,
+                        NextOrderNo = nextOrderNo
+                    }
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Code = 400,
+                    success = false,
+                    message = ex.Message
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(errorResponse));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+        }
+        [WebMethod]
+        public void GetDefaultDataSearchAPI(string partySearch = "", string brokerSearch = "", string transportSearch = "")
+        {
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                List<object> partyList = new List<object>();
+                List<object> brokerList = new List<object>();
+                List<object> transportList = new List<object>();
+
+                int nextOrderNo = 0;
+                DateTime serverDate;
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    if (!string.IsNullOrWhiteSpace(partySearch))
+                    {
+                        // ✅ Party Filter
+                        using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 20 PartyId, PartyName, GSTIN, BillingAddress FROM PartyMaster 
+                                                            WHERE (@partySearch = '' OR PartyName LIKE '%' + @partySearch + '%')
+                                                            ORDER BY PartyName ASC", con))
+                        {
+                            cmd.Parameters.AddWithValue("@partySearch", partySearch ?? "");
+
+                            SqlDataReader dr = cmd.ExecuteReader();
+                            while (dr.Read())
+                            {
+                                partyList.Add(new
+                                {
+                                    PartyId = dr["PartyId"],
+                                    PartyName = dr["PartyName"].ToString(),
+                                    GSTIN = dr["GSTIN"].ToString(),
+                                    BillingAddress = dr["BillingAddress"].ToString()
+                                });
+                            }
+                            dr.Close();
+                        }
+                    }
+                    if (!string.IsNullOrWhiteSpace(brokerSearch))
+                    {
+
+                        // ✅ Broker Filter
+                        using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 BrokerId, BrokerCode, BrokerName, MobileNo FROM BrokerMaster 
+                                                WHERE (@brokerSearch = '' OR BrokerName LIKE '%' + @brokerSearch + '%' ) ORDER BY BrokerName ASC", con))
+                        {
+                            cmd.Parameters.AddWithValue("@brokerSearch", brokerSearch ?? "");
+
+                            SqlDataReader dr = cmd.ExecuteReader();
+                            while (dr.Read())
+                            {
+                                brokerList.Add(new
+                                {
+                                    BrokerId = dr["BrokerId"],
+                                    BrokerCode = dr["BrokerCode"].ToString(),
+                                    BrokerName = dr["BrokerName"].ToString(),
+                                    MobileNo = dr["MobileNo"].ToString()
+                                });
+                            }
+                            dr.Close();
+                        }
+                    }
+                    if (!string.IsNullOrWhiteSpace(transportSearch))
+                    {
+                        // ✅ Transport Filter
+                        using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 TransportCode, TransportName, Address, CityName FROM TransportMaster 
+                                                            WHERE (@transportSearch = '' OR TransportName LIKE '%' + @transportSearch + '%')
+                                                    ORDER BY TransportName ASC ", con))
+                        {
+                            cmd.Parameters.AddWithValue("@transportSearch", transportSearch ?? "");
+
+                            SqlDataReader dr = cmd.ExecuteReader();
+                            while (dr.Read())
+                            {
+                                transportList.Add(new
+                                {
+                                    TransportCode = dr["TransportCode"],
+                                    TransportName = dr["TransportName"].ToString(),
+                                    Address = dr["Address"].ToString(),
+                                    CityName = dr["CityName"].ToString()
+                                });
+                            }
+                            dr.Close();
+                        }
+                    }
+
+                    // ✅ Server Date
+                    using (SqlCommand cmd = new SqlCommand("SELECT GETDATE()", con))
+                    {
+                        serverDate = (DateTime)cmd.ExecuteScalar();
+                    }
+
+                    // ✅ Next Order No
+                    using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(OrderNo),0) + 1 FROM SaleOrder", con))
+                    {
+                        nextOrderNo = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+
+                var response = new
+                {
+                    Code = 200,
+                    success = true,
+                    Data = new
+                    {
+                        PartyList = partyList,
+                        BrokerList = brokerList,
+                        TransportList = transportList,
+                        ServerDate = serverDate,
+                        NextOrderNo = nextOrderNo
+                    }
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Code = 400,
+                    success = false,
+                    message = ex.Message
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(errorResponse));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
+        }
+        [WebMethod]        
+        public ApiResponse<int> SaveSaleOrderAPI(SaleOrderModel model)
+        {
+            if (model == null)
+            {
+                return new ApiResponse<int>
+                {
+                    success = false,
+                    Message = "Invalid data"
+                };
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(
+                    ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                {
+                    con.Open();
+
+                    using (SqlTransaction trans = con.BeginTransaction())
+                    {
+                        try
+                        {
+                            int saleOrderId;
+                            using (SqlCommand cmd = new SqlCommand())
+                            {
+                                cmd.Connection = con;
+                                cmd.Transaction = trans;
+
+                                if (model.SaleOrderID == 0)
+                                {
+                                    cmd.CommandText = @"
+                                INSERT INTO SaleOrder
+                                (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,
+                                 TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
+                                 GSTPercent, GSTAmount, InvoiceAmount, Remark,
+                                 UserAccountId, FinancialYearID, CompanyId,
+                                 DiscountType, AdditionalRemark, AdditionalValue)
+                                VALUES
+                                (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent,
+                                 @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
+                                 @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,
+                                 @UserAccountId, @FinancialYearID, @CompanyId,
+                                 @DiscountType, @AdditionalRemark, @AdditionalValue);
+
+                                SELECT SCOPE_IDENTITY();";
+
+                                    AddParams(cmd, model);
+                                    saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
+                                }
+                                else
+                                {
+                                    saleOrderId = model.SaleOrderID;
+
+                                    cmd.CommandText = @"
+                                UPDATE SaleOrder SET
+                                    OrderNo=@OrderNo,
+                                    OrderDate=@OrderDate,
+                                    PartyID=@PartyID,
+                                    BrokerID=@BrokerID,
+                                    MarkupPercent=@MarkupPercent,
+                                    TransportID=@TransportID,
+                                    TotalQty=@TotalQty,
+                                    TotalAmount=@TotalAmount,
+                                    DiscountPercent=@DiscountPercent,
+                                    DiscountAmount=@DiscountAmount,
+                                    GSTPercent=@GSTPercent,
+                                    GSTAmount=@GSTAmount,
+                                    InvoiceAmount=@InvoiceAmount,
+                                    Remark=@Remark,
+                                    DiscountType=@DiscountType,
+                                    AdditionalRemark=@AdditionalRemark,
+                                    AdditionalValue=@AdditionalValue
+                                WHERE SaleOrderID=@SaleOrderID";
+
+                                    AddParams(cmd, model);
+                                    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+
+                                    cmd.ExecuteNonQuery();
+
+                                    // 🔥 DELETE OLD
+                                    new SqlCommand(@"
+                                DELETE FROM SaleOrderSubDetails 
+                                WHERE DetailID IN (
+                                    SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
+                                )", con, trans)
+                                    {
+                                        Parameters = { new SqlParameter("@id", saleOrderId) }
+                                    }.ExecuteNonQuery();
+
+                                    new SqlCommand(@"
+                                DELETE FROM SaleOrderDetails 
+                                WHERE SaleOrderID=@id", con, trans)
+                                    {
+                                        Parameters = { new SqlParameter("@id", saleOrderId) }
+                                    }.ExecuteNonQuery();
+                                }
+                            }
+                            if (model.Details?.Any() == true)
+                            {
+                                foreach (var d in model.Details)
+                                {
+                                    int detailId;
+
+                                    using (SqlCommand cmdDetail = new SqlCommand(@"
+                                INSERT INTO SaleOrderDetails
+                                (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
+                                VALUES
+                                (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
+
+                                SELECT SCOPE_IDENTITY();", con, trans))
+                                    {
+                                        cmdDetail.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                        cmdDetail.Parameters.Add("@DesignID", SqlDbType.VarChar).Value = d.DesignID ?? "";
+                                        cmdDetail.Parameters.Add("@DesignNo", SqlDbType.VarChar).Value = d.DesignNo ?? "";
+                                        cmdDetail.Parameters.Add("@ItemType", SqlDbType.Int).Value = (d.ItemType)?? "";
+                                        cmdDetail.Parameters.Add("@NoOfColours", SqlDbType.Int).Value = (d.NoOfColours);
+                                        cmdDetail.Parameters.Add("@Qty", SqlDbType.Decimal).Value = (d.Qty);
+                                        cmdDetail.Parameters.Add("@Unit", SqlDbType.VarChar).Value = d.Unit ?? "";
+                                        cmdDetail.Parameters.Add("@Rate", SqlDbType.Decimal).Value = (d.Rate);
+                                        cmdDetail.Parameters.Add("@Amount", SqlDbType.Decimal).Value = (d.Amount);
+
+                                        detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
+                                    }
+
+                                    // 🔹 SUB DETAILS
+                                    if (d.SubDetails?.Any() == true)
+                                    {
+                                        foreach (var s in d.SubDetails)
+                                        {
+                                            using (SqlCommand cmdSub = new SqlCommand(@"
+                                        INSERT INTO SaleOrderSubDetails
+                                        (DetailID, ColourID, ColourName, Qty, Unit, Remark)
+                                        VALUES
+                                        (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark)", con, trans))
+                                            {
+                                                cmdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                                cmdSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = (s.ColourID);
+                                                cmdSub.Parameters.Add("@ColourName", SqlDbType.VarChar).Value = s.ColourName ?? "";
+                                                cmdSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = (s.Qty);
+                                                cmdSub.Parameters.Add("@Unit", SqlDbType.VarChar).Value = s.Unit ?? "";
+                                                cmdSub.Parameters.Add("@Remark", SqlDbType.VarChar).Value = s.Remark ?? "";
+
+                                                cmdSub.ExecuteNonQuery();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            trans.Commit();
+                                var response = new ApiResponse<int>
+                                {
+                                    Code = 200,
+                                    success = true,
+                                    Data = saleOrderId
+                                };
+                                JavaScriptSerializer js = new JavaScriptSerializer();
+                                js.MaxJsonLength = Int32.MaxValue;
+                                Context.Response.Write(js.Serialize(response));
+                                Context.Response.Flush();
+                                Context.Response.SuppressContent = true;
+                                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                                return new ApiResponse<int>();
+                        
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            var response = new ApiResponse<SaleOrderVM>
+                            {
+                                Code = 400,
+                                success = false,
+                                Data = null,
+                                Message = ex.Message
+                            };
+                            JavaScriptSerializer js = new JavaScriptSerializer();
+                            js.MaxJsonLength = Int32.MaxValue;
+                            Context.Response.Write(js.Serialize(response));
+                            Context.Response.Flush();
+                            Context.Response.SuppressContent = true;
+                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            return new ApiResponse<int>();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<int>
+                {
+                    success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        private void AddParams(SqlCommand cmd, SaleOrderModel model)
+        {
+            cmd.Parameters.Add("@OrderNo", SqlDbType.NVarChar).Value = model.OrderNo ?? "";
+            cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = model.OrderDate;
+            cmd.Parameters.Add("@PartyID", SqlDbType.Int).Value = (model.PartyID);
+            cmd.Parameters.Add("@BrokerID", SqlDbType.NVarChar).Value = (model.BrokerID);
+            cmd.Parameters.Add("@TransportID", SqlDbType.NVarChar).Value = (model.TransportID);
+            cmd.Parameters.Add("@MarkupPercent", SqlDbType.Decimal).Value = (model.MarkupPercent);
+            cmd.Parameters.Add("@TotalQty", SqlDbType.Decimal).Value = (model.TotalQty);
+            cmd.Parameters.Add("@TotalAmount", SqlDbType.Decimal).Value = (model.TotalAmount);
+            cmd.Parameters.Add("@DiscountPercent", SqlDbType.Decimal).Value = (model.DiscountPercent);
+            cmd.Parameters.Add("@DiscountAmount", SqlDbType.Decimal).Value = (model.DiscountAmount);
+            cmd.Parameters.Add("@GSTPercent", SqlDbType.Decimal).Value = (model.GSTPercent);
+            cmd.Parameters.Add("@GSTAmount", SqlDbType.Decimal).Value = (model.GSTAmount);
+            cmd.Parameters.Add("@InvoiceAmount", SqlDbType.Decimal).Value = (model.InvoiceAmount);
+            cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = model.Remark ?? "";
+            cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = model.UserAccountId;
+            cmd.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = model.FinancialYearID;
+            cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = model.CompanyId;
+            cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = model.DiscountType;
+            cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = model.AdditionalRemark;
+            cmd.Parameters.Add("@AdditionalValue", SqlDbType.NVarChar).Value = model.AdditionalValue;
+        }
+        [WebMethod]
+        public ApiResponse<SaleOrderVM> GetSaleOrderByIdAPI(int SaleOrderID)
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            try
+            {
+
+                string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(conStr))
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
+                        SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
+                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
+                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
+                        ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
+                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                        ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+	                    DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
+                        ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
+                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+	                    ISNULL(DEFM.SaleRate, 0) AS SaleRate 
+                    FROM SaleOrder SO
+                    LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
+                    LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
+                    LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
+                    LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
+                    LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
+                    LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
+                    LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
+                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
+                    LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
+                    WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
+                    ", con))
+                {
+                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID; // ✅ FIXED (no AddWithValue)
+
+                    con.Open();
+
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        SaleOrderVM order = null;
+
+                        while (rdr.Read())
+                        {
+                            // ✅ MASTER
+                            if (order == null)
+                            {
+                                order = new SaleOrderVM
+                                {
+                                    SaleOrderID = SafeInt(rdr["SaleOrderID"]),
+                                    OrderNo = rdr["OrderNo"]?.ToString(),
+                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]),
+                                    PartyID = SafeInt(rdr["PartyId"]),
+                                    PartyName = rdr["PartyName"]?.ToString(),
+                                    BrokerID = (rdr["BrokerID"].ToString()),
+                                    TransportID = rdr["TransportID"]?.ToString(),
+                                    MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
+                                    TotalQty = SafeDecimal(rdr["TotalQty"]),
+                                    TotalAmount = SafeDecimal(rdr["TotalAmount"]),
+                                    DiscountPercent = SafeDecimal(rdr["DiscountPercent"]),
+                                    DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),
+                                    GSTPercent = SafeDecimal(rdr["GSTPercent"]),
+                                    GSTAmount = SafeDecimal(rdr["GSTAmount"]),
+                                    InvoiceAmount = SafeDecimal(rdr["InvoiceAmount"]),
+                                    Remark = rdr["Remark"]?.ToString(),
+                                    ColourID = SafeInt(rdr["ColourID"]),
+                                    ColourName = rdr["ColourName"]?.ToString(),
+                                    Qty = SafeDecimal(rdr["SubQty"]),
+                                    Unit = rdr["SubUnit"]?.ToString(),
+                                    SaleRate = SafeDecimal(rdr["SaleRate"]),
+                                    DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
+                                    DesignName = rdr["DesignNo"]?.ToString(),
+                                    ColorGroupId = SafeInt(rdr["ColorGroupID"]),
+                                    ColorGroup = rdr["ColorGroup"]?.ToString(),
+                                    ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
+                                    UnitId = SafeInt(rdr["UnitId"]?.ToString()),
+                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                    AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
+                                    AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
+                                    DiscountType = (rdr["AdditionalValue"].ToString()),
+                                    Details = new List<SaleOrderDetailVM>()
+                                };
+                            }
+
+                            // ✅ DETAIL
+                            if (rdr["DetailID"] != DBNull.Value)
+                            {
+                                int detailId = SafeInt(rdr["DetailID"]);
+
+                                var detail = order.Details
+                                    .FirstOrDefault(x => x.DetailID == detailId);
+
+                                if (detail == null)
+                                {
+                                    detail = new SaleOrderDetailVM
+                                    {
+                                        DetailID = detailId,
+                                        colorId = SafeInt(rdr["ColourID"]?.ToString()),
+                                        ColorGroupId = SafeInt(rdr["ColorGroupId"]),
+                                        ColorGroup = (rdr["ColorGroup"].ToString()),
+                                        colorName = (rdr["ColourName"].ToString()),
+                                        ItemType = SafeInt(rdr["ItemType"]),
+                                        Type = rdr["Type"]?.ToString(),
+                                        NoOfColours = SafeInt(rdr["NoOfColours"]),
+                                        Qty = SafeDecimal(rdr["DetailQty"]),
+                                        Unit = rdr["Unit"]?.ToString(),
+                                        TotalQty = SafeDecimal(rdr["TotalQty"]),
+                                        Rate = SafeDecimal(rdr["Rate"]),
+                                        Amount = SafeDecimal(rdr["Amount"]),
+                                        SaleRate = SafeDecimal(rdr["SaleRate"]),
+                                        DesignId = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
+                                        DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
+                                        DesignName = rdr["DesignNo"]?.ToString(),
+                                        ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
+                                        UnitId = SafeInt(rdr["UnitId"]?.ToString()),
+                                        TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                        MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
+                                        ColourID = SafeInt(rdr["ColourID"]),
+                                        ColourName = rdr["ColourName"]?.ToString(),
+                                        SubDetails = new List<SaleOrderSubVM>()
+                                    };
+
+                                    order.Details.Add(detail);
+                                }
+
+                                // ✅ SUB DETAIL
+                                if (rdr["SubDetailID"] != DBNull.Value)
+                                {
+                                    int subId = SafeInt(rdr["SubDetailID"]);
+
+                                    if (!detail.SubDetails.Any(x => x.SubDetailID == subId)) // ✅ prevent duplicate
+                                    {
+                                        detail.SubDetails.Add(new SaleOrderSubVM
+                                        {
+                                            SubDetailID = subId,
+                                            ColourID = SafeInt(rdr["ColourID"]),
+                                            ColourName = rdr["ColourName"]?.ToString(),
+                                            Qty = SafeDecimal(rdr["SubQty"]),
+                                            Unit = rdr["SubUnit"]?.ToString(),
+                                            SaleRate = SafeDecimal(rdr["SaleRate"]),
+                                            DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
+                                            DesignName = rdr["DesignNo"]?.ToString(),
+                                            ColorGroupId = SafeInt(rdr["ColorGroupID"]),
+                                            ColorGroup = rdr["ColorGroup"]?.ToString(),
+                                            Remark = rdr["SubRemark"]?.ToString(),
+                                            ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
+                                            UnitId = SafeInt(rdr["UnitId"]?.ToString()),
+                                            TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                            MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        if(order != null)
+                        {
+                            var response = new ApiResponse<SaleOrderVM>
+                            {
+                                Code = 200,
+                                success = true,
+                                Message = "",
+                                Data = order ?? new SaleOrderVM { Details = new List<SaleOrderDetailVM>() }
+                            };
+                            Context.Response.Write(js.Serialize(response));
+                            Context.Response.Flush();
+                            Context.Response.SuppressContent = true;
+                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            return new ApiResponse<SaleOrderVM>();
+                        }
+                        else
+                        {
+                            var response = new ApiResponse<SaleOrderVM>
+                            {
+                                Code = 400,
+                                success = false,
+                                Data=null,
+                                Message="No Data Found"
+                            };
+                            Context.Response.Write(js.Serialize(response));
+                            Context.Response.Flush();
+                            Context.Response.SuppressContent = true;
+                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            return new ApiResponse<SaleOrderVM>();                         
+                        }
+                     
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<SaleOrderVM>
+                {
+                    success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        public decimal SafeDecimal(object val)
+        {
+            decimal result;
+            return val == DBNull.Value || !decimal.TryParse(val.ToString(), out result)
+                ? 0
+                : result;
+        }
+        public int SafeInt(object val)
+        {
+            int result;
+            return val == DBNull.Value || !int.TryParse(val.ToString(), out result)
+                ? 0
+                : result;
+        }
+        [WebMethod]       
+        public ApiResponse<object> SaveTransport(TransportMaster obj)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    // ✅ Fix TransportId null issue
+                    int transportId = obj.TransportId <= 0 ? 0 : obj.TransportId;
+
+                    // ✅ Duplicate mobile check
+                    using (SqlCommand checkCmd = new SqlCommand(@"
+                SELECT COUNT(*) 
+                FROM TransportMaster 
+                WHERE MobileNo = @MobileNo AND TransportId <> @TransportId", con))
+                    {
+                        checkCmd.Parameters.Add("@MobileNo", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                        checkCmd.Parameters.Add("@TransportId", SqlDbType.Int).Value = transportId;
+
+                        if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                        {
+                            return new ApiResponse<object>
+                            {
+                                success = false,
+                                Message = "Mobile number already exists"
+                            };
+                        }
+                    }
+
+                    // ✅ Generate Code (safe)
+                    string code = "";
+                    if (transportId == 0)
+                    {
+                        using (SqlCommand cmdCode = new SqlCommand(@"
+                    SELECT 'TR' + RIGHT('000' + CAST(ISNULL(MAX(CAST(SUBSTRING(TransportCode,3,LEN(TransportCode)) AS INT)),0) + 1 AS VARCHAR),3)
+                    FROM TransportMaster", con))
+                        {
+                            code = cmdCode.ExecuteScalar()?.ToString();
+                        }
+                    }
+
+                    if (transportId == 0)
+                    {
+                        // ✅ INSERT
+                        using (SqlCommand cmd = new SqlCommand(@"
+                    INSERT INTO TransportMaster
+                    (TransportCode,TransportName,FirmName,ContactPerson,Email,MobileNo,AlternateMobileNo,Address,CityName,PANCard,GSTNo,VehicleType,IsActive,UserAccountId,FinancialYearID,CompanyId,DateAndTime)
+                    VALUES
+                    (@Code,@Name,@Firm,@Contact,@Email,@Mobile,@AltMobile,@Address,@City,@PAN,@GST,@Vehicle,@Active,@UserId,@FY,@Comp,GETDATE())", con))
+                        {
+                            cmd.Parameters.Add("@Code", SqlDbType.VarChar).Value = code;
+                            cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.TransportName ?? "";
+                            cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
+                            cmd.Parameters.Add("@Contact", SqlDbType.NVarChar).Value = obj.ContactPerson ?? "";
+                            cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                            cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                            cmd.Parameters.Add("@AltMobile", SqlDbType.VarChar).Value = obj.AlternateMobileNo ?? "";
+                            cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                            cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                            cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                            cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                            cmd.Parameters.Add("@Vehicle", SqlDbType.NVarChar).Value = obj.VehicleType ?? "";
+                            cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;
+                            cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = obj.UserAccountId;
+                            cmd.Parameters.Add("@FY", SqlDbType.Int).Value = obj.FinancialYearID;
+                            cmd.Parameters.Add("@Comp", SqlDbType.Int).Value = obj.CompanyId;
+
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // ✅ UPDATE
+                        using (SqlCommand cmd = new SqlCommand(@"
+                    UPDATE TransportMaster SET 
+                        TransportName=@Name,
+                        FirmName=@Firm,
+                        ContactPerson=@Contact,
+                        Email=@Email,
+                        MobileNo=@Mobile,
+                        AlternateMobileNo=@AltMobile,
+                        Address=@Address,
+                        CityName=@City,
+                        PANCard=@PAN,
+                        GSTNo=@GST,
+                        VehicleType=@Vehicle,
+                        IsActive=@Active
+                    WHERE TransportId=@Id", con))
+                        {
+                            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = transportId;
+                            cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.TransportName ?? "";
+                            cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
+                            cmd.Parameters.Add("@Contact", SqlDbType.NVarChar).Value = obj.ContactPerson ?? "";
+                            cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
+                            cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
+                            cmd.Parameters.Add("@AltMobile", SqlDbType.VarChar).Value = obj.AlternateMobileNo ?? "";
+                            cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                            cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                            cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
+                            cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
+                            cmd.Parameters.Add("@Vehicle", SqlDbType.NVarChar).Value = obj.VehicleType ?? "";
+                            cmd.Parameters.Add("@Active", SqlDbType.Bit).Value = obj.IsActive;
+
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                var response = new ApiResponse<object>
+                {
+                    Code = 200,
+                    success = true,
+                    Message = "Saved successfully",                      
+                };
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<object>();              
+            }
+            catch (Exception ex)
+            {
+                var response = new ApiResponse<object>
+                {
+                    Code = 400,
+                    success = true,
+                    Message = ex.Message
+                };
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<object>();
+        
+            }
+        }
+        #endregion 
     }
 }

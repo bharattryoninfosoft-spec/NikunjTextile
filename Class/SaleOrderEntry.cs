@@ -28,7 +28,7 @@ namespace NikunjTextile.Class
         public int CompanyId { get; set; }
         public string DiscountType { get; set; }
         public  string AdditionalRemark { get; set; }
-        public string AdditionalValue { get; set; }
+        public decimal AdditionalValue { get; set; }
 
         public List<SaleOrderDetailModel> Details { get; set; }
     }
@@ -166,4 +166,15 @@ namespace NikunjTextile.Class
         public string WarpMatchingID { get; set; }
         public string FeederMatchingID { get; set; }
     }
+
+    public class SaleOrderResponse
+    {
+        public bool success { get; set; }
+        public List<SaleOrderVM> Data { get; set; }
+        public int totalRecords { get; set; }
+        public int currentPage { get; set; }
+        public int pageSize { get; set; }
+    }
+
+
 }

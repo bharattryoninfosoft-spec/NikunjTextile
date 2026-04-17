@@ -26667,7 +26667,6 @@ ORDER BY SO.OrderNo DESC";
 
             return new JavaScriptSerializer().Serialize(response);
         }
-
         [WebMethod]
         public object DeleteSaleOrder(int SaleOrderID)
         {

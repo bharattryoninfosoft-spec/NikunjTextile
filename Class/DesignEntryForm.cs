@@ -79,7 +79,13 @@ namespace NikunjTextile.Class
     {
         public int Code { get; set; }
         public string Message { get; set; }
-
+        public List<DesignModel> Designs { get; set; }
+        public List<TypeModel> Types { get; set; }
+        public List<UnitModel> Units { get; set; }
+        public List<ColorGroupModel> ColorGroups { get; set; }
+    }
+    public class DesignEntryDataResponse
+    {
         public List<DesignModel> Designs { get; set; }
         public List<TypeModel> Types { get; set; }
         public List<UnitModel> Units { get; set; }
