@@ -112,7 +112,7 @@
                                 <div class="col-4">
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
-                                        <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)">
+                                        <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)" multiple>
                                             <option value="-1">Yarn Color</option>
                                         </select>
                                         <div class="field-placeholder">Yarn Color</div>
@@ -122,7 +122,7 @@
                                 <div class="col-4">
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
-                                        <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)">
+                                        <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)" multiple>
                                             <option value="-1">Yarn Color Code</option>
                                         </select>
                                         <div class="field-placeholder">Yarn Color Code</div>
@@ -1045,11 +1045,11 @@
             url: "/WebServiceNikunjTextile.asmx/GetPendingYarn",
             type: "POST",
             contentType: "application/json; charset=utf-8",
-
+         
             data: JSON.stringify({
                 partyId: PartyId,
                 yarnMaterialID: YarnMaterialID,
-                yarnColorID: YarnColorID
+                yarnColorID: $('#ddlYarnColor').val() || [] 
             }),
 
             success: function (res) {

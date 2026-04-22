@@ -113,7 +113,7 @@
                                 <div class="col-4">
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
-                                        <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)">
+                                        <select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="ChangeYarnColor(this.value)" multiple>
                                             <option value="-1">Yarn Color</option>
                                         </select>
                                         <div class="field-placeholder">Yarn Color</div>
@@ -123,7 +123,7 @@
                                 <div class="col-4">
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
-                                        <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)">
+                                        <select id="ddlYarnColorCode" class="select-single detail" title="Select Yarn Color Code" data-live-search="true" onchange="ChangeYarnColorCode(this.value)" multiple>
                                             <option value="-1">Yarn Color Code</option>
                                         </select>
                                         <div class="field-placeholder">Yarn Color Code</div>
@@ -1258,6 +1258,8 @@
                 let master = result.Data.Master;
                 let detail = result.Data.Detail;
                 let YarnRequirementIDs = result.YarnRequirementIDs;
+
+
                 console.log("detail", detail);
                 // =============================
                 // ✅ 1. FILL MASTER DATA
@@ -1298,13 +1300,13 @@
                         input.val(map[key] || 0);
                     });
                     $("#pendingYarnTable .row-checkbox").each(function () {
-
+                        debugger;
                         let chk = $(this);
                         let key = normalize(chk.data("key"));
                         let detailId = parseInt(chk.val()); // ✅ THIS is YarnRequirementDetailID
 
                         let isMatched = detail.some(d => {
-
+                                
                             let dKey = normalize(
                                 `${d.YarnMaterialID}|${d.YarnColorID}|${(d.YarnColorCode || '').toUpperCase()}`
                             );
@@ -1406,10 +1408,10 @@
         }
 
         // ✅ DATE FORMAT FIX
-        let rawDate = $("#ListDate").val();
-        let formattedDate = rawDate.includes("/")
-            ? rawDate.split("/").reverse().join("-")
-            : rawDate;
+        let rawDate = $("#ListDate").val(); // 22-04-2026
+
+        let parts = rawDate.split("-");
+        let formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
 
         let master = {
             YarnOutwardID: yarnOutwardID, 
@@ -1622,7 +1624,7 @@
     let selectionOrderMap = {};
 
     $(document).on("change", ".row-checkbox", function () {
-
+        debugger;
         let currentChk = $(this);
         let key = normalize(currentChk.data("key"));
 
