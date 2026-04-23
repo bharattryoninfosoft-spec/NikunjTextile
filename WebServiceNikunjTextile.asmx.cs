@@ -10876,8 +10876,7 @@ namespace NikunjTextile
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
                         cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = " select * " +
-                            " from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
+                        cmd1.CommandText = " select * from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
                         //con.Open();
                         SqlDataReader rdr = cmd1.ExecuteReader();
 
@@ -10885,7 +10884,6 @@ namespace NikunjTextile
                         {
                             String PhotoDesign = "";
                             String PhotoSketch = "";
-
                             String imagePath = "";
                             String Signature = "";
 
@@ -10894,8 +10892,6 @@ namespace NikunjTextile
                                 PhotoDesign = rdr["PhotoOfDesign"].ToString();
                                 PhotoSketch = rdr["PhotoOfSketch"].ToString();
                             }
-
-
 
                             if (request.Files.Count > 0)
                             {
@@ -10920,7 +10916,7 @@ namespace NikunjTextile
                                         ////Based on scalefactor image size will vary
                                         //GenerateThumbnails(0.2, strm, targetFile);
 
-                                        DesignImage = ", PhotoOfDesign='" + imagePath + "'";
+                                       // DesignImage = ", PhotoOfDesign='" + imagePath + "'";
                                     }
                                 }
 
@@ -10946,22 +10942,19 @@ namespace NikunjTextile
                                         ////Based on scalefactor image size will vary
                                         //GenerateThumbnails(0.2, strm, targetFile);
 
-                                        SketchImage = ", PhotoOfSketch='" + Signature + "'";
+                                        //SketchImage = ", PhotoOfSketch='" + Signature + "'";
                                     }
                                     else
                                     {
-                                        SketchImage = ", PhotoOfSketch=''";
+                                        SketchImage = "";
                                     }
                                 }
-
-
-
                                 //pictureStr = ", CompanyLogo='" + imagePath + "', Sign='" + Signature + "'";
                             }
                             else
                             {
-                                DesignImage = ", PhotoOfDesign='" + myDetails.tempPhotoOfDesign + "'";
-                                SketchImage = ", PhotoOfSketch='" + myDetails.tempPhotoOfSketch + "'";
+                                DesignImage = myDetails.tempPhotoOfDesign;
+                                SketchImage = myDetails.tempPhotoOfSketch;
                             }
                         }
                         con.Close();
