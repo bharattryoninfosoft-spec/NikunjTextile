@@ -317,7 +317,7 @@
                                         <input type="text" id="Remark" class="form-control" title="Remark">
                                         <div class="field-placeholder">Remark</div>
                                         @*<div class="Remark-valid-feedback valid-feedback">Looks good!</div>
-                <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
+                            <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
                                     </div>
                                 </div>
 
@@ -1628,7 +1628,7 @@
         if (input.files && input.files[0]) {
             var fildr = new FileReader();
             fildr.onload = function (e) {
-                var imgStr = `<img src="https://test.weavelanesoft.in/${e.target.result}" style="width:100%;margin-top:-54px;">`;
+                var imgStr = "<img src='" + e.target.result + "' style='width:100%;margin-top:-54px;'>";
                 $(previewStr).html(imgStr);
                 $(previewStr).css('color', 'initial');
             }
@@ -1694,24 +1694,12 @@
                 for (var i = 0; i < response.listDesignEntryForm.length; i++) {
 
 
-                    /* ---------- View Party Details ---------- */
 
-                    var designImg = response.listDesignEntryForm[i].PhotoOfDesign;
-                    var sketchImg = response.listDesignEntryForm[i].PhotoOfSketch;
 
-                    // Design Image
-                    var designStr = designImg
-                        ? `<img src="https://test.weavelanesoft.in/${designImg}" style="width:100%;margin-top:-54px;">`
-                        : `<img src="/images/no-image.png" style="width:100%;">`;
-
-                    $("#upload-PhotoOfDesign-default-preview").html(designStr);
-
-                    // Sketch Image
-                    var sketchStr = sketchImg
-                        ? `<img src="https://test.weavelanesoft.in/${sketchImg}" style="width:100%;margin-top:-54px;">`
-                        : `<img src="/images/no-image.png" style="width:100%;">`;
-
-                    $("#upload-PhotoOfSketch-default-preview").html(sketchStr);
+                    $("#upload-PhotoOfDesign-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
+                    if (response.listDesignEntryForm[i].PhotoOfSketch != "") {
+                        $("#upload-PhotoOfSketch-default-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
+                    }
 
                     $("#txtPhotoOfSketch").val(response.listDesignEntryForm[i].PhotoOfSketch);
 

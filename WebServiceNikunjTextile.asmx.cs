@@ -9388,10 +9388,6 @@ namespace NikunjTextile
                 }
             }
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getFinancialYearMaster(string startFrom)
@@ -10876,7 +10872,8 @@ namespace NikunjTextile
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
                         cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = " select * from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
+                        cmd1.CommandText = " select * " +
+                            " from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
                         //con.Open();
                         SqlDataReader rdr = cmd1.ExecuteReader();
 
@@ -10884,6 +10881,7 @@ namespace NikunjTextile
                         {
                             String PhotoDesign = "";
                             String PhotoSketch = "";
+
                             String imagePath = "";
                             String Signature = "";
 
@@ -10892,6 +10890,8 @@ namespace NikunjTextile
                                 PhotoDesign = rdr["PhotoOfDesign"].ToString();
                                 PhotoSketch = rdr["PhotoOfSketch"].ToString();
                             }
+
+
 
                             if (request.Files.Count > 0)
                             {
@@ -10916,7 +10916,7 @@ namespace NikunjTextile
                                         ////Based on scalefactor image size will vary
                                         //GenerateThumbnails(0.2, strm, targetFile);
 
-                                       // DesignImage = ", PhotoOfDesign='" + imagePath + "'";
+                                        DesignImage = ", PhotoOfDesign='" + imagePath + "'";
                                     }
                                 }
 
@@ -10942,19 +10942,22 @@ namespace NikunjTextile
                                         ////Based on scalefactor image size will vary
                                         //GenerateThumbnails(0.2, strm, targetFile);
 
-                                        //SketchImage = ", PhotoOfSketch='" + Signature + "'";
+                                        SketchImage = ", PhotoOfSketch='" + Signature + "'";
                                     }
                                     else
                                     {
-                                        SketchImage = "";
+                                        SketchImage = ", PhotoOfSketch=''";
                                     }
                                 }
+
+
+
                                 //pictureStr = ", CompanyLogo='" + imagePath + "', Sign='" + Signature + "'";
                             }
                             else
                             {
-                                DesignImage = myDetails.tempPhotoOfDesign;
-                                SketchImage = myDetails.tempPhotoOfSketch;
+                                DesignImage = ", PhotoOfDesign='" + myDetails.tempPhotoOfDesign + "'";
+                                SketchImage = ", PhotoOfSketch='" + myDetails.tempPhotoOfSketch + "'";
                             }
                         }
                         con.Close();
@@ -10972,58 +10975,16 @@ namespace NikunjTextile
 
 
 
-                            string sql = @"
-                            UPDATE DesignEntryFormMaster
-                            SET 
-                                DateandTime = @DateandTime,
-                                UserAccountId = @UserAccountId,
-                                CompanyId = @CompanyId,
-                                PhotoOfDesign = @PhotoOfDesign,
-                                PhotoOfSketch = @PhotoOfSketch,
-                                WarpQualityID = @WarpQualityID,
-                                DesignDate = @DesignDate,
-                                DesignerID = @DesignerID,
-                                SketcherID = @SketcherID,
-                                DesignerCode = @DesignerCode,
-                                DesignNo = @DesignNo,
-                                Remark = @Remark,
-                                PickOnLoom = @PickOnLoom,
-                                TotalCard = @TotalCard,
-                                AveragePic = @AveragePic,
-                                ReedOnLoom = @ReedOnLoom,
-                                TypeID = @TypeID,
-                                DesignCategoryID = @DesignCategoryID,
-                                DesignCut = @DesignCut,
-                                SaleRate = @SaleRate,
-                                BarcodeNo = @BarcodeNo
-                            WHERE 
-                                DesignEntryFormID = @DesignEntryFormID";
+                            string sql = String.Format("update DesignEntryFormMaster set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', UserAccountId = '" + UserAccountId + "', CompanyId = '" + CompanyId + "' " + DesignImage + " " + SketchImage + ", " +
+                                " WarpQualityID = '" + myDetails.WarpQualityID + "', DesignDate = '" + DateTime.ParseExact(myDetails.DesignDates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "', DesignerID = '" + myDetails.DesignerID + "', SketcherID = '" + myDetails.SketcherID + "', DesignerCode = '" + myDetails.DesignerCode + "', " +
+                                " DesignNo = '" + myDetails.DesignNo + "', Remark = @Remark, PickOnLoom = '" + myDetails.PickOnLoom + "', TotalCard = '" + myDetails.TotalCard + "', AveragePic = '" + myDetails.AveragePic + "', ReedOnLoom = @ReedOnLoom, TypeID = '" + myDetails.TypeID + "', DesignCategoryID = '" + myDetails.DesignCategoryID + "', DesignCut = '" + myDetails.DesignCut + "' " +
+                                " where DesignEntryFormID = '" + myDetails.DesignEntryFormID + "' ");
 
                             cmd.CommandText = sql;
-                            cmd.Parameters.AddWithValue("@DateandTime", dateTime_Indian);
-                            cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
-                            cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
-                            cmd.Parameters.AddWithValue("@PhotoOfDesign", DesignImage);
-                            cmd.Parameters.AddWithValue("@PhotoOfSketch", SketchImage);
-                            cmd.Parameters.AddWithValue("@WarpQualityID", myDetails.WarpQualityID);
-                            cmd.Parameters.AddWithValue("@DesignDate", DateTime.ParseExact(myDetails.DesignDates, "dd/MM/yyyy", CultureInfo.InvariantCulture));
-                            cmd.Parameters.AddWithValue("@DesignerID", myDetails.DesignerID);
-                            cmd.Parameters.AddWithValue("@SketcherID", myDetails.SketcherID);
-                            cmd.Parameters.AddWithValue("@DesignerCode", myDetails.DesignerCode);
-                            cmd.Parameters.AddWithValue("@DesignNo", myDetails.DesignNo);
                             cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = myDetails.Remark;
-                            cmd.Parameters.AddWithValue("@PickOnLoom", myDetails.PickOnLoom);
-                            cmd.Parameters.AddWithValue("@TotalCard", myDetails.TotalCard);
-                            cmd.Parameters.AddWithValue("@AveragePic", myDetails.AveragePic);
                             cmd.Parameters.Add("@ReedOnLoom", SqlDbType.NVarChar).Value = myDetails.ReedOnLoom;
-                            cmd.Parameters.AddWithValue("@TypeID", myDetails.TypeID);
-                            cmd.Parameters.AddWithValue("@DesignCategoryID", myDetails.DesignCategoryID);
-                            cmd.Parameters.AddWithValue("@DesignCut", myDetails.DesignCut);
-                            cmd.Parameters.AddWithValue("@SaleRate", myDetails.SaleRate);
-                            cmd.Parameters.AddWithValue("@BarcodeNo", myDetails.BarcodeNo);
-                            cmd.Parameters.AddWithValue("@DesignEntryFormID", myDetails.DesignEntryFormID);
-                            con.Open();
 
+                            con.Open();
                             //Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
                             Int64 id = cmd.ExecuteNonQuery();
 
@@ -11149,7 +11110,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
 
 
 
@@ -26227,7 +26187,6 @@ INNER JOIN PartyMaster PM1
             }
         }
         #endregion
-
         #region Sale Order Entry
         [WebMethod]
         public object GetSaleOrderList()
@@ -27004,6 +26963,120 @@ ORDER BY SO.OrderNo DESC";
                 : result;
         }
         #endregion
+        #region 
 
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string GetAllMenus()
+        {
+            DataTable dtMenu = new DataTable();
+            DataTable dtSub = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                con.Open();
+
+                SqlDataAdapter da1 = new SqlDataAdapter("SELECT * FROM MenuMaster ORDER BY Menu_OrderNo", con);
+                da1.Fill(dtMenu);
+
+                SqlDataAdapter da2 = new SqlDataAdapter("SELECT * FROM SubMenuMaster ORDER BY SubMenu_OrderNo", con);
+                da2.Fill(dtSub);
+            }
+
+            var menuList = new List<object>();
+
+            foreach (DataRow m in dtMenu.Rows)
+            {
+                var subList = new List<object>();
+
+                foreach (DataRow s in dtSub.Select("Menu_Id=" + m["Menu_Id"]))
+                {
+                    subList.Add(new
+                    {
+                        SubMenu_Id = s["SubMenu_Id"],
+                        SubMenu_Name = s["SubMenu_Name"]
+                    });
+                }
+
+                menuList.Add(new
+                {
+                    Menu_Id = m["Menu_Id"],
+                    Menu_Name = m["Menu_Name"],
+                    SubMenus = subList
+                });
+            }
+
+            return new JavaScriptSerializer().Serialize(menuList);
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string GetUsers()
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter("SELECT UserAccountId, UserAccountName FROM UserAccountMaster", con);
+                da.Fill(dt);
+            }
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string GetUserPermission(int userId)
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter(
+                    "SELECT * FROM UserMenuPermission WHERE User_Id=" + userId, con);
+                da.Fill(dt);
+            }
+
+            var data = DataTableToList(dt);
+            return new JavaScriptSerializer().Serialize(data);
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string SavePermission(List<PermissionModel> permissions)
+        {
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                con.Open();
+
+                int userId = permissions[0].User_Id;
+                int Menu_Id = permissions[0].Menu_Id;
+
+                // Delete old
+                SqlCommand del = new SqlCommand("DELETE FROM UserMenuPermission WHERE User_Id=@UserId and Menu_Id=@MenuId", con);
+                del.Parameters.AddWithValue("@UserId", userId);
+                del.Parameters.AddWithValue("@MenuId", Menu_Id);
+                del.ExecuteNonQuery();
+
+                // Insert new
+                foreach (var p in permissions)
+                {
+                    SqlCommand cmd = new SqlCommand(@"
+                INSERT INTO UserMenuPermission
+                (User_Id, Menu_Id, SubMenu_Id, [View], [Add], [Edit], [Delete])
+                VALUES (@User_Id, @Menu_Id, @SubMenu_Id, @CanView, @CanAdd, @CanEdit, @CanDelete)", con);
+
+                    cmd.Parameters.AddWithValue("@User_Id", p.User_Id);
+                    cmd.Parameters.AddWithValue("@Menu_Id", p.Menu_Id);
+                    cmd.Parameters.AddWithValue("@SubMenu_Id", p.SubMenu_Id);
+                    cmd.Parameters.AddWithValue("@CanView", p.CanView);
+                    cmd.Parameters.AddWithValue("@CanAdd", p.CanAdd);
+                    cmd.Parameters.AddWithValue("@CanEdit", p.CanEdit);
+                    cmd.Parameters.AddWithValue("@CanDelete", p.CanDelete);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return "Success";
+        }
+        #endregion
     }
 }
