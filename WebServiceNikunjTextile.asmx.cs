@@ -10978,12 +10978,11 @@ namespace NikunjTextile
                             string sql = String.Format("update DesignEntryFormMaster set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', UserAccountId = '" + UserAccountId + "', CompanyId = '" + CompanyId + "' " + DesignImage + " " + SketchImage + ", " +
                                 " WarpQualityID = '" + myDetails.WarpQualityID + "', DesignDate = '" + DateTime.ParseExact(myDetails.DesignDates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "', DesignerID = '" + myDetails.DesignerID + "', SketcherID = '" + myDetails.SketcherID + "', DesignerCode = '" + myDetails.DesignerCode + "', " +
                                 " DesignNo = '" + myDetails.DesignNo + "', Remark = @Remark, PickOnLoom = '" + myDetails.PickOnLoom + "', TotalCard = '" + myDetails.TotalCard + "', AveragePic = '" + myDetails.AveragePic + "', ReedOnLoom = @ReedOnLoom, TypeID = '" + myDetails.TypeID + "', DesignCategoryID = '" + myDetails.DesignCategoryID + "', DesignCut = '" + myDetails.DesignCut + "' " +
-                                " where DesignEntryFormID = '" + myDetails.DesignEntryFormID + "' ");
+                                " ,SaleRate = " + myDetails.SaleRate + " ,BarcodeNo = '"+ myDetails.BarcodeNo  + "' where DesignEntryFormID = '" + myDetails.DesignEntryFormID + "' ");
 
                             cmd.CommandText = sql;
                             cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = myDetails.Remark;
-                            cmd.Parameters.Add("@ReedOnLoom", SqlDbType.NVarChar).Value = myDetails.ReedOnLoom;
-
+                            cmd.Parameters.Add("@ReedOnLoom", SqlDbType.NVarChar).Value = myDetails.ReedOnLoom;                
                             con.Open();
                             //Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
                             Int64 id = cmd.ExecuteNonQuery();
