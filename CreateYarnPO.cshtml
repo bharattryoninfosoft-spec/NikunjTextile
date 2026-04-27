@@ -9,15 +9,7 @@
 
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
-    <div id="notes"></div>
-
-
-
-
-
-
-    <button id="AddPartyModel" style="float:right; display:none;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact"> </button>
-    <!-- Party Mastwer Modal -->
+    <div id="notes"></div>  <!-- Party Mastwer Modal -->
     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
@@ -27,173 +19,42 @@
                         <span aria-hidden="true"></span>
                     </button>
                 </div>
-                <div class="modal-body" id="divModelBody" style=" overflow: initial !important; height:500px !important;">
-                    <div id="add-alert" class="alert alert-success" role="alert">
+
+                <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
+                    @*<div id="add-alert" class="alert alert-success" role="alert" >
                         Record has been saved Successfully.
-                    </div>
-
-                    <div class="row gutters" id="DivYarnMaterial" style="display:none;">
-                        <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
-                            <div class="row gutters">
-
-                                <div class="col-4">
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <input type="text" id="YarnMaterial" name="YarnMaterial" class="form-control clear-field" onfocusout="validate(this)">
-                                        <div class="field-placeholder">Yarn Material & Quality<sup style="color:red;">*</sup></div>
-                                        <div class="YarnMaterial-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="YarnMaterial-invalid-feedback invalid-feedback">Please Mention Yarn Material & Quality</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-                                <div class="col-4">
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <input type="text" id="Denier" name="Denier" class="form-control clear-field">
-                                        <div class="field-placeholder">Denier</div>
-                                        <div class="Denier-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="Denier-invalid-feedback invalid-feedback">Please Mention Denier</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-
-                                <div class="col-4">
-
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <div class="form-check form-check-inline">
-                                            <br />
-                                            <input id="IsActiveYarnMaterial" class="form-check-input" type="checkbox" value="1" checked>
-                                            <label class="form-check-label" for="IsActiveYarnMaterial-default">Is Active</label>
-
-                                        </div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-                                <div class="col-4">
-
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <select id="ServiceUnit" class="select-single js-states " title="Select Unit" data-live-search="true">
-                                            <option value="-1">Select</option>
-                                        </select>
-                                        <div class="field-placeholder">Unit<sup style="color:red;">*</sup></div>
-                                        <div class="ServiceUnit-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="ServiceUnit-invalid-feedback invalid-feedback">Please Select unit</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-
-
-                                <div class="col-4">
-                                    <div class="field-wrapper">
-                                        <div class="input-group">
-                                            <input class="form-control clear-field detail" type="text" id="HSNSACCOde" placeholder="HSN Code" onfocusout="validate(this)">
-                                        </div>
-                                        <div class="field-placeholder" id="DivHSCSACCOde">HSN Code<sup style="color:red;">*</sup></div>
-                                        <div class="HSNSACCOde-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="HSNSACCOde-invalid-feedback invalid-feedback">Please Provide HSN Code</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-                                <div class="col-4">
-                                    <!-- Field wrapper start -->
-
-
-                                    <div class="field-wrapper">
-                                        <select id="GSTSLABId" class="select-single js-states " title="Select GST Slab" data-live-search="true">
-                                            <option value="-1">Select</option>
-                                        </select>
-                                        <div class="field-placeholder">GST Slab<sup style="color:red;">*</sup></div>
-                                        <div class="GSTSLABId-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="GSTSLABId-invalid-feedback invalid-feedback">Please Select GST Slab</div>
-                                    </div>
-
-
-
-                                    <!-- Field wrapper end -->
-                                </div>
-
-
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row gutters" id="DivYarnColor" style="display:none;">
-                        <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
-                            <div class="row gutters">
-                                <div class="col-5">
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <input type="text" id="YarnColor" name="YarnColor" class="form-control clear-field" onfocusout="validate(this)">
-                                        <div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>
-                                        <div class="YarnColor-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="YarnColor-invalid-feedback invalid-feedback">Please Mention Yarn Color</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-                                <div class="col-3">
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <div class="input-group">
-                                            <span class="input-group-text">#</span>
-                                            <input type="text" id="YarnColorCode" name="YarnColorCode" class="form-control clear-field" onfocusout="validate(this)" onkeyup="changeYarnColor(this)">
-                                        </div>
-                                        <div class="field-placeholder">Yarn Color Code<sup style="color:red;">*</sup></div>
-                                        <div class="YarnColor-valid-feedback valid-feedback">Looks good!</div>
-                                        <div class="YarnColor-invalid-feedback invalid-feedback">Please Mention Yarn Color Code</div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-                                <div class="col-2">
-
-                                    <!-- Field wrapper start -->
-                                    <div class="field-wrapper">
-                                        <div class="form-check form-check-inline">
-                                            <br />
-                                            <input id="IsActiveYarnColor" class="form-check-input" type="checkbox" value="1" checked>
-                                            <label class="form-check-label" for="IsActiveYarnColor-default" style="background-color: white; border-radius: 10px; padding: 3px;">Is Active</label>
-
-                                        </div>
-                                    </div>
-                                    <!-- Field wrapper end -->
-                                </div>
-
-
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row gutters" id="DivPartyMaster" style="display:none;">
-
+                    </div>*@
+                    <div class="row gutters" id="DivPartyMaster">
                         <div class="row gutters">
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
                                 <div class="row gutters">
 
                                     <div class="col-6">
-
-
                                         <div class="row gutters">
-
-
                                             <div class="col-6">
                                                 <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
                                             </div>
                                             <div class="col-6">
-
                                             </div>
                                             <hr />
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper">
+                                                    <select id="SundryParty" class="form-control" name="SundryParty">
+                                                        <option value="0"></option>
+                                                        <option value="1">Sundry Creditors</option>
+                                                        <option value="2">Sundry Debtors</option>
+                                                        <option value="3">Job Work</option>
+                                                    </select>
+                                                    <div class="field-placeholder">Select Sundry Party</div>
+                                                    <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+
+
 
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <!-- Field wrapper start -->
@@ -201,7 +62,7 @@
                                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                                     <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                                     <input id="gstintemp" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                    <div class="field-placeholder">GSTIN</div>
+                                                    <div class="field-placeholder">GSTIN<sup class="text-danger">*</sup></div>
                                                     <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="gstin-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
 
@@ -215,7 +76,7 @@
                                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                                     <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                                     <input id="PanNotemp" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                                    <div class="field-placeholder">PAN No</div>
+                                                    <div class="field-placeholder">PAN No<sup class="text-danger">*</sup></div>
                                                     <div class="PanNo-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="PanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
 
@@ -272,7 +133,7 @@
 
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
-                                                    <input id="email" placeholder="Enter Email" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field detail" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
+                                                    <input id="email" placeholder="Enter Email" type="text" class="form-control clear-field detail" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
                                                     <input type="hidden" id="email-temp" value="" />
                                                     <input type="hidden" id="phone-temp" value="" />
                                                     <div class="field-placeholder">Email</div>
@@ -306,7 +167,7 @@
 
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
-                                                    <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeypress="return (event.charCode>=48 && event.charCode<=57)" onfocus="myFunctionPINCODE(this.value)" onkeyup="myFunctionPINCODE(this)">
+                                                    <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeypress="return (event.charCode>=48 && event.charCode<=57)" onkeyup="myFunctionPINCODE(this)">
                                                     <div class="field-placeholder">Pincode</div>
                                                     <div class="pincode-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="pincode-invalid-feedback invalid-feedback">Please Provide pincode</div>
@@ -314,82 +175,6 @@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
-                                            <script>
-                                                function myFunctionPINCODE(abc) {
-                                                    var code = abc.value;
-                                                    //alert(code);
-
-                                                    if (code == "") {
-                                                        document.getElementById(abc.id).classList.remove("is-valid");
-                                                        document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                    }
-                                                    else {
-                                                        //alert(code);
-                                                        console.log(code.length);
-                                                        if (code.length == "6") {
-                                                            //alert(code + " asd ");
-                                                            var ifscurl = "https://api.postalpincode.in/pincode/" + code;
-                                                            $.ajax({
-                                                                type: "GET",
-                                                                url: ifscurl,
-                                                                contentType: false,
-                                                                processData: false,
-                                                                success: function (response) {
-                                                                    console.log(response);
-
-
-                                                                    if (response.length != 0) {
-                                                                        //alert("Hello World");
-
-                                                                        $("#city").val(response[0].PostOffice[0].District);
-
-                                                                        //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
-                                                                        //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
-                                                                        //$("#divIFSC").html("Good.");
-
-                                                                        document.getElementById(abc.id).classList.add("is-valid");
-                                                                        document.getElementById(abc.id).classList.remove("is-invalid");
-                                                                    }
-                                                                    else {
-                                                                        //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
-                                                                        //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
-                                                                        //$("#divIFSC").html("Opps! Invalid IFSC Code.");
-
-                                                                        document.getElementById(abc.id).classList.remove("is-valid");
-                                                                        document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                                        $("#city").val('');
-
-                                                                    }
-
-
-
-                                                                },
-                                                                error: function (request, status, error) {
-                                                                    // console.log(error);
-                                                                    document.getElementById(abc.id).classList.remove("is-valid");
-                                                                    document.getElementById(abc.id).classList.add("is-invalid");
-
-
-                                                                    $("#city").val('');
-
-
-                                                                }
-                                                            });
-                                                        }
-                                                        else {
-                                                            document.getElementById(abc.id).classList.remove("is-valid");
-                                                            document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                            $("#BankName").val('');
-                                                            $("#BankBranch").val('');
-
-                                                        }
-                                                    }
-                                                }
-                                            </script>
 
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
 
@@ -405,9 +190,19 @@
                                             </div>
 
 
+                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
 
-                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper">
+                                                    <select id="BrokerModel" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
+                                                        <option value="-1">Select</option>
+                                                    </select>
+                                                    <div class="field-placeholder">Broker</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
 
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <div class="field-wrapper">
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input clear-field detail" type="checkbox" id="chcekIsActiveParty" checked style="cursor:pointer;">
@@ -469,89 +264,13 @@
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
-                                                    <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )" onfocus="myFunctionIFSC(this.value)" onkeyup="myFunctionIFSC(this)">
+                                                    <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )" onkeyup="myFunctionIFSC(this)">
                                                     <div class="field-placeholder">Bank IFSC</div>
                                                     <div class="BankIFSCCode-valid-feedback valid-feedback">Looks good!</div>
                                                     @*<div class="BankIFSCCode-invalid-feedback invalid-feedback">Please Provide Bank IFSC Code</div>*@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
-
-                                            <script>
-                                                function myFunctionIFSC(abc) {
-                                                    var code = abc.value;
-                                                    //alert(code);
-
-                                                    if (code == "") {
-                                                        document.getElementById(abc.id).classList.remove("is-valid");
-                                                        document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                    }
-                                                    else {
-                                                        //alert(code);
-                                                        if (code.length == 11) {
-                                                            var ifscurl = "https://ifsc.razorpay.com/" + code;
-                                                            $.ajax({
-                                                                type: "GET",
-                                                                url: ifscurl,
-                                                                contentType: false,
-                                                                processData: false,
-                                                                success: function (response) {
-                                                                    //console.log(response);
-
-
-                                                                    if (response.length != 0) {
-                                                                        //alert("Hello World");
-
-                                                                        $("#BankName").val(response.BANK);
-                                                                        $("#BankBranch").val(response.BRANCH);
-
-                                                                        //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
-                                                                        //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
-                                                                        //$("#divIFSC").html("Good.");
-
-                                                                        document.getElementById(abc.id).classList.add("is-valid");
-                                                                        document.getElementById(abc.id).classList.remove("is-invalid");
-                                                                    }
-                                                                    else {
-                                                                        //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
-                                                                        //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
-                                                                        //$("#divIFSC").html("Opps! Invalid IFSC Code.");
-
-                                                                        document.getElementById(abc.id).classList.remove("is-valid");
-                                                                        document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                                        $("#BankName").val('');
-                                                                        $("#BankBranch").val('');
-                                                                    }
-
-
-
-                                                                },
-                                                                error: function (request, status, error) {
-                                                                    // console.log(error);
-                                                                    document.getElementById(abc.id).classList.remove("is-valid");
-                                                                    document.getElementById(abc.id).classList.add("is-invalid");
-
-
-                                                                    $("#BankName").val('');
-                                                                    $("#BankBranch").val('');
-
-                                                                }
-                                                            });
-                                                        }
-                                                        else {
-                                                            document.getElementById(abc.id).classList.remove("is-valid");
-                                                            document.getElementById(abc.id).classList.add("is-invalid");
-
-                                                            $("#BankName").val('');
-                                                            $("#BankBranch").val('');
-
-                                                        }
-                                                    }
-                                                }
-                                            </script>
 
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
@@ -561,8 +280,6 @@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
-
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
@@ -571,20 +288,7 @@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
-
-
-
-
-
-
-
-
                                         </div>
-
-
-
-
                                         <div class="col-6">
                                             <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
                                         </div>
@@ -592,21 +296,13 @@
 
                                         </div>
                                         <hr style=" margin: 5px 0px 16px 0;" />
-
-
-
-
-
-
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
                                             <!-- Field wrapper start -->
                                             <div class="field-wrapper">
                                                 <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="3" placeholder="Enter Billing Address"></textarea>
                                                 <div class="field-placeholder">Billing Address</div>
                                             </div>
                                             <!-- Field wrapper end -->
-
                                         </div>
 
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
@@ -617,11 +313,8 @@
                                                     <label class="form-check-label" for="chcekAddress">Same as Billing Address</label>
                                                 </div>
                                             </div>
-
                                         </div>
-
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
                                             <!-- Field wrapper start -->
                                             <div class="field-wrapper">
                                                 <textarea id="shippingAddress" class="form-control clear-field" rows="3" placeholder="Enter Shipping Address" disabled></textarea>
@@ -630,28 +323,19 @@
                                             <!-- Field wrapper end -->
 
                                         </div>
-
-
-
-
-
-
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
-
                 </div>
                 <input id="edit-id" type="hidden" />
                 <input id="catedit-id" type="hidden" />
                 <div id="notess"></div>
-                <div class="modal-footer" id="divModalFooter">
-
+                <div class="modal-footer">
+                    @*<button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>*@
+                    <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="saveparty()">Save & New</button>
+                    <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -796,7 +480,6 @@
                                                 <div class="col-12">
                                                     <div class="form-section-header light-bg">Supplier Details</div>
                                                 </div>
-
                                                 <div class="col-6">
 
                                                     <!-- Field wrapper start -->
@@ -805,6 +488,9 @@
                                                             <option value="-1">Select Supplier</option>
                                                         </select>
                                                         <div class="field-placeholder">Select Supplier</div>
+                                                        <button type="button"  id="AddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
                                                     </div>
                                                     <!-- Field wrapper end -->
 
@@ -860,6 +546,9 @@
                                                             <option value="-1">Select Company Detail</option>
                                                         </select>
                                                         <div class="field-placeholder">Select Company Detail</div>
+                                                        <button type="button"  id="CompanyAddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
                                                     </div>
                                                     <!-- Field wrapper end -->
 
@@ -1456,11 +1145,9 @@
         getDesignEntryForm();
         getPartyDetail();
         getGodownDetail();
+        bindBrokerDropdown();     
+        getStates(0);
     });
-
-
-
-
     $('body').click(function (evt) {
 
 
@@ -1482,14 +1169,10 @@
 
 
     });
-
-
-
     var ArrayYarnColor = [];
     var ArrayYarnMaterial = [];
     var ArrayGstSlab = [];
-
-
+    var CompanyAddParty = false;
     function getDesignEntryForm() {
 
         var formData = new FormData();
@@ -1591,10 +1274,6 @@
             }
         });
     }
-
-
-
-
     function validateFloatKeyPress(el, evt) {
         var charCode = (evt.which) ? evt.which : event.keyCode;
         var number = el.value.split('.');
@@ -1613,8 +1292,6 @@
         }
         return true;
     }
-
-
     function getSelectionStart(o) {
         if (o.createTextRange) {
             var r = document.selection.createRange().duplicate()
@@ -1623,8 +1300,6 @@
             return o.value.lastIndexOf(r.text)
         } else return o.selectionStart
     }
-
-
     function getItemUnit() {
 
         $.ajax({
@@ -1659,7 +1334,6 @@
 
 
     }
-
     function getItemGST() {
 
         $.ajax({
@@ -1697,7 +1371,6 @@
 
 
     }
-
     function addYarnMaterial() {
         getItemUnit();
         getItemGST();
@@ -1739,10 +1412,6 @@
 
 
     }
-
-
-
-
     function addYarnColor() {
 
         $("#DivYarnMaterial").hide();
@@ -1779,7 +1448,6 @@
 
 
     }
-
     function YarnColorChange(rowno) {
 
 
@@ -1799,10 +1467,6 @@
 
         YarnCompanyChange(rowno);
     }
-
-
-
-
     function YarnCompanyChange(rowno) {
         var YarnMaterial = "yarnMaterial" + rowno;
         var YarnColor = "YarnColor" + rowno;
@@ -1872,8 +1536,6 @@
 
 
     }
-
-
     function YarnYarnMaterial(rowno) {
         var yarnMaterial = ArrayYarnMaterial[0];
 
@@ -1893,9 +1555,6 @@
         
         YarnCompanyChange(rowno);
     }
-
-
-
     function YarnDetailArray() {
 
 
@@ -1972,8 +1631,6 @@
         }
 
     }
-
-
     function checkYarnMaerialSaveView() {
 
 
@@ -2062,7 +1719,6 @@
 
 
     }
-
     function checkYarnColorSaveView() {
 
 
@@ -2151,7 +1807,6 @@
 
 
     }
-
     function changeYarnColor(abc) {
         if (abc.value == "") {
             $("#divModelBody").css("background-color", "white");
@@ -2162,9 +1817,6 @@
         }
 
     }
-
-
-
     function DDLYarnMaterial() {
 
 
@@ -2235,8 +1887,6 @@
 
 
     }
-
-
     function DDLYarnColor() {
 
 
@@ -2337,39 +1987,22 @@
 
 
     }
-
-
     function CloseItemModel() {
         $("#DivDDLItemDetail").hide();
         $("#DivAddItem").show();
     }
-
     function PartyAdditionally() {
         $("#DivAddress").show();
     }
-
     function PartyAdditionallyClose() {
         $("#DivAddress").hide();
     }
-
-
-
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
-
-
-
-
-
-
     function getDefaultCompany() {
         $.ajax({
             type: "GET",
@@ -2399,7 +2032,6 @@
             }
         });
     }
-
     function FunctionIsLogin() {
         $.ajax({
             type: "POST",
@@ -2418,7 +2050,6 @@
             }
         });
     }
-
     function logout() {
         $.ajax({
             type: "POST",
@@ -2434,9 +2065,6 @@
             }
         });
     }
-
-
-
     function clearAll() {
         getDefaultCompany();
         $("#savebtn").show();
@@ -2452,7 +2080,6 @@
         $(".invalid-feedback").hide();
         $(".valid-feedback").hide();
     }
-
     function validate(code) {
         //alert(code);
         //alert(code.id + "  " + code.value);
@@ -2589,9 +2216,6 @@
                 return true;
             }
     }
-
-
-
     function toggleShippingAddress() {
         if ($("#chcekAddress").prop("checked") == true) {
 
@@ -2606,17 +2230,11 @@
 
         }
     }
-
-
-
     function checkShippingAdd() {
         if ($("#chcekAddress").prop("checked") == true) {
             $("#shippingAddress").val($("#billingAddress").val());
         }
     }
-
-
-
     function getStates(GSTStateCode) {
         //alert(GSTStateCode);
         $.ajax({
@@ -2671,9 +2289,6 @@
             }
         });
     }
-
-
-
     function addparty() {
         $("#DivYarnMaterial").hide();
         $("#DivYarnColor").hide();
@@ -2716,12 +2331,6 @@
         $("#divModalFooter").html(tempFooter);
 
     }
-
-
-
-
-
-
     function checkPartySaveView() {
         var name = document.getElementById('party-name');
         var phone = document.getElementById('phone');
@@ -2902,9 +2511,6 @@
 
 
     }
-
-
-
     function DivShowParty() {
         $("#PartyArray").val('');
         $("#searchParty").val('');
@@ -2917,10 +2523,7 @@
         $("#searchParty").focus();
         //displayData();
     }
-
-
     var ListPartyArray = [];
-
     function getPartyDetail() {
 
         var formData = new FormData();
@@ -2989,12 +2592,7 @@
         });
 
     }
-
-
-
     var ListGodownArray = [];
-
-
     function getGodownDetail() {
 
         var formData = new FormData();
@@ -3047,9 +2645,6 @@
         });
 
     }
-
-
-
     function OnSupplierParty(abc) {
 
 
@@ -3072,8 +2667,7 @@
             else {
 
 
-                var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
-
+                var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
                 $("#SupplierGST").val(PartyDetail.GSTIN);
                 $("#SupplierAddress").val(PartyDetail.BillingAddress);
                 $("#SupplierPhone").val(PartyDetail.MobileNo);
@@ -3092,7 +2686,7 @@
             $('#ddlBillTo').removeAttr('disabled');
 
 
-            var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
+            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
 
             $("#SupplierGST").val(PartyDetail.GSTIN);
             $("#SupplierAddress").val(PartyDetail.BillingAddress);
@@ -3106,19 +2700,17 @@
 
 
     }
-
     function OnBillToParty(abc) {
 
 
 
-        var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
+        var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
         $("#BillToGST").val(PartyDetail.GSTIN);
         $("#BillToAddress").val(PartyDetail.BillingAddress);
 
 
 
     }
-
     function OnCompanyParty(abc) {
 
 
@@ -3139,7 +2731,7 @@
             else {
 
 
-                var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
+                var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
 
                 $("#CompanyGST").val(PartyDetail.GSTIN);
                 $("#CompanyAddress").val(PartyDetail.BillingAddress);
@@ -3158,7 +2750,7 @@
             $('#ddlShipped').removeAttr('disabled');
 
 
-            var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
+            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
 
             $("#CompanyGST").val(PartyDetail.GSTIN);
             $("#CompanyAddress").val(PartyDetail.BillingAddress);
@@ -3170,23 +2762,16 @@
 
 
     }
-
     function OnShippedParty(abc) {
-        var PartyDetail = ListPartyArray[0].find(item => item.PartyId === parseInt(abc));
+        var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
         $("#ShippedGST").val(PartyDetail.GSTIN);
         $("#ShippedAddress").val(PartyDetail.BillingAddress);
     }
-
-
     function OnChangeGown(abc) {
         var GoDownDetail = ListGodownArray[0].find(item => item.GodownID === parseInt(abc));
 
         $("#GodownAddress").val(GoDownDetail.GodownAddress);
     }
-
-
-
-
     function toggleSupplierDetails() {
 
 
@@ -3221,8 +2806,6 @@
 
 
     }
-
-
     function toggleCompanyDetails() {
 
 
@@ -3258,9 +2841,6 @@
 
 
     }
-
-
-
     function calculationYarn(rowNo) {
         //alert(rowNo);
         var Qty = "#Qty" + rowNo;
@@ -3318,10 +2898,6 @@
 
 
     }
-
-
-
-
     function ArrayTotalCalculation() {
         var txtColorArray = $("#txtYarnDetailsArray").val();
         var txtColorData = txtColorArray.slice(0, -1).split('|');
@@ -3351,10 +2927,6 @@
         $("#TotalRate").html(TotalRate.toLocaleString("en-IN"));
         $("#TotalAmount").html(TotalAmount.toLocaleString("en-IN"));
     }
-
-
-
-
     function AddYarnDetailData() {
 
         var Supplier = $("#ddlSupplier").val();
@@ -3556,8 +3128,6 @@
 
 
     }
-
-
     function AddDuplicateYarnDetailData() {
 
         var Supplier = $("#ddlSupplier").val();
@@ -3780,13 +3350,6 @@
 
 
     }
-
-
-
-
-
-
-
     function deleteYarnData(abc) {
         var trMatching = "#trMatching" + abc;
 
@@ -3800,12 +3363,6 @@
 
         ArrayTotalCalculation();
     }
-
-
-
-
-
-
     function checkSave() {
 
 
@@ -3999,5 +3556,449 @@
 
 
     }
+    function myFunctionIFSC(abc) {
 
+        var code = abc.value.trim().toUpperCase();
+
+        // Empty check
+        if (!code) {
+            setInvalid(abc);
+            clearBankFields();
+            return;
+        }
+
+        // IFSC length check
+        if (code.length !== 11) {
+            setInvalid(abc);
+            clearBankFields();
+            return;
+        }
+
+        var ifscurl = "https://ifsc.razorpay.com/" + code;
+
+        $.ajax({
+            type: "GET",
+            url: ifscurl,
+            success: function (response) {
+
+                // ✅ Correct check
+                if (response && response.BANK) {
+
+                    $("#BankName").val(response.BANK);
+                    $("#BankBranch").val(response.BRANCH);
+
+                    setValid(abc);
+
+                } else {
+                    setInvalid(abc);
+                    clearBankFields();
+                }
+            },
+            error: function () {
+                setInvalid(abc);
+                clearBankFields();
+            }
+        });
+    }
+    function setValid(el) {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+    }
+    function setInvalid(el) {
+        el.classList.remove("is-valid");
+        el.classList.add("is-invalid");
+    }
+    function clearBankFields() {
+        $("#BankName").val('');
+        $("#BankBranch").val('');
+    }
+    function saveparty() {
+   
+        var name = document.getElementById('party-name');
+        var phone = document.getElementById('phone');
+        if (validate(name) == false || validate(phone) == false) {
+            validate(name);
+            validate(phone);
+        }
+        else {
+
+            var email = document.getElementById('email');
+
+            var altPhone = document.getElementById('alt-phone');
+            var placeOfSupply = $("#placeOfSupply option:selected").text();
+            var gst = document.getElementById("gstin");
+            var PanNo = document.getElementById("PanNo");
+            var Pincode = document.getElementById("pincode");
+            var city = document.getElementById("city");
+            var billingAddress = document.getElementById("billingAddress");
+            var shippingAddress = document.getElementById("shippingAddress");
+            var BankHolderName = document.getElementById('BankHolderName');
+            var BankAccountNo = document.getElementById('BankAccountNo');
+            var BankIFSCCode = document.getElementById('BankIFSCCode');
+            var BankName = document.getElementById('BankName');
+            var BankBranch = document.getElementById('BankBranch');
+            var SundryParty = document.getElementById('SundryParty');
+            var Broker = $("#Broker").val();
+
+            var IsActiveParty = "0";
+            if ($("#chcekIsActiveParty").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsActiveParty = "1";
+            }
+
+
+            var IsSameAddress = "0";
+            if ($("#chcekAddress").is(':checked')) {
+                //$("#isDefault").attr('value', 'true');
+                IsSameAddress = "1";
+            }
+
+            var formData = new FormData();
+
+            formData.append('PartyName', name.value);
+            formData.append('MobileNo', phone.value);
+            if (altPhone.value == "") {
+                formData.append('AlterMobileNo', '0');
+            }
+            else {
+                formData.append('AlterMobileNo', altPhone.value);
+            }
+            formData.append('Email', email.value);
+            formData.append('BillingAddress', billingAddress.value);
+            formData.append('ShippingAddress', shippingAddress.value);
+            formData.append('IsSameAddress', IsSameAddress);
+            formData.append('GSTIN', gst.value);
+            formData.append('State', placeOfSupply);
+            formData.append('PanNo', PanNo.value);
+            formData.append('Pincode', Pincode.value);
+            formData.append('city', city.value);
+            formData.append('BankHolderName', BankHolderName.value);
+            formData.append('BankAccountNo', BankAccountNo.value);
+            formData.append('BankIFSCCode', BankIFSCCode.value);
+            formData.append('BankName', BankName.value);
+            formData.append('BankBranch', BankBranch.value);
+            formData.append('IsActiveParty', IsActiveParty);
+            formData.append('SundryParty', SundryParty.value);
+            formData.append('BrokerCode', Broker);
+
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("insertPartyMaster : ", response)
+                    if (response.Code == 201) {
+                        $("#addNewContact").modal("hide");
+                        getPartyDetail();
+                     
+                        setTimeout(function () {
+                            debugger;
+                            var partyId = parseInt(response.id);  
+                            if (CompanyAddParty== false) {
+                                $("#ddlSupplier").val(partyId).trigger('change');
+                                OnSupplierParty(partyId);
+                            }
+                            else {
+                                $("#ddlBillTo").val(partyId).trigger('change');                                
+                                OnBillToParty(partyId)
+                            }
+                            
+                        }, 300);
+                        notess.show(response.Message, {
+                            type: 'success',
+                        });
+                    }
+                    else {
+                        notess.show(response.Message, {
+                            type: 'danger',
+                        });
+                    }
+                },
+                error: function (error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notess.show(response.Message, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+                }
+            });
+
+        }
+    }
+    function bindBrokerDropdown() {
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/GetBrokerList',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                let data = JSON.parse(response.d);
+                console.log("GetBrokerList", data);
+                $("#BrokerModel").empty().append('<option value="-1">Select</option>');
+                $("#ddlBroker").empty().append('<option value="-1">Select</option>');
+                $.each(data, function (i, item) {
+                    $("#BrokerModel").append(`
+               <option value="${item.BrokerCode}">
+                   ${item.BrokerCode} - ${item.BrokerName}
+               </option>
+           `);
+                });
+                $.each(data, function (i, item) {
+                    $("#ddlBroker").append(`
+                    <option value="${item.BrokerCode}">
+                        ${item.BrokerCode} - ${item.BrokerName}
+                    </option>
+                `);
+                });
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+    function getStates(GSTStateCode) {
+        //alert(GSTStateCode);
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getStates',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#placeOfSupply option[value]").each(function () {
+                    $(this).remove();
+                });
+                $('#placeOfSupply').empty();
+                appendTemp = "<option value='0'>Select Place Of Supply</option >";
+                $('#placeOfSupply').append(appendTemp);
+
+                if (GSTStateCode == "0") {
+
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+
+                        appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        $('#placeOfSupply').append(appendTemp);
+                    }
+                }
+                else {
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+                        if (admin.GSTStateCode == GSTStateCode) {
+                            appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        }
+                        else {
+                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                        }
+
+
+                        $('#placeOfSupply').append(appendTemp);
+                    }
+                }
+                //$('#placeOfSupply').append("<option value=''> -- Select State -- </option>");
+            },
+            error: function (request, status, error) {
+            }
+        });
+    }
+    function getItemGST() {
+
+        $.ajax({
+
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/getGSTSlabList',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status) {
+                var jsonData = JSON.parse(data.d);
+                $("#GSTSLABId option[value]").each(function () {
+                    $(this).remove();
+                });
+                appendTemp = "<option value='0' selected>Select GST</option >";
+                $('#GSTSLABId').append(appendTemp);
+                //$('#GSTSLABId').append("<option value='0' selected> </option>");
+                for (var i = 0; i < jsonData.length; i++) {
+                    admin = jsonData[i];
+                    appendTemp = `<option value="${admin.GSTSLABId}">
+            ${admin.GSTSLABName}
+          </option>`;
+                    $('#GSTSLABId').append(appendTemp);
+                }
+
+
+            },
+            error: function (request, status, error) {
+            }
+
+        });
+
+
+    }
+    function resetPartyForm() {
+        $(".clear-field").val("");
+        $("#SundryParty").val("0");
+        $("#placeOfSupply").val("-1");
+        $("#Broker").val("-1");
+        $("#editbtn").hide();
+        $("#savebtn").show();
+        $("#saveViewbtn").show();
+        $("#addNewContactLabel").text("Add Party");
+    }   
+    $("#AddPartyModel, #cancelbtn").on("click", function () {
+        resetPartyForm();        
+     });    
+    $("#CompanyAddPartyModel").on("click", function () {
+        resetPartyForm();             
+        CompanyAddParty = true;
+    });
+    function myFunctionIFSC(abc) {
+        var code = abc.value;
+        //alert(code);
+
+        if (code == "") {
+            document.getElementById(abc.id).classList.remove("is-valid");
+            document.getElementById(abc.id).classList.add("is-invalid");
+
+        }
+        else {
+            //alert(code);
+            if (code.length == 11) {
+                var ifscurl = "https://ifsc.razorpay.com/" + code;
+                $.ajax({
+                    type: "GET",
+                    url: ifscurl,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        //console.log(response);
+
+
+                        if (response.length != 0) {
+                            //alert("Hello World");
+
+                            $("#BankName").val(response.BANK);
+                            $("#BankBranch").val(response.BRANCH);
+
+                            //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                            //$("#divIFSC").html("Good.");
+
+                            document.getElementById(abc.id).classList.add("is-valid");
+                            document.getElementById(abc.id).classList.remove("is-invalid");
+                        }
+                        else {
+                            //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                            //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                            document.getElementById(abc.id).classList.remove("is-valid");
+                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                            $("#BankName").val('');
+                            $("#BankBranch").val('');
+                        }
+
+
+
+                    },
+                    error: function (request, status, error) {
+                        // console.log(error);
+                        document.getElementById(abc.id).classList.remove("is-valid");
+                        document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                        $("#BankName").val('');
+                        $("#BankBranch").val('');
+
+                    }
+                });
+            }
+            else {
+                document.getElementById(abc.id).classList.remove("is-valid");
+                document.getElementById(abc.id).classList.add("is-invalid");
+
+                $("#BankName").val('');
+                $("#BankBranch").val('');
+
+            }
+        }
+    }
+    function myFunctionPINCODE(abc) {
+        var code = abc.value;
+        if (code == "") {
+            document.getElementById(abc.id).classList.remove("is-valid");
+            document.getElementById(abc.id).classList.add("is-invalid");
+
+        }
+        else {
+            if (code.length == "6") {
+                //alert(code + " asd ");
+                var ifscurl = "https://api.postalpincode.in/pincode/" + code;
+                $.ajax({
+                    type: "GET",
+                    url: ifscurl,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log(response);
+
+
+                        if (response.length != 0) {
+                            //alert("Hello World");
+
+                            $("#city").val(response[0].PostOffice[0].District);
+
+                            //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                            //$("#divIFSC").html("Good.");
+
+                            document.getElementById(abc.id).classList.add("is-valid");
+                            document.getElementById(abc.id).classList.remove("is-invalid");
+                        }
+                        else {
+                            //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                            //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                            //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                            document.getElementById(abc.id).classList.remove("is-valid");
+                            document.getElementById(abc.id).classList.add("is-invalid");
+
+                            $("#city").val('');
+
+                        }
+
+
+
+                    },
+                    error: function (request, status, error) {
+                        // console.log(error);
+                        document.getElementById(abc.id).classList.remove("is-valid");
+                        document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                        $("#city").val('');
+
+
+                    }
+                });
+            }
+            else {
+                document.getElementById(abc.id).classList.remove("is-valid");
+                document.getElementById(abc.id).classList.add("is-invalid");
+
+                $("#BankName").val('');
+                $("#BankBranch").val('');
+
+            }
+        }
+    }
 </script>

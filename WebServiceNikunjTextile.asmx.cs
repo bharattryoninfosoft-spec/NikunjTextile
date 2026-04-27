@@ -26411,13 +26411,10 @@ ORDER BY SO.OrderNo DESC";
             using (SqlConnection con = new SqlConnection(cs))
             {
                 string query = "SELECT ISNULL(MAX(OrderNo),0) + 1 FROM SaleOrder";
-
                 SqlCommand cmd = new SqlCommand(query, con);
                 con.Open();
-
                 orderNo = cmd.ExecuteScalar().ToString();
             }
-
             return orderNo;
         }
         [WebMethod]
