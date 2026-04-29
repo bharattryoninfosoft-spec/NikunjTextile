@@ -12,7 +12,7 @@
     #tblPendingGodown th {
         font-weight: 600;
         text-align: center;
-        color:white;
+        color: white;
     }
 
     /* Group Header */
@@ -57,6 +57,7 @@
         border: 1px solid #ced4da;
         padding: 8px;
     }
+
     .card {
         border: none;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
@@ -68,15 +69,19 @@
         <div class="card">
             <div class="card">
                 <div class="card-body">
-
-                    <!-- 🔍 Search + Filter Row -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
+                            <button id="btnPdf" class="btn btn-outline-primary">📄 PDF</button>
+                            <button id="btnExcel" class="btn btn-outline-success">📊 Excel</button>
+                            <button id="btnPrint" class="btn btn-outline-secondary">🖨 Print</button>
+                        </div>
+
+                        <div class="col-md-5">
                             <input type="text" id="searchGodown"
                                    class="form-control"
                                    placeholder="🔍 Search Location / Godown...">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <select id="filterGodown" class="form-control">
                                 <option value="">All Godown</option>
                             </select>
@@ -97,7 +102,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -173,8 +177,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+
 <script>
-   
+
     document.title = "Empty Location Report - Nikunj Textile";
     $('body').addClass('fullscreen');
 
@@ -186,9 +195,9 @@
         $(".nav-tabs .nav-link").removeClass("active");
         $(".nav-tabs .nav-link").attr("aria-selected", "false");
         $(".nav-tabs .nav-link[data-report='1']").addClass("active");
-        $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true"); 
+        $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");
         FunctionIsLogin();
-        LoadReport();        
+        LoadReport();
     });
 
     function FunctionIsLogin() {
@@ -400,4 +409,165 @@
     }
     $('#searchGodown').on('keyup', applyFilters);
     $('#filterGodown').on('change', applyFilters);
+    $('#btnPdf').click(function () {
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        let body = [];
+
+        $('#tblPendingGodown tbody tr:visible').each(function () {
+
+            // ✅ FIX 1: Correct group header
+            if ($(this).hasClass('group-header')) {
+
+                let cleanText = $(this)
+                    .clone()
+                    .find('.toggle-btn')   // remove + / -
+                    .remove()
+                    .end()
+                    .text()
+                    .trim();
+
+                body.push([
+                    {
+                        content: cleanText,
+                        colSpan: 4,
+                        styles: {
+                            fillColor: [220, 220, 220],
+                            fontStyle: 'bold',
+                            halign: 'left'
+                        }
+                    }
+                ]);
+
+            } else {
+
+                let tds = $(this).children('td');
+
+                // ✅ FIX 2: Force exact 4 columns
+                if (tds.length >= 4) {
+
+                    body.push([
+                        $(tds[0]).text().trim(),
+                        $(tds[1]).text().trim(),
+                        $(tds[2]).text().trim(),
+                        $(tds[3]).text().trim()
+                    ]);
+                }
+            }
+        });
+
+        doc.text("Godown Report", 14, 10); // optional title
+
+        doc.autoTable({
+            head: [['#', 'Location', 'Godown', 'Address']],
+            body: body,
+            startY: 15,
+
+            styles: {
+                fontSize: 10,
+                cellPadding: 3,
+                overflow: 'linebreak'
+            },
+
+            headStyles: {
+                fillColor: [33, 115, 200],
+                textColor: 255,
+                halign: 'center'
+            },
+
+            columnStyles: {
+                0: { cellWidth: 15 },
+                1: { cellWidth: 50 },
+                2: { cellWidth: 45 },
+                3: { cellWidth: 60 }
+            },
+
+            theme: 'grid'
+        });
+
+        doc.save('Godown_Report.pdf');
+    });
+    $('#btnExcel').click(function () {
+
+        let data = [];
+
+        // ✅ Header
+        data.push(['#', 'Location', 'Godown', 'Address']);
+
+        $('#tblPendingGodown tbody tr:visible').each(function () {
+
+            // ❌ skip group header OR include if you want
+            if ($(this).hasClass('group-header')) return;
+
+            let tds = $(this).children('td');
+
+            if (tds.length >= 4) {
+                data.push([
+                    $(tds[0]).text().trim(),
+                    $(tds[1]).text().trim(),
+                    $(tds[2]).text().trim(),
+                    $(tds[3]).text().trim()
+                ]);
+            }
+        });
+
+        // 👉 Create sheet
+        let ws = XLSX.utils.aoa_to_sheet(data);
+
+        // 👉 Auto column width
+        ws['!cols'] = [
+            { wch: 5 },
+            { wch: 20 },
+            { wch: 20 },
+            { wch: 25 }
+        ];
+
+        // 👉 Create workbook
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+        // 👉 Download
+        XLSX.writeFile(wb, "Godown_Report.xlsx");
+    });
+    $('#btnPrint').click(function () {
+
+        let printContent = `
+        <h2 style="text-align:center;">Godown Report</h2>
+        <table border="1" cellspacing="0" cellpadding="5" width="100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Location</th>
+                    <th>Godown</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+        $('#tblPendingGodown tbody tr:visible').each(function () {
+
+            if ($(this).hasClass('group-header')) return;
+
+            let tds = $(this).children('td');
+
+            if (tds.length >= 4) {
+                printContent += `<tr>
+                <td>${$(tds[0]).text()}</td>
+                <td>${$(tds[1]).text()}</td>
+                <td>${$(tds[2]).text()}</td>
+                <td>${$(tds[3]).text()}</td>
+            </tr>`;
+            }
+        });
+
+        printContent += `</tbody></table>`;
+
+        let win = window.open('', '', 'width=900,height=700');
+        win.document.write(printContent);
+        win.document.close();
+        win.print();
+    });
 </script>
