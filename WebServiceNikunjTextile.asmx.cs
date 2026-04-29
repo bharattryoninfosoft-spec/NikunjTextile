@@ -17595,14 +17595,10 @@ namespace NikunjTextile
                 }
                 con.Close();
             }
-
-
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(listGodownMaster));
             return;
-
-
         }
 
         [WebMethod]
@@ -27582,6 +27578,51 @@ ORDER BY SO.OrderNo DESC";
             Context.Response.Write(js.Serialize(response));
             return;
         }
-       
+        [WebMethod]
+        public string EmptyLocationReport()
+        {
+            List<object> list = new List<object>();
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                string query = @"SELECT GL.GodownLocationID,GL.LocationTitle,GL.GodownID, 
+                                GM.GodownTitle,GM.GodownAddress
+                         FROM GodownLocationMaster GL
+                         INNER JOIN GodownMaster GM 
+                            ON GL.GodownID = GM.GodownID
+                         WHERE NOT EXISTS (
+                            SELECT 1 
+                            FROM YarnInwardDetail YI 
+                            WHERE YI.GodownLocationID = GL.GodownLocationID
+                         )";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    list.Add(new
+                    {
+                        GodownLocationID = dr["GodownLocationID"],
+                        LocationTitle = dr["LocationTitle"].ToString(),
+                        GodownID = dr["GodownID"],
+                        GodownTitle = dr["GodownTitle"].ToString(),
+                        GodownAddress = dr["GodownAddress"].ToString()
+                    });
+                }
+            }
+
+            var result = new
+            {
+                result = "1",
+                message = "Success",
+                data = list
+            };
+
+            return new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(result);
+        }
+
     }
 }

@@ -783,6 +783,7 @@
     <Content Include="UpdateYarnOutWardChallanNew.cshtml" />
     <Content Include="SaleOrderEntry.cshtml" />
     <Content Include="UpdateSaleOrderEntry.cshtml" />
+    <Content Include="EmptyLocationReport.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

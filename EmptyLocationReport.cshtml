@@ -1,0 +1,403 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    /* Table Header */
+    #tblPendingGodown thead {
+        background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+        color: #fff;
+    }
+
+    #tblPendingGodown th {
+        font-weight: 600;
+        text-align: center;
+        color:white;
+    }
+
+    /* Group Header */
+    .group-header {
+        background: #e7f1ff;
+        color: #0d6efd;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .group-header:hover {
+            background: #d0e5ff;
+        }
+
+    /* Toggle Icon */
+    .toggle-btn {
+        font-weight: bold;
+        margin-right: 8px;
+        color: #0d6efd;
+    }
+
+    /* Table Rows */
+    #tblPendingGodown tbody tr {
+        background-color: #fff;
+    }
+
+        #tblPendingGodown tbody tr:hover {
+            background-color: #f5f9ff;
+        }
+
+    /* Borders */
+    #tblPendingGodown td,
+    #tblPendingGodown th {
+        border: 1px solid #dee2e6;
+    }
+
+    /* Search + Filter */
+    #searchGodown,
+    #filterGodown {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 8px;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card">
+                <div class="card-body">
+
+                    <!-- 🔍 Search + Filter Row -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" id="searchGodown"
+                                   class="form-control"
+                                   placeholder="🔍 Search Location / Godown...">
+                        </div>
+                        <div class="col-md-6">
+                            <select id="filterGodown" class="form-control">
+                                <option value="">All Godown</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 📊 Table -->
+                    <div class="table-responsive">
+                        <table id="tblPendingGodown" class="table table-bordered table-hover">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th style="width:80px;">#</th>
+                                    <th>Location</th>
+                                    <th>Godown</th>
+                                    <th>Address</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+<!-- *************
+    ************ Vendor Js Files *************
+************* -->
+<!-- Megamenu JS -->
+<script src="vendor/megamenu/js/megamenu.js"></script>
+<script src="vendor/megamenu/js/custom.js"></script>
+
+<!-- Slimscroll JS -->
+<script src="vendor/slimscroll/slimscroll.min.js"></script>
+<script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+<!-- Search Filter JS -->
+<script src="vendor/search-filter/search-filter.js"></script>
+<script src="vendor/search-filter/custom-search-filter.js"></script>
+
+<!-- Notify js -->
+<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+<script src="vendor/notify/notify.js"></script>
+<script src="vendor/notify/notify-custom.js"></script>
+
+<!-- Rating JS -->
+<script src="vendor/rating/raty.js"></script>
+<script src="vendor/rating/raty-custom.js"></script>
+
+<!-- Data Tables -->
+<script src="vendor/datatables/dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
+
+<!-- Custom Data tables -->
+<script src="vendor/datatables/custom/custom-datatables.js"></script>
+
+<!-- Download / CSV / Copy / Print -->
+<script src="vendor/datatables/buttons.min.js"></script>
+<script src="vendor/datatables/jszip.min.js"></script>
+<script src="vendor/datatables/pdfmake.min.js"></script>
+<script src="vendor/datatables/vfs_fonts.js"></script>
+<script src="vendor/datatables/html5.min.js"></script>
+<script src="vendor/datatables/buttons.print.min.js"></script>
+
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+
+<!-- Dropzone JS -->
+<script src="vendor/dropzone/dropzone.min.js"></script>
+<!-- Main Js Required -->
+<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!-- Buttons CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+<!-- Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Excel & PDF support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script>
+   
+    document.title = "Empty Location Report - Nikunj Textile";
+    $('body').addClass('fullscreen');
+
+    $(document).ready(function () {
+        $('.active, .show, .current-page').removeClass('active show current-page');
+        $("#Report-tab").addClass("active");
+        $("#tab-Report").addClass("show active");
+        $("#aEmptyLocationReport").addClass("current-page");
+        $(".nav-tabs .nav-link").removeClass("active");
+        $(".nav-tabs .nav-link").attr("aria-selected", "false");
+        $(".nav-tabs .nav-link[data-report='1']").addClass("active");
+        $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true"); 
+        FunctionIsLogin();
+        LoadReport();        
+    });
+
+    function FunctionIsLogin() {
+        $.ajax({
+            type: "POST",
+            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+            data: "{ 'userName':'0' }",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                if (data.d == "false") {
+                    window.location.replace("/Index");
+                }
+            }
+        });
+    }
+    let groupedData = {}; // ✅ GLOBAL (important)
+
+    function LoadReport() {
+
+        $.ajax({
+            url: '/WebServiceNikunjTextile.asmx/EmptyLocationReport',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+
+            success: function (response) {
+
+                let res = JSON.parse(response.d);
+                let data = res.data;
+
+                groupedData = {}; // reset
+
+                // 👉 Group data
+                data.forEach(item => {
+                    if (!groupedData[item.GodownTitle]) {
+                        groupedData[item.GodownTitle] = [];
+                    }
+                    groupedData[item.GodownTitle].push(item);
+                });
+
+                let html = '';
+                let index = 1;
+
+                // 👉 Render
+                $.each(groupedData, function (godown, items) {
+
+                    let safeGroup = godown.replace(/[^a-zA-Z0-9]/g, '_');
+
+                    html += `
+                    <tr class="group-header" data-group="${safeGroup}">
+                        <td colspan="4">
+                            <span class="toggle-btn">➕</span>
+                            <strong>${godown} (${items.length})</strong>
+                        </td>
+                    </tr>
+                `;
+
+                    items.forEach(item => {
+                        html += `
+                        <tr class="group-row group-${safeGroup}">
+                            <td>${index++}</td>
+                            <td>${item.LocationTitle}</td>
+                            <td>${item.GodownTitle}</td>
+                            <td>${item.GodownAddress}</td>
+                        </tr>
+                    `;
+                    });
+                });
+
+                $('#tblPendingGodown tbody').html(html);
+
+                // 👉 Default collapse
+                $('.group-row').hide();
+
+                // 👉 Toggle
+                $('.toggle-btn').off().on('click', function () {
+
+                    let header = $(this).closest('tr');
+                    let group = header.data('group');
+                    let rows = $(`.group-${group}`);
+
+                    if (rows.is(':visible')) {
+                        rows.hide();
+                        $(this).text('➕');
+                    } else {
+                        rows.show();
+                        $(this).text('➖');
+                    }
+                });
+
+                // 👉 Fill dropdown HERE (✅ FIXED)
+                let options = '<option value="">All Godown</option>';
+
+                Object.keys(groupedData).forEach(g => {
+                    let safe = g.replace(/[^a-zA-Z0-9]/g, '_');
+                    options += `<option value="${safe}">${g}</option>`;
+                });
+
+                $('#filterGodown').html(options);
+            }
+        });
+    }
+    $('#searchGodown').on('keyup', function () {
+
+        let value = $(this).val().toLowerCase().trim();
+
+        if (value === '') {
+            $('#filterGodown').trigger('change'); // reset using filter
+            return;
+        }
+
+        $('.group-header').hide();
+        $('.group-row').hide();
+
+        $('.group-row').each(function () {
+
+            let location = $(this).find('td:eq(1)').text().toLowerCase();
+            let godown = $(this).find('td:eq(2)').text().toLowerCase();
+
+            if (location.includes(value) || godown.includes(value)) {
+
+                $(this).show();
+
+                let groupClass = $(this).attr('class').split(' ')
+                    .find(c => c.startsWith('group-') && c !== 'group-row');
+
+                let groupName = groupClass.replace('group-', '');
+
+                let header = $(`.group-header[data-group="${groupName}"]`);
+                header.show().find('.toggle-btn').text('➖');
+            }
+        });
+    });
+    $('#filterGodown').on('change', function () {
+
+        let selected = $(this).val();
+
+        // reset search
+        $('#searchGodown').val('');
+
+        if (selected === '') {
+            $('.group-header').show();
+            $('.group-row').hide();
+            $('.toggle-btn').text('➕');
+            return;
+        }
+
+        $('.group-header').hide();
+        $('.group-row').hide();
+
+        let header = $(`.group-header[data-group="${selected}"]`);
+        let rows = $(`.group-${selected}`);
+
+        header.show();
+        rows.show();
+
+        header.find('.toggle-btn').text('➖');
+    });
+    function applyFilters() {
+
+        let searchValue = $('#searchGodown').val().toLowerCase().trim();
+        let selectedGodown = $('#filterGodown').val();
+
+        $('.group-header').hide();
+        $('.group-row').hide();
+
+        $('.group-row').each(function () {
+
+            let location = $(this).find('td:eq(1)').text().toLowerCase();
+            let godown = $(this).find('td:eq(2)').text().toLowerCase();
+
+            let groupClass = $(this).attr('class').split(' ')
+                .find(c => c.startsWith('group-') && c !== 'group-row');
+
+            let groupName = groupClass.replace('group-', '');
+
+            // ✅ Condition 1: Search match
+            let matchSearch = (
+                searchValue === '' ||
+                location.includes(searchValue) ||
+                godown.includes(searchValue)
+            );
+
+            // ✅ Condition 2: Dropdown match
+            let matchGodown = (
+                selectedGodown === '' ||
+                groupName === selectedGodown
+            );
+
+            // ✅ BOTH conditions must match
+            if (matchSearch && matchGodown) {
+
+                $(this).show();
+
+                let header = $(`.group-header[data-group="${groupName}"]`);
+                header.show();
+
+                header.find('.toggle-btn').text('➖');
+            }
+        });
+
+        // 👉 Reset if no filters
+        if (searchValue === '' && selectedGodown === '') {
+            $('.group-header').show();
+            $('.group-row').hide();
+            $('.toggle-btn').text('➕');
+        }
+    }
+    $('#searchGodown').on('keyup', applyFilters);
+    $('#filterGodown').on('change', applyFilters);
+</script>
