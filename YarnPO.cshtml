@@ -360,8 +360,10 @@
 
                     <div class="row gutters">
 
-
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                            <button class="btn btn-danger" id="btnGeneratePDF">
+                                <i class="fa fa-file-pdf-o"></i> PDF
+                            </button>
                         </div>
 
 
@@ -525,9 +527,8 @@
         //getDefaultCompany();
 
 
-
     });
-
+    
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
@@ -641,7 +642,11 @@
                 var srno = parseInt(rowStart) + parseInt(1);
                 for (var i = 0; i < response.listYarnPOMaster.length; i++) {
 
-                    temp += "<tr><td>" + srno++ + "</td>";
+                    temp += "<tr>";
+                    temp += "<td>";
+                    temp += "<input id='selectAll' type='checkbox' class='row-checkbox me-2' value='" + response.listYarnPOMaster[i].YarnPOID + "' /> ";
+                    temp += srno++;
+                    temp += "</td>";
                     //temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listYarnPOMaster[i].YarnPOID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnPOMaster[i].DesignColorMatchingFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listYarnPOMaster[i].DesignColorMatchingFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
                     temp += "<td><div class='actions'>";
                     if (response.listYarnPOMaster[i].EditableOrNot == "0") {
@@ -936,6 +941,7 @@
 
                     $("#divSupplierPartyName").html(response.listYarnPOMaster[i].SupplierPartyName);
                     $("#PSupplierMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].SupplierMobileNo + " / " + response.listYarnPOMaster[i].SupplierAlterMobileNo);
+                    $("#PSupplierEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].SupplierEmail);
                     $("#PSupplierBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].SupplierBillingAddress);
                     $("#PSupplierState").html("<b>State: </b>" + response.listYarnPOMaster[i].SupplierState);
                     $("#PSupplierGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].SupplierGSTIN);
@@ -943,6 +949,7 @@
                     
                     $("#divBillToPartyName").html(response.listYarnPOMaster[i].BillToPartyName);
                     $("#PBillToMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].BillToMobileNo + " / " + response.listYarnPOMaster[i].BillToAlterMobileNo);
+                    $("#PBillToEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].BillToEmail);
                     $("#PBillToBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].BillToBillingAddress);
                     $("#PBillToState").html("<b>State: </b>" + response.listYarnPOMaster[i].BillToState);
                     $("#PBillToGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].BillToGSTIN);
@@ -950,6 +957,7 @@
                     
                     $("#divCompanyPartyName").html(response.listYarnPOMaster[i].CompanyPartyName);
                     $("#PCompanyMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].CompanyMobileNo + " / " + response.listYarnPOMaster[i].CompanyAlterMobileNo);
+                    $("#PCompanyEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].CompanyEmail);
                     $("#PCompanyBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].CompanyBillingAddress);
                     $("#PCompanyState").html("<b>State: </b>" + response.listYarnPOMaster[i].CompanyState);
                     $("#PCompanyGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].CompanyGSTIN);
@@ -957,6 +965,7 @@
                     
                     $("#divShippedToPartyName").html(response.listYarnPOMaster[i].ShippedToPartyName);
                     $("#PShippedToMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].ShippedToMobileNo + " / " + response.listYarnPOMaster[i].ShippedToAlterMobileNo);
+                    $("#PShippedToEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].ShippedToEmail);
                     $("#PShippedToBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].ShippedToBillingAddress);
                     $("#PShippedToState").html("<b>State: </b>" + response.listYarnPOMaster[i].ShippedToState);
                     $("#PShippedToGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].ShippedToGSTIN);
@@ -1101,10 +1110,73 @@
         }
 
     }
+    var selectedIds = [];
 
+    // ✅ Get selected IDs
+    function getSelectedYarnPOIds() {
+        selectedIds = [];
 
+        $("#copy-print-csv tbody .row-checkbox:checked").each(function () {
+            selectedIds.push(parseInt($(this).val()));
+        });
 
+        return selectedIds;
+    }
 
+    // ✅ On checkbox change
+    $(document).on("change", "#copy-print-csv tbody .row-checkbox", function () {
+        getSelectedYarnPOIds();
+        console.log("Selected IDs:", selectedIds);
+    });
+
+    // ✅ Select All
+    //$(document).on("change", "#selectAll", function () {
+    //    var isChecked = $(this).prop("checked");
+
+    //    $("#copy-print-csv tbody .row-checkbox").prop("checked", isChecked);
+
+    //    getSelectedYarnPOIds();
+    //});
+
+    // ✅ Button click
+    $(document).on("click", "#btnGeneratePDF", function () {
+
+        getSelectedYarnPOIds();
+
+        if (selectedIds.length === 0) {
+            alert("Please select at least one record");
+            return;
+        }
+
+        generateYarnPOPDF(selectedIds);
+    });
+
+    function generateYarnPOPDF(ids) {
+
+        $.ajax({
+            type: "POST",
+            url: "/WebServiceNikunjTextile.asmx/GetYarnPODataForPDF",
+            data: JSON.stringify({ yarnPOIds: ids }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+
+                var result = response.d;
+
+                console.log("Server Response:", result);
+
+                if (result && result.FilePath) {
+                    window.open(result.FilePath, "_blank");
+                } else {
+                    alert("PDF not generated");
+                }
+            },
+            error: function (err) {
+                console.error(err);
+                alert("Error generating PDF");
+            }
+        });
+    }
 </script>
 
 
