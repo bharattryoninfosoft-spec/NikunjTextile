@@ -41,7 +41,7 @@
 
     .cm-head {
         font-weight: bold;
-        background: #fafafa;
+        background: #c5dcff;
     }
 
     .cm-row:hover {
@@ -136,7 +136,7 @@
     .scale-click {
         transform: scale(0.95);
         transition: transform 0.15s ease;
-    }
+    }  
 </style>
 
 
@@ -462,7 +462,7 @@
                 totalRecords = res.d.TotalRecords || 0;
 
                 renderReport();
-                renderPagination();
+                renderPagination();          
                 updateTabCounts(res.d);
              
                 hideLoader();
@@ -506,43 +506,64 @@
             let rows = grouped[key];
             let header = rows[0];
 
-            let badge = header.ValidationStatus === 'Validated'
+            // ✅ FIX 1: Safe validation check
+            let status = (header.ValidationStatus || '').toString().toLowerCase();
+
+            let badge = status === 'validated' || status === '1' || status === 'true'
                 ? `<span class="badge bg-success">Validated</span>`
                 : `<span class="badge bg-danger">Not Validated</span>`;
 
             html += `
         <div class="cm-block mb-2">
 
-            <div class="cm-header d-flex justify-content-between align-items-center"
-                 onclick="toggleRow('${header.DesignColorMatchingFormID}')">
+         <div class="cm-header d-flex justify-content-between align-items-center"
+     onclick="toggleRow('${header.DesignColorMatchingFormID}')">
 
-                <div>
-                    <strong>${header.DesignerCode}${header.DesignNo}    </strong>
+                <div> 
+                 <span id="icon_${header.DesignColorMatchingFormID}" class="ms-2"><i class="fa fa-plus"></i></span>&nbsp;&nbsp;&nbsp;&nbsp 
+                  <label>
+                      <b>Design :</b>
+                      <span class="fw-bold">${header.DesignerCode}${header.DesignNo}</span>
+                  </label>
                 </div>
-
                 <div>
-                    ${badge}
-                    <span id="icon_${header.DesignColorMatchingFormID}" class="ms-2">+</span>
+                    ${badge}                   
                 </div>
             </div>
 
             <div id="body_${header.DesignColorMatchingFormID}" class="cm-body" style="display:none;">
+                
+                <div class="row mb-2">
+                    <div class="col-md-3"><b>Warp:</b> ${header.WarpQuality || ''}</div>
+                    <div class="col-md-3"><b>Category:</b> ${header.DesignCategory || ''}</div>
+                    <div class="col-md-3"><b>Total Card:</b> ${header.TotalCard || ''}</div>
+                    <div class="col-md-3"><b>Pick:</b> ${header.PickOnLoom || ''}</div>
+                </div>
+
+                <div class="cm-table">
+                    <div class="cm-row cm-head">
+                        <div>No</div>
+                        <div>Matching</div>
+                        <div>Warp</div>
+                        <div>Feeder</div>
+                    </div>
         `;
 
             rows.forEach((r, i) => {
                 html += `
-                <div class="cm-row">
-                    <div>${i + 1}</div>
-                    <div>${r.MatchingID || ''}</div>
-                    <div>${getWarp(r)}</div>
-                    <div>${getFeeder(r)}</div>
-                </div>
-            `;
+            <div class="cm-row">
+                <div>${i + 1}</div>
+                <div>${r.MatchingID || ''}</div>
+                <div>${getWarp(r)}</div>
+                <div>${getFeeder(r)}</div>
+            </div>`;
             });
 
-            html += `</div></div>`;
+            html += `</div></div>
+        </div>`;  // ✅ FIX 2: Proper closing
         });
 
+        // ✅ FIX 3: Always replace DOM cleanly
         $("#reportContainer").html(html);
     }
 
@@ -553,10 +574,10 @@
 
         if (body.is(":visible")) {
             body.slideUp(150);
-            icon.text("+");
+            icon.html('<i class="fa fa-plus"></i>');   // ✅ FIX
         } else {
             body.slideDown(150);
-            icon.text("-");
+            icon.html('<i class="fa fa-minus"></i>');  // ✅ FIX
         }
     }
 
