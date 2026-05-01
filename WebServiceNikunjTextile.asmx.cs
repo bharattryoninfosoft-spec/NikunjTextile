@@ -12129,22 +12129,22 @@ namespace NikunjTextile
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select DCMFM.*,  " +
-                    " DEFM.PhotoOfDesign, DEFM.DesignerID, DEFM.DesignerCode, DEFM.DesignNo, DEFM.PickOnLoom,DEFM.SaleRate, " +
-                    "  DEFM.TotalCard, DEFM.ReedOnLoom, DEFM.WarpQuality, DEFM.DesignCategory " +
-                    " from DesignColorMatchingFormMaster DCMFM " +
-                    " LEFT JOIN (" +
-                    " 	select DEFM.*, WQ.WarpQuality, SM.Sketcher, TM.Type, DCM.DesignCategory " +
-                    " 	from DesignEntryFormMaster DEFM" +
-                    " 	LEFT JOIN WarpQualityMaster WQ ON WQ.WarpQualityID = DEFM.WarpQualityID" +
-                    " 	LEFT JOIN SketcherMaster SM ON SM.SketcherID = DEFM.SketcherID" +
-                    " 	LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID" +
-                    "	LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID" +
-                    //" 	LEFT JOIN MaterialMaster MM ON MM.MaterialID = DEFM.MaterialID" +
-                    " )DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID " +
-                    " where DCMFM.DesignColorMatchingFormID = " + ilist.DesignColorMatchingFormID + " " +
-                    " and DCMFM.FinancialYearID =  (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
-                    " and DCMFM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)";
+                    cmd.CommandText = " select DCMFM.*,  " +
+                        " DEFM.PhotoOfDesign, DEFM.DesignerID, DEFM.DesignerCode, DEFM.DesignNo, DEFM.PickOnLoom,DEFM.SaleRate, " +
+                        "  DEFM.TotalCard, DEFM.ReedOnLoom, DEFM.WarpQuality, DEFM.DesignCategory " +
+                        " from DesignColorMatchingFormMaster DCMFM " +
+                        " LEFT JOIN (" +
+                        " 	select DEFM.*, WQ.WarpQuality, SM.Sketcher, TM.Type, DCM.DesignCategory " +
+                        " 	from DesignEntryFormMaster DEFM" +
+                        " 	LEFT JOIN WarpQualityMaster WQ ON WQ.WarpQualityID = DEFM.WarpQualityID" +
+                        " 	LEFT JOIN SketcherMaster SM ON SM.SketcherID = DEFM.SketcherID" +
+                        " 	LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID" +
+                        "	LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID" +
+                        //" 	LEFT JOIN MaterialMaster MM ON MM.MaterialID = DEFM.MaterialID" +
+                        " )DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID " +
+                        " where DCMFM.DesignColorMatchingFormID = " + ilist.DesignColorMatchingFormID + " " +
+                        " and DCMFM.FinancialYearID =  (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
+                        " and DCMFM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)";
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -12836,8 +12836,6 @@ namespace NikunjTextile
                 }
                 else
                 {
-
-
                     if (request.Files.Count > 0)
                     {
                         string path = Server.MapPath(@"" + myDetails.ColorMatchingPhoto);
@@ -12895,9 +12893,9 @@ namespace NikunjTextile
                                 "FeederMatchingID = '" + myDetails.FeederMatchingID + "', Feeder1 = '" + myDetails.Feeder1 + "', Feeder2 = '" + myDetails.Feeder2 + "', Feeder3 = '" + myDetails.Feeder3 + "', Feeder4 = '" + myDetails.Feeder4 + "', Feeder5 = '" + myDetails.Feeder5 + "', Feeder6 = '" + myDetails.Feeder6 + "', Feeder7 = '" + myDetails.Feeder7 + "', Feeder8 = '" + myDetails.Feeder8 + "', Feeder9 = '" + myDetails.Feeder9 + "', Feeder10 = '" + myDetails.Feeder10 + "', " +
                                 " Feeder11 = '" + myDetails.Feeder11 + "', Feeder12 = '" + myDetails.Feeder12 + "', Feeder13 = '" + myDetails.Feeder13 + "', Feeder14 = '" + myDetails.Feeder14 + "', Feeder15 = '" + myDetails.Feeder15 + "', Feeder16 = '" + myDetails.Feeder16 + "', Feeder17 = '" + myDetails.Feeder17 + "', Feeder18 = '" + myDetails.Feeder18 + "', Feeder19 = '" + myDetails.Feeder19 + "', Feeder20 = '" + myDetails.Feeder20 + "', " +
                                 " Feeder21 = '" + myDetails.Feeder21 + "', Feeder22 = '" + myDetails.Feeder22 + "', Feeder23 = '" + myDetails.Feeder23 + "', Feeder24 = '" + myDetails.Feeder24 + "', Feeder25 = '" + myDetails.Feeder25 + "', Feeder26 = '" + myDetails.Feeder26 + "', Feeder27 = '" + myDetails.Feeder27 + "', Feeder28 = '" + myDetails.Feeder28 + "', Feeder29 = '" + myDetails.Feeder29 + "', Feeder30 = '" + myDetails.Feeder30 + "', ColorMatchingPhoto = '" + ColorMatchingPhoto + "', ColorGroupID = '" + myDetails.ColorGroupID + "'," +
-                                " UserAccountId = '" + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + "', UpdateDateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "' " +
+                                " UserAccountId = '" + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + "', UpdateDateandTime = @UpdateDateandTime" +
                                 " where DesignColorMatchingDetailsID = '" + myDetails.DesignColorMatchingDetailsID + "' and DesignColorMatchingFormID = '" + myDetails.DesignColorMatchingFormID + "'");
-
+                            cmd.Parameters.Add("@UpdateDateandTime", SqlDbType.DateTime).Value = dateTime_Indian;
                             cmd.CommandText = sqls;
                             con.Open();
                             int i = cmd.ExecuteNonQuery();
@@ -20058,11 +20056,8 @@ namespace NikunjTextile
                 //                ";
 
 
-                cmd.CommandText = @"SELECT t1.*,
-                                 CASE WHEN ISNULL(YTCM.YarnInwardDetailID,0) = 0 THEN 'NO' ELSE 'YES' END AS MOVEBOXORNOT FROM
-                                (
-                                    SELECT
-                                        YID.YarnInwardDetailID, YID.DateAndTime, YID.BoxNo, YID.NetWeight, YID.GodownLocationID,
+                cmd.CommandText = @"SELECT t1.*,CASE WHEN ISNULL(YTCM.YarnInwardDetailID,0) = 0 THEN 'NO' ELSE 'YES' END AS MOVEBOXORNOT FROM
+                                (SELECT YID.YarnInwardDetailID, YID.DateAndTime, YID.BoxNo, YID.NetWeight, YID.GodownLocationID,
                                         YID.YarnInwardID, YID.UserAccountId, GLM.LocationTitle, YIM.YarnMaterialID,
                                         YIM.YarnColorID, YCM.YarnColor, YIM.GodownID, YIM.YarnPOID, YIM.TotalWeight, 
 		                                YMM.YarnMaterial, GM.GodownTitle, YPM.PONo, PM.PartyName, YPD.YarnPODetailID,
@@ -27623,6 +27618,349 @@ ORDER BY SO.OrderNo DESC";
 
             return new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(result);
         }
+        [WebMethod]
+        public string YarnInterChangeReport()
+        {
+            try
+            {
+                string query = @"
+WITH InterchangeHistory AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER 
+        (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) AS rn,
 
+        LAG(GodownLocationID) OVER 
+        (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID) AS OldLocationID
+
+    FROM YarnInterchangeMaster
+)
+
+SELECT
+    T.YarnInwardDetailID,
+    T.DateAndTime,
+    YID.BoxNo,
+    YID.NetWeight,
+
+    -- FROM
+    T.OldLocationID AS FromLocationID,
+    GLM_OLD.LocationTitle AS FromLocation,
+
+    -- TO
+    T.GodownLocationID AS ToLocationID,
+    GLM_NEW.LocationTitle AS ToLocation,
+
+    YID.YarnInwardID,
+    T.UserAccountId,
+    T.YarnMaterialID,
+    T.YarnColorID,
+    YCM.YarnColor,
+    T.GodownID,
+    T.YarnPOID,
+    YIM.TotalWeight,
+    YMM.YarnMaterial,
+    GM.GodownTitle,
+    YPM.PONo,
+    PM.PartyName,
+    YPD.YarnPODetailID,
+    YPD.CompanyCode,
+
+    'YES' AS MOVEBOXORNOT
+
+FROM InterchangeHistory T
+
+LEFT JOIN YarnInwardDetail YID 
+    ON T.YarnInwardDetailID = YID.YarnInwardDetailID
+
+LEFT JOIN YarnInwardMaster YIM 
+    ON YID.YarnInwardID = YIM.YarnInwardID
+
+LEFT JOIN YarnMaterialMaster YMM 
+    ON T.YarnMaterialID = YMM.YarnMaterialID
+
+LEFT JOIN YarnColorMaster YCM 
+    ON T.YarnColorID = YCM.YarnColorID
+
+LEFT JOIN GodownMaster GM 
+    ON T.GodownID = GM.GodownID
+
+LEFT JOIN GodownLocationMaster GLM_NEW 
+    ON T.GodownLocationID = GLM_NEW.GodownLocationID
+
+LEFT JOIN GodownLocationMaster GLM_OLD 
+    ON T.OldLocationID = GLM_OLD.GodownLocationID
+
+LEFT JOIN YarnPOMaster YPM 
+    ON T.YarnPOID = YPM.YarnPOID
+
+LEFT JOIN PartyMaster PM 
+    ON YPM.BillToPartyID = PM.PartyId
+
+LEFT JOIN YarnPODetails YPD 
+    ON YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
+
+WHERE T.rn = 1
+AND T.OldLocationID IS NOT NULL   -- 🔥 ONLY MOVED
+                    ";
+
+                DataTable dt = new DataTable();
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.CommandTimeout = 0;
+
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            da.Fill(dt);
+                        }
+                    }
+                }
+
+                return JsonConvert.SerializeObject(dt);
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    Status = "Error",
+                    Message = ex.Message
+                });
+            }
+        }
+        [WebMethod]
+        public string GetMovementHistory(int yarnDetailId)
+        {
+            string query = @"
+    SELECT 
+        YT.DateAndTime,
+        LAG(GLM.LocationTitle) OVER (ORDER BY YT.YarnInterchangeID) AS FromLocation,
+        GLM.LocationTitle AS ToLocation,
+        YT.UserAccountId
+    FROM YarnInterchangeMaster YT
+    LEFT JOIN GodownLocationMaster GLM 
+        ON YT.GodownLocationID = GLM.GodownLocationID
+    WHERE YT.YarnInwardDetailID = @Id
+    ORDER BY YT.YarnInterchangeID
+    ";
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@Id", yarnDetailId);
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+            }
+
+            return JsonConvert.SerializeObject(dt);
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+
+        public object GetColorMatchingReport(int pageNumber, int pageSize, string validationStatus = "", string searchText = "")
+        {
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    int offset = (pageNumber - 1) * pageSize;
+
+                    // =========================
+                    // 🔹 MAIN QUERY
+                    // =========================
+                    string query = @"
+WITH FormStatus AS (
+    SELECT 
+        DCMFM.DesignColorMatchingFormID,
+        DCMFM.DesignEntryFormID,
+        CASE 
+            WHEN COUNT(d.DesignColorMatchingDetailsID) > 0 THEN 'Validated'
+            ELSE 'Not Validated'
+        END AS ValidationStatus
+    FROM DesignColorMatchingFormMaster DCMFM
+    LEFT JOIN DesignColorMatchingDetails d 
+        ON d.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+        AND ISNULL(d.ColorMatchingPhoto,'') <> ''
+    GROUP BY DCMFM.DesignColorMatchingFormID, DCMFM.DesignEntryFormID
+),
+
+Filtered AS (
+    SELECT FS.*
+    FROM FormStatus FS
+    LEFT JOIN DesignEntryFormMaster DEFM 
+        ON DEFM.DesignEntryFormID = FS.DesignEntryFormID
+
+    WHERE 
+        (@validationStatus = '' OR FS.ValidationStatus = @validationStatus)
+        AND (
+            @searchText = '' OR
+            LOWER(ISNULL(DEFM.DesignNo,'')) LIKE '%' + LOWER(@searchText) + '%' OR
+            LOWER(ISNULL(DEFM.DesignerCode,'')) LIKE '%' + LOWER(@searchText) + '%' OR
+            LOWER(ISNULL(DEFM.DesignNo,'') + ISNULL(DEFM.DesignerCode,'')) LIKE '%' + LOWER(@searchText) + '%'
+        )
+),
+
+Paginated AS (
+    SELECT *
+    FROM Filtered
+    ORDER BY DesignColorMatchingFormID DESC
+    OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY
+)
+
+SELECT 
+    DCMFM.*,
+    DEFM.DesignerCode,
+    DEFM.DesignNo,
+    DEFM.TotalCard,
+    DEFM.PickOnLoom,
+    WQ.WarpQuality,
+    DCM.DesignCategory,
+
+    DCMD.MatchingNo,
+    DCMD.MatchingID,
+    DCMD.Warp1,
+    DCMD.Warp2,
+    DCMD.Warp3,
+    DCMD.Warp4,
+    DCMD.Warp5,
+    DCMD.Feeder1,
+    DCMD.Feeder2,
+    DCMD.Feeder3,
+    DCMD.Feeder4,
+    DCMD.Feeder5,
+
+    P.ValidationStatus
+
+FROM Paginated P
+JOIN DesignColorMatchingFormMaster DCMFM 
+    ON DCMFM.DesignColorMatchingFormID = P.DesignColorMatchingFormID
+
+LEFT JOIN DesignColorMatchingDetails DCMD
+    ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
+
+LEFT JOIN DesignEntryFormMaster DEFM 
+    ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
+
+LEFT JOIN WarpQualityMaster WQ 
+    ON WQ.WarpQualityID = DEFM.WarpQualityID
+
+LEFT JOIN DesignCategoryMaster DCM 
+    ON DCM.DesignCategoryID = DEFM.DesignCategoryID
+";
+
+                    SqlCommand cmd = new SqlCommand(query, con);
+                    cmd.Parameters.Add("@offset", SqlDbType.Int).Value = offset;
+                    cmd.Parameters.Add("@pageSize", SqlDbType.Int).Value = pageSize;
+                    cmd.Parameters.Add("@validationStatus", SqlDbType.VarChar).Value = validationStatus ?? "";
+                    cmd.Parameters.Add("@searchText", SqlDbType.VarChar).Value = searchText ?? "";
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    var list = new List<Dictionary<string, object>>();
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        foreach (DataColumn col in dt.Columns)
+                        {
+                            dict[col.ColumnName] = row[col];
+                        }
+                        list.Add(dict);
+                    }
+
+                    // =========================
+                    // 🔹 COUNT QUERY
+                    // =========================
+                    string countQuery = @"
+WITH FormStatus AS (
+    SELECT 
+        DCMFM.DesignColorMatchingFormID,
+        DCMFM.DesignEntryFormID,
+        CASE 
+            WHEN COUNT(d.DesignColorMatchingDetailsID) > 0 THEN 'Validated'
+            ELSE 'Not Validated'
+        END AS ValidationStatus
+    FROM DesignColorMatchingFormMaster DCMFM
+    LEFT JOIN DesignColorMatchingDetails d 
+        ON d.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+        AND ISNULL(d.ColorMatchingPhoto,'') <> ''
+    GROUP BY DCMFM.DesignColorMatchingFormID, DCMFM.DesignEntryFormID
+),
+
+Filtered AS (
+    SELECT FS.*
+    FROM FormStatus FS
+    LEFT JOIN DesignEntryFormMaster DEFM 
+        ON DEFM.DesignEntryFormID = FS.DesignEntryFormID
+
+    WHERE 
+        (@validationStatus = '' OR FS.ValidationStatus = @validationStatus)
+        AND (
+            @searchText = '' OR
+            LOWER(ISNULL(DEFM.DesignNo,'')) LIKE '%' + LOWER(@searchText) + '%' OR
+            LOWER(ISNULL(DEFM.DesignerCode,'')) LIKE '%' + LOWER(@searchText) + '%' OR
+            LOWER(ISNULL(DEFM.DesignNo,'') + ISNULL(DEFM.DesignerCode,'')) LIKE '%' + LOWER(@searchText) + '%'
+        )
+)
+
+SELECT 
+    COUNT(*) AS TotalRecords,
+    SUM(CASE WHEN ValidationStatus = 'Validated' THEN 1 ELSE 0 END) AS ValidatedCount,
+    SUM(CASE WHEN ValidationStatus = 'Not Validated' THEN 1 ELSE 0 END) AS NotValidatedCount
+FROM Filtered
+";
+
+                   SqlCommand countCmd = new SqlCommand(countQuery, con);
+                    countCmd.Parameters.Add("@validationStatus", SqlDbType.VarChar).Value = validationStatus ?? "";
+                    countCmd.Parameters.Add("@searchText", SqlDbType.VarChar).Value = searchText ?? "";
+
+                    con.Open();
+                    SqlDataReader reader = countCmd.ExecuteReader();
+
+                    int total = 0, validated = 0, notValidated = 0;
+
+                    if (reader.Read())
+                    {
+                        total = Convert.ToInt32(reader["TotalRecords"]);
+                        validated = Convert.ToInt32(reader["ValidatedCount"]);
+                        notValidated = Convert.ToInt32(reader["NotValidatedCount"]);
+                    }
+
+                    con.Close();
+
+                    return new
+                    {
+                        Success = true,
+                        Message = "Data loaded successfully",
+                        Data = list,
+                        TotalRecords = total,
+                        ValidatedCount = validated,
+                        NotValidatedCount = notValidated
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }
