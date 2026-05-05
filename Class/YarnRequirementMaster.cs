@@ -41,9 +41,7 @@ namespace NikunjTextile.Class
         public string BankBranch { get; set; }
         public string CompanyColourCode { get; set; }
         public string CompanyName { get; set; }
-
-
-
+        public decimal Rate { get; set; }
         public int YarnMaterialID { get; set; }
         public int YarnColorID { get; set; }
         

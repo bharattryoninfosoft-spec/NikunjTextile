@@ -10,6 +10,7 @@ namespace NikunjTextile.Class
         public int id { get; set; }
         public int Code { get; set; }
         public string Message { get; set; }
+        public string PODate { get; set; }
     }
     
 }

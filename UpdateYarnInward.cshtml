@@ -419,6 +419,7 @@
                                                 </div>
 
                                                 <div class="col-6">
+                                                    <input type="text" class="form-control" id="ReceivePOQty" hidden>
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
                                                         <input type="hidden" class="form-control" id="PreviousTotalWeight" title="Total Weight" placeholder="0" maxlength="10" onchange="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" readonly>
@@ -700,9 +701,10 @@
 
                                             <div class="modal-footer" style="border: none;">
                                                 <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
-                                                <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Update Yarn Inward </button>
+                                                <button id="Savebtn" type="button" class="btn btn-primary" style="font-size: medium;">Save</button>
+                                                @*<button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Update Yarn Inward </button>
                                                 <button id="saveClosebtn" type="button" class="btn btn-danger" onclick="checkCloseSave()" style="font-size: medium;">Update & Close</button>
-                                                <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Yarn PO </button>
+                                                <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Yarn PO </button>*@
                                             </div>
 
 
@@ -2270,7 +2272,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
+                console.log("getYarnTotalWeightinward", response);
                 //alert(response.Code);
 
                 if (response.Code == "200") {
@@ -2280,11 +2282,9 @@
                     //$("#TotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
                     //$("#TotalPendingTotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
                     $("#TotalPOTotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
-                    //$("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);
-
-
-
-
+                    //$("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);                    
+                    let ReceivePOQty = (response.listYarnPOMaster[0].TotalWeight - $("#TotalWeight").val());
+                    $("#ReceivePOQty").val(ReceivePOQty);
                 }
 
 
@@ -3289,5 +3289,74 @@
 
     }
 
+    $('#Savebtn').on('click', function () {
 
+
+
+        let location = $('#Location1').val();
+
+        if (!location || location === "0") {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Please Select Location',
+                text: 'Location is required before saving!'
+            });
+
+            return; // stop further code
+        }
+        debugger;
+        let totalWeight = parseFloat($('#TotalTotalWeight').val() || $('#TotalTotalWeight').text()) || 0;
+
+        let receiveWeight = 0;
+        $('#tableItemData').find('[id^="NetWeight"]').each(function () {
+            receiveWeight += parseFloat($(this).val()) || 0;
+        });
+        let ReceivePOQty = parseFloat($('#ReceivePOQty').val()) || 0;
+        let ChallanWeight = parseFloat($('#TotalWeight').val()) || 0;
+        let TotalPendingWeight = parseFloat($('#TotalPendingWeight').text()) || 0;
+
+        // ✅ calculate pending
+        let pending = totalWeight - receiveWeight;
+
+        $('#TotalPendingWeight').text(pending.toFixed(2));
+
+        // 👉 Check condition
+        if (ChallanWeight !== receiveWeight) {
+
+            // ❌ Show danger message
+            Swal.fire({
+                icon: 'error',
+                title: 'Challan Pending Weight InComplete',
+                text: `Total: ${ChallanWeight} | Received: ${receiveWeight}`
+            });
+
+            return; // stop further action
+        }
+
+        // ✅ If equal → show confirm popup
+        Swal.fire({
+            title: 'Confirm Save',
+            html: `
+            <b>Total Weight:</b> ${totalWeight} <br>
+            <b>Receive Weight:</b> ${ReceivePOQty + receiveWeight}<br>
+            <b>Pending Weight:</b> ${TotalPendingWeight}
+        `,
+            icon: 'info',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Save',
+            denyButtonText: 'Save & Close',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+                checkSave();
+            }
+            else if (result.isDenied) {
+                checkCloseSave();
+            }
+        });
+
+    });
 </script>

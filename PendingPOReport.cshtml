@@ -24,6 +24,11 @@
     #tblPendingPO td {
         white-space: nowrap;
     }
+    .nav-tabs .nav-link.active {
+        background-color: #1273eb;
+        color: #fff !important;
+        border-radius: 5px;
+    }
 </style>
 <div class="content-wrapper">
     <div class="container-fluid">
@@ -80,6 +85,14 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-body">
+                        <ul class="nav nav-tabs mb-2" id="poTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#" onclick="filterTab('pending', this)">Pending</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="filterTab('complete', this)">Close</a>
+                            </li>
+                        </ul>
                         <div class="table-responsive">
                             <table id="tblPendingPO" class="table table-bordered" style="overflow: hidden; text-align: center;">
                                 <thead>
@@ -96,6 +109,7 @@
                                         <th style="color: white !important;">Company <br> Code</th>
                                         <th style="color: white !important;">Qty</th>
                                         <th style="color: white !important;">Pending <br> Qty</th>
+                                        <th style="color: white !important;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -160,7 +174,7 @@
 <script src="vendor/daterange/custom-daterange.js"></script>
 
 <!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
+@*<script src="vendor/dropzone/dropzone.min.js"></script>*@
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
@@ -183,6 +197,9 @@
 
 <script>
     var table;
+    var table;
+    var fullData = [];
+    var currentTab = "pending";
 
     $(document).ready(function () {
         $('.active, .show, .current-page').removeClass('active show current-page');
@@ -192,25 +209,20 @@
         $(".nav-tabs .nav-link").removeClass("active");
         $(".nav-tabs .nav-link").attr("aria-selected", "false");
         $(".nav-tabs .nav-link[data-report='1']").addClass("active");
-        $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");   
-          
+        $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");          
         FunctionIsLogin();
         LoadReport();
-        //BindFinancialYearMaster();
-        //BindMaterial();
-        //BindColor();
-        //BindGodown();
-        //BindLocation();
-        //BindParty();
-        //BindCompany();
-        //BindYarnColorCode();
-        //BindBox();
+
+        currentTab = "pending";
+
+        // highlight Pending tab
+        $('#poTabs .nav-link').removeClass('active');
+        $('#poTabs .nav-link').eq(0).addClass('active');
     });
     var table = $('#tblInward').DataTable();
 
     table.columns().every(function () {
         var that = this;
-
         $('input', this.header()).on('keyup change', function () {
             if (that.search() !== this.value) {
                 that.search(this.value).draw();
@@ -318,6 +330,7 @@
         return true;
     }
     function LoadReport() {
+
         var formData = new FormData();
         formData.append('DateFrom', $("#dateFrom").val() || "");
 
@@ -331,40 +344,129 @@
 
             success: function (response) {
 
-                var table = $('#tblPendingPO').DataTable();
-                table.clear();
-
-                if (!response || !response.listYarnPOMaster) {  
-                    table.draw();
+                if (!response || !response.listYarnPOMaster) {
+                    table.clear().draw();
                     return;
                 }
 
-                // 🔥 STORE DATA
+                // ✅ store full data
                 fullData = response.listYarnPOMaster;
 
-                populateFilters(fullData);
+                // ✅ apply tab filter
+                applyTabFilter();
+            }
+        });
+    }
+    function filterTab(type, el) {
 
-                var srno = 1;
+        currentTab = type;
 
-                $.each(fullData, function (i, item) {
+        $('.nav-link').removeClass('active');
+        $(el).addClass('active');
 
-                    table.row.add([
-                        srno++,
-                        item.PONo,
-                        item.PODates,
-                        item.SupplierPartyName + "<br>" + item.SupplierMobileNo,
-                        item.BillToPartyName + "<br>" + item.BillToMobileNo, 
-                        item.CompanyPartyName + "<br>" + item.CompanyMobileNo, 
-                        item.GodownTitle + "<br>" + item.GodownAddress, 
-                        item.YarnMaterial,
-                        item.YarnColor,
-                        item.CompanyCode,
-                        item.Qty,
-                        item.PendingQty                        
-                    ]);
+        applyTabFilter();
+    }
+    function applyTabFilter() {
+
+        table.clear();
+
+        let filtered = fullData.filter(x => {
+
+            if (currentTab === "pending") {
+                return x.IsComplete === false;   // ✅ only pending
+            }
+            else {
+                return x.IsComplete === true;    // ✅ only complete
+            }
+        });
+        let srno = 1;
+
+        $.each(filtered, function (i, item) {
+
+            let actionBtn = "";
+
+            if (currentTab === "pending") {
+                actionBtn = `<button class="btn btn-success btn-sm"
+                            onclick="closePO('${item.YarnPODetailID}')">
+                            Close
+                         </button>`;
+            } else {
+                actionBtn = `<button class="btn btn-warning btn-sm" style="display:none"
+                            onclick="reopenPO('${item.YarnPODetailID}')">
+                            Pending
+                         </button >`;
+            }
+
+            table.row.add([
+                srno++,
+                item.PONo,
+                item.PODates,
+                item.SupplierPartyName,
+                item.BillToPartyName,
+                item.CompanyPartyName,
+                item.GodownTitle,
+                item.YarnMaterial,
+                item.YarnColor,
+                item.CompanyCode,
+                item.Qty,
+                item.PendingQty,
+                actionBtn
+            ]);
+        });
+
+        table.draw();
+    }
+    function reopenPO(id) {
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Move this PO back to Pending?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/ReopenPO',
+                    data: JSON.stringify({ id: id }),
+                    contentType: "application/json",
+                    success: function () {
+
+                        Swal.fire('Updated!', 'PO moved to Pending.', 'success');
+                        LoadReport();
+                    }
+                });
+            }
+        });
+    }
+    function closePO(id) {
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to close this PO?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Close it!'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/ClosePO',
+                    data: JSON.stringify({ id: id }),
+                    contentType: "application/json",
+                    success: function (res) {
+
+                        Swal.fire('Closed!', 'PO closed successfully.', 'success');
+
+                        LoadReport(); // reload data
+                    }
                 });
 
-                table.draw();
             }
         });
     }
@@ -384,6 +486,10 @@
                 title: 'Yarn Pending PO',
                 className: 'btn btn-danger',
 
+                exportOptions: {
+                    columns: ':not(:last-child)' // 👈 remove button column
+                },
+
                 customize: function (doc) {
 
                     doc.content[0].alignment = 'center';
@@ -392,7 +498,9 @@
 
                     var table = doc.content[1].table;
 
-                    table.widths = [30, 30, 30, 100, 100, 100, 120, 60, 50, 50, 30, 30];
+                    // 🔥 AUTO WIDTH FIX
+                    var colCount = table.body[0].length;
+                    table.widths = Array(colCount).fill('*');
 
                     doc.defaultStyle.fontSize = 7;
                     doc.pageMargins = [10, 30, 10, 10];
@@ -403,16 +511,6 @@
                         alignment: 'center',
                         bold: true,
                         fontSize: 8
-                    };
-
-                    doc.styles.tableBodyEven = { noWrap: false };
-                    doc.styles.tableBodyOdd = { noWrap: false };
-
-                    doc.content[1].layout = {
-                        paddingLeft: function () { return 3; },
-                        paddingRight: function () { return 3; },
-                        paddingTop: function () { return 2; },
-                        paddingBottom: function () { return 2; }
                     };
                 }
             },
@@ -428,9 +526,15 @@
             }
         ],
 
-        pageLength: 25,
-        lengthChange: false,
-        info: false
+        order: [[1, "desc"]], // 👈 PO column DESC
+
+        columnDefs: [
+            {
+                targets: -1,
+                orderable: false,
+                searchable: false
+            }
+        ]
     });
     function populateFilters(data) {
         console.log("populateFilters", data);

@@ -48,7 +48,7 @@
                         <div class="row">
 
                             <!-- 🔹 LEFT FILTER PANEL -->
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="card shadow">
                                     <div class="card-header">
                                         <h4>Filters</h4>
@@ -93,13 +93,13 @@
                                                 <option value="">All Godown</option>
                                             </select>
                                             <div class="field-placeholder">Godown</div>
-                                        </div>                                     
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 🔹 RIGHT TABLE -->
-                            <div class="col-md-9">
+                            <div class="col-md-10">
                                 <div class="card shadow">
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h4>Yarn Inter Change Report</h4>
@@ -132,6 +132,8 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="width:4%">#</th>
+                                                        <th style="width:4%">Date</th>
+                                                        <th style="width:4%">User</th>
                                                         <th style="width:8%">Box</th>
                                                         <th style="width:10%">Material</th>
                                                         <th style="width:12%">Color</th>
@@ -251,6 +253,11 @@
     let currentPage = 1;
     let pageSize = 10;
     const { jsPDF } = window.jspdf;
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        let d = new Date(dateStr);
+        return d.toLocaleString('en-IN');
+    }
     $(document).ready(function () {
         $('.active, .show, .current-page').removeClass('active show current-page');
         $("#Report-tab").addClass("active");
@@ -294,13 +301,13 @@
 
         filteredData = fullData.filter(x => {
 
-            return (!box || x.BoxNo?.toLowerCase().includes(box)) &&
-                (!material || x.YarnMaterial?.toLowerCase().includes(material)) &&
-                (!color || x.YarnColor?.toLowerCase().includes(color)) &&
-                (!party || x.PartyName?.toLowerCase().includes(party)) &&
-                (!po || x.PONo?.toString().toLowerCase().includes(po)) &&
-                (!godown || x.GodownTitle?.toLowerCase().includes(godown)) &&
-                (!move || x.MOVEBOXORNOT === move);
+            return (!box || x.Box?.toLowerCase().includes(box)) &&
+                (!material || x.Material?.toLowerCase().includes(material)) &&
+                (!color || x.Color?.toLowerCase().includes(color)) &&
+                (!party || x.Party?.toLowerCase().includes(party)) &&
+                (!po || x.PO?.toString().includes(po)) &&
+                (!godown || x.Godown?.toLowerCase().includes(godown)) &&
+                (!move || x.Move === move);
         });
 
         currentPage = 1;
@@ -315,10 +322,10 @@
             contentType: "application/json",
             dataType: "json",
             success: function (res) {
-                console.log("YarnInterChangeReport", res)
+             
                 fullData = JSON.parse(res.d);
                 filteredData = [...fullData];
-
+                console.log("YarnInterChangeReport", fullData)
                 bindDropdowns();
                 renderTable();
             }
@@ -332,27 +339,32 @@
 
         pageData.forEach((item, i) => {
 
-            let badge = item.MOVEBOXORNOT === "YES"
+            let badge = item.Move === "YES"
                 ? '<span class="badge bg-success">YES</span>'
                 : '<span class="badge bg-danger">NO</span>';
 
-            let rowClass = item.MOVEBOXORNOT === "YES" ? "table-success" : "";
+            let rowClass = item.Move === "YES" ? "table-success" : "";
+
+            const date = item.DateAndTime
+                ? new Date(item.DateAndTime).toLocaleString('en-IN')
+                : '-';
 
             let row = `
-            <tr class="${rowClass}">
-                <td>${start + i + 1}</td>
-                <td>${item.BoxNo}</td>
-                <td>${item.YarnMaterial}</td>
-                <td>${item.YarnColor}</td>
-                <td>${item.PartyName}</td>
-                <td>${item.PONo}</td>
-                <td>${item.GodownTitle}</td>
-                <td>${item.FromLocation || '-'}</td>
-                <td>${item.ToLocation || '-'}</td>
-                <td>${item.NetWeight}</td>
-                <td>${badge}</td>
-            </tr>
-        `;
+                    <tr class="${rowClass}">
+                        <td>${start + i + 1}</td>
+                        <td>${date}</td>
+                        <td>${item.User || '-'}</td>
+                        <td>${item.Box || '-'}</td>
+                        <td>${item.Material || '-'}</td>
+                        <td>${item.Color || '-'}</td>
+                        <td>${item.Party || '-'}</td>
+                        <td>${item.PO || '-'}</td>
+                        <td>${item.Godown || '-'}</td>
+                        <td>${item.From || '-'}</td>
+                        <td>${item.To || '-'}</td>
+                        <td>${item.Wt || 0}</td>
+                        <td>${badge}</td>
+                    </tr>`;
 
             html += row; // ✅ MOST IMPORTANT LINE
         });
@@ -457,19 +469,31 @@
     });
     function bindDropdowns() {
 
-        bindDropdown("#filterBox", "BoxNo");
-        bindDropdown("#filterMaterial", "YarnMaterial");
-        bindDropdown("#filterColor", "YarnColor");
-        bindDropdown("#filterParty", "PartyName");
-        bindDropdown("#filterPO", "PONo");
-        bindDropdown("#filterGodown", "GodownTitle");
+        bindDropdown("#filterBox", "Box");
+        bindDropdown("#filterMaterial", "Material");
+        bindDropdown("#filterColor", "Color");
+        bindDropdown("#filterParty", "Party");
+        bindDropdown("#filterPO", "PO");
+        bindDropdown("#filterGodown", "Godown");
+        bindDropdown("#filterMove", "Move");
     }
     function bindDropdown(selector, field) {
 
-        let values = [...new Set(fullData.map(x => x[field]))];
+        let values = [...new Set(
+            fullData
+                .map(x => x[field])
+                .filter(v => v !== undefined && v !== null && v !== "")
+        )];
+
+        // 🔥 Optional: sort values
+        values.sort();
 
         let dropdown = $(selector);
-        dropdown.empty().append(`<option value="">All ${field}</option>`);
+
+        // 🔥 Better label
+        let label = field;
+
+        dropdown.empty().append(`<option value="">All ${label}</option>`);
 
         values.forEach(v => {
             dropdown.append(`<option value="${v}">${v}</option>`);
@@ -603,92 +627,59 @@
     }
     function exportToPDF() {
 
-        let doc = new jsPDF('landscape');
+        let doc = new jsPDF('landscape', 'pt', 'A4');
+
+        doc.text("Yarn Inter Change Report", 40, 30);
 
         let rows = filteredData.map((x, i) => [
             i + 1,
-            x.BoxNo,
-            x.YarnMaterial,
-            x.YarnColor,
-            x.PartyName,
-            x.PONo,
-            x.GodownTitle,
-            x.FromLocation || '-',
-            x.ToLocation || '-',
-            x.NetWeight,
-            x.MOVEBOXORNOT
+            x.DateAndTime ? formatDate(x.DateAndTime) : '-',
+            x.User || '-',
+            x.Box || '-',
+            x.Material || '-',
+            x.Color || '-',
+            x.Party || '-',
+            x.PO || '-',
+            x.Godown || '-',
+            x.From || '-',
+            x.To || '-',
+            x.Wt || 0,
+            x.Move || '-'
         ]);
 
         doc.autoTable({
-            head: [['#', 'Box', 'Material', 'Color', 'Party', 'PO', 'Godown', 'From', 'To', 'Wt', 'Move']],
+            startY: 50,
+            head: [['#', 'Date', 'User', 'Box', 'Material', 'Color', 'Party', 'PO', 'Godown', 'From', 'To', 'Wt', 'Move']],
             body: rows,
-
-            styles: {
-                fontSize: 8,
-                textColor: [0, 0, 0]
-            },
-
-            headStyles: {
-                fillColor: [13, 110, 253], // 🔵 BLUE HEADER
-                textColor: [255, 255, 255], // ⚪ WHITE TEXT
-                fontStyle: 'bold'
-            },
-
-            alternateRowStyles: {
-                fillColor: [240, 248, 255] // light blue shade (optional)
-            }
+            styles: { fontSize: 7 }
         });
 
         doc.save("YarnReport.pdf");
     }
     function printReport() {
 
-        preparePDFData(); // same function reuse 👍
-
         let content = document.getElementById("pdfContainer").innerHTML;
 
         let printWindow = window.open('', '', 'width=1200,height=800');
 
         printWindow.document.write(`
-        <html>
-        <head>
-            <title>Yarn Report</title>
-            <style>
-                body { font-family: Arial; padding: 20px; }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    table-layout: fixed;
-                }
-
-                th, td {
-                    border: 1px solid #ccc;
-                    padding: 5px;
-                    font-size: 12px;
-                    text-align: left;
-                    word-wrap: break-word;
-                }
-
-                th {
-                    background: #0d6efd;
-                    color: white;
-                }
-
-                tr {
-                    page-break-inside: avoid;
-                }
-            </style>
-        </head>
-        <body>
-            <h3 style="text-align:center;">Yarn Interchange Report</h3>
-            ${content}
-        </body>
-        </html>
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #ccc; padding: 5px; font-size: 12px; }
+            th { background: #0d6efd; color: white; }
+        </style>
+    </head>
+    <body>
+        <h3 style="text-align:center;">Yarn Interchange Report</h3>
+        ${content}
+    </body>
+    </html>
     `);
 
         printWindow.document.close();
-        printWindow.focus();
 
         setTimeout(() => {
             printWindow.print();

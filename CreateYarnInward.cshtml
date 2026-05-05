@@ -398,6 +398,7 @@
                                                 </div>
 
                                                 <div class="col-6">
+                                                    <input type="text" class="form-control" id="ReceivePOQty" hidden>
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
                                                         <input type="text" class="form-control" id="TotalWeight" title="Total Weight" placeholder="0" maxlength="10" onchange="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" onkeyup="PendingWeightCalc()">
@@ -666,10 +667,8 @@
 
 
                                             <div class="modal-footer" style="border: none;">
-                                                <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
-                                                <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Yarn Inward </button>
-                                                <button id="saveClosebtn" type="button" class="btn btn-danger" onclick="checkCloseSave()" style="font-size: medium;">Save & Close</button>
-                                                <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Yarn PO </button>
+                                                <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>                                               
+                                                <button id="Savebtn" type="button" class="btn btn-primary"  style="font-size: medium;">Save</button>
                                             </div>
 
 
@@ -802,7 +801,7 @@
 <script src="vendor/daterange/custom-daterange.js"></script>
 
 <!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
+@*<script src="vendor/dropzone/dropzone.min.js"></script>*@
 <!-- Main Js Required -->
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 
@@ -1673,7 +1672,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
+                console.log("getYarnMaterialinward",response);
                 //alert(response.Code);
 
                 if (response.Code == "200") {
@@ -2010,28 +2009,20 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
+                console.log("getYarnTotalWeightinward",response);
                 //alert(response.Code);
-
                 if (response.Code == "200") {
-
-
                     $("#TotalTotalWeight").val(response.listYarnPOMaster[0].TotalQty);
                     $("#TotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
                     $("#TotalPendingTotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
-                    $("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);
-
-
-
-
+                    $("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);    
+                    console.log("TotalPendingWeight", response.listYarnPOMaster[0].TotalQty);
+                    console.log("recived Weight", response.listYarnPOMaster[0].TotalWeight);
+                    console.log("TotalPendingTotalWeight", response.listYarnPOMaster[0].PendingWeight);
+                    $("#ReceivePOQty").val(response.listYarnPOMaster[0].TotalWeight);
                 }
-
-
-
-
             },
             error: function (request, status, error) {
-
                 //window.location.href = 'SaleInvoice';
 
             }
@@ -2783,14 +2774,19 @@
                         contentType: false,
                         processData: false,
                         success: function (response) {
-                            if (response.Code == 200) {
+                            // 👉 FIX: get actual data
+                            let res = response.d || response;
+                            console.log("insertYarnInwardMasterMaster", res);
+                            if (res.Code == 200) {
                                 notes.show("Yarn Inward Created Successfully.", { type: 'success' });
-                                window.location.href = 'YarnInward';
+                                setTimeout(() => {
+                                    window.location.href = 'YarnInward';
+                                }, 1000);
                             } else {
-                                notes.show(response.Message, { type: 'danger' });
-                            }
+                                notes.show(res.Message, { type: 'danger' });                            }
                         },
-                        error: function () {
+                        error: function (xhr) {
+                            console.log(xhr);
                             notes.show("Problem occurred while submitting your data.", { type: 'danger' });
                         }
                     });
@@ -2950,36 +2946,22 @@
 
                     var appendTemp = '';
                     for (var j = 0; j < txtColorData.length; j++) {
-
                         var BN = "#BoxNo" + txtColorData[j];
                         var BNVal = $(BN).val();
-
                         var BAR = "#BarcodeNo" + txtColorData[j];
                         var BARVal = $(BAR).val();
-
                         var NW = "#NetWeight" + txtColorData[j];
                         var NWVal = $(NW).val();
-
                         var LC = "#Location" + txtColorData[j];
                         var LCVal = $(LC).val();
-
-
-
                         appendTemp += '{';
                         appendTemp += '"BoxNo": "' + BNVal + '",';
                         appendTemp += '"NetWeight": "' + NWVal + '",';
                         appendTemp += '"BarcodeNo": "' + BARVal + '",';
                         appendTemp += '"GodownLocationID": "' + LCVal + '"';
                         appendTemp += '},';
-
                     }
-
-
-
-
-
                     var YarnInwardArray = '';
-
                     YarnInwardArray += '{';
                     YarnInwardArray += '"ChallanDates":"' + ChallanDate.value + '", ';
                     YarnInwardArray += '"PartyChallanNo":"' + PartyChallanNo.value + '",';
@@ -2998,17 +2980,10 @@
                     //YarnInwardArray += '"PhotoOfInward":"' + PhotoOfInward + '",';
                     YarnInwardArray += '"listYarnInwardDetail": [' + appendTemp.slice(0, -1) + ']';
                     YarnInwardArray += '}';
-
                     console.log(YarnInwardArray);
-
-
-
-
-
                     const formData = new FormData();
                     formData.append('YarnInwardArray', YarnInwardArray);
                     formData.append('PhotoOfInward', PhotoOfInward);
-
                     $.ajax({
                         type: "POST",
                         url: '/WebServiceNikunjTextile.asmx/insertYarnInwardMasterMaster',
@@ -3029,21 +3004,79 @@
                         }
                     });
 
-
                 }
-
-
 
             }
 
+        }
+    }
+    $('#Savebtn').on('click', function () {
 
 
+
+        let location = $('#Location1').val();
+
+        if (!location || location === "0") {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Please Select Location',
+                text: 'Location is required before saving!'
+            });
+
+            return; // stop further code
+        }
+        debugger;
+        let totalWeight = parseFloat($('#TotalTotalWeight').val() || $('#TotalTotalWeight').text()) || 0;
+
+        let receiveWeight = 0;
+        $('#tableItemData').find('[id^="NetWeight"]').each(function () {
+            receiveWeight += parseFloat($(this).val()) || 0;
+        });
+        let ReceivePOQty = parseFloat($('#ReceivePOQty').val()) || 0;
+        let ChallanWeight = parseFloat($('#TotalWeight').val()) || 0;
+        let TotalPendingWeight = parseFloat($('#TotalPendingWeight').text()) || 0;
+
+        // ✅ calculate pending
+        let pending = totalWeight - receiveWeight;
+
+        $('#TotalPendingWeight').text(pending.toFixed(2));  
+        // 👉 Check condition
+        if (ChallanWeight !== receiveWeight) {
+            // ❌ Show danger message
+            Swal.fire({
+                icon: 'error',
+                title: 'Challan Pending Weight InComplete',
+                text: `Total: ${ChallanWeight} | Received: ${receiveWeight}`
+            });
+            return; // stop further action
         }
 
+        // ✅ If equal → show confirm popup
+        Swal.fire({
+            title: 'Confirm Save',
+            html: `
+            <b>Total Weight:</b> ${totalWeight} <br>
+            <b>Receive Weight:</b> ${ReceivePOQty + receiveWeight}<br>
+            <b>Pending Weight:</b> ${TotalPendingWeight}
+        `,
+            icon: 'info',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Save',
+            denyButtonText: 'Save & Close',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
 
+            if (result.isConfirmed) {
+                checkSave();
+            }
+            else if (result.isDenied) {
+                checkCloseSave();
+            }
+        });
 
-    }
-
+    });
 
 
 

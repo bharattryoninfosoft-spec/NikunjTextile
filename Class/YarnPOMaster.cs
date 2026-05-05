@@ -36,11 +36,8 @@ namespace NikunjTextile.Class
         public string PaymentCondition { get; set; }
         public string NotesRemarks { get; set; }
         public string DeleteYarnDetailsArray { get; set; }
-
-
         public decimal TotalWeight { get; set; }
         public decimal PendingWeight { get; set; }
-
         public string SupplierPartyName { get; set; }
         public string SupplierMobileNo { get; set; }
         public string SupplierAlterMobileNo { get; set; }
@@ -57,8 +54,6 @@ namespace NikunjTextile.Class
         public string SupplierBankIFSCCode { get; set; }
         public string SupplierBankName { get; set; }
         public string SupplierBankBranch { get; set; }
-
-
         public string CompanyPartyName { get; set; }
         public string CompanyMobileNo { get; set; }
         public string CompanyAlterMobileNo { get; set; }
@@ -75,9 +70,6 @@ namespace NikunjTextile.Class
         public string CompanyBankIFSCCode { get; set; }
         public string CompanyBankName { get; set; }
         public string CompanyBankBranch { get; set; }
-
-
-
         public string BillToPartyName { get; set; }
         public string BillToMobileNo { get; set; }
         public string BillToAlterMobileNo { get; set; }
@@ -94,8 +86,6 @@ namespace NikunjTextile.Class
         public string BillToBankIFSCCode { get; set; }
         public string BillToBankName { get; set; }
         public string BillToBankBranch { get; set; }
-
-
         public string ShippedToPartyName { get; set; }
         public string ShippedToMobileNo { get; set; }
         public string ShippedToAlterMobileNo { get; set; }
@@ -112,30 +102,17 @@ namespace NikunjTextile.Class
         public string ShippedToBankIFSCCode { get; set; }
         public string ShippedToBankName { get; set; }
         public string ShippedToBankBranch { get; set; }
-
-
-
         public string YarnPOArray { get; set; }
         public string SearchRequirementNo { get; set; }
         public string startFrom { get; set; }
-
-
-
         public string YarnColor { get; set; }
         public string YarnColorCode { get; set; }
-        public int YarnColorID { get; set; }
-
-
-
-        
+        public int YarnColorID { get; set; }        
         public decimal Qty { get; set; }
         public decimal PendingQty { get; set; }
         public decimal Rate { get; set; }
-
         public int EditableOrNot { get; set; }
-        
-
-
+        public bool IsComplete { get; set; } 
         public List<YarnPODetails> listYarnPODetails { get; set; }
     }
 }
