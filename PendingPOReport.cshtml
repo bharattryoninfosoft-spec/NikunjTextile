@@ -351,9 +351,11 @@
 
                 // ✅ store full data
                 fullData = response.listYarnPOMaster;
-
+                console.log("fullData", fullData);
+                populateFilters(fullData);
                 // ✅ apply tab filter
                 applyTabFilter();
+             
             }
         });
     }
