@@ -5,15 +5,12 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <!-- Meta -->
     <meta name="description" content="Nikung Textile">
     <meta name="author" content="Nikunj Textile">
     <link rel="shortcut icon" href="img/fav.png">
-
     <!-- Title -->
     <title id="title"> </title>
-
     <!-- *************
         ************ Common Css Files *************
     ************ -->
@@ -22,79 +19,104 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Icomoon Font Icons css -->
     <link rel="stylesheet" href="fonts/style.css">
-
     <!-- Main css -->
     <link rel="stylesheet" href="css/main.css">
-
     <!-- Notify -->
     <link rel="stylesheet" href="vendor/notify/notify-flat.css" />
-
     <!-- *************
         ************ Vendor Css Files *************
     ************ -->
     <!-- Mega Menu -->
     <link rel="stylesheet" href="vendor/megamenu/css/megamenu.css">
-
     <!-- Search Filter JS -->
     <link rel="stylesheet" href="vendor/search-filter/search-filter.css">
     <link rel="stylesheet" href="vendor/search-filter/custom-search-filter.css">
-
     <!-- Data Tables -->
     <link rel="stylesheet" href="vendor/datatables/dataTables.bs4.css" />
     <link rel="stylesheet" href="vendor/datatables/dataTables.bs4-custom.css" />
     <link href="vendor/datatables/buttons.bs.css" rel="stylesheet" />
-
     <!-- Bootstrap Select CSS -->
     <link rel="stylesheet" href="vendor/bs-select/bs-select.css" />
-
     <!-- Date Range CSS -->
     <link rel="stylesheet" href="vendor/daterange/daterange.css">
-
     <!-- Uploader CSS -->
     <link rel="stylesheet" href="vendor/dropzone/dropzone.min.css" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @*<style>
-            .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
-                display: none;
+    <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+    <!-- *************
+        ************ Vendor Js Files *************
+    ************* -->
+    <!-- Megamenu JS -->
+    <script src="vendor/megamenu/js/megamenu.js"></script>
+    <script src="vendor/megamenu/js/custom.js"></script>
+
+    <!-- Slimscroll JS -->
+    <script src="vendor/slimscroll/slimscroll.min.js"></script>
+    <script src="vendor/slimscroll/custom-scrollbar.js"></script>
+
+    <!-- Search Filter JS -->
+    <script src="vendor/search-filter/search-filter.js"></script>
+    <script src="vendor/search-filter/custom-search-filter.js"></script>
+
+    <!-- Notify js -->
+    <script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+    <script src="vendor/notify/notify.js"></script>
+    <script src="vendor/notify/notify-custom.js"></script>
+
+    <!-- Rating JS -->
+    <script src="vendor/rating/raty.js"></script>
+    <script src="vendor/rating/raty-custom.js"></script>
+
+    <!-- Data Tables -->
+    <script src="vendor/datatables/dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
+
+    <!-- Custom Data tables -->
+    <!--<script src="vendor/datatables/custom/custom-datatables.js"></script>-->
+    <!-- Download / CSV / Copy / Print -->
+    <script src="vendor/datatables/buttons.min.js"></script>
+    <script src="vendor/datatables/jszip.min.js"></script>
+    <script src="vendor/datatables/pdfmake.min.js"></script>
+    <script src="vendor/datatables/vfs_fonts.js"></script>
+    <script src="vendor/datatables/html5.min.js"></script>
+    <script src="vendor/datatables/buttons.print.min.js"></script>
+
+    <!-- Date Range JS -->
+    <script src="vendor/daterange/daterange.js"></script>
+    <script src="vendor/daterange/custom-daterange.js"></script>
+
+    <!-- Dropzone JS -->
+    @*<script src="vendor/dropzone/dropzone.min.js"></script>*@
+    <!-- Main Js Required -->
+    <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+    <style>
+
+        .sidebar-logo {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fff;
+        }
+
+            .sidebar-logo img {
+                width: 45px;
+                height: 45px;
             }
 
-            .alert {
-                display: none;
-            }
-
-            .is-valid {
-                border-color: rgba(25,135,84,.9) !important;
-                padding-right: calc(1.5em + 0.75rem);
-                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
-                background-repeat: no-repeat;
-                background-position: right calc(0.375em + 0.1875rem) center;
-                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-            }
-
-            .is-invalid {
-                padding-right: calc(1.5em + 0.75rem);
-                background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
-                background-repeat: no-repeat;
-                background-position: right calc(0.375em + 0.1875rem) center;
-                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-                border-color: rgba(220,53,69,.9);
-            }
-
-            .view-more-styl-class {
-                text-align: center;
-            }
-
-            .title {
-                font-size: .8rem;
-                color: #1273eb;
-                margin: 5px 0 0.3rem 0;
-                font-weight: 600;
-                text-align: left;
-            }
-        </style>*@
+        #dynamicMenuTabs {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
 </head>
 
 
@@ -103,476 +125,36 @@
     <div class="page-wrapper">
         <!-- Sidebar wrapper start -->
         <nav class="sidebar-wrapper">
-
-            <!-- Sidebar content start -->
             <div class="sidebar-tabs">
-
-                <!-- Tabs nav start -->
-                <div class="nav" role="tablist" aria-orientation="vertical">
-
+                <!-- LEFT TAB -->
+                <div class="nav"  role="tablist" aria-orientation="vertical" id="dynamicMenuTabs">
+                    <!-- LOGO -->
                     <a href="#" class="logo">
-                        <img src="img/logo.svg" alt="Tryon InfoSoft">
+                        <img src="img/logo.svg"  alt="Tryon InfoSoft">
                     </a>
-
-                    <a class="nav-link" id="home-tab" data-bs-toggle="tab" href="#tab-home">
-                        <i class="bi bi-speedometer2"></i>
-                        <span class="nav-link-text">Dashboard</span>
-                    </a>
-
-                    <a class="nav-link" id="master-tab" data-bs-toggle="tab" href="#tab-Master">
-                        <i class="bi bi-collection"></i>
-                        <span class="nav-link-text">Master</span>
-                    </a>
-
-                    <a class="nav-link" id="EntryForm-tab" data-bs-toggle="tab" href="#tab-EntryForm">
-                        <i class="bi bi-pencil-square"></i>
-                        <span class="nav-link-text">Entry Form</span>
-                    </a>
-
-                    <a class="nav-link" id="YarnForm-tab" data-bs-toggle="tab" href="#tab-YarnForm">
-                        <i class="bi bi-diagram-3"></i>
-                        <span class="nav-link-text">Yarn Detail</span>
-                    </a>
-
-                    <a class="nav-link" id="forms-tab" data-bs-toggle="tab" href="#tab-forms">
-                        <i class="bi bi-tools"></i>
-                        <span class="nav-link-text">Utility</span>
-                    </a>
-
-                    <a class="nav-link" id="Report-tab" data-bs-toggle="tab" href="#tab-Report">
-                        <i class="bi bi-bar-chart-line"></i>
-                        <span class="nav-link-text">Report</span>
-                    </a>
-
-                    <a class="nav-link" id="finance-tab" data-bs-toggle="tab" href="#tab-finance">
-                        <i class="bi bi-receipt"></i>
-                        <span class="nav-link-text">Transaction</span>
-                    </a>
-
-                </div>         <!-- Tabs nav end -->
-                <!-- Tabs content start -->
-                <div class="tab-content">
-
-                    <!-- Chat tab -->
-                    <div class="tab-pane fade" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
-
-                        <!-- Tab content header start -->
-                        <div class="tab-pane-header">
-                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="Dashboard" id="aDashboard">
-                                            <i class="bi bi-house-door me-2"></i> Dashboard
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- Pages tab -->
-                    <div class="tab-pane fade" id="tab-Master" role="tabpanel" aria-labelledby="master-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-collection me-2"></i> Master Page
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-
-                                    <li>
-                                        <a href="/YarnColor" id="aYarnColor">
-                                            <i class="bi bi-palette me-2"></i> Yarn Color
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/ColorGroup" id="aColorGroup">
-                                            <i class="bi bi-grid-3x3-gap me-2"></i> Color Group
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/Designer" id="aDesigner">
-                                            <i class="bi bi-person-badge me-2"></i> Designer
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/DesignSpecification" id="aDesignSpecification">
-                                            <i class="bi bi-file-earmark-text me-2"></i> Design Specification
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/Sketcher" id="aSketcher">
-                                            <i class="bi bi-pencil me-2"></i> Sketcher
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/WarpQuality" id="aWarpQuality">
-                                            <i class="bi bi-diagram-2 me-2"></i> Warp Pattern
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/TypeMaster" id="aType">
-                                            <i class="bi bi-tags me-2"></i> Type
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/DesignCategory" id="aDesignCategory">
-                                            <i class="bi bi-folder me-2"></i> Design Category
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/YarnMaterialMaster" id="aYarnMaterial">
-                                            <i class="bi bi-box-seam me-2"></i> Yarn Material
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/ItemMaster" id="aItemMaster">
-                                            <i class="bi bi-box me-2"></i> Item Master
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/PartyMaster" id="aPartyMaster">
-                                            <i class="bi bi-people me-2"></i> Party Master
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/GodownMaster" id="aGodownMaster">
-                                            <i class="bi bi-building me-2"></i> Godown Master
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/BrokerMaster" id="aBrokerMaster">
-                                            <i class="bi bi-person-lines-fill me-2"></i> Broker Master
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/TransportMaster" id="aTransportMaster">
-                                            <i class="bi bi-truck me-2"></i> Transport Master
-                                        </a>
-                                    </li>
-
-                                    <li style="display:none;">
-                                        <a href="/GodownManagerMaster" id="aGodownManagerMaster">
-                                            <i class="bi bi-person-gear me-2"></i> Godown Manager
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- Pages tab -->
-                    <div class="tab-pane fade" id="tab-EntryForm" role="tabpanel" aria-labelledby="EntryForm-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-pencil-square me-2"></i> Design Form Page
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-
-                                    <li>
-                                        <a href="/CreateDesignEntry" id="aCreateDesignEntry">
-                                            <i class="bi bi-plus-square me-2"></i> Create Design Entry
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/DesignEntry" id="aDesignEntry">
-                                            <i class="bi bi-card-list me-2"></i> Design Entry
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/CreateDesignColorMatching" id="aCreateDesignColorMatching">
-                                            <i class="bi bi-palette-fill me-2"></i> Create Color Matching
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/ColorMatching" id="aColorMatching">
-                                            <i class="bi bi-brush me-2"></i> Color Matching
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/ColorMatchingValidationForm" id="aColorMatchingValidationForm">
-                                            <i class="bi bi-check2-square me-2"></i> Color Matching Validation Form
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                    <!-- Pages tab -->
-                    <div class="tab-pane fade" id="tab-YarnForm" role="tabpanel" aria-labelledby="YarnForm-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-diagram-3 me-2"></i> Yarn Form Page
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-
-                                    <li>
-                                        <a href="/CreateYarnPO" id="aCreateYarnPO">
-                                            <i class="bi bi-plus-square me-2"></i> Create Yarn PO
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/YarnPO" id="aYarnPO">
-                                            <i class="bi bi-file-text me-2"></i> Yarn PO
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/CreateYarnRequirement" id="aCreateYarnRequirement">
-                                            <i class="bi bi-plus-circle me-2"></i> Create Yarn Requirement
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/YarnRequirement" id="aYarnRequirement">
-                                            <i class="bi bi-list-check me-2"></i> Yarn Requirement
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/CreateYarnInward" id="aCreateYarnInward">
-                                            <i class="bi bi-box-arrow-in-down me-2"></i> Create Yarn Inward
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/YarnInward" id="aYarnInward">
-                                            <i class="bi bi-box-seam me-2"></i> Yarn Inward
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/YarnInterChange" id="aYarnInterChange">
-                                            <i class="bi bi-arrow-left-right me-2"></i> Yarn Inter Change
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/YarnOutWardChallannew" id="aYarnOutWardChallan">
-                                            <i class="bi bi-box-arrow-up me-2"></i> Create Outward List
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="/YarnOutWardChallanDetails" id="aYarnOutWardChallanDetails">
-                                            <i class="bi bi-truck me-2"></i> Yarn Outward List
-                                        </a>
-                                    </li>
-
-                                    <li><hr /></li>
-
-                                    <li>
-                                        <a href="/YarnOutWardScanDetails" id="aYarnOutWardScanDetails">
-                                            <i class="bi bi-upc-scan me-2"></i> Yarn Outward Scan List
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                    <!-- Forms tab -->
-                    <div class="tab-pane fade" id="tab-forms" role="tabpanel" aria-labelledby="forms-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-tools me-2"></i> Utility
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-
-                                    <li>
-                                        <a href="CompanyMaster" id="aCompanyMaster">
-                                            <i class="bi bi-building me-2"></i> Company Master
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="UserAccount" id="aUserAccount">
-                                            <i class="bi bi-person-circle me-2"></i> User Master
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="GstSlabMaster" id="aGstSlabMaster">
-                                            <i class="bi bi-receipt-cutoff me-2"></i> Gst Slab
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="FinancialYear" id="aFinancialYear">
-                                            <i class="bi bi-calendar-range me-2"></i> Financial Year
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="ImageCompressor" id="aImageCompressor">
-                                            <i class="bi bi-image me-2"></i> Image Compressor
-                                        </a>
-                                    </li>
-                                    
-                                    <li>                                        
-                                        <a href="UserPermission" id="aUserPermission">
-                                            <i class="bi bi-shield-lock me-2"></i> User Permission
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="tab-pane fade" id="tab-Report" role="tabpanel" aria-labelledby="forms-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-bar-chart-line me-2"></i> Report
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-                                    <li>
-                                        <a href="CustomReport" id="aCustomReport">
-                                            <i class="bi bi-clipboard-data me-2"></i> Yarn Stock Report
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="PendingPOReport" id="aPendingPOReport">
-                                            <i class="bi bi-file-earmark-text me-2"></i> Pending PO Report
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="EmptyLocationReport" id="aEmptyLocationReport">
-                                            <i class="bi bi-geo-alt me-2"></i> Empty Location Report
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="ColorMatchingValidationReport" id="aColorMatchingReport">
-                                            <i class="bi bi-palette me-2"></i> Color Matching Validation Report
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="YarnInterChangeReport" id="aYarnInterChangeReport">
-                                            <i class="bi bi-arrow-left-right me-2"></i> Yarn Inter Change Report
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="tab-pane fade" id="tab-finance" role="tabpanel" aria-labelledby="forms-tab">
-
-                        <div class="tab-pane-header">
-                            <i class="bi bi-receipt me-2"></i> Order Entry
-                        </div>
-
-                        <div class="sidebarMenuScroll">
-                            <div class="sidebar-menu">
-                                <ul>
-
-                                    <li>
-                                        <a href="listSaleOrderEntry" id="aSaleOrderEntry">
-                                            <i class="bi bi-cart-check me-2"></i> Sale Order Entry
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
                 </div>
-                <!-- Tabs content end -->
-
+                <!-- RIGHT CONTENT -->
+                <div class="tab-content" id="dynamicMenuContent">
+                </div>
             </div>
-            <!-- Sidebar content end -->
 
         </nav>
         <!-- Sidebar wrapper end -->
         <!-- *************
-            ************ Main container start *************
-        ************* -->
+        ************ Main container start *************
+    ************* -->
         <div class="main-container">
-
             <div class="page-header">
-
                 <div class="row gutters">
                     <div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 col-9">
-
                         <div class="search-container">
-
-                            <!-- Toggle sidebar -->
                             <div class="toggle-sidebar" id="toggle-sidebar">
                                 <i class="bi bi-list"></i>
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-3">
-
                         <ul class="header-actions">
-
                             <li class="dropdown">
                                 <a href="#" id="userSettings" class="user-settings" data-bs-toggle="dropdown">
                                     <span class="avatar">
@@ -580,7 +162,6 @@
                                         <span class="status bg-success"></span>
                                     </span>
                                 </a>
-
                                 <div class="dropdown-menu dropdown-menu-end md">
                                     <div class="header-profile-actions">
                                         <a href="javascript:void(0)" onclick="logout()">
@@ -589,7 +170,6 @@
                                     </div>
                                 </div>
                             </li>
-
                         </ul>
 
                     </div>
@@ -606,109 +186,74 @@
     </div>
 </body>
 </html>
-@*<script>
-    let userPermissions = [];
+<script>
+
     $(document).ready(function () {
-        FunctionIsLogin();
-        loadUserPermissionAndMenu();
-    });
-    function FunctionIsLogin() {
+        loadDynamicMenu();
+    });    
+    function loadDynamicMenu() {
         $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-            data: "{ 'userName':'0' }",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                console.log(data);
-
-                if (data.d == "false") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    function hideAllTabs() {
-        $('.nav-link').hide();      // left sidebar tabs
-        $('.tab-pane').hide();      // content
-        $('.sidebar-menu a').hide(); // submenu
-    }
-    function loadUserPermissionAndMenu() {
-
-        let userId = $('#ddlUser').val() || 0; // OR get from session
-
-        $.ajax({
-            url: '/WebServiceNikunjTextile.asmx/GetUserPermission',
+            url: '/WebServiceNikunjTextile.asmx/GetDynamicMenu',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({ userId: parseInt(userId) }),
-
-            success: function (res) {
-
-                userPermissions = JSON.parse(res.d);
-
-                console.log("Permissions:", userPermissions);
-
-                applyMenuPermission();   // 🔥 APPLY UI AFTER DATA
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+                var menus = response.d;
+                console.log(menus);                
+                $("#dynamicMenuTabs").find(".nav-link").remove();
+                $("#dynamicMenuContent").empty();                
+                $.each(menus, function (i, menu) {
+                   var tabHtml = `<a class="nav-link" id="tab_${menu.Menu_Id}_link" data-bs-toggle="tab" href="#tab_${menu.Menu_Id}" role="tab">
+                                    <i class="bi ${menu.Menu_Icon}"></i>
+                                    <span class="nav-link-text">${menu.Menu_Name}</span>
+                                </a>`;
+                    $("#dynamicMenuTabs").append(tabHtml);
+                    var submenuHtml = '';
+                    $.each(menu.SubMenus, function (j, sub) {
+                        var url = '#';
+                        if (sub.Controller != '' && sub.Controller != '#') {
+                            url = '/' + sub.Controller;
+                        }
+                        submenuHtml += `<li> <a href="${url}" id="submenu_${sub.SubMenu_Id}">
+                                                <i class="bi ${sub.SubMenu_Icon} me-2"></i> ${sub.SubMenu_Name} </a> </li>`;
+                    });              
+                    var contentHtml = `<div class="tab-pane fade" id="tab_${menu.Menu_Id}" role="tabpanel">
+                                                <div class="tab-pane-header">
+                                                    <i class="bi ${menu.Menu_Icon} me-2"></i>
+                                                                 ${menu.Menu_Name}
+                                                 </div>
+                                        <div class="sidebarMenuScroll"> <div class="sidebar-menu"> <ul> ${submenuHtml} </ul> </div> </div>
+                                        </div>`;
+                                    $("#dynamicMenuContent").append(contentHtml);
+                 });
+                var currentUrl = window.location.pathname.toLowerCase();
+                //console.log("Current URL:", currentUrl);
+                $("#dynamicMenuContent a").each(function () {
+                    var menuUrl = $(this).attr("href").toLowerCase();
+                    //console.log(menuUrl);
+                    if (currentUrl == menuUrl) {                     
+                        $(this).addClass("current-page");
+                       var tabPane = $(this).closest(".tab-pane");
+                           tabPane.addClass("show active");                      
+                        var tabId = tabPane.attr("id");
+                        $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
+                    }
+                });
+                if ($("#dynamicMenuTabs .active").length == 0) {
+                    $("#dynamicMenuTabs .nav-link:first").addClass("active");
+                    $("#dynamicMenuContent .tab-pane:first").addClass("show active");
+                }
+            },
+            error: function (xhr, status, error) {
+                //console.log(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Menu Error',
+                    text: xhr.responseText
+                });
             }
         });
     }
-    function applyMenuPermission() {
 
-        // 🔴 Hide everything first
-        $('.nav-link').hide();
-        $('.tab-pane').hide();
-        $('.sidebar-menu a').hide();
-
-        let allowedMenus = [];
-
-        $.each(userPermissions, function (i, p) {
-
-            if (p.CanView == 1 || p.CanView === true) {
-
-                // collect menu ids
-                if (!allowedMenus.includes(p.Menu_Id)) {
-                    allowedMenus.push(p.Menu_Id);
-                }
-
-                // show submenu (ID based)
-                $('#a' + p.Action).show();
-            }
-        });
-
-        // 🔥 Show only allowed parent tabs
-        $.each(allowedMenus, function (i, menuId) {
-
-            switch (parseInt(menuId)) {
-
-                case 1:
-                    $('#home-tab').show(); $('#tab-home').show(); break;
-
-                case 2:
-                    $('#master-tab').show(); $('#tab-Master').show(); break;
-
-                case 3:
-                    $('#EntryForm-tab').show(); $('#tab-EntryForm').show(); break;
-
-                case 4:
-                    $('#YarnForm-tab').show(); $('#tab-YarnForm').show(); break;
-
-                case 5:
-                    $('#forms-tab').show(); $('#tab-forms').show(); break;
-
-                case 6:
-                    $('#Report-tab').show(); $('#tab-Report').show(); break;
-
-                case 7:
-                    $('#finance-tab').show(); $('#tab-finance').show(); break;
-            }
-        });
-
-        // ✅ Auto activate first visible tab
-        $('.nav-link:visible:first').addClass('active');
-        $('.tab-pane:visible:first').addClass('show active');
-    }   
-</script>*@
+</script>

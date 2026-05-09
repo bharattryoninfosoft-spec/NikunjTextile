@@ -760,6 +760,7 @@
     <Content Include="PendingPOReport.cshtml" />
     <Content Include="YarnInterChangeReport.cshtml" />
     <Content Include="ColorMatchingValidationReport.cshtml" />
+    <Content Include="Webcamrecording.cshtml" />
     <None Include="packages.config" />
     <Content Include="vendor\summernote\fonts\summernote.eot" />
     <Content Include="vendor\summernote\fonts\summernote.ttf" />
@@ -813,6 +814,7 @@
     <Folder Include="AadharUpload\" />
     <Folder Include="CompanyPictures\" />
     <Folder Include="PhotoOfInward\" />
+    <Folder Include="UploadedVideos\" />
     <Folder Include="UserProfile\" />
   </ItemGroup>
   <PropertyGroup>

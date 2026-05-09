@@ -16,19 +16,15 @@
 
                         <!-- User Dropdown -->
                         <div class="row mb-3">
-
                             <div class="col-md-6">
                                 <label>Select User</label>
                                 <select id="ddlUser" class="form-control"></select>
                             </div>
-
                             <div class="col-md-6">
                                 <label>Select Menu</label>
                                 <select id="ddlMenu" class="form-control"></select>
                             </div>
-
                         </div>
-
                         <!-- Permission Table -->
                         <table class="table table-bordered" id="tblPermission">
                             <thead>
@@ -367,26 +363,24 @@
                             if (chk.length === 0) return;
                             list.push({
                                 User_Id: parseInt(userId),
-                                Menu_Id: chk.data('menu'),
-                                SubMenu_Id: chk.data('sub'),
+                                Menu_Id: parseInt(chk.data('menu')),
+                                SubMenu_Id: parseInt(chk.data('sub')),
                                 CanView: $(this).find('.chkView').is(':checked'),
                                 CanAdd:  $(this).find('.chkAdd').is(':checked'),
                                 CanEdit: $(this).find('.chkEdit').is(':checked'),
                                 CanDelete: $(this).find('.chkDelete').is(':checked')
                             });
                         });
-
                         btn.prop('disabled', true);
                         btn.html('<span class="spinner-border spinner-border-sm"></span> Saving...');
-
                         $.ajax({
                             url: '/WebServiceNikunjTextile.asmx/SavePermission',
                             type: 'POST',
                             contentType: 'application/json; charset=utf-8',
-                            data: JSON.stringify({ permissions: JSON.stringify(list) }),
-
+                            dataType: 'json',                            
+                            data: JSON.stringify({ permissions: list }),
                             success: function (res) {
-                                Swal.fire('Success', res.d, 'success');                           
+                                Swal.fire('Success', res.d, 'success');
                                 btn.prop('disabled', false);
                                 btn.html('<i class="bi bi-save me-1"></i> Save');
 
@@ -397,7 +391,9 @@
                                 }, 1500);
                             },
 
-                            error: function () {
+                            error: function (xhr) {
+
+                                console.log(xhr.responseText);
 
                                 Swal.fire('Error', 'Something went wrong', 'error');
 

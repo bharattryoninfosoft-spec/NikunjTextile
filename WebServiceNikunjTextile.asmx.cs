@@ -1,7 +1,9 @@
 ﻿using iText.IO.Font;
 using iText.IO.Font.Constants;
 using iText.IO.Image;
+using iText.Kernel.Colors;
 using iText.Kernel.Font;
+using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Borders;
@@ -30,9 +32,7 @@ using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
-using System.Windows.Input;
-using Image = iText.Layout.Element.Image;
-using Table = iText.Layout.Element.Table;
+
 
 namespace NikunjTextile
 {
@@ -190,7 +190,7 @@ namespace NikunjTextile
         }
         private void GenerateThumbnailsV2(double scaleFactor, Stream sourceStream, string targetPath)
         {
-            string dir = Path.GetDirectoryName(targetPath);
+            string dir = System.IO.Path.GetDirectoryName(targetPath);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
@@ -206,7 +206,7 @@ namespace NikunjTextile
                     thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
                     thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                    var imageRectangle = new Rectangle(0, 0, newWidth, newHeight);
+                    var imageRectangle = new System.Drawing.Rectangle(0, 0, newWidth, newHeight);
                     thumbGraph.DrawImage(image, imageRectangle);
 
                     // ✅ Save safely
@@ -25241,7 +25241,7 @@ INNER JOIN PartyMaster PM1
                 if (!Directory.Exists(sourcePath))
                     throw new Exception("Source folder not found.");
 
-                string destPath = Path.Combine(sourcePath, "CompressImages");
+                string destPath = System.IO.Path.Combine(sourcePath, "CompressImages");
 
                 // Create destination folder safely
                 Directory.CreateDirectory(destPath);
@@ -25250,8 +25250,8 @@ INNER JOIN PartyMaster PM1
 
                 foreach (string file in bmpFiles)
                 {
-                    string fileName = Path.GetFileNameWithoutExtension(file) + ".jpg";
-                    string newPath = Path.Combine(destPath, fileName);
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(file) + ".jpg";
+                    string newPath = System.IO.Path.Combine(destPath, fileName);
 
                     // Open file without locking
                     using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -27227,32 +27227,203 @@ ORDER BY SO.OrderNo DESC";
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object GetDynamicMenu()
+        {
+            string userId = "";
+
+            HttpCookie cookie = HttpContext.Current.Request.Cookies["UserIDs"];
+
+            if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+            {
+                userId = cookie.Value.Split('=')[1];
+            }
+
+            DataTable dt = new DataTable();
+
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter(@"
+
+SELECT 
+
+    MM.Menu_Id,
+    MM.Menu_Name,
+    MM.Menu_Icon,
+    MM.Menu_OrderNo,
+
+    SM.SubMenu_Id,
+    SM.SubMenu_Name,
+    SM.SubMenu_Icon,
+    SM.SubMenu_OrderNo,
+    SM.Controller,
+    SM.Action,
+
+    UMP.[View],
+    UMP.[Add],
+    UMP.[Edit],
+    UMP.[Delete]
+
+FROM UserMenuPermission UMP
+
+INNER JOIN MenuMaster MM
+    ON MM.Menu_Id = UMP.Menu_Id
+
+INNER JOIN SubMenuMaster SM
+    ON SM.SubMenu_Id = UMP.SubMenu_Id
+
+WHERE 
+    UMP.User_Id = @UserId
+    AND UMP.[View] = 1
+
+ORDER BY 
+    MM.Menu_OrderNo,
+    SM.SubMenu_OrderNo
+
+", con);
+
+                da.SelectCommand.Parameters.AddWithValue("@UserId", userId);
+
+                da.Fill(dt);
+            }
+
+            var result = dt.AsEnumerable()
+
+                .GroupBy(x => new
+                {
+                    Menu_Id = x["Menu_Id"].ToString(),
+                    Menu_Name = x["Menu_Name"].ToString(),
+                    Menu_Icon = x["Menu_Icon"].ToString()
+                })
+
+                .Select(menu => new
+                {
+                    Menu_Id = menu.Key.Menu_Id,
+                    Menu_Name = menu.Key.Menu_Name,
+                    Menu_Icon = menu.Key.Menu_Icon,
+
+                    SubMenus = menu.Select(sub => new
+                    {
+                        SubMenu_Id = sub["SubMenu_Id"].ToString(),
+                        SubMenu_Name = sub["SubMenu_Name"].ToString(),
+                        SubMenu_Icon = sub["SubMenu_Icon"].ToString(),
+                        Controller = sub["Controller"].ToString(),
+                        Action = sub["Action"].ToString(),
+
+                        View = Convert.ToBoolean(sub["View"]),
+                        Add = Convert.ToBoolean(sub["Add"]),
+                        Edit = Convert.ToBoolean(sub["Edit"]),
+                        Delete = Convert.ToBoolean(sub["Delete"])
+
+                    }).ToList()
+
+                }).ToList();
+
+            return result;
+        }
+        //========================================================
+        // CHECK PAGE PERMISSION
+        //========================================================
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public bool CheckPagePermission(string controller, string action)
+        {
+            string userId = "";
+            HttpCookie cookie = HttpContext.Current.Request.Cookies["UserIDs"];
+            if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+            {
+                userId = cookie.Value.Split('=')[1];
+            }
+            int count = 0;
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(@"SELECT COUNT(*) FROM UserMenuPermission UMP INNER JOIN SubMenuMaster SM ON SM.SubMenu_Id = UMP.SubMenu_Id
+                    WHERE  UMP.User_Id = @UserId AND SM.Controller = @Controller AND SM.Action = @Action AND UMP.[View] = 1 ", con);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@Controller", controller);
+                cmd.Parameters.AddWithValue("@Action", action);
+                con.Open();
+                count = Convert.ToInt32(cmd.ExecuteScalar());
+                con.Close();
+            }
+            return count > 0;
+        }
+
+        [WebMethod]
         public string SavePermission(List<PermissionModel> permissions)
         {
-            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+            if (permissions == null || permissions.Count == 0)
+            {
+                return "No Data";
+            }
+
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
                 con.Open();
 
                 int userId = permissions[0].User_Id;
-                int Menu_Id = permissions[0].Menu_Id;
+                int menuId = permissions[0].Menu_Id;
 
-                // Delete old
-                SqlCommand del = new SqlCommand("DELETE FROM UserMenuPermission WHERE User_Id=@UserId and Menu_Id=@MenuId", con);
+                // =========================
+                // DELETE OLD DATA
+                // =========================
+                SqlCommand del = new SqlCommand(@"
+            DELETE FROM UserMenuPermission
+            WHERE User_Id = @UserId
+            AND Menu_Id = @MenuId
+        ", con);
+
                 del.Parameters.AddWithValue("@UserId", userId);
-                del.Parameters.AddWithValue("@MenuId", Menu_Id);
+                del.Parameters.AddWithValue("@MenuId", menuId);
+
                 del.ExecuteNonQuery();
 
-                // Insert new
+                // =========================
+                // INSERT ONLY TRUE VALUE
+                // =========================
                 foreach (var p in permissions)
                 {
+                    // CHECK ANY PERMISSION TRUE
+                    bool hasPermission =
+                           p.CanView
+                        || p.CanAdd
+                        || p.CanEdit
+                        || p.CanDelete;
+
+                    if (!hasPermission)
+                    {
+                        continue;
+                    }
+
                     SqlCommand cmd = new SqlCommand(@"
                 INSERT INTO UserMenuPermission
-                (User_Id, Menu_Id, SubMenu_Id, [View], [Add], [Edit], [Delete])
-                VALUES (@User_Id, @Menu_Id, @SubMenu_Id, @CanView, @CanAdd, @CanEdit, @CanDelete)", con);
+                (
+                    User_Id,
+                    Menu_Id,
+                    SubMenu_Id,
+                    [View],
+                    [Add],
+                    [Edit],
+                    [Delete]
+                )
+                VALUES
+                (
+                    @User_Id,
+                    @Menu_Id,
+                    @SubMenu_Id,
+                    @CanView,
+                    @CanAdd,
+                    @CanEdit,
+                    @CanDelete
+                )
+            ", con);
 
                     cmd.Parameters.AddWithValue("@User_Id", p.User_Id);
                     cmd.Parameters.AddWithValue("@Menu_Id", p.Menu_Id);
                     cmd.Parameters.AddWithValue("@SubMenu_Id", p.SubMenu_Id);
+
                     cmd.Parameters.AddWithValue("@CanView", p.CanView);
                     cmd.Parameters.AddWithValue("@CanAdd", p.CanAdd);
                     cmd.Parameters.AddWithValue("@CanEdit", p.CanEdit);
@@ -27482,290 +27653,317 @@ ORDER BY SO.OrderNo DESC";
 
             return list;
         }
+
+        private Cell BodyCell(string text, TextAlignment align)
+        {
+            Paragraph p = new Paragraph(text ?? "")
+                .SetFontSize(8)
+                .SetMargin(0)
+                .SetPadding(0)
+                .SetMultipliedLeading(1);
+
+            return new Cell()
+                .Add(p)
+                .SetPaddingTop(3)
+                .SetPaddingBottom(3)
+                .SetPaddingLeft(3)
+                .SetPaddingRight(3)       
+                .SetTextAlignment(align)
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE)                
+                .SetBorderLeft(new SolidBorder(0.8f))
+                .SetBorderRight(new SolidBorder(0.8f))
+                .SetBorderBottom(Border.NO_BORDER)
+                .SetBorderTop(Border.NO_BORDER);
+        }
+
         public string CreatePDF(List<YarnPOMaster> data)
         {
-            // ================= COMPANY =================
-            CompanyMaster company = null;
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand("select top 1 * from CompanyMaster where is_default=1", con);
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                if (rdr.Read())
-                {
-                    company = new CompanyMaster()
-                    {
-                        CompanyName = rdr["CompanyName"].ToString(),
-                        MobileNo = rdr["MobileNo"].ToString(),
-                        BusinessAddress = rdr["BusinessAddress"].ToString(),
-                        GSTIN = rdr["GSTIN"].ToString(),
-                        CompanyLogo = rdr["CompanyLogo"].ToString(),
-                        Sign = rdr["Sign"].ToString()
-                    };
-                }
-                rdr.Close();
-            }
-
-            // ================= PDF =================
             string dir = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
             string fileName = $"YarnPO_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-            string filePath = Path.Combine(dir, fileName);
+
+            string filePath = System.IO.Path.Combine(dir, fileName);
 
             PdfWriter writer = new PdfWriter(filePath);
+
             PdfDocument pdf = new PdfDocument(writer);
+
+            pdf.SetDefaultPageSize(PageSize.A4);
+
             Document document = new Document(pdf);
-            document.SetMargins(15, 15, 15, 15);
 
-            PdfFont normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-            PdfFont boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+            document.SetMargins(10, 10, 10, 10);
+            PdfFont normalFont;
+            PdfFont boldFont;
+            float pageWidth = pdf.GetDefaultPageSize().GetWidth() - 20;
+            // ================= FONT =================
 
-            document.SetFont(normalFont).SetFontSize(9);
-
-            string Safe(string s) => s ?? "";
-
-            for (int i = 0; i < data.Count; i++)
+            try
             {
-                var item = data[i];
-                // ================= HEADER (OLD + LOGO) =================
-                Table header = new Table(new float[] { 1, 3, 1 }).UseAllAvailableWidth();
+                string f1 = HttpContext.Current.Server.MapPath("~/fonts/arial.ttf");
+                string f2 = HttpContext.Current.Server.MapPath("~/fonts/arialbd.ttf");
 
-                // ===== LEFT (LOGO) =====
-                //var logo = GetImage(company?.CompanyLogo);
+                if (File.Exists(f1) && File.Exists(f2))
+                {
+                    normalFont = PdfFontFactory.CreateFont(f1, PdfEncodings.IDENTITY_H);
+                    boldFont = PdfFontFactory.CreateFont(f2, PdfEncodings.IDENTITY_H);
+                }
+                else
+                {
+                    normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+                    boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                }
+            }
+            catch
+            {
+                normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+                boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+            }
 
-                //Cell leftCell = new Cell().SetBorder(Border.NO_BORDER);
+            document.SetFont(normalFont);
+            document.SetFontSize(9);
 
-                //if (logo != null)
-                //{
-                //    logo.ScaleToFit(60, 60);
-                //    leftCell.Add(logo);
-                //}
+            string Safe(string s)
+            {
+                return s ?? "";
+            }
 
-                //header.AddCell(leftCell);
+            foreach (var item in data)
+            {
+                // =========================================================
+                // HEADER
+                // =========================================================
 
-                // ===== CENTER (TEXT PERFECT CENTER) =====
-                header.AddCell(new Cell()
-                    .Add(new Paragraph("PURCHASE ORDER")
-                        .SetTextAlignment(TextAlignment.LEFT)
-                        .SetFontSize(9))
+                iText.Layout.Element.Table header = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 1 })).UseAllAvailableWidth();
+                Cell headCell = new Cell();
+                headCell.Add(new Paragraph("PURCHASE ORDER").SetFont(boldFont).SetFontSize(10).SetTextAlignment(TextAlignment.LEFT));
+                headCell.Add(new Paragraph(Safe(item.BillToPartyName)).SetFont(boldFont).SetFontSize(15).SetTextAlignment(TextAlignment.CENTER));
+                headCell.Add(new Paragraph(Safe(item.BillToBillingAddress)).SetTextAlignment(TextAlignment.CENTER));
+                headCell.Add(new Paragraph("M - " + Safe(item.BillToMobileNo)).SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
+                headCell.Add(new Paragraph("GST - " + Safe(item.BillToGSTIN)).SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
+                headCell.SetBorder(new SolidBorder(1));
+                header.AddCell(headCell);
+                document.Add(header);
+                // =========================================================
+                // SHIP + ORDER
+                // =========================================================
 
-                    .Add(new Paragraph(company?.CompanyName ?? "")
-                        .SetFont(boldFont)
-                        .SetFontSize(14)
-                        .SetTextAlignment(TextAlignment.CENTER))
-
-                    .Add(new Paragraph(company?.BusinessAddress ?? "")
-                        .SetTextAlignment(TextAlignment.CENTER))
-
-                    .Add(new Paragraph("M - " + (company?.MobileNo ?? ""))
-                        .SetTextAlignment(TextAlignment.CENTER))
-
-                    .Add(new Paragraph("GST - " + (company?.GSTIN ?? ""))
-                        .SetTextAlignment(TextAlignment.CENTER))
-
+                iText.Layout.Element.Table ship = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
+                Cell shipLeft = new Cell();
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Name : ").SetFont(boldFont)).Add(Safe(item.BillToPartyName)));
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To GST : ").SetFont(boldFont)).Add(Safe(item.BillToGSTIN)));
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Address : ").SetFont(boldFont)).Add(Safe(item.BillToBillingAddress)));
+                ship.AddCell(shipLeft);
+                iText.Layout.Element.Table order = new iText.Layout.Element.Table(1).UseAllAvailableWidth();
+                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER DATE : ").SetFont(boldFont)).Add(Safe(item.PODates)).SetTextAlignment(TextAlignment.LEFT))
                     .SetBorder(Border.NO_BORDER));
-
-                // ===== RIGHT (EMPTY FOR BALANCE) =====
-                header.AddCell(new Cell().SetBorder(Border.NO_BORDER));
-
-                // ===== OUTER BORDER =====
-                Table wrapper = new Table(1).UseAllAvailableWidth();
-                wrapper.AddCell(new Cell().Add(header).SetBorder(new SolidBorder(1)));
-
-                document.Add(wrapper);
-
-                // ================= SHIP + ORDER =================
-                Table ship = new Table(new float[] { 5, 2 }).UseAllAvailableWidth().SetFixedLayout();
-                ship.AddCell(new Cell()
-                    .Add(new Paragraph().Add(new Text("Shipped To Name : ").SetFont(boldFont)).Add(Safe(item.BillToPartyName)))
-                    .Add(new Paragraph().Add(new Text("Shipped To GST : ").SetFont(boldFont)).Add(Safe(item.BillToGSTIN)))
-                    .Add(new Paragraph().Add(new Text("Shipped To Address : ").SetFont(boldFont)).Add(Safe(item.BillToBillingAddress)))
-                    .SetBorder(new SolidBorder(1)));
-
-                // 🔥 FIXED ORDER ALIGNMENT
-
-                Table order = new Table(1).UseAllAvailableWidth().SetFixedLayout();
-                // ORDER DATE (single line)
-                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER DATE : ").SetFont(boldFont)).Add(new Text(item.PODates))
-                        .SetTextAlignment(TextAlignment.LEFT).SetMargin(0)).SetBorder(Border.NO_BORDER));
-
-                // ORDER NUMBER (single line)
-                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER NUMBER : ").SetFont(boldFont)).Add(new Text(item.PONo.ToString()))
-                        .SetTextAlignment(TextAlignment.LEFT).SetMargin(0)).SetBorder(Border.NO_BORDER));
-
-                // add to main table
-                ship.AddCell(new Cell().Add(order).SetBorder(new SolidBorder(1)));
-
+                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER NUMBER : ").SetFont(boldFont)).Add(item.PONo.ToString()).SetTextAlignment(TextAlignment.LEFT))
+                    .SetBorder(Border.NO_BORDER));
+                ship.AddCell(new Cell().Add(order));
                 document.Add(ship);
 
-                // ================= VENDOR =================
-                Table vendor = new Table(new float[] { 3, 2 }).UseAllAvailableWidth();
+                // =========================================================
+                // VENDOR
+                // =========================================================
 
-                vendor.AddCell(new Cell()
-                    .Add(new Paragraph().Add(new Text("Vendor : ").SetFont(boldFont)).Add(Safe(item.SupplierPartyName)))
-                    .Add(new Paragraph().Add(new Text("GST : ").SetFont(boldFont)).Add(Safe(item.SupplierGSTIN)))
-                    .Add(new Paragraph().Add(new Text("Address : ").SetFont(boldFont)).Add(Safe(item.SupplierBillingAddress)))
-                    .Add(new Paragraph().Add(new Text("Mobile : ").SetFont(boldFont)).Add(Safe(item.SupplierMobileNo)))
-                    .SetBorder(new SolidBorder(1)));
+                iText.Layout.Element.Table vendor = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
 
-                vendor.AddCell(new Cell()
-                    .Add(new Paragraph().Add(new Text("Company Name : ").SetFont(boldFont)).Add(Safe(item.CompanyPartyName)))
-                    .Add(new Paragraph().Add(new Text("Company GST : ").SetFont(boldFont)).Add(Safe(item.CompanyGSTIN)))
-                    .Add(new Paragraph().Add(new Text("Company Address : ").SetFont(boldFont)).Add(Safe(item.CompanyBillingAddress)))
-                    .SetBorder(new SolidBorder(1)));
-
+                Cell vendorLeft = new Cell();
+                vendorLeft.Add(new Paragraph().Add(new Text("Vendor : ").SetFont(boldFont)).Add(Safe(item.SupplierPartyName)));
+                vendorLeft.Add(new Paragraph().Add(new Text("GST : ").SetFont(boldFont)).Add(Safe(item.SupplierGSTIN)));
+                vendorLeft.Add(new Paragraph().Add(new Text("Address : ").SetFont(boldFont)).Add(Safe(item.SupplierBillingAddress)));
+                vendorLeft.Add(new Paragraph().Add(new Text("Mobile : ").SetFont(boldFont)).Add(Safe(item.SupplierMobileNo)));
+                vendor.AddCell(vendorLeft);
+                Cell vendorRight = new Cell();
+                vendorRight.Add(new Paragraph().Add(new Text("Company Name : ").SetFont(boldFont)).Add(Safe(item.CompanyPartyName)));
+                vendorRight.Add(new Paragraph().Add(new Text("Company GST : ").SetFont(boldFont)).Add(Safe(item.CompanyGSTIN)));
+                vendorRight.Add(new Paragraph().Add(new Text("Company Address : ").SetFont(boldFont)).Add(Safe(item.CompanyBillingAddress)));
+                vendor.AddCell(vendorRight);
                 document.Add(vendor);
 
-                // ================= ITEM TABLE =================
-                Table table = new Table(UnitValue.CreatePercentArray(new float[] { 2, 2, 2, 2, 2, 2, 2 }))
-                    .UseAllAvailableWidth();
+                // =========================================================
+                // ITEM TABLE
+                // =========================================================
 
-                string[] headers = { "Quality", "Colour", "Code", "Qty", "Rate", "GST Slab", "Amount" };
+                float[] cols = { 10, 25, 20, 18, 12, 15, 15, 20 };
+
+                iText.Layout.Element.Table table = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(cols)).UseAllAvailableWidth();
+                table.SetMinHeight(300);
+                table.SetFontSize(8);
+                // FIXED HEIGHT
+                // =========================================================
+                // HEADER
+                // =========================================================
+
+                string[] headers =
+                {
+    "SR","Quality","Colour","Code",
+    "Qty","Rate","GST Slab","Amount"
+};
 
                 foreach (var h in headers)
                 {
-                    table.AddHeaderCell(new Cell()
-                        .Add(new Paragraph(h).SetFont(boldFont))
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetBorder(new SolidBorder(1)));
+                    table.AddHeaderCell(
+                        new Cell()
+                            .Add(
+                                new Paragraph(h)
+                                    .SetFont(boldFont)
+                                    .SetFontSize(8)
+                                    .SetMargin(0)
+                            )
+                            .SetPadding(2)
+                            .SetTextAlignment(TextAlignment.CENTER)
+                            .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                            .SetBackgroundColor(ColorConstants.LIGHT_GRAY)
+                            .SetBorder(new SolidBorder(1))
+                    );
                 }
 
+                // =========================================================
+                // DATA ROWS
+                // =========================================================
+
                 decimal total = 0;
-                decimal totalTaxable = 0;
-                decimal totalGST = 0;
+                decimal gstAmount = 0;
+
+                int currentRows = 0;
 
                 if (item.listYarnPODetails != null)
                 {
+                    int Row = 1;
+
                     foreach (var d in item.listYarnPODetails)
                     {
-                        decimal amount = d.Amount;
+                        decimal gstPer = 0;
 
-                        // Extract GST % from string like "5% GST"
-                        decimal gstPercent = 0;
-                        if (!string.IsNullOrEmpty(d.GSTSLABName))
-                        {
-                            string num = new string(d.GSTSLABName.Where(char.IsDigit).ToArray());
-                            decimal.TryParse(num, out gstPercent);
-                        }
+                        decimal.TryParse(Convert.ToString(d.GSTSLABId), out gstPer);
 
-                        decimal taxable = (gstPercent > 0) ? amount / (1 + gstPercent / 100) : amount;
-                        decimal gst = amount - taxable;
+                        decimal rowGST = (d.Amount * gstPer) / 100;
 
-                        totalTaxable += taxable;
-                        totalGST += gst;
-                        total += amount;
+                        gstAmount += rowGST;
 
-                        table.AddCell(new Cell().Add(new Paragraph(Safe(d.YarnMaterial))).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(Safe(d.YarnColor))).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(Safe(d.CompanyCode))).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(d.Qty.ToString())).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(d.Rate.ToString("N2"))).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(Safe(d.GSTSLABName))).SetBorder(new SolidBorder(1)));
-                        table.AddCell(new Cell().Add(new Paragraph(amount.ToString("N2"))).SetBorder(new SolidBorder(1)));
+                        bool isLast = false;
+
+                        table.AddCell(BodyCell(Row.ToString(), TextAlignment.CENTER));
+                        table.AddCell(BodyCell(Safe(d.YarnMaterial), TextAlignment.LEFT));
+                        table.AddCell(BodyCell(Safe(d.YarnColor), TextAlignment.LEFT));
+                        table.AddCell(BodyCell(Safe(d.CompanyCode), TextAlignment.LEFT));
+                        table.AddCell(BodyCell(d.Qty.ToString("N2"), TextAlignment.CENTER));
+                        table.AddCell(BodyCell(d.Rate.ToString("N2"), TextAlignment.RIGHT));
+                        table.AddCell(BodyCell(Safe(d.GSTSLABName), TextAlignment.CENTER));
+                        table.AddCell(BodyCell(d.Amount.ToString("N2"), TextAlignment.RIGHT));
+
+                        total += d.Amount;
+
+                        Row++;
+                        currentRows++;
                     }
                 }
 
+                // =========================================================
+                // FIXED EMPTY ROWS
+                // =========================================================
+
+                int maxRows = 23;
+
+                for (int i = currentRows; i < maxRows; i++)
+                {
+                    bool isLastRow = (i == maxRows - 1);
+
+                    for (int c = 0; c < 8; c++)
+                    {
+                        table.AddCell(
+                            new Cell()
+                                .Add(
+                                    new Paragraph(" ")
+                                        .SetFontSize(8)
+                                        .SetMargin(0)
+                                )
+                                .SetHeight(16)
+                                .SetPadding(0)
+                                .SetBorderLeft(new SolidBorder(1))
+                                .SetBorderRight(new SolidBorder(1))
+                                .SetBorderTop(Border.NO_BORDER)
+                                .SetBorderBottom(
+                                    isLastRow
+                                    ? new SolidBorder(1)
+                                    : Border.NO_BORDER
+                                )
+                        );
+                    }
+                }
+                 
+
                 document.Add(table);
+                // =========================================================
+                // TOTAL
+                // =========================================================
 
-                // ================= TOTAL =================
-                Table totalOuter = new Table(1).UseAllAvailableWidth();
-
-                Table right = new Table(new float[] { 3, 2 })
-                    .SetWidth(250)
-                    .SetHorizontalAlignment(HorizontalAlignment.RIGHT);
-
+                decimal grandTotal = total + gstAmount;
+                iText.Layout.Element.Table totalOuter = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 100 })).UseAllAvailableWidth();           
+                iText.Layout.Element.Table right = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 60, 40 })).UseAllAvailableWidth();
                 right.AddCell(new Cell().Add(new Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(totalTaxable.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-
+                right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
                 right.AddCell(new Cell().Add(new Paragraph("GST Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(totalGST.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-
-                right.AddCell(new Cell().Add(new Paragraph("Total Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetFont(boldFont).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-
+                right.AddCell(new Cell().Add(new Paragraph(gstAmount.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph("Grand Total :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph(grandTotal.ToString("N2")).SetFont(boldFont).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
                 totalOuter.AddCell(new Cell().Add(right).SetBorder(new SolidBorder(1)));
-
                 document.Add(totalOuter);
 
+                // =========================================================
+                // NOTES
+                // =========================================================
 
-                // ================= NOTES =================
-                Table notes = new Table(1).UseAllAvailableWidth();
-                notes.AddCell(new Cell()
-                    .Add(new Paragraph().Add(new Text("Notes:").SetFont(boldFont)))
-                    .Add(new Paragraph("- There should not be any denier variation in yarn. In case of dyed yarn, there should not be any shade variation."))
-                    .Add(new Paragraph("- Goods should be deliverd to shipping address only. Goods should be delivered between 9 Am to 7 PM."))
-                    .Add(new Paragraph("- Price will be considered as per the PO. Any changes in prices should be communicated beforehand and updated PO should be generated."))
-                    .Add(new Paragraph("- Loading, unloading and transportation of goods will be supplier's responsibility."))
-                    .SetBorder(new SolidBorder(1)));
-
+                iText.Layout.Element.Table notes = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 1 })).UseAllAvailableWidth();
+           
+                Cell notesCell = new Cell();
+                notesCell.Add(new Paragraph("Notes:").SetFont(boldFont).SetFontSize(9));
+                notesCell.Add(new Paragraph("- There should not be any denier variation in yarn. In case of dyed yarn, there should not be any shade variation.")
+                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
+                notesCell.Add(new Paragraph("- Goods should be delivered to shipping address only. Goods should be delivered between 9 AM to 7 PM.")
+                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
+                notesCell.Add(new Paragraph("- Price will be considered as per the PO. Any changes in prices should be communicated beforehand and updated PO should be generated.")
+                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
+                notesCell.Add(new Paragraph("- Loading, unloading and transportation of goods will be supplier responsibility.")
+                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
+                notesCell.SetBorder(new SolidBorder(1));
+                notes.AddCell(notesCell);
                 document.Add(notes);
 
-                // ================= FOOTER =================
-                Table footer = new Table(new float[] { 3, 2 }).UseAllAvailableWidth();
+                // =========================================================
+                // FOOTER
+                // =========================================================
 
-                footer.AddCell(new Cell()
-                    .Add(new Paragraph().Add(new Text("DELIVERY TIME : ").SetFont(boldFont)).Add(Safe(item.DeliveryTime)))
-                    .Add(new Paragraph().Add(new Text("PAYMENT : ").SetFont(boldFont)).Add(Safe(item.PaymentCondition)))
-                    .Add(new Paragraph().Add(new Text("REMARK : ").SetFont(boldFont)))
-                    .SetBorder(new SolidBorder(1)));
-
-                var sign = GetImage(company?.Sign);
-
-                Cell signCell = new Cell().SetBorder(new SolidBorder(1));
-                signCell.Add(new Paragraph("AUTHORISED SIGN").SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
-
-                //if (sign != null)
-                //{
-                //    sign.ScaleToFit(100, 50);
-                //    sign.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-                //    signCell.Add(sign);
-                //}
-                //else
-                //{
-                //    signCell.Add(new Paragraph("\n\n"));
-                //}
-
-                footer.AddCell(signCell);
-
+                iText.Layout.Element.Table footer = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();           
+                Cell footLeft = new Cell();
+                footLeft.Add(new Paragraph().Add(new Text("DELIVERY TIME : ").SetFont(boldFont)).Add(Safe(item.DeliveryTime)));
+                footLeft.Add(new Paragraph().Add(new Text("PAYMENT : ").SetFont(boldFont)).Add(Safe(item.PaymentCondition)));
+                footLeft.Add(new Paragraph().Add(new Text("REMARK : ").SetFont(boldFont)));
+                footer.AddCell(footLeft);
+                Cell sign = new Cell();
+                sign.Add(new Paragraph("AUTHORISED SIGN").SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
+                sign.SetVerticalAlignment(VerticalAlignment.TOP);
+                footer.AddCell(sign);
                 document.Add(footer);
-                if (i < data.Count - 1)
+                // =========================================================
+                // PAGE BREAK
+                // =========================================================
+
+                if (item != data.Last())
                 {
-                    document.Add(new AreaBreak());
+                    document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
                 }
             }
 
             document.Close();
+
             return "/GeneratedPDF/" + fileName;
         }
-        private iText.Layout.Element.Image GetImage(string pathOrBase64)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(pathOrBase64))
-                    return null;
 
-                if (pathOrBase64.StartsWith("data:image"))
-                {
-                    var base64 = pathOrBase64.Split(',')[1];
-                    byte[] bytes = Convert.FromBase64String(base64);
-                    return new iText.Layout.Element.Image(ImageDataFactory.Create(bytes));
-                }
-
-                string fullPath = HttpContext.Current.Server.MapPath("~/" + pathOrBase64);
-
-                if (File.Exists(fullPath))
-                {
-                    return new iText.Layout.Element.Image(ImageDataFactory.Create(fullPath));
-                }
-            }
-            catch { }
-
-            return null;
-        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void YarnPendingPOReport()
