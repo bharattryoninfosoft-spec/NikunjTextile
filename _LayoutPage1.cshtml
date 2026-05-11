@@ -187,7 +187,6 @@
 </body>
 </html>
 <script>
-
     $(document).ready(function () {
         loadDynamicMenu();
     });    
@@ -197,10 +196,9 @@
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            success: function (response) {
-                console.log(response);
+            success: function (response) {         
                 var menus = response.d;
-                console.log(menus);                
+                console.log("GetDynamicMenu",menus);                
                 $("#dynamicMenuTabs").find(".nav-link").remove();
                 $("#dynamicMenuContent").empty();                
                 $.each(menus, function (i, menu) {
@@ -255,5 +253,4 @@
             }
         });
     }
-
 </script>

@@ -5717,13 +5717,37 @@ namespace NikunjTextile
                                 cmd.ExecuteNonQuery();
                                 //con.Close();
                             }
+                            Int64 id = 0;
+                            string sql = @"INSERT INTO GodownMaster(DateAndTime,GodownTitle,GodownAddress,IsActive,IsDefault,CompanyId,UserAccountId,GSTIN)
+                                    OUTPUT INSERTED.GodownID VALUES(@DateAndTime,@GodownTitle,@GodownAddress,@IsActive,@IsDefault,@CompanyId,@UserAccountId,@GSTIN)";
 
-                            string sql = String.Format("Insert Into GodownMaster  (DateAndTime, GodownTitle, GodownAddress, IsActive, IsDefault, CompanyId, UserAccountId) OUTPUT INSERTED.GodownID Values " +
-                                           " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + myDetails.GodownTitle.ToUpper() + "', '" + myDetails.GodownAddress.ToUpper() + "', '" + myDetails.IsActive + "', '" + myDetails.IsDefault + "', '" + CompanyId + "', '" + UserAccountId + "' " +
-                                           "   )");
+                            using (SqlCommand sqlCommand = new SqlCommand(sql, con))
+                            {
+                                sqlCommand.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
 
-                            cmd.CommandText = sql;
-                            Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
+                                sqlCommand.Parameters.AddWithValue("@GodownTitle",
+                                    myDetails.GodownTitle.ToUpper());
+
+                                sqlCommand.Parameters.AddWithValue("@GodownAddress",
+                                    myDetails.GodownAddress.ToUpper());
+
+                                sqlCommand.Parameters.AddWithValue("@IsActive",
+                                    myDetails.IsActive);
+
+                                sqlCommand.Parameters.AddWithValue("@IsDefault",
+                                    myDetails.IsDefault);
+
+                                sqlCommand.Parameters.AddWithValue("@CompanyId",
+                                    CompanyId);
+
+                                sqlCommand.Parameters.AddWithValue("@UserAccountId",
+                                    UserAccountId);
+
+                                sqlCommand.Parameters.AddWithValue("@GSTIN",
+                                    myDetails.GSTIN);
+
+                                id = Convert.ToInt64(sqlCommand.ExecuteScalar());
+                            } 
 
                             //con.Close();
                             if (id > 0)
@@ -5732,24 +5756,26 @@ namespace NikunjTextile
                                 {
                                     foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
                                     {
-
-                                        string sqls = String.Format("Insert Into GodownLocationMaster  (DateandTime, SrNo, LocationTitle, GodownID ) Values  " +
-                                               " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.SrNo + "', '" + each.LocationTitle.ToUpper() + "',   " +
-                                               "  '" + id + "' )");
-
-                                        cmd.CommandText = sqls;
-                                        cmd.ExecuteNonQuery();
-
+                                        string sqls = @"INSERT INTO GodownLocationMaster (DateandTime,SrNo,LocationTitle,GodownID)
+                                            VALUES (@DateandTime,@SrNo,@LocationTitle,@GodownID)";
+                                        using (SqlCommand cmds = new SqlCommand(sqls, con))
+                                        {
+                                            cmds.Parameters.AddWithValue("@DateandTime", dateTime_Indian);
+                                            cmds.Parameters.AddWithValue("@SrNo", each.SrNo);
+                                            cmds.Parameters.AddWithValue("@LocationTitle", each.LocationTitle.ToUpper());
+                                            cmds.Parameters.AddWithValue("@GodownID", id);
+                                            cmds.ExecuteNonQuery();
+                                        }
                                     }
                                 }
-
 
                                 con.Close();
 
                                 comman.id = Convert.ToInt32(id);
-                                comman.Code = 200;
-                                comman.Message = "Record has been saved successfully";
 
+                                comman.Code = 200;
+
+                                comman.Message = "Record has been saved successfully";
                             }
                             else
                             {
@@ -5784,11 +5810,6 @@ namespace NikunjTextile
 
                 }
             }
-
-
-
-
-
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
@@ -5923,9 +5944,6 @@ namespace NikunjTextile
 
         }
 
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownMasterById()
@@ -5970,6 +5988,7 @@ namespace NikunjTextile
                     {
                         GodownMaster condition = new GodownMaster();
                         condition.GodownID = Convert.ToInt32(rdr["GodownID"].ToString());
+                        condition.GSTIN = (rdr["GSTIN"].ToString());
                         condition.GodownTitle = rdr["GodownTitle"].ToString();
                         condition.GodownAddress = rdr["GodownAddress"].ToString();
                         condition.IsActive = Convert.ToInt32(rdr["IsActive"].ToString());
@@ -6088,16 +6107,18 @@ namespace NikunjTextile
                             rdr.Close();
 
 
-                            string sql = String.Format("Update GodownMaster set GodownTitle = @GodownTitle, GodownAddress = @GodownAddress, IsActive = '" + myDetails.IsActive + "', UserAccountId = '" + UserAccountId + "', CompanyId = '" + CompanyId + "' where " +
-                                                                " GodownID = '" + myDetails.GodownID + "' ");
+                            string sql = @"UPDATE GodownMaster SET GodownTitle = @GodownTitle, GodownAddress = @GodownAddress, IsActive = @IsActive,
+                                        UserAccountId = @UserAccountId, CompanyId = @CompanyId , GSTIN=@GSTIN WHERE GodownID = @GodownID";
 
+                            cmd.Parameters.Clear();
                             cmd.CommandText = sql;
-                            cmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
-                            cmd.Parameters.Add("@GodownAddress", SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
-                            //cmd.Parameters.Add("@Location", SqlDbType.NVarChar).Value = ilist.Location;
-                            //cmd.Parameters.Add("@Storage", SqlDbType.NVarChar).Value = ilist.Storage;
-
-
+                            cmd.Parameters.Add("@GodownTitle",SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
+                            cmd.Parameters.Add("@GodownAddress",SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
+                            cmd.Parameters.Add("@IsActive",SqlDbType.Bit).Value = myDetails.IsActive;
+                            cmd.Parameters.Add("@UserAccountId",SqlDbType.BigInt).Value = UserAccountId;
+                            cmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = CompanyId;
+                            cmd.Parameters.Add("@GodownID", SqlDbType.BigInt).Value = myDetails.GodownID;
+                            cmd.Parameters.AddWithValue("@GSTIN",myDetails.GSTIN);
                             Int64 id = cmd.ExecuteNonQuery();
 
 
@@ -6152,30 +6173,24 @@ namespace NikunjTextile
                                             else
                                             {
 
-                                                string sqls = String.Format("Update GodownLocationMaster set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "',  LocationTitle = '" + each.LocationTitle + "'  " +
-                                                                                             " where GodownLocationID = '" + each.GodownLocationID + "' ");
+                                                string sqls = @"UPDATE GodownLocationMaster SET DateandTime = @DateandTime, LocationTitle = @LocationTitle
+                                                                WHERE  GodownLocationID = @GodownLocationID";
 
+                                                cmd.Parameters.Clear();
                                                 cmd.CommandText = sqls;
+                                                cmd.Parameters.Add("@DateandTime",SqlDbType.DateTime).Value = dateTime_Indian;
+                                                cmd.Parameters.Add("@LocationTitle",SqlDbType.NVarChar).Value =each.LocationTitle.ToUpper();
+                                                cmd.Parameters.Add("@GodownLocationID",SqlDbType.BigInt).Value = each.GodownLocationID;
                                                 cmd.ExecuteNonQuery();
-
-
                                             }
-
-
                                         }
-
                                     }
 
-
                                 }
-
-
                                 con.Close();
-
                                 comman.id = Convert.ToInt32(id);
                                 comman.Code = 200;
                                 comman.Message = "Record has been Update successfully";
-
                             }
                             else
                             {
@@ -27501,7 +27516,7 @@ ORDER BY
                         SPPM.BillingAddress as ShippedToBillingAddress, SPPM.ShippingAddress as ShippedToShippingAddress, SPPM.GSTIN as ShippedToGSTIN, SPPM.PAN as ShippedToPAN, 
                         SPPM.State as ShippedToState,  SPPM.City as ShippedToCity, SPPM.Pincode as ShippedToPincode,
                         SPPM.BankHolderName as ShippedToBankHolderName, SPPM.BankAccountNo as ShippedToBankAccountNo, SPPM.BankIFSCCode as ShippedToBankIFSCCode, SPPM.BankName as ShippedToBankName, SPPM.BankBranch as ShippedToBankBranch, 
-                        GM.GodownTitle, GM.GodownAddress 
+                        GM.GodownTitle, GM.GodownAddress,GM.GSTIN AS GodownGST  
                         from YarnPOMaster YPM
                         LEFT JOIN PartyMaster SPM ON YPM.SupplierPartyID = SPM.PartyId
                         LEFT JOIN PartyMaster BPM ON YPM.BillToPartyID = BPM.PartyId
@@ -27599,6 +27614,7 @@ ORDER BY
                                 GodownID = Convert.ToInt32(rdr["GodownID"].ToString()),
                                 GodownTitle = rdr["GodownTitle"].ToString().ToUpper(),
                                 GodownAddress = rdr["GodownAddress"].ToString().ToUpper(),
+                                GodownGST = rdr["GodownGST"].ToString().ToUpper(),
                                 TotalQty = Convert.ToDecimal(rdr["TotalQty"].ToString()),
                                 TotalRate = Convert.ToDecimal(rdr["TotalRate"].ToString()),
                                 TotalAmount = Convert.ToDecimal(rdr["TotalAmount"].ToString()),
@@ -27667,9 +27683,9 @@ ORDER BY
                 .SetPaddingTop(3)
                 .SetPaddingBottom(3)
                 .SetPaddingLeft(3)
-                .SetPaddingRight(3)       
+                .SetPaddingRight(3)
                 .SetTextAlignment(align)
-                .SetVerticalAlignment(VerticalAlignment.MIDDLE)                
+                .SetVerticalAlignment(VerticalAlignment.MIDDLE)
                 .SetBorderLeft(new SolidBorder(0.8f))
                 .SetBorderRight(new SolidBorder(0.8f))
                 .SetBorderBottom(Border.NO_BORDER)
@@ -27753,9 +27769,9 @@ ORDER BY
 
                 iText.Layout.Element.Table ship = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
                 Cell shipLeft = new Cell();
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Name : ").SetFont(boldFont)).Add(Safe(item.BillToPartyName)));
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To GST : ").SetFont(boldFont)).Add(Safe(item.BillToGSTIN)));
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Address : ").SetFont(boldFont)).Add(Safe(item.BillToBillingAddress)));
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Name : ").SetFont(boldFont)).Add(Safe(item.GodownTitle)));
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To GST : ").SetFont(boldFont)).Add(Safe(item.GodownGST)));
+                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Address : ").SetFont(boldFont)).Add(Safe(item.GodownAddress)));
                 ship.AddCell(shipLeft);
                 iText.Layout.Element.Table order = new iText.Layout.Element.Table(1).UseAllAvailableWidth();
                 order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER DATE : ").SetFont(boldFont)).Add(Safe(item.PODates)).SetTextAlignment(TextAlignment.LEFT))
@@ -27798,28 +27814,11 @@ ORDER BY
                 // HEADER
                 // =========================================================
 
-                string[] headers =
-                {
-    "SR","Quality","Colour","Code",
-    "Qty","Rate","GST Slab","Amount"
-};
-
+                string[] headers = {"SR","Quality","Colour","Code","Qty","Rate","GST Slab","Amount" };
                 foreach (var h in headers)
                 {
-                    table.AddHeaderCell(
-                        new Cell()
-                            .Add(
-                                new Paragraph(h)
-                                    .SetFont(boldFont)
-                                    .SetFontSize(8)
-                                    .SetMargin(0)
-                            )
-                            .SetPadding(2)
-                            .SetTextAlignment(TextAlignment.CENTER)
-                            .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                            .SetBackgroundColor(ColorConstants.LIGHT_GRAY)
-                            .SetBorder(new SolidBorder(1))
-                    );
+                    table.AddHeaderCell(new Cell().Add(new Paragraph(h).SetFont(boldFont).SetFontSize(8).SetMargin(0)).SetPadding(2).SetTextAlignment(TextAlignment.CENTER)
+                            .SetVerticalAlignment(VerticalAlignment.MIDDLE).SetBackgroundColor(ColorConstants.LIGHT_GRAY).SetBorder(new SolidBorder(1)));
                 }
 
                 // =========================================================
@@ -27838,15 +27837,10 @@ ORDER BY
                     foreach (var d in item.listYarnPODetails)
                     {
                         decimal gstPer = 0;
-
                         decimal.TryParse(Convert.ToString(d.GSTSLABId), out gstPer);
-
                         decimal rowGST = (d.Amount * gstPer) / 100;
-
                         gstAmount += rowGST;
-
                         bool isLast = false;
-
                         table.AddCell(BodyCell(Row.ToString(), TextAlignment.CENTER));
                         table.AddCell(BodyCell(Safe(d.YarnMaterial), TextAlignment.LEFT));
                         table.AddCell(BodyCell(Safe(d.YarnColor), TextAlignment.LEFT));
@@ -27855,9 +27849,7 @@ ORDER BY
                         table.AddCell(BodyCell(d.Rate.ToString("N2"), TextAlignment.RIGHT));
                         table.AddCell(BodyCell(Safe(d.GSTSLABName), TextAlignment.CENTER));
                         table.AddCell(BodyCell(d.Amount.ToString("N2"), TextAlignment.RIGHT));
-
                         total += d.Amount;
-
                         Row++;
                         currentRows++;
                     }
@@ -27875,27 +27867,11 @@ ORDER BY
 
                     for (int c = 0; c < 8; c++)
                     {
-                        table.AddCell(
-                            new Cell()
-                                .Add(
-                                    new Paragraph(" ")
-                                        .SetFontSize(8)
-                                        .SetMargin(0)
-                                )
-                                .SetHeight(16)
-                                .SetPadding(0)
-                                .SetBorderLeft(new SolidBorder(1))
-                                .SetBorderRight(new SolidBorder(1))
-                                .SetBorderTop(Border.NO_BORDER)
-                                .SetBorderBottom(
-                                    isLastRow
-                                    ? new SolidBorder(1)
-                                    : Border.NO_BORDER
-                                )
-                        );
+                        table.AddCell(new Cell().Add(new Paragraph(" ").SetFontSize(8).SetMargin(0)).SetHeight(16).SetPadding(0).SetBorderLeft(new SolidBorder(1))
+                        .SetBorderRight(new SolidBorder(1)).SetBorderTop(Border.NO_BORDER).SetBorderBottom(isLastRow ? new SolidBorder(1) : Border.NO_BORDER ));
                     }
                 }
-                 
+
 
                 document.Add(table);
                 // =========================================================
@@ -27903,7 +27879,7 @@ ORDER BY
                 // =========================================================
 
                 decimal grandTotal = total + gstAmount;
-                iText.Layout.Element.Table totalOuter = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 100 })).UseAllAvailableWidth();           
+                iText.Layout.Element.Table totalOuter = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 100 })).UseAllAvailableWidth();
                 iText.Layout.Element.Table right = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 60, 40 })).UseAllAvailableWidth();
                 right.AddCell(new Cell().Add(new Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
                 right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
@@ -27919,7 +27895,7 @@ ORDER BY
                 // =========================================================
 
                 iText.Layout.Element.Table notes = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 1 })).UseAllAvailableWidth();
-           
+
                 Cell notesCell = new Cell();
                 notesCell.Add(new Paragraph("Notes:").SetFont(boldFont).SetFontSize(9));
                 notesCell.Add(new Paragraph("- There should not be any denier variation in yarn. In case of dyed yarn, there should not be any shade variation.")
@@ -27938,7 +27914,7 @@ ORDER BY
                 // FOOTER
                 // =========================================================
 
-                iText.Layout.Element.Table footer = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();           
+                iText.Layout.Element.Table footer = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
                 Cell footLeft = new Cell();
                 footLeft.Add(new Paragraph().Add(new Text("DELIVERY TIME : ").SetFont(boldFont)).Add(Safe(item.DeliveryTime)));
                 footLeft.Add(new Paragraph().Add(new Text("PAYMENT : ").SetFont(boldFont)).Add(Safe(item.PaymentCondition)));

@@ -26,7 +26,7 @@ namespace NikunjTextile.Class
         public string NetWeight { get; set; }
         public string searchGodown { get; set; }
         public string startFrom { get; set; }
-
+        public string GSTIN { get; set; }
 
         public List<GodownLocationMaster> listGodownLocationMaster { get; set; }
 

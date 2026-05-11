@@ -28,6 +28,7 @@ namespace NikunjTextile.Class
         public Int64 ShippedToPartyID { get; set; }
         public Int64 GodownID { get; set; }
         public string GodownTitle { get; set; }
+        public string GodownGST { get; set; }
         public string GodownAddress { get; set; }
         public decimal TotalQty { get; set; }
         public decimal TotalRate { get; set; }
