@@ -760,7 +760,6 @@
     <Content Include="PendingPOReport.cshtml" />
     <Content Include="YarnInterChangeReport.cshtml" />
     <Content Include="ColorMatchingValidationReport.cshtml" />
-    <Content Include="Webcamrecording.cshtml" />
     <None Include="packages.config" />
     <Content Include="vendor\summernote\fonts\summernote.eot" />
     <Content Include="vendor\summernote\fonts\summernote.ttf" />

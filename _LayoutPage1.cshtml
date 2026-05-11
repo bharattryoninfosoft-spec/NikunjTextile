@@ -96,8 +96,28 @@
     @*<script src="vendor/dropzone/dropzone.min.js"></script>*@
     <!-- Main Js Required -->
     <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-    <style>
+    <!-- Bootstrap Select JS -->
+    <script src="vendor/bs-select/bs-select.min.js"></script>
+    <script src="vendor/bs-select/bs-select-custom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Download / CSV / Copy / Print -->
+    <script src="vendor/datatables/buttons.min.js"></script>
+    <script src="vendor/datatables/jszip.min.js"></script>
+    <script src="vendor/datatables/pdfmake.min.js"></script>
+    <script src="vendor/datatables/vfs_fonts.js"></script>
+    <script src="vendor/datatables/html5.min.js"></script>
+    <script src="vendor/datatables/buttons.print.min.js"></script>
+    <!-- Main Js Required -->
+    <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
         .sidebar-logo {
             height: 70px;
             display: flex;
@@ -189,23 +209,33 @@
 <script>
     $(document).ready(function () {
         loadDynamicMenu();
-    });    
+        $("#toggle-sidebar").click(function () {
+
+            $(".page-wrapper").toggleClass("toggled");
+        });
+    });
     function loadDynamicMenu() {
+
         $.ajax({
             url: '/WebServiceNikunjTextile.asmx/GetDynamicMenu',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
-            success: function (response) {         
+
+            success: function (response) {
                 var menus = response.d;
-                console.log("GetDynamicMenu",menus);                
+                console.log("GetDynamicMenu", menus);
+                // CLEAR OLD STORAGE
+                sessionStorage.removeItem("PagePermission");
                 $("#dynamicMenuTabs").find(".nav-link").remove();
-                $("#dynamicMenuContent").empty();                
+                $("#dynamicMenuContent").empty();
+
                 $.each(menus, function (i, menu) {
-                   var tabHtml = `<a class="nav-link" id="tab_${menu.Menu_Id}_link" data-bs-toggle="tab" href="#tab_${menu.Menu_Id}" role="tab">
-                                    <i class="bi ${menu.Menu_Icon}"></i>
-                                    <span class="nav-link-text">${menu.Menu_Name}</span>
-                                </a>`;
+
+                    // LEFT TAB MENU
+                    var tabHtml = `<a class="nav-link" id="tab_${menu.Menu_Id}_link" data-bs-toggle="tab" href="#tab_${menu.Menu_Id}" role="tab">
+                            <i class="bi ${menu.Menu_Icon}"></i>
+                            <span class="nav-link-text"> ${menu.Menu_Name} </span> </a>`;
                     $("#dynamicMenuTabs").append(tabHtml);
                     var submenuHtml = '';
                     $.each(menu.SubMenus, function (j, sub) {
@@ -213,38 +243,51 @@
                         if (sub.Controller != '' && sub.Controller != '#') {
                             url = '/' + sub.Controller;
                         }
+                        // CURRENT PAGE
+                        var currentPage = window.location.pathname.toLowerCase().replace("/", "");
+                        // MENU PAGE
+                        var menuPage = sub.Controller.toLowerCase().replace("/", "");
+                        // STORE CURRENT PAGE PERMISSION
+                        if (currentPage == menuPage) {
+                            console.log("Permission Set :", sub);
+                            sessionStorage.setItem("PagePermission",JSON.stringify(sub));
+                        }
                         submenuHtml += `<li> <a href="${url}" id="submenu_${sub.SubMenu_Id}">
-                                                <i class="bi ${sub.SubMenu_Icon} me-2"></i> ${sub.SubMenu_Name} </a> </li>`;
-                    });              
-                    var contentHtml = `<div class="tab-pane fade" id="tab_${menu.Menu_Id}" role="tabpanel">
-                                                <div class="tab-pane-header">
-                                                    <i class="bi ${menu.Menu_Icon} me-2"></i>
-                                                                 ${menu.Menu_Name}
-                                                 </div>
-                                        <div class="sidebarMenuScroll"> <div class="sidebar-menu"> <ul> ${submenuHtml} </ul> </div> </div>
-                                        </div>`;
-                                    $("#dynamicMenuContent").append(contentHtml);
-                 });
+                                    <i class="bi ${sub.SubMenu_Icon} me-2"></i> ${sub.SubMenu_Name} </a> </li>`;
+                    });
+                    // RIGHT SIDE SUBMENU
+                    var contentHtml = `<div class="tab-pane fade" id="tab_${menu.Menu_Id}"  role="tabpanel">
+                            <div class="tab-pane-header"> <i class="bi ${menu.Menu_Icon} me-2"></i> ${menu.Menu_Name} </div>
+                            <div class="sidebarMenuScroll">
+                                <div class="sidebar-menu">
+                                    <ul> ${submenuHtml} </ul>
+                                </div>
+                            </div>
+                        </div>`;
+                    $("#dynamicMenuContent").append(contentHtml);
+                });
+                // ACTIVE PAGE
                 var currentUrl = window.location.pathname.toLowerCase();
-                //console.log("Current URL:", currentUrl);
                 $("#dynamicMenuContent a").each(function () {
                     var menuUrl = $(this).attr("href").toLowerCase();
-                    //console.log(menuUrl);
-                    if (currentUrl == menuUrl) {                     
+                    if (currentUrl == menuUrl) {
                         $(this).addClass("current-page");
-                       var tabPane = $(this).closest(".tab-pane");
-                           tabPane.addClass("show active");                      
+                        var tabPane = $(this).closest(".tab-pane");
+                        tabPane.addClass("show active");
                         var tabId = tabPane.attr("id");
                         $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
-                    }
+                        var submenuHtml = $(this).text().trim();
+                        document.title = submenuHtml + " - Nikunj Textile";
+                    }                  
                 });
+                // DEFAULT ACTIVE
                 if ($("#dynamicMenuTabs .active").length == 0) {
                     $("#dynamicMenuTabs .nav-link:first").addClass("active");
                     $("#dynamicMenuContent .tab-pane:first").addClass("show active");
                 }
             },
             error: function (xhr, status, error) {
-                //console.log(xhr.responseText);
+                console.log(xhr.responseText);
                 Swal.fire({
                     icon: 'error',
                     title: 'Menu Error',
@@ -253,4 +296,8 @@
             }
         });
     }
+    $("#toggle-sidebar").on("click", function () {
+        $(".sidebar-wrapper").toggleClass("collapsed");
+        $(".main-container").toggleClass("expanded");
+    });
 </script>

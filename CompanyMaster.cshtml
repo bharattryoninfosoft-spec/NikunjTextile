@@ -1,58 +1,6 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
-
-
-<!-- Required meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-<!-- Meta -->
-<meta name="description" content="Nikung Textile">
-<meta name="author" content="Nikunj Textile">
-<link rel="shortcut icon" href="img/fav.png">
-
-<!-- Title -->
-<title>Company Master - Nikung Textile</title>
-
-<!-- *************
-    ************ Common Css Files *************
-************ -->
-<!-- Bootstrap css -->
-<link rel="stylesheet" href="css/bootstrap.min.css">
-
-<!-- Icomoon Font Icons css -->
-<link rel="stylesheet" href="fonts/style.css">
-
-<!-- Main css -->
-<link rel="stylesheet" href="css/main.css">
-
-
-<!-- *************
-    ************ Vendor Css Files *************
-************ -->
-<!-- Mega Menu -->
-<link rel="stylesheet" href="vendor/megamenu/css/megamenu.css">
-
-<!-- Search Filter JS -->
-<link rel="stylesheet" href="vendor/search-filter/search-filter.css">
-<link rel="stylesheet" href="vendor/search-filter/custom-search-filter.css">
-
-<!-- Data Tables -->
-<link rel="stylesheet" href="vendor/datatables/dataTables.bs4.css" />
-<link rel="stylesheet" href="vendor/datatables/dataTables.bs4-custom.css" />
-<link href="vendor/datatables/buttons.bs.css" rel="stylesheet" />
-<!-- Date Range CSS -->
-<link rel="stylesheet" href="vendor/daterange/daterange.css">
-
-<!-- Bootstrap Select CSS -->
-<link rel="stylesheet" href="vendor/bs-select/bs-select.css" />
-<!-- Uploader CSS -->
-<link rel="stylesheet" href="vendor/dropzone/dropzone.min.css" />
-<!-- Select2 CSS -->
-@*<link rel="stylesheet" href="~/css/select2.min.css" />*@
-
-
 <style>
     .dt-buttons, #copy-print-csv_filter, #copy-print-csv_info, #copy-print-csv_paginate {
         display: none;
@@ -721,65 +669,23 @@
 
 </div>
 
-<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
 
-<!-- select2 JS -->
-@*<script src="https://tryoninfosoft.web.app/sr/select2.min.js"></script>*@
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
-<!-- Megamenu JS -->
-<script src="vendor/megamenu/js/megamenu.js"></script>
-<script src="vendor/megamenu/js/custom.js"></script>
-
-<!-- Slimscroll JS -->
-<script src="vendor/slimscroll/slimscroll.min.js"></script>
-<script src="vendor/slimscroll/custom-scrollbar.js"></script>
-
-<!-- Search Filter JS -->
-<script src="vendor/search-filter/search-filter.js"></script>
-<script src="vendor/search-filter/custom-search-filter.js"></script>
-
-<!-- Rating JS -->
-<script src="vendor/rating/raty.js"></script>
-<script src="vendor/rating/raty-custom.js"></script>
-
-<!-- Data Tables -->
-<script src="vendor/datatables/dataTables.min.js"></script>
-<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
-
-<!-- Custom Data tables -->
-<script src="vendor/datatables/custom/custom-datatables.js"></script>
-
-<!-- Download / CSV / Copy / Print -->
-<script src="vendor/datatables/buttons.min.js"></script>
-<script src="vendor/datatables/jszip.min.js"></script>
-<script src="vendor/datatables/pdfmake.min.js"></script>
-<script src="vendor/datatables/vfs_fonts.js"></script>
-<script src="vendor/datatables/html5.min.js"></script>
-<script src="vendor/datatables/buttons.print.min.js"></script>
-
-<!-- Date Range JS -->
-<script src="vendor/daterange/daterange.js"></script>
-<script src="vendor/daterange/custom-daterange.js"></script>
-<!-- Bootstrap Select JS -->
-<script src="vendor/bs-select/bs-select.min.js"></script>
-<script src="vendor/bs-select/bs-select-custom.js"></script>
-
-<!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
-<!-- Main Js Required -->
-<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 
 
 
 <script>
 
+    var currentPagePermission = {};
     $(document).ready(function () {
+        var permission = sessionStorage.getItem("PagePermission");
+        if (permission != null) {
+            currentPagePermission = JSON.parse(permission);
+            console.log("currentPagePermission", currentPagePermission);
+            if (currentPagePermission.Add == false) {              
+                $("#AddCompayModel").hide();
+            }
+          
+        }
 
         //$('.active, .show, .current-page').removeClass('active show current-page');
 
@@ -1181,7 +1087,35 @@
                     }
                     //temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td><td>" + response.listCompanyMaster[i].BusinessType + "</td><td>" + response.listCompanyMaster[i].BusinessCategory + "</td><td>" + response.listCompanyMaster[i].MobileNo + "</td><td>" + response.listCompanyMaster[i].Email + "</td><td>" + response.listCompanyMaster[i].State + "</td><td>" + operation + "</td>";
                     temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td><td>" + response.listCompanyMaster[i].MobileNo + "</td><td>" + response.listCompanyMaster[i].Email + "</td><td>" + response.listCompanyMaster[i].StateTitle + "</td><td>" + operation + "</td>";
-                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;" + deleteStr + "</div></td>";
+                    temp += "<td><div class='actions'>";
+
+                    // EDIT
+                    if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "data-toggle='tooltip' " +
+                            "data-placement='top' " +
+                            "title='Edit' " +
+                            "data-bs-toggle='modal' " +
+                            "data-bs-target='#addNewContact' " +
+                            "onclick='showRecords(" + response.listCompanyMaster[i].CompanyId + ")'>" +
+                            "<i class='icon-edit1 text-info'></i>" +
+                            "</a>&nbsp;";
+
+                        $("#editbtn-default").show();
+                    }
+                    else {
+
+                        $("#editbtn-default").hide();
+                    }
+
+                    // DELETE
+                    if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
+
+                        temp += deleteStr;
+                    }
+
+                    temp += "</div></td>";
                     temp += "</tr>";
 
                 }

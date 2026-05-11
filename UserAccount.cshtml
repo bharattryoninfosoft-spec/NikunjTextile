@@ -8,7 +8,7 @@
     <input type="hidden" id="rowStartCount" value="" />
 
     <div class="card-header-lg">
-        <button style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add User Account</button>
+        <button style="float:right;" class="btn btn-primary" id="AddUserAccountEntry" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add User Account</button>
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -179,6 +179,32 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">User Master</div>
+                    <div class="row align-items-center mb-3">
+                        <!-- BUTTONS -->
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+
+                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','UserAccount')">
+                                <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                            </button>
+
+                            <button class="btn btn-danger btn-sm" onclick="generatePDF()">
+                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                            </button>
+
+                            <button class="btn btn-primary btn-sm" onclick="printTable()">
+                                <i class="bi bi-printer-fill"></i> Print
+                            </button>
+                        </div>
+                        <!-- SEARCH -->
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="searchTable()" />
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table id="copy-print-csv" class="table v-middle">
                             <thead>
@@ -212,67 +238,17 @@
 </div>
 
 
-<!-- Page wrapper end -->
-<!-- *************
-    ************ Required JavaScript Files *************
-************* -->
-<!-- Required jQuery first, then Bootstrap Bundle JS -->
-<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
-<!-- Megamenu JS -->
-<script src="vendor/megamenu/js/megamenu.js"></script>
-<script src="vendor/megamenu/js/custom.js"></script>
-
-<!-- Slimscroll JS -->
-<script src="vendor/slimscroll/slimscroll.min.js"></script>
-<script src="vendor/slimscroll/custom-scrollbar.js"></script>
-
-<!-- Search Filter JS -->
-<script src="vendor/search-filter/search-filter.js"></script>
-<script src="vendor/search-filter/custom-search-filter.js"></script>
-
-<!-- Rating JS -->
-<script src="vendor/rating/raty.js"></script>
-<script src="vendor/rating/raty-custom.js"></script>
-
-<!-- Data Tables -->
-<script src="vendor/datatables/dataTables.min.js"></script>
-<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
-
-<!-- Custom Data tables -->
-<script src="vendor/datatables/custom/custom-datatables.js"></script>
-
-<!-- Download / CSV / Copy / Print -->
-<script src="vendor/datatables/buttons.min.js"></script>
-<script src="vendor/datatables/jszip.min.js"></script>
-<script src="vendor/datatables/pdfmake.min.js"></script>
-<script src="vendor/datatables/vfs_fonts.js"></script>
-<script src="vendor/datatables/html5.min.js"></script>
-<script src="vendor/datatables/buttons.print.min.js"></script>
-
-<!-- Date Range JS -->
-<script src="vendor/daterange/daterange.js"></script>
-<script src="vendor/daterange/custom-daterange.js"></script>
-
-<!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
-<!-- Main Js Required -->
-<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <script>
+    var currentPagePermission = {};
     $(document).ready(function () {
-        //FunctionIsLogin();
-
-        $('.active, .show, .current-page').removeClass('active show current-page');
-
-        $("#forms-tab").addClass("active");
-        $("#tab-forms").addClass("show active");
-        $("#aUserAccount").addClass("current-page");
+        var permission = sessionStorage.getItem("PagePermission");
+        if (permission != null) {
+            currentPagePermission = JSON.parse(permission);
+            console.log("currentPagePermission", currentPagePermission);
+            if (currentPagePermission.Add == false) {
+                $("#AddUserAccountEntry").hide();
+            }
+        }
 
         displayData(0);
         getddlCompanyId();
@@ -329,32 +305,96 @@
             contentType: false,
             processData: false,
             success: function (response) {
+
                 if (rowStart == 0) {
                     $("#copy-print-csv tbody").empty();
                 }
-                var dataTable = $('#copy-print-csv');
+
+                var tableBody = $("#copy-print-csv tbody");
+
                 var temp = "";
                 var operation = "";
+
                 if (response.listUserAccountMaster.length < 10) {
                     $("#view-more-btn").hide();
                 }
                 else {
                     $("#view-more-btn").show();
                 }
+
                 for (var i = 0; i < response.listUserAccountMaster.length; i++) {
-                    if (response.listUserAccountMaster[i].AllowLogin == "1" || response.listUserAccountMaster[i].AllowLogin == 1) {
+
+                    if (response.listUserAccountMaster[i].AllowLogin == "1" ||
+                        response.listUserAccountMaster[i].AllowLogin == 1) {
+
                         operation = "<span class='badge bg-success'>Yes</span>";
                     }
                     else {
+
                         operation = "<span class='badge bg-danger'>No</span>";
                     }
-                    temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listUserAccountMaster[i].UserAccountProfile + "' class='media-avatar' alt='Profile'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listUserAccountMaster[i].UserAccountName + "</a><p></p></div></div></td><td>" + response.listUserAccountMaster[i].CompanyName + "</td><td>" + response.listUserAccountMaster[i].UserRole + "</td><td>" + response.listUserAccountMaster[i].UserAccountMobileNo + "</td><td>" + response.listUserAccountMaster[i].UserAccountEmail + "</td><td>" + operation + "</td><td>" + response.listUserAccountMaster[i].UserAccountDateAndTimes + "</td>";
-                    temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listUserAccountMaster[i].UserAccountId + ")'><i class='icon-edit1 text-info'></i></a><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listUserAccountMaster[i].UserAccountId + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
-                    temp += "</tr>";
 
+                    temp += "<tr>";
+
+                    temp += "<td>" +
+                        "<div class='media-box'>" +
+                        "<img style='width:40px;height:40px;' " +
+                        "src='" + response.listUserAccountMaster[i].UserAccountProfile + "' " +
+                        "class='media-avatar'>" +
+
+                        "<div class='media-box-body'>" +
+                        "<a href='javascript:void(0);' class='text-truncate'>" +
+                        response.listUserAccountMaster[i].UserAccountName +
+                        "</a>" +
+                        "</div>" +
+                        "</div>" +
+                        "</td>";
+
+                    temp += "<td>" + response.listUserAccountMaster[i].CompanyName + "</td>";
+
+                    temp += "<td>" + response.listUserAccountMaster[i].UserRole + "</td>";
+
+                    temp += "<td>" + response.listUserAccountMaster[i].UserAccountMobileNo + "</td>";
+
+                    temp += "<td>" + response.listUserAccountMaster[i].UserAccountEmail + "</td>";
+
+                    temp += "<td>" + operation + "</td>";
+
+                    temp += "<td>" + response.listUserAccountMaster[i].UserAccountDateAndTimes + "</td>";
+
+                    // ACTIONS
+                    temp += "<td><div class='actions'>";
+
+                    // EDIT
+                    if (currentPagePermission.Edit == true ||
+                        currentPagePermission.Edit == "true") {
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "title='Edit' " +
+                            "data-bs-toggle='modal' " +
+                            "data-bs-target='#addNewContact' " +
+                            "onclick='showRecords(" + response.listUserAccountMaster[i].UserAccountId + ")'>" +
+                            "<i class='icon-edit1 text-info'></i>" +
+                            "</a>&nbsp;&nbsp;";
+                    }
+
+                    // DELETE
+                    if (currentPagePermission.Delete == true ||
+                        currentPagePermission.Delete == "true") {
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "title='Delete' " +
+                            "onclick='functionUserDelete(" + response.listUserAccountMaster[i].UserAccountId + ")'>" +
+                            "<i class='icon-x-circle text-danger'></i>" +
+                            "</a>";
+                    }
+
+                    temp += "</div></td>";
+
+                    temp += "</tr>";
                 }
 
-                dataTable.append(temp);
+                tableBody.append(temp);
             },
             error: function (request, status, error) {
             }
@@ -739,6 +779,179 @@
             error: function (request, status, error) {
             }
         });
+    }
+    function exportTableToExcel(tableID, filename = '') {
+
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+
+        var tableSelect = document.getElementById(tableID);
+
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        filename = filename ? filename + '.xls' : 'excel_data.xls';
+
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+
+            navigator.msSaveOrOpenBlob(blob, filename);
+        }
+        else {
+
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            downloadLink.download = filename;
+
+            downloadLink.click();
+        }
+    }
+    function generatePDF() {
+
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF('l', 'pt', 'a4');
+
+        doc.setFontSize(14);
+
+        doc.text("User Account Report", 40, 40);
+
+        doc.autoTable({
+
+            html: '#copy-print-csv',
+
+            startY: 60,
+
+            theme: 'grid',
+
+            styles: {
+                fontSize: 8
+            },
+
+            headStyles: {
+                fillColor: [41, 128, 185]
+            }
+        });
+
+        doc.save('UserAccountReport.pdf');
+    }
+    function printTable() {
+
+        var table = document.getElementById("copy-print-csv").outerHTML;
+
+        var style = `
+        <style>
+
+            body{
+                font-family: Arial;
+                padding:20px;
+            }
+
+            h3{
+                text-align:center;
+                margin-bottom:20px;
+            }
+
+            table{
+                width:100%;
+                border-collapse: collapse;
+            }
+
+            table, th, td{
+                border:1px solid #000;
+            }
+
+            th, td{
+                padding:8px;
+                text-align:left;
+                font-size:12px;
+            }
+
+            .actions{
+                display:none;
+            }
+
+            img{
+                width:40px !important;
+                height:40px !important;
+                border-radius:50%;
+            }
+
+        </style>
+    `;
+
+        var win = window.open('', '', 'height=900,width=1200');
+
+        win.document.write(`
+        <html>
+            <head>
+                <title>User Account Report</title>
+                ${style}
+            </head>
+
+            <body>
+
+                <h3>User Account Report</h3>
+
+                ${table}
+
+            </body>
+        </html>
+    `);
+
+        win.document.close();
+
+        win.focus();
+
+        setTimeout(function () {
+
+            win.print();
+
+            win.close();
+
+        }, 500);
+    }
+    function searchTable() {
+
+        var input, filter, table, tr, td, i, j, txtValue, found;
+
+        input = document.getElementById("searchBox");
+
+        filter = input.value.toUpperCase();
+
+        table = document.getElementById("copy-print-csv");
+
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+
+            td = tr[i].getElementsByTagName("td");
+
+            found = false;
+
+            for (j = 0; j < td.length; j++) {
+
+                if (td[j]) {
+
+                    txtValue = td[j].textContent || td[j].innerText;
+
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+
+                        found = true;
+
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = found ? "" : "none";
+        }
     }
 </script>
 
