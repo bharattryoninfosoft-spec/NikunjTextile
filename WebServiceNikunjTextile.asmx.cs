@@ -27258,65 +27258,20 @@ ORDER BY SO.OrderNo DESC";
             using (SqlConnection con = new SqlConnection(
                 ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
-                SqlDataAdapter da = new SqlDataAdapter(@"
-
-SELECT 
-
-    MM.Menu_Id,
-    MM.Menu_Name,
-    MM.Menu_Icon,
-    MM.Menu_OrderNo,
-
-    SM.SubMenu_Id,
-    SM.SubMenu_Name,
-    SM.SubMenu_Icon,
-    SM.SubMenu_OrderNo,
-    SM.Controller,
-    SM.Action,
-
-    UMP.[View],
-    UMP.[Add],
-    UMP.[Edit],
-    UMP.[Delete]
-
-FROM UserMenuPermission UMP
-
-INNER JOIN MenuMaster MM
-    ON MM.Menu_Id = UMP.Menu_Id
-
-INNER JOIN SubMenuMaster SM
-    ON SM.SubMenu_Id = UMP.SubMenu_Id
-
-WHERE 
-    UMP.User_Id = @UserId
-    AND UMP.[View] = 1
-
-ORDER BY 
-    MM.Menu_OrderNo,
-    SM.SubMenu_OrderNo
-
-", con);
-
+                SqlDataAdapter da = new SqlDataAdapter(@"SELECT MM.Menu_Id,MM.Menu_Name,MM.Menu_Icon,MM.Menu_OrderNo,SM.SubMenu_Id,SM.SubMenu_Name,SM.SubMenu_Icon,SM.SubMenu_OrderNo,SM.Controller,SM.Action,
+                                    CASE WHEN UAM.UserRole = 'Admin' AND SM.SubMenu_Name = 'User Permission' THEN 1 ELSE ISNULL(UMP.[View],0) END AS [View],
+                                    ISNULL(UMP.[Add],0) AS [Add],ISNULL(UMP.[Edit],0) AS [Edit],ISNULL(UMP.[Delete],0) AS [Delete]
+                                FROM MenuMaster MM
+                                INNER JOIN SubMenuMaster SM ON MM.Menu_Id = SM.Menu_Id
+                                LEFT JOIN UserMenuPermission UMP ON MM.Menu_Id = UMP.Menu_Id AND SM.SubMenu_Id = UMP.SubMenu_Id AND UMP.User_Id = @UserId
+                                INNER JOIN UserAccountMaster UAM ON UAM.UserAccountId = @UserId
+                                WHERE ( ISNULL(UMP.[View],0) = 1 OR (UAM.UserRole = 'Admin'  AND SM.SubMenu_Name = 'User Permission' ))
+                                ORDER BY MM.Menu_OrderNo, SM.SubMenu_OrderNo", con);
                 da.SelectCommand.Parameters.AddWithValue("@UserId", userId);
-
                 da.Fill(dt);
             }
-
-            var result = dt.AsEnumerable()
-
-                .GroupBy(x => new
-                {
-                    Menu_Id = x["Menu_Id"].ToString(),
-                    Menu_Name = x["Menu_Name"].ToString(),
-                    Menu_Icon = x["Menu_Icon"].ToString()
-                })
-
-                .Select(menu => new
-                {
-                    Menu_Id = menu.Key.Menu_Id,
-                    Menu_Name = menu.Key.Menu_Name,
-                    Menu_Icon = menu.Key.Menu_Icon,
-
+            var result = dt.AsEnumerable().GroupBy(x => new {Menu_Id = x["Menu_Id"].ToString(), Menu_Name = x["Menu_Name"].ToString(),Menu_Icon = x["Menu_Icon"].ToString()})
+                .Select(menu => new  { Menu_Id = menu.Key.Menu_Id,Menu_Name = menu.Key.Menu_Name,Menu_Icon = menu.Key.Menu_Icon, 
                     SubMenus = menu.Select(sub => new
                     {
                         SubMenu_Id = sub["SubMenu_Id"].ToString(),
@@ -27324,21 +27279,14 @@ ORDER BY
                         SubMenu_Icon = sub["SubMenu_Icon"].ToString(),
                         Controller = sub["Controller"].ToString(),
                         Action = sub["Action"].ToString(),
-
                         View = Convert.ToBoolean(sub["View"]),
                         Add = Convert.ToBoolean(sub["Add"]),
                         Edit = Convert.ToBoolean(sub["Edit"]),
                         Delete = Convert.ToBoolean(sub["Delete"])
-
                     }).ToList()
-
                 }).ToList();
-
             return result;
-        }
-        //========================================================
-        // CHECK PAGE PERMISSION
-        //========================================================
+        } 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public bool CheckPagePermission(string controller, string action)
@@ -27669,7 +27617,6 @@ ORDER BY
 
             return list;
         }
-
         private Cell BodyCell(string text, TextAlignment align)
         {
             Paragraph p = new Paragraph(text ?? "")
@@ -27691,7 +27638,6 @@ ORDER BY
                 .SetBorderBottom(Border.NO_BORDER)
                 .SetBorderTop(Border.NO_BORDER);
         }
-
         public string CreatePDF(List<YarnPOMaster> data)
         {
             string dir = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");

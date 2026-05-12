@@ -1,26 +1,7 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
-<style>
-    div.dt-buttons {
-        float: none !important;
-    }
-    div.dt-buttons {
-        float: left;
-    }
-    .dt-buttons {
-        display: flex !important;
-        gap: 5px;
-    }
 
-        .dt-buttons .dt-button {
-            display: inline-block !important;
-            background: #0d6efd;
-            color: #fff;
-            border-radius: 4px;
-            padding: 5px 10px;
-        }
-</style>
 <div class="content-wrapper">
     <div class="container-fluid">
 
@@ -180,22 +161,15 @@
     var table;
 
     $(document).ready(function () {
-        $('.active, .show, .current-page').removeClass('active show current-page');
-        $("#Report-tab").addClass("active");
-        $("#tab-Report").addClass("show active");
-        $("#aCustomReport").addClass("current-page");
         $(".nav-tabs .nav-link").removeClass("active");
         $(".nav-tabs .nav-link").attr("aria-selected", "false");
         $(".nav-tabs .nav-link[data-report='1']").addClass("active");
         $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");
         $(document).ready(function () {
-
             var today = new Date();
-
             var dd = String(today.getDate()).padStart(2, '0');
             var mm = String(today.getMonth() + 1).padStart(2, '0');
             var yyyy = today.getFullYear();
-
             var formatted = yyyy + "-" + mm + "-" + dd; // for input type="date"
             $("#dateFrom").val(formatted);
         });
