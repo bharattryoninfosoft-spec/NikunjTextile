@@ -2,11 +2,6 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-
-
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>  <!-- Party Mastwer Modal -->
@@ -22,8 +17,8 @@
 
                 <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
                     @*<div id="add-alert" class="alert alert-success" role="alert" >
-                        Record has been saved Successfully.
-                    </div>*@
+                            Record has been saved Successfully.
+                        </div>*@
                     <div class="row gutters" id="DivPartyMaster">
                         <div class="row gutters">
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
@@ -488,7 +483,7 @@
                                                             <option value="-1">Supplier</option>
                                                         </select>
                                                         <div class="field-placeholder">Supplier</div>
-                                                        <button type="button"  id="AddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                        <button type="button" id="AddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     </div>
@@ -520,7 +515,7 @@
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
                                                         <input id="SupplierPhone" placeholder="Phone" type="tel" class="form-control detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)" readonly>
-                                                        <div class="field-placeholder">Phone<span class="text-danger">*</span></div>
+                                                        <div class="field-placeholder">Phone</div>
                                                         <div class="phone-valid-feedback valid-feedback">Looks good!</div>
                                                         <div class="phone-invalid-feedback invalid-feedback">Please Provide Mobile Number</div>
                                                         <div class="phone-less-feedback invalid-feedback">Invalid Number</div>
@@ -546,7 +541,7 @@
                                                             <option value="-1">Company</option>
                                                         </select>
                                                         <div class="field-placeholder">Company</div>
-                                                        <button type="button"  id="CompanyAddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                        <button type="button" id="CompanyAddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     </div>
@@ -906,7 +901,6 @@
                                         </div>
 
                                     </div>
-
                                     <script>
                                         function AddNotes() {
                                             $("#DivAddNotes").hide();
@@ -915,46 +909,20 @@
                                             $("#NotesRemarks").val('');
 
                                         }
-
                                         function CloseNotes() {
                                             $("#DivAddNotes").show();
                                             $("#DivNotes").hide();
                                             $("#NotesRemarks").val('');
                                         }
                                     </script>
-
-
-
-
-
                                 </div>
-
-
                             </div>
                         </div>
-
-
-
-
-
-
                     </div>
-
-
-
-
                     <input type="hidden" id="txtYarnDetailsArray" title="txtYarnDetailsArray" value="1|" />
                     <input type="hidden" id="txtDeleteYarnDetailsArray" title="DeleteYarnDetailsArray" />
-
-
-
                     <div id="divMatchingColor">
-
                     </div>
-
-
-
-
                     <br />
 
                     <div class="modal-footer">
@@ -972,11 +940,14 @@
         </div>
     </div>
 
-
 </div>
 
-
-
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
 
 <script>
     $('body').addClass('fullscreen');
@@ -1085,7 +1056,7 @@
         getDesignEntryForm();
         getPartyDetail();
         getGodownDetail();
-        bindBrokerDropdown();     
+        bindBrokerDropdown();
         getStates(0);
     });
     $('body').click(function (evt) {
@@ -1401,7 +1372,7 @@
         var ColorCode = "#" + yarnColor.YarnColorCode;
         $(tdYarnColor).css("background-color", ColorCode);
 
-        
+
 
         YarnCompanyChange(rowno);
         //  getLastRate(rowno);
@@ -1495,7 +1466,7 @@
             $(GST).val(yarnMat.GSTSLABId);
         }
 
-        
+
         YarnCompanyChange(rowno);
     }
     function YarnDetailArray() {
@@ -2719,9 +2690,9 @@
 
 
         if ($("#chcekSupplierDetails").is(':checked')) {
-           
-              
-           
+
+
+
             if ($("#ddlSupplier").val() == "0") {
                 //alert("0");
 
@@ -3540,7 +3511,7 @@
         $("#BankName").val('');
         $("#BankBranch").val('');
     }
-    function saveparty() {   
+    function saveparty() {
         var name = document.getElementById('party-name');
         var phone = document.getElementById('phone');
         if (validate(name) == false || validate(phone) == false) {
@@ -3621,19 +3592,19 @@
                     if (response.Code == 201) {
                         $("#addNewContact").modal("hide");
                         getPartyDetail();
-                     
+
                         setTimeout(function () {
                             debugger;
-                            var partyId = parseInt(response.id);  
-                            if (CompanyAddParty== false) {
+                            var partyId = parseInt(response.id);
+                            if (CompanyAddParty == false) {
                                 $("#ddlSupplier").val(partyId).trigger('change');
                                 OnSupplierParty(partyId);
                             }
                             else {
-                                $("#ddlBillTo").val(partyId).trigger('change');                                
+                                $("#ddlBillTo").val(partyId).trigger('change');
                                 OnBillToParty(partyId)
                             }
-                            
+
                         }, 300);
                         notess.show(response.Message, {
                             type: 'success',
@@ -3779,12 +3750,12 @@
         $("#savebtn").show();
         $("#saveViewbtn").show();
         $("#addNewContactLabel").text("Add Party");
-    }   
+    }
     $("#AddPartyModel, #cancelbtn").on("click", function () {
-        resetPartyForm();        
-     });    
+        resetPartyForm();
+    });
     $("#CompanyAddPartyModel").on("click", function () {
-        resetPartyForm();             
+        resetPartyForm();
         CompanyAddParty = true;
     });
     function myFunctionIFSC(abc) {

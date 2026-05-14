@@ -235,6 +235,15 @@
                 $("#savebtn").hide();
             }
         }
+        let today = new Date();
+
+        let day = String(today.getDate()).padStart(2, '0');
+        let month = String(today.getMonth() + 1).padStart(2, '0');
+        let year = today.getFullYear();
+
+        let formattedDate = `${day}/${month}/${year}`;
+
+        $("#ListDate").val(formattedDate);
         var liSelected;
         $(document).keydown(function (key) {
             var li = $('li');
@@ -296,67 +305,25 @@
                     break;
             }
         });
-
-        $('.active, .show, .current-page').removeClass('active show current-page');
-
-        $("#YarnForm-tab").addClass("active");
-        $("#tab-YarnForm").addClass("show active");
-        $("#aYarnOutWardChallan").addClass("current-page");
-
         FunctionIsLogin();
-
         $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
         $("#select2-ddlGodownMaster-container").css("color", "white");
-
-        $('#ddlGodownMaster')
-            .next('.select2-container')
-            .find('.select2-selection__arrow b')
-            .css({
-                'border-color': '#fff transparent transparent transparent'
-            });
-
-
+        $('#ddlGodownMaster').next('.select2-container').find('.select2-selection__arrow b').css({'border-color': '#fff transparent transparent transparent'});
         $("#select2-ddlParty-container").css("background-color", "lightslategrey");
         $("#select2-ddlParty-container").css("color", "white");
-
-        $('#ddlParty')
-            .next('.select2-container')
-            .find('.select2-selection__arrow b')
-            .css({
-                'border-color': '#fff transparent transparent transparent'
-            });
-
-
-
-
+        $('#ddlParty').next('.select2-container').find('.select2-selection__arrow b').css({'border-color': '#fff transparent transparent transparent'});
         $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
         $("#select2-ddlYarnGodownManager-container").css("color", "white");
-
-        $('#ddlYarnGodownManager')
-            .next('.select2-container')
-            .find('.select2-selection__arrow b')
-            .css({
-                'border-color': '#fff transparent transparent transparent'
-            });
-
-
-
+        $('#ddlYarnGodownManager').next('.select2-container').find('.select2-selection__arrow b').css({'border-color': '#fff transparent transparent transparent'});
         GetAllDropDownData();
-
     });
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
+    var notes = $('#notes').notify({ removeIcon: '<i class="icon-close"></i>' });
+    var notess = $('#notess').notify({ removeIcon: '<i class="icon-close"></i>' });
     var isColorLoaded = false;
     let pendingDetailMap = {};
     let pendingItemWise = {};
     let isPendingAvailable = false;
-    function normalize(val) {
-        return (val || "").toString().trim();
-    }
+    function normalize(val) { return (val || "").toString().trim(); }
     function makeKey(material, color, code) {
         return normalize(material) + "|" + normalize(color) + "|" + normalize(code);
     }
@@ -370,34 +337,6 @@
         var YarnColorID = $("#ddlYarnColor").val() || 0;
         loadAllYarnData(PartyId, YarnMaterialID, YarnColorID);
     });
-    //$(document).on("change", "#ddlYarnPREQ", function () {
-    //    let tbody = $("#tableYarnOutward tbody");
-    //    tbody.empty();
-    //    GridBindData();
-    //    let YarnRequirementID = $(this).val();
-    //    // ❌ No selection / default
-    //    if (!YarnRequirementID || YarnRequirementID === "-1") {
-
-    //        // 🔥 RESET EVERYTHING
-    //        isPendingAvailable = false;
-    //        pendingItemWise = {};
-    //        pendingDataGlobal = [];
-
-    //        $("#pendingYarnTable tbody").html(
-    //            '<tr><td colspan="7" class="text-center">No Data</td></tr>'
-    //        );
-
-    //        // ✅ Important: show all rows again
-    //        $("#tableYarnOutward tbody tr").show();
-
-    //        return;
-    //    }
-
-    //    // ✅ Load pending data
-
-    //    getPendingYarnDetails();
-
-    //});
     $(document).on("focus", ".txtStockInput", function () {
         $(this).data("old", parseInt($(this).val()) || 0);
     });
@@ -1132,6 +1071,26 @@
         matchedRows.forEach(r => tbody.append(r));
         unmatchedRows.forEach(r => tbody.append(r));
     }
+    function formatDateToISO(dateStr) {
+
+        if (!dateStr) return null;
+
+        // dd/MM/yyyy → yyyy-MM-dd
+        if (dateStr.includes("/")) {
+
+            let parts = dateStr.split("/");
+
+            if (parts.length !== 3) return null;
+
+            let day = parts[0].padStart(2, '0');
+            let month = parts[1].padStart(2, '0');
+            let year = parts[2];
+
+            return `${year}-${month}-${day}`;
+        }
+
+        return dateStr;
+    }
     function saveYarnOutward() {
 
         let partyId = parseInt($("#ddlParty").val()) || 0;
@@ -1214,21 +1173,13 @@
             notes.show("Enter at least one quantity", { type: 'danger' });
             return;
         }
+        let formattedDate = formatDateToISO($("#ListDate").val());
 
-        // ✅ DATE FORMAT FIX
-        let rawDate = $("#ListDate").val();
-        let formattedDate = rawDate.includes("/")
-            ? rawDate.split("/").reverse().join("-")
-            : rawDate;
-
-        let master = {
-            GodownID: godownId,
-            PartyId: partyId,
-            OutwardListDate: formattedDate,
-            GodownManagerUserAccountId: godownManager,
-            SundryPartyID: sundrypartyid
-        };
-
+        if (!formattedDate) {
+            notes.show("Invalid List Date.", { type: 'danger' });
+            return;
+        }
+        let master = { GodownID: godownId,PartyId: partyId,OutwardListDate: formattedDate,GodownManagerUserAccountId: godownManager,SundryPartyID: sundrypartyid };
         console.log("FINAL DETAIL LIST:", detailList);
 
         $.ajax({

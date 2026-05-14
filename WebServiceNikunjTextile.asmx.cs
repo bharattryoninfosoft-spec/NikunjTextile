@@ -1,4 +1,5 @@
-﻿using iText.IO.Font;
+﻿using iText.Html2pdf;
+using iText.IO.Font;
 using iText.IO.Font.Constants;
 using iText.IO.Image;
 using iText.Kernel.Colors;
@@ -9,13 +10,12 @@ using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using iText.StyledXmlParser.Jsoup.Nodes;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
 using System;
-
 using System.Collections.Generic;
-
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -32,6 +32,7 @@ using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 
 
 namespace NikunjTextile
@@ -421,7 +422,7 @@ namespace NikunjTextile
                     "FROM (	select UA.UserAccountId, UA.UserAccountName, UA.UserRole, UA.UserAccountMobileNo, " +
                     "	UA.UserAccountProfile, UA.AllowLogin, CM.CompanyId, cm.CompanyName, CM.is_default, CM.State, '1' as rn   " +
                     "   from UserAccountMaster UA  " +
-                    " 	LEFT JOIN CompanyMaster CM on UA.UserAccountId = CM.UserAccountId " +
+                    " LEFT JOIN CompanyMaster CM on UA.CompanyId = CM.CompanyId " +
                     "where (UA.UserAccountEmail = '" + ilist.UserAccountEmail + "' or UA.UserAccountMobileNo = '" + ilist.UserAccountEmail + "') " +
                     "and UA.UserAccountPassword = '" + getMd5Hash(ilist.UserAccountPassword) + "' and CM.is_default = 1) as TableA " +
                     "LEFT JOIN (select *, '1' as rn from FinancialYearMaster where IsDefault = 1) as TableB " +
@@ -5747,7 +5748,7 @@ namespace NikunjTextile
                                     myDetails.GSTIN);
 
                                 id = Convert.ToInt64(sqlCommand.ExecuteScalar());
-                            } 
+                            }
 
                             //con.Close();
                             if (id > 0)
@@ -6112,13 +6113,13 @@ namespace NikunjTextile
 
                             cmd.Parameters.Clear();
                             cmd.CommandText = sql;
-                            cmd.Parameters.Add("@GodownTitle",SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
-                            cmd.Parameters.Add("@GodownAddress",SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
-                            cmd.Parameters.Add("@IsActive",SqlDbType.Bit).Value = myDetails.IsActive;
-                            cmd.Parameters.Add("@UserAccountId",SqlDbType.BigInt).Value = UserAccountId;
+                            cmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
+                            cmd.Parameters.Add("@GodownAddress", SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
+                            cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = myDetails.IsActive;
+                            cmd.Parameters.Add("@UserAccountId", SqlDbType.BigInt).Value = UserAccountId;
                             cmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = CompanyId;
                             cmd.Parameters.Add("@GodownID", SqlDbType.BigInt).Value = myDetails.GodownID;
-                            cmd.Parameters.AddWithValue("@GSTIN",myDetails.GSTIN);
+                            cmd.Parameters.AddWithValue("@GSTIN", myDetails.GSTIN);
                             Int64 id = cmd.ExecuteNonQuery();
 
 
@@ -6178,9 +6179,9 @@ namespace NikunjTextile
 
                                                 cmd.Parameters.Clear();
                                                 cmd.CommandText = sqls;
-                                                cmd.Parameters.Add("@DateandTime",SqlDbType.DateTime).Value = dateTime_Indian;
-                                                cmd.Parameters.Add("@LocationTitle",SqlDbType.NVarChar).Value =each.LocationTitle.ToUpper();
-                                                cmd.Parameters.Add("@GodownLocationID",SqlDbType.BigInt).Value = each.GodownLocationID;
+                                                cmd.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTime_Indian;
+                                                cmd.Parameters.Add("@LocationTitle", SqlDbType.NVarChar).Value = each.LocationTitle.ToUpper();
+                                                cmd.Parameters.Add("@GodownLocationID", SqlDbType.BigInt).Value = each.GodownLocationID;
                                                 cmd.ExecuteNonQuery();
                                             }
                                         }
@@ -12137,22 +12138,22 @@ namespace NikunjTextile
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-                    cmd.CommandText = " select DCMFM.*,  " +
-                        " DEFM.PhotoOfDesign, DEFM.DesignerID, DEFM.DesignerCode, DEFM.DesignNo, DEFM.PickOnLoom,DEFM.SaleRate, " +
-                        "  DEFM.TotalCard, DEFM.ReedOnLoom, DEFM.WarpQuality, DEFM.DesignCategory " +
-                        " from DesignColorMatchingFormMaster DCMFM " +
-                        " LEFT JOIN (" +
-                        " 	select DEFM.*, WQ.WarpQuality, SM.Sketcher, TM.Type, DCM.DesignCategory " +
-                        " 	from DesignEntryFormMaster DEFM" +
-                        " 	LEFT JOIN WarpQualityMaster WQ ON WQ.WarpQualityID = DEFM.WarpQualityID" +
-                        " 	LEFT JOIN SketcherMaster SM ON SM.SketcherID = DEFM.SketcherID" +
-                        " 	LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID" +
-                        "	LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID" +
-                        //" 	LEFT JOIN MaterialMaster MM ON MM.MaterialID = DEFM.MaterialID" +
-                        " )DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID " +
-                        " where DCMFM.DesignColorMatchingFormID = " + ilist.DesignColorMatchingFormID + " " +
-                        " and DCMFM.FinancialYearID =  (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
-                        " and DCMFM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)";
+                cmd.CommandText = " select DCMFM.*,  " +
+                    " DEFM.PhotoOfDesign, DEFM.DesignerID, DEFM.DesignerCode, DEFM.DesignNo, DEFM.PickOnLoom,DEFM.SaleRate, " +
+                    "  DEFM.TotalCard, DEFM.ReedOnLoom, DEFM.WarpQuality, DEFM.DesignCategory " +
+                    " from DesignColorMatchingFormMaster DCMFM " +
+                    " LEFT JOIN (" +
+                    " 	select DEFM.*, WQ.WarpQuality, SM.Sketcher, TM.Type, DCM.DesignCategory " +
+                    " 	from DesignEntryFormMaster DEFM" +
+                    " 	LEFT JOIN WarpQualityMaster WQ ON WQ.WarpQualityID = DEFM.WarpQualityID" +
+                    " 	LEFT JOIN SketcherMaster SM ON SM.SketcherID = DEFM.SketcherID" +
+                    " 	LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID" +
+                    "	LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID" +
+                    //" 	LEFT JOIN MaterialMaster MM ON MM.MaterialID = DEFM.MaterialID" +
+                    " )DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID " +
+                    " where DCMFM.DesignColorMatchingFormID = " + ilist.DesignColorMatchingFormID + " " +
+                    " and DCMFM.FinancialYearID =  (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
+                    " and DCMFM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)";
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -14724,7 +14725,7 @@ namespace NikunjTextile
                 cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select * from PartyMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and IsActiveParty = 1 order by PartyName ";
+                cmd.CommandText = " select * from PartyMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and IsActiveParty = 1 order by PartyName ";
                 con.Open();
                 rdr = cmd.ExecuteReader();
 
@@ -15077,7 +15078,7 @@ namespace NikunjTextile
                     if (rateResult != null)
                         data.Rate = Convert.ToDecimal(rateResult);
                 }
-                
+
                 listUser.Add(data);
 
                 con.Close();
@@ -16185,14 +16186,16 @@ namespace NikunjTextile
                     " SPM.BillingAddress as SupplierBillingAddress, SPM.ShippingAddress as SupplierShippingAddress, SPM.GSTIN as SupplierGSTIN, SPM.PAN as SupplierPAN,  " +
                     " SPM.State as SupplierState,  SPM.City as SupplierCity, SPM.Pincode as SupplierPincode, " +
                     " SPM.BankHolderName as SupplierBankHolderName, SPM.BankAccountNo as SupplierBankAccountNo, SPM.BankIFSCCode as SupplierBankIFSCCode, SPM.BankName as SupplierBankName, SPM.BankBranch as SupplierBankBranch," +
-                    " BPM.PartyName as BillToPartyName, BPM.MobileNo as BillToMobileNo, BPM.AlterMobileNo as BillToAlterMobileNo, BPM.Email as BillToEmail, " +
-                    " BPM.BillingAddress as BillToBillingAddress, BPM.ShippingAddress as BillToShippingAddress, BPM.GSTIN as BillToGSTIN, BPM.PAN as BillToPAN, " +
-                    " BPM.State as BillToState,  BPM.City as BillToCity, BPM.Pincode as BillToPincode," +
-                    " BPM.BankHolderName as BillToBankHolderName, BPM.BankAccountNo as BillToBankAccountNo, BPM.BankIFSCCode as BillToBankIFSCCode, BPM.BankName as BillToBankName, BPM.BankBranch as BillToBankBranch," +
-                    " CPM.PartyName as CompanyPartyName, CPM.MobileNo as CompanyMobileNo, CPM.AlterMobileNo as CompanyAlterMobileNo, CPM.Email as CompanyEmail, " +
-                    " CPM.BillingAddress as CompanyBillingAddress, CPM.ShippingAddress as CompanyShippingAddress, CPM.GSTIN as CompanyGSTIN, CPM.PAN as CompanyPAN, " +
-                    " CPM.State as CompanyState,  CPM.City as CompanyCity, CPM.Pincode as CompanyPincode," +
-                    " CPM.BankHolderName as CompanyBankHolderName, CPM.BankAccountNo as CompanyBankAccountNo, CPM.BankIFSCCode as CompanyBankIFSCCode, CPM.BankName as CompanyBankName, CPM.BankBranch as CompanyBankBranch," +
+
+                    " CPM.PartyName as BillToPartyName, CPM.MobileNo as BillToMobileNo, CPM.AlterMobileNo as BillToAlterMobileNo, CPM.Email as BillToEmail," +
+                    " CPM.BillingAddress as BillToBillingAddress, CPM.ShippingAddress as BillToShippingAddress, CPM.GSTIN as BillToGSTIN, CPM.PAN as BillToPAN," +
+                    " CPM.State as BillToState,  CPM.City as BillToCity, CPM.Pincode as BillToPincode, CPM.BankHolderName as BillToBankHolderName," +
+                    " CPM.BankAccountNo as BillToBankAccountNo, CPM.BankIFSCCode as BillToBankIFSCCode, CPM.BankName as BillToBankName, CPM.BankBranch as BillToBankBranch," +
+
+                    " BPM.PartyName as CompanyPartyName, BPM.MobileNo as CompanyMobileNo, BPM.AlterMobileNo as CompanyAlterMobileNo, BPM.Email as CompanyEmail, " +
+                    " BPM.BillingAddress as CompanyBillingAddress, BPM.ShippingAddress as CompanyShippingAddress, BPM.GSTIN as CompanyGSTIN, BPM.PAN as CompanyPAN," +
+                    " BPM.State as CompanyState,  BPM.City as CompanyCity, BPM.Pincode as CompanyPincode, CPM.BankHolderName as CompanyBankHolderName, BPM.BankAccountNo as CompanyBankAccountNo," +
+                    " BPM.BankIFSCCode as CompanyBankIFSCCode, BPM.BankName as CompanyBankName, BPM.BankBranch as CompanyBankBranch," +
                     " SPPM.PartyName as ShippedToPartyName, SPPM.MobileNo as ShippedToMobileNo, SPPM.AlterMobileNo as ShippedToAlterMobileNo, SPPM.Email as ShippedToEmail, " +
                     " SPPM.BillingAddress as ShippedToBillingAddress, SPPM.ShippingAddress as ShippedToShippingAddress, SPPM.GSTIN as ShippedToGSTIN, SPPM.PAN as ShippedToPAN, " +
                     " SPPM.State as ShippedToState,  SPPM.City as ShippedToCity, SPPM.Pincode as ShippedToPincode," +
@@ -16248,7 +16251,6 @@ namespace NikunjTextile
                         condition.SupplierBankIFSCCode = rdr["SupplierBankIFSCCode"].ToString().ToUpper();
                         condition.SupplierBankName = rdr["SupplierBankName"].ToString().ToUpper();
                         condition.SupplierBankBranch = rdr["SupplierBankBranch"].ToString().ToUpper();
-
                         condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
                         condition.BillToPartyName = rdr["BillToPartyName"].ToString().ToUpper();
                         condition.BillToMobileNo = rdr["BillToMobileNo"].ToString().ToUpper();
@@ -16265,7 +16267,6 @@ namespace NikunjTextile
                         condition.BillToBankIFSCCode = rdr["BillToBankIFSCCode"].ToString().ToUpper();
                         condition.BillToBankName = rdr["BillToBankName"].ToString().ToUpper();
                         condition.BillToBankBranch = rdr["BillToBankBranch"].ToString().ToUpper();
-
                         condition.CompanyPartyID = Convert.ToInt32(rdr["CompanyPartyID"].ToString());
                         condition.CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper();
                         condition.CompanyMobileNo = rdr["CompanyMobileNo"].ToString().ToUpper();
@@ -16481,8 +16482,8 @@ namespace NikunjTextile
                         condition.PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd/MM/yyyy");
                         condition.PONo = Convert.ToInt32(rdr["PONo"].ToString());
 
-                        condition.IsSameAsSupplier = rdr["IsSameAsSupplier"] != DBNull.Value? Convert.ToInt32(rdr["IsSameAsSupplier"]): 0;
-                        condition.IsSameAsCompany = rdr["IsSameAsCompany"] != DBNull.Value ?  Convert.ToInt32(rdr["IsSameAsCompany"]):0;
+                        condition.IsSameAsSupplier = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsSupplier"]) : 0;
+                        condition.IsSameAsCompany = rdr["IsSameAsCompany"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsCompany"]) : 0;
 
                         condition.SupplierPartyID = Convert.ToInt32(rdr["SupplierPartyID"].ToString());
                         condition.SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper();
@@ -16523,7 +16524,7 @@ namespace NikunjTextile
                         condition.CompanyPartyID = Convert.ToInt32(rdr["CompanyPartyID"].ToString());
                         condition.CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper();
                         condition.CompanyMobileNo = rdr["CompanyMobileNo"].ToString().ToUpper();
-                        condition.CompanyEmail   = rdr["CompanyEmail"].ToString().ToUpper();
+                        condition.CompanyEmail = rdr["CompanyEmail"].ToString().ToUpper();
                         condition.CompanyAlterMobileNo = rdr["CompanyAlterMobileNo"].ToString().ToUpper();
                         condition.CompanyBillingAddress = rdr["CompanyBillingAddress"].ToString().ToUpper();
                         condition.CompanyShippingAddress = rdr["CompanyShippingAddress"].ToString().ToUpper();
@@ -17780,13 +17781,13 @@ namespace NikunjTextile
 
                         using (SqlConnection con = new SqlConnection(cs))
                         {
-                
+
                             int idDone = 0;
 
                             SqlCommand cmds = new SqlCommand();
                             cmds.Connection = con;
                             cmds.CommandType = System.Data.CommandType.Text;
-                            
+
                             //cmds.CommandText = "select PM.* from PartyMaster PM LEFT JOIN CompanyMaster CM ON PM.CompanyId = CM.CompanyId where CM.is_default = '1' and PM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and PM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) order by PM.PartyId desc OFFSET " + ilist.startFrom.ToString() + " ROWS FETCH NEXT 10 ROWS ONLY";
                             cmds.CommandText = " select * from YarnInwardMaster where PartyChallanNo = '" + myDetails.PartyChallanNo.ToUpper() + "' and YarnMaterialID = '" + myDetails.YarnMaterialID + "' " +
                                 " and YarnColorID = '" + myDetails.YarnColorID + "' and YarnPODetailIDCompanyCode = '" + myDetails.YarnPODetailIDCompanyCode + "' ";
@@ -17836,7 +17837,7 @@ namespace NikunjTextile
 
                                 SqlCommand cmd = new SqlCommand();
                                 cmd.Connection = con;
-                                cmd.CommandType = System.Data.CommandType.Text;                       
+                                cmd.CommandType = System.Data.CommandType.Text;
                                 //con.Open();
 
                                 DateTime yarnDate;
@@ -17892,7 +17893,7 @@ namespace NikunjTextile
                                 cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
                                 cmd.Parameters.AddWithValue("@IsComplete", myDetails.IsComplete);
                                 cmd.Parameters.AddWithValue("@UserId", UserAccountId);
-                                cmd.Parameters.AddWithValue("@FinYear", FinancialYearID);                             
+                                cmd.Parameters.AddWithValue("@FinYear", FinancialYearID);
 
                                 Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
 
@@ -17943,7 +17944,7 @@ namespace NikunjTextile
                                     comman.Code = 200;
                                     comman.Message = "Record has been saved successfully";
 
-                                }                               
+                                }
                                 else
                                 {
                                     comman.Code = 500;
@@ -18060,19 +18061,19 @@ namespace NikunjTextile
                                "       YarnMaterialID, " +
                                "       YarnPODetailIDCompanyCode, " +
 
-                               "       MAX(IsComplete) as IsComplete " +   
+                               "       MAX(IsComplete) as IsComplete " +
 
                                "       FROM YarnInwardMaster " +
                                "       WHERE CompanyId = (select CompanyId from CompanyMaster where is_default = 1) " +
                                "       AND FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1) " +
                                "       AND UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " " +
 
-                               "       GROUP BY YarnMaterialID, YarnPODetailIDCompanyCode " + 
+                               "       GROUP BY YarnMaterialID, YarnPODetailIDCompanyCode " +
 
                                "   ) as yim " +
 
                                "   ON ypd.YarnPODetailID = yim.YarnPODetailIDCompanyCode " +
-                               "   AND ypd.YarnMaterialID = yim.YarnMaterialID " +  
+                               "   AND ypd.YarnMaterialID = yim.YarnMaterialID " +
 
                                " ) as temp " +
 
@@ -27270,8 +27271,12 @@ ORDER BY SO.OrderNo DESC";
                 da.SelectCommand.Parameters.AddWithValue("@UserId", userId);
                 da.Fill(dt);
             }
-            var result = dt.AsEnumerable().GroupBy(x => new {Menu_Id = x["Menu_Id"].ToString(), Menu_Name = x["Menu_Name"].ToString(),Menu_Icon = x["Menu_Icon"].ToString()})
-                .Select(menu => new  { Menu_Id = menu.Key.Menu_Id,Menu_Name = menu.Key.Menu_Name,Menu_Icon = menu.Key.Menu_Icon, 
+            var result = dt.AsEnumerable().GroupBy(x => new { Menu_Id = x["Menu_Id"].ToString(), Menu_Name = x["Menu_Name"].ToString(), Menu_Icon = x["Menu_Icon"].ToString() })
+                .Select(menu => new
+                {
+                    Menu_Id = menu.Key.Menu_Id,
+                    Menu_Name = menu.Key.Menu_Name,
+                    Menu_Icon = menu.Key.Menu_Icon,
                     SubMenus = menu.Select(sub => new
                     {
                         SubMenu_Id = sub["SubMenu_Id"].ToString(),
@@ -27286,7 +27291,7 @@ ORDER BY SO.OrderNo DESC";
                     }).ToList()
                 }).ToList();
             return result;
-        } 
+        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public bool CheckPagePermission(string controller, string action)
@@ -27452,15 +27457,14 @@ ORDER BY SO.OrderNo DESC";
                         SPM.BillingAddress as SupplierBillingAddress, SPM.ShippingAddress as SupplierShippingAddress, SPM.GSTIN as SupplierGSTIN, SPM.PAN as SupplierPAN,  
                         SPM.State as SupplierState,  SPM.City as SupplierCity, SPM.Pincode as SupplierPincode, 
                         SPM.BankHolderName as SupplierBankHolderName, SPM.BankAccountNo as SupplierBankAccountNo, SPM.BankIFSCCode as SupplierBankIFSCCode, SPM.BankName as SupplierBankName, SPM.BankBranch as SupplierBankBranch,
-                        BPM.PartyName as BillToPartyName, BPM.MobileNo as BillToMobileNo, BPM.AlterMobileNo as BillToAlterMobileNo, BPM.Email as BillToEmail, 
-                        BPM.BillingAddress as BillToBillingAddress, BPM.ShippingAddress as BillToShippingAddress, BPM.GSTIN as BillToGSTIN, BPM.PAN as BillToPAN, 
-                        BPM.State as BillToState,  BPM.City as BillToCity, BPM.Pincode as BillToPincode,
-                        BPM.BankHolderName as BillToBankHolderName, BPM.BankAccountNo as BillToBankAccountNo, BPM.BankIFSCCode as BillToBankIFSCCode, BPM.BankName as BillToBankName, BPM.BankBranch as BillToBankBranch,
-                        CPM.PartyName as CompanyPartyName, CPM.MobileNo as CompanyMobileNo, CPM.AlterMobileNo as CompanyAlterMobileNo, CPM.Email as CompanyEmail, 
-                        CPM.BillingAddress as CompanyBillingAddress, CPM.ShippingAddress as CompanyShippingAddress, CPM.GSTIN as CompanyGSTIN, CPM.PAN as CompanyPAN, 
-                        CPM.State as CompanyState,  CPM.City as CompanyCity, CPM.Pincode as CompanyPincode,
-                        CPM.BankHolderName as CompanyBankHolderName, CPM.BankAccountNo as CompanyBankAccountNo, CPM.BankIFSCCode as CompanyBankIFSCCode, CPM.BankName as CompanyBankName, CPM.BankBranch as CompanyBankBranch,
-                        SPPM.PartyName as ShippedToPartyName, SPPM.MobileNo as ShippedToMobileNo, SPPM.AlterMobileNo as ShippedToAlterMobileNo, SPPM.Email as ShippedToEmail, 
+                        CPM.PartyName as BillToPartyName, CPM.MobileNo as BillToMobileNo, CPM.AlterMobileNo as BillToAlterMobileNo, CPM.Email as BillToEmail, 
+                        CPM.BillingAddress as BillToBillingAddress, CPM.ShippingAddress as BillToShippingAddress, CPM.GSTIN as BillToGSTIN, CPM.PAN as BillToPAN, 
+                        CPM.State as BillToState,  CPM.City as BillToCity, CPM.Pincode as BillToPincode, CPM.BankHolderName as BillToBankHolderName, 
+                        CPM.BankAccountNo as BillToBankAccountNo, CPM.BankIFSCCode as BillToBankIFSCCode, CPM.BankName as BillToBankName, CPM.BankBranch as BillToBankBranch,
+                        BPM.PartyName as CompanyPartyName, BPM.MobileNo as CompanyMobileNo, BPM.AlterMobileNo as CompanyAlterMobileNo, BPM.Email as CompanyEmail, 
+                        BPM.BillingAddress as CompanyBillingAddress, BPM.ShippingAddress as CompanyShippingAddress, BPM.GSTIN as CompanyGSTIN, BPM.PAN as CompanyPAN,
+                        BPM.State as CompanyState,  BPM.City as CompanyCity, BPM.Pincode as CompanyPincode, CPM.BankHolderName as CompanyBankHolderName, BPM.BankAccountNo as CompanyBankAccountNo,
+                        BPM.BankIFSCCode as CompanyBankIFSCCode, BPM.BankName as CompanyBankName, BPM.BankBranch as CompanyBankBranch, SPPM.PartyName as ShippedToPartyName,       SPPM.PartyName as ShippedToPartyName, SPPM.MobileNo as ShippedToMobileNo, SPPM.AlterMobileNo as ShippedToAlterMobileNo, SPPM.Email as ShippedToEmail, 
                         SPPM.BillingAddress as ShippedToBillingAddress, SPPM.ShippingAddress as ShippedToShippingAddress, SPPM.GSTIN as ShippedToGSTIN, SPPM.PAN as ShippedToPAN, 
                         SPPM.State as ShippedToState,  SPPM.City as ShippedToCity, SPPM.Pincode as ShippedToPincode,
                         SPPM.BankHolderName as ShippedToBankHolderName, SPPM.BankAccountNo as ShippedToBankAccountNo, SPPM.BankIFSCCode as ShippedToBankIFSCCode, SPPM.BankName as ShippedToBankName, SPPM.BankBranch as ShippedToBankBranch, 
@@ -27493,8 +27497,8 @@ ORDER BY SO.OrderNo DESC";
                                 DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy"),
                                 PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd/MM/yyyy"),
                                 PONo = Convert.ToInt32(rdr["PONo"].ToString()),
-                                IsSameAsSupplier = rdr["IsSameAsSupplier"] != DBNull.Value? Convert.ToInt32(rdr["IsSameAsSupplier"]): 0,
-                                IsSameAsCompany = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsCompany"]):0,
+                                IsSameAsSupplier = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsSupplier"]) : 0,
+                                IsSameAsCompany = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsCompany"]) : 0,
                                 SupplierPartyID = Convert.ToInt32(rdr["SupplierPartyID"].ToString()),
                                 SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper(),
                                 SupplierMobileNo = rdr["SupplierMobileNo"].ToString().ToUpper(),
@@ -27635,8 +27639,8 @@ ORDER BY SO.OrderNo DESC";
                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
                 .SetBorderLeft(new SolidBorder(0.8f))
                 .SetBorderRight(new SolidBorder(0.8f))
-                .SetBorderBottom(Border.NO_BORDER)
-                .SetBorderTop(Border.NO_BORDER);
+                .SetBorderBottom(iText.Layout.Borders.Border.NO_BORDER)
+                .SetBorderTop(iText.Layout.Borders.Border.NO_BORDER);
         }
         public string CreatePDF(List<YarnPOMaster> data)
         {
@@ -27651,15 +27655,15 @@ ORDER BY SO.OrderNo DESC";
 
             PdfWriter writer = new PdfWriter(filePath);
 
-            PdfDocument pdf = new PdfDocument(writer);
+            iText.Kernel.Pdf.PdfDocument pdf = new iText.Kernel.Pdf.PdfDocument(writer);
 
             pdf.SetDefaultPageSize(PageSize.A4);
 
-            Document document = new Document(pdf);
+            iText.Layout.Document document = new iText.Layout.Document(pdf);
 
             document.SetMargins(10, 10, 10, 10);
-            PdfFont normalFont;
-            PdfFont boldFont;
+            iText.Kernel.Font.PdfFont normalFont;
+            iText.Kernel.Font.PdfFont boldFont;
             float pageWidth = pdf.GetDefaultPageSize().GetWidth() - 20;
             // ================= FONT =================
 
@@ -27721,9 +27725,9 @@ ORDER BY SO.OrderNo DESC";
                 ship.AddCell(shipLeft);
                 iText.Layout.Element.Table order = new iText.Layout.Element.Table(1).UseAllAvailableWidth();
                 order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER DATE : ").SetFont(boldFont)).Add(Safe(item.PODates)).SetTextAlignment(TextAlignment.LEFT))
-                    .SetBorder(Border.NO_BORDER));
+                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER));
                 order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER NUMBER : ").SetFont(boldFont)).Add(item.PONo.ToString()).SetTextAlignment(TextAlignment.LEFT))
-                    .SetBorder(Border.NO_BORDER));
+                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER));
                 ship.AddCell(new Cell().Add(order));
                 document.Add(ship);
 
@@ -27760,7 +27764,7 @@ ORDER BY SO.OrderNo DESC";
                 // HEADER
                 // =========================================================
 
-                string[] headers = {"SR","Quality","Colour","Code","Qty","Rate","GST Slab","Amount" };
+                string[] headers = { "SR", "Quality", "Colour", "Code", "Qty", "Rate", "GST Slab", "Amount" };
                 foreach (var h in headers)
                 {
                     table.AddHeaderCell(new Cell().Add(new Paragraph(h).SetFont(boldFont).SetFontSize(8).SetMargin(0)).SetPadding(2).SetTextAlignment(TextAlignment.CENTER)
@@ -27814,11 +27818,9 @@ ORDER BY SO.OrderNo DESC";
                     for (int c = 0; c < 8; c++)
                     {
                         table.AddCell(new Cell().Add(new Paragraph(" ").SetFontSize(8).SetMargin(0)).SetHeight(16).SetPadding(0).SetBorderLeft(new SolidBorder(1))
-                        .SetBorderRight(new SolidBorder(1)).SetBorderTop(Border.NO_BORDER).SetBorderBottom(isLastRow ? new SolidBorder(1) : Border.NO_BORDER ));
+                        .SetBorderRight(new SolidBorder(1)).SetBorderTop(iText.Layout.Borders.Border.NO_BORDER).SetBorderBottom(isLastRow ? new SolidBorder(1) : iText.Layout.Borders.Border.NO_BORDER));
                     }
                 }
-
-
                 document.Add(table);
                 // =========================================================
                 // TOTAL
@@ -27827,12 +27829,12 @@ ORDER BY SO.OrderNo DESC";
                 decimal grandTotal = total + gstAmount;
                 iText.Layout.Element.Table totalOuter = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 100 })).UseAllAvailableWidth();
                 iText.Layout.Element.Table right = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 60, 40 })).UseAllAvailableWidth();
-                right.AddCell(new Cell().Add(new Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph("GST Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(gstAmount.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph("Grand Total :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(grandTotal.ToString("N2")).SetFont(boldFont).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph("GST Amount :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph(gstAmount.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph("Grand Total :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new Paragraph(grandTotal.ToString("N2")).SetFont(boldFont).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
                 totalOuter.AddCell(new Cell().Add(right).SetBorder(new SolidBorder(1)));
                 document.Add(totalOuter);
 
@@ -27978,7 +27980,7 @@ ORDER BY SO.OrderNo DESC";
                         condition.CompanyCode = rdr["CompanyCode"].ToString().ToUpper();
                         condition.Qty = Convert.ToDecimal(rdr["Qty"].ToString().ToUpper());
                         condition.PendingQty = Convert.ToDecimal(rdr["PendingQty"].ToString().ToUpper());
-                        condition.IsComplete = Convert.ToBoolean(rdr["IsClose"]);                        
+                        condition.IsComplete = Convert.ToBoolean(rdr["IsClose"]);
                         listUser.Add(condition);
                     }
                 }
@@ -28272,7 +28274,7 @@ SELECT
 FROM Filtered
 ";
 
-                   SqlCommand countCmd = new SqlCommand(countQuery, con);
+                    SqlCommand countCmd = new SqlCommand(countQuery, con);
                     countCmd.Parameters.Add("@validationStatus", SqlDbType.VarChar).Value = validationStatus ?? "";
                     countCmd.Parameters.Add("@searchText", SqlDbType.VarChar).Value = searchText ?? "";
 
@@ -28336,9 +28338,9 @@ FROM Filtered
                     // ✅ 2. Update PO Details (Close)
                     cmd.CommandText = @"UPDATE YarnPODetails SET IsClose = 1,IsCloseDateTime = GETDATE(),IsCloseUserID = @UserID  WHERE YarnPODetailID = @Code";
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@Code",id);
-                    cmd.Parameters.AddWithValue("@UserID",UserAccountId);
-                    cmd.ExecuteNonQuery();                    
+                    cmd.Parameters.AddWithValue("@Code", id);
+                    cmd.Parameters.AddWithValue("@UserID", UserAccountId);
+                    cmd.ExecuteNonQuery();
                     trans.Commit();
                 }
                 catch (Exception ex)
@@ -28365,6 +28367,249 @@ FROM Filtered
                 con.Open();
                 cmd.ExecuteNonQuery();
                 con.Close();
+            }
+        }
+        //[WebMethod]
+        //public void PreviewCrystalReport()
+        //{
+        //    try
+        //    {
+        //        Context.Response.Write("Step 1 : Crystal DLL Reference OK \n\n");
+
+        //        string version = typeof(ReportDocument).Assembly.FullName;
+
+        //        Context.Response.Write("Assembly : " + version + " \n\n");
+
+        //        Context.Response.Write("Step 2 : Creating ReportDocument... \n\n");
+
+        //        ReportDocument rpt = new ReportDocument();
+
+        //        Context.Response.Write("SUCCESS : Crystal Runtime Working");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Context.Response.Clear();
+        //        Context.Response.ContentType = "text/plain";
+
+        //        Context.Response.Write(
+        //            "ERROR OCCURRED \n\n" +
+        //            ex.ToString()
+        //        );
+        //    }
+
+
+
+        //    //try
+        //    //{
+        //    //    using (ReportDocument rd = new ReportDocument())
+        //    //    {
+        //    //        // Load Crystal Report
+        //    //        rd.Load(Server.MapPath("~/Reports/CrystalReport.rpt"));
+
+        //    //        // Export to PDF Stream
+        //    //        Stream stream = rd.ExportToStream(
+        //    //            CrystalDecisions.Shared.ExportFormatType.PortableDocFormat
+        //    //        );
+
+        //    //        byte[] buffer = new byte[stream.Length];
+        //    //        stream.Read(buffer, 0, buffer.Length);
+
+        //    //        // Response
+        //    //        Context.Response.Clear();
+        //    //        Context.Response.Buffer = true;
+        //    //        Context.Response.ContentType = "application/pdf";
+        //    //        Context.Response.AddHeader(
+        //    //            "content-disposition",
+        //    //            "inline;filename=CrystalReport.pdf"
+        //    //        );
+
+        //    //        Context.Response.BinaryWrite(buffer);
+        //    //        Context.Response.Flush();
+
+        //    //        // Cleanup
+        //    //        stream.Close();
+        //    //        stream.Dispose();
+
+        //    //        rd.Close();
+        //    //        rd.Dispose();
+
+        //    //        Context.Response.SuppressContent = false;
+        //    //        HttpContext.Current.ApplicationInstance.CompleteRequest();
+        //    //    }
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    Context.Response.Clear();
+        //    //    Context.Response.ContentType = "text/plain";
+        //    //    Context.Response.Write(ex.ToString());
+        //    //}
+        //}
+
+        [WebMethod]
+        public object ExportPDF(List<int> yarnPOIds)
+        {
+            var data = GetYarnPODataForPDF_DB(yarnPOIds);
+
+            if (data == null || data.Count == 0)
+            {
+                throw new Exception("No Data Found");
+            }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                PdfWriter writer = new PdfWriter(ms);
+
+                PdfDocument pdfDoc = new PdfDocument(writer);
+
+                iText.Layout.Document document = new iText.Layout.Document(pdfDoc);
+
+                foreach (var first in data)
+                {
+                    var details = first.listYarnPODetails;
+
+                    string path = HttpContext.Current.Server.MapPath(
+                        "~/Reports/PurchaseOrder.html"
+                    );
+
+                    string html = File.ReadAllText(path);
+
+                    // ================= MASTER =================
+
+                    html = html.Replace("{{CompanyPartyName}}", first.CompanyPartyName ?? "");
+                    html = html.Replace("{{CompanyBillingAddress}}", first.CompanyBillingAddress ?? "");
+                    html = html.Replace("{{CompanyMobileNo}}", first.CompanyMobileNo ?? "");
+                    html = html.Replace("{{CompanyGSTIN}}", first.CompanyGSTIN ?? "");
+
+                    html = html.Replace("{{ShippedToPartyName}}", first.GodownTitle ?? "");
+                    html = html.Replace("{{ShippedToGSTIN}}", first.GodownGST ?? "");
+                    html = html.Replace("{{ShippedToBillingAddress}}", first.GodownAddress ?? "");
+
+                    html = html.Replace("{{PODates}}", first.PODates ?? "");
+                    html = html.Replace("{{PONo}}", first.PONo.ToString());
+
+                    html = html.Replace("{{SupplierPartyName}}", first.SupplierPartyName ?? "");
+                    html = html.Replace("{{SupplierGSTIN}}", first.SupplierGSTIN ?? "");
+                    html = html.Replace("{{SupplierBillingAddress}}", first.SupplierBillingAddress ?? "");
+                    html = html.Replace("{{SupplierMobileNo}}", first.SupplierMobileNo ?? "");
+
+                    html = html.Replace("{{BillToPartyName}}", first.BillToPartyName ?? "");
+                    html = html.Replace("{{BillToBillingAddress}}", first.BillToBillingAddress ?? "");
+                    html = html.Replace("{{BillToMobileNo}}", first.BillToMobileNo ?? "");
+                    html = html.Replace("{{BillToGSTIN}}", first.BillToGSTIN ?? "");
+
+                    // ================= ROWS =================
+
+                    string rows = "";
+
+                    int sr = 1;
+
+                    foreach (var item in details)
+                    {
+                        rows += $@"
+                                <tr>
+                                    <td>{sr}</td>
+                                    <td style='text-align:center;'>{item.YarnMaterial}</td>
+                                    <td style='text-align:center;'>{item.YarnColor}</td>
+                                    <td style='text-align:center;'>{item.CompanyCode}</td>
+                                    <td class='right'>{Convert.ToDecimal(item.Qty).ToString("N2")}</td>
+                                    <td class='right'>{Convert.ToDecimal(item.Rate).ToString("N2")}</td>
+                                    <td style='text-align:center;'>{item.GSTSLABName}</td>
+                                    <td class='right'>{Convert.ToDecimal(item.Amount).ToString("N2")}</td>
+                                </tr>";
+
+                        sr++;
+                    }
+
+                    html = html.Replace("{{ROWS}}", rows);                 
+                    // ================= TOTAL =================
+
+                    decimal totalTaxableAmount = details.Sum(x =>
+                        Convert.ToDecimal(x.Amount)
+                    );
+
+                    decimal gstAmount = details.Sum(x =>
+                    {
+                        decimal amount = Convert.ToDecimal(x.Amount);
+
+                        decimal gstPercent = 0;
+
+                        if (!string.IsNullOrEmpty(x.GSTSLABName))
+                        {
+                            if (x.GSTSLABName.Contains("5"))
+                                gstPercent = 5;
+
+                            else if (x.GSTSLABName.Contains("12"))
+                                gstPercent = 12;
+
+                            else if (x.GSTSLABName.Contains("18"))
+                                gstPercent = 18;
+                        }
+
+                        return amount * gstPercent / 100;
+                    });
+
+                    decimal grandTotal = totalTaxableAmount + gstAmount;
+
+                    html = html.Replace(
+                        "{{TotalTaxableAmount}}",
+                        totalTaxableAmount.ToString("N2")
+                    );
+
+                    html = html.Replace(
+                        "{{GSTAmount}}",
+                        gstAmount.ToString("N2")
+                    );
+
+                    html = html.Replace(
+                        "{{GrandTotal}}",
+                        grandTotal.ToString("N2")
+                    );
+
+                    // ================= HTML TO PDF =================
+
+                    using (MemoryStream tempStream = new MemoryStream())
+                    {
+                        HtmlConverter.ConvertToPdf(
+                            html,
+                            tempStream
+                        );
+
+                        PdfDocument tempPdf = new PdfDocument(
+                            new PdfReader(
+                                new MemoryStream(tempStream.ToArray())
+                            )
+                        );
+
+                        tempPdf.CopyPagesTo(
+                            1,
+                            tempPdf.GetNumberOfPages(),
+                            pdfDoc
+                        );
+
+                        tempPdf.Close();
+                    }
+                }
+
+                document.Close();
+
+                byte[] pdfBytes = ms.ToArray();
+
+                string dir = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                string fileName = $"YarnPO_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+
+                string filePath = System.IO.Path.Combine(dir, fileName);
+
+                // SAVE PDF
+                File.WriteAllBytes(filePath, pdfBytes);
+
+                // RETURN URL
+                string pdfUrl = "/GeneratedPDF/" + fileName;
+
+                return new { FilePath = pdfUrl};
             }
         }
     }

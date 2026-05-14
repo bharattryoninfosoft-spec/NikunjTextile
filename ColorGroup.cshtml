@@ -127,7 +127,6 @@
     </div>
     <div class="view-more-styl-class">
         <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
-        <br /><br /><br />
     </div>
     <!-- Row end -->
 
@@ -146,21 +145,12 @@
         FunctionIsLogin();
         displayData(0);
     });
-
     var notes = $('#notes').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
     var notess = $('#notess').notify({
         removeIcon: '<i class="icon-close"></i>'
     });
-
-
-
-
-
-
     function getDefaultCompany() {
         $.ajax({
             type: "GET",
@@ -190,7 +180,6 @@
             }
         });
     }
-
     function FunctionIsLogin() {
         $.ajax({
             type: "POST",
@@ -209,7 +198,6 @@
             }
         });
     }
-
     function logout() {
         $.ajax({
             type: "POST",
@@ -225,14 +213,10 @@
             }
         });
     }
-
-
-
     function functionSearch() {
         //displayPagginationData();
         displayData(0);
     }
-
     function displayData(rowStartCheck) {
         var rowStart = 0;
         if (rowStartCheck != 0) {
@@ -375,13 +359,6 @@
             }
         });
     }
-
-
-
-
-
-
-
     function clearAll() {
         getDefaultCompany();
         $("#savebtn").show();
@@ -397,9 +374,6 @@
         $(".invalid-feedback").hide();
         $(".valid-feedback").hide();
     }
-
-
-
     function checkSaveView() {
 
         var IsActive = "0";
@@ -461,8 +435,6 @@
             });
         }
     }
-
-
     function checkSave() {
         var IsActive = "0";
         if ($("#IsActive").is(':checked')) {
@@ -529,10 +501,6 @@
 
 
     }
-
-
-
-
     function checkEdit() {
         var id = $("#edit-id").val();
         var IsActive = "0";
@@ -609,12 +577,6 @@
             });
         }
     }
-
-
-
-
-
-
     function showRecords(id) {
 
         clearAll();
@@ -678,11 +640,6 @@
         });
 
     }
-
-
-
-
-
     function functionYarnDelete(id) {
         if (confirm('Are you sure you want to delete this record?')) {
             var formData = new FormData();
@@ -733,10 +690,6 @@
         }
 
     }
-
-
-
-
     function onPostUp(QueueNo) {
 
         var down = $("#PostUp_" + QueueNo + "").val();
@@ -783,9 +736,6 @@
 
 
     }
-
-
-
     function onPostDown(QueueNo) {
 
         var down = $("#PostDown_" + QueueNo + "").val();
@@ -833,9 +783,6 @@
 
 
     }
-
-
-
     function validate(code) {
         code.value = code.value.replace(/\s+/g, ' ').trim();
         var errorMessageValid = "." + code.id + "-valid-feedback";

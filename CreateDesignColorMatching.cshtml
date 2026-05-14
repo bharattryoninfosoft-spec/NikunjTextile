@@ -1054,8 +1054,13 @@
 
 </div>
 <!-- Content wrapper end -->
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
 
-
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
 
 
 
@@ -2583,7 +2588,7 @@
             $("#savebtn").show();
             $("#Updatebtn").hide();
 
-            
+
             setTimeout(function () {
 
                 var weftLength = $("#weftLength").val();
@@ -2592,7 +2597,7 @@
 
 
 
-               // alert(warpLength + " " + weftLength);
+                // alert(warpLength + " " + weftLength);
                 var formData = new FormData();
                 formData.append('TotalWarp', warpLength);
                 formData.append('TotalWeft', weftLength);
@@ -2740,7 +2745,7 @@
                     $("#warpLength").val(warpLength);
                     $("#txtColorArray").val('');
 
-                    
+
 
                     var WarSrNo = 1;
                     /* ---------- Design Form Warp Data ---------- */

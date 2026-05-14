@@ -667,8 +667,8 @@
 
 
                                             <div class="modal-footer" style="border: none;">
-                                                <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>                                               
-                                                <button id="Savebtn" type="button" class="btn btn-primary"  style="font-size: medium;">Save</button>
+                                                <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                                                <button id="Savebtn" type="button" class="btn btn-primary" style="font-size: medium;">Save</button>
                                             </div>
 
 
@@ -745,23 +745,20 @@
 
 
 
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
 
+<!-- Date Range JS -->
+<script src="vendor/daterange/daterange.js"></script>
+<script src="vendor/daterange/custom-daterange.js"></script>
 
 
 
 
 <script>
     $('body').addClass('fullscreen');
-    var currentPagePermission = {};
     $(document).ready(function () {
-        var permission = sessionStorage.getItem("PagePermission");
-        if (permission != null) {
-            currentPagePermission = JSON.parse(permission);
-            console.log("currentPagePermission", currentPagePermission);
-            if (currentPagePermission.Add == false) {
-                $("#Savebtn").hide();
-            }
-        }
 
         var liSelected;
         $(document).keydown(function (key) {
@@ -1616,7 +1613,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log("getYarnMaterialinward",response);
+                console.log("getYarnMaterialinward", response);
                 //alert(response.Code);
 
                 if (response.Code == "200") {
@@ -1953,13 +1950,13 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log("getYarnTotalWeightinward",response);
+                console.log("getYarnTotalWeightinward", response);
                 //alert(response.Code);
                 if (response.Code == "200") {
                     $("#TotalTotalWeight").val(response.listYarnPOMaster[0].TotalQty);
                     $("#TotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
                     $("#TotalPendingTotalWeight").val(response.listYarnPOMaster[0].PendingWeight);
-                    $("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);    
+                    $("#TotalPendingWeight").html(response.listYarnPOMaster[0].PendingWeight);
                     console.log("TotalPendingWeight", response.listYarnPOMaster[0].TotalQty);
                     console.log("recived Weight", response.listYarnPOMaster[0].TotalWeight);
                     console.log("TotalPendingTotalWeight", response.listYarnPOMaster[0].PendingWeight);
@@ -2323,7 +2320,7 @@
                                     tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + ArrayNo + ')"></i>';
                                     tempColorMatching += '</td>';
 
-                                    
+
                                     tempColorMatching += '<td>';
                                     tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;margin: 0;">';
                                     tempColorMatching += '<input type="text" class="form-control" id="BoxNo' + ArrayNo + '" placeholder="Box No" onfocusout="validate(this)" />';
@@ -2657,7 +2654,7 @@
 
                         var BN = "#BoxNo" + txtColorData[j];
                         var BNVal = $(BN).val();
-                        
+
                         var BAR = "#BarcodeNo" + txtColorData[j];
                         var BARVal = $(BAR).val();
 
@@ -2727,7 +2724,8 @@
                                     window.location.href = 'YarnInward';
                                 }, 1000);
                             } else {
-                                notes.show(res.Message, { type: 'danger' });                            }
+                                notes.show(res.Message, { type: 'danger' });
+                            }
                         },
                         error: function (xhr) {
                             console.log(xhr);
@@ -2984,7 +2982,7 @@
         // ✅ calculate pending
         let pending = totalWeight - receiveWeight;
 
-        $('#TotalPendingWeight').text(pending.toFixed(2));  
+        $('#TotalPendingWeight').text(pending.toFixed(2));
         // 👉 Check condition
         if (ChallanWeight !== receiveWeight) {
             // ❌ Show danger message

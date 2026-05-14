@@ -7,10 +7,6 @@
     <div class="spinner-border"></div>
     Loading...
 </div>
-<!-- Loading wrapper end -->
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
@@ -337,7 +333,7 @@
 
 
 
-                    <div class="modal-footer">                        
+                    <div class="modal-footer">
                         <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Color Validate</button>
                     </div>
 
@@ -357,17 +353,23 @@
 
 </div>
 
+
+<!-- Bootstrap Select JS -->
+<script src="vendor/bs-select/bs-select.min.js"></script>
+<script src="vendor/bs-select/bs-select-custom.js"></script>
+
+
 <script>
     var currentPagePermission = {};
     $(document).ready(function () {
         var permission = sessionStorage.getItem("PagePermission");
         if (permission != null) {
             currentPagePermission = JSON.parse(permission);
-            console.log("currentPagePermission", currentPagePermission);  
+            console.log("currentPagePermission", currentPagePermission);
             if (currentPagePermission.Add == false) {
                 $("#savebtn").hide();
             }
-            
+
         }
 
         FunctionIsLogin();
@@ -977,9 +979,9 @@
 
                     if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
                         //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
-                        var imgStr = `<img src="https://weavelanesoft.in/${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}" 
+                        var imgStr = `<img src="https://weavelanesoft.in/${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}"
                 style="width:100%;margin-top:-54px;">`;
-                      
+
                         $("#upload-ColorMatching-default-preview").html(imgStr);
                         $("#upload-ColorMatching-default-preview").css('color', 'initial');
                         //alert(imgStr);

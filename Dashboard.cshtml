@@ -1,97 +1,62 @@
-﻿
-@{
+﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
-
-
 <div class="content-wrapper">
 
+    <h2>FastReport Demo</h2>
 
-    <!-- Row start from here-->
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+    <button type="button"
+            class="btn btn-primary"
+            onclick="ExportPDF()">
 
+        Export PDF
 
-
-        </div>
-    </div>
-
-    <!-- Row end to here -->
+    </button>
 
 </div>
 
-<!-- Page wrapper end -->
-<!-- *************
-    ************ Required JavaScript Files *************
-************* -->
-<!-- Required jQuery first, then Bootstrap Bundle JS -->
-
-<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
-
-<!-- select2 JS -->
-@*<script src="https://tryoninfosoft.web.app/sr/select2.min.js"></script>*@
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
-<!-- Megamenu JS -->
-<script src="vendor/megamenu/js/megamenu.js"></script>
-<script src="vendor/megamenu/js/custom.js"></script>
-
-<!-- Slimscroll JS -->
-<script src="vendor/slimscroll/slimscroll.min.js"></script>
-<script src="vendor/slimscroll/custom-scrollbar.js"></script>
-
-<!-- Search Filter JS -->
-<script src="vendor/search-filter/search-filter.js"></script>
-<script src="vendor/search-filter/custom-search-filter.js"></script>
-
-<!-- Rating JS -->
-<script src="vendor/rating/raty.js"></script>
-<script src="vendor/rating/raty-custom.js"></script>
-
-<!-- Data Tables -->
-<script src="vendor/datatables/dataTables.min.js"></script>
-<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
-
-<!-- Custom Data tables -->
-<script src="vendor/datatables/custom/custom-datatables.js"></script>
-
-<!-- Download / CSV / Copy / Print -->
-<script src="vendor/datatables/buttons.min.js"></script>
-<script src="vendor/datatables/jszip.min.js"></script>
-<script src="vendor/datatables/pdfmake.min.js"></script>
-<script src="vendor/datatables/vfs_fonts.js"></script>
-<script src="vendor/datatables/html5.min.js"></script>
-<script src="vendor/datatables/buttons.print.min.js"></script>
-
-<!-- Date Range JS -->
-<script src="vendor/daterange/daterange.js"></script>
-<script src="vendor/daterange/custom-daterange.js"></script>
-<!-- Bootstrap Select JS -->
-<script src="vendor/bs-select/bs-select.min.js"></script>
-<script src="vendor/bs-select/bs-select-custom.js"></script>
-
-<!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
-<!-- Main Js Required -->
-<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-
-
 
 <script>
+    function ExportPDF() {
 
+        $.ajax({
+            type: "POST",
+            url: "/WebServiceNikunjTextile.asmx/ExportPDF",
+            data: JSON.stringify({
+                yarnPOIds: ['40022']
+            }),
+            contentType: "application/json; charset=utf-8",
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (response) {
+
+                var blob = new Blob([response], { type: 'application/pdf' });
+
+                var link = document.createElement('a');
+
+                link.href = window.URL.createObjectURL(blob);
+
+                link.download = "YarnPO.pdf";
+
+                link.click();
+            },
+            error: function (xhr) {
+
+                console.log(xhr);
+
+                alert("PDF Generate Error");
+            }
+        });
+    }
     $(document).ready(function () {
 
         $('.active, .show, .current-page').removeClass('active show current-page');
 
         $("#home-tab").addClass("active");
         $("#tab-home").addClass("show active");
-        $("#aDashboard").addClass("current-page");  
+        $("#aDashboard").addClass("current-page");
         //longfunctionfirst(getBusinessTypes);
         //longfunctionfirst(getBusinessCat);
         //longfunctionfirst(getStates);
@@ -179,8 +144,8 @@
                         //$('#business-type-default').val(response.listCompanyMaster[0].BusinessType);
                         //$('#business-cate-default').val(response.listCompanyMaster[0].BusinessCategory);
 
-                       // longfunctionfirst(getStates(response.listCompanyMaster[0].State));
-                       // longfunctionfirst(getBusinessTypes(response.listCompanyMaster[0].BusinessType));
+                        // longfunctionfirst(getStates(response.listCompanyMaster[0].State));
+                        // longfunctionfirst(getBusinessTypes(response.listCompanyMaster[0].BusinessType));
                         //longfunctionfirst(getBusinessCat(response.listCompanyMaster[0].BusinessCategory));
 
 
@@ -526,7 +491,9 @@
             }
         });
     }
-
+    function PreviewReport() {
+        window.open('/WebServiceNikunjTextile.asmx/PreviewCrystalReport', '_blank');
+    }
 
 
 </script>

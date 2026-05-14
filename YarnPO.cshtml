@@ -1125,7 +1125,8 @@
             return;
         }
 
-        generateYarnPOPDF(selectedIds);
+        //generateYarnPOPDF(selectedIds);
+        ExportPDF(selectedIds);
     });
 
     function generateYarnPOPDF(ids) {
@@ -1151,6 +1152,38 @@
             error: function (err) {
                 console.error(err);
                 alert("Error generating PDF");
+            }
+        });
+    }
+    function ExportPDF(ids) {
+
+        $.ajax({
+            type: "POST",
+            url: "/WebServiceNikunjTextile.asmx/ExportPDF",
+            data: JSON.stringify({ yarnPOIds: ids }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                var result = response.d;
+
+                console.log("Server Response:", result);
+
+                if (result && result.FilePath) {
+                    window.open(result.FilePath, "_blank");
+                } else {
+                    alert("PDF not generated");
+                }
+                //var blob = new Blob([response], { type: 'application/pdf' });
+                //var link = document.createElement('a');
+                //link.href = window.URL.createObjectURL(blob);
+                //link.download = "YarnPO.pdf";
+                //link.click();
+            },
+            error: function (xhr) {
+
+                console.log(xhr);
+
+                alert("PDF Generate Error");
             }
         });
     }

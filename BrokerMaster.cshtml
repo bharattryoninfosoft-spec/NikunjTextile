@@ -2,49 +2,7 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
-<style>
-    #tblBroker {
-        width: 100% !important;
-    }
 
-        #tblBroker td, #tblBroker th {
-            vertical-align: middle !important;
-            font-size: 13px;
-            padding: 8px 10px;
-        }
-
-        #tblBroker td {
-            white-space: nowrap;
-        }
-
-            #tblBroker td:nth-child(4) { /* Address column */
-                white-space: normal;
-                max-width: 250px;
-                word-break: break-word;
-            }
-
-        #tblBroker th {
-            background-color: #1f6ed4;
-            color: #fff;
-            font-weight: 500;
-        }
-
-    .dataTables_wrapper .dataTables_filter {
-        float: right;
-        margin-bottom: 10px;
-    }
-
-    .badge {
-        font-size: 11px;
-        padding: 5px 8px;
-    }
-
-    .fa {
-        font-size: 14px;
-    }
-</style>
-
-<!-- Content wrapper start -->
 <div class="content-wrapper">
     <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
         <div class="toast-body bg-success text-white">
@@ -157,10 +115,8 @@
                         <table id="tblBroker" class="table table-bordered table-striped w-100">
                         </table>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
     <!-- Row end -->
