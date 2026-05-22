@@ -4,7 +4,7 @@
 
 <div class="content-wrapper">
 
-    <h2>FastReport Demo</h2>
+    @*<h2>RDLC Demo</h2>
 
     <button type="button"
             class="btn btn-primary"
@@ -12,7 +12,7 @@
 
         Export PDF
 
-    </button>
+    </button>*@
 
 </div>
 
@@ -24,24 +24,30 @@
             type: "POST",
             url: "/WebServiceNikunjTextile.asmx/ExportPDF",
             data: JSON.stringify({
-                yarnPOIds: ['40022']
+                yarnPOIds: [14]
             }),
             contentType: "application/json; charset=utf-8",
-            xhrFields: {
-                responseType: 'blob'
-            },
+            dataType: "json",
+
             success: function (response) {
 
-                var blob = new Blob([response], { type: 'application/pdf' });
+                var result = response.d;
 
-                var link = document.createElement('a');
+                // if stringified object
+                if (typeof result === "string") {
+                    result = JSON.parse(result);
+                }
 
-                link.href = window.URL.createObjectURL(blob);
+                if (result.Message === "Success") {
 
-                link.download = "YarnPO.pdf";
+                    window.open(result.FilePath, "_blank");
 
-                link.click();
+                } else {
+
+                    alert(result.Message);
+                }
             },
+
             error: function (xhr) {
 
                 console.log(xhr);

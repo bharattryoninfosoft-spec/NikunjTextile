@@ -11,9 +11,12 @@ using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.StyledXmlParser.Jsoup.Nodes;
+using Microsoft.Reporting.WebForms;
+using Microsoft.Reporting.WinForms;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
+using Org.BouncyCastle.Asn1.X500;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -33,6 +36,7 @@ using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 
 namespace NikunjTextile
@@ -27444,177 +27448,375 @@ ORDER BY SO.OrderNo DESC";
         {
             List<YarnPOMaster> list = new List<YarnPOMaster>();
 
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            string cs =
+                ConfigurationManager
+                .ConnectionStrings["sqlconnstr"]
+                .ConnectionString;
+
+            string idsString = string.Join(",", ids);
 
             using (SqlConnection con = new SqlConnection(cs))
             {
                 con.Open();
 
-                string[] paramNames = ids.Select((x, i) => "@id" + i).ToArray();
+                // =====================================================
+                // MASTER DATA
+                // =====================================================
 
-                string query = @"select YPM.*,
-                        SPM.PartyName as SupplierPartyName, SPM.MobileNo as SupplierMobileNo, SPM.AlterMobileNo as SupplierAlterMobileNo, SPM.Email as SupplierEmail,  
-                        SPM.BillingAddress as SupplierBillingAddress, SPM.ShippingAddress as SupplierShippingAddress, SPM.GSTIN as SupplierGSTIN, SPM.PAN as SupplierPAN,  
-                        SPM.State as SupplierState,  SPM.City as SupplierCity, SPM.Pincode as SupplierPincode, 
-                        SPM.BankHolderName as SupplierBankHolderName, SPM.BankAccountNo as SupplierBankAccountNo, SPM.BankIFSCCode as SupplierBankIFSCCode, SPM.BankName as SupplierBankName, SPM.BankBranch as SupplierBankBranch,
-                        CPM.PartyName as BillToPartyName, CPM.MobileNo as BillToMobileNo, CPM.AlterMobileNo as BillToAlterMobileNo, CPM.Email as BillToEmail, 
-                        CPM.BillingAddress as BillToBillingAddress, CPM.ShippingAddress as BillToShippingAddress, CPM.GSTIN as BillToGSTIN, CPM.PAN as BillToPAN, 
-                        CPM.State as BillToState,  CPM.City as BillToCity, CPM.Pincode as BillToPincode, CPM.BankHolderName as BillToBankHolderName, 
-                        CPM.BankAccountNo as BillToBankAccountNo, CPM.BankIFSCCode as BillToBankIFSCCode, CPM.BankName as BillToBankName, CPM.BankBranch as BillToBankBranch,
-                        BPM.PartyName as CompanyPartyName, BPM.MobileNo as CompanyMobileNo, BPM.AlterMobileNo as CompanyAlterMobileNo, BPM.Email as CompanyEmail, 
-                        BPM.BillingAddress as CompanyBillingAddress, BPM.ShippingAddress as CompanyShippingAddress, BPM.GSTIN as CompanyGSTIN, BPM.PAN as CompanyPAN,
-                        BPM.State as CompanyState,  BPM.City as CompanyCity, BPM.Pincode as CompanyPincode, CPM.BankHolderName as CompanyBankHolderName, BPM.BankAccountNo as CompanyBankAccountNo,
-                        BPM.BankIFSCCode as CompanyBankIFSCCode, BPM.BankName as CompanyBankName, BPM.BankBranch as CompanyBankBranch, SPPM.PartyName as ShippedToPartyName,       SPPM.PartyName as ShippedToPartyName, SPPM.MobileNo as ShippedToMobileNo, SPPM.AlterMobileNo as ShippedToAlterMobileNo, SPPM.Email as ShippedToEmail, 
-                        SPPM.BillingAddress as ShippedToBillingAddress, SPPM.ShippingAddress as ShippedToShippingAddress, SPPM.GSTIN as ShippedToGSTIN, SPPM.PAN as ShippedToPAN, 
-                        SPPM.State as ShippedToState,  SPPM.City as ShippedToCity, SPPM.Pincode as ShippedToPincode,
-                        SPPM.BankHolderName as ShippedToBankHolderName, SPPM.BankAccountNo as ShippedToBankAccountNo, SPPM.BankIFSCCode as ShippedToBankIFSCCode, SPPM.BankName as ShippedToBankName, SPPM.BankBranch as ShippedToBankBranch, 
-                        GM.GodownTitle, GM.GodownAddress,GM.GSTIN AS GodownGST  
-                        from YarnPOMaster YPM
-                        LEFT JOIN PartyMaster SPM ON YPM.SupplierPartyID = SPM.PartyId
-                        LEFT JOIN PartyMaster BPM ON YPM.BillToPartyID = BPM.PartyId
-                        LEFT JOIN PartyMaster CPM ON YPM.CompanyPartyID = CPM.PartyId
-                        LEFT JOIN PartyMaster SPPM ON YPM.ShippedToPartyID = SPPM.PartyId
-                        LEFT JOIN GodownMaster GM ON GM.GodownID = YPM.GodownID
-                        WHERE YPM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and YPM.FinancialYearID  = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)                          
-                        AND YPM.YarnPOID IN (" + string.Join(",", paramNames) + ")";
-
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                using (SqlCommand cmd =
+                    new SqlCommand("SPR_GetYarnPOByIDs", con))
                 {
-                    for (int i = 0; i < ids.Count; i++)
-                    {
-                        cmd.Parameters.AddWithValue(paramNames[i], ids[i]);
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@IDs", idsString);
 
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         while (rdr.Read())
                         {
-                            YarnPOMaster obj = new YarnPOMaster
-                            {
-                                YarnPOID = Convert.ToInt32(rdr["YarnPOID"].ToString()),
-                                DateandTime = Convert.ToDateTime(rdr["DateandTime"].ToString()),
-                                PODate = Convert.ToDateTime(rdr["PODate"].ToString()),
-                                DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy"),
-                                PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd/MM/yyyy"),
-                                PONo = Convert.ToInt32(rdr["PONo"].ToString()),
-                                IsSameAsSupplier = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsSupplier"]) : 0,
-                                IsSameAsCompany = rdr["IsSameAsSupplier"] != DBNull.Value ? Convert.ToInt32(rdr["IsSameAsCompany"]) : 0,
-                                SupplierPartyID = Convert.ToInt32(rdr["SupplierPartyID"].ToString()),
-                                SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper(),
-                                SupplierMobileNo = rdr["SupplierMobileNo"].ToString().ToUpper(),
-                                SupplierAlterMobileNo = rdr["SupplierAlterMobileNo"].ToString().ToUpper(),
-                                SupplierBillingAddress = rdr["SupplierBillingAddress"].ToString().ToUpper(),
-                                SupplierShippingAddress = rdr["SupplierShippingAddress"].ToString().ToUpper(),
-                                SupplierGSTIN = rdr["SupplierGSTIN"].ToString().ToUpper(),
-                                SupplierPanNo = rdr["SupplierPAN"].ToString().ToUpper(),
-                                SupplierState = rdr["SupplierState"].ToString().ToUpper(),
-                                SupplierCity = rdr["SupplierCity"].ToString().ToUpper(),
-                                SupplierPincode = rdr["SupplierPincode"].ToString().ToUpper(),
-                                SupplierBankHolderName = rdr["SupplierBankHolderName"].ToString().ToUpper(),
-                                SupplierBankAccountNo = rdr["SupplierBankAccountNo"].ToString().ToUpper(),
-                                SupplierBankIFSCCode = rdr["SupplierBankIFSCCode"].ToString().ToUpper(),
-                                SupplierBankName = rdr["SupplierBankName"].ToString().ToUpper(),
-                                SupplierBankBranch = rdr["SupplierBankBranch"].ToString().ToUpper(),
-                                BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString()),
-                                BillToPartyName = rdr["BillToPartyName"].ToString().ToUpper(),
-                                BillToMobileNo = rdr["BillToMobileNo"].ToString().ToUpper(),
-                                BillToAlterMobileNo = rdr["BillToAlterMobileNo"].ToString().ToUpper(),
-                                BillToBillingAddress = rdr["BillToBillingAddress"].ToString().ToUpper(),
-                                BillToShippingAddress = rdr["BillToShippingAddress"].ToString().ToUpper(),
-                                BillToGSTIN = rdr["BillToGSTIN"].ToString().ToUpper(),
-                                BillToPanNo = rdr["BillToPAN"].ToString().ToUpper(),
-                                BillToState = rdr["BillToState"].ToString().ToUpper(),
-                                BillToCity = rdr["BillToCity"].ToString().ToUpper(),
-                                BillToPincode = rdr["BillToPincode"].ToString().ToUpper(),
-                                BillToBankHolderName = rdr["BillToBankHolderName"].ToString().ToUpper(),
-                                BillToBankAccountNo = rdr["BillToBankAccountNo"].ToString().ToUpper(),
-                                BillToBankIFSCCode = rdr["BillToBankIFSCCode"].ToString().ToUpper(),
-                                BillToBankName = rdr["BillToBankName"].ToString().ToUpper(),
-                                BillToBankBranch = rdr["BillToBankBranch"].ToString().ToUpper(),
-                                CompanyPartyID = Convert.ToInt32(rdr["CompanyPartyID"].ToString()),
-                                CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper(),
-                                CompanyMobileNo = rdr["CompanyMobileNo"].ToString().ToUpper(),
-                                CompanyAlterMobileNo = rdr["CompanyAlterMobileNo"].ToString().ToUpper(),
-                                CompanyBillingAddress = rdr["CompanyBillingAddress"].ToString().ToUpper(),
-                                CompanyShippingAddress = rdr["CompanyShippingAddress"].ToString().ToUpper(),
-                                CompanyGSTIN = rdr["CompanyGSTIN"].ToString().ToUpper(),
-                                CompanyPanNo = rdr["CompanyPAN"].ToString().ToUpper(),
-                                CompanyState = rdr["CompanyState"].ToString().ToUpper(),
-                                CompanyCity = rdr["CompanyCity"].ToString().ToUpper(),
-                                CompanyPincode = rdr["CompanyPincode"].ToString().ToUpper(),
-                                CompanyBankHolderName = rdr["CompanyBankHolderName"].ToString().ToUpper(),
-                                CompanyBankAccountNo = rdr["CompanyBankAccountNo"].ToString().ToUpper(),
-                                CompanyBankIFSCCode = rdr["CompanyBankIFSCCode"].ToString().ToUpper(),
-                                CompanyBankName = rdr["CompanyBankName"].ToString().ToUpper(),
-                                CompanyBankBranch = rdr["CompanyBankBranch"].ToString().ToUpper(),
-                                ShippedToPartyID = Convert.ToInt32(rdr["ShippedToPartyID"].ToString()),
-                                ShippedToPartyName = rdr["ShippedToPartyName"].ToString().ToUpper(),
-                                ShippedToMobileNo = rdr["ShippedToMobileNo"].ToString().ToUpper(),
-                                ShippedToAlterMobileNo = rdr["ShippedToAlterMobileNo"].ToString().ToUpper(),
-                                ShippedToBillingAddress = rdr["ShippedToBillingAddress"].ToString().ToUpper(),
-                                ShippedToShippingAddress = rdr["ShippedToShippingAddress"].ToString().ToUpper(),
-                                ShippedToGSTIN = rdr["ShippedToGSTIN"].ToString().ToUpper(),
-                                ShippedToPanNo = rdr["ShippedToPAN"].ToString().ToUpper(),
-                                ShippedToState = rdr["ShippedToState"].ToString().ToUpper(),
-                                ShippedToCity = rdr["ShippedToCity"].ToString().ToUpper(),
-                                ShippedToPincode = rdr["ShippedToPincode"].ToString().ToUpper(),
-                                ShippedToBankHolderName = rdr["ShippedToBankHolderName"].ToString().ToUpper(),
-                                ShippedToBankAccountNo = rdr["ShippedToBankAccountNo"].ToString().ToUpper(),
-                                ShippedToBankIFSCCode = rdr["ShippedToBankIFSCCode"].ToString().ToUpper(),
-                                ShippedToBankName = rdr["ShippedToBankName"].ToString().ToUpper(),
-                                ShippedToBankBranch = rdr["ShippedToBankBranch"].ToString().ToUpper(),
-                                GodownID = Convert.ToInt32(rdr["GodownID"].ToString()),
-                                GodownTitle = rdr["GodownTitle"].ToString().ToUpper(),
-                                GodownAddress = rdr["GodownAddress"].ToString().ToUpper(),
-                                GodownGST = rdr["GodownGST"].ToString().ToUpper(),
-                                TotalQty = Convert.ToDecimal(rdr["TotalQty"].ToString()),
-                                TotalRate = Convert.ToDecimal(rdr["TotalRate"].ToString()),
-                                TotalAmount = Convert.ToDecimal(rdr["TotalAmount"].ToString()),
-                                DeliveryTime = rdr["DeliveryTime"].ToString().ToUpper(),
-                                PaymentCondition = rdr["PaymentCondition"].ToString().ToUpper(),
-                                NotesRemarks = rdr["NotesRemarks"].ToString().ToUpper(),
-                            };
+                            YarnPOMaster obj =
+                                new YarnPOMaster();
+
+                            // =====================================
+                            // MASTER
+                            // =====================================
+
+                            obj.YarnPOID =
+                                rdr["YarnPOID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["YarnPOID"])
+                                : 0;
+
+                            obj.DateandTime =
+                                rdr["DateandTime"] != DBNull.Value
+                                ? Convert.ToDateTime(rdr["DateandTime"])
+                                : DateTime.Now;
+
+                            obj.PODate =
+                                rdr["PODate"] != DBNull.Value
+                                ? Convert.ToDateTime(rdr["PODate"])
+                                : DateTime.Now;
+
+                            obj.DateandTimes =
+                                obj.DateandTime.ToString("dd-MM-yyyy");
+
+                            obj.PODates =
+                                obj.PODate.ToString("dd/MM/yyyy");
+
+                            obj.PONo =
+                                rdr["PONo"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["PONo"])
+                                : 0;
+
+                            obj.IsSameAsSupplier =
+                                rdr["IsSameAsSupplier"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["IsSameAsSupplier"])
+                                : 0;
+
+                            obj.IsSameAsCompany =
+                                rdr["IsSameAsCompany"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["IsSameAsCompany"])
+                                : 0;
+
+                            // =====================================
+                            // SUPPLIER
+                            // =====================================
+
+                            obj.SupplierPartyID =
+                                rdr["SupplierPartyID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["SupplierPartyID"])
+                                : 0;
+
+                            obj.SupplierPartyName =
+                                rdr["SupplierPartyName"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierMobileNo =
+                                rdr["SupplierMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierAlterMobileNo =
+                                rdr["SupplierAlterMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBillingAddress =
+                                rdr["SupplierBillingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierShippingAddress =
+                                rdr["SupplierShippingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierGSTIN =
+                                rdr["SupplierGSTIN"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierPanNo =
+                                rdr["SupplierPAN"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierState =
+                                rdr["SupplierState"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierCity =
+                                rdr["SupplierCity"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierPincode =
+                                rdr["SupplierPincode"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBankHolderName =
+                                rdr["SupplierBankHolderName"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBankAccountNo =
+                                rdr["SupplierBankAccountNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBankIFSCCode =
+                                rdr["SupplierBankIFSCCode"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBankName =
+                                rdr["SupplierBankName"]?.ToString().ToUpper() ?? "";
+
+                            obj.SupplierBankBranch =
+                                rdr["SupplierBankBranch"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // BILL TO
+                            // =====================================
+
+                            obj.BillToPartyID =
+                                rdr["BillToPartyID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["BillToPartyID"])
+                                : 0;
+
+                            obj.BillToPartyName =
+                                rdr["BillToPartyName"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToMobileNo =
+                                rdr["BillToMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToAlterMobileNo =
+                                rdr["BillToAlterMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToBillingAddress =
+                                rdr["BillToBillingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToShippingAddress =
+                                rdr["BillToShippingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToGSTIN =
+                                rdr["BillToGSTIN"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToPanNo =
+                                rdr["BillToPAN"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToState =
+                                rdr["BillToState"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToCity =
+                                rdr["BillToCity"]?.ToString().ToUpper() ?? "";
+
+                            obj.BillToPincode =
+                                rdr["BillToPincode"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // COMPANY
+                            // =====================================
+
+                            obj.CompanyPartyID =
+                                rdr["CompanyPartyID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["CompanyPartyID"])
+                                : 0;
+
+                            obj.CompanyPartyName =
+                                rdr["CompanyPartyName"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyMobileNo =
+                                rdr["CompanyMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyAlterMobileNo =
+                                rdr["CompanyAlterMobileNo"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyBillingAddress =
+                                rdr["CompanyBillingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyShippingAddress =
+                                rdr["CompanyShippingAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyGSTIN =
+                                rdr["CompanyGSTIN"]?.ToString().ToUpper() ?? "";
+
+                            obj.CompanyPanNo =
+                                rdr["CompanyPAN"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // SHIPPED TO
+                            // =====================================
+
+                            obj.ShippedToPartyID =
+                                rdr["ShippedToPartyID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["ShippedToPartyID"])
+                                : 0;
+
+                            obj.ShippedToPartyName =
+                                rdr["ShippedToPartyName"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // GODOWN
+                            // =====================================
+
+                            obj.GodownID =
+                                rdr["GodownID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["GodownID"])
+                                : 0;
+
+                            obj.GodownTitle =
+                                rdr["GodownTitle"]?.ToString().ToUpper() ?? "";
+
+                            obj.GodownAddress =
+                                rdr["GodownAddress"]?.ToString().ToUpper() ?? "";
+
+                            obj.GodownGST =
+                                rdr["GodownGST"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // TOTALS
+                            // =====================================
+
+                            obj.TotalQty =
+                                rdr["TotalQty"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["TotalQty"])
+                                : 0;
+
+                            obj.TotalRate =
+                                rdr["TotalRate"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["TotalRate"])
+                                : 0;
+
+                            obj.TotalAmount =
+                                rdr["TotalAmount"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["TotalAmount"])
+                                : 0;
+
+                            obj.TaxableAmount =
+                                rdr["TaxableAmount"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["TaxableAmount"])
+                                : 0;
+
+                            obj.GSTAmount =
+                                rdr["GSTAmount"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["GSTAmount"])
+                                : 0;
+
+                            obj.GrandTotal =
+                                rdr["GrandTotal"] != DBNull.Value
+                                ? Convert.ToDecimal(rdr["GrandTotal"])
+                                : 0;
+
+                            // =====================================
+                            // EXTRA
+                            // =====================================
+
+                            obj.DeliveryTime =
+                                rdr["DeliveryTime"]?.ToString().ToUpper() ?? "";
+
+                            obj.PaymentCondition =
+                                rdr["PaymentCondition"]?.ToString().ToUpper() ?? "";
+
+                            obj.NotesRemarks =
+                                rdr["NotesRemarks"]?.ToString().ToUpper() ?? "";
+
+                            // =====================================
+                            // IMPORTANT
+                            // =====================================
+
+                            obj.listYarnPODetails =
+                                new List<YarnPODetails>();
 
                             list.Add(obj);
                         }
                     }
                 }
-                foreach (var item in list)
+
+                // =====================================================
+                // DETAIL DATA
+                // =====================================================
+
+                using (SqlCommand cmd =
+                    new SqlCommand("SPR_GetYarnPODetailsByIDs", con))
                 {
-                    SqlCommand cmd1 = new SqlCommand(@"select YPD.*, YMM.YarnMaterial, YCM.YarnColor, YCM.YarnColorCode, GSM.GSTSLABName  
-                                from YarnPODetails YPD
-                                LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YPD.YarnMaterialID  
-                                LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YPD.YarnColorID 
-                                LEFT JOIN GSTSLABMaster GSM ON YPD.GSTSLABId = GSM.GSTSLABId                                
-                                WHERE YPD.YarnPOID = @YarnPOID", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd1.Parameters.AddWithValue("@YarnPOID", item.YarnPOID);
+                    cmd.Parameters.AddWithValue("@IDs", idsString);
 
-                    using (SqlDataReader rdr1 = cmd1.ExecuteReader())
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
-                        List<YarnPODetails> details = new List<YarnPODetails>();
-
-                        while (rdr1.Read())
+                        while (rdr.Read())
                         {
-                            details.Add(new YarnPODetails
-                            {
-                                YarnPODetailID = Convert.ToInt32(rdr1["YarnPODetailID"]),
-                                YarnPOID = Convert.ToInt32(rdr1["YarnPOID"]),
-                                YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"]),
-                                YarnMaterial = rdr1["YarnMaterial"].ToString().ToUpper(),
-                                YarnColorID = Convert.ToInt32(rdr1["YarnColorID"]),
-                                YarnColor = rdr1["YarnColor"].ToString().ToUpper(),
-                                YarnColorCode = rdr1["YarnColorCode"].ToString().ToUpper(),
-                                CompanyCode = rdr1["CompanyCode"].ToString().ToUpper(),
-                                Qty = Convert.ToDecimal(rdr1["Qty"].ToString()),
-                                Rate = Convert.ToDecimal(rdr1["Rate"].ToString()),
-                                GSTSLABId = Convert.ToInt32(rdr1["GSTSLABId"].ToString()),
-                                GSTSLABName = rdr1["GSTSLABName"].ToString().ToUpper(),
-                                Amount = Convert.ToDecimal(rdr1["Amount"].ToString()),
-                            });
-                        }
+                            int yarnPOID =
+                                rdr["YarnPOID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["YarnPOID"])
+                                : 0;
 
-                        item.listYarnPODetails = details;
+                            YarnPOMaster master =
+                                list.FirstOrDefault(
+                                    x => x.YarnPOID == yarnPOID
+                                );
+
+                            if (master != null)
+                            {
+                                YarnPODetails detail =
+                                    new YarnPODetails();
+
+                                detail.YarnPODetailID =
+                                    rdr["YarnPODetailID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["YarnPODetailID"])
+                                    : 0;
+
+                                detail.YarnPOID =
+                                    rdr["YarnPOID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["YarnPOID"])
+                                    : 0;
+
+                                detail.YarnMaterialID =
+                                    rdr["YarnMaterialID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["YarnMaterialID"])
+                                    : 0;
+
+                                detail.YarnMaterial =
+                                    rdr["YarnMaterial"]?.ToString().ToUpper() ?? "";
+
+                                detail.YarnColorID =
+                                    rdr["YarnColorID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["YarnColorID"])
+                                    : 0;
+
+                                detail.YarnColor =
+                                    rdr["YarnColor"]?.ToString().ToUpper() ?? "";
+
+                                detail.YarnColorCode =
+                                    rdr["YarnColorCode"]?.ToString().ToUpper() ?? "";
+
+                                detail.CompanyCode =
+                                    rdr["CompanyCode"]?.ToString().ToUpper() ?? "";
+
+                                detail.Qty =
+                                    rdr["Qty"] != DBNull.Value
+                                    ? Convert.ToDecimal(rdr["Qty"])
+                                    : 0;
+
+                                detail.Rate =
+                                    rdr["Rate"] != DBNull.Value
+                                    ? Convert.ToDecimal(rdr["Rate"])
+                                    : 0;
+
+                                detail.GSTSLABId =
+                                    rdr["GSTSLABId"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["GSTSLABId"])
+                                    : 0;
+
+                                detail.GSTSLABName =
+                                    rdr["GSTSLABName"]?.ToString().ToUpper() ?? "";
+
+                                detail.Amount =
+                                    rdr["Amount"] != DBNull.Value
+                                    ? Convert.ToDecimal(rdr["Amount"])
+                                    : 0;
+
+                                master.listYarnPODetails.Add(detail);
+                            }
+                        }
                     }
                 }
             }
@@ -27642,51 +27844,90 @@ ORDER BY SO.OrderNo DESC";
                 .SetBorderBottom(iText.Layout.Borders.Border.NO_BORDER)
                 .SetBorderTop(iText.Layout.Borders.Border.NO_BORDER);
         }
+
         public string CreatePDF(List<YarnPOMaster> data)
         {
-            string dir = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+            string dir =
+                HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
 
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = $"YarnPO_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+            string fileName =
+                $"YarnPO_{DateTime.Now:yyyyMMddHHmmss}.pdf";
 
-            string filePath = System.IO.Path.Combine(dir, fileName);
+            string filePath =
+                System.IO.Path.Combine(dir, fileName);
 
             PdfWriter writer = new PdfWriter(filePath);
 
-            iText.Kernel.Pdf.PdfDocument pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+            iText.Kernel.Pdf.PdfDocument pdf =
+                new iText.Kernel.Pdf.PdfDocument(writer);
 
             pdf.SetDefaultPageSize(PageSize.A4);
 
-            iText.Layout.Document document = new iText.Layout.Document(pdf);
+            iText.Layout.Document document =
+                new iText.Layout.Document(pdf);
 
             document.SetMargins(10, 10, 10, 10);
-            iText.Kernel.Font.PdfFont normalFont;
-            iText.Kernel.Font.PdfFont boldFont;
-            float pageWidth = pdf.GetDefaultPageSize().GetWidth() - 20;
-            // ================= FONT =================
+
+            PdfFont normalFont;
+            PdfFont boldFont;
+
+            // =====================================================
+            // FONT
+            // =====================================================
 
             try
             {
-                string f1 = HttpContext.Current.Server.MapPath("~/fonts/arial.ttf");
-                string f2 = HttpContext.Current.Server.MapPath("~/fonts/arialbd.ttf");
+                string f1 =
+                    HttpContext.Current.Server.MapPath(
+                        "~/fonts/arial.ttf"
+                    );
+
+                string f2 =
+                    HttpContext.Current.Server.MapPath(
+                        "~/fonts/arialbd.ttf"
+                    );
 
                 if (File.Exists(f1) && File.Exists(f2))
                 {
-                    normalFont = PdfFontFactory.CreateFont(f1, PdfEncodings.IDENTITY_H);
-                    boldFont = PdfFontFactory.CreateFont(f2, PdfEncodings.IDENTITY_H);
+                    normalFont =
+                        PdfFontFactory.CreateFont(
+                            f1,
+                            PdfEncodings.IDENTITY_H
+                        );
+
+                    boldFont =
+                        PdfFontFactory.CreateFont(
+                            f2,
+                            PdfEncodings.IDENTITY_H
+                        );
                 }
                 else
                 {
-                    normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-                    boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                    normalFont =
+                        PdfFontFactory.CreateFont(
+                            StandardFonts.HELVETICA
+                        );
+
+                    boldFont =
+                        PdfFontFactory.CreateFont(
+                            StandardFonts.HELVETICA_BOLD
+                        );
                 }
             }
             catch
             {
-                normalFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-                boldFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                normalFont =
+                    PdfFontFactory.CreateFont(
+                        StandardFonts.HELVETICA
+                    );
+
+                boldFont =
+                    PdfFontFactory.CreateFont(
+                        StandardFonts.HELVETICA_BOLD
+                    );
             }
 
             document.SetFont(normalFont);
@@ -27699,81 +27940,233 @@ ORDER BY SO.OrderNo DESC";
 
             foreach (var item in data)
             {
-                // =========================================================
+                // =====================================================
                 // HEADER
-                // =========================================================
+                // =====================================================
 
-                iText.Layout.Element.Table header = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 1 })).UseAllAvailableWidth();
+                iText.Layout.Element.Table header =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(
+                            new float[] { 1 }
+                        )
+                    ).UseAllAvailableWidth();
+
                 Cell headCell = new Cell();
-                headCell.Add(new Paragraph("PURCHASE ORDER").SetFont(boldFont).SetFontSize(10).SetTextAlignment(TextAlignment.LEFT));
-                headCell.Add(new Paragraph(Safe(item.BillToPartyName)).SetFont(boldFont).SetFontSize(15).SetTextAlignment(TextAlignment.CENTER));
-                headCell.Add(new Paragraph(Safe(item.BillToBillingAddress)).SetTextAlignment(TextAlignment.CENTER));
-                headCell.Add(new Paragraph("M - " + Safe(item.BillToMobileNo)).SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
-                headCell.Add(new Paragraph("GST - " + Safe(item.BillToGSTIN)).SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
-                headCell.SetBorder(new SolidBorder(1));
-                header.AddCell(headCell);
-                document.Add(header);
-                // =========================================================
-                // SHIP + ORDER
-                // =========================================================
 
-                iText.Layout.Element.Table ship = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
+                headCell.Add(
+                    new Paragraph("PURCHASE ORDER")
+                    .SetFont(boldFont)
+                    .SetFontSize(10)
+                    .SetTextAlignment(TextAlignment.LEFT)
+                );
+
+                headCell.Add(
+                    new Paragraph(Safe(item.BillToPartyName))
+                    .SetFont(boldFont)
+                    .SetFontSize(15)
+                    .SetTextAlignment(TextAlignment.CENTER)
+                );
+
+                headCell.Add(
+                    new Paragraph(Safe(item.BillToBillingAddress))
+                    .SetTextAlignment(TextAlignment.CENTER)
+                );
+
+                headCell.Add(
+                    new Paragraph("M - " + Safe(item.BillToMobileNo))
+                    .SetFont(boldFont)
+                    .SetTextAlignment(TextAlignment.CENTER)
+                );
+
+                headCell.Add(
+                    new Paragraph("GST - " + Safe(item.BillToGSTIN))
+                    .SetFont(boldFont)
+                    .SetTextAlignment(TextAlignment.CENTER)
+                );
+
+                headCell.SetBorder(new SolidBorder(1));
+
+                header.AddCell(headCell);
+
+                document.Add(header);
+
+                // =====================================================
+                // SHIP + ORDER
+                // =====================================================
+
+                iText.Layout.Element.Table ship =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(
+                            new float[] { 50, 50 }
+                        )
+                    ).UseAllAvailableWidth();
+
                 Cell shipLeft = new Cell();
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Name : ").SetFont(boldFont)).Add(Safe(item.GodownTitle)));
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To GST : ").SetFont(boldFont)).Add(Safe(item.GodownGST)));
-                shipLeft.Add(new Paragraph().Add(new Text("Shipped To Address : ").SetFont(boldFont)).Add(Safe(item.GodownAddress)));
+
+                shipLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Shipped To Name : ").SetFont(boldFont))
+                    .Add(Safe(item.GodownTitle))
+                );
+
+                shipLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Shipped To GST : ").SetFont(boldFont))
+                    .Add(Safe(item.GodownGST))
+                );
+
+                shipLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Shipped To Address : ").SetFont(boldFont))
+                    .Add(Safe(item.GodownAddress))
+                );
+
                 ship.AddCell(shipLeft);
-                iText.Layout.Element.Table order = new iText.Layout.Element.Table(1).UseAllAvailableWidth();
-                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER DATE : ").SetFont(boldFont)).Add(Safe(item.PODates)).SetTextAlignment(TextAlignment.LEFT))
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                order.AddCell(new Cell().Add(new Paragraph().Add(new Text("ORDER NUMBER : ").SetFont(boldFont)).Add(item.PONo.ToString()).SetTextAlignment(TextAlignment.LEFT))
-                    .SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+
+                iText.Layout.Element.Table order =
+                    new iText.Layout.Element.Table(1)
+                    .UseAllAvailableWidth();
+
+                order.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph()
+                        .Add(new Text("ORDER DATE : ").SetFont(boldFont))
+                        .Add(Safe(item.PODates))
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                order.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph()
+                        .Add(new Text("ORDER NUMBER : ").SetFont(boldFont))
+                        .Add(item.PONo.ToString())
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
                 ship.AddCell(new Cell().Add(order));
+
                 document.Add(ship);
 
-                // =========================================================
+                // =====================================================
                 // VENDOR
-                // =========================================================
+                // =====================================================
 
-                iText.Layout.Element.Table vendor = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
+                iText.Layout.Element.Table vendor =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(
+                            new float[] { 50, 50 }
+                        )
+                    ).UseAllAvailableWidth();
 
                 Cell vendorLeft = new Cell();
-                vendorLeft.Add(new Paragraph().Add(new Text("Vendor : ").SetFont(boldFont)).Add(Safe(item.SupplierPartyName)));
-                vendorLeft.Add(new Paragraph().Add(new Text("GST : ").SetFont(boldFont)).Add(Safe(item.SupplierGSTIN)));
-                vendorLeft.Add(new Paragraph().Add(new Text("Address : ").SetFont(boldFont)).Add(Safe(item.SupplierBillingAddress)));
-                vendorLeft.Add(new Paragraph().Add(new Text("Mobile : ").SetFont(boldFont)).Add(Safe(item.SupplierMobileNo)));
+
+                vendorLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Vendor : ").SetFont(boldFont))
+                    .Add(Safe(item.SupplierPartyName))
+                );
+
+                vendorLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("GST : ").SetFont(boldFont))
+                    .Add(Safe(item.SupplierGSTIN))
+                );
+
+                vendorLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Address : ").SetFont(boldFont))
+                    .Add(Safe(item.SupplierBillingAddress))
+                );
+
+                vendorLeft.Add(
+                    new Paragraph()
+                    .Add(new Text("Mobile : ").SetFont(boldFont))
+                    .Add(Safe(item.SupplierMobileNo))
+                );
+
                 vendor.AddCell(vendorLeft);
+
                 Cell vendorRight = new Cell();
-                vendorRight.Add(new Paragraph().Add(new Text("Company Name : ").SetFont(boldFont)).Add(Safe(item.CompanyPartyName)));
-                vendorRight.Add(new Paragraph().Add(new Text("Company GST : ").SetFont(boldFont)).Add(Safe(item.CompanyGSTIN)));
-                vendorRight.Add(new Paragraph().Add(new Text("Company Address : ").SetFont(boldFont)).Add(Safe(item.CompanyBillingAddress)));
+
+                vendorRight.Add(
+                    new Paragraph()
+                    .Add(new Text("Company Name : ").SetFont(boldFont))
+                    .Add(Safe(item.CompanyPartyName))
+                );
+
+                vendorRight.Add(
+                    new Paragraph()
+                    .Add(new Text("Company GST : ").SetFont(boldFont))
+                    .Add(Safe(item.CompanyGSTIN))
+                );
+
+                vendorRight.Add(
+                    new Paragraph()
+                    .Add(new Text("Company Address : ").SetFont(boldFont))
+                    .Add(Safe(item.CompanyBillingAddress))
+                );
+
                 vendor.AddCell(vendorRight);
+
                 document.Add(vendor);
 
-                // =========================================================
+                // =====================================================
                 // ITEM TABLE
-                // =========================================================
+                // =====================================================
 
-                float[] cols = { 10, 25, 20, 18, 12, 15, 15, 20 };
+                float[] cols = { 8, 25, 18, 15, 10, 12, 12, 15 };
 
-                iText.Layout.Element.Table table = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(cols)).UseAllAvailableWidth();
-                table.SetMinHeight(300);
+                iText.Layout.Element.Table table =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(cols)
+                    )
+                    .UseAllAvailableWidth();
+
+                table.SetFixedLayout();
                 table.SetFontSize(8);
-                // FIXED HEIGHT
-                // =========================================================
-                // HEADER
-                // =========================================================
+                table.SetMinHeight(300);
 
-                string[] headers = { "SR", "Quality", "Colour", "Code", "Qty", "Rate", "GST Slab", "Amount" };
+                // =====================================================
+                // HEADER
+                // =====================================================
+
+                string[] headers =
+                {
+            "SR",
+            "Quality",
+            "Colour",
+            "Code",
+            "Qty",
+            "Rate",
+            "GST %",
+            "Amount"
+        };
+
                 foreach (var h in headers)
                 {
-                    table.AddHeaderCell(new Cell().Add(new Paragraph(h).SetFont(boldFont).SetFontSize(8).SetMargin(0)).SetPadding(2).SetTextAlignment(TextAlignment.CENTER)
-                            .SetVerticalAlignment(VerticalAlignment.MIDDLE).SetBackgroundColor(ColorConstants.LIGHT_GRAY).SetBorder(new SolidBorder(1)));
+                    table.AddHeaderCell(
+                        new Cell()
+                        .Add(
+                            new Paragraph(h)
+                            .SetFont(boldFont)
+                            .SetFontSize(8)
+                            .SetMargin(0)
+                        )
+                        .SetPadding(2)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetVerticalAlignment(VerticalAlignment.MIDDLE)
+                        .SetBackgroundColor(ColorConstants.LIGHT_GRAY)
+                        .SetBorder(new SolidBorder(1))
+                    );
                 }
 
-                // =========================================================
+                // =====================================================
                 // DATA ROWS
-                // =========================================================
+                // =====================================================
 
                 decimal total = 0;
                 decimal gstAmount = 0;
@@ -27787,27 +28180,77 @@ ORDER BY SO.OrderNo DESC";
                     foreach (var d in item.listYarnPODetails)
                     {
                         decimal gstPer = 0;
-                        decimal.TryParse(Convert.ToString(d.GSTSLABId), out gstPer);
-                        decimal rowGST = (d.Amount * gstPer) / 100;
+
+                        string gstText = d.GSTSLABName ?? "";
+
+                        // KEEP ONLY NUMBERS + DOT
+                        gstText = new string(
+                            gstText
+                            .Where(c => char.IsDigit(c) || c == '.')
+                            .ToArray()
+                        );
+
+                        decimal.TryParse(gstText, out gstPer);
+
+                        decimal rowGST =
+                            (d.Amount * gstPer) / 100;
+
                         gstAmount += rowGST;
-                        bool isLast = false;
-                        table.AddCell(BodyCell(Row.ToString(), TextAlignment.CENTER));
-                        table.AddCell(BodyCell(Safe(d.YarnMaterial), TextAlignment.LEFT));
-                        table.AddCell(BodyCell(Safe(d.YarnColor), TextAlignment.LEFT));
-                        table.AddCell(BodyCell(Safe(d.CompanyCode), TextAlignment.LEFT));
-                        table.AddCell(BodyCell(d.Qty.ToString("N2"), TextAlignment.CENTER));
-                        table.AddCell(BodyCell(d.Rate.ToString("N2"), TextAlignment.RIGHT));
-                        table.AddCell(BodyCell(Safe(d.GSTSLABName), TextAlignment.CENTER));
-                        table.AddCell(BodyCell(d.Amount.ToString("N2"), TextAlignment.RIGHT));
+
+                        table.AddCell(
+                            BodyCell(Row.ToString(), TextAlignment.CENTER)
+                        );
+
+                        table.AddCell(
+                            BodyCell(Safe(d.YarnMaterial), TextAlignment.LEFT)
+                        );
+
+                        table.AddCell(
+                            BodyCell(Safe(d.YarnColor), TextAlignment.LEFT)
+                        );
+
+                        table.AddCell(
+                            BodyCell(Safe(d.CompanyCode), TextAlignment.LEFT)
+                        );
+
+                        table.AddCell(
+                            BodyCell(
+                                d.Qty.ToString("N2"),
+                                TextAlignment.CENTER
+                            )
+                        );
+
+                        table.AddCell(
+                            BodyCell(
+                                d.Rate.ToString("N2"),
+                                TextAlignment.RIGHT
+                            )
+                        );
+
+                        table.AddCell(
+                            BodyCell(
+                                gstPer.ToString("0.##") + "%",
+                                TextAlignment.CENTER
+                            )
+                        );
+
+                        table.AddCell(
+                            BodyCell(
+                                d.Amount.ToString("N2"),
+                                TextAlignment.RIGHT
+                            )
+                        );
+
                         total += d.Amount;
+
                         Row++;
                         currentRows++;
                     }
                 }
 
-                // =========================================================
-                // FIXED EMPTY ROWS
-                // =========================================================
+                // =====================================================
+                // EMPTY ROWS
+                // =====================================================
 
                 int maxRows = 23;
 
@@ -27817,69 +28260,120 @@ ORDER BY SO.OrderNo DESC";
 
                     for (int c = 0; c < 8; c++)
                     {
-                        table.AddCell(new Cell().Add(new Paragraph(" ").SetFontSize(8).SetMargin(0)).SetHeight(16).SetPadding(0).SetBorderLeft(new SolidBorder(1))
-                        .SetBorderRight(new SolidBorder(1)).SetBorderTop(iText.Layout.Borders.Border.NO_BORDER).SetBorderBottom(isLastRow ? new SolidBorder(1) : iText.Layout.Borders.Border.NO_BORDER));
+                        table.AddCell(
+                            new Cell()
+                            .Add(
+                                new Paragraph(" ")
+                                .SetFontSize(8)
+                                .SetMargin(0)
+                            )
+                            .SetHeight(16)
+                            .SetPadding(0)
+                            .SetBorderLeft(new SolidBorder(1))
+                            .SetBorderRight(new SolidBorder(1))
+                            .SetBorderTop(Border.NO_BORDER)
+                            .SetBorderBottom(
+                                isLastRow
+                                ? new SolidBorder(1)
+                                : Border.NO_BORDER
+                            )
+                        );
                     }
                 }
+
                 document.Add(table);
-                // =========================================================
+
+                // =====================================================
                 // TOTAL
-                // =========================================================
+                // =====================================================
 
                 decimal grandTotal = total + gstAmount;
-                iText.Layout.Element.Table totalOuter = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 100 })).UseAllAvailableWidth();
-                iText.Layout.Element.Table right = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 60, 40 })).UseAllAvailableWidth();
-                right.AddCell(new Cell().Add(new Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph("GST Amount :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(gstAmount.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph("Grand Total :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new Paragraph(grandTotal.ToString("N2")).SetFont(boldFont).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                totalOuter.AddCell(new Cell().Add(right).SetBorder(new SolidBorder(1)));
+                iText.Layout.Element.Table totalOuter =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(
+                            new float[] { 100 }
+                        )
+                    ).UseAllAvailableWidth();
+
+                iText.Layout.Element.Table right =
+                    new iText.Layout.Element.Table(
+                        UnitValue.CreatePercentArray(
+                            new float[] { 60, 40 }
+                        )
+                    ).UseAllAvailableWidth();
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph("Total Taxable Amount :")
+                        .SetFont(boldFont)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph(total.ToString("N2"))
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph("GST Amount :")
+                        .SetFont(boldFont)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph(gstAmount.ToString("N2"))
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph("Grand Total :")
+                        .SetFont(boldFont)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                right.AddCell(
+                    new Cell()
+                    .Add(
+                        new Paragraph(grandTotal.ToString("N2"))
+                        .SetFont(boldFont)
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                    )
+                    .SetBorder(Border.NO_BORDER)
+                );
+
+                totalOuter.AddCell(
+                    new Cell()
+                    .Add(right)
+                    .SetBorder(new SolidBorder(1))
+                );
+
                 document.Add(totalOuter);
 
-                // =========================================================
-                // NOTES
-                // =========================================================
-
-                iText.Layout.Element.Table notes = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 1 })).UseAllAvailableWidth();
-
-                Cell notesCell = new Cell();
-                notesCell.Add(new Paragraph("Notes:").SetFont(boldFont).SetFontSize(9));
-                notesCell.Add(new Paragraph("- There should not be any denier variation in yarn. In case of dyed yarn, there should not be any shade variation.")
-                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
-                notesCell.Add(new Paragraph("- Goods should be delivered to shipping address only. Goods should be delivered between 9 AM to 7 PM.")
-                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
-                notesCell.Add(new Paragraph("- Price will be considered as per the PO. Any changes in prices should be communicated beforehand and updated PO should be generated.")
-                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
-                notesCell.Add(new Paragraph("- Loading, unloading and transportation of goods will be supplier responsibility.")
-                    .SetFont(normalFont).SetFontSize(8).SetMarginBottom(2));
-                notesCell.SetBorder(new SolidBorder(1));
-                notes.AddCell(notesCell);
-                document.Add(notes);
-
-                // =========================================================
-                // FOOTER
-                // =========================================================
-
-                iText.Layout.Element.Table footer = new iText.Layout.Element.Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
-                Cell footLeft = new Cell();
-                footLeft.Add(new Paragraph().Add(new Text("DELIVERY TIME : ").SetFont(boldFont)).Add(Safe(item.DeliveryTime)));
-                footLeft.Add(new Paragraph().Add(new Text("PAYMENT : ").SetFont(boldFont)).Add(Safe(item.PaymentCondition)));
-                footLeft.Add(new Paragraph().Add(new Text("REMARK : ").SetFont(boldFont)));
-                footer.AddCell(footLeft);
-                Cell sign = new Cell();
-                sign.Add(new Paragraph("AUTHORISED SIGN").SetFont(boldFont).SetTextAlignment(TextAlignment.CENTER));
-                sign.SetVerticalAlignment(VerticalAlignment.TOP);
-                footer.AddCell(sign);
-                document.Add(footer);
-                // =========================================================
+                // =====================================================
                 // PAGE BREAK
-                // =========================================================
+                // =====================================================
 
-                if (item != data.Last())
+                if (!item.Equals(data.Last()))
                 {
-                    document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+                    document.Add(
+                        new AreaBreak(AreaBreakType.NEXT_PAGE)
+                    );
                 }
             }
 
@@ -27887,7 +28381,6 @@ ORDER BY SO.OrderNo DESC";
 
             return "/GeneratedPDF/" + fileName;
         }
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void YarnPendingPOReport()
@@ -28369,247 +28862,134 @@ FROM Filtered
                 con.Close();
             }
         }
+
         //[WebMethod]
-        //public void PreviewCrystalReport()
+        //public object ExportPDF(List<int> yarnPOIds)
         //{
         //    try
         //    {
-        //        Context.Response.Write("Step 1 : Crystal DLL Reference OK \n\n");
-
-        //        string version = typeof(ReportDocument).Assembly.FullName;
-
-        //        Context.Response.Write("Assembly : " + version + " \n\n");
-
-        //        Context.Response.Write("Step 2 : Creating ReportDocument... \n\n");
-
-        //        ReportDocument rpt = new ReportDocument();
-
-        //        Context.Response.Write("SUCCESS : Crystal Runtime Working");
+        //       var data = GetYarnPODataForPDF_DB(yarnPOIds);
+        //        if (data == null || data.Count == 0)
+        //        {
+        //            return new
+        //            {
+        //                Status = false,
+        //                Message = "No Data Found",
+        //                FilePath = ""
+        //            };
+        //        }
+        //       string folderPath =HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+        //        if (!Directory.Exists(folderPath))
+        //        {
+        //            Directory.CreateDirectory(folderPath);
+        //        }
+        //        string fileName ="PurchaseOrder_" +DateTime.Now.ToString("yyyyMMddHHmmss") +".pdf";
+        //        string fullPath =System.IO.Path.Combine(folderPath, fileName);
+        //        Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
+        //        report.ReportPath =HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
+        //        //report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
+        //        report.EnableExternalImages = true;
+        //        report.DataSources.Clear();
+        //        Microsoft.Reporting.WebForms.ReportDataSource dsMaster = new Microsoft.Reporting.WebForms.ReportDataSource("Master",data);
+        //        report.DataSources.Add(dsMaster);
+        //        var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
+        //        Microsoft.Reporting.WebForms.ReportDataSource dsDetail =new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails",detailData);
+        //        report.DataSources.Add(dsDetail);
+        //        report.Refresh();
+        //        string mimeType;
+        //        string encoding;
+        //        string extension;
+        //        string[] streamids;
+        //        Microsoft.Reporting.WebForms.Warning[] warnings;
+        //        byte[] bytes = report.Render(
+        //            "PDF",
+        //            null,
+        //            out mimeType,
+        //            out encoding,
+        //            out extension,
+        //            out streamids,
+        //            out warnings
+        //        );
+        //        File.WriteAllBytes(fullPath, bytes);
+        //        return new
+        //        {
+        //            Status = true,
+        //            Message = "Success",
+        //            FilePath = "/GeneratedPDF/" + fileName
+        //        };
         //    }
         //    catch (Exception ex)
         //    {
-        //        Context.Response.Clear();
-        //        Context.Response.ContentType = "text/plain";
-
-        //        Context.Response.Write(
-        //            "ERROR OCCURRED \n\n" +
-        //            ex.ToString()
-        //        );
+        //        return new
+        //        {
+        //            Status = false,
+        //            Message = ex.ToString(),
+        //            FilePath = ""
+        //        };
         //    }
-
-
-
-        //    //try
-        //    //{
-        //    //    using (ReportDocument rd = new ReportDocument())
-        //    //    {
-        //    //        // Load Crystal Report
-        //    //        rd.Load(Server.MapPath("~/Reports/CrystalReport.rpt"));
-
-        //    //        // Export to PDF Stream
-        //    //        Stream stream = rd.ExportToStream(
-        //    //            CrystalDecisions.Shared.ExportFormatType.PortableDocFormat
-        //    //        );
-
-        //    //        byte[] buffer = new byte[stream.Length];
-        //    //        stream.Read(buffer, 0, buffer.Length);
-
-        //    //        // Response
-        //    //        Context.Response.Clear();
-        //    //        Context.Response.Buffer = true;
-        //    //        Context.Response.ContentType = "application/pdf";
-        //    //        Context.Response.AddHeader(
-        //    //            "content-disposition",
-        //    //            "inline;filename=CrystalReport.pdf"
-        //    //        );
-
-        //    //        Context.Response.BinaryWrite(buffer);
-        //    //        Context.Response.Flush();
-
-        //    //        // Cleanup
-        //    //        stream.Close();
-        //    //        stream.Dispose();
-
-        //    //        rd.Close();
-        //    //        rd.Dispose();
-
-        //    //        Context.Response.SuppressContent = false;
-        //    //        HttpContext.Current.ApplicationInstance.CompleteRequest();
-        //    //    }
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    Context.Response.Clear();
-        //    //    Context.Response.ContentType = "text/plain";
-        //    //    Context.Response.Write(ex.ToString());
-        //    //}
         //}
-
         [WebMethod]
         public object ExportPDF(List<int> yarnPOIds)
         {
-            var data = GetYarnPODataForPDF_DB(yarnPOIds);
-
-            if (data == null || data.Count == 0)
+            try
             {
-                throw new Exception("No Data Found");
-            }
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                PdfWriter writer = new PdfWriter(ms);
-
-                PdfDocument pdfDoc = new PdfDocument(writer);
-
-                iText.Layout.Document document = new iText.Layout.Document(pdfDoc);
-
-                foreach (var first in data)
+                var data = GetYarnPODataForPDF_DB(yarnPOIds);
+                if (data == null || data.Count == 0)
                 {
-                    var details = first.listYarnPODetails;
-
-                    string path = HttpContext.Current.Server.MapPath(
-                        "~/Reports/PurchaseOrder.html"
-                    );
-
-                    string html = File.ReadAllText(path);
-
-                    // ================= MASTER =================
-
-                    html = html.Replace("{{CompanyPartyName}}", first.CompanyPartyName ?? "");
-                    html = html.Replace("{{CompanyBillingAddress}}", first.CompanyBillingAddress ?? "");
-                    html = html.Replace("{{CompanyMobileNo}}", first.CompanyMobileNo ?? "");
-                    html = html.Replace("{{CompanyGSTIN}}", first.CompanyGSTIN ?? "");
-
-                    html = html.Replace("{{ShippedToPartyName}}", first.GodownTitle ?? "");
-                    html = html.Replace("{{ShippedToGSTIN}}", first.GodownGST ?? "");
-                    html = html.Replace("{{ShippedToBillingAddress}}", first.GodownAddress ?? "");
-
-                    html = html.Replace("{{PODates}}", first.PODates ?? "");
-                    html = html.Replace("{{PONo}}", first.PONo.ToString());
-
-                    html = html.Replace("{{SupplierPartyName}}", first.SupplierPartyName ?? "");
-                    html = html.Replace("{{SupplierGSTIN}}", first.SupplierGSTIN ?? "");
-                    html = html.Replace("{{SupplierBillingAddress}}", first.SupplierBillingAddress ?? "");
-                    html = html.Replace("{{SupplierMobileNo}}", first.SupplierMobileNo ?? "");
-
-                    html = html.Replace("{{BillToPartyName}}", first.BillToPartyName ?? "");
-                    html = html.Replace("{{BillToBillingAddress}}", first.BillToBillingAddress ?? "");
-                    html = html.Replace("{{BillToMobileNo}}", first.BillToMobileNo ?? "");
-                    html = html.Replace("{{BillToGSTIN}}", first.BillToGSTIN ?? "");
-
-                    // ================= ROWS =================
-
-                    string rows = "";
-
-                    int sr = 1;
-
-                    foreach (var item in details)
+                    return new
                     {
-                        rows += $@"
-                                <tr>
-                                    <td>{sr}</td>
-                                    <td style='text-align:center;'>{item.YarnMaterial}</td>
-                                    <td style='text-align:center;'>{item.YarnColor}</td>
-                                    <td style='text-align:center;'>{item.CompanyCode}</td>
-                                    <td class='right'>{Convert.ToDecimal(item.Qty).ToString("N2")}</td>
-                                    <td class='right'>{Convert.ToDecimal(item.Rate).ToString("N2")}</td>
-                                    <td style='text-align:center;'>{item.GSTSLABName}</td>
-                                    <td class='right'>{Convert.ToDecimal(item.Amount).ToString("N2")}</td>
-                                </tr>";
-
-                        sr++;
-                    }
-
-                    html = html.Replace("{{ROWS}}", rows);                 
-                    // ================= TOTAL =================
-
-                    decimal totalTaxableAmount = details.Sum(x =>
-                        Convert.ToDecimal(x.Amount)
-                    );
-
-                    decimal gstAmount = details.Sum(x =>
-                    {
-                        decimal amount = Convert.ToDecimal(x.Amount);
-
-                        decimal gstPercent = 0;
-
-                        if (!string.IsNullOrEmpty(x.GSTSLABName))
-                        {
-                            if (x.GSTSLABName.Contains("5"))
-                                gstPercent = 5;
-
-                            else if (x.GSTSLABName.Contains("12"))
-                                gstPercent = 12;
-
-                            else if (x.GSTSLABName.Contains("18"))
-                                gstPercent = 18;
-                        }
-
-                        return amount * gstPercent / 100;
-                    });
-
-                    decimal grandTotal = totalTaxableAmount + gstAmount;
-
-                    html = html.Replace(
-                        "{{TotalTaxableAmount}}",
-                        totalTaxableAmount.ToString("N2")
-                    );
-
-                    html = html.Replace(
-                        "{{GSTAmount}}",
-                        gstAmount.ToString("N2")
-                    );
-
-                    html = html.Replace(
-                        "{{GrandTotal}}",
-                        grandTotal.ToString("N2")
-                    );
-
-                    // ================= HTML TO PDF =================
-
-                    using (MemoryStream tempStream = new MemoryStream())
-                    {
-                        HtmlConverter.ConvertToPdf(
-                            html,
-                            tempStream
-                        );
-
-                        PdfDocument tempPdf = new PdfDocument(
-                            new PdfReader(
-                                new MemoryStream(tempStream.ToArray())
-                            )
-                        );
-
-                        tempPdf.CopyPagesTo(
-                            1,
-                            tempPdf.GetNumberOfPages(),
-                            pdfDoc
-                        );
-
-                        tempPdf.Close();
-                    }
+                        Status = false,
+                        Message = "No Data Found",
+                        FilePath = ""
+                    };
                 }
-
-                document.Close();
-
-                byte[] pdfBytes = ms.ToArray();
-
-                string dir = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
-
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                string fileName = $"YarnPO_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-
-                string filePath = System.IO.Path.Combine(dir, fileName);
-
-                // SAVE PDF
-                File.WriteAllBytes(filePath, pdfBytes);
-
-                // RETURN URL
-                string pdfUrl = "/GeneratedPDF/" + fileName;
-
-                return new { FilePath = pdfUrl};
+                string folderPath = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                string fileName = "PurchaseOrder_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+                string fullPath = System.IO.Path.Combine(folderPath, fileName);
+                Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
+                report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
+                report.EnableExternalImages = true;
+                report.DataSources.Clear();
+                Microsoft.Reporting.WebForms.ReportDataSource dsMaster = new Microsoft.Reporting.WebForms.ReportDataSource("Master", data);
+                report.DataSources.Add(dsMaster);
+                var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
+                Microsoft.Reporting.WebForms.ReportDataSource dsDetail = new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails", detailData);
+                report.DataSources.Add(dsDetail);
+                report.Refresh();
+                string mimeType;
+                string encoding;
+                string extension;
+                string[] streamids;
+                Microsoft.Reporting.WebForms.Warning[] warnings;
+                byte[] bytes = report.Render(
+                    "PDF",
+                    null,
+                    out mimeType,
+                    out encoding,
+                    out extension,
+                    out streamids,
+                    out warnings
+                );
+                File.WriteAllBytes(fullPath, bytes);
+                return new
+                {
+                    Status = true,
+                    Message = "Success",
+                    FilePath = "/GeneratedPDF/" + fileName
+                };
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    Status = false,
+                    Message = ex.ToString(),
+                    FilePath = ""
+                };
             }
         }
     }

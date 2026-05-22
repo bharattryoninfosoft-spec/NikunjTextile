@@ -114,6 +114,9 @@ namespace NikunjTextile.Class
         public decimal Rate { get; set; }
         public int EditableOrNot { get; set; }
         public bool IsComplete { get; set; } 
+        public decimal TaxableAmount { get; set; }
+        public decimal GSTAmount { get; set; }
+        public decimal GrandTotal { get; set; }
         public List<YarnPODetails> listYarnPODetails { get; set; }
     }
 }

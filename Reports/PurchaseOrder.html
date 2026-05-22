@@ -1,440 +1,219 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-
-    <meta charset="utf-8" />
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 5mm;
-        }
-
-        /* ================= RESET ================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 210mm;
-            height: 297mm;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            background: #f3f3f3;
-        }
-
-        /* ================= MAIN PAGE ================= */
-
-        .page {
-            width: 200mm;
-            height: 287mm;
-            margin: auto;
-            background: #fff;
-            border: 1px solid #000;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* ================= HEADER ================= */
-
-        .header {
-            width: 100%;
-            flex-shrink: 0;
-            border-bottom: 1px solid #000;
-        }
-
-        .title {            
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .company {
-            text-align: center;
-            padding: 8px;
-            border-bottom: 1px solid #000;
-        }
-
-        .company-name {
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .company-address {
-            font-size: 9px;
-            line-height: 14px;
-        }
-
-        .company-mobile,
-        .company-gst {
-            margin-top: 2px;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        /* ================= COMMON TABLE ================= */
-
         table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .box td {
-            border-left: 1px solid #000;
-            border-top: none;
-            border-right: none;
-            border-bottom: 1px solid #000;
-            padding: 5px;
-            vertical-align: top;
-            font-size: 9px;
-            line-height: 15px;
-        }   
-            .box td:first-child {
-                border-left: none;
-            }
-        .box tr:nth-child(2) td:first-child {
-            border-bottom: none !important;
-        }
-
-        .box tr:nth-child(3) td:first-child {
-            border-top: none !important;
-        }
-        .box tr:last-child td:last-child {
-            border-bottom: none !important;
-        }
-        .bold {
-            font-weight: bold;
-            font-size: 10px;
-        }
-
-        .right {
-            text-align: right;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        /* ================= BODY ================= */
-
-        .body-section {
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* ================= ITEM TABLE ================= */
-
-        .grid {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
 
-            .grid th,
-            .grid td {
-                border: 1px solid #000;
-                padding: 4px;
-                font-size: 9px;
-                word-break: break-word;               
-            }
+        tbody {
+            height: 520px;
+            vertical-align: top;
+        }
 
-            .grid th {
-                text-align: center;
-                font-weight: bold;
-                color: #ffffff;
-                background-color: dimgrey
-            }
-
-            .grid tbody tr td {
+            tbody tr {
                 height: 24px;
             }
 
-        /* ================= FOOTER ================= */
-
-        .footer {
-            width: 100%;
-            margin-top: auto;
-            border-top: 1px solid #000;
-        }
-
-            .footer .grid th,
-            .footer .grid td {               
-                padding: 4px;
-                font-size: 9px;
-                word-break: break-word;
-                border-top: none !important;
-                border-right: none !important;
-                border-left: none !important;
-            }
-        /* ================= TOTAL TABLE ================= */
-
-        .amount-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            font-size: 9px;
-        }
-
-        .amount-box {
-            height: 24px;
-        }
-
-        /* ================= NOTES ================= */
-
-        .notes {
-            padding: 6px;
-            font-size: 8px;
-            line-height: 13px;
-        }
-
-            .notes ol {
-                margin-left: 14px;
-                margin-top: 5px;
-            }
-
-            .notes li {
-                margin-bottom: 4px;
-            }
-
-        /* ================= SIGNATURE ================= */
-
-        .footer-table {
-            border-collapse: collapse;
-        }
-
-            .footer-table td {
-                border-top: 1px solid #000;
-                border-left: 1px solid #000;
-                border-right: 1px solid #000;
-                border-bottom: none !important;
-                padding: 8px;
-                font-size: 9px;
-                font-weight: bold;
-            }
-
-                .footer-table td:first-child {
-                    border-left: none;
-                }
-
-                .footer-table td:last-child {
-                    border-right: none !important;
-                }
-       
-        .signature {
-            height: 60px;
-            text-align: right;
+        tfoot {
             vertical-align: bottom;
-            padding-right: 10px;
-        }
-
-        /* ================= PRINT FIX ================= */
-
-        @media print {
-
-            html,
-            body {
-                width: 210mm;
-                height: 297mm;
-                background: #fff;
-            }
-
-            .page {
-                margin: 0;
-                border: 1px solid #000;
-                page-break-after: avoid;
-            }
-
-            table,
-            tr,
-            td,
-            th {
-                page-break-inside: avoid !important;
-            }
         }
     </style>
-
 </head>
 
-<body>
+<body style="overflow: auto; font-family: Arial; font-size: 12px;">
+    <table style="width: 100%; border-collapse: collapse; border:1px solid black;" border="1">
+        <thead>
+            <tr>
+                <th colspan="8">
+                    <center style=" text-align: center; font-size: 14px; font-weight: bold; padding: 6px;">
+                        PURCHASE ORDER
+                    </center>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="8">
+                    <div style="font-size: 20px; font-weight: bold; ">{{BillToPartyName}}</div>
+                    <div style=" margin-top: 0px; line-height: 15px; font-weight: 100;">  {{BillToBillingAddress}}</div>
+                    <div style=" margin-top: 0px; line-height: 15px; font-weight: 100;"><b>M:</b>+91 {{BillToMobileNo}}</div>
+                    <div style=" font-weight: bold;"><b>GST:</b>{{BillToGSTIN}}</div>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="4" style="width: 50%; text-align: start; line-height: 16px; padding: 5px; ">
+                    <div>
+                        Ship To :{{ShippedToPartyName}}
+                    </div>
+                    <span style=" font-weight: 100;">GST : {{ShippedToGSTIN}}</span>
+                    <br>
+                    <span style=" font-weight: 100;"> {{ShippedToBillingAddress}}</span>
+                </th>
+                <th colspan="4" style="width: 50%; text-align: start; line-height: 16px; padding: 5px; ">
+                    <div class="bold">
+                        PO DATE :  {{PODates}}
+                    </div>
+                    <div class="bold">
+                        PO NO :  {{PONo}}
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <th colspan="4" style="width: 50%; text-align: start; line-height: 16px; padding: 5px;">
+                    <div>
+                        Vendor : {{SupplierPartyName}}
+                    </div>
+                    <span style=" font-weight: 100;">GST :  {{SupplierGSTIN}}</span>
+                    <br>
+                    <span style=" font-weight: 100;"> {{SupplierBillingAddress}}</span>
+                    <span style=" font-weight: 100;">Mobile :{{SupplierMobileNo}}</span>
+                </th>
+                <th colspan="4" style="width: 50%; text-align: start; line-height: 16px; padding: 5px;">
 
-    <div class="page">
-
-        <!-- HEADER -->
-        <div class="header">
-
-            <div class="title"> PURCHASE ORDER </div>
-
-            <div class="company">
-                <div class="company-name">{{BillToPartyName}} </div>
-                <div class="company-address">{{BillToBillingAddress}}</div>
-                <div class="company-mobile"> M - {{BillToMobileNo}}</div>
-                <div class="company-gst">GST - {{BillToGSTIN}}</div>
-            </div>
-
-            <table class="box">
-                <tr>
-                    <td width="50%">
-                        <div class="bold">Shipped To Name :{{ShippedToPartyName}}</div>
-                        <div>Shipped To GST :{{ShippedToGSTIN}}</div>
-                        <div>Shipped To Address :{{ShippedToBillingAddress}}</div>
-                    </td>
-                    <td width="50%">
-                        <div class="bold"> ORDER DATE :{{PODates}}</div>
-                        <div class="bold">ORDER NUMBER :{{PONo}}</div>
+                    <div>
+                        Company  : {{CompanyPartyName}}
+                    </div>
+                    <span style=" font-weight: 100;">GST : {{CompanyGSTIN}}</span>
+                    <br>
+                    <span style=" font-weight: 100;">{{CompanyBillingAddress}}</span>
+                    <span style=" font-weight: 100;">Mobile :{{CompanyMobileNo}}</span>
+                </th>
+            </tr>
 
 
-                    </td>
-                </tr>
-                <tr>
-                    <td width="50%">
-                        <div class="bold">Vendor :{{SupplierPartyName}}</div>
-                        <div>GST :{{SupplierGSTIN}}</div>
-                        <div>Address :{{SupplierBillingAddress}}</div>
-                        <div>Mobile :{{SupplierMobileNo}}</div>
-                    </td>
-                    <td width="50%">
-                        <div class="bold"> Company Name :{{CompanyPartyName}}</div>
-                        <div class="bold">Company GST :{{CompanyGSTIN}}</div>
-                        <div class="bold">Company Address :{{CompanyBillingAddress}}</div>
-                        <div class="bold">Company MobileNo :{{CompanyMobileNo}}</div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <br />
-        <!-- BODY -->
-        <div class="body-section">
-            <table class="grid">
-                <thead>
-                    <tr>
-                        <th style="width:4%;">SR</th>
-                        <th style="width:22%;">Quality</th>
-                        <th style="width:18%;">Colour</th>
-                        <th style="width:12%;">Code</th>
-                        <th style="width:8%;">Qty</th>
-                        <th style="width:10%;">Rate</th>
-                        <th style="width:12%;">GST Slab</th>
-                        <th style="width:14%;">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{ROWS}}
-                </tbody>
 
-            </table>
+            <tr style="background-color: #c0c0c0;">
+                <th>SR</th>
+                <th>Quality</th>
+                <th>Colour</th>
+                <th>Code</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>GST Slab</th>
+                <th>Amount</th>
+            </tr>
 
-        </div>
-        <br />
-        <!-- FOOTER -->
-        <div class="footer">
-            <table class="grid">
-                <tr>
-                    <td class="right amount-box bold">
-                        Total Taxable Amount : {{TotalTaxableAmount}}
-                    </td>
+        </thead>
 
-                </tr>
-                <tr>                
-                    <td class="right bold">
-                        GST Amount :  {{GSTAmount}}
-                    </td>
 
-                </tr>
-                <tr>
-                    <td class="right bold">
-                        Grand Total :  {{GrandTotal}}
-                    </td>
 
-                </tr>
 
-            </table>   
-            <table class="notes">
-                <tr>
-                    <td >
+        <tbody>
+            {{ROWS}}
+        </tbody>
 
-                        <div class="bold">
-                            Terms &amp; Conditions
-                        </div>
 
-                        <ol>
 
-                            <li>
-                                Yarn supplied must strictly conform to the specifications
-                                mentioned in the Purchase Order, including count, denier,
-                                composition, shade, lustre, and quality parameters.
-                            </li>
 
-                            <li>
-                                No denier variation shall be acceptable in the supplied yarn.
-                                In case of dyed yarn, shade variation beyond acceptable
-                                industry tolerance shall not be permitted.
-                            </li>
+        <tfoot>
+            <tr style="border-top: 1px solid;">
+                <th colspan="8" style=" text-align:right; padding:5px;">
 
-                            <li>
-                                Supplier shall ensure uniformity in quality throughout the lot.
-                                Any defects such as contamination, oil stains, knots,
-                                mixed yarn, moisture damage, or inconsistent winding
-                                shall be treated as rejection criteria.
-                            </li>
+                    <div style=" font-weight: 100;">
+                        Total Taxable Amount :
+                        <span class="bold">
+                            {{TotalTaxableAmount}}
+                        </span>
+                    </div>
 
-                            <li>
-                                Goods must be delivered only to the shipping address
-                                mentioned in the Purchase Order.
-                            </li>
+                    <div style=" font-weight: 100;">
+                        GST Amount :
+                        <span class="bold">
+                            {{GSTAmount}}
+                        </span>
+                    </div>
 
-                            <li>
-                                Delivery timing shall be restricted between
-                                9:00 AM and 7:00 PM on working days unless
-                                otherwise communicated in writing.
-                            </li>
+                    <div style=" font-weight: 100;">
+                        Grand Total :
+                        <span class="bold">
+                            {{GrandTotal}}
+                        </span>
+                    </div>
 
-                            <li>
-                                Prices shall be considered strictly as per the
-                                Purchase Order. Any revision in price must be
-                                communicated and mutually approved in advance.
-                            </li>
+                </th>
+            </tr>
+            <tr>
 
-                            <li>
-                                Loading, unloading, freight, transit insurance,
-                                and transportation charges shall be borne entirely
-                                by the supplier unless specifically agreed otherwise.
-                            </li>
+                <th colspan="8" style="padding:5px; text-align:start;">
 
-                            <li>
-                                Supplier shall ensure proper packing of goods
-                                to avoid damage, moisture exposure, or contamination
-                                during transit.
-                            </li>
+                    <div class="bold">
+                        Terms &amp; Conditions
+                    </div>
+                    <ol style="margin: 0; padding-left: 16px; line-height: 16px; font-weight: 100; ">
 
-                        </ol>
+                        <li>
+                            Yarn supplied must strictly conform to the specifications
+                            mentioned in the Purchase Order, including count, denier,
+                            composition, shade, lustre, and quality parameters.
+                        </li>
 
-                    </td>
-                </tr>
+                        <li>
+                            No denier variation shall be acceptable in the supplied yarn.
+                            In case of dyed yarn, shade variation beyond acceptable
+                            industry tolerance shall not be permitted.
+                        </li>
 
-            </table>
-            <br />
-            <table class="footer-table">
+                        <li>
+                            Supplier shall ensure uniformity in quality throughout the lot.
+                            Any defects such as contamination, oil stains, knots,
+                            mixed yarn, moisture damage, or inconsistent winding
+                            shall be treated as rejection criteria.
+                        </li>
 
-                <tr>
+                        <li>
+                            Goods must be delivered only to the shipping address
+                            mentioned in the Purchase Order.
+                        </li>
 
-                    <td width="50%">
-                        DELIVERY TIME : 2-3 DAYS<br/>
-                        PAYMENT : 45-60 DAYS
-                    </td>      
-                    <td width="50%" class="signature">
-                        AUTHORISED SIGN
-                    </td>
+                        <li>
+                            Delivery timing shall be restricted between
+                            9:00 AM and 7:00 PM on working days unless
+                            otherwise communicated in writing.
+                        </li>
 
-                </tr>
+                        <li>
+                            Prices shall be considered strictly as per the
+                            Purchase Order. Any revision in price must be
+                            communicated and mutually approved in advance.
+                        </li>
 
-            </table>
+                        <li>
+                            Loading, unloading, freight, transit insurance,
+                            and transportation charges shall be borne entirely
+                            by the supplier unless specifically agreed otherwise.
+                        </li>
 
-        </div>
+                        <li>
+                            Supplier shall ensure proper packing of goods
+                            to avoid damage, moisture exposure, or contamination
+                            during transit.
+                        </li>
 
-    </div>
+                    </ol>
 
+                </th>
+
+            <tr>
+                <th colspan="4" width="50%" style="padding:5px; text-align:start; font-weight:100;">
+
+                    DELIVERY : 2-3 DAYS
+
+                    <br><br>
+
+                    PAYMENT : 45-60 DAYS
+
+                </th>
+                <th colspan="4" width="50%" class="sign-right">
+
+                    AUTHORISED SIGNATORY
+
+                </th>
+
+            </tr>
+
+        </tfoot>
+    </table>
 </body>
+
 </html>
