@@ -28863,71 +28863,6 @@ FROM Filtered
             }
         }
 
-        //[WebMethod]
-        //public object ExportPDF(List<int> yarnPOIds)
-        //{
-        //    try
-        //    {
-        //       var data = GetYarnPODataForPDF_DB(yarnPOIds);
-        //        if (data == null || data.Count == 0)
-        //        {
-        //            return new
-        //            {
-        //                Status = false,
-        //                Message = "No Data Found",
-        //                FilePath = ""
-        //            };
-        //        }
-        //       string folderPath =HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
-        //        if (!Directory.Exists(folderPath))
-        //        {
-        //            Directory.CreateDirectory(folderPath);
-        //        }
-        //        string fileName ="PurchaseOrder_" +DateTime.Now.ToString("yyyyMMddHHmmss") +".pdf";
-        //        string fullPath =System.IO.Path.Combine(folderPath, fileName);
-        //        Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
-        //        report.ReportPath =HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
-        //        //report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
-        //        report.EnableExternalImages = true;
-        //        report.DataSources.Clear();
-        //        Microsoft.Reporting.WebForms.ReportDataSource dsMaster = new Microsoft.Reporting.WebForms.ReportDataSource("Master",data);
-        //        report.DataSources.Add(dsMaster);
-        //        var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
-        //        Microsoft.Reporting.WebForms.ReportDataSource dsDetail =new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails",detailData);
-        //        report.DataSources.Add(dsDetail);
-        //        report.Refresh();
-        //        string mimeType;
-        //        string encoding;
-        //        string extension;
-        //        string[] streamids;
-        //        Microsoft.Reporting.WebForms.Warning[] warnings;
-        //        byte[] bytes = report.Render(
-        //            "PDF",
-        //            null,
-        //            out mimeType,
-        //            out encoding,
-        //            out extension,
-        //            out streamids,
-        //            out warnings
-        //        );
-        //        File.WriteAllBytes(fullPath, bytes);
-        //        return new
-        //        {
-        //            Status = true,
-        //            Message = "Success",
-        //            FilePath = "/GeneratedPDF/" + fileName
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new
-        //        {
-        //            Status = false,
-        //            Message = ex.ToString(),
-        //            FilePath = ""
-        //        };
-        //    }
-        //}
         [WebMethod]
         public object ExportPDF(List<int> yarnPOIds)
         {
@@ -28951,7 +28886,8 @@ FROM Filtered
                 string fileName = "PurchaseOrder_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
                 string fullPath = System.IO.Path.Combine(folderPath, fileName);
                 Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
-                report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
+                report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
+                //report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
                 report.EnableExternalImages = true;
                 report.DataSources.Clear();
                 Microsoft.Reporting.WebForms.ReportDataSource dsMaster = new Microsoft.Reporting.WebForms.ReportDataSource("Master", data);
