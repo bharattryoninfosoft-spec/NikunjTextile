@@ -92,6 +92,9 @@
     <Reference Include="itext.svg, Version=9.6.0.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\itext.9.6.0\lib\net461\itext.svg.dll</HintPath>
     </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.5, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.5\lib\net461\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.12\lib\net45\log4net.dll</HintPath>
     </Reference>
@@ -956,6 +959,11 @@
     <Compile Include="Class\YarnRequirementMaster.cs" />
     <Compile Include="Class\YarnRequirementMasterResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchaseOrderDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PurchaseOrderDS.xsd</DependentUpon>
+    </Compile>
     <Compile Include="PurchaseOrderReport.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -969,16 +977,6 @@
     <Compile Include="WebServiceNikunjTextile.asmx.cs">
       <DependentUpon>WebServiceNikunjTextile.asmx</DependentUpon>
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="YarnPoMaster.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>YarnPoMaster.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="YarnPoMaster1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>YarnPoMaster1.xsd</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -1052,6 +1050,17 @@
     <Content Include="PurchaseOrderReport.xsc">
       <DependentUpon>PurchaseOrderReport.xsd</DependentUpon>
     </Content>
+    <Content Include="PurchaseOrderDS.xsc">
+      <DependentUpon>PurchaseOrderDS.xsd</DependentUpon>
+    </Content>
+    <None Include="PurchaseOrderDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PurchaseOrderDS.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="PurchaseOrderDS.xss">
+      <DependentUpon>PurchaseOrderDS.xsd</DependentUpon>
+    </Content>
     <None Include="PurchaseOrderReport.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PurchaseOrderReport.Designer.cs</LastGenOutput>
@@ -1082,28 +1091,6 @@
     <Content Include="YarnOutWardScanDetails.cshtml" />
     <Content Include="YarnOutWardScan.cshtml" />
     <Content Include="YarnOutWardChallanNEW.cshtml" />
-    <Content Include="YarnPoMaster.xsc">
-      <DependentUpon>YarnPoMaster.xsd</DependentUpon>
-    </Content>
-    <None Include="YarnPoMaster.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>YarnPoMaster.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="YarnPoMaster.xss">
-      <DependentUpon>YarnPoMaster.xsd</DependentUpon>
-    </Content>
-    <Content Include="YarnPoMaster1.xsc">
-      <DependentUpon>YarnPoMaster1.xsd</DependentUpon>
-    </Content>
-    <None Include="YarnPoMaster1.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>YarnPoMaster1.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="YarnPoMaster1.xss">
-      <DependentUpon>YarnPoMaster1.xsd</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AadharUpload\" />
@@ -1116,9 +1103,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Reports\PurchaseOrder1.rdlc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

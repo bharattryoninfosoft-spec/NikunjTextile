@@ -20,41 +20,45 @@
 <script>
     function ExportPDF() {
 
+        var yarnPOIds = [14, 15];
+
         $.ajax({
+
             type: "POST",
-            url: "/WebServiceNikunjTextile.asmx/ExportPDF",
+
+            url: "/WebServiceNikunjTextile.asmx/ExportPDF1",
+
             data: JSON.stringify({
-                yarnPOIds: [14]
+                yarnPOIds: yarnPOIds
             }),
+
             contentType: "application/json; charset=utf-8",
+
             dataType: "json",
 
             success: function (response) {
 
-                var result = response.d;
+                var data = JSON.parse(response.d);
 
-                // if stringified object
-                if (typeof result === "string") {
-                    result = JSON.parse(result);
-                }
+                if (data.Status == true) {
 
-                if (result.Message === "Success") {
-
-                    window.open(result.FilePath, "_blank");
+                    window.open(data.FilePath, "_blank");
 
                 } else {
 
-                    alert(result.Message);
+                    alert(data.Message);
+
                 }
             },
 
             error: function (xhr) {
 
-                console.log(xhr);
+                alert(xhr.responseText);
 
-                alert("PDF Generate Error");
             }
+
         });
+
     }
     $(document).ready(function () {
 

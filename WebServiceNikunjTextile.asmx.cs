@@ -1,22 +1,12 @@
-﻿using iText.Html2pdf;
-using iText.IO.Font;
-using iText.IO.Font.Constants;
-using iText.IO.Image;
+﻿using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
-using iText.Kernel.Font;
 using iText.Kernel.Geom;
-using iText.Kernel.Pdf;
-using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using iText.StyledXmlParser.Jsoup.Nodes;
-using Microsoft.Reporting.WebForms;
-using Microsoft.Reporting.WinForms;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
-using Org.BouncyCastle.Asn1.X500;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -35,9 +25,10 @@ using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-
+using Microsoft.Reporting.WebForms;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using iText.Kernel.Font;
 
 namespace NikunjTextile
 {
@@ -27410,81 +27401,58 @@ ORDER BY SO.OrderNo DESC";
         #endregion
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetYarnPODataForPDF(List<int> yarnPOIds)
-        {
-            try
-            {
-                // ✅ Always return same structure
-                if (yarnPOIds == null || yarnPOIds.Count == 0)
-                {
-                    return new { FilePath = "", Message = "No IDs received" };
-                }
+        //public object GetYarnPODataForPDF(List<int> yarnPOIds)
+        //{
+        //    try
+        //    {
+        //        // ✅ Always return same structure
+        //        if (yarnPOIds == null || yarnPOIds.Count == 0)
+        //        {
+        //            return new { FilePath = "", Message = "No IDs received" };
+        //        }
 
-                var data = GetYarnPODataForPDF_DB(yarnPOIds);
+        //        var data = GetYarnPODataForPDF_DB(yarnPOIds);
 
-                if (data.Count == 0)
-                {
-                    return new { FilePath = "", Message = "No data found" };
-                }
+        //        if (data.Count == 0)
+        //        {
+        //            return new { FilePath = "", Message = "No data found" };
+        //        }
 
-                string filePath = CreatePDF(data);
+        //        string filePath = CreatePDF(data);
 
-                return new
-                {
-                    FilePath = filePath,
-                    Message = "Success"
-                };
-            }
-            catch (Exception ex)
-            {
-                return new
-                {
-                    FilePath = "",
-                    Message = ex.Message   // 🔥 will show real error in console
-                };
-            }
-        }
-        public List<YarnPOMaster> GetYarnPODataForPDF_DB(List<int> ids)
+        //        return new
+        //        {
+        //            FilePath = filePath,
+        //            Message = "Success"
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new
+        //        {
+        //            FilePath = "",
+        //            Message = ex.Message   // 🔥 will show real error in console
+        //        };
+        //    }
+        //}
+        public List<YarnPOMaster> GetYarnPODataForPDF_DB(int ids)
         {
             List<YarnPOMaster> list = new List<YarnPOMaster>();
 
-            string cs =
-                ConfigurationManager
-                .ConnectionStrings["sqlconnstr"]
-                .ConnectionString;
-
-            string idsString = string.Join(",", ids);
-
+            string cs =ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
-                con.Open();
-
-                // =====================================================
-                // MASTER DATA
-                // =====================================================
-
-                using (SqlCommand cmd =
-                    new SqlCommand("SPR_GetYarnPOByIDs", con))
+                con.Open();                
+                using (SqlCommand cmd =new SqlCommand("SPR_GetYarnPOByIDs", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@IDs", idsString);
-
+                    cmd.Parameters.AddWithValue("@IDs", ids);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         while (rdr.Read())
                         {
-                            YarnPOMaster obj =
-                                new YarnPOMaster();
-
-                            // =====================================
-                            // MASTER
-                            // =====================================
-
-                            obj.YarnPOID =
-                                rdr["YarnPOID"] != DBNull.Value
-                                ? Convert.ToInt32(rdr["YarnPOID"])
-                                : 0;
+                            YarnPOMaster obj = new YarnPOMaster();
+                            obj.YarnPOID = rdr["YarnPOID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnPOID"]) : 0;
 
                             obj.DateandTime =
                                 rdr["DateandTime"] != DBNull.Value
@@ -27738,7 +27706,7 @@ ORDER BY SO.OrderNo DESC";
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@IDs", idsString);
+                    cmd.Parameters.AddWithValue("@IDs", ids);
 
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
@@ -27825,7 +27793,7 @@ ORDER BY SO.OrderNo DESC";
         }
         private Cell BodyCell(string text, TextAlignment align)
         {
-            Paragraph p = new Paragraph(text ?? "")
+            iText.Layout.Element.Paragraph p = new iText.Layout.Element.Paragraph(text ?? "")
                 .SetFontSize(8)
                 .SetMargin(0)
                 .SetPadding(0)
@@ -27858,21 +27826,20 @@ ORDER BY SO.OrderNo DESC";
 
             string filePath =
                 System.IO.Path.Combine(dir, fileName);
-
-            PdfWriter writer = new PdfWriter(filePath);
+              iText.Kernel.Pdf.PdfWriter writer = new iText.Kernel.Pdf.PdfWriter(filePath);
 
             iText.Kernel.Pdf.PdfDocument pdf =
                 new iText.Kernel.Pdf.PdfDocument(writer);
 
-            pdf.SetDefaultPageSize(PageSize.A4);
+            pdf.SetDefaultPageSize(iText.Kernel.Geom.PageSize.A4);
 
             iText.Layout.Document document =
                 new iText.Layout.Document(pdf);
 
             document.SetMargins(10, 10, 10, 10);
 
-            PdfFont normalFont;
-            PdfFont boldFont;
+       iText.Kernel.Font.PdfFont normalFont;
+            iText.Kernel.Font.PdfFont boldFont;
 
             // =====================================================
             // FONT
@@ -27892,17 +27859,8 @@ ORDER BY SO.OrderNo DESC";
 
                 if (File.Exists(f1) && File.Exists(f2))
                 {
-                    normalFont =
-                        PdfFontFactory.CreateFont(
-                            f1,
-                            PdfEncodings.IDENTITY_H
-                        );
-
-                    boldFont =
-                        PdfFontFactory.CreateFont(
-                            f2,
-                            PdfEncodings.IDENTITY_H
-                        );
+                    normalFont = PdfFontFactory.CreateFont(f1, iText.IO.Font.PdfEncodings.IDENTITY_H);
+                    boldFont = PdfFontFactory.CreateFont(f2,iText.IO.Font.PdfEncodings.IDENTITY_H);
                 }
                 else
                 {
@@ -27925,7 +27883,7 @@ ORDER BY SO.OrderNo DESC";
                     );
 
                 boldFont =
-                    PdfFontFactory.CreateFont(
+                PdfFontFactory.CreateFont(
                         StandardFonts.HELVETICA_BOLD
                     );
             }
@@ -27954,32 +27912,32 @@ ORDER BY SO.OrderNo DESC";
                 Cell headCell = new Cell();
 
                 headCell.Add(
-                    new Paragraph("PURCHASE ORDER")
+                    new iText.Layout.Element.Paragraph("PURCHASE ORDER")
                     .SetFont(boldFont)
                     .SetFontSize(10)
                     .SetTextAlignment(TextAlignment.LEFT)
                 );
 
                 headCell.Add(
-                    new Paragraph(Safe(item.BillToPartyName))
+                    new iText.Layout.Element.Paragraph(Safe(item.BillToPartyName))
                     .SetFont(boldFont)
                     .SetFontSize(15)
                     .SetTextAlignment(TextAlignment.CENTER)
                 );
 
                 headCell.Add(
-                    new Paragraph(Safe(item.BillToBillingAddress))
+                    new iText.Layout.Element.Paragraph(Safe(item.BillToBillingAddress))
                     .SetTextAlignment(TextAlignment.CENTER)
                 );
 
                 headCell.Add(
-                    new Paragraph("M - " + Safe(item.BillToMobileNo))
+                    new iText.Layout.Element.Paragraph("M - " + Safe(item.BillToMobileNo))
                     .SetFont(boldFont)
                     .SetTextAlignment(TextAlignment.CENTER)
                 );
 
                 headCell.Add(
-                    new Paragraph("GST - " + Safe(item.BillToGSTIN))
+                    new iText.Layout.Element.Paragraph("GST - " + Safe(item.BillToGSTIN))
                     .SetFont(boldFont)
                     .SetTextAlignment(TextAlignment.CENTER)
                 );
@@ -28004,19 +27962,19 @@ ORDER BY SO.OrderNo DESC";
                 Cell shipLeft = new Cell();
 
                 shipLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Shipped To Name : ").SetFont(boldFont))
                     .Add(Safe(item.GodownTitle))
                 );
 
                 shipLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Shipped To GST : ").SetFont(boldFont))
                     .Add(Safe(item.GodownGST))
                 );
 
                 shipLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Shipped To Address : ").SetFont(boldFont))
                     .Add(Safe(item.GodownAddress))
                 );
@@ -28030,7 +27988,7 @@ ORDER BY SO.OrderNo DESC";
                 order.AddCell(
                     new Cell()
                     .Add(
-                        new Paragraph()
+                        new iText.Layout.Element.Paragraph()
                         .Add(new Text("ORDER DATE : ").SetFont(boldFont))
                         .Add(Safe(item.PODates))
                     )
@@ -28040,7 +27998,7 @@ ORDER BY SO.OrderNo DESC";
                 order.AddCell(
                     new Cell()
                     .Add(
-                        new Paragraph()
+                        new iText.Layout.Element.Paragraph()
                         .Add(new Text("ORDER NUMBER : ").SetFont(boldFont))
                         .Add(item.PONo.ToString())
                     )
@@ -28065,25 +28023,25 @@ ORDER BY SO.OrderNo DESC";
                 Cell vendorLeft = new Cell();
 
                 vendorLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Vendor : ").SetFont(boldFont))
                     .Add(Safe(item.SupplierPartyName))
                 );
 
                 vendorLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("GST : ").SetFont(boldFont))
                     .Add(Safe(item.SupplierGSTIN))
                 );
 
                 vendorLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Address : ").SetFont(boldFont))
                     .Add(Safe(item.SupplierBillingAddress))
                 );
 
                 vendorLeft.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Mobile : ").SetFont(boldFont))
                     .Add(Safe(item.SupplierMobileNo))
                 );
@@ -28093,19 +28051,19 @@ ORDER BY SO.OrderNo DESC";
                 Cell vendorRight = new Cell();
 
                 vendorRight.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Company Name : ").SetFont(boldFont))
                     .Add(Safe(item.CompanyPartyName))
                 );
 
                 vendorRight.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Company GST : ").SetFont(boldFont))
                     .Add(Safe(item.CompanyGSTIN))
                 );
 
                 vendorRight.Add(
-                    new Paragraph()
+                    new iText.Layout.Element.Paragraph()
                     .Add(new Text("Company Address : ").SetFont(boldFont))
                     .Add(Safe(item.CompanyBillingAddress))
                 );
@@ -28151,7 +28109,7 @@ ORDER BY SO.OrderNo DESC";
                     table.AddHeaderCell(
                         new Cell()
                         .Add(
-                            new Paragraph(h)
+                            new iText.Layout.Element.Paragraph(h)
                             .SetFont(boldFont)
                             .SetFontSize(8)
                             .SetMargin(0)
@@ -28263,7 +28221,7 @@ ORDER BY SO.OrderNo DESC";
                         table.AddCell(
                             new Cell()
                             .Add(
-                                new Paragraph(" ")
+                                new iText.Layout.Element.Paragraph(" ")
                                 .SetFontSize(8)
                                 .SetMargin(0)
                             )
@@ -28302,10 +28260,11 @@ ORDER BY SO.OrderNo DESC";
                         )
                     ).UseAllAvailableWidth();
 
-                right.AddCell(
-                    new Cell()
-                    .Add(
-                        new Paragraph("Total Taxable Amount :")
+                right.AddCell(new Cell() .Add(new iText.Layout.Element.Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
+                right.AddCell(new Cell().Add(new iText.Layout.Element.Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
+
+                right.AddCell(new Cell()    .Add(
+                        new iText.Layout.Element.Paragraph("GST Amount :")
                         .SetFont(boldFont)
                     )
                     .SetBorder(Border.NO_BORDER)
@@ -28314,7 +28273,7 @@ ORDER BY SO.OrderNo DESC";
                 right.AddCell(
                     new Cell()
                     .Add(
-                        new Paragraph(total.ToString("N2"))
+                        new iText.Layout.Element.Paragraph(gstAmount.ToString("N2"))
                         .SetTextAlignment(TextAlignment.RIGHT)
                     )
                     .SetBorder(Border.NO_BORDER)
@@ -28323,7 +28282,7 @@ ORDER BY SO.OrderNo DESC";
                 right.AddCell(
                     new Cell()
                     .Add(
-                        new Paragraph("GST Amount :")
+                        new iText.Layout.Element.Paragraph("Grand Total :")
                         .SetFont(boldFont)
                     )
                     .SetBorder(Border.NO_BORDER)
@@ -28332,25 +28291,7 @@ ORDER BY SO.OrderNo DESC";
                 right.AddCell(
                     new Cell()
                     .Add(
-                        new Paragraph(gstAmount.ToString("N2"))
-                        .SetTextAlignment(TextAlignment.RIGHT)
-                    )
-                    .SetBorder(Border.NO_BORDER)
-                );
-
-                right.AddCell(
-                    new Cell()
-                    .Add(
-                        new Paragraph("Grand Total :")
-                        .SetFont(boldFont)
-                    )
-                    .SetBorder(Border.NO_BORDER)
-                );
-
-                right.AddCell(
-                    new Cell()
-                    .Add(
-                        new Paragraph(grandTotal.ToString("N2"))
+                        new iText.Layout.Element.Paragraph(grandTotal.ToString("N2"))
                         .SetFont(boldFont)
                         .SetTextAlignment(TextAlignment.RIGHT)
                     )
@@ -28868,54 +28809,115 @@ FROM Filtered
         {
             try
             {
-                var data = GetYarnPODataForPDF_DB(yarnPOIds);
-                if (data == null || data.Count == 0)
-                {
-                    return new
-                    {
-                        Status = false,
-                        Message = "No Data Found",
-                        FilePath = ""
-                    };
-                }
                 string folderPath = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
-                string fileName = "PurchaseOrder_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+
+                // Final Merge PDF Name
+                string fileName = "PurchaseOrder_" +
+                                  DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+
                 string fullPath = System.IO.Path.Combine(folderPath, fileName);
-                Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
-                report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
-                //report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
-                report.EnableExternalImages = true;
-                report.DataSources.Clear();
-                Microsoft.Reporting.WebForms.ReportDataSource dsMaster = new Microsoft.Reporting.WebForms.ReportDataSource("Master", data);
-                report.DataSources.Add(dsMaster);
-                var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
-                Microsoft.Reporting.WebForms.ReportDataSource dsDetail = new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails", detailData);
-                report.DataSources.Add(dsDetail);
-                report.Refresh();
-                string mimeType;
-                string encoding;
-                string extension;
-                string[] streamids;
-                Microsoft.Reporting.WebForms.Warning[] warnings;
-                byte[] bytes = report.Render(
-                    "PDF",
-                    null,
-                    out mimeType,
-                    out encoding,
-                    out extension,
-                    out streamids,
-                    out warnings
-                );
-                File.WriteAllBytes(fullPath, bytes);
+
+                // Store all PDF bytes
+                List<byte[]> pdfBytesList = new List<byte[]>();
+
+                foreach (int poId in yarnPOIds)
+                {
+                    var data = GetYarnPODataForPDF_DB(poId);
+
+                    if (data == null || data.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    Microsoft.Reporting.WebForms.LocalReport report =
+                        new Microsoft.Reporting.WebForms.LocalReport();
+
+                    report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
+
+                    report.EnableExternalImages = true;
+
+                    report.DataSources.Clear();
+
+                    // Master Dataset
+                    Microsoft.Reporting.WebForms.ReportDataSource dsMaster =
+                        new Microsoft.Reporting.WebForms.ReportDataSource("Master", data);
+
+                    report.DataSources.Add(dsMaster);
+
+                    // Detail Dataset
+                    var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
+
+                    Microsoft.Reporting.WebForms.ReportDataSource dsDetail =
+                        new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails", detailData);
+
+                    report.DataSources.Add(dsDetail);
+
+                    report.Refresh();
+
+                    string mimeType;
+                    string encoding;
+                    string extension;
+                    string[] streamids;
+                    Microsoft.Reporting.WebForms.Warning[] warnings;
+
+                    byte[] bytes = report.Render(
+                        "PDF",
+                        null,
+                        out mimeType,
+                        out encoding,
+                        out extension,
+                        out streamids,
+                        out warnings
+                    );
+
+                    // Add PDF bytes to list
+                    pdfBytesList.Add(bytes);
+                }
+
+                // =========================================
+                // MERGE PDF
+                // =========================================
+
+                using (FileStream stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    using (Document document = new Document())
+                    {
+                        PdfCopy pdfCopy = new PdfCopy(document, stream);
+
+                        document.Open();
+
+                        foreach (byte[] pdfBytes in pdfBytesList)
+                        {
+                            PdfReader reader = new PdfReader(pdfBytes);
+
+                            for (int i = 1; i <= reader.NumberOfPages; i++)
+                            {
+                                PdfImportedPage page = pdfCopy.GetImportedPage(reader, i);
+
+                                pdfCopy.AddPage(page);
+                            }
+
+                            reader.Close();
+                        }
+
+                        document.Close();
+                    }
+                }
+
+                string filePath =
+                    HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority)
+                    + "/GeneratedPDF/" + fileName;
+
                 return new
                 {
                     Status = true,
-                    Message = "Success",
-                    FilePath = "/GeneratedPDF/" + fileName
+                    Message = "PDF Generated Successfully",
+                    FilePath = filePath
                 };
             }
             catch (Exception ex)
@@ -28926,6 +28928,280 @@ FROM Filtered
                     Message = ex.ToString(),
                     FilePath = ""
                 };
+            }
+        }
+
+        [WebMethod]
+        public object ExportPDF1(List<int> yarnPOIds)
+        {
+            try
+            {
+                string connStr =
+                    ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+                // STORE ALL PDF BYTES
+                List<byte[]> pdfBytesList =  new List<byte[]>();
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+                    // LOOP ALL PO IDS
+                    foreach (int poId in yarnPOIds)
+                    {
+                        DataSet ds = new DataSet();
+
+                        // =========================================
+                        // MASTER QUERY
+                        // =========================================
+
+                        string masterQuery = @"
+
+                    SELECT
+                        YPM.*,
+
+                        SPM.PartyName AS SupplierPartyName,
+                        CPM.PartyName AS BillToPartyName,
+                        BPM.PartyName AS CompanyPartyName,
+                        SPPM.PartyName AS ShippedToPartyName,
+
+                        GM.GodownTitle,
+                        GM.GodownAddress,
+
+                        ISNULL(X.TaxableAmount,0) AS TaxableAmount,
+                        ISNULL(X.GSTAmount,0) AS GSTAmount,
+                        ISNULL(X.GrandTotal,0) AS GrandTotal
+
+                    FROM YarnPOMaster YPM
+
+                    LEFT JOIN PartyMaster SPM
+                        ON YPM.SupplierPartyID = SPM.PartyId
+
+                    LEFT JOIN PartyMaster BPM
+                        ON YPM.BillToPartyID = BPM.PartyId
+
+                    LEFT JOIN PartyMaster CPM
+                        ON YPM.CompanyPartyID = CPM.PartyId
+
+                    LEFT JOIN PartyMaster SPPM
+                        ON YPM.ShippedToPartyID = SPPM.PartyId
+
+                    LEFT JOIN GodownMaster GM
+                        ON GM.GodownID = YPM.GodownID
+
+                    OUTER APPLY
+                    (
+                        SELECT
+
+                            SUM(ISNULL(YPD.Amount,0))
+                            AS TaxableAmount,
+
+                            SUM
+                            (
+                                ISNULL
+                                (
+                                    (YPD.Amount * GSM.IGST) / 100,
+                                    0
+                                )
+                            )
+                            AS GSTAmount,
+
+                            SUM(ISNULL(YPD.Amount,0))
+                            +
+                            SUM
+                            (
+                                ISNULL
+                                (
+                                    (YPD.Amount * GSM.IGST) / 100,
+                                    0
+                                )
+                            )
+                            AS GrandTotal
+
+                        FROM YarnPODetails YPD
+
+                        LEFT JOIN GSTSLABMaster GSM
+                            ON YPD.GSTSLABId =
+                               GSM.GSTSLABId
+
+                        WHERE YPD.YarnPOID =
+                              YPM.YarnPOID
+
+                    ) X
+
+                    WHERE YPM.YarnPOID = @YarnPOID";
+
+                        using (SqlCommand cmd = new SqlCommand(masterQuery, con))
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@YarnPOID",poId);
+                            SqlDataAdapter da =new SqlDataAdapter(cmd);
+                            da.Fill(ds, "DSMaster");
+                        }
+
+                        // =========================================
+                        // DETAIL QUERY
+                        // =========================================
+
+                        string detailQuery = @"
+
+                    SELECT
+
+                        YPD.YarnPODetailID,
+                        YPD.YarnPOID,
+                        YPD.YarnMaterialID,
+
+                        YMM.YarnMaterial,
+
+                        YPD.YarnColorID,
+
+                        YCM.YarnColor,
+                        YCM.YarnColorCode,
+
+                        YPD.CompanyCode,
+                        YPD.Qty,
+                        YPD.Rate,
+
+                        YPD.GSTSLABId,
+
+                        GSM.GSTSLABName,
+
+                        YPD.Amount
+
+                    FROM YarnPODetails YPD
+
+                    LEFT JOIN YarnMaterialMaster YMM
+                        ON YMM.YarnMaterialID =
+                           YPD.YarnMaterialID
+
+                    LEFT JOIN YarnColorMaster YCM
+                        ON YCM.YarnColorID =
+                           YPD.YarnColorID
+
+                    LEFT JOIN GSTSLABMaster GSM
+                        ON YPD.GSTSLABId =
+                           GSM.GSTSLABId
+
+                    WHERE YPD.YarnPOID =
+                          @YarnPOID";
+
+                        using (SqlCommand cmd =
+                            new SqlCommand(detailQuery, con))
+                        {
+                            cmd.CommandType =
+                                CommandType.Text;
+
+                            cmd.Parameters.AddWithValue(
+                                "@YarnPOID",
+                                poId);
+
+                            SqlDataAdapter da =
+                                new SqlDataAdapter(cmd);
+
+                            da.Fill(ds, "DSDetail");
+                        }
+
+                        // =========================================
+                        // CHECK DATA
+                        // =========================================
+
+                        if (ds.Tables["DSMaster"]
+                            .Rows.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        // =========================================
+                        // RDLC REPORT
+                        // =========================================
+
+                        LocalReport report = new LocalReport();
+                        report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
+                        report.DataSources.Clear();
+                        // MASTER DATASET
+                        report.DataSources.Add(new ReportDataSource("DSMaster",ds.Tables["DSMaster"]));
+                        // DETAIL DATASET
+                        report.DataSources.Add(new ReportDataSource("DSDetail",ds.Tables["DSDetail"]));
+                        // =========================================
+                        // PDF SETTINGS
+                        // =========================================
+                        string deviceInfo =
+                            "<DeviceInfo>" +
+                            "<OutputFormat>PDF</OutputFormat>" +
+                            "<PageWidth>8.27in</PageWidth>" +
+                            "<PageHeight>11.69in</PageHeight>" +
+                            "<MarginTop>0.25in</MarginTop>" +
+                            "<MarginLeft>0.25in</MarginLeft>" +
+                            "<MarginRight>0.25in</MarginRight>" +
+                            "<MarginBottom>0.25in</MarginBottom>" +
+                            "</DeviceInfo>";
+                        Warning[] warnings;
+                        string[] streams;
+                        string mimeType;
+                        string encoding;
+                        string extension;
+                        // =========================================
+                        // RENDER PDF
+                        // =========================================
+
+                        byte[] pdfBytes =
+                            report.Render(
+                                "PDF",
+                                deviceInfo,
+                                out mimeType,
+                                out encoding,
+                                out extension,
+                                out streams,
+                                out warnings);
+
+                        // STORE PDF
+                        pdfBytesList.Add(pdfBytes);
+                    }
+                }
+                string folderPath = HttpContext.Current.Server.MapPath("~/PDFReports/");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                string fileName = "PurchaseOrder_" + DateTime.Now.ToString("ddMMyyyyHHmmss") +".pdf";
+                string fullPath = System.IO.Path.Combine(folderPath,fileName);
+                using (FileStream stream = new FileStream(fullPath,FileMode.Create))
+                {
+                    using ( Document document = new Document())
+                    {
+                        PdfCopy pdfCopy = new PdfCopy(document,stream);
+                        document.Open();
+                        foreach (byte[] pdfBytes in pdfBytesList)
+                        {
+                            PdfReader reader = new PdfReader(pdfBytes);
+                            for (int i = 1; i <= reader.NumberOfPages;i++)
+                            {
+                                PdfImportedPage page = pdfCopy.GetImportedPage(reader,i);
+                                pdfCopy.AddPage(page);
+                            }
+                            reader.Close();
+                        }
+                        document.Close();
+                    }
+                }                
+                string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/PDFReports/"+ fileName;
+                return JsonConvert.SerializeObject( new
+                {
+                        Status = true,
+                        Message =
+                            "PDF Generated Successfully",
+                        FilePath = filePath
+                });
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(
+                    new
+                    {
+                        Status = false,
+                        Message = ex.Message
+                    });
             }
         }
     }

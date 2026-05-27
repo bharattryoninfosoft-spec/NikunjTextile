@@ -362,7 +362,13 @@
 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
                             <button class="btn btn-danger" id="btnGeneratePDF">
-                                <i class="fa fa-file-pdf-o"></i> PDF
+                                <span id="btnText">
+                                    <i class="fa fa-file-pdf-o"></i> PDF
+                                </span>
+
+                                <span id="btnLoader" style="display:none;">
+                                    <i class="fa fa-spinner fa-spin"></i> Generating...
+                                </span>
                             </button>
                         </div>
 
@@ -1156,7 +1162,12 @@
         });
     }
     function ExportPDF(ids) {
+        // Show Loader
+        $("#btnText").hide();
+        $("#btnLoader").show();
 
+        // Disable Button
+        $(this).prop("disabled", true);
         $.ajax({
             type: "POST",
             url: "/WebServiceNikunjTextile.asmx/ExportPDF",
@@ -1169,9 +1180,21 @@
                 console.log("Server Response:", result);
 
                 if (result && result.FilePath) {
+                    // Hide Loader
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    // Enable Button
+                    $("#btnGeneratePDF").prop("disabled", false);
                     window.open(result.FilePath, "_blank");
+                 
                 } else {
                     alert("PDF not generated");
+                    // Hide Loader
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+
+                    // Enable Button
+                    $("#btnGeneratePDF").prop("disabled", false);
                 }
                 //var blob = new Blob([response], { type: 'application/pdf' });
                 //var link = document.createElement('a');

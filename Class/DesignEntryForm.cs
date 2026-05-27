@@ -103,7 +103,15 @@ namespace NikunjTextile.Class
         public int UnitId { get; set; }
         public string UnitCode { get; set; }
     }
-
+    public class DesignColorMatchingDetailsModel
+    {
+        public int DesignColorMatchingDetailsID { get; set; }
+        public int MatchingNo { get; set; }
+        public string MatchingID { get; set; }
+        public string WarpMatchingID { get; set; }
+        public string FeederMatchingID { get; set; }
+        public string ColorMatchingPhoto { get; set; }
+    }
     public class ColorGroupModel
     {
         public int ColorGroupID { get; set; }
@@ -126,6 +134,7 @@ namespace NikunjTextile.Class
         public decimal SaleRate { get; set; }
 
         // ✅ MULTI VALUE SUPPORT
+        public List<DesignColorMatchingDetailsModel> DesignColorMatchingDetails { get; set; }
         public List<ColorGroupModel> ColorGroups { get; set; }
     }
 }

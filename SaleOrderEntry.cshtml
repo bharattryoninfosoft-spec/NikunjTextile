@@ -2302,12 +2302,9 @@
                 for (let i = 0; i < list.length; i++) {
 
                     if (abc.value == listDesignColorMatchingDetails[0][i].DesignColorMatchingDetailsID) {
-
-
                         if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
                             //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
                             var imgStr = `<img src="${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}"  style="width:100%; height:100%;">`;
-
                             $("#upload-ColorMatching-default-preview").html(imgStr);
                             $("#upload-ColorMatching-default-preview").css('color', 'initial');
                             //alert(imgStr);

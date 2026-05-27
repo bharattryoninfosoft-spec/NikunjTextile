@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
@@ -628,31 +629,18 @@ END
 
                     int offset = (page - 1) * pageSize;
 
-                    string query = @"
-            SELECT 
-                SO.SaleOrderID,
-                SO.OrderNo,
-                CONVERT(VARCHAR(10), SO.OrderDate, 120) AS OrderDate,
-                PM.PartyName,
-                BM.BrokerName,
-                TM.TransportName,
-                SO.TotalQty,
-                SO.InvoiceAmount
-            FROM SaleOrder SO
-            LEFT JOIN PartyMaster PM  ON SO.PartyId = PM.PartyId
-            LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
-            LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-            ORDER BY SO.OrderNo DESC
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
-
+                    string query = @"SELECT SO.SaleOrderID,SO.OrderNo,SO.OrderDate,PM.PartyName,BM.BrokerName,TM.TransportName,SO.TotalQty,SO.InvoiceAmount
+                                        FROM SaleOrder SO
+                                        LEFT JOIN PartyMaster PM  ON SO.PartyId = PM.PartyId
+                                        LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
+                                        LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
+                                                ORDER BY SO.OrderNo DESC
+                                                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@Offset", offset);
                     cmd.Parameters.AddWithValue("@PageSize", pageSize);
-
                     SqlDataReader rdr = cmd.ExecuteReader();
-
                     List<SaleOrderVM> list = new List<SaleOrderVM>();
-
                     while (rdr.Read())
                     {
                         list.Add(new SaleOrderVM
@@ -667,23 +655,27 @@ END
                             InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"]),
                         });
                     }
-
                     rdr.Close();
-
-                    int totalRecords = Convert.ToInt32(
-                        new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con).ExecuteScalar()
-                    );
-
+                    int totalRecords = Convert.ToInt32(new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con).ExecuteScalar());
                     var response = new
                     {
                         Code = 200,
                         success = true,
-                        Data = list,
+                        Data = list.Select(x => new
+                        {
+                            x.SaleOrderID,
+                            x.OrderNo,
+                            OrderDate = x.OrderDate.ToString("dd/MM/yyyy"),
+                            x.PartyName,
+                            x.BrokerName,
+                            x.TransportName,
+                            x.TotalQty,
+                            x.InvoiceAmount
+                        }),
                         totalRecords = totalRecords,
                         currentPage = page,
                         pageSize = pageSize
                     };
-
                     JavaScriptSerializer js = new JavaScriptSerializer();
                     js.MaxJsonLength = Int32.MaxValue;
                     Context.Response.Write(js.Serialize(response));
@@ -700,7 +692,6 @@ END
                     success = false,
                     message = ex.Message
                 };
-
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
                 Context.Response.Write(js.Serialize(errorResponse));
@@ -712,168 +703,249 @@ END
         [WebMethod]
         public void GetDesignEntryDataAPI()
         {
-            try { 
-            List<DesignModel> designList = new List<DesignModel>();
-            List<TypeModel> typeList = new List<TypeModel>();
-            List<UnitModel> unitList = new List<UnitModel>();
-            List<ColorGroupModel> colorList = new List<ColorGroupModel>();
-
-            HashSet<int> typeSet = new HashSet<int>();
-            HashSet<int> unitSet = new HashSet<int>();
-            HashSet<int> colorSet = new HashSet<int>();
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-            using (SqlConnection con = new SqlConnection(cs))
+            try
             {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = CommandType.Text;
+                List<DesignModel> designList = new List<DesignModel>();
+                List<TypeModel> typeList = new List<TypeModel>();
+                List<UnitModel> unitList = new List<UnitModel>();
+                List<ColorGroupModel> colorList = new List<ColorGroupModel>();
 
-                cmd.CommandText = @"
-                            SELECT 
-                                DEFM.DesignEntryFormID,
-                                DCMFM.DesignColorMatchingFormID,
-                                DEFM.DesignNo,
-                                DEFM.DesignerCode,
-                                DEFM.TypeID,
-                                TM.Type,
-                                ISNULL(UM.UnitCode, '') AS UnitCode,
-                                ISNULL(UM.UnitId, 0) AS UnitId,
-                                ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-                                ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-                                ISNULL(DEFM.SaleRate, 0) AS SaleRate  
-                            FROM DesignEntryFormMaster DEFM
-                            INNER JOIN DesignColorMatchingFormMaster DCMFM 
-                                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
-                            LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID
-                            LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
-                            LEFT JOIN DesignColorMatchingDetails DCMD 
-                                ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
-                            LEFT JOIN ColorGroupMaster CGM 
-                                ON CGM.ColorGroupID = DCMD.ColorGroupID
-                            ORDER BY DEFM.DesignEntryFormID DESC";
+                HashSet<int> typeSet = new HashSet<int>();
+                HashSet<int> unitSet = new HashSet<int>();
+                HashSet<int> colorSet = new HashSet<int>();
 
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
-                while (rdr.Read())
+                using (SqlConnection con = new SqlConnection(cs))
                 {
-                    int designId = Convert.ToInt32(rdr["DesignEntryFormID"]);
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.Text;
 
-                    // ✅ FIND EXISTING DESIGN
-                    var design = designList.FirstOrDefault(d => d.DesignEntryFormID == designId);
+                    cmd.CommandText = @"SELECT 
+                DCMD.DesignColorMatchingDetailsID,
+                DCMD.MatchingNo,
+                DCMD.MatchingID,
+                DCMD.WarpMatchingID,
+                DCMD.FeederMatchingID,
+                DCMD.ColorMatchingPhoto,
 
-                    if (design == null)
+                DEFM.DesignEntryFormID,
+                DCMFM.DesignColorMatchingFormID,
+                DEFM.DesignNo,
+                DEFM.DesignerCode,
+                DEFM.TypeID,
+                DEFM.PhotoOfDesign,
+
+                TM.Type,
+
+                ISNULL(UM.UnitCode, '') AS UnitCode,
+                ISNULL(UM.UnitId, 0) AS UnitId,
+
+                ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+
+                ISNULL(DEFM.SaleRate, 0) AS SaleRate  
+
+            FROM DesignEntryFormMaster DEFM
+
+            INNER JOIN DesignColorMatchingFormMaster DCMFM 
+                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+
+            LEFT JOIN TypeMaster TM 
+                ON TM.TypeID = DEFM.TypeID
+
+            LEFT JOIN UnitMaster UM 
+                ON UM.UnitId = TM.UnitId
+
+            LEFT JOIN DesignColorMatchingDetails DCMD 
+                ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+
+            LEFT JOIN ColorGroupMaster CGM 
+                ON CGM.ColorGroupID = DCMD.ColorGroupID
+
+            ORDER BY DEFM.DesignEntryFormID DESC";
+
+                    con.Open();
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
                     {
-                        design = new DesignModel
+                        int designId = Convert.ToInt32(rdr["DesignEntryFormID"]);
+
+                        // FIND EXISTING DESIGN
+                        var design = designList
+                            .FirstOrDefault(d => d.DesignEntryFormID == designId);
+
+                        if (design == null)
                         {
-                            DesignEntryFormID = designId,
-                            DesignColorMatchingFormID = rdr["DesignColorMatchingFormID"] != DBNull.Value
-                                ? Convert.ToInt32(rdr["DesignColorMatchingFormID"])
-                                : 0,
-
-                            DesignNo = rdr["DesignNo"].ToString().ToUpper(),
-                            DesignerCode = rdr["DesignerCode"].ToString().ToUpper(),
-
-                            TypeID = rdr["TypeID"] != DBNull.Value
-                                ? Convert.ToInt32(rdr["TypeID"])
-                                : 0,
-
-                            Type = rdr["Type"].ToString().ToUpper(),
-
-                            UnitId = rdr["UnitId"] != DBNull.Value
-                                ? Convert.ToInt32(rdr["UnitId"])
-                                : 0,
-
-                            UnitCode = rdr["UnitCode"].ToString().ToUpper(),
-                            SaleRate = rdr["SaleRate"] != DBNull.Value
-                            ? Convert.ToDecimal(rdr["SaleRate"])
-                            : 0,
-
-                            ColorGroups = new List<ColorGroupModel>() // ✅ IMPORTANT
-                        };
-
-                        designList.Add(design);
-                    }
-
-                    // ✅ ADD MULTIPLE COLOR GROUPS
-                    if (rdr["ColorGroupID"] != DBNull.Value)
-                    {
-                        int colorId = Convert.ToInt32(rdr["ColorGroupID"]);
-
-                        if (!design.ColorGroups.Any(c => c.ColorGroupID == colorId))
-                        {
-                            design.ColorGroups.Add(new ColorGroupModel
+                            design = new DesignModel
                             {
-                                ColorGroupID = colorId,
-                                ColorGroup = rdr["ColorGroup"].ToString()
+                                DesignEntryFormID = designId,
+
+                                DesignColorMatchingFormID =
+                                    rdr["DesignColorMatchingFormID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["DesignColorMatchingFormID"])
+                                    : 0,
+
+                                DesignNo = rdr["DesignNo"].ToString().ToUpper(),
+
+                                DesignerCode = rdr["DesignerCode"]
+                                    .ToString().ToUpper(),
+
+                                TypeID = rdr["TypeID"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["TypeID"])
+                                    : 0,
+
+                                Type = rdr["Type"].ToString().ToUpper(),
+
+                                UnitId = rdr["UnitId"] != DBNull.Value
+                                    ? Convert.ToInt32(rdr["UnitId"])
+                                    : 0,
+
+                                UnitCode = rdr["UnitCode"]
+                                    .ToString().ToUpper(),
+
+                                SaleRate = rdr["SaleRate"] != DBNull.Value
+                                    ? Convert.ToDecimal(rdr["SaleRate"])
+                                    : 0,
+
+                                ColorGroups = new List<ColorGroupModel>(),
+
+                                DesignColorMatchingDetails =
+                                    new List<DesignColorMatchingDetailsModel>()
+                            };
+
+                            designList.Add(design);
+                        }
+
+                        // ADD COLOR GROUPS
+                        if (rdr["ColorGroupID"] != DBNull.Value)
+                        {
+                            int colorId = Convert.ToInt32(rdr["ColorGroupID"]);
+
+                            if (!design.ColorGroups
+                                .Any(c => c.ColorGroupID == colorId))
+                            {
+                                design.ColorGroups.Add(new ColorGroupModel
+                                {
+                                    ColorGroupID = colorId,
+                                    ColorGroup = rdr["ColorGroup"].ToString()
+                                });
+                            }
+
+                            // GLOBAL COLOR LIST
+                            if (!colorSet.Contains(colorId))
+                            {
+                                colorSet.Add(colorId);
+
+                                colorList.Add(new ColorGroupModel
+                                {
+                                    ColorGroupID = colorId,
+                                    ColorGroup = rdr["ColorGroup"].ToString()
+                                });
+                            }
+                        }
+
+                        // DESIGN COLOR MATCHING DETAILS
+                        if (rdr["DesignColorMatchingDetailsID"] != DBNull.Value)
+                        {
+                            int detailsId =
+                                Convert.ToInt32(
+                                    rdr["DesignColorMatchingDetailsID"]);
+
+                            if (!design.DesignColorMatchingDetails
+                                .Any(x => x.DesignColorMatchingDetailsID == detailsId))
+                            {
+                                design.DesignColorMatchingDetails.Add(
+                                    new DesignColorMatchingDetailsModel
+                                    {
+                                        DesignColorMatchingDetailsID = detailsId,
+
+                                        MatchingNo =
+                                            rdr["MatchingNo"] != DBNull.Value
+                                            ? Convert.ToInt32(rdr["MatchingNo"])
+                                            : 0,
+
+                                        MatchingID =
+                                            rdr["MatchingID"].ToString(),
+
+                                        WarpMatchingID =
+                                            rdr["WarpMatchingID"].ToString(),
+
+                                        FeederMatchingID =
+                                            rdr["FeederMatchingID"].ToString(),
+
+                                        ColorMatchingPhoto =
+                                            rdr["ColorMatchingPhoto"].ToString()
+                                    });
+                            }
+                        }
+
+                        // TYPE LIST
+                        int typeId = rdr["TypeID"] != DBNull.Value
+                            ? Convert.ToInt32(rdr["TypeID"])
+                            : 0;
+
+                        if (!typeSet.Contains(typeId))
+                        {
+                            typeSet.Add(typeId);
+
+                            typeList.Add(new TypeModel
+                            {
+                                TypeID = typeId,
+                                Type = rdr["Type"].ToString().ToUpper()
                             });
                         }
 
-                        // ✅ GLOBAL COLOR LIST (for dropdown etc.)
-                        if (!colorSet.Contains(colorId))
+                        // UNIT LIST
+                        int unitId = rdr["UnitId"] != DBNull.Value
+                            ? Convert.ToInt32(rdr["UnitId"])
+                            : 0;
+
+                        if (!unitSet.Contains(unitId))
                         {
-                            colorSet.Add(colorId);
-                            colorList.Add(new ColorGroupModel
+                            unitSet.Add(unitId);
+
+                            unitList.Add(new UnitModel
                             {
-                                ColorGroupID = colorId,
-                                ColorGroup = rdr["ColorGroup"].ToString()
+                                UnitId = unitId,
+                                UnitCode = rdr["UnitCode"]
+                                    .ToString().ToUpper()
                             });
                         }
                     }
 
-                    // ✅ TYPE LIST
-                    int typeId = rdr["TypeID"] != DBNull.Value ? Convert.ToInt32(rdr["TypeID"]) : 0;
-                    if (!typeSet.Contains(typeId))
-                    {
-                        typeSet.Add(typeId);
-                        typeList.Add(new TypeModel
-                        {
-                            TypeID = typeId,
-                            Type = rdr["Type"].ToString().ToUpper()
-                        });
-                    }
-
-                    // ✅ UNIT LIST
-                    int unitId = rdr["UnitId"] != DBNull.Value ? Convert.ToInt32(rdr["UnitId"]) : 0;
-                    if (!unitSet.Contains(unitId))
-                    {
-                        unitSet.Add(unitId);
-                        unitList.Add(new UnitModel
-                        {
-                            UnitId = unitId,
-                            UnitCode = rdr["UnitCode"].ToString().ToUpper()
-                        });
-                    }
+                    rdr.Close();
+                    con.Close();
                 }
 
-                rdr.Close();
-                con.Close();
-            }
+                // FINAL RESPONSE
+                DesignEntryDataResponse DataResponse =
+                    new DesignEntryDataResponse
+                    {
+                        Designs = designList,
+                        Types = typeList,
+                        Units = unitList,
+                        ColorGroups = colorList
+                    };
 
-                // ✅ FINAL RESPONSE
-                DesignEntryDataResponse DataResponse = new DesignEntryDataResponse
-                {        
-                Designs = designList,
-                Types = typeList,
-                Units = unitList,
-                ColorGroups = colorList
-            };
+                var response = new
+                {
+                    Code = 200,
+                    success = true,
+                    Data = DataResponse
+                };
 
-            var response = new
-            {
-                Code = 200,
-                success = true,
-                Data = DataResponse,           
-            };
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = Int32.MaxValue;
 
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue; 
-            Context.Response.Write(js.Serialize(response));
-            Context.Response.Flush();
-            Context.Response.SuppressContent = true;
-            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
@@ -886,9 +958,11 @@ END
 
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
+
                 Context.Response.Write(js.Serialize(errorResponse));
                 Context.Response.Flush();
                 Context.Response.SuppressContent = true;
+
                 HttpContext.Current.ApplicationInstance.CompleteRequest();
             }
         }
@@ -945,13 +1019,14 @@ END
                     }
 
                     // ✅ Transport List
-                    using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 TransportCode,TransportName,Address,CityName FROM TransportMaster ORDER BY TransportCode DESC", con))
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT TOP 10 TransportId,TransportCode,TransportName,Address,CityName FROM TransportMaster ORDER BY TransportCode DESC", con))
                     {
                         SqlDataReader dr = cmd.ExecuteReader();
                         while (dr.Read())
                         {
                             transportList.Add(new
                             {
+                                TransportId = dr["TransportId"],
                                 TransportCode = dr["TransportCode"],
                                 TransportName = dr["TransportName"].ToString(),
                                 Address = dr["Address"].ToString(),
@@ -983,7 +1058,7 @@ END
                         PartyList = partyList,
                         BrokerList = brokerList,
                         TransportList = transportList,
-                        ServerDate = serverDate,
+                        ServerDate = serverDate.ToString("dd/MM/yyyy"),
                         NextOrderNo = nextOrderNo
                     }
                 };

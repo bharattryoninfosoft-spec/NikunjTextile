@@ -63,6 +63,7 @@ namespace NikunjTextile.Class
         public DateTime DateAndTime { get; set; }
         public string OrderNo { get; set; }
         public DateTime OrderDate { get; set; }
+        public string OrderDates { get; set; }
         public int PartyID { get; set; }
         public string BrokerID { get; set; }
         public decimal MarkupPercent { get; set; }
