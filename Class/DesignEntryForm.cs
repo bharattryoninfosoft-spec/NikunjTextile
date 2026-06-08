@@ -29,9 +29,9 @@ namespace NikunjTextile.Class
         public string DesignDates { get; set; }
         public int DesignerID { get; set; }
         public int SketcherID { get; set; }
-        public string Sketcher { get; set; }        
+        public string Sketcher { get; set; }
         public string DesignerCode { get; set; }
-        public string DesignNo { get; set; }       
+        public string DesignNo { get; set; }
 
         public string spanExstingDesignerCode { get; set; }
         public string ExstingDesignNo { get; set; }
@@ -111,6 +111,7 @@ namespace NikunjTextile.Class
         public string WarpMatchingID { get; set; }
         public string FeederMatchingID { get; set; }
         public string ColorMatchingPhoto { get; set; }
+        public int ColorGroupID { get; set; }
     }
     public class ColorGroupModel
     {
@@ -132,9 +133,18 @@ namespace NikunjTextile.Class
         public string UnitCode { get; set; }
 
         public decimal SaleRate { get; set; }
+        public string BarcodeNo { get; set; }
 
         // ✅ MULTI VALUE SUPPORT
         public List<DesignColorMatchingDetailsModel> DesignColorMatchingDetails { get; set; }
         public List<ColorGroupModel> ColorGroups { get; set; }
+    }
+    public class DesignMasterModel
+    {
+        public int DesignEntryFormID { get; set; }
+        public int DesignColorMatchingDetailsID { get; set; }
+        public string DesignNo { get; set; }
+        public string DesignerCode { get; set; }
+        public string BarcodeNo { get; set; }
     }
 }

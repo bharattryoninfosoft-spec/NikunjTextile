@@ -7,6 +7,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Tls;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -21,6 +22,7 @@ using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI;
+using System.Windows.Forms;
 
 namespace NikunjTextile
 {
@@ -42,33 +44,28 @@ namespace NikunjTextile
             {
                 MD5 md5Hasher = MD5.Create();
                 byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(Password));
-
                 StringBuilder sBuilder = new StringBuilder();
                 for (int i = 0; i < data.Length; i++)
                 {
                     sBuilder.Append(data[i].ToString("x2"));
                 }
-
                 Password = sBuilder.ToString().ToUpper();
-
-                SqlCommand cmd = new SqlCommand(
-                @"SELECT * FROM UserAccountMaster 
-          WHERE UserAccountMobileNo=@username 
-          AND UserAccountPassword=@password", con);
-
+                SqlCommand cmd = new SqlCommand(@"SELECT U.*, C.CompanyId,C.CompanyName,F.FinancialYearID, F.FinancialYear   FROM UserAccountMaster U
+                                                    LEFT JOIN CompanyMaster C ON C.CompanyId = U.CompanyId
+                                                    CROSS JOIN
+                                                    (
+                                                        SELECT TOP 1 FinancialYearID, FinancialYear FROM FinancialYearMaster  WHERE IsDefault = 1
+                                                    ) F
+                                                    WHERE U.UserAccountMobileNo = @username  AND U.UserAccountPassword = @password", con);
                 cmd.Parameters.AddWithValue("@username", Username);
                 cmd.Parameters.AddWithValue("@password", Password);
-
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
-
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 object result;
-
                 if (rdr.Read())
                 {
-                    string allowLogin = rdr["AllowLogin"].ToString();
-
+                    string allowLogin = Convert.ToString(rdr["AllowLogin"]);
                     if (allowLogin == "1")
                     {
                         result = new
@@ -77,13 +74,17 @@ namespace NikunjTextile
                             message = "Login Successfully",
                             data = new
                             {
-                                UserAccountId = rdr["UserAccountId"].ToString(),
-                                UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString(),
-                                UserAccountName = rdr["UserAccountName"].ToString(),
-                                UserRole = rdr["UserRole"].ToString(),
-                                UserAccountEmail = rdr["UserAccountEmail"].ToString(),
-                                UserAccountProfile = rdr["UserAccountProfile"].ToString(),
-                                AllowLogin = allowLogin
+                                UserAccountId = Convert.ToString(rdr["UserAccountId"]),
+                                UserAccountMobileNo = Convert.ToString(rdr["UserAccountMobileNo"]),
+                                UserAccountName = Convert.ToString(rdr["UserAccountName"]),
+                                UserRole = Convert.ToString(rdr["UserRole"]),
+                                UserAccountEmail = Convert.ToString(rdr["UserAccountEmail"]),
+                                UserAccountProfile = Convert.ToString(rdr["UserAccountProfile"]),
+                                AllowLogin = allowLogin,
+                                CompanyId = Convert.ToInt32(rdr["CompanyId"]),
+                                CompanyName = Convert.ToString(rdr["CompanyName"]),
+                                FinancialYearID = Convert.ToInt32(rdr["FinancialYearID"]),
+                                FinancialYear = Convert.ToString(rdr["FinancialYear"])
                             }
                         };
                     }
@@ -106,7 +107,6 @@ namespace NikunjTextile
                         data = (object)null
                     };
                 }
-
                 Context.Response.Write(js.Serialize(result));
                 Context.Response.Flush();
                 Context.Response.SuppressContent = true;
@@ -391,59 +391,59 @@ namespace NikunjTextile
             {
                 SqlCommand cmd = new SqlCommand(@"
                            IF EXISTS (
-    SELECT 1 
-    FROM YARNOUTWARDScanMasterDetails YOSD
-    LEFT JOIN YarnInwardDetail YID ON YOSD.YarnInwardDetailID = YID.YarnInwardDetailID
-    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
-    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
-    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-    WHERE YOSD.BarcodeNo = @BarcodeNo 
-      AND YOSD.YarnMaterial = @YarnMaterial 
-      AND YOSD.YarnColour = @YarnColour 
-      AND YOSD.GodownLocationID = @GodownLocationID
-      AND YOSD.YarnCompany = @YarnCompany
-)
-BEGIN
-    SELECT 
-        'EXIST' AS Status,
-        NULL AS YarnInwardDetailID,
-        NULL AS BoxNo,
-        NULL AS NetWeight,
-        NULL AS BarcodeNo,
-        NULL AS GodownLocationID,
-        NULL AS YarnInwardID
-END
-ELSE
-BEGIN
-    SELECT 
-        'OK' AS Status,
-        YID.YarnInwardDetailID,
-        YID.BoxNo,
-        YID.NetWeight,
-        YID.BarcodeNo,
-        GLM.GodownLocationID,
-        GLM.LocationTitle,
-        YID.YarnInwardID,
-        YMM.YarnMaterialID,
-        YMM.YarnMaterial,
-        YCM.YarnColorID,
-        YCM.YarnColor,
-        YCM.YarnColorCode,
-        PM.PartyId,
-        PM.PartyName
-    FROM YarnInwardDetail YID
-    LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
-    LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
-    LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
-    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
-    LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.YarnInterchangeID
-    WHERE YID.BarcodeNo = @BarcodeNo
-      AND YMM.YarnMaterialID = @YarnMaterial
-      AND YCM.YarnColorID = @YarnColour
-      AND YID.GodownLocationID = @GodownLocationID
-      AND YPM.BillToPartyID = @YarnCompany
-END
+                                SELECT 1 
+                                FROM YARNOUTWARDScanMasterDetails YOSD
+                                LEFT JOIN YarnInwardDetail YID ON YOSD.YarnInwardDetailID = YID.YarnInwardDetailID
+                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+                                WHERE YOSD.BarcodeNo = @BarcodeNo 
+                                  AND YOSD.YarnMaterial = @YarnMaterial 
+                                  AND YOSD.YarnColour = @YarnColour 
+                                  AND YOSD.GodownLocationID = @GodownLocationID
+                                  AND YOSD.YarnCompany = @YarnCompany
+                            )
+                            BEGIN
+                                SELECT 
+                                    'EXIST' AS Status,
+                                    NULL AS YarnInwardDetailID,
+                                    NULL AS BoxNo,
+                                    NULL AS NetWeight,
+                                    NULL AS BarcodeNo,
+                                    NULL AS GodownLocationID,
+                                    NULL AS YarnInwardID
+                            END
+                            ELSE
+                            BEGIN
+                                SELECT 
+                                    'OK' AS Status,
+                                    YID.YarnInwardDetailID,
+                                    YID.BoxNo,
+                                    YID.NetWeight,
+                                    YID.BarcodeNo,
+                                    GLM.GodownLocationID,
+                                    GLM.LocationTitle,
+                                    YID.YarnInwardID,
+                                    YMM.YarnMaterialID,
+                                    YMM.YarnMaterial,
+                                    YCM.YarnColorID,
+                                    YCM.YarnColor,
+                                    YCM.YarnColorCode,
+                                    PM.PartyId,
+                                    PM.PartyName
+                                FROM YarnInwardDetail YID
+                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
+                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
+                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
+                                LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
+                                LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
+                                LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.YarnInterchangeID
+                                WHERE YID.BarcodeNo = @BarcodeNo
+                                  AND YMM.YarnMaterialID = @YarnMaterial
+                                  AND YCM.YarnColorID = @YarnColour
+                                  AND YID.GodownLocationID = @GodownLocationID
+                                  AND YPM.BillToPartyID = @YarnCompany
+                            END
                         ", con);
 
                 cmd.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = BoxNo;
@@ -472,7 +472,6 @@ END
                             yarnOutward.BarcodeNo = rdr["BarcodeNo"]?.ToString();
                             yarnOutward.GodownLocationID = rdr["GodownLocationID"] != DBNull.Value ? Convert.ToInt32(rdr["GodownLocationID"]) : 0;
                             yarnOutward.YarnInwardID = rdr["YarnInwardID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnInwardID"]) : 0;
-
                             response.Code = 200;
                             response.Message = "Success";
                             response.Data = yarnOutward;
@@ -629,59 +628,75 @@ END
 
                     int offset = (page - 1) * pageSize;
 
-                    string query = @"SELECT SO.SaleOrderID,SO.OrderNo,SO.OrderDate,PM.PartyName,BM.BrokerName,TM.TransportName,SO.TotalQty,SO.InvoiceAmount
-                                        FROM SaleOrder SO
-                                        LEFT JOIN PartyMaster PM  ON SO.PartyId = PM.PartyId
-                                        LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
-                                        LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-                                                ORDER BY SO.OrderNo DESC
-                                                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@Offset", offset);
-                    cmd.Parameters.AddWithValue("@PageSize", pageSize);
-                    SqlDataReader rdr = cmd.ExecuteReader();
-                    List<SaleOrderVM> list = new List<SaleOrderVM>();
-                    while (rdr.Read())
+                    string query = @"
+                SELECT 
+                    SO.SaleOrderID,
+                    SO.OrderNo,
+                    SO.OrderDate,
+                    PM.PartyName,
+                    BM.BrokerName,
+                    TM.TransportName,
+                    SO.TotalQty,
+                    SO.InvoiceAmount
+                FROM SaleOrder SO
+                LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
+                LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
+                LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
+                ORDER BY CAST(SO.OrderNo AS INT) DESC, SO.OrderDate DESC
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        list.Add(new SaleOrderVM
+                        cmd.Parameters.AddWithValue("@Offset", offset);
+                        cmd.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        List<SaleOrderVM> list = new List<SaleOrderVM>();
+
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
-                            SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
-                            OrderNo = rdr["OrderNo"].ToString(),
-                            OrderDate = Convert.ToDateTime(rdr["OrderDate"]),
-                            PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
-                            BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
-                            TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
-                            TotalQty = Convert.ToDecimal(rdr["TotalQty"]),
-                            InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"]),
-                        });
+                            while (rdr.Read())
+                            {
+                                list.Add(new SaleOrderVM
+                                {
+                                    SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
+                                    OrderNo = rdr["OrderNo"].ToString(),
+                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
+                                    PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
+                                    BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
+                                    TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
+                                    TotalQty = rdr["TotalQty"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["TotalQty"]),
+                                    InvoiceAmount = rdr["InvoiceAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["InvoiceAmount"])
+                                });
+                            }
+                        }
+
+                        int totalRecords;
+                        using (SqlCommand countCmd = new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con))
+                        {
+                            totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
+                        }
+
+                        var response = new
+                        {
+                            Code = 200,
+                            success = true,
+                            Data = list,
+                            totalRecords = totalRecords,
+                            currentPage = page,
+                            pageSize = pageSize
+                        };
+
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        js.MaxJsonLength = int.MaxValue;
+
+                        Context.Response.Clear();
+                        Context.Response.ContentType = "application/json";
+                        Context.Response.Write(js.Serialize(response));
+                        Context.Response.Flush();
+                        Context.Response.SuppressContent = true;
+                        HttpContext.Current.ApplicationInstance.CompleteRequest();
                     }
-                    rdr.Close();
-                    int totalRecords = Convert.ToInt32(new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con).ExecuteScalar());
-                    var response = new
-                    {
-                        Code = 200,
-                        success = true,
-                        Data = list.Select(x => new
-                        {
-                            x.SaleOrderID,
-                            x.OrderNo,
-                            OrderDate = x.OrderDate.ToString("dd/MM/yyyy"),
-                            x.PartyName,
-                            x.BrokerName,
-                            x.TransportName,
-                            x.TotalQty,
-                            x.InvoiceAmount
-                        }),
-                        totalRecords = totalRecords,
-                        currentPage = page,
-                        pageSize = pageSize
-                    };
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    js.MaxJsonLength = Int32.MaxValue;
-                    Context.Response.Write(js.Serialize(response));
-                    Context.Response.Flush();
-                    Context.Response.SuppressContent = true;
-                    HttpContext.Current.ApplicationInstance.CompleteRequest();
                 }
             }
             catch (Exception ex)
@@ -692,8 +707,12 @@ END
                     success = false,
                     message = ex.Message
                 };
+
                 JavaScriptSerializer js = new JavaScriptSerializer();
-                js.MaxJsonLength = Int32.MaxValue;
+                js.MaxJsonLength = int.MaxValue;
+
+                Context.Response.Clear();
+                Context.Response.ContentType = "application/json";
                 Context.Response.Write(js.Serialize(errorResponse));
                 Context.Response.Flush();
                 Context.Response.SuppressContent = true;
@@ -701,7 +720,7 @@ END
             }
         }
         [WebMethod]
-        public void GetDesignEntryDataAPI()
+        public void GetDesignEntryDataAPI(int DesignColorMatchingFormID)
         {
             try
             {
@@ -709,62 +728,26 @@ END
                 List<TypeModel> typeList = new List<TypeModel>();
                 List<UnitModel> unitList = new List<UnitModel>();
                 List<ColorGroupModel> colorList = new List<ColorGroupModel>();
-
                 HashSet<int> typeSet = new HashSet<int>();
                 HashSet<int> unitSet = new HashSet<int>();
                 HashSet<int> colorSet = new HashSet<int>();
-
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
                     cmd.CommandType = CommandType.Text;
-
-                    cmd.CommandText = @"SELECT 
-                DCMD.DesignColorMatchingDetailsID,
-                DCMD.MatchingNo,
-                DCMD.MatchingID,
-                DCMD.WarpMatchingID,
-                DCMD.FeederMatchingID,
-                DCMD.ColorMatchingPhoto,
-
-                DEFM.DesignEntryFormID,
-                DCMFM.DesignColorMatchingFormID,
-                DEFM.DesignNo,
-                DEFM.DesignerCode,
-                DEFM.TypeID,
-                DEFM.PhotoOfDesign,
-
-                TM.Type,
-
-                ISNULL(UM.UnitCode, '') AS UnitCode,
-                ISNULL(UM.UnitId, 0) AS UnitId,
-
-                ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-                ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-
-                ISNULL(DEFM.SaleRate, 0) AS SaleRate  
-
-            FROM DesignEntryFormMaster DEFM
-
-            INNER JOIN DesignColorMatchingFormMaster DCMFM 
-                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
-
-            LEFT JOIN TypeMaster TM 
-                ON TM.TypeID = DEFM.TypeID
-
-            LEFT JOIN UnitMaster UM 
-                ON UM.UnitId = TM.UnitId
-
-            LEFT JOIN DesignColorMatchingDetails DCMD 
-                ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
-
-            LEFT JOIN ColorGroupMaster CGM 
-                ON CGM.ColorGroupID = DCMD.ColorGroupID
-
-            ORDER BY DEFM.DesignEntryFormID DESC";
+                    cmd.CommandText = @"SELECT DCMD.DesignColorMatchingDetailsID,DCMD.MatchingNo,DCMD.MatchingID,DCMD.WarpMatchingID,DCMD.FeederMatchingID,
+                DCMD.ColorMatchingPhoto,DEFM.DesignEntryFormID,DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID, DEFM.PhotoOfDesign,
+                TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                ISNULL(CGM.ColorGroup, '') AS ColorGroup,ISNULL(DEFM.SaleRate, 0) AS SaleRate  
+                    FROM DesignEntryFormMaster DEFM
+            INNER JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+            LEFT JOIN TypeMaster TM ON TM.TypeID = DEFM.TypeID
+            LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
+            LEFT JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+            LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
+                where DCMFM.DesignColorMatchingFormID = "+ DesignColorMatchingFormID + " ORDER BY DEFM.DesignEntryFormID DESC";
 
                     con.Open();
 
@@ -862,23 +845,12 @@ END
                                     new DesignColorMatchingDetailsModel
                                     {
                                         DesignColorMatchingDetailsID = detailsId,
-
-                                        MatchingNo =
-                                            rdr["MatchingNo"] != DBNull.Value
-                                            ? Convert.ToInt32(rdr["MatchingNo"])
-                                            : 0,
-
-                                        MatchingID =
-                                            rdr["MatchingID"].ToString(),
-
-                                        WarpMatchingID =
-                                            rdr["WarpMatchingID"].ToString(),
-
-                                        FeederMatchingID =
-                                            rdr["FeederMatchingID"].ToString(),
-
-                                        ColorMatchingPhoto =
-                                            rdr["ColorMatchingPhoto"].ToString()
+                                        MatchingNo =rdr["MatchingNo"] != DBNull.Value? Convert.ToInt32(rdr["MatchingNo"]): 0,
+                                        MatchingID =rdr["MatchingID"].ToString(),
+                                        WarpMatchingID =rdr["WarpMatchingID"].ToString(),
+                                        FeederMatchingID =rdr["FeederMatchingID"].ToString(),
+                                        ColorMatchingPhoto =rdr["ColorMatchingPhoto"].ToString(),
+                                        ColorGroupID =rdr["ColorGroupID"] != DBNull.Value ? Convert.ToInt32(rdr["ColorGroupID"]) : 0,
                                     });
                             }
                         }
@@ -967,6 +939,102 @@ END
             }
         }
         [WebMethod]
+        public void GetDesignDataMasterAPI()
+        {
+            try
+            {
+                List<DesignMasterModel> designList =
+                    new List<DesignMasterModel>();
+
+                string cs = ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    SqlCommand cmd = new SqlCommand();
+
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.CommandText = @"SELECT DEFM.DesignEntryFormID,DCMFM.DesignColorMatchingFormID,
+                            DEFM.DesignNo,
+                            DEFM.DesignerCode,
+                            DEFM.BarcodeNo
+                        FROM DesignEntryFormMaster DEFM
+                        INNER JOIN DesignColorMatchingFormMaster DCMFM 
+                            ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+                        ORDER BY DEFM.DesignEntryFormID DESC";
+
+                    con.Open();
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        int designId = Convert.ToInt32(rdr["DesignEntryFormID"]);
+
+                        var design = designList.FirstOrDefault(d => d.DesignEntryFormID == designId);
+
+                        if (design == null)
+                        {
+                            design = new DesignMasterModel
+                            {
+                                DesignEntryFormID = designId,
+                                DesignColorMatchingDetailsID = rdr["DesignColorMatchingFormID"] != DBNull.Value ? Convert.ToInt32(rdr["DesignColorMatchingFormID"]): 0,
+                                DesignNo = rdr["DesignNo"].ToString().ToUpper(),
+                                DesignerCode = rdr["DesignerCode"].ToString().ToUpper(),
+                                BarcodeNo = rdr["BarcodeNo"].ToString()
+                            };
+                            designList.Add(design);
+                        }
+                    }
+                    rdr.Close();
+                    con.Close();
+                }
+                var response = new
+                {
+                    Code = 200,
+                    success = true,
+                    Data = designList
+                };
+
+                JavaScriptSerializer js = new JavaScriptSerializer();
+
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(response));
+
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+
+                HttpContext.Current.ApplicationInstance
+                    .CompleteRequest();
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    Code = 400,
+                    success = false,
+                    message = ex.Message
+                };
+
+                JavaScriptSerializer js =
+                    new JavaScriptSerializer();
+
+                js.MaxJsonLength = Int32.MaxValue;
+
+                Context.Response.Write(js.Serialize(errorResponse));
+
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+
+                HttpContext.Current.ApplicationInstance
+                    .CompleteRequest();
+            }
+        }
+        [WebMethod]
         public void GetDefaultDataLoadAPI()
         {
             try
@@ -976,6 +1044,8 @@ END
                 List<object> partyList = new List<object>();
                 List<object> brokerList = new List<object>();
                 List<object> transportList = new List<object>();
+                List<object> additionalRemark = new List<object>();
+                List<object> gstdata = new List<object>();
 
                 int nextOrderNo = 0;
                 DateTime serverDate = DateTime.Now;
@@ -1047,6 +1117,36 @@ END
                     {
                         nextOrderNo = Convert.ToInt32(cmd.ExecuteScalar());
                     }
+                                
+
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT AdditionalRemark  FROM SaleOrder  WHERE ISNULL(AdditionalRemark,'') <> ''  ORDER BY AdditionalRemark", con))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            additionalRemark.Add(new
+                            {
+                                AdditionalRemark = dr["AdditionalRemark"].ToString()
+                            });
+                        }
+                        dr.Close();
+                    }
+
+                    using (SqlCommand cmd = new SqlCommand(@"select * from GSTSLABMaster  order by GSTSLABName", con))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            gstdata.Add(new
+                            {
+                                GSTSLABId = dr["GSTSLABId"],
+                                GSTSLABName = dr["GSTSLABName"].ToString(),
+                                GST = dr["GST"],
+                                IGST = dr["IGST"],
+
+                            });
+                        }
+                    }                       
                 }
 
                 var response = new
@@ -1058,7 +1158,9 @@ END
                         PartyList = partyList,
                         BrokerList = brokerList,
                         TransportList = transportList,
-                        ServerDate = serverDate.ToString("dd/MM/yyyy"),
+                        AdditionalRemark= additionalRemark,
+                        GstData= gstdata,
+                        ServerDate = serverDate.ToString("dd-MM-yyyy"),
                         NextOrderNo = nextOrderNo
                     }
                 };
@@ -1230,13 +1332,25 @@ END
                 HttpContext.Current.ApplicationInstance.CompleteRequest();
             }
         }
-        [WebMethod]        
+        [WebMethod]
+        private string GetNextOrderNo(SqlConnection con, SqlTransaction tran)
+        {
+            using (SqlCommand cmd = new SqlCommand(@"
+        SELECT ISNULL(MAX(TRY_CAST(OrderNo AS INT)),0) + 1
+        FROM SaleOrder WITH (UPDLOCK, HOLDLOCK)", con, tran))
+            {
+                return Convert.ToString(cmd.ExecuteScalar());
+            }
+        }
+
+        [WebMethod]
         public ApiResponse<int> SaveSaleOrderAPI(SaleOrderModel model)
         {
             if (model == null)
             {
                 return new ApiResponse<int>
                 {
+                    Code = 400,
                     success = false,
                     Message = "Invalid data"
                 };
@@ -1253,82 +1367,144 @@ END
                     {
                         try
                         {
-                            int saleOrderId;
+                            int saleOrderId = 0;
+
                             using (SqlCommand cmd = new SqlCommand())
                             {
                                 cmd.Connection = con;
                                 cmd.Transaction = trans;
 
+                                // INSERT
                                 if (model.SaleOrderID == 0)
                                 {
-                                    cmd.CommandText = @"
-                                INSERT INTO SaleOrder
-                                (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,
-                                 TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                                 GSTPercent, GSTAmount, InvoiceAmount, Remark,
-                                 UserAccountId, FinancialYearID, CompanyId,
-                                 DiscountType, AdditionalRemark, AdditionalValue)
-                                VALUES
-                                (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent,
-                                 @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                                 @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,
-                                 @UserAccountId, @FinancialYearID, @CompanyId,
-                                 @DiscountType, @AdditionalRemark, @AdditionalValue);
+                                    model.OrderNo = GetNextOrderNo(con, trans);
 
-                                SELECT SCOPE_IDENTITY();";
+                                    cmd.CommandText = @"
+                            INSERT INTO SaleOrder
+                            (
+                                DateAndTime,
+                                OrderNo,
+                                OrderDate,
+                                PartyID,
+                                BrokerID,
+                                MarkupPercent,
+                                TransportID,
+                                TotalQty,
+                                TotalAmount,
+                                DiscountPercent,
+                                DiscountAmount,
+                                GSTPercent,
+                                GSTAmount,
+                                InvoiceAmount,
+                                Remark,
+                                UserAccountId,
+                                FinancialYearID,
+                                CompanyId,
+                                DiscountType,
+                                AdditionalRemark,
+                                AdditionalValue,
+                                RoundOff
+                            )
+                            VALUES
+                            (
+                                GETDATE(),
+                                @OrderNo,
+                                @OrderDate,
+                                @PartyID,
+                                @BrokerID,
+                                @MarkupPercent,
+                                @TransportID,
+                                @TotalQty,
+                                @TotalAmount,
+                                @DiscountPercent,
+                                @DiscountAmount,
+                                @GSTPercent,
+                                @GSTAmount,
+                                @InvoiceAmount,
+                                @Remark,
+                                @UserAccountId,
+                                @FinancialYearID,
+                                @CompanyId,
+                                @DiscountType,
+                                @AdditionalRemark,
+                                @AdditionalValue,
+                                @RoundOff
+                            );
+
+                            SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                                     AddParams(cmd, model);
+
                                     saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                                 }
                                 else
                                 {
                                     saleOrderId = model.SaleOrderID;
 
+                                    // Existing OrderNo Fetch
+                                    using (SqlCommand orderCmd = new SqlCommand(
+                                        "SELECT OrderNo FROM SaleOrder WHERE SaleOrderID=@Id",
+                                        con, trans))
+                                    {
+                                        orderCmd.Parameters.AddWithValue("@Id", saleOrderId);
+                                        model.OrderNo = Convert.ToString(orderCmd.ExecuteScalar());
+                                    }
+
                                     cmd.CommandText = @"
-                                UPDATE SaleOrder SET
-                                    OrderNo=@OrderNo,
-                                    OrderDate=@OrderDate,
-                                    PartyID=@PartyID,
-                                    BrokerID=@BrokerID,
-                                    MarkupPercent=@MarkupPercent,
-                                    TransportID=@TransportID,
-                                    TotalQty=@TotalQty,
-                                    TotalAmount=@TotalAmount,
-                                    DiscountPercent=@DiscountPercent,
-                                    DiscountAmount=@DiscountAmount,
-                                    GSTPercent=@GSTPercent,
-                                    GSTAmount=@GSTAmount,
-                                    InvoiceAmount=@InvoiceAmount,
-                                    Remark=@Remark,
-                                    DiscountType=@DiscountType,
-                                    AdditionalRemark=@AdditionalRemark,
-                                    AdditionalValue=@AdditionalValue
-                                WHERE SaleOrderID=@SaleOrderID";
+                            UPDATE SaleOrder
+                            SET
+                                OrderDate=@OrderDate,
+                                PartyID=@PartyID,
+                                BrokerID=@BrokerID,
+                                MarkupPercent=@MarkupPercent,
+                                TransportID=@TransportID,
+                                TotalQty=@TotalQty,
+                                TotalAmount=@TotalAmount,
+                                DiscountPercent=@DiscountPercent,
+                                DiscountAmount=@DiscountAmount,
+                                GSTPercent=@GSTPercent,
+                                GSTAmount=@GSTAmount,
+                                InvoiceAmount=@InvoiceAmount,
+                                Remark=@Remark,
+                                DiscountType=@DiscountType,
+                                AdditionalRemark=@AdditionalRemark,
+                                AdditionalValue=@AdditionalValue,
+                                RoundOff=@RoundOff
+                            WHERE SaleOrderID=@SaleOrderID";
 
                                     AddParams(cmd, model);
-                                    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+
+                                    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int)
+                                        .Value = saleOrderId;
 
                                     cmd.ExecuteNonQuery();
 
-                                    // 🔥 DELETE OLD
-                                    new SqlCommand(@"
-                                DELETE FROM SaleOrderSubDetails 
-                                WHERE DetailID IN (
-                                    SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
-                                )", con, trans)
+                                    // Delete Old Details
+                                    using (SqlCommand delSub = new SqlCommand(@"
+                                DELETE FROM SaleOrderSubDetails
+                                WHERE DetailID IN
+                                (
+                                    SELECT DetailID
+                                    FROM SaleOrderDetails
+                                    WHERE SaleOrderID=@SaleOrderID
+                                )", con, trans))
                                     {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
+                                        delSub.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
+                                        delSub.ExecuteNonQuery();
+                                    }
 
-                                    new SqlCommand(@"
-                                DELETE FROM SaleOrderDetails 
-                                WHERE SaleOrderID=@id", con, trans)
+                                    using (SqlCommand delDet = new SqlCommand(@"
+                                DELETE FROM SaleOrderDetails
+                                WHERE SaleOrderID=@SaleOrderID", con, trans))
                                     {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
+                                        delDet.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
+                                        delDet.ExecuteNonQuery();
+                                    }
                                 }
                             }
-                            if (model.Details?.Any() == true)
+
+                            // DETAILS
+                            if (model.Details != null && model.Details.Count > 0)
                             {
                                 foreach (var d in model.Details)
                                 {
@@ -1336,42 +1512,82 @@ END
 
                                     using (SqlCommand cmdDetail = new SqlCommand(@"
                                 INSERT INTO SaleOrderDetails
-                                (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
+                                (
+                                    SaleOrderID,
+                                    DesignID,
+                                    DesignNo,
+                                    ItemType,
+                                    NoOfColours,
+                                    Qty,
+                                    Unit,
+                                    Rate,
+                                    Amount,
+                                    DesignColorMatchingID,
+                                    BrokerRate
+                                )
                                 VALUES
-                                (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
+                                (
+                                    @SaleOrderID,
+                                    @DesignID,
+                                    @DesignNo,
+                                    @ItemType,
+                                    @NoOfColours,
+                                    @Qty,
+                                    @Unit,
+                                    @Rate,
+                                    @Amount,
+                                    @DesignColorMatchingID,
+                                    @BrokerRate
+                                );
 
-                                SELECT SCOPE_IDENTITY();", con, trans))
+                                SELECT CAST(SCOPE_IDENTITY() AS INT);",
+                                        con, trans))
                                     {
-                                        cmdDetail.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
-                                        cmdDetail.Parameters.Add("@DesignID", SqlDbType.VarChar).Value = d.DesignID ?? "";
-                                        cmdDetail.Parameters.Add("@DesignNo", SqlDbType.VarChar).Value = d.DesignNo ?? "";
-                                        cmdDetail.Parameters.Add("@ItemType", SqlDbType.Int).Value = (d.ItemType)?? "";
-                                        cmdDetail.Parameters.Add("@NoOfColours", SqlDbType.Int).Value = (d.NoOfColours);
-                                        cmdDetail.Parameters.Add("@Qty", SqlDbType.Decimal).Value = (d.Qty);
-                                        cmdDetail.Parameters.Add("@Unit", SqlDbType.VarChar).Value = d.Unit ?? "";
-                                        cmdDetail.Parameters.Add("@Rate", SqlDbType.Decimal).Value = (d.Rate);
-                                        cmdDetail.Parameters.Add("@Amount", SqlDbType.Decimal).Value = (d.Amount);
+                                        cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
+                                        cmdDetail.Parameters.AddWithValue("@DesignID", (object)d.DesignID ?? DBNull.Value);
+                                        cmdDetail.Parameters.AddWithValue("@DesignNo", (object)d.DesignNo ?? DBNull.Value);
+                                        cmdDetail.Parameters.AddWithValue("@ItemType", (object)d.ItemType ?? DBNull.Value);
+                                        cmdDetail.Parameters.AddWithValue("@NoOfColours", d.NoOfColours);
+                                        cmdDetail.Parameters.AddWithValue("@Qty", d.Qty);
+                                        cmdDetail.Parameters.AddWithValue("@Unit", (object)d.Unit ?? DBNull.Value);
+                                        cmdDetail.Parameters.AddWithValue("@Rate", d.Rate);
+                                        cmdDetail.Parameters.AddWithValue("@Amount", d.Amount);
+                                        cmdDetail.Parameters.AddWithValue("@DesignColorMatchingID", d.DesignColorMatchingID);
+                                        cmdDetail.Parameters.AddWithValue("@BrokerRate", d.BrokerRate);
 
                                         detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
                                     }
 
-                                    // 🔹 SUB DETAILS
-                                    if (d.SubDetails?.Any() == true)
+                                    if (d.SubDetails != null)
                                     {
                                         foreach (var s in d.SubDetails)
                                         {
                                             using (SqlCommand cmdSub = new SqlCommand(@"
                                         INSERT INTO SaleOrderSubDetails
-                                        (DetailID, ColourID, ColourName, Qty, Unit, Remark)
+                                        (
+                                            DetailID,
+                                            ColourID,
+                                            ColourName,
+                                            Qty,
+                                            Unit,
+                                            Remark
+                                        )
                                         VALUES
-                                        (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark)", con, trans))
+                                        (
+                                            @DetailID,
+                                            @ColourID,
+                                            @ColourName,
+                                            @Qty,
+                                            @Unit,
+                                            @Remark
+                                        )", con, trans))
                                             {
-                                                cmdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
-                                                cmdSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = (s.ColourID);
-                                                cmdSub.Parameters.Add("@ColourName", SqlDbType.VarChar).Value = s.ColourName ?? "";
-                                                cmdSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = (s.Qty);
-                                                cmdSub.Parameters.Add("@Unit", SqlDbType.VarChar).Value = s.Unit ?? "";
-                                                cmdSub.Parameters.Add("@Remark", SqlDbType.VarChar).Value = s.Remark ?? "";
+                                                cmdSub.Parameters.AddWithValue("@DetailID", detailId);
+                                                cmdSub.Parameters.AddWithValue("@ColourID", s.ColourID);
+                                                cmdSub.Parameters.AddWithValue("@ColourName", (object)s.ColourName ?? DBNull.Value);
+                                                cmdSub.Parameters.AddWithValue("@Qty", s.Qty);
+                                                cmdSub.Parameters.AddWithValue("@Unit", (object)s.Unit ?? DBNull.Value);
+                                                cmdSub.Parameters.AddWithValue("@Remark", (object)s.Remark ?? DBNull.Value);
 
                                                 cmdSub.ExecuteNonQuery();
                                             }
@@ -1381,38 +1597,25 @@ END
                             }
 
                             trans.Commit();
-                                var response = new ApiResponse<int>
-                                {
-                                    Code = 200,
-                                    success = true,
-                                    Data = saleOrderId
-                                };
-                                JavaScriptSerializer js = new JavaScriptSerializer();
-                                js.MaxJsonLength = Int32.MaxValue;
-                                Context.Response.Write(js.Serialize(response));
-                                Context.Response.Flush();
-                                Context.Response.SuppressContent = true;
-                                HttpContext.Current.ApplicationInstance.CompleteRequest();
-                                return new ApiResponse<int>();
-                        
+
+                            return new ApiResponse<int>
+                            {
+                                Code = 200,
+                                success = true,
+                                Data = saleOrderId,
+                                Message = "Saved Successfully"
+                            };
                         }
                         catch (Exception ex)
                         {
                             trans.Rollback();
-                            var response = new ApiResponse<SaleOrderVM>
+
+                            return new ApiResponse<int>
                             {
                                 Code = 400,
                                 success = false,
-                                Data = null,
                                 Message = ex.Message
                             };
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(response));
-                            Context.Response.Flush();
-                            Context.Response.SuppressContent = true;
-                            HttpContext.Current.ApplicationInstance.CompleteRequest();
-                            return new ApiResponse<int>();
                         }
                     }
                 }
@@ -1421,6 +1624,7 @@ END
             {
                 return new ApiResponse<int>
                 {
+                    Code = 400,
                     success = false,
                     Message = ex.Message
                 };
@@ -1448,6 +1652,7 @@ END
             cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = model.DiscountType;
             cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = model.AdditionalRemark;
             cmd.Parameters.Add("@AdditionalValue", SqlDbType.NVarChar).Value = model.AdditionalValue;
+            cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = model.RoundOff;
         }
         [WebMethod]
         public ApiResponse<SaleOrderVM> GetSaleOrderByIdAPI(int SaleOrderID)
@@ -1466,8 +1671,8 @@ END
                 using (SqlCommand cmd = new SqlCommand(@"
                     SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
                         SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
-                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
-                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
+                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,D.DesignColorMatchingID,
+                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,D.BrokerRate,SO.RoundOff,    
                         ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
                         ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
                         ISNULL(CGM.ColorGroup, '') AS ColorGroup,
@@ -1505,7 +1710,7 @@ END
                                 {
                                     SaleOrderID = SafeInt(rdr["SaleOrderID"]),
                                     OrderNo = rdr["OrderNo"]?.ToString(),
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]),
+                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
                                     PartyID = SafeInt(rdr["PartyId"]),
                                     PartyName = rdr["PartyName"]?.ToString(),
                                     BrokerID = (rdr["BrokerID"].ToString()),
@@ -1534,6 +1739,7 @@ END
                                     AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
                                     AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
                                     DiscountType = (rdr["AdditionalValue"].ToString()),
+                                    RoundOff = SafeDecimal(rdr["RoundOff"]),
                                     Details = new List<SaleOrderDetailVM>()
                                 };
                             }
@@ -1564,8 +1770,9 @@ END
                                         Rate = SafeDecimal(rdr["Rate"]),
                                         Amount = SafeDecimal(rdr["Amount"]),
                                         SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                        DesignId = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                        DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
+                                        DesignId = (rdr["DesignID"]?.ToString()),
+                                        DesignNo = (rdr["DesignNo"]?.ToString()),
+                                        DesignColorMatchingID = SafeInt (rdr["DesignColorMatchingID"]),
                                         DesignName = rdr["DesignNo"]?.ToString(),
                                         ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
                                         UnitId = SafeInt(rdr["UnitId"]?.ToString()),
@@ -1573,6 +1780,7 @@ END
                                         MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                         ColourID = SafeInt(rdr["ColourID"]),
                                         ColourName = rdr["ColourName"]?.ToString(),
+                                        BrokerRate = SafeDecimal(rdr["BrokerRate"]),
                                         SubDetails = new List<SaleOrderSubVM>()
                                     };
 

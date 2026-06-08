@@ -17,6 +17,7 @@ namespace NikunjTextile.Class
         public string TransportID { get; set; }
         public decimal TotalQty { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal RoundOff { get; set; }
         public decimal DiscountPercent { get; set; }
         public decimal DiscountAmount { get; set; }
         public decimal GSTPercent { get; set; }
@@ -37,6 +38,7 @@ namespace NikunjTextile.Class
         public int DetailID { get; set; }
         public int SaleOrderID { get; set; }
         public string DesignID { get; set; }
+        public int DesignColorMatchingID { get; set; }
         public string DesignNo { get; set; }
         public string ItemType { get; set; }
         public int NoOfColours { get; set; }
@@ -45,6 +47,7 @@ namespace NikunjTextile.Class
         public string DetailsRemark { get; set; }
         public decimal Rate { get; set; }
         public decimal Amount { get; set; }
+        public decimal BrokerRate { get; set; }
         public List<SaleOrderSubDetailModel> SubDetails { get; set; }
     }
     public class SaleOrderSubDetailModel
@@ -62,7 +65,7 @@ namespace NikunjTextile.Class
         public int SaleOrderID { get; set; }
         public DateTime DateAndTime { get; set; }
         public string OrderNo { get; set; }
-        public DateTime OrderDate { get; set; }
+        public string OrderDate { get; set; }
         public string OrderDates { get; set; }
         public int PartyID { get; set; }
         public string BrokerID { get; set; }
@@ -96,6 +99,7 @@ namespace NikunjTextile.Class
         public int ColorDetailsID { get; set; }
         public int UnitId { get; set; }
         public int TypeID { get; set; }
+        public decimal RoundOff { get; set; }
         public string DetailsRemark { get; set; }
         public string DiscountType  { get; set; }
         public string AdditionalRemark { get; set; }
@@ -106,8 +110,7 @@ namespace NikunjTextile.Class
     public class SaleOrderDetailVM
     {
         public int DetailID { get; set; }
-        public int SaleOrderID { get; set; }
-        public string DesignID { get; set; }
+        public int SaleOrderID { get; set; }    
         public string DesignNo { get; set; }
         public int ItemType { get; set; }
         public int NoOfColours { get; set; }
@@ -121,6 +124,7 @@ namespace NikunjTextile.Class
         public string DetailsRemark { get; set; }
         public string designName { get; set; }
         public string ColorGroup { get; set; }
+        public int DesignColorMatchingID { get; set; }
         public int colorGroupId { get; set; }
         public int colorGroupName { get; set; }
         public int colorId { get; set; }

@@ -105,8 +105,6 @@
                 $("#AddsaleOrderEntry").hide();
             }
         }
-
-
         FunctionIsLogin();
         loadSaleOrders();
     });
@@ -211,21 +209,7 @@
             
             columns: [            
                 { data: 'OrderNo' },
-                {
-                    data: 'OrderDate',
-                    render: function (data) {
-                        if (!data) return '';
-
-                        // ✅ Extract milliseconds from .NET format
-                        let match = /\/Date\((\d+)\)\//.exec(data);
-                        if (!match) return '';
-                        let d = new Date(parseInt(match[1]));
-                        let day = String(d.getDate()).padStart(2, '0');
-                        let month = String(d.getMonth() + 1).padStart(2, '0');
-                        let year = d.getFullYear();
-                        return `${day}-${month}-${year}`;
-                    }
-                },
+                { data: 'OrderDate'},
                 { data: 'PartyName', defaultContent: '-' },
                 { data: 'BrokerName', defaultContent: '-' },
                 { data: 'TransportName', defaultContent: '-' },

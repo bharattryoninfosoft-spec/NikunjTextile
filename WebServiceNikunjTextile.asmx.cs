@@ -1,9 +1,14 @@
-﻿using iText.IO.Font.Constants;
+﻿using iText.Commons.Json;
+using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
+using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using Microsoft.Reporting.WebForms;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
@@ -21,14 +26,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Http;
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
-using Microsoft.Reporting.WebForms;
-using iTextSharp.text.pdf;
-using iTextSharp.text;
-using iText.Kernel.Font;
 
 namespace NikunjTextile
 {
@@ -2765,10 +2767,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditYarnColorMaster()
@@ -2857,10 +2855,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteYarnColorMaster()
@@ -2921,9 +2915,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_YarnColorQueue()
@@ -3000,22 +2991,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Weft Color Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertWeftColorMaster()
@@ -3100,8 +3076,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getWeftColorMaster()
@@ -3153,9 +3127,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -3201,10 +3172,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditWeftColorMaster()
@@ -3291,10 +3258,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteWeftColorMaster()
@@ -3355,9 +3318,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_WeftColorQueue()
@@ -3434,20 +3394,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Designer Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertDesignerMaster()
@@ -3575,8 +3522,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getDesignerMaster(string startFrom)
@@ -3634,11 +3579,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignerMaster()
@@ -3718,12 +3658,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -3775,10 +3709,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditDesignerMaster()
@@ -3900,16 +3830,6 @@ namespace NikunjTextile
                 Context.Response.Write(js.Serialize(comman));
             }
         }
-
-
-
-
-
-
-
-
-
-
         // Delete User Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -4027,16 +3947,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_DesignerQueue()
@@ -4113,22 +4023,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    SketcherMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertSketcherMaster()
@@ -4213,8 +4108,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getSketcherMaster(string startFrom)
@@ -4266,9 +4159,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getSketcherMaster()
@@ -4336,11 +4226,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -4386,10 +4271,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditSketcherMaster()
@@ -4476,10 +4357,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteSketcherMaster()
@@ -4540,9 +4417,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_SketcherQueue()
@@ -4619,22 +4493,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    WarpQualityMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertWarpQualityMaster()
@@ -4719,8 +4578,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getWarpQualityMaster(string startFrom)
@@ -4772,9 +4629,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getWarpQualityMaster()
@@ -4842,9 +4696,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -4890,10 +4741,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditWarpQualityMaster()
@@ -4980,10 +4827,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteWarpQualityMaster()
@@ -5044,9 +4887,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_WarpQualityQueue()
@@ -5123,21 +4963,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    TypeMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertTypeMaster()
@@ -5223,8 +5049,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getTypeMaster(string startFrom)
@@ -5276,9 +5100,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getTypeMaster()
@@ -5346,10 +5167,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -5396,10 +5213,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditTypeMaster()
@@ -5488,10 +5301,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteTypeMaster()
@@ -5552,9 +5361,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_TypeQueue()
@@ -5631,28 +5437,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Godown WareHouse Master *******************************
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertGodownMaster()
@@ -5810,9 +5595,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getGodownMaster(string startFrom)
@@ -5866,9 +5648,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownMaster()
@@ -5939,7 +5718,6 @@ namespace NikunjTextile
             return;
 
         }
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownMasterById()
@@ -6044,9 +5822,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditGodownMaster()
@@ -6227,14 +6002,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteGodownMaster()
@@ -6327,9 +6094,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void ActiveFGodownMaster()
@@ -6394,19 +6158,7 @@ namespace NikunjTextile
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Location Title Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertLocationMaster()
@@ -6481,8 +6233,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getLocationMaster(string startFrom)
@@ -6534,9 +6284,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         // Get Edit  
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -6583,10 +6330,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditLocationMaster()
@@ -6675,10 +6418,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteLocationMaster()
@@ -6739,17 +6478,7 @@ namespace NikunjTextile
 
             }
         }
-
-
-
-
-
-
-
-
         // ******************************************    DesignSpecificationMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertDesignSpecificationMaster()
@@ -6834,8 +6563,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getDesignSpecificationMaster(string startFrom)
@@ -6887,9 +6614,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignSpecificationMaster()
@@ -6957,14 +6681,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -7010,10 +6726,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditDesignSpecificationMaster()
@@ -7100,10 +6812,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteDesignSpecificationMaster()
@@ -7164,9 +6872,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_DesignSpecificationQueue()
@@ -7243,26 +6948,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    ColorGroupMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertColorGroupMaster()
@@ -7347,8 +7033,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getColorGroupMaster(string startFrom)
@@ -7400,11 +7084,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getColorGroupMaster()
@@ -7475,12 +7154,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -7526,10 +7199,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditColorGroupMaster()
@@ -7616,10 +7285,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteColorGroupMaster()
@@ -7680,9 +7345,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_ColorGroupQueue()
@@ -7759,19 +7421,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
         // ******************************************    MaterialMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertMaterialMaster()
@@ -7856,8 +7506,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getMaterialMaster()
@@ -7909,9 +7557,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -7957,10 +7602,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditMaterialMaster()
@@ -8047,10 +7688,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteMaterialMaster()
@@ -8111,9 +7748,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_MaterialQueue()
@@ -8190,17 +7824,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
         // ******************************************    Design Category Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertDesignCategoryMaster()
@@ -8285,8 +7909,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getDesignCategoryMaster(string startFrom)
@@ -8338,12 +7960,6 @@ namespace NikunjTextile
         //    Context.Response.Write(js.Serialize(response));
         //    return;
         //}
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignCategoryMaster()
@@ -8411,9 +8027,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -8459,10 +8072,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditDesignCategoryMaster()
@@ -8549,10 +8158,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteDesignCategoryMaster()
@@ -8613,9 +8218,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_DesignCategoryQueue()
@@ -8692,20 +8294,7 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    YarnMaterialMaster *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertYarnMaterialMaster()
@@ -8795,8 +8384,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getYarnMaterialMaster(int startFrom)
@@ -8934,11 +8521,6 @@ namespace NikunjTextile
             return;
 
         }
-
-
-
-
-
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -8994,10 +8576,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditYarnMaterialMaster()
@@ -9089,10 +8667,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteYarnMaterialMaster()
@@ -9153,9 +8727,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateTbl_YarnMaterialQueue()
@@ -9232,19 +8803,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    FinancialYear Master *******************************
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
@@ -9267,11 +8825,6 @@ namespace NikunjTextile
             con.Close();
             return msg;
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertFinancialYearMaster()
@@ -9453,8 +9006,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void ActiveFinancialYearMaster()
@@ -9519,8 +9070,6 @@ namespace NikunjTextile
                 }
             }
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteFinancialYearMaster()
@@ -9578,24 +9127,7 @@ namespace NikunjTextile
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Design Entry Form Master *******************************
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getAllDesignEntryForm()
@@ -9873,15 +9405,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertDesignEntryFormMaster()
@@ -10126,11 +9649,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -10225,9 +9743,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignEntryFormPaggination()
@@ -10285,10 +9800,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignEntryFormDetails()
@@ -10459,9 +9970,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getExistingDesignEntryFormDetails()
@@ -10620,14 +10128,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteDesignEntryFormMaster()
@@ -10799,13 +10299,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignEntryFormMaster()
@@ -11120,19 +10613,7 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Create Design Color Matching Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignNoForm()
@@ -11203,8 +10684,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignNoUpdateForm()
@@ -11274,12 +10753,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getExportExistingDesignNoForm()
@@ -11339,15 +10812,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnColorMatching()
@@ -11402,11 +10866,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignEntryDataForm()
@@ -11565,13 +11024,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertDesignColorMatchingFormMaster()
@@ -11696,12 +11148,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -11793,9 +11239,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getColorMatchingFormPaggination()
@@ -11861,11 +11304,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getColorMatchingFormDetails()
@@ -12102,10 +11540,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCreateColorMatchingFormDetails()
@@ -12334,11 +11768,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignColorMatchingFormMaster()
@@ -12494,13 +11923,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteDesignColorMatchingFormMaster()
@@ -12590,11 +12012,6 @@ namespace NikunjTextile
             // try it ur self  yes sir  please
 
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignColor(string id)
@@ -12620,25 +12037,7 @@ namespace NikunjTextile
 
             ;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************    Design Color Matching Validation Master *******************************
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getColorGroup()
@@ -12692,10 +12091,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getExistsDesignNoForm()
@@ -12766,12 +12161,6 @@ namespace NikunjTextile
 
             return;
         }
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignColorMatchingValidationFormMaster()
@@ -12976,22 +12365,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCompressColorMatchingValidationForm()
@@ -13116,19 +12489,7 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
-
-
-
-
-
-
         // ******************************************   Party Master *******************************
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertPartyMaster()
@@ -13339,10 +12700,6 @@ namespace NikunjTextile
 
 
         }
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getPartyMasterPaggination()
@@ -13399,10 +12756,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
         // View Party Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -13486,13 +12839,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getPartyMasterById(string id)
@@ -13560,11 +12906,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-
-
-
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void editPartyMaster()
@@ -13739,9 +13080,6 @@ namespace NikunjTextile
 
             }
         }
-
-
-
         // Delete Party Master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -13823,11 +13161,7 @@ namespace NikunjTextile
 
 
         }
-
-
         // ******************************************   Godown Manager Master *******************************
-
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertGodownManagerMaster()
@@ -26401,13 +25735,20 @@ INNER JOIN PartyMaster PM1
                     con.Open();
 
                     string query = @"
-    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 120) AS OrderDate,PM.PartyName,BM.BrokerName,TM.TransportName,SO.TotalQty,SO.InvoiceAmount
-FROM SaleOrder SO
-LEFT JOIN PartyMaster PM  ON SO.PartyId = PM.PartyId
-LEFT JOIN BrokerMaster BM  ON SO.BrokerID = BM.BrokerCode
-LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-GROUP BY SO.SaleOrderID,SO.OrderNo,SO.OrderDate,SO.TotalQty,SO.InvoiceAmount,PM.PartyName,BM.BrokerName,TM.TransportName
-ORDER BY SO.OrderNo DESC";
+            SELECT
+                SO.SaleOrderID,
+                SO.OrderNo,
+                SO.OrderDate,
+                PM.PartyName,
+                BM.BrokerName,
+                TM.TransportName,
+                SO.TotalQty,
+                SO.InvoiceAmount
+            FROM SaleOrder SO
+            LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
+            LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
+            LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
+            ORDER BY TRY_CAST(SO.OrderNo AS INT) DESC,SO.OrderDate DESC";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -26416,33 +25757,33 @@ ORDER BY SO.OrderNo DESC";
 
                     while (rdr.Read())
                     {
-                        int orderId = Convert.ToInt32(rdr["SaleOrderID"]);
-                        // ✅ FIND ORDER
-                        var order = list.FirstOrDefault(x => x.SaleOrderID == orderId);
-
-                        if (order == null)
+                        list.Add(new SaleOrderVM
                         {
-                            order = new SaleOrderVM
-                            {
-                                SaleOrderID = orderId,
-                                OrderNo = rdr["OrderNo"].ToString(),
-                                OrderDate = Convert.ToDateTime(rdr["OrderDate"].ToString()),
-                                PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
-                                BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
-                                TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
-                                TotalQty = Convert.ToDecimal(rdr["TotalQty"]),
-                                InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"]),
-                            };
-                            list.Add(order);
-                        }
+                            SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
+                            OrderNo = rdr["OrderNo"].ToString(),
+                            OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
+                            PartyName = rdr["PartyName"]?.ToString() ?? "",
+                            BrokerName = rdr["BrokerName"]?.ToString() ?? "",
+                            TransportName = rdr["TransportName"]?.ToString() ?? "",
+                            TotalQty = Convert.ToDecimal(rdr["TotalQty"]),
+                            InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"])
+                        });
                     }
 
-                    return new { success = true, Data = list };
+                    return new
+                    {
+                        success = true,
+                        Data = list
+                    };
                 }
             }
             catch (Exception ex)
             {
-                return new { success = false, message = ex.Message };
+                return new
+                {
+                    success = false,
+                    message = ex.Message
+                };
             }
         }
         [WebMethod]
@@ -26690,41 +26031,28 @@ ORDER BY SO.OrderNo DESC";
                 int userAccountId = GetCookieValue();
                 var (financialYearId, companyId) = GetDefaultIds();
 
-                using (SqlConnection con = new SqlConnection(
-                    ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
+                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
                 {
                     con.Open();
-
                     using (SqlTransaction trans = con.BeginTransaction())
                     {
                         try
                         {
-                            int saleOrderId;
-
-                            // ===============================
-                            // ✅ INSERT / UPDATE MASTER
-                            // ===============================
+                            int saleOrderId;           
                             using (SqlCommand cmd = new SqlCommand())
                             {
                                 cmd.Connection = con;
                                 cmd.Transaction = trans;
-
+                        
                                 if (model.SaleOrderID == 0)
                                 {
-                                    cmd.CommandText = @"
-                                        INSERT INTO SaleOrder
-                                        (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,
-                                         TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                                         GSTPercent, GSTAmount, InvoiceAmount, Remark,
-                                         UserAccountId, FinancialYearID, CompanyId,DiscountType,AdditionalRemark,AdditionalValue)
-                                        VALUES
-                                        (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent,
-                                         @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                                         @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,
-                                         @UserAccountId, @FinancialYearID, @CompanyId,@DiscountType,@AdditionalRemark,@AdditionalValue);
-
+                                    string nextOrderNo = GetNextOrderNo(con, trans);
+                                    model.OrderNo = nextOrderNo;
+                                    cmd.CommandText = @" INSERT INTO SaleOrder (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
+                                         GSTPercent, GSTAmount, InvoiceAmount, Remark,UserAccountId, FinancialYearID, CompanyId,DiscountType,AdditionalRemark,AdditionalValue,RoundOff)
+                                        VALUES (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
+                                         @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,@UserAccountId, @FinancialYearID, @CompanyId,@DiscountType,@AdditionalRemark,@AdditionalValue,@RoundOff);
                                         SELECT SCOPE_IDENTITY();";
-
                                     AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                                 }
@@ -26732,12 +26060,7 @@ ORDER BY SO.OrderNo DESC";
                                 {
                                     saleOrderId = model.SaleOrderID;
 
-                                    cmd.CommandText = @"
-                                        UPDATE SaleOrder SET
-                                            OrderNo=@OrderNo,
-                                            OrderDate=@OrderDate,
-                                            PartyID=@PartyID,
-                                            BrokerID=@BrokerID,
+                                    cmd.CommandText = @"UPDATE SaleOrder SET OrderNo=@OrderNo, OrderDate=@OrderDate,PartyID=@PartyID,BrokerID=@BrokerID,
                                             MarkupPercent=@MarkupPercent,
                                             TransportID=@TransportID,
                                             TotalQty=@TotalQty,
@@ -26785,17 +26108,27 @@ ORDER BY SO.OrderNo DESC";
                                 foreach (var d in model.Details)
                                 {
                                     int detailId;
+                                    string designIdValue = Convert.ToString(d.DesignID);
+
+                                    int designId = 0;
+                                    int designColorMatchingId = 0;
+
+                                    if (!string.IsNullOrEmpty(designIdValue))
+                                    {
+                                        string[] arr = designIdValue.Split('|');
+                                        if (arr.Length > 0) int.TryParse(arr[0], out designId);
+                                        if (arr.Length > 1) int.TryParse(arr[1], out designColorMatchingId);
+                                    }
 
                                     using (SqlCommand cmdDetail = new SqlCommand(@"
                                             INSERT INTO SaleOrderDetails
-                                            (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount)
+                                            (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount,DesignColorMatchingID,BrokerRate)
                                             VALUES
-                                            (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount);
-
+                                            (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount,@DesignColorMatchingID,@BrokerRate);
                                             SELECT SCOPE_IDENTITY();", con, trans))
                                     {
                                         cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
-                                        cmdDetail.Parameters.AddWithValue("@DesignID", d.DesignID);
+                                        cmdDetail.Parameters.AddWithValue("@DesignID", designId);
                                         cmdDetail.Parameters.AddWithValue("@DesignNo", d.DesignNo ?? "");
                                         cmdDetail.Parameters.AddWithValue("@ItemType", d.ItemType ?? "");
                                         cmdDetail.Parameters.AddWithValue("@NoOfColours", SafeInt(d.NoOfColours));
@@ -26803,6 +26136,8 @@ ORDER BY SO.OrderNo DESC";
                                         cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
                                         cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
                                         cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount));
+                                        cmdDetail.Parameters.AddWithValue("@DesignColorMatchingID", SafeDecimal(designColorMatchingId));
+                                        cmdDetail.Parameters.AddWithValue("@BrokerRate", d.BrokerRate);
                                         detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
                                     }
 
@@ -26811,12 +26146,8 @@ ORDER BY SO.OrderNo DESC";
                                     {
                                         foreach (var s in d.SubDetails)
                                         {
-                                            using (SqlCommand cmdSub = new SqlCommand(@"
-                                                    INSERT INTO SaleOrderSubDetails
-                                                    (DetailID, ColourID, ColourName, Qty, Unit,Remark)
-                                                    VALUES
-                                                    (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)",
-                                                con, trans))
+                                            using (SqlCommand cmdSub = new SqlCommand(@" INSERT INTO SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit,Remark)
+                                                    VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)", con, trans))
                                             {
                                                 cmdSub.Parameters.AddWithValue("@DetailID", detailId);
                                                 cmdSub.Parameters.AddWithValue("@ColourID", SafeInt(s.ColourID));
@@ -26869,6 +26200,14 @@ ORDER BY SO.OrderNo DESC";
             cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = model.DiscountType;
             cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = model.AdditionalRemark;
             cmd.Parameters.Add("@AdditionalValue", SqlDbType.NVarChar).Value = model.AdditionalValue;
+            cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = model.RoundOff;
+        }
+        private string GetNextOrderNo(SqlConnection con, SqlTransaction tran)
+        {
+            using (SqlCommand cmd = new SqlCommand(@"SELECT ISNULL(MAX(CAST(OrderNo AS INT)), 0) + 1 FROM SaleOrder", con, tran))
+            {
+                return cmd.ExecuteScalar().ToString();
+            }
         }
         [WebMethod]
         public string GetColorMatchingDetails(int designColorMatchingFormID, int colorGroupID)
@@ -26987,7 +26326,7 @@ ORDER BY SO.OrderNo DESC";
                     SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
                         SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
                         SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
-                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,    
+                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark ,D.BrokerRate,    
                         ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
                         ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
                         ISNULL(CGM.ColorGroup, '') AS ColorGroup,
@@ -27025,7 +26364,7 @@ ORDER BY SO.OrderNo DESC";
                                 {
                                     SaleOrderID = SafeInt(rdr["SaleOrderID"]),
                                     OrderNo = rdr["OrderNo"]?.ToString(),
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]),
+                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("yyy-MM-dd"),
                                     PartyID = SafeInt(rdr["PartyId"]),
                                     PartyName = rdr["PartyName"]?.ToString(),
                                     BrokerID = (rdr["BrokerID"].ToString()),
@@ -27083,6 +26422,7 @@ ORDER BY SO.OrderNo DESC";
                                         TotalQty = SafeDecimal(rdr["TotalQty"]),
                                         Rate = SafeDecimal(rdr["Rate"]),
                                         Amount = SafeDecimal(rdr["Amount"]),
+                                        BrokerRate = SafeDecimal(rdr["BrokerRate"]),
                                         SaleRate = SafeDecimal(rdr["SaleRate"]),
                                         DesignId = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
                                         DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
@@ -27145,6 +26485,28 @@ ORDER BY SO.OrderNo DESC";
                     Message = ex.Message
                 };
             }
+        }
+        [WebMethod]
+        public string GetAdditionalRemarks()
+        {
+            DataTable dt = new DataTable();
+            string conString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(conString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter(@"SELECT DISTINCT AdditionalRemark  FROM SaleOrder  WHERE ISNULL(AdditionalRemark,'') <> ''  ORDER BY AdditionalRemark", con);
+                da.Fill(dt);
+            }
+            List<object> remarks = new List<object>();
+            foreach (DataRow dr in dt.Rows)
+            {
+                remarks.Add(new
+                {
+                    AdditionalRemark = dr["AdditionalRemark"].ToString()
+                });
+            }
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            return js.Serialize(remarks);
         }
         public decimal SafeDecimal(object val)
         {

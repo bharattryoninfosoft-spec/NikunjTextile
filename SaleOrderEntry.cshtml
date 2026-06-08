@@ -5,7 +5,6 @@
 
 
 
-
 <style>
     .table-box {
         border: 1px dashed #ccc;
@@ -387,8 +386,18 @@
                             <div class="summary-row">
                                 <span>Additional</span>
                                 <div class="d-flex gap-2">
-                                    <input type="text" id="AdditionalText" class="form-control form-control-sm" placeholder="Remark">
-                                    <input type="number" id="AdditionalValue" class="form-control form-control-sm" placeholder="₹">
+                                    <input type="text"
+                                           id="AdditionalText"
+                                           class="form-control form-control-sm"
+                                           placeholder="Remark"
+                                           list="AdditionalRemarksList">
+
+                                    <datalist id="AdditionalRemarksList"></datalist>
+
+                                    <input type="number"
+                                           id="AdditionalValue"
+                                           class="form-control form-control-sm"
+                                           placeholder="₹">
                                 </div>
                                 <span id="AdditionalAmount">0</span>
                             </div>
@@ -398,8 +407,8 @@
                                 <span>Discount</span>
                                 <div class="d-flex gap-2">
                                     <select id="discountType" class="form-select form-control form-control-sm">
-                                        <option value="percent">%</option>
-                                        <option value="amount">₹</option>
+                                        <option value="Percentage">%</option>
+                                        <option value="Amount">₹</option>
                                     </select>
                                     <input type="number" id="discountValue" class="form-control form-control-sm" value="0">
                                 </div>
@@ -422,14 +431,17 @@
                                 <span>Invoice Amount</span>
                                 <span id="invoiceAmount">0</span>
                             </div>
-
+                            <div class="summary-row RoundOff">
+                                <span>RoundOff Amount</span>
+                                <span id="RoundOff">0</span>
+                            </div>
                         </div>
                     </div>
 
                     <br />
 
                     <div class="text-end">
-                        <a href="ListSaleOrderEntry" class="btn btn-light me-2">
+                        <a href="listSaleOrderEntry" class="btn btn-light me-2">
                             <i class="fa fa-arrow-left"></i> Back
                         </a>
 
@@ -456,8 +468,8 @@
 
                                 <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
                                     @*<div id="add-alert" class="alert alert-success" role="alert" >
-                                        Record has been saved Successfully.
-                                    </div>*@
+                                            Record has been saved Successfully.
+                                        </div>*@
                                     <div class="row gutters" id="DivPartyMaster">
                                         <div class="row gutters">
                                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
@@ -966,17 +978,13 @@
                 <div class="modal fade" id="TransportModal">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-
                             <div class="modal-header">
                                 <h5 id="transportModalLabel">Add Transport</h5>
                                 <button class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-
                             <div class="modal-body">
                                 <input type="hidden" id="TransportId" value="0">
-
                                 <div class="row g-3">
-
                                     <!-- Transport Code -->
                                     <div class="col-2">
                                         <div class="field-wrapper">
@@ -984,7 +992,6 @@
                                             <div class="field-placeholder">Transport Code</div>
                                         </div>
                                     </div>
-
                                     <!-- Transport Name -->
                                     <div class="col-4">
                                         <div class="field-wrapper">
@@ -993,7 +1000,6 @@
                                             <div class="invalid-feedback">Transport Name is required</div>
                                         </div>
                                     </div>
-
                                     <!-- ContactPerson -->
                                     <div class="col-3">
                                         <div class="field-wrapper">
@@ -1002,7 +1008,6 @@
                                             <div class="invalid-feedback">Contact Person is required</div>
                                         </div>
                                     </div>
-
                                     <!-- Mobile -->
                                     <div class="col-3">
                                         <div class="field-wrapper">
@@ -1011,7 +1016,6 @@
                                             <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
                                         </div>
                                     </div>
-
                                     <!-- Address -->
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
@@ -1029,7 +1033,6 @@
                                             <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
                                             <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
                                         </div>
-
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <!-- Field wrapper start -->
@@ -1040,9 +1043,7 @@
                                             <div class="field-placeholder">PAN No</div>
                                             <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
                                             <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
-
                                         </div>
-
                                     </div>
                                     <!-- City -->
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -1051,7 +1052,6 @@
                                             <div class="field-placeholder">City</div>
                                         </div>
                                     </div>
-
                                     <!-- Vehicle Type -->
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                         <div class="field-wrapper">
@@ -1087,36 +1087,10 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
-<!-- Megamenu JS -->
-<script src="vendor/megamenu/js/megamenu.js"></script>
-<script src="vendor/megamenu/js/custom.js"></script>
-
-<!-- Slimscroll JS -->
-<script src="vendor/slimscroll/slimscroll.min.js"></script>
-<script src="vendor/slimscroll/custom-scrollbar.js"></script>
-
-<!-- Search Filter JS -->
-<script src="vendor/search-filter/search-filter.js"></script>
-<script src="vendor/search-filter/custom-search-filter.js"></script>
+<script>
+    document.title = "Create Sale Order - Nikunj Textile";
+    $('body').addClass('fullscreen');
+</script>
 
 <!-- Notify js -->
 <script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
@@ -1156,15 +1130,10 @@
 <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
 <!-- ✅ ADD HERE -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 
-
-
-<script>
-    document.title = "Create Sale Order - Nikunj Textile";
-    $('body').addClass('fullscreen');
-</script>
 
 
 <script>
@@ -1181,6 +1150,7 @@
         bindTransport();
         getItemGST();
         getStates(0);
+        AdditionalRemarks();
         $("#PartyName").prop("disabled", true);
         $("#PartyAddress").prop("disabled", true);
         $("#Broker").prop("disabled", true);
@@ -1204,7 +1174,7 @@
     });
     $("#discountType").on("change", function () {
 
-        if ($(this).val() === "percent") {
+        if ($(this).val() === "Percentage") {
             $("#discountValue").attr("placeholder", "Enter %");
         } else {
             $("#discountValue").attr("placeholder", "Enter ₹");
@@ -1223,13 +1193,10 @@
     $("#GSTSLABId").on("change", function () {
         debugger;
         let selectedText = $("#GSTSLABId option:selected").text();
-
         // 🔥 Extract number from text (e.g. "GST 5%" → 5)
         let percent = parseFloat(selectedText.replace(/[^\d.]/g, "")) || 0;
-
         // ✅ Set to input
         $("#gstPercent").val(percent);
-
         // 🔥 Update calculation
         updateSummary();
     });
@@ -1301,7 +1268,7 @@
         $("#ColorMatchingQty").val('');
         $("#weftLength").val('');
         $("#warpLength").val('');
-    
+
 
         // ✅ Clear table
         $("#divColorMatchingTable").empty();
@@ -1327,46 +1294,32 @@
 
     });
     $("#DesignNo").on("change", function () {
-        
+
         let selected = $(this).find("option:selected");
         let val = $(this).val();
-
         if (val !== "") {
-
             let parts = val.split('|');
-
             let designEntryId = parts[0];
             let colorMatchingId = parts[1];
-
             let typeId = selected.data("typeid");
             let type = selected.data("type");
-
             let unitId = selected.data("unitid");
             let unit = selected.data("unit");
-
             // ✅ FIX HERE
             let colors = selected.attr("data-colors");
             colors = colors ? JSON.parse(colors) : [];
-
             // TYPE + UNIT
             $("#TypeRow").html(`<option value="${typeId}" selected>${type}</option>`);
             $("#UnitRow").html(`<option value="${unitId}" selected>${unit}</option>`);
-
             // COLOR
             $("#ddlColourGroup").html('<option value="-1">Select Color Group</option>');
-
             if (colors && colors.length > 0) {
-
                 let options = '';
-
                 colors.forEach(function (c) {
                     options += `<option value="${c.ColorGroupID}">${c.ColorGroup}</option>`;
                 });
-
                 $("#ddlColourGroup").append(options);
-
             }
-
             getDesignNo(designEntryId, colorMatchingId);
 
         } else {
@@ -1389,7 +1342,7 @@
 
                 success: function (res) {
                     $('#TransportCode').val(res.d);
-                    
+
                 }
             });
 
@@ -1432,20 +1385,16 @@
 
         if (existingRow.length > 0) {
             showError("This color already added");
-
             existingRow.addClass("table-danger");
             setTimeout(() => existingRow.removeClass("table-danger"), 800);
-
             return;
         }
-
         let designNo = $("#DesignNo").val();
         let designName = $("#DesignNo option:selected").text().trim();
         let colorGroupId = $("#ddlColourGroup").val();
         let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
         let remark = $("#DesignSelectionRemark").val() || "";
         let imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
-
         tbody.append(createSubRow(
             designNo,
             designName,
@@ -1456,13 +1405,16 @@
             colorName,
             qty,
             imageUrl,
-            saleRate   // ✅ अब सही rate आएगा
+            saleRate
         ));
-
         updateSrNo();
-
         $("#ColorMatchingQty").val("");
         $("#DesignSelectionRemark").val("");
+        if ($("#itemTableBody tr").length > 0) {
+            $("#DesignNo").prop("disabled", true);
+        } else {
+            $("#DesignNo").prop("disabled", false);
+        }
     });
     $("#ColorMatchingQty").keypress(function (e) {
         if (e.which === 13) {
@@ -1470,12 +1422,9 @@
         }
     });
     $(document).on("click", ".deleteMain", function () {
-
         const row = $(this).closest("tr");
         const index = row.data("index");
-
         if (index === undefined) return;
-
         Swal.fire({
             title: "Delete Item?",
             text: "This will remove the design from order",
@@ -1484,33 +1433,26 @@
             confirmButtonText: "Yes, delete it!",
             cancelButtonText: "Cancel"
         }).then((result) => {
-
             if (!result.isConfirmed) return;
-
             // 🔥 Remove from array
             SaleOrderDetails.splice(index, 1);
-
             // Reset view
             if (currentViewIndex === index) {
                 currentViewIndex = -1;
             }
-
             bindMainTable();
             updateSummary();
-
             Swal.fire("Deleted!", "Item removed successfully.", "success");
         });
     });
     $(document).on("click", "#itemTableBody tr", function () {
 
         let id = $(this).data("id");
-
         $("#ColorMatchingID").val(id);
-
         getColorMatchingId(id);
     });
-    $("#Markup").on("input", function () {
-
+    $("#Markup").on("input change", function () {
+        debugger;
         const markup = parseFloat($(this).val()) || 0;
 
         SaleOrderDetails.forEach(item => {
@@ -1530,10 +1472,13 @@
                 });
             }
         });
+        bindMainTable();
+        updateSummary();
+        resetModal();
     })
 
-    function openDesignModal() {              
-        
+    function openDesignModal() {
+            
         $("#DesignNo").val('');
         $("#ColorMatchingID").empty();
         $("#divColorMatchingTable").empty();
@@ -1649,7 +1594,6 @@
 
         return {
             valid: designId && typeId && unitId,
-
             DesignId: designId,
             DesignNo: $("#DesignNo option:selected").text().trim(),
 
@@ -1702,6 +1646,66 @@
                 $("#OrderNo").val(response.d);
             }
         });
+    }
+    var AdditionalRemarksArray = [];
+
+    function AdditionalRemarks() {
+        $.ajax({
+            type: "POST",
+            url: "/WebServiceNikunjTextile.asmx/GetAdditionalRemarks",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+
+                AdditionalRemarksArray = JSON.parse(response.d);
+
+                BindAdditionalRemarks();
+
+                $("#AdditionalText").autocomplete({
+                    source: $.map(AdditionalRemarksArray, function (item) {
+                        return item.AdditionalRemark;
+                    }),
+                    minLength: 1
+                });
+
+                console.log(AdditionalRemarksArray);
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    }
+    $("#AdditionalText").on("input", function () {
+
+        var remark = $(this).val().trim();
+
+        var item = $.grep(AdditionalRemarksArray, function (x) {
+            return x.AdditionalRemark.toLowerCase() === remark.toLowerCase();
+        })[0];
+
+        if (item) {
+            $("#AdditionalValue").val(item.AdditionalValue || "");
+        }
+    });
+    function BindAdditionalRemarks() {
+
+        $("#AdditionalText").autocomplete({
+            source: $.map(AdditionalRemarksArray, function (item) {
+                return item.AdditionalRemark;
+            }),
+            minLength: 1,
+            select: function (event, ui) {
+
+                var item = $.grep(AdditionalRemarksArray, function (x) {
+                    return x.AdditionalRemark === ui.item.value;
+                })[0];
+
+                if (item) {
+                    $("#AdditionalValue").val(item.AdditionalValue || "");
+                }
+            }
+        });
+
     }
     function afterPartySave() {
         $("#addNewContact").modal("hide");
@@ -2352,8 +2356,6 @@
                             else {
                                 tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <input type="hidden" value="' + WarpCheckBoxArry[srNos] + '" id="ischeckWarp' + w + '" disabled/></th>';
                             }
-
-
                             tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
                             tempColorMatchingTable += ' <select id="MatchingWarp' + w + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp(' + w + ')" disabled>';
                             tempColorMatchingTable += ' <option value="0"> Select Color </option>';
@@ -2408,13 +2410,10 @@
                             Feeder["Feeder" + fe] = warpData["Feeder" + fe];
 
                             var srNo = fe - 1;
-
                             //DesignSpecification["DesignSpecification" + fe] = warpData["DesignSpecification" + fe];
                             //alert("Feeder " + fe + "  " + warpData["Feeder" + fe]);
-
                             tempColorMatchingTable += '<tr style="text-align: center;">';
                             tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Feeder ' + fe + '</th>';
-
                             if (listDesignEntryWeftData[0][srNo].DesignSpecification == "GROUND") {
                                 tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span></th>';
                             }
@@ -2435,7 +2434,6 @@
                                     tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
                                 }
                             }
-
                             tempColorMatchingTable += '</select>';
                             tempColorMatchingTable += '</td>';
                             tempColorMatchingTable += '<td id="tdWarColor' + fe + '" style="padding: .3rem .3rem; width: 15%; ">';
@@ -2550,13 +2548,9 @@
 
                             document.getElementById(abc.id).classList.remove("is-valid");
                             document.getElementById(abc.id).classList.add("is-invalid");
-
                             $("#BankName").val('');
                             $("#BankBranch").val('');
                         }
-
-
-
                     },
                     error: function (request, status, error) {
                         // console.log(error);
@@ -2602,17 +2596,12 @@
                     processData: false,
                     success: function (response) {
                         console.log(response);
-
-
                         if (response.length != 0) {
                             //alert("Hello World");
-
                             $("#city").val(response[0].PostOffice[0].District);
-
                             //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
                             //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
                             //$("#divIFSC").html("Good.");
-
                             document.getElementById(abc.id).classList.add("is-valid");
                             document.getElementById(abc.id).classList.remove("is-invalid");
                         }
@@ -2696,7 +2685,7 @@
 
         // Broker Name
         if (!$('#TransportName').val().trim()) {
-            $('#TransportName').addClass('is-invalid');          
+            $('#TransportName').addClass('is-invalid');
             isValid = false;
         }
         if (!$('#gstTransport').val().trim()) {
@@ -2909,11 +2898,9 @@
 
             $(element).removeClass("is-valid").addClass("is-invalid");
             $("#PanNoError").html("Please Provide Valid PanNo Number").show();
-
             return false;
         }
     });
-    // ColorGroupAddbtn
     $("#ColorGroupAddbtn").click(function () {
         debugger;
         let qty = parseFloat($("#ColorGroupQty").val());
@@ -2941,18 +2928,13 @@
 
             let colorId = $(this).val();
             let colorName = $(this).text().trim();
-
             if (!colorId) return;
-
             let imageUrl = $(this).attr("data-img") || "";
-
             let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
-
             if (existingRow.length > 0) {
                 duplicateFound = true; // 🔥 mark duplicate
                 return; // skip only this color
             }
-
             tbody.append(createSubRow(
                 designNo,
                 designName,
@@ -3039,7 +3021,7 @@
             }
         });
 
-    });   
+    });
     $("#btnAddToOrder").click(function () {
 
         const designId = $("#DesignNo").val();
@@ -3083,54 +3065,21 @@
         // ✅ COLLECT COLORS
         // ===========================
         $("#itemTableBody tr").not(".no-data").each(function () {
-
             let row = $(this);
-
             let colorId = row.attr("data-colorid");
             let colorName = row.find("td:eq(4)").text().trim();
             let qty = parseFloat(row.find("td:eq(5)").text()) || 0;
             let remark = row.find("td:eq(6)").text().trim() || "";
-
-            // 🔥 get rate from each row
             let rowRate = parseFloat(row.attr("data-rate")) || saleRate;
-
             if (!colorId || qty <= 0) return;
-
-            if (uniqueMap[colorId]) {
-
-                uniqueMap[colorId].Qty += qty;
-
-                if (remark && !uniqueMap[colorId].Remark.includes(remark)) {
-                    uniqueMap[colorId].Remark += ', ' + remark;
-                }
-
-            } else {
-
-                uniqueMap[colorId] = {
-                    ColorMatchingID: colorId,
-                    ColorMatchingName: colorName,
-                    Qty: qty,
-                    Remark: remark,
-                    Rate: rowRate   // ✅ correct rate
-                };
-            }
+            if (uniqueMap[colorId]) { uniqueMap[colorId].Qty += qty; if (remark && !uniqueMap[colorId].Remark.includes(remark)) { uniqueMap[colorId].Remark += ', ' + remark; } }
+            else { uniqueMap[colorId] = { ColorMatchingID: colorId, ColorMatchingName: colorName, Qty: qty, Remark: remark, Rate: rowRate }; }
         });
 
         let subDetails = Object.values(uniqueMap);
-
-        if (subDetails.length === 0)
-            return Swal.fire("Error", "Add color first", "error");
-
+        if (subDetails.length === 0) return Swal.fire("Error", "Add color first", "error");
         let totalQty = subDetails.reduce((sum, x) => sum + x.Qty, 0);
-
-        // ===========================
-        // ✅ CALCULATE BROKER RATE
-        // ===========================
         let brokerRate = calculateBrokerRate(saleRate, markup);
-
-        // ===========================
-        // ✅ CREATE OBJECT
-        // ===========================
         const obj = {
             DesignId: designId,
             DesignNo: designName,
@@ -3245,7 +3194,7 @@
         <td hidden>${designName}</td>
         <td hidden>${colorGroupName}</td>
         <td>${colorName}</td>
-        <td>${qty}</td>        
+        <td>${qty}</td>
         <td>${remark}</td>
 
         <td>
@@ -3254,7 +3203,7 @@
             </a>
         </td>
     </tr>`;
-    }  
+    }
     function bindMainTable() {
 
         const tbody = $("#orderBody");
@@ -3296,10 +3245,10 @@
             <td class="col-rate" hidden>${item.Rate}</td>
 
             <td class="col-brokerRate">
-                <input type="number" 
-                       class="form-control form-control-sm brokerRateInput" 
-                       value="${item.BrokerRate || 0}" 
-                       data-index="${index}" 
+                <input type="number"
+                       class="form-control form-control-sm brokerRateInput"
+                       value="${item.BrokerRate || 0}"
+                       data-index="${index}"
                        style="width:80px;" />
             </td>
 
@@ -3338,7 +3287,7 @@
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
 
-        let discountAmount = (type === "percent")
+        let discountAmount = (type === "Percentage")
             ? (totalAmount * value) / 100
             : value;
 
@@ -3367,34 +3316,27 @@
         // 🔻 Final
         let finalAmount = afterAdditional + gstAmount;
 
-        $("#invoiceAmount").text(finalAmount.toFixed(2));
+        var roundedAmount = Math.round(finalAmount);
+        var roundOff = roundedAmount - finalAmount;
+
+        $("#invoiceAmount").text(roundedAmount);
+        $("#RoundOff").text(roundOff.toFixed(2));
+        $("#invoiceAmount").text(Math.round(finalAmount).toFixed(2));
     }
     $(document).on("click", ".viewSub", function () {
 
         const index = $(this).closest("tr").data("index");
-
         currentViewIndex = index;
         isEditMode = true;
-
         const item = SaleOrderDetails[index];
-
-        $("#DesignNo")
-            .val(item.DesignId)
-            .trigger('change')
-            .prop("disabled", true);
-
-        // 🔥 Bind SubTable with latest rate
+        $("#DesignNo").val(item.DesignId).trigger('change').prop("disabled", true);
         bindSubTable(item.SubDetails);
-
         bindFormFields(item);
-
         let selectedId = item.SelectedColorId || item.SubDetails?.[0]?.ColorMatchingID;
-
         if (selectedId) {
             $("#ColorMatchingID").val(selectedId).trigger("change");
             getColorMatchingId(document.getElementById("ColorMatchingID"));
         }
-
         $("#designModal").modal("show");
     });
     function bindSubTable(subData) {
@@ -3419,8 +3361,8 @@
             let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
 
             rows += `
-        <tr data-colorid="${item.ColorMatchingID}" 
-            data-colorgroupid="${item.ColorGroupId || ""}" 
+        <tr data-colorid="${item.ColorMatchingID}"
+            data-colorgroupid="${item.ColorGroupId || ""}"
             data-rate="${saleRate}"
             data-img="${item.ImageUrl || ""}">
 
@@ -3589,14 +3531,14 @@
 
         // ❌ Stop only after all checks
         if (!isValid) return false;
-        
+
         // ✅ SHOW LOADER HERE
         showLoader();
         $("#btnSave").prop("disabled", true);
         let totalQty = 0;
         let totalAmount = 0;
         SaleOrderDetails.forEach((item) => {
-            item.ItemType = item.TypeId || "";     
+            item.ItemType = item.TypeId || "";
             if (!item.SubDetails) {
                 item.SubDetails = [];
             }
@@ -3610,27 +3552,23 @@
             item.SubDetails.forEach(sub => {
                 rowQty += parseFloat(sub.Qty || 0);
             });
-
             item.Qty = rowQty;
-            item.Amount = rowQty * parseFloat(item.Rate || 0);
+            item.Amount = rowQty * parseFloat(item.BrokerRate || 0);
             totalQty += rowQty;
             totalAmount += item.Amount;
+            item.brokerRate = item.brokerRate;
         });
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
-
         let discountAmount = 0;
-
-        if (type === "percent") {
+        if (type === "Percentage") {
             discountAmount = (totalAmount * value) / 100;
         } else {
             discountAmount = value;
         }
-
         if (discountAmount > totalAmount) {
             discountAmount = totalAmount;
         }
-
         $("#discountAmount").text(discountAmount.toFixed(2));
         let additionalValue = parseFloat($("#AdditionalValue").val()) || 0;
         let afterDiscount = totalAmount - discountAmount;
@@ -3639,13 +3577,15 @@
         let gstAmount = (afterAdditional * gstPercent) / 100;
 
         $("#gstAmount").text(gstAmount.toFixed(2));
-
         // Final Amount
         let finalAmount = afterAdditional + gstAmount;
 
-        $("#invoiceAmount").text(finalAmount.toFixed(2));
+        var roundedAmount = Math.round(finalAmount);
+        var roundOff = roundedAmount - finalAmount;
 
-        let invoiceAmount = finalAmount.toFixed(2);
+        $("#invoiceAmount").text(roundedAmount);
+        $("#RoundOff").text(roundOff.toFixed(2));
+        $("#invoiceAmount").text(Math.round(finalAmount).toFixed(2));  
         let model = {
             SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
             OrderNo: $("#OrderNo").val(),
@@ -3656,14 +3596,15 @@
             TransportID: ($("#ddlTransport option:selected").val() || ""),
             TotalQty: totalQty,
             TotalAmount: totalAmount,
-            DiscountType: ($("#discountType").val()||""),
+            DiscountType: ($("#discountType").val() || ""),
             AdditionalRemark: ($("#AdditionalText").val() || ""),
             AdditionalValue: parseFloat($("#AdditionalValue").val() || 0),
             DiscountPercent: value,
             DiscountAmount: discountAmount,
             GSTPercent: gstPercent,
             GSTAmount: gstAmount,
-            InvoiceAmount: invoiceAmount,
+            InvoiceAmount: $("#invoiceAmount").text(),
+            RoundOff: $("#RoundOff").text(),
             Remark: $("#MainRemark").val(),
             Details: SaleOrderDetails
         };
@@ -3709,35 +3650,26 @@
         $("#loaderOverlay").hide();
     }
     $(document).on("change", ".brokerRateInput", function () {
-
         let index = $(this).data("index");
         let newRate = parseFloat($(this).val()) || 0;
-
         let item = SaleOrderDetails[index];
-
         // ✅ Manual override flag
         item.IsRateManual = true;
-
         item.Rate = newRate;
         item.BrokerRate = newRate;
         item.Amount = item.TotalQty * newRate;
-
         // ✅ Sync SubDetails
         if (item.SubDetails && item.SubDetails.length > 0) {
             item.SubDetails.forEach(sub => {
                 sub.Rate = newRate;
             });
         }
-
         let row = $(this).closest("tr");
-
         row.find(".col-rate").text(item.Rate);
         row.find(".amountCell").text(item.Amount.toFixed(2));
-
         if (row.next().hasClass("child-row")) {
             bindSubTable(item.SubDetails);
         }
-
         updateSummary();
     });
     $("#AdditionalValue").on("input", function () {

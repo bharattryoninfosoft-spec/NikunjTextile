@@ -347,7 +347,7 @@
                                     <th>Qty</th>
                                     <th>Unit</th>
                                     <th hidden>Rate</th>
-                                    <th>Broker Rate</th>
+                                    <th> Rate</th>
                                     <th>Amount</th>
                                     <th>Remark</th>
                                     <th>Action</th>
@@ -394,17 +394,17 @@
                             </div>
 
                             <!-- Discount -->
-                            <div class="summary-row">
-                                <span>Discount</span>
-                                <div class="d-flex gap-2">
-                                    <select id="discountType" class="form-select form-control form-control-sm">
-                                        <option value="percent">%</option>
-                                        <option value="amount">₹</option>
-                                    </select>
-                                    <input type="number" id="discountValue" class="form-control form-control-sm" value="0">
-                                </div>
-                                <span id="discountAmount">0</span>
+                          <div class="summary-row">
+                            <span>Discount</span>
+                            <div class="d-flex gap-2">
+                                <select id="discountType" class="form-select form-control form-control-sm">
+                                    <option value="Percentage">%</option>
+                                    <option value="Amount">₹</option>
+                                </select>
+                                <input type="number" id="discountValue" class="form-control form-control-sm" value="0">
                             </div>
+                            <span id="discountAmount">0</span>
+                        </div>
 
                             <!-- GST -->
                             <div class="summary-row">
@@ -422,7 +422,10 @@
                                 <span>Invoice Amount</span>
                                 <span id="invoiceAmount">0</span>
                             </div>
-
+                            <div class="summary-row RoundOff">
+                                <span>RoundOff Amount</span>
+                                <span id="RoundOff">0</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1152,10 +1155,7 @@
 
 <!-- Dropzone JS -->
 <script src="vendor/dropzone/dropzone.min.js"></script>
-<!-- Main Js Required -->
-<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
-<!-- ✅ ADD HERE -->
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -1164,6 +1164,10 @@
 <script>
     document.title = "Create Sale Order - Nikunj Textile";
     $('body').addClass('fullscreen');
+    $('.active, .show, .current-page').removeClass('active show current-page');
+    $("#finance-tab").addClass("active");
+    $("#tab-finance").addClass("show active");
+    $("#aSaleOrderEntry").addClass("current-page");
 </script>
 
 
@@ -1177,15 +1181,9 @@
     let uniqueMap = {};
     console.log("SaleOrderDetails", SaleOrderDetails);
     console.log("subDetails", subDetails);
-    $(document).ready(function () {
-        $('.active, .show, .current-page').removeClass('active show current-page');
-        $("#finance-tab").addClass("active");
-        $("#tab-finance").addClass("show active");
-        $("#aSaleOrderEntry").addClass("current-page");
+    $(document).ready(function () { 
         const urlParams = new URLSearchParams(window.location.search);
-        //debugger;
         const id = urlParams.get('id');
-
         FunctionIsLogin();
         bindPartyGST();
         bindBrokerDropdown();
@@ -1216,7 +1214,7 @@
     });
     $("#discountType").on("change", function () {
 
-        if ($(this).val() === "percent") {
+        if ($(this).val() === "Percentage") {
             $("#discountValue").attr("placeholder", "Enter %");
         } else {
             $("#discountValue").attr("placeholder", "Enter ₹");
@@ -1490,8 +1488,8 @@
 
         getColorMatchingId(id);
     });
-    $("#Markup").on("input", function () {
-
+    $("#Markup").on("input change", function () {
+        debugger;
         const markup = parseFloat($(this).val()) || 0;
 
         SaleOrderDetails.forEach(item => {
@@ -1511,6 +1509,9 @@
                 });
             }
         });
+        bindMainTable();
+        updateSummary();
+        resetModal();
     })
     function openDesignModal() {
 
@@ -3234,8 +3235,8 @@
             }
         });
     });
-    function saveSaleOrder()
-    {
+    function saveSaleOrder() {
+        debugger;
         let broker = $("#ddlBroker");
         let transport = $("#ddlTransport");
         let party = $("#ddlPartyGST");
@@ -3298,27 +3299,23 @@
             item.SubDetails.forEach(sub => {
                 rowQty += parseFloat(sub.Qty || 0);
             });
-
             item.Qty = rowQty;
-            item.Amount = rowQty * parseFloat(item.Rate || 0);
+            item.Amount = rowQty * parseFloat(item.BrokerRate || 0);
             totalQty += rowQty;
             totalAmount += item.Amount;
+            item.brokerRate = item.brokerRate;
         });
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
-
         let discountAmount = 0;
-
-        if (type === "percent") {
+        if (type === "Percentage") {
             discountAmount = (totalAmount * value) / 100;
         } else {
             discountAmount = value;
         }
-
         if (discountAmount > totalAmount) {
             discountAmount = totalAmount;
         }
-
         $("#discountAmount").text(discountAmount.toFixed(2));
         let additionalValue = parseFloat($("#AdditionalValue").val()) || 0;
         let afterDiscount = totalAmount - discountAmount;
@@ -3327,13 +3324,15 @@
         let gstAmount = (afterAdditional * gstPercent) / 100;
 
         $("#gstAmount").text(gstAmount.toFixed(2));
-
         // Final Amount
         let finalAmount = afterAdditional + gstAmount;
 
-        $("#invoiceAmount").text(finalAmount.toFixed(2));
+        var roundedAmount = Math.round(finalAmount);
+        var roundOff = roundedAmount - finalAmount;
 
-        let invoiceAmount = finalAmount.toFixed(2);
+        $("#invoiceAmount").text(roundedAmount);
+        $("#RoundOff").text(roundOff.toFixed(2));
+        $("#invoiceAmount").text(Math.round(finalAmount).toFixed(2));
         let model = {
             SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
             OrderNo: $("#OrderNo").val(),
@@ -3351,7 +3350,8 @@
             DiscountAmount: discountAmount,
             GSTPercent: gstPercent,
             GSTAmount: gstAmount,
-            InvoiceAmount: invoiceAmount,
+            InvoiceAmount: $("#invoiceAmount").text(),
+            RoundOff: $("#RoundOff").text(),
             Remark: $("#MainRemark").val(),
             Details: SaleOrderDetails
         };
@@ -3608,7 +3608,7 @@
             data: JSON.stringify({ SaleOrderID: parseInt(finalId) }),
 
             success: function (res) {
-
+                debugger;
                 let data = res.d;
 
                 if (data && data.success && data.Data) {
@@ -3620,7 +3620,7 @@
                     // ==============================
                     $("#SaleOrderID").val(master.SaleOrderID);
                     $("#OrderNo").val(master.OrderNo);
-                    $("#OrderDate").val(formatDateFromDotNet(master.OrderDate));
+                    $("#OrderDate").val(master.OrderDate);
                     $("#totalQty").val(master.TotalQty);
                     $("#Markup").val(master.MarkupPercent);
                     $("#discountValue").val(master.DiscountPercent);
@@ -3642,15 +3642,7 @@
                         }
                     });
 
-                    // ==============================
-                    // 🔹 DROPDOWNS
-                    // ==============================
-                    setTimeout(() => {
-                        $("#ddlPartyGST").val(master.PartyID).trigger('change');
-                        $("#ddlBroker").val(master.BrokerID).trigger('change');
-                        $("#ddlTransport").val(master.TransportID).trigger('change');
-                        $("#GSTSLABId").trigger("change");
-                    }, 150);
+                   
 
                     // ==============================
                     // 🔥 MAIN DATA BUILD
@@ -3716,12 +3708,11 @@
 
                                 TotalQty: subDetails.reduce((sum, x) => sum + x.Qty, 0),
                                 NoOfColors: subDetails.length,
-
                                 Rate: parseFloat(item.Rate) || 0,
-                                BrokerRate: parseFloat(item.BrokerRate) || parseFloat(item.Rate) || 0,
+                                BrokerRate: parseFloat(item.BrokerRate) || parseFloat(item.BrokerRate) || 0,
 
                                 Amount: subDetails.reduce((sum, x) => {
-                                    let rate = x.Rate || item.Rate || 0;
+                                    let rate = x.BrokerRate || item.BrokerRate || 0;
                                     return sum + (x.Qty * rate);
                                 }, 0),
 
@@ -3770,7 +3761,15 @@
 
                         });
                     }
-
+                    // ==============================
+                    // 🔹 DROPDOWNS
+                    // ==============================
+                    setTimeout(() => {
+                        $("#ddlPartyGST").val(master.PartyID).trigger('change');
+                        $("#ddlBroker").val(master.BrokerID).trigger('change');
+                        $("#ddlTransport").val(master.TransportID).trigger('change');
+                        $("#GSTSLABId").trigger("change");
+                    }, 150);
                     // ==============================
                     // 🔹 FINAL UI BIND
                     // ==============================
@@ -3869,7 +3868,7 @@
         let value = parseFloat($("#discountValue").val()) || 0;
         let type = $("#discountType").val();
 
-        let discountAmount = (type === "percent")
+        let discountAmount = (type === "Percentage")
             ? (totalAmount * value) / 100
             : value;
 
@@ -3897,8 +3896,11 @@
 
         // 🔻 Final
         let finalAmount = afterAdditional + gstAmount;
-
-        $("#invoiceAmount").text(finalAmount.toFixed(2));
+        var roundedAmount = Math.round(finalAmount);
+        var roundOff = roundedAmount - finalAmount;
+        $("#invoiceAmount").text(roundedAmount);
+        $("#RoundOff").text(roundOff.toFixed(2));
+        $("#invoiceAmount").text(Math.round(finalAmount).toFixed(2));
     }  
     function showLoader() {
         $("#loaderOverlay").css("display", "flex");
