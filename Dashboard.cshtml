@@ -1,0 +1,50 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<div class="content-wrapper">
+    <!-- Print Report Button -->
+    @*<div class="row m-3">
+        <button type="button" class="btn btn-primary" onclick="generateAndOpenPdf();">
+            <i class="fa fa-print"></i> View HelloWorld PDF
+        </button>
+    </div>*@
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#home-tab").addClass("active");
+            $("#tab-home").addClass("show active");
+            $("#aDashboard").addClass("current-page");
+            //getDefaultCompany();
+            FunctionIsLogin();
+        });
+
+        // Function to call the report export web method
+        function generateAndOpenPdf() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/PrintHelloWorldReport',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var pdfUrl = response.d;
+                    if (pdfUrl && !pdfUrl.startsWith("Error")) {
+                        // Open generated PDF in a new browser tab for viewing/printing
+                        window.open(pdfUrl, '_blank');
+                    } else {
+                        alert("Failed to generate report: " + pdfUrl);
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error(error);
+                    alert("An error occurred while generating the PDF.");
+                }
+            });
+        }
+
+        // ... Existing FunctionIsLogin, getDefaultCompany, logout functions stay unchanged ...
+    </script>
+}

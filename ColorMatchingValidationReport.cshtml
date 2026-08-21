@@ -1,0 +1,553 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    /* ================= BLOCK ================= */
+    .cm-block {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .cm-header {
+        padding: 10px;
+        background: #f5f7fa;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+        .cm-header:hover {
+            background: #e9f0ff;
+        }
+
+    .cm-body {
+        padding: 10px;
+        background: #fff;
+    }
+
+    .cm-table {
+        border-top: 1px solid #ddd;
+    }
+
+    /* ================= ROW ================= */
+    .cm-row {
+        display: grid;
+        grid-template-columns: 60px 1fr 1fr 1fr;
+        padding: 6px;
+        border-bottom: 1px solid #eee;
+        font-size: 13px;
+        transition: background 0.2s ease;
+    }
+
+    .cm-head {
+        font-weight: bold;
+        background: #c5dcff;
+    }
+
+    .cm-row:hover {
+        background: #f1f5ff;
+    }
+
+    /* ================= TABS ================= */
+    #reportTabs .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 6px 12px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        /* Hover */
+        #reportTabs .nav-link:hover {
+            background: #eef3ff;
+        }
+
+        /* Active */
+        #reportTabs .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        /* Animated underline */
+        #reportTabs .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: #0d6efd;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        #reportTabs .nav-link.active::after {
+            width: 80%;
+        }
+
+    /* Badge */
+    #reportTabs .badge {
+        font-size: 11px;
+    }
+
+    /* ================= PAGINATION ================= */
+    #pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ================= STICKY HEADER ================= */
+    .report-header {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+        /* Shadow on scroll */
+        .report-header.scrolled {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+    /* ================= LOADER ================= */
+    .loader {
+        width: 18px;
+        height: 18px;
+        border: 3px solid #ddd;
+        border-top: 3px solid #0d6efd;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ================= SMALL ANIMATION ================= */
+    .scale-click {
+        transform: scale(0.95);
+        transition: transform 0.15s ease;
+    }
+</style>
+
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <!-- TITLE + LOADER -->
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h4 class="m-0 d-flex align-items-center gap-2 fw-semibold text-dark">
+                        <i class="bi bi-patch-check-fill text-success fs-4"></i>
+                        Color Matching Validation Report
+                    </h4>
+                    <div id="headerLoader" class="loader d-none"></div>
+                </div>
+                <!-- TABS + SEARCH -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                    <!-- TABS -->
+                    <ul class="nav nav-pills" id="reportTabs">
+
+                        <li class="nav-item me-2">
+                            <a class="nav-link active" id="tabAll">
+                                <i class="bi bi-list"></i>
+                                All
+                                <span class="badge bg-dark ms-1" id="countAll">0</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item me-2">
+                            <a class="nav-link" id="tabNotValidated">
+                                <i class="bi bi-x-circle text-danger"></i>
+                                Not Validated
+                                <span class="badge bg-danger ms-1" id="countNotValidated">0</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" id="tabValidated">
+                                <i class="bi bi-check-circle text-success"></i>
+                                Validated
+                                <span class="badge bg-success ms-1" id="countValidated">0</span>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <!-- SEARCH -->
+                    <div style="min-width: 250px;">
+                        <input type="text"
+                               id="searchBox"
+                               class="form-control"
+                               placeholder="Search Design Designer">
+                    </div>
+
+                </div>
+
+
+
+                <hr class="mt-2" />
+
+                <!-- ================= REPORT DATA ================= -->
+                <div id="reportContainer"></div>
+
+                <!-- ================= PAGINATION ================= -->
+                <div id="pagination" class="mt-3 text-center"></div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        // ================= GLOBAL =================
+        let currentPage = 1;
+        let currentStatus = '';
+        let pageSize = 10;
+        let fullData = [];
+        let filteredData = [];
+        let totalRecords = 0;
+       $('body').addClass('fullscreen');
+
+        // ================= STICKY HEADER =================
+        $(window).on("scroll", function () {
+            $(".report-header").toggleClass("scrolled", $(this).scrollTop() > 10);
+        });
+
+        // ================= LOADER =================
+        function showLoader() {
+            $("#headerLoader").removeClass("d-none");
+        }
+        function hideLoader() {
+            $("#headerLoader").addClass("d-none");
+        }
+
+        // ================= TAB ACTIVE =================
+        function setActiveTab(tabId) {
+            $("#reportTabs .nav-link").removeClass("active");
+            $("#" + tabId).addClass("active");
+        }
+
+        // ================= LOGIN =================
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                }
+            });
+        }
+
+        // ================= INIT =================
+        $(document).ready(function () {
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#Report-tab").addClass("active");
+            $("#tab-Report").addClass("show active");
+            $("#aColorMatchingReport").addClass("current-page");
+
+            FunctionIsLogin();
+
+            setActiveTab("tabAll");
+            loadReport(1, '');
+
+            // ================= SEARCH (FINAL FIX) =================
+            $("#searchBox").on("keyup", function () {
+
+                let val = $(this).val().toLowerCase().trim();
+
+                if (!val) {
+                    applyFilters(fullData);
+                    return;
+                }
+
+                let grouped = {};
+
+                fullData.forEach(item => {
+                    let key = item.DesignColorMatchingFormID;
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(item);
+                });
+
+                let result = [];
+
+                Object.values(grouped).forEach(group => {
+
+                    let isMatch = group.some(obj => {
+
+                        let designNo = (obj.DesignNo || '').toLowerCase().trim();
+                        let designerCode = (obj.DesignerCode || '').toLowerCase().trim();
+
+                        let full1 = (designNo + designerCode).replace(/\s/g, '');
+                        let full2 = (designerCode + designNo).replace(/\s/g, '');
+
+                        let searchVal = val.replace(/\s/g, '');
+
+                        let allFieldsMatch = Object.values(obj).some(v =>
+                            (v || '').toString().toLowerCase().includes(val)
+                        );
+
+                        return (
+                            designNo.includes(val) ||
+                            designerCode.includes(val) ||
+                            full1.includes(searchVal) ||
+                            full2.includes(searchVal) ||
+                            allFieldsMatch
+                        );
+                    });
+
+                    if (isMatch) result.push(...group);
+                });
+
+                applyFilters(result);
+            });
+
+            // ================= TABS =================
+            $("#tabAll").click(function () {
+                setActiveTab("tabAll");
+                loadReport(1, '');
+            });
+
+            $("#tabValidated").click(function () {
+                setActiveTab("tabValidated");
+                loadReport(1, 'Validated');
+            });
+
+            $("#tabNotValidated").click(function () {
+                setActiveTab("tabNotValidated");
+                loadReport(1, 'Not Validated');
+            });
+
+        });
+
+        // ================= FILTER =================
+        function applyFilters(data) {
+            filteredData = data;
+            currentPage = 1;
+            renderReport();
+        }
+
+        // ================= LOAD REPORT =================
+        function loadReport(page = 1, status = '') {
+
+            currentPage = page;
+            currentStatus = status;
+            showLoader();
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetColorMatchingReport',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+
+                // 🔥 IMPORTANT FIX
+                data: JSON.stringify({
+                    pageNumber: page,
+                    pageSize: pageSize,
+                    validationStatus: status,
+                    searchText: $("#searchBox").val() || ""
+                }),
+
+                success: function (res) {
+
+                    if (!res.d || res.d.Success === false) {
+                        $("#reportContainer").html("<p class='text-danger text-center'>Server Error</p>");
+                        hideLoader();
+                        return;
+                    }
+
+                    fullData = res.d.Data || [];
+                    filteredData = fullData;
+                    totalRecords = res.d.TotalRecords || 0;
+
+                    renderReport();
+                    renderPagination();
+                    updateTabCounts(res.d);
+
+                    hideLoader();
+                },
+
+                error: function (err) {
+                    console.log(err);
+                    $("#reportContainer").html("<p class='text-danger text-center'>Error loading data</p>");
+                    hideLoader();
+                }
+            });
+        }
+
+        // ================= COUNTS =================
+        function updateTabCounts(data) {
+            $("#countAll").text(data.TotalRecords ?? 0);
+            $("#countValidated").text(data.ValidatedCount ?? 0);
+            $("#countNotValidated").text(data.NotValidatedCount ?? 0);
+        }
+
+        // ================= RENDER =================
+        function renderReport() {
+
+            if (!filteredData || filteredData.length === 0) {
+                $("#reportContainer").html("<p class='text-center'>No data found</p>");
+                return;
+            }
+
+            let grouped = {};
+
+            filteredData.forEach(item => {
+                let key = item.DesignColorMatchingFormID;
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(item);
+            });
+
+            let html = '';
+
+            Object.keys(grouped).forEach(key => {
+
+                let rows = grouped[key];
+                let header = rows[0];
+
+                // ✅ FIX 1: Safe validation check
+                let status = (header.ValidationStatus || '').toString().toLowerCase();
+
+                let badge = status === 'validated' || status === '1' || status === 'true'
+                    ? `<span class="badge bg-success">Validated</span>`
+                    : `<span class="badge bg-danger">Not Validated</span>`;
+
+                html += `
+            <div class="cm-block mb-2">
+
+             <div class="cm-header d-flex justify-content-between align-items-center"
+         onclick="toggleRow('${header.DesignColorMatchingFormID}')">
+
+                    <div>
+                     <span id="icon_${header.DesignColorMatchingFormID}" class="ms-2"><i class="fa fa-plus"></i></span>&nbsp;&nbsp;&nbsp;&nbsp
+                      <label>
+                          <b>Design :</b>
+                          <span class="fw-bold">${header.DesignerCode}${header.DesignNo}</span>
+                      </label>
+                    </div>
+                    <div>
+                        ${badge}
+                    </div>
+                </div>
+
+                <div id="body_${header.DesignColorMatchingFormID}" class="cm-body" style="display:none;">
+
+                    <div class="row mb-2">
+                        <div class="col-md-3"><b>Warp:</b> ${header.WarpQuality || ''}</div>
+                        <div class="col-md-3"><b>Category:</b> ${header.DesignCategory || ''}</div>
+                        <div class="col-md-3"><b>Total Card:</b> ${header.TotalCard || ''}</div>
+                        <div class="col-md-3"><b>Pick:</b> ${header.PickOnLoom || ''}</div>
+                    </div>
+
+                    <div class="cm-table">
+                        <div class="cm-row cm-head">
+                            <div>No</div>
+                            <div>Matching</div>
+                            <div>Warp</div>
+                            <div>Feeder</div>
+                        </div>
+            `;
+
+                rows.forEach((r, i) => {
+                    html += `
+                <div class="cm-row">
+                    <div>${i + 1}</div>
+                    <div>${r.MatchingID || ''}</div>
+                    <div>${getWarp(r)}</div>
+                    <div>${getFeeder(r)}</div>
+                </div>`;
+                });
+
+                html += `</div></div>
+            </div>`;  // ✅ FIX 2: Proper closing
+            });
+
+            // ✅ FIX 3: Always replace DOM cleanly
+            $("#reportContainer").html(html);
+        }
+
+        // ================= TOGGLE =================
+        function toggleRow(id) {
+            let body = $("#body_" + id);
+            let icon = $("#icon_" + id);
+
+            if (body.is(":visible")) {
+                body.slideUp(150);
+                icon.html('<i class="fa fa-plus"></i>');   // ✅ FIX
+            } else {
+                body.slideDown(150);
+                icon.html('<i class="fa fa-minus"></i>');  // ✅ FIX
+            }
+        }
+
+        // ================= PAGINATION =================
+        function renderPagination() {
+
+            let totalPages = Math.ceil(totalRecords / pageSize) || 1;
+
+            let html = '';
+
+            html += `<button class="btn btn-sm btn-secondary me-1"
+            ${currentPage === 1 ? 'disabled' : ''}
+            onclick="changePage(${currentPage - 1})">Prev</button>`;
+
+            html += `<span class="mx-2">
+            Page <b>${currentPage}</b> of <b>${totalPages}</b>
+        </span>`;
+
+            html += `<button class="btn btn-sm btn-secondary"
+            ${currentPage >= totalPages ? 'disabled' : ''}
+            onclick="changePage(${currentPage + 1})">Next</button>`;
+
+            html += `<span class="ms-3 text-muted">
+            Total: ${totalRecords}
+        </span>`;
+
+            $("#pagination").html(html);
+        }
+
+        // ================= PAGE CHANGE =================
+        function changePage(page) {
+
+            let totalPages = Math.ceil(totalRecords / pageSize);
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+
+            loadReport(currentPage, currentStatus);
+
+            // 🔥 smooth scroll
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= HELPERS =================
+        function getWarp(r) {
+            return [r.Warp1, r.Warp2, r.Warp3, r.Warp4, r.Warp5]
+                .filter(x => x && x !== "0")
+                .join(', ');
+        }
+
+        function getFeeder(r) {
+            return [r.Feeder1, r.Feeder2, r.Feeder3, r.Feeder4, r.Feeder5]
+                .filter(x => x && x !== "0")
+                .join(', ');
+        }
+    </script>
+    }

@@ -1,0 +1,831 @@
+﻿
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <button id="AddGstModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Gst Slab</button>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Gst Slab</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="add-alert" class="alert alert-success" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+                        <br />
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+                                    <div class="col-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input id="name" type="text" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 32 || event.charCode == 37)">
+                                            <div class="field-placeholder">Gst Slab Name <sup style="color:red;">*</sup></div>
+                                            <div class="name-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="name-invalid-feedback invalid-feedback">Please Provide Slab Name</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper" style="margin-top: 0rem;">
+                                            <input id="gst" type="tell" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="5">
+                                            <div class="field-placeholder">SGST / CGST <sup style="color:red;">*</sup></div>
+                                            <div class="gst-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="gst-invalid-feedback invalid-feedback">Please Provide GST</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-8">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input id="company" type="text" class="form-control clear-field" disabled>
+                                            <input type="hidden" id="company-id" value="" />
+                                            <div class="field-placeholder">Company Name</div>
+                                            <div class="company-invalid-feedback invalid-feedback">&nbsp;</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                        @*<div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">*@
+                                        <div class="row gutters">
+                                            <div class="col-6">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style="margin-top: 0rem;">
+                                                    <input id="igst" type="tell" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="5">
+                                                    <div class="field-placeholder">IGST <sup style="color:red;">*</sup></div>
+                                                    <div class="igst-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="igst-invalid-feedback invalid-feedback">Please Provide IGST</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+
+                                            <div class="col-6" style="display:none;">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style="margin-top: 0rem;">
+                                                    <input id="cess" type="tell" value="0" class="form-control clear-field" @*onkeyup="validateAmount(this)"*@ onkeypress="return validateFloatKeyPress(this,event);" maxlength="5">
+                                                    <div class="field-placeholder">CESS</div>
+                                                    <div class="cess-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="cess-invalid-feedback invalid-feedback">Please Provide CESS</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+                                        </div>
+                                        @*</div>*@
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">GST Tax Slab</div>
+                    <div class="row align-items-center mb-3">
+                        <!-- BUTTONS -->
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+
+                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','UserAccount')">
+                                <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                            </button>
+
+                            <button class="btn btn-danger btn-sm" onclick="generatePDF()">
+                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                            </button>
+
+                            <button class="btn btn-primary btn-sm" onclick="printTable()">
+                                <i class="bi bi-printer-fill"></i> Print
+                            </button>
+                        </div>
+                        <!-- SEARCH -->
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="searchTable()" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr>
+                                    <th>Gst Slab Name</th>
+                                    @*<th>Company</th>*@
+                                    <th>SGST</th>
+                                    <th>CGST</th>
+                                    <th>IGST</th>
+                                    @*<th>CESS</th>*@
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="view-more-styl-class">
+        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
+        <br /><br /><br />
+    </div>
+    <!-- Row end -->
+
+</div>
+
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#AddGstModel").hide();
+                }
+            }
+
+            FunctionIsLogin();
+            displayData(0);
+
+            //getDefaultCompany();
+
+            // Shortcut Key
+            $(document).keydown(function (key) {
+                switch (parseInt(key.which, 10)) {
+                    case 27:
+                        //Esc Key
+                        $("#cancelbtn").click();
+                        break;
+                    case 18 && 79:
+                        // Alt + O
+                        $("#AddGstModel").click();
+                        //addnewcontact
+                        break;
+                    default:
+                        //alert(key.which);
+                        break;
+                }
+            });
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                        $("#company").val(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getGstSlab?startFrom=' + rowStart,
+                data: "{ 'startFrom':'" + rowStart + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+
+                    // CLEAR TABLE
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+
+                    // HTML TABLE BODY
+                    var tableBody = $("#copy-print-csv tbody");
+                    var temp = "";
+
+                    // VIEW MORE BUTTON
+                    if (response.listGstSlabMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    // LOOP
+                    for (var i = 0; i < response.listGstSlabMaster.length; i++) {
+                        temp += "<tr>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GSTSLABName + "</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].IGST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].dates + "</td>";
+
+                        // ACTIONS
+                        temp += "<td><div class='actions'>";
+
+                        // EDIT
+                        if (currentPagePermission.Edit == true ||
+                            currentPagePermission.Edit == "true") {
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "title='Edit' " +
+                                "data-bs-toggle='modal' " +
+                                "data-bs-target='#addNewContact' " +
+                                "onclick='showRecords(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                "<i class='icon-edit1 text-info'></i>" +
+                                "</a>&nbsp;&nbsp;";
+                        }
+
+                        // DELETE
+                        if (currentPagePermission.Delete == true ||
+                            currentPagePermission.Delete == "true") {
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "title='Delete' " +
+                                "onclick='functionUserDelete(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                "<i class='icon-x-circle text-danger'></i>" +
+                                "</a>";
+                        }
+
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    // APPEND HTML
+                    tableBody.append(temp);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Gst Slab");
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getGstSlabById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#name").val(response.listGstSlabMaster[0].GSTSLABName);
+                        $('#igst').val(response.listGstSlabMaster[0].IGST);
+                        $('#cess').val(response.listGstSlabMaster[0].CESS);
+                        $('#gst').val(response.listGstSlabMaster[0].GST);
+                        $('#company').val(response.listGstSlabMaster[0].CompanyName);
+                        $('#company-id').val(response.listGstSlabMaster[0].CompanyId);
+                    }
+                    else {
+                        showToast('error', response.Message);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to retrieve record details.');
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#saveViewbtn").show();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add GST Slab");
+            $("#add-alert").hide();
+            $("#name").val('');
+            $(".company-invalid-feedback").hide();
+            $('#igst').val('');
+            $('#cess').val('');
+            $('#gst').val('');
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(companyId) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGstSlabMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(companyId) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGstSlabMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(company) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(company);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('GSTSLABId', id);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/editGstMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while updating your data.');
+                    }
+                });
+            }
+        }
+
+        function functionUserDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this GST Slab record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('GSTSLABId', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteGstMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'GST slab deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting GST Slab.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting GST Slab.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validateFloatKeyPress(el, evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            var number = el.value.split('.');
+            if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            if (number.length > 1 && charCode == 46) {
+                return false;
+            }
+            var caratPos = getSelectionStart(el);
+            var dotPos = el.value.indexOf(".");
+            if (caratPos > dotPos && dotPos > -1 && (number[1].length > 1)) {
+                return false;
+            }
+            return true;
+        }
+
+        function getSelectionStart(o) {
+            if (o.createTextRange) {
+                var r = document.selection.createRange().duplicate()
+                r.moveEnd('character', o.value.length)
+                if (r.text == '') return o.value.length
+                return o.value.lastIndexOf(r.text)
+            } else return o.selectionStart
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+
+        function exportTableToExcel(tableID, filename = '') {
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+            filename = filename ? filename + '.xls' : 'excel_data.xls';
+            downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+
+            if (navigator.msSaveOrOpenBlob) {
+                var blob = new Blob(['\ufeff', tableHTML], {
+                    type: dataType
+                });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            }
+            else {
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+                downloadLink.download = filename;
+                downloadLink.click();
+            }
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4');
+            doc.setFontSize(14);
+            doc.text("User Account Report", 40, 40);
+
+            doc.autoTable({
+                html: '#copy-print-csv',
+                startY: 60,
+                theme: 'grid',
+                styles: {
+                    fontSize: 8
+                },
+                headStyles: {
+                    fillColor: [41, 128, 185]
+                }
+            });
+
+            doc.save('UserAccountReport.pdf');
+        }
+
+        function printTable() {
+            var table = document.getElementById("copy-print-csv").outerHTML;
+
+            var style = `
+                   <style>
+                       body{
+                           font-family: Arial;
+                           padding:20px;
+                       }
+                       h3{
+                           text-align:center;
+                           margin-bottom:20px;
+                       }
+                       table{
+                           width:100%;
+                           border-collapse: collapse;
+                       }
+                       table, th, td{
+                           border:1px solid #000;
+                       }
+                       th, td{
+                           padding:8px;
+                           text-align:left;
+                           font-size:12px;
+                       }
+                       .actions{
+                           display:none;
+                       }
+                       img{
+                           width:40px !important;
+                           height:40px !important;
+                           border-radius:50%;
+                       }
+                   </style>
+                `;
+
+            var win = window.open('', '', 'height=900,width=1200');
+
+            win.document.write(`
+                    <html>
+                        <head>
+                            <title>User Account Report</title>
+                            ${style}
+                        </head>
+                        <body>
+                            <h3>User Account Report</h3>
+                            ${table}
+                        </body>
+                    </html>
+                `);
+
+            win.document.close();
+            win.focus();
+
+            setTimeout(function () {
+                win.print();
+                win.close();
+            }, 500);
+        }
+
+        function searchTable() {
+            var input, filter, table, tr, td, i, j, txtValue, found;
+            input = document.getElementById("searchBox");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("copy-print-csv");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                found = false;
+
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                tr[i].style.display = found ? "" : "none";
+            }
+        }
+    </script>
+}

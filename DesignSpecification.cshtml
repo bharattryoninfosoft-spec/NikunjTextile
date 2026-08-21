@@ -1,0 +1,449 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="0" />
+
+    <div class="card-header-lg">
+        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">
+            <i class="icon-plus"></i> Add Design Specification
+        </button>
+
+        <!-- Modal Start -->
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Design Specification</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="overflow:auto">
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="row gutters">
+                                    <div class="col-6">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="DesignSpecification" name="DesignSpecification" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Design Specification<sup style="color:red;">*</sup></div>
+                                            <div class="DesignSpecification-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="DesignSpecification-invalid-feedback invalid-feedback">Please Mention Design Specification</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-6">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <div class="form-check form-check-inline mt-3">
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+                                                <label class="form-check-label" for="IsActive">Is Active</label>
+                                            </div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End -->
+    </div>
+
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Table Section Start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Design Specification</div>
+                    <br />
+                    <div class="row gutters mb-3">
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12"></div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="field-wrapper">
+                                <input id="search-Design-Specification" placeholder="Search Design Specification..." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Design Specification</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="designSpecTable" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style="background-color: #1273eb;">
+                                    <th style="color:white; width: 10%;">Sr No</th>
+                                    <th style="color:white;">Design Specification</th>
+                                    <th style="color:white; width: 15%;">Is Active</th>
+                                    <th style="color:white; width: 15%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic rows rendered here via jQuery -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center my-3">
+        <button type="button" class="btn btn-primary" id="view-more-btn" onclick="displayData(1)">View More</button>
+    </div>
+    <!-- Table Section End -->
+</div>
+
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+
+        // Helper Toast Alert for SweetAlert2
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Toast.fire({ icon: 'error', title: request.statusText || 'Error fetching company defaults.' });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            } else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchDesignSpecification = $("#search-Design-Specification").val();
+
+            var formData = new FormData();
+            formData.append('searchDesignSpecification', searchDesignSpecification);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getDesignSpecificationMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#designSpecTable tbody").empty();
+                    }
+
+                    if (!response.listDesignSpecificationMaster || response.listDesignSpecificationMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    } else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var temp = "";
+                    var SrNo = rowStart + 1;
+                    var list = response.listDesignSpecificationMaster || [];
+
+                    for (var i = 0; i < list.length; i++) {
+                        var item = list[i];
+                        temp += "<tr>";
+                        temp += "<td>" + (SrNo++) + "</td>";
+                        temp += "<td>" + item.DesignSpecification + "</td>";
+
+                        if (item.IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        } else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' class='EditBtn me-2' title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + item.DesignSpecificationID + ")'>";
+                        temp += "<i class='icon-edit1 text-info '></i></a>";
+                        temp += "<a href='javascript:void(0);' class='DeleteBtn' title='Delete' onclick='functionYarnDelete(" + item.DesignSpecificationID + ")'>";
+                        temp += "<i class='icon-x-circle text-danger'></i></a>";
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    $("#designSpecTable tbody").append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add === false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit === false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete === false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function () {
+                    Toast.fire({ icon: 'error', title: 'Failed to fetch records.' });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#saveViewbtn").show();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Design Specification");
+
+            $("#DesignSpecification").val('');
+            $("#IsActive").prop('checked', true);
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback, .valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignSpecification = $('#DesignSpecification').val();
+
+            if (!validate(document.getElementById('DesignSpecification'))) {
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('DesignSpecification', DesignSpecification);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignSpecificationMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+                        Toast.fire({ icon: 'success', title: response.Message || 'Record saved successfully.' });
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to save record.' });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred while saving.' });
+                }
+            });
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignSpecification = $('#DesignSpecification').val();
+
+            if (!validate(document.getElementById('DesignSpecification'))) {
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('DesignSpecification', DesignSpecification);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignSpecificationMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+                        Toast.fire({ icon: 'success', title: response.Message || 'Record saved successfully.' });
+                        displayData(0);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to save record.' });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred while saving.' });
+                }
+            });
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignSpecification = $('#DesignSpecification').val();
+
+            if (!validate(document.getElementById('DesignSpecification'))) {
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('DesignSpecificationID', id);
+            formData.append('DesignSpecification', DesignSpecification);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditDesignSpecificationMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        clearAll();
+                        Toast.fire({ icon: 'success', title: response.Message || 'Updated successfully.' });
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to update record.' });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred while updating.' });
+                }
+            });
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Design Specification");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getDesignSpecificationMasterById?id=' + id,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        var data = response.listDesignSpecificationMaster[0];
+                        $("#DesignSpecification").val(data.DesignSpecification);
+                        $("#IsActive").prop('checked', data.IsActive == "1");
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Record not found.' });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to retrieve record details.' });
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('DesignSpecificationID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteDesignSpecificationMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Toast.fire({ icon: 'success', title: 'Record deleted successfully.' });
+                                displayData(0);
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to delete record.' });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'An error occurred while deleting.' });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+
+            if (code.value === "") {
+                $(code).removeClass("is-valid").addClass("is-invalid");
+                $(errorMessageInvalid).show();
+                $(errorMessageValid).hide();
+                return false;
+            } else {
+                $(code).addClass("is-valid").removeClass("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                return true;
+            }
+        }
+    </script>
+}

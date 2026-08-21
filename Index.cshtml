@@ -1,0 +1,281 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Meta -->
+    <meta name="description" content="UniPro App">
+    <meta name="author" content="SR Sales Corporation">
+    <link rel="shortcut icon" href="img/fav.png" />
+
+    <!-- Title -->
+    <title>Nikunj Textile</title>
+
+    <!-- *************
+        ************ Common Css Files *************
+    ************ -->
+    <!-- Bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- *************
+        ************ Vendor Css Files *************
+    ************ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+
+        .is-valid {
+            border-color: rgba(25,135,84,.9) !important;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e);
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .is-invalid {
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e);
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            border-color: rgba(220,53,69,.9) !important;
+        }
+
+        .alert {
+            display: none;
+        }
+    </style>
+</head>
+
+<body style="overflow: hidden;" class="authentication">
+
+    <!-- Loading wrapper start -->
+    <div id="loading-wrapper">
+        <div class="spinner-border"></div>
+        Loading...
+    </div>
+    <!-- Loading wrapper end -->
+    <!-- *************
+        ************ Login container start *************
+    ************* -->
+    <div class="login-container">
+
+        <div class="container-fluid h-100">
+
+            <!-- Row start -->
+            <div class="row g-0 h-100">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    <div class="login-about">
+                        <div class="slogan">
+                            <span>Billing</span>
+                            <span>Made</span>
+                            <span>Simple.</span>
+                        </div>
+                        <div class="about-desc">
+                            My-Billing a data dashboard is an information management tool that visually tracks, analyzes and displays key performance indicators (KPI), metrics and key data points to monitor the health of a business, department or specific process.
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+
+
+
+                    <div class="login-wrapper">
+
+                        <div class="login-screen">
+
+                            <div class="login-body">
+                                <div id="error-alert" class="alert alert-danger" role="alert">
+
+                                </div>
+                                <a href="javascript:void(0);" class="login-logo">
+                                    <img src="img/logo.svg" alt="iChat">
+                                </a>
+                                <h6>Welcome back,<br>Please login to your account.</h6>
+                                <div class="field-wrapper">
+                                    <input id="email" type="text" onfocusout="validate(this)" class="form-control">
+                                    <input id="return-message" type="hidden" value="">
+                                    <div class="field-placeholder">Email ID / Phone No</div>
+                                    <div class="email-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="email-invalid-feedback invalid-feedback">Please Provide Email or Number</div>
+                                    <div class="unavailable-feedback invalid-feedback">Mentioned Email or Number Doesn't exists.</div>
+                                </div>
+                                <div class="field-wrapper mb-3">
+                                    <input id="password" type="password" onfocusout="validate(this)" class="form-control">
+                                    <div class="field-placeholder">Password</div>
+                                    <div class="password-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="password-invalid-feedback invalid-feedback">Please Provide Password</div>
+                                </div>
+                                <div class="actions">
+                                    <a href="/ForgotPassword">Forgot password?</a>
+                                    <button onclick="checkLogin()" type="submit" class="btn btn-primary">Login</button>
+                                </div>
+                            </div>
+                            <div class="login-footer">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Row end -->
+
+        </div>
+    </div>
+    <!-- *************
+        ************ Login container end *************
+    ************* -->
+    <!-- *************
+        ************ Required JavaScript Files *************
+    ************* -->
+    <!-- Required jQuery first, then Bootstrap Bundle JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script>
+
+        $(document).ready(function () {
+            logout();
+        });
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            var idStr = "#" + code.id;
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "" || code.value == "0") {
+                $(idStr).addClass("is-invalid");
+                $(idStr).removeClass("is-valid");
+                $(errorMessageInvalid).show();
+                $(".unavailable-feedback").hide();
+                return false;
+            }
+            else if (code.id == "email") {
+                $("#return-message").val("");
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/checkLoginUsername',
+                    data: "{ 'username':'" + code.value + "' }",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data, status) {
+                        var jsonData = data.d;
+                        console.log("yuhu", jsonData);
+                        if (jsonData != "false") {
+                            $(".email-valid-feedback").show();
+                            $(".email-invalid-feedback").hide();
+                            $(".unavailable-feedback").hide();
+                            $(idStr).addClass("is-valid");
+                            $(idStr).removeClass("is-invalid");
+                            $("#return-message").val("true");
+                        }
+                        else {
+                            $(".email-valid-feedback").hide();
+                            $(".email-invalid-feedback").hide();
+                            $(".unavailable-feedback").show();
+                            $(idStr).addClass("is-invalid");
+                            $(idStr).removeClass("is-valid");
+                            $("#return-message").val("false");
+                        }
+                        console.log("return msg", $("#return-message").val());
+                    },
+                    error: function (request, status, error) {
+                        $(".email-valid-feedback").hide();
+                        $(".email-invalid-feedback").hide();
+                        $(".unavailable-feedback").show();
+                    }
+                });
+
+            }
+            else {
+                $(idStr).addClass("is-valid");
+                $(idStr).removeClass("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                return true;
+            }
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = data.d;
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function checkLogin() {
+            var email = document.getElementById("email");
+            var password = document.getElementById("password");
+            console.log("Validate email", $("#return-message").val());
+            console.log("password", validate(password));
+            console.log("email empty", email.value != "");
+            if (email.value != "" && validate(password) == true && $("#return-message").val() == "true") {
+                $("#error-alert").hide();
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getLoginDetails',
+                    data: "{ 'username':'" + email.value + "','password':'" + password.value + "' }",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data, status) {
+                        console.log(data);
+                        var jsonData = data.d;
+                        if (jsonData == "done") {
+                            window.location.replace("/Dashboard");
+                        }
+                        else if (jsonData == "deactivate") {
+                            $("#error-alert").show();
+                            $("#error-alert").html("User Deactivated. You cannot login into the system.");
+                        }
+                        else {
+                            $("#error-alert").show();
+                            $("#error-alert").html("Incorrect Username Or Password");
+                        }
+                    },
+                    error: function (request, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+            else {
+                validate(email);
+                validate(password);
+                $("#error-alert").show();
+                $("#error-alert").html("Please Provide All Details Properly");
+            }
+        }
+    </script>
+
+    <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+
+    <!-- *************
+        ************ Vendor Js Files *************
+    ************* -->
+    <!-- Main Js Required -->
+    <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+</body>
+
+</html>

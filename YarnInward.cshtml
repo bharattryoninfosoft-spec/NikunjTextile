@@ -1,0 +1,886 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+
+        <a href="CreateYarnInward" id="AddYarnInwardEntry" style="float:right;" class="btn btn-primary">Add Yarn Inward</a>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel"> </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style=" overflow: auto !important; height: 500px !important;">
+
+                        <div class="row gutters">
+
+
+
+
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <!-- Field wrapper start -->
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+
+
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <p id="PYarnInwardDate"><b>PO Date: </b></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+
+                                                <p id="PChallanNo"><b>PO No : </b> </p>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                                <!-- Field wrapper end -->
+                            </div>
+
+
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hYarnInwardID" class="form-control" value="5">
+                                                <p id="PYarnPONo"> </p>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <input type="hidden" id="hYarnInwardID" class="form-control" value="5">
+
+                                                <p id="PCompanyName"> </p>
+                                                <p id="PSupplierName"> </p>
+                                                <p id="PMobileNo"> </p>
+
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <p id="PShippedToName"> </p>
+                                                <p id="PShippedtoAddress"> </p>
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+
+
+
+
+
+
+                                <hr />
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <p id="PYarnMaterial"> </p>
+                                                <p id="PColourCode"> </p>
+                                                <p id="PTotalWeight"> </p>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                <p id="PYarnColor"> </p>
+                                                <p id="PLotNo">  </p>
+                                                <p id="PPendingWeight"> </p>
+
+                                            </div>
+                                            <!-- Field wrapper end -->
+                                        </div>
+
+                                        <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+                                            <div class="field-wrapper">
+                                                <br>
+                                                <p id="PGodownTitle"> </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+
+
+
+                            </div>
+
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6" style="border-left: 1px solid;">
+
+                                <div id="dropzone-sm">
+                                    <div class="row gutters">
+
+
+                                        <div class="col-12">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" id="tblYarnInward" style="overflow: hidden;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th colspan="8">Yarn Inward</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th style="width:3%;">#</th>
+                                                            <th style="width: 15%; text-align: center;">Box No</th>
+                                                            <th style="width: 15%; text-align: center;">Net Weight</th>
+                                                            <th style="width: 10%; text-align: center;">Location</th>
+                                                            <th style="width: 10%; text-align: center;">Barcode</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody id="tableYarnPO">
+                                                    </tbody>
+
+
+
+
+                                                </table>
+
+
+
+
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+
+                        </div>
+                        <br />
+
+
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <input id="catedit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Yarn Inward Form</div>
+                    <br />
+
+
+                    <div class="row gutters">
+
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="SearchRequirementNo" placeholder="Search Yarn PO No / Party Name." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Challan No. / Supplier Name </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style=" background-color: #1273eb;">
+                                    <th style="color: white !important;">Sr No</th>
+                                    <th style="color: white !important;">Action</th>
+                                    <th style="color: white !important;">Inward <br /> Photo</th>
+                                    <th style="color: white !important;">Inward <br /> No</th>
+                                    <th style="color: white !important;">PO <br /> No</th>
+                                    <th style="color: white !important;">Challan <br /> Date</th>
+                                    <th style="color: white !important;">Party  <br /> Challan No</th>
+                                    <th style="color: white !important;">Shipped To <br /> Name</th>
+                                    <th style="color: white !important;">Shipped to   <br /> Address</th>
+                                    <th style="color: white !important;">Supplier  <br /> Name</th>
+                                    <th style="color: white !important;">Mobile <br /> No</th>
+                                    <th style="color: white !important;">Company <br /> Name</th>
+                                    <th style="color: white !important;">Yarn  <br /> Material</th>
+                                    <th style="color: white !important;">Yarn  <br /> Color</th>
+                                    <th style="color: white !important;">Total  <br /> Weight</th>
+                                    @*<th style="color: white !important;">Godown</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                    <br />
+
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="divPaggination">
+                            @*<li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                </li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>*@
+                        </ul>
+                    </nav>
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Row end -->
+
+</div>
+<!-- Content wrapper end -->
+
+
+
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayPagginationData();
+            displayData(0);
+            getYarnColor();
+            //getDefaultCompany();
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayPagginationData();
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = rowStartCheck;
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchRequirementNo', searchdesignNo);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var temp = "";
+
+                    var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listYarnInwardMaster.length; i++) {
+
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        temp += "<td><div class='actions'>";
+
+                        var TotalBarcode = "";
+
+                        // ======================================
+                        // BARCODE BUTTON
+                        // ======================================
+
+                        if (response.listYarnInwardMaster[i].TotalBarcode != "0") {
+                            TotalBarcode =
+                                "<a href='javascript:void(0);' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Print Stickers' " +
+                                "onclick='showYarnBarcodeRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='fa fa-barcode text-secondary fa-2x'></i>" +
+                                "</a>";
+                        }
+
+                        // ======================================
+                        // WHEN NOT COMPLETED
+                        // ======================================
+
+                        if (response.listYarnInwardMaster[i].IsComplete == 0) {
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='EditBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Edit' " +
+                                "onclick='showEditRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='icon-edit1 text-info'></i>" +
+                                "</a>&nbsp;&nbsp;&nbsp;";
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='viewBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Details' " +
+                                "data-bs-toggle='modal' " +
+                                "data-bs-target='#addNewContact' " +
+                                "onclick='showRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='fa fa-eye text-secondary'></i>" +
+                                "</a>&nbsp;&nbsp;&nbsp;";
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='DeleteBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Delete' " +
+                                "onclick='functionUserDelete(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='icon-x-circle text-danger'></i>" +
+                                "</a>";
+
+                            temp += "<br />" + TotalBarcode;
+                        }
+                        else {
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='viewBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Details' " +
+                                "data-bs-toggle='modal' " +
+                                "data-bs-target='#addNewContact' " +
+                                "onclick='showRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='fa fa-eye text-secondary'></i>" +
+                                "</a>&nbsp;&nbsp;&nbsp;";
+
+                            temp += "<br />" + TotalBarcode;
+                        }
+
+                        temp += "</div></td>";
+                        temp += "<td><img src='" + response.listYarnInwardMaster[i].PhotoOfInward + "' style='width:50px; height:50px;'></td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].ChallanNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnPONo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].ChallanDates + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].PartyChallanNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].GodownTitle + "  ";
+
+                        if (response.listYarnInwardMaster[i].GODOWNCHANGE == "GODOWN CHANGE") {
+                            temp += "<br /> <span class='badge rounded-pill bg-warning' style='color:black;'>GODOWN CHANGE</span>";
+                        }
+                        temp += "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].GodownAddress + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].SupplierName + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].MobileNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].BillToPartyName + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnMaterial + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnColor + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].TotalWeight + "</td>";
+
+                        temp += "</tr>";
+                    }
+                    $("#copy-print-csv tbody").empty();
+                    $("#copy-print-csv tbody").append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission != null && permission != "") {
+                        var currentPagePermission = JSON.parse(permission);
+
+                        if (!currentPagePermission.Add) {
+                            $("#AddYarnInwardEntry").hide();
+                        }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+
+        //Display Paggination
+        function displayPagginationData() {
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchString', searchdesignNo);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardMasterPaggination',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    total = response.listPagginationMaster[0].Total;
+                    Paggination = response.listPagginationMaster[0].Paggination + 1;
+                    prevNo = 0;
+                    nextNo = 10;
+
+                    if (response.listPagginationMaster[0].Paggination == "0") {
+                        $('#divPaggination').hide();
+                    }
+                    else {
+                        if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                            var temp = "";
+                            for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            $('#divPaggination').html(temp).show();
+                        }
+                        else {
+                            var temp = "";
+                            for (var i = 1; i <= 10; i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                            $('#divPaggination').html(temp).show();
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        //Select Paggination
+        function funcationPaggination(abc) {
+            $("#trLoading").show();
+            var a = "#a" + abc;
+            SelectNo = abc;
+            $('li').removeClass('active');
+            $(a).addClass('active');
+
+            $("#rowStartCount").val(((abc - 1) * 30));
+            displayData(((abc - 1) * 30));
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Yarn Inward Form");
+
+            var DecryptID = "";
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    ViewRecordQueryString(DecryptID);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        var ArrayYarnColor = [];
+
+        function getYarnColor() {
+            var formData = new FormData();
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnInwardID', DecryptID);
+
+            var PartyId = 0;
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    var userTable = $('#TblUser');
+
+                    for (var i = 0; i < response.listYarnInwardMaster.length; i++) {
+                        /* ---------- View Party Details ---------- */
+                        $("#hYarnInwardID").val(response.listYarnInwardMaster[i].YarnInwardID);
+                        $("#PYarnInwardDate").html("<b>Challan Date: </b>" + response.listYarnInwardMaster[i].ChallanDates);
+                        $("#PChallanNo").html("<b>Party Challan No: </b>" + response.listYarnInwardMaster[i].PartyChallanNo);
+
+                        $("#PYarnPONo").html("<b>Yarn PO No: </b>" + response.listYarnInwardMaster[i].YarnPoNo);
+                        $("#PShippedToName").html("<b>Shipped To Name: </b>" + response.listYarnInwardMaster[i].GodownTitle);
+                        $("#PShippedtoAddress").html("<b>Shipped To Address: </b>" + response.listYarnInwardMaster[i].GodownAddress);
+
+                        $("#PSupplierName").html("<b>Supplier Name: </b>" + response.listYarnInwardMaster[i].SupplierName);
+                        $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnInwardMaster[i].MobileNo);
+                        $("#PCompanyName").html("<b>Company Name: </b>" + response.listYarnInwardMaster[i].BillToPartyName);
+
+                        $("#PYarnMaterial").html("<b>Yarn Material: </b>" + response.listYarnInwardMaster[i].YarnMaterial);
+                        $("#PColourCode").html("<b>Colour Code: </b>" + response.listYarnInwardMaster[i].ColourCode);
+                        $("#PTotalWeight").html("<b>Total Weight: </b>" + response.listYarnInwardMaster[i].TotalWeight);
+
+                        $("#PYarnColor").html("<b>Yarn Color: </b>" + response.listYarnInwardMaster[i].YarnColor);
+                        $("#PLotNo").html("<b>Lot No: </b>" + response.listYarnInwardMaster[i].LotNo);
+                        $("#PPendingWeight").html("<b>Pending Weight: </b>" + response.listYarnInwardMaster[i].PendingWeight);
+                        $("#PGodownTitle").html("<b>Godown Title: </b>" + response.listYarnInwardMaster[i].GodownTitle);
+
+                        /* ---------- Yarn Requirement Detail  ---------- */
+                        $("#tblYarnInward tbody").empty();
+
+                        var dataTable = $('#tblYarnInward tbody');
+                        var temp = "";
+
+                        var srno = parseInt(0) + parseInt(1);
+                        for (var j = 0; j < response.listYarnInwardMaster[i].listYarnInwardDetail.length; j++) {
+                            temp += "<tr><td>" + srno++ + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].BoxNo + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].NetWeight + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].LocationTitle + "</td>";
+                            var barcode = "";
+                            if (response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo != "" && response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo != null) {
+                                barcode = '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="" data-original-title="Details" onclick="showBarcodeRecords(' + response.listYarnInwardMaster[i].listYarnInwardDetail[j].YarnInwardDetailID + ')"><i class="fa fa-barcode text-secondary fa-2x" style="font-weight:50;" title="Print Stickers"></i></a>';
+                            }
+                            temp += "<td style='text-align: center;'>" + barcode + " <br />" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo + "</td>";
+                            temp += "</tr>";
+                        }
+                        $("#tblYarnInward tbody").empty();
+                        dataTable.html(temp);
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showEditRecords(id) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.location.href = '/UpdateYarnInward?id=' + response.listEncryptDecrypt[0].DecryptID;
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionUserDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnInwardID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnInwardMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Yarn Inward deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting Design Entry Form.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting Design Entry Form.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function showYarnBarcodeRecords(YarnInwardID) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardID,
+                data: "{ 'id':'" + YarnInwardID + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.open('/YarnBoxMultiBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showBarcodeRecords(YarnInwardDetailID) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardDetailID,
+                data: "{ 'id':'" + YarnInwardDetailID + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.open('/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,369 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Nikung Textile">
+    <meta name="author" content="Nikunj Textile">
+    <link rel="shortcut icon" href="img/fav.png">
+    <title id="title"> </title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="fonts/style.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="vendor/megamenu/css/megamenu.css">
+    <link rel="stylesheet" href="vendor/search-filter/search-filter.css">
+    <link rel="stylesheet" href="vendor/search-filter/custom-search-filter.css">
+    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4.css" />
+    <link rel="stylesheet" href="vendor/datatables/dataTables.bs4-custom.css" />
+    <link rel="stylesheet" href="vendor/bs-select/bs-select.css" />
+    <link rel="stylesheet" href="vendor/daterange/daterange.css">
+    <link rel="stylesheet" href="vendor/dropzone/dropzone.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+<body style="overflow:hidden;">
+    <div class="page-wrapper">
+        <!-- Sidebar wrapper start -->
+        <nav class="sidebar-wrapper">
+            <div class="sidebar-tabs">
+                <!-- LEFT TAB -->
+                <div class="nav" role="tablist" aria-orientation="vertical" id="dynamicMenuTabs">
+                    <!-- LOGO -->
+                    <a href="#" class="logo">
+                        <img src="img/logo.svg" alt="Tryon InfoSoft">
+                    </a>
+                </div>
+                <!-- RIGHT CONTENT -->
+                <div class="tab-content" id="dynamicMenuContent">
+                </div>
+            </div>
+        </nav>
+        <!-- Sidebar wrapper end -->
+        <!-- *************
+            ************ Main container start *************
+        ************* -->
+        <div class="main-container">
+            <div class="page-header">
+                <div class="row gutters">
+                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-6 col-9">
+                        <div class="search-container">
+                            <div class="toggle-sidebar" id="toggle-sidebar">
+                                <i class="bi bi-list"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-3">
+                        <ul class="header-actions">
+                            <li class="dropdown">
+                                <a href="#" id="userSettings" class="user-settings" data-bs-toggle="dropdown">
+                                    <span class="avatar">
+                                        <img src="img/user.svg" alt="User Avatar">
+                                        <span class="status bg-success"></span>
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end md">
+                                    <div class="header-profile-actions">
+                                        <a href="javascript:void(0)" onclick="logout()">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <div class="content-wrapper-scroll">
+
+                @RenderBody()
+                <div class="app-footer">
+                    <script>document.write(new Date().getFullYear())</script> © My-Billing Design & Develop by
+                    <a href="https://www.tryoninfosoft.com" target="_blank">TRYON INFOSOFT</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
+    <script src="vendor/megamenu/js/megamenu.js"></script>
+    <script src="vendor/megamenu/js/custom.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
+    <script src="vendor/notify/notify.js"></script>
+    <script src="vendor/notify/notify-custom.js"></script>
+    <script src="vendor/rating/raty.js"></script>
+    <script src="vendor/rating/raty-custom.js"></script>
+    <script src="vendor/datatables/custom/custom-datatables.js"></script>
+    <script src="vendor/daterange/daterange.js"></script>
+    <script src="vendor/daterange/custom-daterange.js"></script>
+    <script src="https://tryoninfosoft.web.app/sr/main.js"></script>
+    <script src="vendor/bs-select/bs-select.min.js"></script>
+    <script src="vendor/bs-select/bs-select-custom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-notify/0.2.0/js/bootstrap-notify.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(function () {
+            var page = window.location.pathname.toLowerCase();
+            if (page.includes("saleorder")) {
+                $("body").addClass("fullscreen");
+            }
+            else if (page.includes("dashboard")) {
+                $("body").addClass("sidebar-mini");
+            }
+
+        });
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Session Expired",
+                            text: "Please login again."
+                        }).then(() => {
+                            window.location.replace("/Index");
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        loadDynamicMenu();
+        //$(document).ready(function () {
+
+        //    $("#toggle-sidebar").click(function () {
+
+        //        $(".page-wrapper").toggleClass("toggled");
+        //    });
+        //});
+        function loadDynamicMenu() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetDynamicMenu',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+
+                success: function (response) {
+                    var menus = response.d;
+                    console.log("GetDynamicMenu", menus);
+                    // CLEAR OLD STORAGE
+                    deleteCookie("PagePermission");
+                    $("#dynamicMenuTabs").find(".nav-link").remove();
+                    $("#dynamicMenuContent").empty();
+
+                    $.each(menus, function (i, menu) {
+
+                        // LEFT TAB MENU
+                        var tabHtml = `<a class="nav-link" id="tab_${menu.Menu_Id}_link" data-bs-toggle="tab" href="#tab_${menu.Menu_Id}" role="tab">
+                                                          <i class="bi ${menu.Menu_Icon}"></i>
+                                                                    <span class="nav-link-text"> ${menu.Menu_Name} </span> </a>`;
+                        $("#dynamicMenuTabs").append(tabHtml);
+                        var submenuHtml = '';
+                        $.each(menu.SubMenus, function (j, sub) {
+                            var url = '#';
+                            if (sub.Controller != '' && sub.Controller != '#') {
+                                url = '/' + sub.Controller;
+                            }
+                            // CURRENT PAGE
+                            var currentPage = window.location.pathname.toLowerCase().replace("/", "");
+                            // MENU PAGE
+                            var menuPage = sub.Controller.toLowerCase().replace("/", "");
+                            // STORE CURRENT PAGE PERMISSION
+                            if (currentPage == menuPage) {
+                                console.log("Permission Set :", sub);
+                                setCookie("PagePermission", JSON.stringify(sub), 1);
+                            }
+                            submenuHtml += `<li> <a href="${url}" id="submenu_${sub.SubMenu_Id}">
+                                                                                                                                                                                                  <i class="bi ${sub.SubMenu_Icon} me-2"></i> ${sub.SubMenu_Name} </a> </li>`;
+                        });
+                        // RIGHT SIDE SUBMENU
+                        var contentHtml = `<div class="tab-pane fade" id="tab_${menu.Menu_Id}"  role="tabpanel">
+                                                                                                                                                                                          <div class="tab-pane-header"> <i class="bi ${menu.Menu_Icon} me-2"></i> ${menu.Menu_Name} </div>
+                                                                                                                                                                                          <div class="sidebarMenuScroll">
+                                                                                                                                                                                              <div class="sidebar-menu">
+                                                                                                                                                                                                  <ul> ${submenuHtml} </ul>
+                                                                                                                                                                                              </div>
+                                                                                                                                                                                          </div>
+                                                                                                                                                                                      </div>`;
+                        $("#dynamicMenuContent").append(contentHtml);
+                    });
+                    // ACTIVE PAGE
+                    // ACTIVE PAGE
+                    var currentUrl = window.location.pathname.toLowerCase();
+                    var isFound = false;
+
+                    $("#dynamicMenuContent a").each(function () {
+
+                        var menuUrl = ($(this).attr("href") || "").toLowerCase();
+
+                        if (currentUrl == menuUrl) {
+
+                            isFound = true;
+
+                            $(this).addClass("current-page");
+
+                            var tabPane = $(this).closest(".tab-pane");
+                            tabPane.addClass("show active");
+
+                            var tabId = tabPane.attr("id");
+                            $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
+
+                            document.title = $(this).text().trim() + " - Nikunj Textile";
+                        }
+                    });
+
+                    // If page not found in dynamic menu
+                    if (!isFound) {
+
+                        $("#dynamicMenuTabs .nav-link").removeClass("active");
+                        $("#dynamicMenuContent .tab-pane").removeClass("show active");
+                        $("#dynamicMenuContent a").removeClass("current-page");
+
+                        var pageMap = {
+
+                            "/updatedesigncolormatching": "/designcolormatching",
+                            "/updatedesignentry": "/designentry",
+                            "/UpdateSaleOrderEntry": "/ListSaleOrderEntry",
+                            "/updateyarninward": "/yarninward",
+                            "/updateyarnoutwardchallan": "/yarnoutwardchallan",
+                            "/updateyarnoutwardchallannew": "/YarnOutWardChallanDetails",
+                            "/updateyarnoutwardscan": "/YarnOutWardScanDetails",
+                            "/updateyarnpo": "/yarnpo",
+                            "/updateyarnrequirement": "/yarnrequirement",
+                            "/PendingPOReport": "/PendingPOReport"
+                        };
+
+                        if (pageMap[currentUrl]) {
+
+                            var menu = $("#dynamicMenuContent a").filter(function () {
+                                return (($(this).attr("href") || "").toLowerCase() == pageMap[currentUrl]);
+                            });
+
+                            if (menu.length) {
+
+                                menu.addClass("current-page");
+
+                                var pane = menu.closest(".tab-pane");
+                                pane.addClass("show active");
+
+                                $('#dynamicMenuTabs a[href="#' + pane.attr("id") + '"]').addClass("active");
+
+                                document.title = menu.text().trim() + " - Nikunj Textile";
+                            }
+                        }
+                    }
+
+                    // DEFAULT ACTIVE
+                    if ($("#dynamicMenuTabs .active").length == 0) {
+                        $("#dynamicMenuTabs .nav-link:first").addClass("active");
+                        $("#dynamicMenuContent .tab-pane:first").addClass("show active");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Menu Error',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        }
+        $("#toggle-sidebar").on("click", function () {
+            $(".sidebar-wrapper").toggleClass("collapsed");
+            $(".main-container").toggleClass("expanded");
+        });
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        Swal.fire({
+                            title: "Logout?",
+                            text: "Do you want to logout?",
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Logout"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.replace("/Index");
+                            }
+                        });
+
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function setCookie(name, value, days) {
+
+            var expires = "";
+
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+
+            document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+
+            var cookieName = name + "=";
+            var cookies = document.cookie.split(";");
+
+            for (var i = 0; i < cookies.length; i++) {
+
+                var c = cookies[i].trim();
+
+                if (c.indexOf(cookieName) == 0) {
+                    return decodeURIComponent(c.substring(cookieName.length));
+                }
+            }
+
+            return null;
+        }
+
+        function deleteCookie(name) {
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;";
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+
+

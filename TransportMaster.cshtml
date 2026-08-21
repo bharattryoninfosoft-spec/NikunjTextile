@@ -1,0 +1,602 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    #tblTransport {
+        width: 100% !important;
+    }
+
+        #tblTransport td, #tblTransport th {
+            vertical-align: middle !important;
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        #tblTransport td {
+            white-space: nowrap;
+        }
+
+            #tblTransport td:nth-child(4) { /* Address column */
+                white-space: normal;
+                max-width: 250px;
+                word-break: break-word;
+            }
+
+        #tblTransport th {
+            background-color: #1f6ed4;
+            color: #fff;
+            font-weight: 500;
+        }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        margin-bottom: 10px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .fa {
+        font-size: 14px;
+    }
+</style>
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
+        <div class="toast-body bg-success text-white">
+            Saved Successfully
+        </div>
+    </div>
+    <div class="card-header-lg">
+        <div class="modal fade" id="TransportModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 id="transportModalLabel">Add Transport</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body" style="overflow:auto">
+                        <input type="hidden" id="TransportId" value="0">
+
+                        <div class="row g-3">
+
+                            <!-- Transport Code -->
+                            <div class="col-2">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="TransportCode" readonly>
+                                    <div class="field-placeholder">Transport Code</div>
+                                </div>
+                            </div>
+
+                            <!-- Transport Name -->
+                            <div class="col-4">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="TransportName">
+                                    <div class="field-placeholder">Transport Name <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Transport Name is required</div>
+                                </div>
+                            </div>
+
+                            <!-- ContactPerson -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="ContactPerson">
+                                    <div class="field-placeholder">ContactPerson <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Contact Person is required</div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile -->
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="MobileNo" maxlength="10">
+                                    <div class="field-placeholder">Mobile <sup class="text-danger">*</sup></div>
+                                    <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="Address">
+                                    <div class="field-placeholder">Address</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div class="field-wrapper">
+                                    @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                    <input id="gstTransport" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <input id="gstTransport" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <div class="field-placeholder">GSTIN <sup class="text-danger">*</sup></div>
+                                    <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                                </div>
+
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <!-- Field wrapper start -->
+                                <div class="field-wrapper">
+                                    @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                    <input id="TransportPanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <input id="TransportPanNo" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                    <div class="field-placeholder">PAN No <sup class="text-danger">*</sup></div>
+                                    <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
+                                    <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+
+                                </div>
+
+                            </div>
+                            <!-- City -->
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="CityName">
+                                    <div class="field-placeholder">City</div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Type -->
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="VehicleType">
+                                    <div class="field-placeholder">Vehicle Type</div>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="field-wrapper">
+                                    <select class="form-control" id="IsActive">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                    <div class="field-placeholder">Status</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-success" id="btnSaveTransport" onclick="saveTransport()">Save</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary" style="float:right;" id="AddTransportEntry" data-bs-toggle="modal" data-bs-target="#TransportModal">
+            <i class="fa fa-plus"></i> Add Transport
+        </button>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">TransportMaster</div>
+                    <div class="table-responsive">
+                        <table id="tblTransport" class="table table-bordered table-striped w-100">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Transport Name</th>
+                                    <th>Mobile</th>
+                                    <th>City</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Row end -->
+</div>
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            LoadTransportList();
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        $('#TransportModal').on('show.bs.modal', function () {
+            // Only for ADD
+            if ($('#TransportId').val() == 0) {
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetNextTransportCode',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: '{}',
+                    success: function (res) {
+                        $('#TransportCode').val(res.d);
+                        disableTransportForm(false);
+                        $('#btnSaveTransport').show();
+                        $('#transportModalLabel').text("New Transport");
+                    }
+                });
+            }
+        });
+
+        $('#tblTransport').on('click', '.edit', function () {
+            let id = $(this).data('id');
+            getTransportById(id, "edit");
+        });
+
+        $('#tblTransport').on('click', '.view', function () {
+            let id = $(this).data('id');
+            getTransportById(id, "view");
+        });
+
+        $('#tblTransport').on('click', '.delete', function () {
+            let id = $(this).data('id');
+            deleteTransport(id);
+        });
+
+        $('.form-control').on('input', function () {
+            $(this).removeClass('is-invalid');
+        });
+
+        $('#TransportModal').on('hidden.bs.modal', function () {
+            $(this).find('input, textarea').val('');
+            $(this).find('input[type="checkbox"]').prop('checked', false);
+            $(this).find('select').val(null).trigger('change');
+        });
+
+        function addTransport() {
+            $('#TransportForm')[0]?.reset();
+            $('#TransportId').val(0);
+            $('#transportModal').modal('show');
+        }
+
+        function LoadTransportList() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetTransportList",
+                type: "POST",
+                data: "{}",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d;
+
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+                    console.log("LoadTransportList", res);
+                    bindTransportTable(data);
+                },
+                error: function (err) {
+                    showToast('error', 'Failed to fetch record details.');
+                }
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText || 'Failed to fetch default company.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function bindTransportTable(data) {
+            var html = "";
+
+            $.each(data, function (i, item) {
+                html += "<tr>";
+                html += "<td>" + item.TransportCode + "</td>";
+                html += "<td>" + item.TransportName + "</td>";
+                html += "<td>" + item.MobileNo + "</td>";
+                html += "<td>" + item.CityName + "</td>";
+                html += "<td>" + item.VehicleType + "</td>";
+                html += "<td>";
+                html += item.IsActive
+                    ? "<span class='badge bg-success'>Active</span>"
+                    : "<span class='badge bg-danger'>Inactive</span>";
+                html += "</td>";
+                html += "<td>";
+                html += "<i class='fa fa-edit text-primary edit me-2' data-id='" + item.TransportId + "'></i>";
+                html += "<i class='fa fa-eye text-secondary view me-2' data-id='" + item.TransportId + "'></i>";
+                html += "<i class='fa fa-trash text-danger delete' data-id='" + item.TransportId + "'></i>";
+                html += "</td>";
+                html += "</tr>";
+            });
+
+            $("#tblTransport tbody").html(html);
+            var permission = getCookie("PagePermission");
+            if (permission) {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) { $("#AddTransportEntry").hide(); }
+                if (currentPagePermission.Edit == false) { $(".edit").hide(); }
+                if (currentPagePermission.Delete == false) { $(".delete").hide(); }
+                if (currentPagePermission.view == false) { $(".view").hide(); }
+            }
+        }
+
+        function saveTransport() {
+            let isValid = true;
+
+            $('.form-control').removeClass('is-invalid');
+
+            let mobile = $('#MobileNo').val().trim();
+
+            if (!$('#TransportName').val().trim()) {
+                $('#TransportName').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#gstTransport').val().trim()) {
+                $('#gstTransport').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#TransportPanNo').val().trim()) {
+                $('#TransportPanNo').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#ContactPerson').val().trim()) {
+                $('#ContactPerson').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!mobile) {
+                $('#MobileNo').addClass('is-invalid');
+                isValid = false;
+            }
+            else if (!/^[6-9]\d{9}$/.test(mobile)) {
+                $('#MobileNo').addClass('is-invalid');
+                $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            let obj = {
+                TransportId: parseInt($('#TransportId').val()) || 0,
+                TransportName: $('#TransportName').val(),
+                FirmName: $('#FirmName').val(),
+                ContactPerson: $('#ContactPerson').val(),
+                Email: $('#Email').val(),
+                MobileNo: $('#MobileNo').val(),
+                AlternateMobileNo: $('#AlternateMobileNo').val(),
+                Address: $('#Address').val(),
+                CityName: $('#CityName').val(),
+                PANCard: $('#TransportPanNo').val(),
+                GSTNo: $('#gstTransport').val(),
+                VehicleType: $('#VehicleType').val(),
+                IsActive: $('#IsActive').val() === "true"
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveTransport',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ obj: obj }),
+                success: function (res) {
+                    if (res.d === "success") {
+                        showToast('success', 'Saved Successfully');
+                        $('#TransportModal').modal('hide');
+                        LoadTransportList();
+                    } else {
+                        showToast('error', res.d);
+                    }
+                }
+            });
+        }
+
+        function getTransportById(id, mode) {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetTransportById',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ TransportId: id }),
+                success: function (res) {
+                    let d = res.d;
+
+                    $('#TransportId').val(d.TransportId);
+                    $('#TransportCode').val(d.TransportCode);
+                    $('#TransportName').val(d.TransportName);
+                    $('#FirmName').val(d.FirmName);
+                    $('#ContactPerson').val(d.ContactPerson);
+                    $('#Email').val(d.Email);
+                    $('#MobileNo').val(d.MobileNo);
+                    $('#AlternateMobileNo').val(d.AlternateMobileNo);
+                    $('#Address').val(d.Address);
+                    $('#CityName').val(d.CityName);
+                    $('#TransportPanNo').val(d.PANCard);
+                    $('#gstTransport').val(d.GSTNo);
+                    $('#VehicleType').val(d.VehicleType);
+                    $('#IsActive').val(d.IsActive.toString());
+
+                    if (mode === "view") {
+                        disableTransportForm(true);
+                        $('#btnSaveTransport').hide();
+                        $('#transportModalLabel').text("View Transport");
+                    } else {
+                        disableTransportForm(false);
+                        $('#btnSaveTransport').show();
+                        $('#transportModalLabel').text("Edit Transport");
+                    }
+
+                    $('#TransportModal').modal('show');
+                },
+                error: function (err) {
+                    showToast('error', 'Failed to fetch record details.');
+                }
+            });
+        }
+
+        function disableTransportForm(flag) {
+            $('#TransportModal input, #TransportModal select').prop('disabled', flag);
+        }
+
+        function deleteTransport(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Delete this transport?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/WebServiceNikunjTextile.asmx/DeleteTransport',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ TransportId: id }),
+                        success: function (res) {
+                            if (res.d === "success") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Deleted Successfully',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                LoadTransportList();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: res.d
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        $("#gstTransport").on("input", function () {
+            let gstVal = $(this).val().toUpperCase().trim();
+            let element = this;
+
+            $(element).val(gstVal);
+            $("#gstTransportHidden").val(gstVal);
+
+            if (gstVal.length === 15) {
+                let pan = gstVal.substring(2, 12);
+                $("#TransportPanNo").val(pan);
+                $("#TransportPanNoHidden").val(pan);
+
+                $(element).removeClass("is-invalid").addClass("is-valid");
+                $("#GSTError").hide();
+            } else {
+                $("#TransportPanNo").val("");
+                $("#TransportPanNoHidden").val("");
+
+                $(element).removeClass("is-valid").addClass("is-invalid");
+                $("#GSTError").html("GSTIN must be 15 characters").show();
+            }
+        });
+
+        $("#TransportPanNo").on("input", function () {
+            let element = this;
+            let pan = $(element).val().toUpperCase().trim();
+
+            $(element).val(pan);
+
+            let pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+            if (pattern.test(pan)) {
+                $(element).removeClass("is-invalid").addClass("is-valid");
+                $("#PanNoError").hide();
+                return true;
+            } else {
+                $(element).removeClass("is-valid").addClass("is-invalid");
+                $("#PanNoError").html("Please Provide Valid PanNo Number").show();
+                return false;
+            }
+        });
+    </script>
+}
+
+
+
+
+
+

@@ -1,0 +1,434 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<div class="content-wrapper">
+    <!-- Toast Placeholder (Optional if using SweetAlert2) -->
+    <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
+        <div class="toast-body bg-success text-white">
+            Saved Successfully
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="m-0">Broker Management</h4>
+        <button class="btn btn-primary brokerModal" data-bs-toggle="modal" data-bs-target="#brokerModal">
+            <i class="fa fa-plus me-1"></i> Add Broker
+        </button>
+    </div>
+
+    <!-- Modal Section -->
+    <div class="modal fade" id="brokerModal" tabindex="-1" aria-labelledby="brokerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="brokerModalLabel">Add Broker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body" style="overflow:auto" id="brokerForm">
+                    <input type="hidden" id="BrokerId" value="0">
+                    <div class="row g-3">
+                        <!-- Broker Code -->
+                        <div class="col-md-2">
+                            <div class="field-wrapper">
+                                <input type="text" class="form-control" id="BrokerCode" readonly>
+                                <div class="field-placeholder">Broker Code</div>
+                            </div>
+                        </div>
+
+                        <!-- Broker Name -->
+                        <div class="col-md-5">
+                            <div class="field-wrapper">
+                                <input type="text" class="form-control" id="BrokerName">
+                                <div class="field-placeholder">Broker Name <span style="color:red">*</span></div>
+                                <div class="invalid-feedback">Broker Name is required</div>
+                            </div>
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="col-md-5">
+                            <div class="field-wrapper">
+                                <input type="tel" class="form-control" id="MobileNo" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                <div class="field-placeholder">Mobile <span style="color:red">*</span></div>
+                                <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-md-5">
+                            <div class="field-wrapper">
+                                <input type="text" class="form-control" id="Address">
+                                <div class="field-placeholder">Address</div>
+                            </div>
+                        </div>
+
+                        <!-- City -->
+                        <div class="col-md-2">
+                            <div class="field-wrapper">
+                                <input type="text" class="form-control" id="CityName">
+                                <div class="field-placeholder">City</div>
+                            </div>
+                        </div>
+
+                        <!-- Commission -->
+                        <div class="col-md-3">
+                            <div class="field-wrapper">
+                                <input type="number" class="form-control" id="CommissionRate" maxlength="3" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                <div class="field-placeholder">Commission (%)</div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-2">
+                            <div class="field-wrapper">
+                                <select class="form-control" id="IsActive">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                                <div class="field-placeholder">Status</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" id="saveBtn" class="btn btn-success px-4" onclick="saveBroker()">
+                        <span id="btnText">Save</span>
+                        <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header mb-3 fw-bold">Broker Master</div>
+                    <div class="table-responsive">
+                        <table id="tblBroker" class="table table-bordered table-hover align-middle">
+                            <thead style="background-color: #2573e8">
+                                <tr>
+                                    <th class="text-white" >Broker Code</th>
+                                    <th class="text-white" >Broker Name</th>
+                                    <th class="text-white" >Mobile</th>
+                                    <th class="text-white" >Address</th>
+                                    <th class="text-white" >City</th>
+                                    <th class="text-white" >Commission (%)</th>
+                                    <th class="text-white" >Status</th>
+                                    <th class="text-white"  style="width: 100px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <!-- SweetAlert2 Library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var currentPagePermission = {};
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            LoadBrokerList();
+        });
+
+        // Helper function to read cookie value safely
+        function getCookie(name) {
+            let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d === "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("Login check failed:", error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d === "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("Logout failed:", error);
+                }
+            });
+        }
+
+        function LoadBrokerList() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetBrokerList",
+                type: "POST",
+                data: "{}",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d;
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+                    bindBrokerTable(data);
+                },
+                error: function (err) {
+                    console.error("Error loading broker list:", err);
+                }
+            });
+        }
+
+        function bindBrokerTable(data) {
+            var html = "";
+
+            $.each(data, function (i, item) {
+                html += "<tr>";
+                html += "<td>" + item.BrokerCode + "</td>";
+                html += "<td>" + item.BrokerName + "</td>";
+                html += "<td>" + item.MobileNo + "</td>";
+                html += "<td>" + (item.Address || "-") + "</td>";
+                html += "<td>" + (item.CityName || "-") + "</td>";
+                html += "<td>" + parseFloat(item.CommissionRate || 0).toFixed(2) + "</td>";
+
+                html += "<td>";
+                html += item.IsActive
+                    ? "<span class='badge bg-success'>Active</span>"
+                    : "<span class='badge bg-danger'>Inactive</span>";
+                html += "</td>";
+
+                html += "<td>";
+                html += "<i class='fa fa-edit text-primary me-2 EditBtn' title='Edit' style='cursor:pointer' onclick='getBrokerById(" + item.BrokerId + ",\"edit\")'></i>";
+                html += "<i class='fa fa-eye text-dark me-2 ViewBtn' title='View' style='cursor:pointer' onclick='getBrokerById(" + item.BrokerId + ",\"view\")'></i>";
+                html += "<i class='fa fa-trash text-danger DeleteBtn' title='Delete' style='cursor:pointer' onclick='deleteBroker(" + item.BrokerId + ")'></i>";
+                html += "</td>";
+
+                html += "</tr>";
+            });
+
+            $("#tblBroker tbody").html(html);
+
+            var permission = getCookie("PagePermission");
+            if (permission) {
+                currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add === false) { $(".brokerModal").hide(); }
+                if (currentPagePermission.Edit === false) { $(".EditBtn").hide(); }
+                if (currentPagePermission.Delete === false) { $(".DeleteBtn").hide(); }
+                if (currentPagePermission.view === false) { $(".ViewBtn").hide(); }
+            }
+        }
+
+        $('#brokerModal').on('show.bs.modal', function () {
+            if ($('#BrokerId').val() == '0') {
+                $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", false);
+                $('#brokerModalLabel').text("Add Broker");
+                $("#saveBtn").show();
+
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetNextBrokerCode',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: '{}',
+                    success: function (response) {
+                        $('#BrokerCode').val(response.d);
+                    },
+                    error: function (err) {
+                        console.error("Error getting broker code:", err);
+                    }
+                });
+            }
+        });
+
+        $('#brokerModal').on('hidden.bs.modal', function () {
+            $('#BrokerId').val('0');
+            $(this).find('input, textarea').val('');
+            $(this).find('input[type="checkbox"]').prop('checked', false);
+            $(this).find('select').val('true').trigger('change');
+            $('.form-control').removeClass('is-invalid');
+        });
+
+        $('.form-control').on('input change', function () {
+            $(this).removeClass('is-invalid');
+        });
+
+        function getBrokerById(id, mode) {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetBrokerById',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ BrokerId: id }),
+                success: function (res) {
+                    let data = res.d;
+
+                    $('#BrokerId').val(data.BrokerId);
+                    $('#BrokerCode').val(data.BrokerCode);
+                    $('#BrokerName').val(data.BrokerName);
+                    $('#MobileNo').val(data.MobileNo);
+                    $('#Address').val(data.Address);
+                    $('#CityName').val(data.CityName);
+                    $('#CommissionRate').val(data.CommissionRate);
+                    $('#IsActive').val(data.IsActive.toString());
+
+                    if (mode === "view") {
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", true);
+                        $('#brokerModalLabel').text("View Broker");
+                        $("#saveBtn").hide();
+                    } else {
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", false);
+                        $('#brokerModalLabel').text("Edit Broker");
+                        $("#saveBtn").show();
+                    }
+                    $('#brokerModal').modal('show');
+                },
+                error: function (err) {
+                    showToast('error', 'Failed to fetch broker details.');
+                }
+            });
+        }
+
+        function deleteBroker(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this broker!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/WebServiceNikunjTextile.asmx/DeleteBroker',
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify({ BrokerId: id }),
+                        success: function (res) {
+                            if (res.d === "success") {
+                                Swal.fire("Deleted!", "Broker removed successfully.", "success");
+                                LoadBrokerList();
+                            } else {
+                                Swal.fire("Error", res.d, "error");
+                            }
+                        },
+                        error: function (err) {
+                            Swal.fire("Error", "Failed to delete record.", "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        function saveBroker() {
+            let isValid = true;
+            $('.form-control').removeClass('is-invalid');
+
+            let mobile = $('#MobileNo').val().trim();
+
+            if (!$('#BrokerName').val().trim()) {
+                $('#BrokerName').addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (!mobile) {
+                $('#MobileNo').addClass('is-invalid');
+                isValid = false;
+            } else if (!/^[6-9]\d{9}$/.test(mobile)) {
+                $('#MobileNo').addClass('is-invalid');
+                $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            $("#btnText").text("Saving...");
+            $("#btnLoader").removeClass("d-none");
+            $("#saveBtn").prop("disabled", true);
+
+            var obj = {
+                BrokerId: $('#BrokerId').val(),
+                BrokerCode: $('#BrokerCode').val(),
+                BrokerName: $('#BrokerName').val().trim(),
+                MobileNo: mobile,
+                Address: $('#Address').val().trim(),
+                CityName: $('#CityName').val().trim(),
+                CommissionRate: $('#CommissionRate').val() || 0,
+                IsActive: $('#IsActive').val() === "true"
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveBroker',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ obj: obj }),
+                success: function (res) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+
+                    if (res.d === "success") {
+                        showToast('success', 'Broker details saved successfully.');
+                        $('#brokerModal').modal('hide');
+                        LoadBrokerList();
+                    } else {
+                        showToast('error', res.d);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+                    showToast('error', 'Server error while saving record.');
+                }
+            });
+        }
+    </script>
+}

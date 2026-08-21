@@ -1,0 +1,744 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Designer</button>
+
+        <!-- Modal Start -->
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Designer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="overflow: auto;">
+                        <div id="add-alert" class="alert alert-success d-none" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="DesignerCode" name="DesignerCode" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Designer Code<sup style="color:red;">*</sup></div>
+                                            <div class="DesignerCode-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="DesignerCode-invalid-feedback invalid-feedback">Please Mention Designer Code</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="DesignerName" name="DesignerName" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Designer Name<sup style="color:red;">*</sup></div>
+                                            <div class="DesignerName-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="DesignerName-invalid-feedback invalid-feedback">Please Mention Designer Name</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <textarea class="form-control clear-field" id="Address" name="Address"></textarea>
+                                            <div class="field-placeholder">Address</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="IFSCCode" name="IFSCCode" class="form-control clear-field" minlength="11" maxlength="11" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 48 && event.charCode <= 57))" onkeyup="myFunctionIFSC(this)" />
+                                            <div class="field-placeholder">IFSC Code</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="BankName" name="BankName" class="form-control clear-field" readonly />
+                                            <div class="field-placeholder">Bank Name</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="BankAcNo" name="BankAcNo" class="form-control clear-field" />
+                                            <div class="field-placeholder">Bank Ac No</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-xl-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="file" id="AadharUpload" name="AadharUpload" class="form-control clear-field" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                                            <div class="field-placeholder">Upload Document</div>
+                                            <input type="hidden" id="tempAadharUpload" />
+                                            <div id="divAadharUpload"></div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                    <div class="col-6">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <div class="form-check form-check-inline">
+                                                <br />
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+                                                <label class="form-check-label" for="IsActive">Is Active</label>
+                                            </div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End -->
+    </div>
+
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Table Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Designer</div>
+                    <br />
+                    <div class="row gutters mb-3">
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="search-Designer" placeholder="Search Designer." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Search Designer</div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+                    </div>
+
+                    <!-- Pure HTML Bootstrap Table -->
+                    <div class="table-responsive">
+                        <table id="tblDesigner" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style="background-color: #1273eb; color: white;">
+                                    <th style="color:white; width: 60px; text-align: center;">Sr No</th>
+                                    <th style="color:white; width: 110px;">Designer <br /> Code</th>
+                                    <th style="color:white;">Designer <br /> Name</th>
+                                    <th style="color:white;">Address</th>
+                                    <th style="color:white;">Bank <br />Name</th>
+                                    <th style="color:white;">Ac No</th>
+                                    <th style="color:white; width: 120px;">IFSC Code</th>
+                                    <th style="color:white; width: 90px; text-align: center;">Document</th>
+                                    <th style="color:white; width: 90px; text-align: center;">Is Active</th>
+                                    <th style="color:white; width: 100px; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows dynamic bind via jQuery AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="view-more-styl-class text-center mt-3">
+        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
+        <br /><br /><br />
+    </div>
+    <!-- Row end -->
+
+</div>
+
+@section Scripts{
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var currentPagePermission = {};
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function showToast(icon, title) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: icon,
+                title: title,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Error fetching company details');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function myFunctionIFSC(abc) {
+            var code = abc.value ? abc.value.trim() : "";
+
+            if (code == "") {
+                $(abc).removeClass("is-valid").addClass("is-invalid");
+                $("#BankName").val('');
+            }
+            else {
+                if (code.length == 11) {
+                    var ifscurl = "https://ifsc.razorpay.com/" + code;
+                    $.ajax({
+                        type: "GET",
+                        url: ifscurl,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response && response.BANK) {
+                                $("#BankName").val(response.BANK);
+                                $(abc).addClass("is-valid").removeClass("is-invalid");
+                            }
+                            else {
+                                $(abc).removeClass("is-valid").addClass("is-invalid");
+                                $("#BankName").val('');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $(abc).removeClass("is-valid").addClass("is-invalid");
+                            $("#BankName").val('');
+                        }
+                    });
+                }
+                else {
+                    $(abc).removeClass("is-valid").addClass("is-invalid");
+                    $("#BankName").val('');
+                }
+            }
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val() || 0) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchDesigner = $("#search-Designer").val();
+
+            var formData = new FormData();
+            formData.append('searchDesigner', searchDesigner);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getDesignerMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#tblDesigner tbody").empty();
+                    }
+                    var tbody = $('#tblDesigner tbody');
+                    var temp = "";
+
+                    if (!response.listDesignerMaster || response.listDesignerMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    if (response.listDesignerMaster) {
+                        var SrNo = rowStart + 1;
+                        for (var i = 0; i < response.listDesignerMaster.length; i++) {
+                            var item = response.listDesignerMaster[i];
+
+                            temp += "<tr>";
+                            temp += "<td class='text-center'>" + SrNo++ + "</td>";
+                            temp += "<td>" + (item.DesignerCode || '') + "</td>";
+                            temp += "<td>" + (item.DesignerName || '') + "</td>";
+                            temp += "<td>" + (item.Address || '') + "</td>";
+                            temp += "<td>" + (item.BankName || '') + "</td>";
+                            temp += "<td>" + (item.BankAcNo || '') + "</td>";
+                            temp += "<td>" + (item.IFSCCode || '') + "</td>";
+
+                            if (item.AadharUpload && item.AadharUpload !== "") {
+                                temp += "<td class='text-center'><a href='/" + item.AadharUpload + "' target='_blank'><i class='fa fa-file-pdf-o fa-2x text-danger'></i></a></td>";
+                            }
+                            else {
+                                temp += "<td></td>";
+                            }
+
+                            if (item.IsActive == "1") {
+                                temp += "<td class='text-center'><span class='badge bg-success'>Active</span></td>";
+                            }
+                            else {
+                                temp += "<td class='text-center'><span class='badge bg-danger'>Inactive</span></td>";
+                            }
+
+                            temp += "<td class='text-center'><div class='actions'>";
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='EditBtn me-2' " +
+                                "data-bs-toggle='modal' " +
+                                "data-bs-target='#addNewContact' " +
+                                "onclick='showRecords(" + item.DesignerID + ")'>" +
+                                "<i class='icon-edit1 text-info'></i>" +
+                                "</a>";
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='DeleteBtn' " +
+                                "onclick='functionYarnDelete(" + item.DesignerID + ")'>" +
+                                "<i class='icon-x-circle text-danger'></i>" +
+                                "</a>";
+
+                            temp += "</div></td>";
+                            temp += "</tr>";
+                        }
+                    }
+
+                    tbody.append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#saveViewbtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Designer");
+            $("#add-alert").addClass('d-none');
+
+            $("#edit-id").val('');
+            $("#DesignerCode").val('');
+            $("#DesignerName").val('');
+            $("#Address").val('');
+            $("#BankName").val('');
+            $("#BankAcNo").val('');
+            $("#IFSCCode").val('');
+            $("#AadharUpload").val('');
+            $("#tempAadharUpload").val('');
+            $("#divAadharUpload").html('');
+            $("#IsActive").prop('checked', true);
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback, .valid-feedback").hide();
+        }
+
+        function validateForm() {
+            var isCodeValid = validate(document.getElementById('DesignerCode'));
+            var isNameValid = validate(document.getElementById('DesignerName'));
+
+            if (!isCodeValid || !isNameValid) {
+                showToast('error', 'Please fill all mandatory fields correctly.');
+                return false;
+            }
+            return true;
+        }
+
+        function checkSaveView() {
+            if (!validateForm()) return;
+
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignerCode = $('#DesignerCode').val();
+            var DesignerName = $('#DesignerName').val();
+            var Address = $('#Address').val();
+            var BankName = $('#BankName').val();
+            var BankAcNo = $('#BankAcNo').val();
+            var IFSCCode = $('#IFSCCode').val();
+            var AadharUpload = $('#AadharUpload')[0].files[0];
+
+            var formData = new FormData();
+            formData.append('DesignerCode', DesignerCode);
+            formData.append('DesignerName', DesignerName);
+            formData.append('Address', Address);
+            formData.append('BankName', BankName);
+            formData.append('BankAcNo', BankAcNo);
+            formData.append('IFSCCode', IFSCCode);
+            formData.append('AadharUpload', AadharUpload);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignerMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201 || response.Code == 200) {
+                        clearAll();
+                        showToast('success', response.Message || 'Designer saved successfully.');
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
+                        Swal.fire('Error', response.Message || 'Failed to save Designer.', 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while saving Designer.', 'error');
+                }
+            });
+        }
+
+        function checkSave() {
+            if (!validateForm()) return;
+
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignerCode = $('#DesignerCode').val();
+            var DesignerName = $('#DesignerName').val();
+            var Address = $('#Address').val();
+            var BankName = $('#BankName').val();
+            var BankAcNo = $('#BankAcNo').val();
+            var IFSCCode = $('#IFSCCode').val();
+            var AadharUpload = $('#AadharUpload')[0].files[0];
+
+            var formData = new FormData();
+            formData.append('DesignerCode', DesignerCode);
+            formData.append('DesignerName', DesignerName);
+            formData.append('Address', Address);
+            formData.append('BankName', BankName);
+            formData.append('BankAcNo', BankAcNo);
+            formData.append('IFSCCode', IFSCCode);
+            formData.append('AadharUpload', AadharUpload);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignerMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201 || response.Code == 200) {
+                        clearAll();
+                        showToast('success', response.Message || 'Designer saved successfully.');
+                        displayData(0);
+                    }
+                    else {
+                        Swal.fire('Error', response.Message || 'Failed to save Designer.', 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while saving Designer.', 'error');
+                }
+            });
+        }
+
+        function checkEdit() {
+            if (!validateForm()) return;
+
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignerCode = $('#DesignerCode').val();
+            var DesignerName = $('#DesignerName').val();
+            var Address = $('#Address').val();
+            var BankName = $('#BankName').val();
+            var BankAcNo = $('#BankAcNo').val();
+            var IFSCCode = $('#IFSCCode').val();
+            var AadharUpload = $('#AadharUpload')[0].files[0];
+
+            var formData = new FormData();
+            formData.append('DesignerID', id);
+            formData.append('DesignerCode', DesignerCode);
+            formData.append('DesignerName', DesignerName);
+            formData.append('Address', Address);
+            formData.append('BankName', BankName);
+            formData.append('BankAcNo', BankAcNo);
+            formData.append('IFSCCode', IFSCCode);
+            formData.append('AadharUpload', AadharUpload);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditDesignerMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201 || response.Code == 200) {
+                        clearAll();
+                        showToast('success', response.Message || 'Designer updated successfully.');
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
+                        Swal.fire('Error', response.Message || 'Failed to update Designer.', 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while updating Designer.', 'error');
+                }
+            });
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Designer");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getDesignerMasterById?id=' + id,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        var data = response.listDesignerMaster[0];
+
+                        $("#DesignerCode").val(data.DesignerCode);
+                        $("#DesignerName").val(data.DesignerName);
+                        $("#Address").val(data.Address);
+                        $("#BankName").val(data.BankName);
+                        $("#BankAcNo").val(data.BankAcNo);
+                        $("#IFSCCode").val(data.IFSCCode);
+
+                        if (data.AadharUpload && data.AadharUpload !== "") {
+                            $("#divAadharUpload").html("<a href='/" + data.AadharUpload + "' target='_blank' class='btn btn-link px-0'> View Document </a>");
+                            $("#tempAadharUpload").val(data.AadharUpload);
+                        }
+
+                        $("#IsActive").prop('checked', data.IsActive == "1");
+                    }
+                    else {
+                        Swal.fire('Error', response.Message || 'Failed to fetch record.', 'error');
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire('Error', 'Failed to fetch details.', 'error');
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this Designer!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('DesignerID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteDesignerMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200 || response.Code == 201) {
+                                Swal.fire("Deleted!", "Designer deleted successfully.", "success");
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire("Error", response.Message || "Problem occurred while deleting Designer.", "error");
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire("Error", "Problem occurred while deleting Designer.", "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_DesignerQueue',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        showToast('error', 'Problem occurred while updating queue.');
+                    }
+                },
+                error: function (error) {
+                    showToast('error', 'Problem occurred while updating queue.');
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_DesignerQueue',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        showToast('error', 'Problem occurred while updating queue.');
+                    }
+                },
+                error: function (error) {
+                    showToast('error', 'Problem occurred while updating queue.');
+                }
+            });
+        }
+
+        function validate(code) {
+            if (!code) return false;
+
+            // Trim leading/trailing and excess internal whitespaces first
+            if (code.value) {
+                code.value = code.value.replace(/\s+/g, ' ').trim();
+            }
+
+            var fieldId = code.id;
+            var errorMessageValid = "." + fieldId + "-valid-feedback";
+            var errorMessageInvalid = "." + fieldId + "-invalid-feedback";
+
+            var $fieldWrapper = $(code).closest('.field-wrapper');
+            $fieldWrapper.find(".invalid-feedback, .valid-feedback").hide();
+
+            if (!code.value || code.value === "") {
+                $(code).removeClass("is-valid").addClass("is-invalid");
+                $fieldWrapper.find(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                $(code).addClass("is-valid").removeClass("is-invalid");
+                $fieldWrapper.find(errorMessageValid).show();
+                return true;
+            }
+        }
+    </script>
+}

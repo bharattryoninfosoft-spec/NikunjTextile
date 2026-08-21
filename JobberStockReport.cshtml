@@ -1,0 +1,105 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<div class="content-wrapper">
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Jobber Stock Report</div>
+
+                    <div class="row gutters mt-3">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="tblJobberStock">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Jobber Party Name</th>
+                                            <th>Total Inward Weight</th>
+                                            <th>Total Outward Weight</th>
+                                            <th>Stock Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dynamically populated rows -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="font-weight-bold">
+                                            <td colspan="2" class="text-right">TOTAL:</td>
+                                            <td id="lblTotalInward">0.00</td>
+                                            <td id="lblTotalOutward">0.00</td>
+                                            <td id="lblTotalBalance">0.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+
+        $(document).ready(function () {
+            loadJobberStockReport();
+        });
+
+        function loadJobberStockReport() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetJobberStockReport",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var data = JSON.parse(response.d);
+                    var tbody = $('#tblJobberStock tbody');
+                    tbody.empty();
+
+                    var sumInward = 0;
+                    var sumOutward = 0;
+                    var sumBalance = 0;
+
+                    if (data.length === 0) {
+                        tbody.append('<tr><td colspan="5" class="text-center">No records found.</td></tr>');
+                        return;
+                    }
+
+                    $.each(data, function (index, row) {
+                        var inward = parseFloat(row.TotalInwardWeight) || 0;
+                        var outward = parseFloat(row.TotalOutwardWeight) || 0;
+                        var balance = parseFloat(row.StockBalance) || 0;
+
+                        sumInward += inward;
+                        sumOutward += outward;
+                        sumBalance += balance;
+
+                        var markup = '<tr>' +
+                            '<td>' + (index + 1) + '</td>' +
+                            '<td>' + row.JobberPartyName + '</td>' +
+                            '<td>' + inward.toFixed(2) + '</td>' +
+                            '<td>' + outward.toFixed(2) + '</td>' +
+                            '<td class="font-weight-bold">' + balance.toFixed(2) + '</td>' +
+                            '</tr>';
+                        tbody.append(markup);
+                    });
+
+                    // Update Footer Totals
+                    $('#lblTotalInward').text(sumInward.toFixed(2));
+                    $('#lblTotalOutward').text(sumOutward.toFixed(2));
+                    $('#lblTotalBalance').text(sumBalance.toFixed(2));
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error loading report: ", error);
+                }
+            });
+        }
+    </script>
+}

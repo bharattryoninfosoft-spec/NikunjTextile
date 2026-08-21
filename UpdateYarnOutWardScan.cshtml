@@ -1,0 +1,763 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+
+<style>
+    .row-green {
+        background-color: #28a745;
+        color: white;
+    }
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Yarn Outward Scan List</div>
+                    <br />
+                    <!--Images-->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm">
+                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        </div>
+                    </div>
+                    <!--Weft Data -->
+                    <div class="row gutters">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Row start -->
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px; ">
+                                        <div id="notes"></div>
+
+                                        <div class="col-12">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+                                                <div class="col-3">
+                                                    <div class="field-wrapper">
+                                                        <input type="hidden" class="form-control" id="PartyId" placeholder="PartyId" value="" />
+                                                        <input type="hidden" class="form-control" id="YarnOutwardScanID" placeholder="YarnOutwardScanID" value="">
+                                                        <input type="text" class="form-control" id="ChallanNo" placeholder="ChallanNo" value="">
+                                                        <div class="field-placeholder">Challan No<sup style="color:red;">*</sup></div>
+                                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Challan No</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3">
+                                                    <div class="field-wrapper">
+                                                        <input type="date" class="form-control" id="ChallanDate" placeholder="ChallanDate" value="">
+                                                        <div class="field-placeholder">Challan Date<sup style="color:red;">*</sup></div>
+                                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Challan Date</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-3">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="PartyName" placeholder="PartyName" value="">
+                                                        <div class="field-placeholder">Party Name<sup style="color:red;">*</sup></div>
+                                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Party Name</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="Address" placeholder="Address" value="">
+                                                        <div class="field-placeholder">Address<sup style="color:red;">*</sup></div>
+                                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Address</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table class="table table-bordered" style="overflow: hidden;">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Yarn Company</th>
+                                                    <th>Yarn Material</th>
+                                                    <th>Yarn Colour</th>
+                                                    <th>Yarn Colour Code</th>
+                                                    <th>Location</th>
+                                                    <th>Box No</th>
+                                                    <th>Net Weight</th>
+                                                </tr>
+
+                                            </thead>
+
+                                            <tbody id="tblYarnOutwardBody">
+                                            </tbody>
+
+                                        </table>
+
+
+                                        <table class="table table-bordered" style="overflow: hidden;">
+                                            <tr>
+                                                <td><b>Total Box</b></td>
+                                                <td id="totalBox">0</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td><b>Total Weight</b></td>
+                                                <td id="totalWeight">0</td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="yarnBoxModal">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Yarn Box Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Box No</th>
+                                                    <th>Barcode</th>
+                                                    <th>Net Weight</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody id="tblBoxDetails"></tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="modal-footer">
+                            <a href="YarnOutWardScanDetails.cshtml" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                            <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Yarn OutWard </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+
+        $('body').addClass('fullscreen');
+        $(document).ready(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#ChallanDate").val(today);
+            var liSelected;
+            $(document).keydown(function (key) {
+                var li = $('li');
+                switch (parseInt(key.which, 10)) {
+                    case 27:
+                        $("#DivDDLItemDetail").hide();
+                        $("#DivAddItem").show();
+                        //Esc Key
+                        $("#CloseItemModel").click();
+                        $("#cancelbtn").click();
+                        $("#cancelItembtn").click();
+                        break;
+
+                    case 40:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.next();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.eq(0).addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                        break;
+
+                    case 38:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.prev();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.last().addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#YarnForm-tab").addClass("active");
+            $("#tab-YarnForm").addClass("show active");
+            $("#aYarnOutWardScanDetails").addClass("current-page");
+            FunctionIsLogin();
+            $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlGodownMaster-container").css("color", "white");
+            $('#ddlGodownMaster')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+
+            $("#select2-ddlParty-container").css("background-color", "lightslategrey");
+            $("#select2-ddlParty-container").css("color", "white");
+
+            $('#ddlParty')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+            $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlYarnGodownManager-container").css("color", "white");
+
+            $('#ddlYarnGodownManager')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+            setTimeout(function () {
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                GridBindData(hashes[0].split('=')[1]);
+            }, 1000);
+
+        });
+        $(document).on("keyup change", "#tblYarnOutwardBody input", function () {
+            checkInputs();
+        });
+        $("#savebtn").prop("disabled", true);
+
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var GodownIDs = "";
+        var TotalInwardStockAry = "";
+        var TotalOutwardStockAry = "";
+        var TotalExistingOutwardStockAry = "";
+        function checkInputs() {
+            var isValid = true;
+
+            $("#tblYarnOutwardBody tr").each(function () {
+                $(this).find("input").each(function () {
+                    if ($(this).val().trim() === "") {
+                        isValid = false;
+                        return false;
+                    }
+                });
+
+                if (!isValid) {
+                    return false;
+                }
+            });
+
+            if (isValid) {
+                $("#savebtn").prop("disabled", false);
+            } else {
+                $("#savebtn").prop("disabled", true);
+            }
+        }
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnOutwardID', DecryptID);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    var userTable = $('#TblUser');
+
+                    for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
+                        /* ---------- View Party Details ---------- */
+
+                        $("#hYarnOutwardID").val(response.listYarnOutwardMaster[i].YarnOutwardID);
+                        $("#ddlYarnGodownManager").val(response.listYarnOutwardMaster[i].GodownManagerUserAccountId);
+                        $("#select2-ddlYarnGodownManager-container").html(response.listYarnOutwardMaster[i].UserAccountName)
+                        $("#ListNo").val(response.listYarnOutwardMaster[i].OutwardListNo);
+                        $("#ListDate").val(response.listYarnOutwardMaster[i].OutwardListDates);
+                        $("#SundryParty").val(response.listYarnOutwardMaster[i].SundryParty);
+                        changeSundryPartyId(response.listYarnOutwardMaster[i].SundryParty + "|" + response.listYarnOutwardMaster[i].PartyId);
+
+                        /* ---------- Yarn Requirement Detail  ---------- */
+
+                        var siftGodownInputBox = "";
+
+                        for (var j = 0; j < response.listYarnOutwardMaster[i].listYarnOutwardDetail.length; j++) {
+                            var GodownLocationID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].GodownLocationID;
+                            var BillToPartyID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].BillToPartyID;
+                            var YarnMaterialID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnMaterialID;
+                            var YarnColorID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColorID;
+                            var InpuNoOfBox = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox;
+
+                            siftGodownInputBox += "(" + GodownLocationID + "," + BillToPartyID + "," + YarnMaterialID + "," + YarnColorID + "," + InpuNoOfBox + ")|";
+                        }
+
+                        $("#siftGodownInputBox").val(siftGodownInputBox);
+                        displaySiftData();
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("Company", response)
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    notes.show(request.statusText, {
+                        type: 'danger'
+                    });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function validate(code) {
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "0") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if (code.value == "") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+        function GridBindData(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnOutwardID', DecryptID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardScan',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("response", response);
+                    if (response.length > 0) {
+                        var PartyId = response[0].PartyId || "";
+                        var PartyName = response[0].PartyName || "";
+                        var Address = response[0].Address || "";
+                        var ChallanNo = response[0].ChallanNo || "0";
+                        var YarnOutwardScanID = response[0].YarnOutwardScanID || "0";
+                        var ChallanDate = response[0].ChallanDate || "0";
+                        $("#PartyId").val(PartyId).prop("readonly", true);
+                        $("#YarnOutwardScanID").val(YarnOutwardScanID).prop("readonly", true);
+                        $("#PartyName").val(PartyName).prop("readonly", true);
+                        $("#Address").val(Address).prop("readonly", true);
+                        $("#ChallanNo").val(ChallanNo).prop("readonly", true);
+                        var ms = parseInt(ChallanDate.substr(6));
+                        var date = new Date(ms);
+
+                        var formattedDate =
+                            date.getFullYear() + "-" +
+                            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+                            ("0" + date.getDate()).slice(-2);
+                        var d = new Date(parseInt(ChallanDate.substr(6)));
+                        $("#ChallanDate").val(d.toISOString().split("T")[0]);
+                    }
+                    var tbody = $("#tblYarnOutwardBody");
+                    tbody.empty();
+                    $.each(response, function (i, v) {
+                        var row = `<tr>
+                             <td hidden class="YarnMaterialID">${v.YarnMaterialID}</td>
+                             <td hidden class="YarnColorID">${v.YarnColorID}</td>
+                             <td hidden class="GodownLocationID">${v.GodownLocationID}</td>
+                             <td hidden class="YarnInwardDetailID">${v.YarnInwardDetailID}</td>
+                             <td hidden id="PartyId">${v.PartyId}</td>
+                             <td hidden class="CompanyId">${v.CompanyId}</td>
+                             <td hidden class="Boxon">${v.BoxNo}</td>
+                             <td>${v.CompanyName}</td>
+                             <td>${v.YarnMaterial}</td>
+                             <td>${v.YarnColor}</td>
+                             <td>${v.YarnColorCode}</td>
+                             <td><a href="javascript:void(0)" onclick="functionYarnInwardDetailId(this)"><u>${v.LocationTitle}</u></a> </td>
+                             <td><input type="text" class="form-control BarcodeNo" value="${v.BarcodeNo}"/></td>
+                             <td class="weight">${v.NetWeight}</td>
+                             </tr>`;
+
+                        tbody.append(row);
+                        calculateTotals();
+                    });
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        $(document).on("keydown", ".BarcodeNo", function (e) {
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var YarnOutwardID = (hashes[0].split('=')[1]);
+            var currentInput = $(this);
+            var row = currentInput.closest("tr");
+
+            var BarcodeNo = currentInput.val().trim();
+            var YarnMaterial = row.find(".YarnMaterialID").text();
+            var YarnColour = row.find(".YarnColorID").text();
+            var GodownLocationID = row.find(".GodownLocationID").text();
+            var YarnCompany = row.find(".CompanyId").text();
+            var boxNoCell = row.find(".Boxon");
+            var weightCell = row.find(".weight");
+
+            if (BarcodeNo === "") {
+                weightCell.text(0);
+                calculateTotals();
+                return;
+            }
+
+            if (e.key === "Enter" || e.key === "Tab") {
+                e.preventDefault();
+                var BarcodeNo = $(this).val().trim();
+                var currentInput = $(this);
+                var row = currentInput.closest("tr");
+                var weightCell = row.find(".weight");
+                if (BarcodeNo == "") return;
+
+                var isDuplicate = false;
+                $(".BarcodeNo").not(currentInput).each(function () {
+                    if ($(this).val().trim() === BarcodeNo) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                });
+
+                if (isDuplicate) {
+                    notes.show("Box No " + BarcodeNo + " already entered", {
+                        type: 'danger'
+                    });
+
+                    currentInput.val('');
+                    currentInput.focus();
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/WebServiceNikunjTextile.asmx/UpdateBoxWeight",
+                    data: { BoxNo: BarcodeNo, YarnOutwardID: YarnOutwardID },
+                    dataType: "json",
+
+                    success: function (response) {
+                        if (response.Code == 410) {
+                            notes.show("This Box " + BarcodeNo + " already scanned", {
+                                type: 'danger'
+                            });
+                            var boxInput = row.find(".BarcodeNo");
+                            boxInput.val('');
+                            boxInput.focus().select();
+                        }
+                        else {
+                            var weight = response.NetWeight || 0;
+                            var inwardId = response.YarnInwardDetailID || 0;
+                            var boxNo = response.BoxNo || 0;
+                            weightCell.text(weight);
+                            boxNoCell.text(boxNo);
+                            row.find(".YarnInwardDetailID").text(inwardId);
+                            if (inwardId == "0" || inwardId == "") {
+                                notes.show("This Box " + BarcodeNo + " invalid", {
+                                    type: 'danger'
+                                });
+                                var boxInput = row.find(".BarcodeNo");
+                                boxInput.val('');
+                                boxInput.focus().select();
+                                calculateTotals();
+                                return false;
+                            }
+                            calculateTotals();
+                            row.next().find(".BarcodeNo").focus();
+                        }
+                    },
+
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Box not found'
+                        });
+                    }
+                });
+            }
+        });
+        function calculateTotals() {
+            var totalBox = 0;
+            var totalWeight = 0;
+
+            $("#tblYarnOutwardBody tr").each(function () {
+                var box = $(this).find(".BarcodeNo").val();
+                var weight = parseFloat($(this).find(".weight").text()) || 0;
+
+                if (box != "") {
+                    totalBox++;
+                }
+
+                totalWeight += weight;
+            });
+
+            $("#totalBox").text(totalBox);
+            $("#totalWeight").text(totalWeight.toFixed(2));
+        }
+        function functionYarnInwardDetailId(el) {
+            var row = $(el).closest("tr");
+
+            var YarnMaterial = row.find(".YarnMaterialID").text();
+            var YarnColour = row.find(".YarnColorID").text();
+            var GodownLocationID = row.find(".GodownLocationID").text();
+            var YarnCompany = row.find(".CompanyId").text();
+
+            $("#yarnBoxModal").modal("show");
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetYarnBoxDetails",
+                data: {
+                    GodownLocationID: GodownLocationID,
+                    YarnMaterial: YarnMaterial,
+                    YarnColour: YarnColour,
+                    YarnCompany: YarnCompany
+                },
+                dataType: "json",
+
+                success: function (response) {
+                    var tbody = $("#tblBoxDetails");
+                    tbody.empty();
+
+                    $.each(response, function (i, v) {
+                        var rowHtml = `<tr data-barcode="${v.BarcodeNo}">
+                                                <td>${v.BoxNo}</td>
+                                                <td>${v.BarcodeNo}</td>
+                                                <td>${v.NetWeight}</td>
+                                           </tr>`;
+                        tbody.append(rowHtml);
+                    });
+                    console.log("GetYarnBoxDetails", response)
+                    highlightScannedBoxes();
+                },
+
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error loading box data'
+                    });
+                }
+            });
+        }
+        function highlightScannedBoxes() {
+            $("#tblBoxDetails tr").removeClass("row-green");
+
+            $(".BarcodeNo").each(function () {
+                var scannedBarcode = $(this).val().trim();
+
+                if (scannedBarcode != "") {
+                    $("#tblBoxDetails tr[data-barcode='" + scannedBarcode + "']")
+                        .addClass("row-green");
+                }
+            });
+        }
+        function checkSave() {
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var YarnOutwardID = hashes[0].split('=')[1];
+            var YarnOutwardScanID = $("#YarnOutwardScanID").val()
+            var formData = new FormData();
+            formData.append("YarnOutwardScanID", YarnOutwardScanID);
+            formData.append("YarnOutwardID", YarnOutwardID);
+            formData.append("PartyId", $("#PartyId").val());
+            formData.append("ChallanNo", $("#ChallanNo").val());
+            formData.append("ChallanDate", $("#ChallanDate").val());
+            formData.append("TotalBox", $("#totalBox").text());
+            formData.append("TotalWeight", $("#totalWeight").text());
+
+            var isValid = true;
+            var rowNo = 0;
+
+            $("#tblYarnOutwardBody tr").each(function (i) {
+                var row = $(this);
+                var YarnMaterialID = row.find(".YarnMaterialID").text();
+                var YarnColorID = row.find(".YarnColorID").text();
+                var GodownLocationID = row.find(".GodownLocationID").text();
+                var BarcodeNo = row.find(".BarcodeNo").val();
+                var Boxon = row.find(".Boxon").text();
+                var NetWeight = row.find(".weight").text();
+                var YarnInwardDetailID = row.find(".YarnInwardDetailID").text();
+                var YarnCompany = row.find(".CompanyId").text();
+                rowNo = i + 1;
+
+                if (BarcodeNo == "" || BarcodeNo == null) {
+                    notes.show("Please fill BoxNo in Row " + rowNo, {
+                        type: 'danger'
+                    });
+                    isValid = false;
+                    return false;
+                }
+
+                formData.append("Details[" + i + "].YarnMaterialID", YarnMaterialID);
+                formData.append("Details[" + i + "].YarnColorID", YarnColorID);
+                formData.append("Details[" + i + "].GodownLocationID", GodownLocationID);
+                formData.append("Details[" + i + "].BoxNo", Boxon);
+                formData.append("Details[" + i + "].BarcodeNo", BarcodeNo);
+                formData.append("Details[" + i + "].NetWeight", NetWeight);
+                formData.append("Details[" + i + "].YarnInwardDetailID", YarnInwardDetailID);
+                formData.append("Details[" + i + "].YarnCompany", YarnCompany);
+            });
+
+            if (!isValid) return;
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/SaveYarnoutwardScanMaster",
+                data: formData,
+                processData: false,
+                contentType: false,
+
+                success: function (res) {
+                    var data = JSON.parse(res);
+
+                    if (data.Code == 201) {
+                        notes.show(data.Message, {
+                            type: 'success'
+                        });
+                        window.location.href = 'YarnOutWardScanDetails';
+                    }
+                    else {
+                        notes.show(data.Message, {
+                            type: 'danger'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+    </script>
+}

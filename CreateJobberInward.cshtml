@@ -1,0 +1,681 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<div class="content-wrapper">
+    <input type="hidden" id="hdnUserAccountId" value="" />
+    <input type="hidden" id="hdnOutwardListNo" value="" />
+    <input type="hidden" id="hdnPartyId" value="" />
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="CreateJobberInward" class="form-section-header">Create Jobber Inward</div>
+                    <br />
+                    <!--Images-->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm">
+                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        </div>
+                    </div>
+                    <!--Weft Data -->
+                    <div class="row gutters">
+                        <style>
+                            table {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table, th, td {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table {
+                                border-collapse: collapse; /* Collapses borders */
+                            }
+                        </style>
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Row start -->
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px; ">
+                                        <div id="notes"></div>
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+
+                                                <div class="col-3">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control datepicker" id="txtChallanDate" title="Challan Date" placeholder="Date">
+                                                        <div class="field-placeholder">Date <sup style="color:red;">*</sup></div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-3">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="tel" class="form-control" id="txtPartyChallanNo" title="Party Challan No" placeholder="0" maxlength="25" readonly>
+                                                        <div class="field-placeholder">Jobber Challan No <sup style="color:red;">*</sup> </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-3">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input id="ddlPONumber"
+                                                               type="text"
+                                                               class="form-control clear-field detail"
+                                                               @*oninput="OnPONumber(this.value)*@ readonly>
+                                                        <div class="field-placeholder">
+                                                            Received Challan No <sup style="color:red;">*</sup>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlGodown" class="select-single detail" title="Select Godown Selecteion" data-live-search="true">
+                                                        </select>
+                                                        <div class="field-placeholder">Select Godown </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+                                                <!--<div class="col-6">-->
+                                                <!-- Field wrapper start -->
+                                                <!--<div class="field-wrapper">-->
+                                                <!--<input type="text" class="form-control" id="CompanyName" title="CompanyName" placeholder="CompanyName" readonly>-->
+                                                <!--<label id="CompanyName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                    </label>
+                                                    <div class="field-placeholder">Company Name</div>
+                                                </div>-->
+                                                <!-- Field wrapper end -->
+                                                <!--</div>-->
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="ShippedToName" title="Shipped To Name" placeholder="Shipped To Name" readonly>-->
+                                                        <label id="ShippedToName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Sender Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="SupplierName" title="Supplier Name" placeholder="Supplier Name" readonly>-->
+                                                        <label id="SupplierName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Received Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<textarea id="ShippedToAddress" class="form-control detail" rows="3" placeholder="Enter Shipped To Address" readonly></textarea>-->
+                                                        <label id="ShippedToAddress" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Sender Address</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="MobileNo" title="MobileNo" placeholder="MobileNo" readonly>-->
+                                                        <label id="MobileNo" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Received Mobile</div>
+                                                    </div>
+                                                </div>
+                                                <table id="tblYarnDetail" class="table table-bordered table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:50px;">
+                                                                <input type="checkbox" id="chkAll">
+                                                            </th>
+                                                            <th>Box No</th>
+                                                            <th>Barcode No</th>
+                                                            <th>Yarn Material</th>
+                                                            <th>Yarn Color</th>
+                                                            <th>Net Weight</th>
+                                                            <th>Location</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                                <div class="modal-footer" style="border: none;">
+                                                    <a href="JobberYarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                                                    <button id="Savebtn" type="button" class="btn btn-primary" style="font-size: medium;">Save</button>
+                                                </div>
+                                                <input type="hidden" id="YarnOutwardID" />
+                                                <input type="hidden" id="hdnPartyId" />
+                                                <input type="hidden" id="hdnCompanyId" />
+                                                <input type="hidden" id="hdnUserAccountId" />
+                                                <input type="hidden" id="hdnFinancialYearID" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#savebtn").hide();
+                }
+            }
+            if ($.fn.DataTable.isDataTable('#tableYarnOutward')) {
+                $('#tableYarnOutward').DataTable().destroy();
+            }
+            var liSelected;
+            $(document).keydown(function (key) {
+                var li = $('li');
+                switch (parseInt(key.which, 10)) {
+
+                    case 27:
+                        $("#DivDDLItemDetail").hide();
+                        $("#DivAddItem").show();
+                        //Esc Key
+                        $("#CloseItemModel").click();
+                        $("#cancelbtn").click();
+                        $("#cancelItembtn").click();
+
+                        break;
+
+                    case 40:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.next();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.eq(0).addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                        break;
+
+                    case 38:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.prev();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.last().addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                        break;
+
+
+                    default:
+                        break;
+                }
+            });
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#YarnForm-tab").addClass("active");
+            $("#tab-YarnForm").addClass("show active");
+            $("#aCreateYarnInward").addClass("current-page");
+            FunctionIsLogin();
+            var milliseconds = jQuery.now();
+            $("#BarcodeNo1").val(milliseconds);
+
+            var id = new URLSearchParams(window.location.search).get("id");
+
+            if (id) {
+                $.ajax({
+                    type: "POST",
+                    url: "/WebServiceNikunjTextile.asmx/GetJobberDecryptID",
+                    data: JSON.stringify({ id: id }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (res) {
+                        var data = JSON.parse(res.d);
+                        $("#hdnUserAccountId").val(data.UserAccountId);
+                        $("#hdnOutwardListNo").val(data.OutwardListNo);
+                        $("#hdnPartyId").val(data.PartyId);
+                        $("#ddlPONumber").val(data.OutwardListNo);
+                        OnPONumber(data.OutwardListNo);
+                    }
+                });
+            }
+        });
+
+        $('body').click(function (evt) {
+            if (evt.target.id == "DivAddParty") { } else if (evt.target.id == "DivDDLPartyDetail") { }
+            else if (evt.target.id == "DivLblPartyDetails") { } else if (evt.target.id == "users-list") { }
+            else if (evt.target.id == "btnChangeParty") { } else {
+                if ($("#PartyArray").val() == "") {
+                    $("#DivDDLPartyDetail").hide();
+                    $("#DivAddParty").show();
+                }
+
+            }
+        });
+        function validateFloatKeyPress(el, evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            var number = el.value.split('.');
+            if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            if (number.length > 1 && charCode == 46) {
+                return false;
+            }
+            var caratPos = getSelectionStart(el);
+            var dotPos = el.value.indexOf(".");
+            if (caratPos > dotPos && dotPos > -1 && (number[1].length > 1)) {
+                return false;
+            }
+            return true;
+        }
+        function getSelectionStart(o) {
+            if (o.createTextRange) {
+                var r = document.selection.createRange().duplicate()
+                r.moveEnd('character', o.value.length)
+                if (r.text == '') return o.value.length
+                return o.value.lastIndexOf(r.text)
+            } else return o.selectionStart
+        }
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    notes.show(request.statusText, {
+                        type: 'danger',
+                    });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function OnPONumber(value) {
+
+            if (value == "" || isNaN(value))
+                return;
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/getJobberInwardMaster",
+                data: JSON.stringify({
+                    OutwardListNo: parseInt(value)
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+
+                    var data = JSON.parse(res.d);
+                    if (data.Status == false) {
+                        $("#ddlGodown").empty();
+                        $("#CompanyName").empty();
+                        $("#ShippedToName").empty();
+                        $("#SupplierName").empty();
+                        $("#ShippedToAddress").empty();
+                        $("#MobileNo").empty();
+                        $("#YarnOutwardID").val("");
+                        $("#hdnPartyId").val("");
+                        $("#hdnFinancialYearID").val("");
+                        $("#txtInwardDate").val("");
+                        $("#tblYarnDetail tbody").empty();
+                        return;
+                    }
+
+                    $("#ddlGodown").empty();
+
+                    $.each(data.Godown, function (i, item) {
+                        $("#ddlGodown").append(
+                            $("<option></option>")
+                                .val(item.GodownID)
+                                .text(item.GodownTitle)
+                        );
+                    });
+
+                    $("#CompanyName").empty();
+                    $("#ShippedToName").empty();
+                    $("#SupplierName").empty();
+                    $("#ShippedToAddress").empty();
+                    $("#MobileNo").empty();
+                    $("#YarnOutwardID").val("");
+                    $("#hdnPartyId").val("");
+                    $("#hdnFinancialYearID").val("");
+                    $("#txtInwardDate").val("");
+                    if (data.Master != null && data.Master.length > 0) {
+                        var m = data.Master[0];
+
+                        $("#CompanyName").text(m.CompanyName || "");
+                        $("#ShippedToName").text(m.GodownTitle || "");
+                        $("#SupplierName").text(m.SupplierPartyName || "");
+                        $("#ShippedToAddress").text(m.ShippedToBillingAddress || "");
+                        $("#MobileNo").text(m.SupplierMobileNo || "");
+                        $("#YarnOutwardID").val(m.YarnOutwardID || "");
+                        $("#hdnPartyId").val(m.PartyId || "");
+                        $("#hdnFinancialYearID").val(m.FinancialYearID || "");
+                        $("#txtPartyChallanNo").val(data.ChallanNo || "");
+                        $("#ddlPONumber").val(m.OutwardListNo || "");
+                        if (m.OutwardDate != null) { $("#txtInwardDate").val(m.OutwardDate); }
+
+                        if (m.GodownID && $("#ddlGodown option[value='" + m.GodownID + "']").length > 0) {
+                            $("#ddlGodown").val(m.GodownID);
+                        }
+                        else if (data.Godown.length > 0) {
+                            $("#ddlGodown").val(data.Godown[0].GodownID);
+                        }
+                    }
+                    else if (data.Godown.length > 0) {
+                        $("#ddlGodown").val(data.Godown[0].GodownID);
+                    }
+
+                    $("#ddlGodown").trigger("change");
+
+                    if ($("#ddlGodown").hasClass("selectpicker")) {
+                        $("#ddlGodown").selectpicker("refresh");
+                    }
+
+                    BindOutwardDetails(data.Detail);
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error loading PO details.'
+                    });
+                }
+            });
+        }
+
+        function BindOutwardDetails(details) {
+            $("#tblYarnDetail tbody").empty();
+
+            if (!details || details.length === 0)
+                return;
+
+            $.each(details, function (i, item) {
+                var row = "";
+                row += "<tr>";
+                row += "<td>";
+                row += "<input type='checkbox' class='chkItem' />";
+                row += "<input type='hidden' class='hdnGodownLocationID' value='" + (item.GodownID || 0) + "' />";
+                row += "<input type='hidden' class='hdnYarnInterchangeID' value='" + (item.YarnInterchangeID || 0) + "' />";
+                row += "</td>";
+                row += "<td class='boxno'>" + (item.BoxNo || "") + "</td>";
+                row += "<td class='barcode'>" + (item.BarcodeNo || "") + "</td>";
+                row += "<td>" + (item.YarnMaterial || "") + "</td>";
+                row += "<td>" + (item.YarnColor || "") + "</td>";
+                row += "<td class='weight'>" + (item.NetWeight || 0) + "</td>";
+                row += "<td>" + (item.LocationTitle || "") + "</td>";
+                row += "</tr>";
+
+                $("#tblYarnDetail tbody").append(row);
+            });
+
+            $("#chkAll").prop("checked", false);
+        }
+        $(document).on("change", "#chkAll", function () {
+            $(".chkItem").prop("checked", $(this).prop("checked"));
+            GetSelectedRows();
+        });
+        function GetSelectedRows() {
+            var selectedRows = [];
+            $("#tblYarnDetail tbody .chkItem:checked").each(function () {
+                var tr = $(this).closest("tr");
+                selectedRows.push({
+                    BoxNo: tr.find(".boxno").text(),
+                    BarcodeNo: tr.find(".barcode").text(),
+                    NetWeight: parseFloat(tr.find(".weight").text()) || 0,
+                    GodownLocationID: tr.find(".hdnGodownLocationID").val() || 0,
+                    YarnInterchangeID: tr.find(".hdnYarnInterchangeID").val() || 0
+                });
+            });
+            return selectedRows;
+        }
+
+        $("#Savebtn").click(function () {
+
+            // First retrieve selected rows so validation checks run accurately
+            var selectedRows = [];
+            $("#tblYarnDetail tbody .chkItem:checked").each(function () {
+                var tr = $(this).closest("tr");
+                selectedRows.push({
+                    BoxNo: tr.find(".boxno").text().trim(),
+                    BarcodeNo: tr.find(".barcode").text().trim(),
+                    NetWeight: parseFloat(tr.find(".weight").text()) || 0,
+                    GodownLocationID: parseInt(tr.find(".hdnGodownLocationID").val()) || 0,
+                    YarnInterchangeID: parseInt(tr.find(".hdnYarnInterchangeID").val()) || 0,
+                    IsScanStutas: 1
+                });
+            });
+
+            var barcodeList = [];
+            var duplicateFound = false;
+            $.each(selectedRows, function (i, item) {
+                if ($.inArray(item.BarcodeNo, barcodeList) !== -1) {
+                    duplicateFound = true;
+                    return false;
+                }
+                barcodeList.push(item.BarcodeNo);
+            });
+
+            if (duplicateFound) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Duplicate Barcode Selected.'
+                });
+                return;
+            }
+
+            if ($("#ddlPONumber").val() == "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please Select PO Number'
+                });
+                return;
+            }
+
+            if ($("#txtChallanDate").val() == "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please Select Challan Date'
+                });
+                return;
+            }
+            if ($("#txtPartyChallanNo").val() == "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please Enter Challan No'
+                });
+                return;
+            }
+
+            if ($("#ddlGodown").val() == "" || $("#ddlGodown").val() == null) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please Select Godown'
+                });
+                return;
+            }
+
+            if (selectedRows.length == 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please select at least one box.'
+                });
+                return;
+            }
+
+            var selectedWeight = 0;
+            $.each(selectedRows, function (i, item) {
+                selectedWeight += parseFloat(item.NetWeight || 0);
+            });
+
+            var obj = {
+                JobberInwardId: 0,
+                DateAndTime: $("#txtChallanDate").val(),
+                JobberId: $("#txtPartyChallanNo").val(),
+                PartyId: parseInt($("#hdnPartyId").val()) || 0,
+                JobWorkOutwardId: parseInt($("#YarnOutwardID").val()) || 0,
+                ChallanNo: $("#ddlPONumber").val(),
+                TotalWeight: selectedWeight,
+                PendingWeight: 0,
+                POPendingWeight: selectedWeight,
+                GodownID: parseInt($("#ddlGodown").val()) || 0,
+                PhotoOfInward: "",
+                CompanyId: parseInt($("#hdnCompanyId").val()) || 0,
+                IsComplete: 0,
+                UserAccountId: parseInt($("#hdnUserAccountId").val()) || 0,
+                FinancialYearID: parseInt($("#hdnFinancialYearID").val()) || 0,
+                Detail: selectedRows
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/SaveJobberInward",
+                data: JSON.stringify({ obj: obj }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+
+                beforeSend: function () {
+                    $("#Savebtn")
+                        .prop("disabled", true)
+                        .text("Saving...");
+                },
+
+                success: function (response) {
+                    $("#Savebtn")
+                        .prop("disabled", false)
+                        .text("Save");
+
+                    if (response.d == "Success") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Record Saved Successfully'
+                        }).then(() => {
+                            window.location.href = "JobberYarnInward";
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.d
+                        });
+                    }
+                },
+
+                error: function (xhr, status, error) {
+                    $("#Savebtn")
+                        .prop("disabled", false)
+                        .text("Save");
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Save Failed : ' + error
+                    });
+                }
+            });
+
+        });
+
+    </script>
+}

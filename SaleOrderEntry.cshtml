@@ -1,0 +1,3854 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .table-box {
+        border: 1px dashed #ccc;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .table th {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 20px;
+        color: #777;
+    }
+
+    .summary-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        font-size: 14px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed #eee;
+    }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.total {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+    #designModal .modal-body {
+        max-height: 75vh;
+        overflow-y: auto;
+    }
+
+    #upload-PhotoOfDesign-default-preview img {
+        max-height: 100%;
+        width: 100%;
+        object-fit: contain;
+    }
+
+    .ColorMatchingName {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #AlertsMsg {
+        font-weight: 500;
+        margin-left: 10px;
+        color: red;
+        font-size: larger;
+        align-self: center;
+    }
+
+    /* Table container */
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    #SaleOrderDetails {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+        #SaleOrderDetails th {
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+
+        #SaleOrderDetails td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        #SaleOrderDetails tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        #SaleOrderDetails tbody tr:hover {
+            background-color: #e9ecef;
+            transition: 0.2s;
+        }
+
+        #SaleOrderDetails input {
+            width: 80px;
+            padding: 4px 6px;
+            text-align: right;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        #SaleOrderDetails .col-action {
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+            #SaleOrderDetails .col-action i {
+                font-size: 18px;
+                margin: 0 6px;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+                #SaleOrderDetails .col-action i:hover {
+                    transform: scale(1.2);
+                }
+    /* Split Header Card Styles */
+    .card-box-border {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px;
+        height: 100%;
+    }
+
+    .header-box-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #SaleOrderDetails tbody tr td img {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+        #SaleOrderDetails tbody tr td img:hover {
+            transform: scale(1.08);
+        }
+</style>
+
+<div class="content-wrapper">
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Sale Order Entry</div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
+                        <div class="row gutters">
+                            <input type="text" value="0" id="SaleOrderID" hidden>
+
+                            <!-- LEFT SIDE: Bill To & Extra Details -->
+                            <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12 mb-2">
+                                <div class="card-box-border h-100">
+
+                                    <!-- STATE 1: Dropdown Selection View -->
+                                    <div id="partySelectContainer">
+                                        <div class="header-box-title mb-2">
+                                            <span>Bill To</span>
+                                        </div>
+                                        <div class="field-wrapper position-relative mb-3">
+                                            <select id="ddlPartyGST" class="select-single detail form-control" data-live-search="true">
+                                                <option value="-1">Select Party GST / Name</option>
+                                            </select>
+                                            <div class="field-placeholder">Party GST <sup style="color:red;">*</sup></div>
+                                            <button type="button" id="AddPartyModel" class="btn btn-primary position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STATE 2: Selected Party Details Card View -->
+                                    <div id="partyDetailsCard" style="display: none;">
+                                        <div class="header-box-title d-flex justify-content-between align-items-center mb-2">
+                                            <span>Bill To</span>
+                                            <button type="button" id="btnChangeParty" class="btn btn-outline-primary btn-sm py-0 px-3">Change Party</button>
+                                        </div>
+
+                                        <div class="row gutters font-size-sm mb-3">
+                                            <!-- Left Column of Details -->
+                                            <div class="col-md-7 col-12">
+                                                <h6 id="cardPartyName" class="fw-bold text-dark mb-1">--</h6>
+                                                <div class="text-muted mb-1">Address: <span id="cardPartyAddress" class="text-dark">--</span></div>
+                                            </div>
+
+                                            <!-- Right Column of Details -->
+                                            <div class="col-md-5 col-12 border-start">
+                                                <div class="text-muted mb-1">Place of Supply: <span id="cardPlaceOfSupply" class="text-dark">--</span></div>
+                                                <div class="text-muted mb-1">GST: <span id="cardPartyGST" class="text-dark">--</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Broker & Transport fields positioned cleanly underneath -->
+                                    <div class="row gutters">
+                                        <div class="col-md-6 col-12 mb-3">
+                                            <div class="field-wrapper mb-0">
+                                                <select id="ddlBroker" class="select-single detail form-control" data-live-search="true"></select>
+                                                <div class="field-placeholder">Broker <sup style="color:red;">*</sup></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Transport -->
+                                        <div class="col-md-6 col-12 mb-3 position-relative">
+                                            <div class="field-wrapper mb-0">
+                                                <select id="ddlTransport" class="select-single detail form-control" data-live-search="true">
+                                                    <option value="-1">Select</option>
+                                                </select>
+                                                <div class="field-placeholder">Transport <sup style="color:red;">*</sup></div>
+                                                <button type="button" id="AddTransportModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#TransportModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- RIGHT SIDE: Date and Invoice Number Panel -->
+                            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12 mb-2">
+                                <div class="card-box-border h-100">
+                                    <div class="header-box-title">
+                                        <span>Date and Invoice Number</span>
+                                    </div>
+
+                                    <div class="row gutters">
+                                        <!-- Order Date -->
+                                        <div class="col-md-6 col-12 mb-3">
+                                            <div class="field-wrapper mb-0">
+                                                <input type="date" id="OrderDate">
+                                                <div class="field-placeholder">Order Date</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Order No / Invoice No -->
+                                        <div class="col-md-6 col-12 mb-3">
+                                            <div class="field-wrapper mb-0">
+                                                <input type="text" id="OrderNo" value="0" readonly>
+                                                <div class="field-placeholder">Order No</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Markup % -->
+                                        <div class="col-12">
+                                            <div class="field-wrapper mb-0">
+                                                <input type="text" id="Markup" value="0">
+                                                <div class="field-placeholder">Mark-up %</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-section-header mb-2">Item Details</div>
+                    <!-- Main Order Items Table -->
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered" id="SaleOrderDetails">
+                            <thead>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>Design No</th>
+                                    <th>Type</th>
+                                    <th>No of Colours</th>
+                                    <th>Colours</th>
+                                    <th>Qty</th>
+                                    <th>Unit</th>
+                                    <th hidden>Rate</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                    <th>Remark</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Add Items Bar (matches image block style) -->
+                    <div class="table-box text-center mb-4" style="border: 1px dashed #0d6efd; cursor: pointer;" onclick="openDesignModal()">
+                        <span class="text-primary fw-bold">+ Add Items</span>
+                    </div>
+
+                    <!-- Layout matching reference image: Left (Notes & Terms) / Right (Additional Charges & Totals) -->
+                    <!-- Layout matching reference image: Left (Notes & Terms) / Right (Additional Charges & Totals) -->
+                    <div class="row gutters">
+                        <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-12">
+                            <div class="card mb-3 border">
+                                <div class="card-body">
+                                    <div class="form-section-header mb-2">Notes / Remarks</div>
+                                    <div class="field-wrapper mb-3">
+                                        <textarea id="NotesRemark" class="form-control" rows="3" placeholder="Enter your notes or remarks"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 ms-auto">
+                            <div class="summary-card p-3 border">
+
+                                <!-- Dynamic Additional Rows Container -->
+                                <div id="additionalChargesContainer">
+                                    <div class="summary-row align-items-center d-flex pb-2 mb-2 border-bottom additional-row">
+                                        <div class="position-relative flex-grow-1 me-2">
+                                            <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
+                                        </div>
+                                        <div class="input-group input-group-sm me-2" style="width: 100px;">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
+                                        </div>
+                                        <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
+                                    </div>
+                                </div>
+
+                                <!-- Action Links Section -->
+                                <div class="mb-3 d-flex flex-column gap-1">
+                                    <a href="javascript:void(0);" id="btnAddMoreAdditional" class="text-primary fw-bold text-decoration-none small">+ Add Additional Charges</a>
+                                </div>
+
+                                <!-- Dynamic Discount Rows Container (Hidden by default until clicked) -->
+                                <div id="discountChargesContainer"></div>
+
+                                <!-- Dual Discount Inputs Block -->
+                                <div id="defaultDiscountSection" class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
+                                    <span class="fw-semibold text-secondary">Discount</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="input-group input-group-sm" style="width: 110px;">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0">
+                                        </div>
+                                        <div class="input-group input-group-sm" style="width: 90px;">
+                                            <span class="input-group-text">%</span>
+                                            <input type="number" id="discountValuePercent" class="form-control form-control-sm" value="0" placeholder="0">
+                                        </div>
+                                        <a href="javascript:void(0);" id="btnClearDiscount" class="text-danger text-decoration-none ms-1"><i class="fa fa-times-circle"></i></a>
+                                    </div>
+                                </div>
+
+                                <!-- GST Section (Fixed Alignment & Flex Structure) -->
+                                <div class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
+                                    <span class="fw-semibold text-secondary">GST</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <select id="GSTSLABId" class="form-select form-control form-control-sm" style="width: 110px;"></select>
+                                        <input type="text" id="gstPercent" class="form-control" hidden>
+                                        <span id="gstAmount" class="fw-bold text-dark" style="min-width: 70px; text-align: right;">0.00</span>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2">
+
+                                <!-- Total Amount Display -->
+                                <div class="summary-row total d-flex justify-content-between align-items-center py-2">
+                                    <span class="fs-5 fw-bold text-dark">Total Amount</span>
+                                    <span id="invoiceAmount" class="fs-4 fw-bold text-dark">0.00</span>
+                                </div>
+                                <div class="summary-row RoundOff text-muted small d-flex justify-content-between">
+                                    <span>RoundOff Amount</span>
+                                    <span id="RoundOff">0.00</span>
+                                </div>
+
+                                <!-- Hidden legacy element hooks (Unique IDs preserved to avoid JS conflict) -->
+                                <div style="display:none;">
+                                    <span id="totalQty">0</span>
+                                    <span id="totalAmount">0</span>
+                                    <span id="discountAmount">0</span>
+                                    <select id="discountType"><option value="Percentage" selected>%</option></select>
+                                    <input type="number" id="discountValue" value="0">
+                                    <input type="text" id="AdditionalText">
+                                    <input type="tel" id="AdditionalValue">
+                                    <span id="AdditionalAmount">0.00</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="text-end">
+                        <a href="listSaleOrderEntry" class="btn btn-light me-2">
+                            <i class="fa fa-arrow-left"></i> Back
+                        </a>
+
+                        <div id="loaderOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;justify-content:center;align-items:center;">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+
+                        <button id="btnSave" class="btn btn-primary" onclick="saveSaleOrder()">
+                            Save Sale Order
+                        </button>
+                    </div>
+
+                    <!-- Modals (Party, Design, Transport) kept intact -->
+                    <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addNewContactLabel">Add Party</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body" style=" overflow: auto; height:500px !important;">
+                                    @*<div id="add-alert" class="alert alert-success" role="alert" >
+                            Record has been saved Successfully.
+                        </div>*@
+                                    <div class="row gutters" id="DivPartyMaster">
+                                        <div class="row gutters">
+                                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                                <div class="row gutters">
+
+                                                    <div class="col-6">
+                                                        <div class="row gutters">
+                                                            <div class="col-6">
+                                                                <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                            </div>
+                                                            <hr />
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <select id="SundryParty" class="form-control" name="SundryParty">
+                                                                        <option value="0"></option>
+                                                                        <option value="1">Sundry Creditors</option>
+                                                                        <option value="2">Sundry Debtors</option>
+                                                                        <option value="3">Job Work</option>
+                                                                    </select>
+                                                                    <div class="field-placeholder">Select Sundry Party</div>
+                                                                    <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+
+
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 24XXXXX9438X1XX" minlength="15" maxlength="15" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                                                    <input id="gstintemp" type="hidden" class="clear-field detail">
+                                                                    <div class="field-placeholder">GSTIN</div>
+                                                                    <div class="invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                                                    <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                                    <input id="PanNotemp" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                                    <div class="field-placeholder">PAN No<sup class="text-danger">*</sup></div>
+                                                                    <div class="PanNo-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="PanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+
+                                                                </div>
+
+                                                            </div>
+
+
+
+
+                                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
+                                                                    <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
+                                                                    <div class="party-name-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="party-name-invalid-feedback invalid-feedback">Please Provide Party Name</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+
+
+
+
+
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="phone" placeholder="Enter Mobile" type="tel" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                                    <input id="phonetemp" placeholder="Enter Mobile" type="hidden" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                                    <div class="field-placeholder">Mobile Number <span class="text-danger">*</span></div>
+                                                                    <div class="phone-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="phone-invalid-feedback invalid-feedback">Please Provide Mobile Number</div>
+                                                                    <div class="phone-less-feedback invalid-feedback">Invalid Number</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" @*onfocusout="validate(this)"*@ min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                                    <div class="field-placeholder">Alternate Number</div>
+                                                                    <div class="alt-phone-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="alt-phone-invalid-feedback invalid-feedback">Please Provide Alternate Number</div>
+                                                                    <div class="alt-phone-less-feedback invalid-feedback">Invalid Number</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="email" placeholder="Enter Email" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field detail" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
+                                                                    <input type="hidden" id="email-temp" value="" />
+                                                                    <input type="hidden" id="phone-temp" value="" />
+                                                                    <div class="field-placeholder">Email</div>
+                                                                    <div class="email-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="email-invalid-feedback invalid-feedback">Please Provide Proper Email</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                            </div>
+
+
+
+
+                                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <select id="placeOfSupply" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
+                                                                        <option value="-1">Select</option>
+                                                                    </select>
+                                                                    <div class="field-placeholder">Place Of Supply</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+                                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeypress="return (event.charCode>=48 && event.charCode<=57)" onfocus="myFunctionPINCODE(this.value)" onkeyup="myFunctionPINCODE(this)">
+                                                                    <div class="field-placeholder">Pincode</div>
+                                                                    <div class="pincode-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="pincode-invalid-feedback invalid-feedback">Please Provide pincode</div>
+                                                                    <div class="pincode-less-feedback invalid-feedback">Invalid Number</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+
+                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="city" placeholder="Enter City" type="text" class="form-control clear-field detail">
+                                                                    <div class="field-placeholder">City</div>
+                                                                    <div class="alt-phone-valid-feedback valid-feedback">Looks good!</div>
+                                                                    <div class="alt-phone-invalid-feedback invalid-feedback">Please Provide City</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+
+                                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <select id="BrokerModel" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
+                                                                        <option value="-1">Select</option>
+                                                                    </select>
+                                                                    <div class="field-placeholder">Broker</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                                <div class="field-wrapper">
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input clear-field detail" type="checkbox" id="chcekIsActiveParty" checked style="cursor:pointer;">
+                                                                        <label class="form-check-label" for="chcekIsActiveParty">Is Active Party</label>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+
+
+                                                        </div>
+
+
+
+                                                    </div>
+
+                                                    <div class="col-6" style=" border-left: 1px solid #c3c3c3;">
+
+
+
+                                                        <div class="col-6">
+                                                            <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Bank Details</div>
+                                                        </div>
+                                                        <div class="col-6">
+
+                                                        </div>
+                                                        <hr style=" margin: 0px 0px 16px 0;" />
+
+
+                                                        <div class="row gutters">
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="BankHolderName" type="text" class="form-control clear-field detail" placeholder="Bank Holder Name" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode == 32)">
+                                                                    <div class="field-placeholder">Bank Holder Name</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+
+
+                                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="BankAccountNo" type="text" class="form-control clear-field detail" placeholder="Bank Account No" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                                    <div class="field-placeholder">Bank A/c No</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+
+                                                            </div>
+
+
+
+                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onfocusout="validate(this)" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )" onfocus="myFunctionIFSC(this.value)" onkeyup="myFunctionIFSC(this)">
+                                                                    <div class="field-placeholder">Bank IFSC</div>
+                                                                    <div class="BankIFSCCode-valid-feedback valid-feedback">Looks good!</div>
+                                                                    @*<div class="BankIFSCCode-invalid-feedback invalid-feedback">Please Provide Bank IFSC Code</div>*@
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+
+                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="BankName" type="text" class="form-control clear-field detail" placeholder="Bank Name" readonly>
+                                                                    <div class="field-placeholder">Bank Name</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                <!-- Field wrapper start -->
+                                                                <div class="field-wrapper">
+                                                                    <input id="BankBranch" type="text" class="form-control clear-field detail" placeholder="Bank Branch" readonly>
+                                                                    <div class="field-placeholder">Bank Branch</div>
+                                                                </div>
+                                                                <!-- Field wrapper end -->
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
+                                                        </div>
+                                                        <div class="col-6">
+
+                                                        </div>
+                                                        <hr style=" margin: 5px 0px 16px 0;" />
+                                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                            <!-- Field wrapper start -->
+                                                            <div class="field-wrapper">
+                                                                <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="3" placeholder="Enter Billing Address"></textarea>
+                                                                <div class="field-placeholder">Billing Address</div>
+                                                            </div>
+                                                            <!-- Field wrapper end -->
+                                                        </div>
+
+                                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
+
+                                                            <div class="field-wrapper">
+                                                                <div class="form-check form-check-inline" style="margin-left: 65%;">
+                                                                    <input class="form-check-input clear-field detail" onclick="toggleShippingAddress()" type="checkbox" id="chcekAddress" value="option" checked style="cursor:pointer;">
+                                                                    <label class="form-check-label" for="chcekAddress">Same as Billing Address</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                            <!-- Field wrapper start -->
+                                                            <div class="field-wrapper">
+                                                                <textarea id="shippingAddress" class="form-control clear-field" rows="3" placeholder="Enter Shipping Address" disabled></textarea>
+                                                                <div class="field-placeholder">Shipping Address</div>
+                                                            </div>
+                                                            <!-- Field wrapper end -->
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input id="edit-id" type="hidden" />
+                                <input id="catedit-id" type="hidden" />
+                                <div id="notess"></div>
+                                <div class="modal-footer">
+                                    @*<button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>*@
+                                    <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="saveparty()">Save & New</button>
+                                    <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--  Design -->
+                    <div class="modal fade" id="designModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content shadow-lg border-0 rounded-3">
+
+                                <!-- HEADER -->
+                                <div class="modal-header bg-dark text-white py-3 px-4">
+                                    <h5 class="modal-title fw-bold fs-5">
+                                        <i class="fa fa-th-large me-2"></i> Design Selection & Color Matching
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <!-- BODY -->
+                                <div class="modal-body p-4 bg-light">
+                                    <div class="row g-4">
+
+                                        <!-- LEFT SIDE: IMAGE & NAVIGATION CARD -->
+                                        <div class="col-lg-4 col-md-5 d-flex flex-column">
+                                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100 bg-white">
+                                                <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 380px;">
+                                                    <div class="border rounded-2 bg-light d-flex align-items-center justify-content-center w-100 mb-3 p-2" style="height: 340px; overflow: hidden;">
+                                                        <label id="upload-ColorMatching-default-preview" class="w-100 h-100 d-flex align-items-center justify-content-center text-muted fw-semibold cursor-pointer text-center">
+                                                            <span class="small"><i class="fa fa-image fa-2x mb-2 d-block text-secondary"></i> Upload Color Matching</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="d-flex justify-content-center gap-2 w-100">
+                                                        <button id="Previousbtn" type="button" class="btn btn-outline-dark px-3 btn-sm rounded-pill shadow-sm" onclick="checkPrevious()" style="display:none;">
+                                                            <i class="fa fa-arrow-left me-1"></i> Previous
+                                                        </button>
+                                                        <button id="Nextbtn" type="button" class="btn btn-outline-dark px-3 btn-sm rounded-pill shadow-sm" onclick="checkNext()" style="display:none;">
+                                                            Next <i class="fa fa-arrow-right ms-1"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- RIGHT SIDE: CONTROLS, FORM & TABLE -->
+                                        <div class="col-lg-8 col-md-7 d-flex flex-column">
+                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+
+                                                <!-- TOP FIELDS: Design No & Color Group -->
+                                                <div class="row g-3 mb-2">
+                                                    <div class="col-md-6">
+                                                        <div class="field-wrapper">
+                                                            <select id="DesignNo" class="select-single detail form-select form-select-sm" title="Select Design No" data-live-search="true">
+                                                            </select>
+                                                            <div class="field-placeholder">Design No <sup class="text-danger">*</sup></div>
+                                                            <div class="DesignNo-valid-feedback valid-feedback">Looks good!</div>
+                                                            <div class="DesignNo-invalid-feedback invalid-feedback">Please Select Design No</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Hidden Inputs -->
+                                                    <div class="d-none">
+                                                        <select id="ColorMatchingID" onchange="getColorMatchingId(this)"></select>
+                                                        <select id="TypeRow"></select>
+                                                        <select id="UnitRow"></select>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <div class="field-wrapper">
+                                                            <select id="ddlColourGroup" class="select-single detail form-select form-select-sm" title="Select Color Group" data-live-search="true">
+                                                            </select>
+                                                            <div class="field-placeholder">Color Group <sup class="text-danger">*</sup></div>
+                                                            <div class="ddlColourGroup-valid-feedback valid-feedback">Looks good!</div>
+                                                            <div class="ddlColourGroup-invalid-feedback invalid-feedback">Please Select Color Group</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- BULK COLOR GROUP ADD PANEL -->
+                                                <div class="p-3 rounded-2 bg-light border mb-3">
+                                                    <div class="row g-2 align-items-center">
+                                                        <div class="col-md-7">
+                                                            <div class="field-wrapper mb-0 bg-white">
+                                                                <input type="tel" id="ColorGroupQty" class="form-control form-control-sm" placeholder=" ">
+                                                                <div class="field-placeholder">Bulk Qty (For All Colors) <span class="text-danger">*</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <button type="button" id="ColorGroupAddbtn" class="btn btn-success btn-sm w-100 fw-bold shadow-sm">
+                                                                <i class="fa fa-plus-circle me-1"></i> Add All Colours
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- DIVIDER -->
+                                                <div class="d-flex align-items-center my-2">
+                                                    <hr class="flex-grow-1 m-0 text-muted">
+                                                    <span class="fw-bold text-primary px-3 small text-uppercase bg-white border rounded-pill shadow-xs">Single Item Wise</span>
+                                                    <hr class="flex-grow-1 m-0 text-muted">
+                                                </div>
+
+                                                <!-- SINGLE ITEM FORM ROW -->
+                                                <div class="row g-2 align-items-center mb-3">
+                                                    <div class="col-md-4">
+                                                        <div class="p-2 border rounded bg-light text-truncate">
+                                                            <small class="text-muted d-block" style="font-size: 10px;">SELECTED COLOR</small>
+                                                            <strong class="ColorMatchingName mb-0 text-dark d-block text-truncate small">CHIKU MULTY - SEA GREEN</strong>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                        <div class="field-wrapper mb-0">
+                                                            <input type="text" id="DesignSelectionRemark" class="form-control form-control-sm" placeholder=" ">
+                                                            <div class="field-placeholder">Remark</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <div class="field-wrapper mb-0">
+                                                            <input type="tel" id="ColorMatchingQty" class="form-control form-control-sm" placeholder=" ">
+                                                            <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <button type="button" id="ColorMatchingAddbtn" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm">
+                                                            Add Item
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <span class="fw-bold text-danger small d-block mb-2" id="AlertsMsg"></span>
+
+                                                <!-- SUB-DETAILS TABLE -->
+                                                <div class="table-responsive border rounded-2 bg-white" style="max-height: 180px; overflow-y: auto;">
+                                                    <table class="table table-sm table-hover align-middle mb-0" id="SaleOrderSubDetails">
+                                                        <thead class="table-light sticky-top shadow-xs">
+                                                            <tr>
+                                                                <th class="ps-3">Sr No</th>
+                                                                <th hidden>Design No</th>
+                                                                <th hidden>Design Name</th>
+                                                                <th hidden>Color Group</th>
+                                                                <th>Color Matching</th>
+                                                                <th>Qty</th>
+                                                                <th>Remark</th>
+                                                                <th class="text-center pe-3">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="itemTableBody">
+                                                            <tr class="no-data">
+                                                                <td colspan="8" class="text-center text-muted py-3">
+                                                                    No Data Available In Table
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- FOOTER -->
+                                <div class="modal-footer bg-white py-3 px-4 border-top">
+                                    <button class="btn btn-outline-secondary px-4 rounded-pill btn-sm" data-bs-dismiss="modal">Close</button>
+                                    <button class="btn btn-success px-5 rounded-pill fw-bold btn-sm shadow-sm" id="btnAddToOrder">
+                                        <i class="fa fa-check me-1"></i> OK
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--  Transport -->
+                    <div class="modal fade" id="TransportModal">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 id="transportModalLabel">Add Transport</h5>
+                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="TransportId" value="0">
+                                    <div class="row g-3">
+                                        <!-- Transport Code -->
+                                        <div class="col-2">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="TransportCode" readonly>
+                                                <div class="field-placeholder">Transport Code</div>
+                                            </div>
+                                        </div>
+                                        <!-- Transport Name -->
+                                        <div class="col-4">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="TransportName">
+                                                <div class="field-placeholder">Transport Name <sup class="text-danger">*</sup></div>
+                                                <div class="invalid-feedback">Transport Name is required</div>
+                                            </div>
+                                        </div>
+                                        <!-- ContactPerson -->
+                                        <div class="col-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="ContactPerson">
+                                                <div class="field-placeholder">ContactPerson <sup class="text-danger">*</sup></div>
+                                                <div class="invalid-feedback">Contact Person is required</div>
+                                            </div>
+                                        </div>
+                                        <!-- Mobile -->
+                                        <div class="col-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="MobileNo" maxlength="10">
+                                                <div class="field-placeholder">Mobile <sup class="text-danger">*</sup></div>
+                                                <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                                            </div>
+                                        </div>
+                                        <!-- Address -->
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="Address">
+                                                <div class="field-placeholder">Address</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                                <input id="gstTransport" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                <input id="gstTransport" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                <div class="field-placeholder">GSTIN</div>
+                                                <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
+                                                <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <!-- Field wrapper start -->
+                                            <div class="field-wrapper">
+                                                @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
+                                                <input id="TransportPanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                <input id="TransportPanNo" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
+                                                <div class="field-placeholder">PAN No</div>
+                                                <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
+                                                <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
+                                            </div>
+                                        </div>
+                                        <!-- City -->
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="CityName">
+                                                <div class="field-placeholder">City</div>
+                                            </div>
+                                        </div>
+                                        <!-- Vehicle Type -->
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="VehicleType">
+                                                <div class="field-placeholder">Vehicle Type</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                            <div class="field-wrapper">
+                                                <select class="form-control" id="IsActive">
+                                                    <option value="true">Active</option>
+                                                    <option value="false">Inactive</option>
+                                                </select>
+                                                <div class="field-placeholder">Status</div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-success" id="btnSaveTransport" onclick="saveTransport()">Save</button>
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- Image Preview Modal -->
+                    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-md">
+                            <div class="modal-content shadow-lg border-0 rounded-3">
+                                <div class="modal-header bg-dark text-white py-2 px-3">
+                                    <h5 class="modal-title fs-6 fw-bold"><i class="fa fa-image me-2"></i> Design Preview</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center p-3 bg-light" style="overflow:auto">
+                                    <img id="previewModalImg" src="" alt="Design Preview" class="img-fluid rounded border bg-white" style="max-height: 70vh; object-fit: contain;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#finance-tab").addClass("active");
+            $("#tab-finance").addClass("show active");
+            $("#aSaleOrderEntry").addClass("current-page");
+            loadOrderNo();
+            FunctionIsLogin();
+            bindPartyGST();
+            bindBrokerDropdown();
+            bindTransport();
+            getItemGST();
+            getStates(0);
+            AdditionalRemarks();
+            $("#PartyName").prop("disabled", true);
+            $("#PartyAddress").prop("disabled", true);
+            $("#Broker").prop("disabled", true);
+            let today = new Date();
+            let day = String(today.getDate()).padStart(2, '0');
+            let month = String(today.getMonth() + 1).padStart(2, '0');
+            let year = today.getFullYear();
+            let formattedDate = `${year}-${month}-${day}`; // ✅ IMPORTANT
+            $("#OrderDate").val(formattedDate);
+        });
+        let srNo = 1;
+        let subDetails = [];
+        let SaleOrderDetails = [];
+        let isEditMode = false;        // ✅ ADD THIS
+        let currentViewIndex = -1;
+        var AdditionalRemarksArray = [];
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+        // Open Image Preview Modal on Thumbnail Click
+        $(document).on("click", "#SaleOrderDetails tbody tr td img", function (e) {
+            e.stopPropagation(); // Prevents triggering row selection/view events
+            let imgSrc = $(this).attr("src");
+            if (imgSrc) {
+                $("#previewModalImg").attr("src", imgSrc);
+                $("#imagePreviewModal").modal("show");
+            }
+        });
+        $("#discountType").on("change", function () {
+
+            if ($(this).val() === "Percentage") {
+                $("#discountValue").attr("placeholder", "Enter %");
+            } else {
+                $("#discountValue").attr("placeholder", "Enter ₹");
+            }
+        });
+        $("#discountValue").on("input", updateSummary);
+        $("#discountType").on("change", updateSummary);
+        $("#gstPercent").on("input", updateSummary);
+        $("#discountPercent").on("keypress", function (e) {
+            if (e.key === "%") return true;
+
+            if (!/[0-9.]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        // ✅ Unified GST Slab Change & Calculation Trigger
+        $(document).on("change", "#GSTSLABId", function () {
+            let selectedText = $("#GSTSLABId option:selected").text();
+
+            // 🔥 Extract numeric percentage from text (e.g., "GST 5%" or "5%" -> 5)
+            let percent = parseFloat(selectedText.replace(/[^\d.]/g, "")) || 0;
+
+            // If the default option "Select GST" or value is 0, reset percent
+            if ($(this).val() === "0" || $(this).val() === "-1") {
+                percent = 0;
+            }
+
+            // Set value to hidden/text input
+            $("#gstPercent").val(percent);
+
+            // Trigger recalculation
+            updateSummary();
+        });
+        $("#AddPartyModel").on("click", function () {
+
+            // Clear all fields
+            $(".clear-field").val("");
+
+            // Reset dropdowns
+            $("#SundryParty").val("0");
+            $("#placeOfSupply").val("-1");
+            $("#Broker").val("-1");
+
+            // Checkbox default
+            $("#chcekIsActiveParty").prop("checked", true);
+
+            // Hide update button, show save
+            $("#editbtn").hide();
+            $("#savebtn").show();
+            $("#saveViewbtn").show();
+
+            // Title change
+            $("#addNewContactLabel").text("Add Party");
+        });
+        // Party selection change handler to toggle views and fill card data
+        $("#ddlPartyGST").on("change", function () {
+            let selected = $(this).find("option:selected");
+            let partyId = $(this).val();
+
+            if (!partyId || partyId === "-1") return;
+
+            // Populate Card View Fields
+            $("#cardPartyName").text(selected.data("name") || selected.text());
+            $("#cardPartyAddress").text(selected.data("address") || "");
+            $("#cardPartyGST").text(selected.data("gstin") || "");
+            $("#cardPlaceOfSupply").text(selected.data("state") || "24-Gujarat");
+
+            // Toggle visibility states
+            $("#partySelectContainer").hide();
+            $("#partyDetailsCard").show();
+        });
+        // "Change Party" button handler to switch back to dropdown view
+        $("#btnChangeParty").on("click", function () {
+            $("#partyDetailsCard").hide();
+            $("#partySelectContainer").show();
+            $("#ddlPartyGST").val("-1").trigger("change");
+        });
+        // When "Change Party" button is clicked
+        $("#btnChangeParty").on("click", function () {
+            $("#partyDetailsCard").hide();
+            $("#partySelectContainer").show();
+            $("#ddlPartyGST").val("-1").trigger("change");
+        });
+        $("#ddlColourGroup").on("change", function () {
+            let colorGroupId = $(this).val();
+            console.log("Selected ColorGroupID:", colorGroupId);
+        });
+        $('#designModal').on('shown.bs.modal', function () {
+
+            $('#DesignNo').select2('destroy').select2({
+                dropdownParent: $('#designModal'),
+                width: '100%'
+            });
+
+            $('#ddlColourGroup').select2('destroy').select2({
+                dropdownParent: $('#designModal'),
+                width: '100%'
+            });
+
+        });
+        $('#designModal').on('hidden.bs.modal', function () {
+
+            isViewMode = false;
+            currentViewIndex = -1;
+            // ✅ Clear dropdowns
+            $("#DesignNo").val('');
+            $("#ColorMatchingID").empty();
+
+            // ✅ Clear inputs
+            $("#ColorMatchingQty").val('');
+            $("#weftLength").val('');
+            $("#warpLength").val('');
+
+
+            // ✅ Clear table
+            $("#divColorMatchingTable").empty();
+            $("#itemTableBody").html(`
+                    <tr class="no-data">
+                        <td colspan="4" class="text-center">
+                            No Data Available In Table
+                        </td>
+                    </tr>
+                `);
+
+            // ✅ Clear images
+            $("#upload-PhotoOfDesign-default-preview").html('Photo Of Design');
+            $("#upload-ColorMatching-default-preview").html('Color Matching Photo');
+
+            // ✅ Reset hidden text
+            $(".ColorMatchingID").text('');
+            $(".ColorMatchingName").text('');
+
+            // ✅ Reset buttons
+            $("#Nextbtn").hide();
+            $("#Previousbtn").hide();
+
+        });
+        $("#DesignNo").on("change", function () {
+
+            let selected = $(this).find("option:selected");
+            let val = $(this).val();
+            if (val !== "") {
+                let parts = val.split('|');
+                let designEntryId = parts[0];
+                let colorMatchingId = parts[1];
+                let typeId = selected.data("typeid");
+                let type = selected.data("type");
+                let unitId = selected.data("unitid");
+                let unit = selected.data("unit");
+                // ✅ FIX HERE
+                let colors = selected.attr("data-colors");
+                colors = colors ? JSON.parse(colors) : [];
+                // TYPE + UNIT
+                $("#TypeRow").html(`<option value="${typeId}" selected>${type}</option>`);
+                $("#UnitRow").html(`<option value="${unitId}" selected>${unit}</option>`);
+                // COLOR
+                $("#ddlColourGroup").html('<option value="-1">Select Color Group</option>');
+                if (colors && colors.length > 0) {
+                    let options = '';
+                    colors.forEach(function (c) {
+                        options += `<option value="${c.ColorGroupID}">${c.ColorGroup}</option>`;
+                    });
+                    $("#ddlColourGroup").append(options);
+                }
+                getDesignNo(designEntryId, colorMatchingId);
+
+            } else {
+                $("#TypeRow").html('<option value="">Select Type</option>');
+                $("#UnitRow").html('<option value="">Select Unit</option>');
+                $("#ddlColourGroup").html('<option value="">Select Color Group</option>');
+            }
+        });
+        $('#TransportModal').on('show.bs.modal', function () {
+
+            // Only for ADD
+            if ($('#TransportId').val() == 0) {
+
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetNextTransportCode',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: '{}',
+
+                    success: function (res) {
+                        $('#TransportCode').val(res.d);
+
+                    }
+                });
+
+            }
+        });
+        $('#TransportModal').on('hidden.bs.modal', function () {
+
+            // ✅ Clear all inputs
+            $(this).find("input[type='text'], input[type='hidden'], textarea").val('');
+
+            // ✅ Clear dropdowns
+            $(this).find("select").val('').trigger('change');
+
+            // ✅ Remove validation UI
+            $(this).find(".form-control")
+                .removeClass("is-valid is-invalid");
+        });
+        $("#ColorMatchingAddbtn").click(function () {
+
+            let saleRate = 0;
+
+            // 🔥 FIX: use parent rate in edit mode
+            if (isEditMode && currentViewIndex !== -1) {
+                saleRate = SaleOrderDetails[currentViewIndex].BrokerRate;
+            } else {
+                saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
+            }
+
+            const colorId = $("#ColorMatchingID").val();
+            const colorName = $("#ColorMatchingID option:selected").text().trim();
+            const qty = parseFloat($("#ColorMatchingQty").val());
+
+            if (!colorId) return showError("Please select Color Matching");
+            if (!qty || qty <= 0) return showError("Enter valid Qty");
+
+            const tbody = $("#itemTableBody");
+            tbody.find(".no-data").remove();
+
+            let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
+
+            if (existingRow.length > 0) {
+                // 🔥 UPDATE QUANTITY INSTEAD OF BLOCKING
+                let qtyCell = existingRow.find("td:eq(5)"); // Adjust index if Qty column index changes
+                let currentQty = parseFloat(qtyCell.text()) || 0;
+                let newQty = currentQty + qty;
+
+                qtyCell.text(newQty);
+
+                // Optional: Update remark if a new one was provided
+                let remarkInput = $("#DesignSelectionRemark").val().trim();
+                if (remarkInput) {
+                    let remarkCell = existingRow.find("td:eq(6)");
+                    let currentRemark = remarkCell.text().trim();
+                    if (currentRemark) {
+                        if (!currentRemark.includes(remarkInput)) {
+                            remarkCell.text(currentRemark + ", " + remarkInput);
+                        }
+                    } else {
+                        remarkCell.text(remarkInput);
+                    }
+                }
+                showError("This color already added");
+                existingRow.addClass("table-warning");
+                setTimeout(() => existingRow.removeClass("table-warning"), 800);
+
+                // Clear input fields after updating existing row
+                $("#ColorMatchingQty").val("");
+                $("#DesignSelectionRemark").val("");
+                return;
+            }
+            let designNo = $("#DesignNo").val();
+            let designName = $("#DesignNo option:selected").text().trim();
+            let colorGroupId = $("#ddlColourGroup").val();
+            let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+            let remark = $("#DesignSelectionRemark").val() || "";
+            let imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
+            tbody.append(createSubRow(
+                designNo,
+                designName,
+                colorGroupId,
+                colorGroupName,
+                remark,
+                colorId,
+                colorName,
+                qty,
+                imageUrl,
+                saleRate
+            ));
+            updateSrNo();
+            $("#ColorMatchingQty").val("");
+            $("#DesignSelectionRemark").val("");
+            if ($("#itemTableBody tr").length > 0) {
+                $("#DesignNo").prop("disabled", true);
+            } else {
+                $("#DesignNo").prop("disabled", false);
+            }
+        });
+        $("#ColorMatchingQty").keypress(function (e) {
+            if (e.which === 13) {
+                $("#ColorMatchingAddbtn").click();
+            }
+        });
+        $(document).on("click", ".deleteMain", function () {
+            const row = $(this).closest("tr");
+            const index = row.data("index");
+            if (index === undefined) return;
+            Swal.fire({
+                title: "Delete Item?",
+                text: "This will remove the design from order",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                // 🔥 Remove from array
+                SaleOrderDetails.splice(index, 1);
+                // Reset view
+                if (currentViewIndex === index) {
+                    currentViewIndex = -1;
+                }
+                bindMainTable();
+                updateSummary();
+                Swal.fire("Deleted!", "Item removed successfully.", "success");
+            });
+        });
+        $(document).on("click", "#itemTableBody tr", function () {
+
+            let id = $(this).data("id");
+            $("#ColorMatchingID").val(id);
+            getColorMatchingId(id);
+        });
+        $("#Markup").on("input change", function () {
+
+            const markup = parseFloat($(this).val()) || 0;
+
+            SaleOrderDetails.forEach(item => {
+
+                // ❌ Skip if manually edited
+                if (item.IsRateManual) return;
+
+                const brokerRate = calculateBrokerRate(item.Rate, markup);
+
+                item.BrokerRate = brokerRate;
+                item.Amount = item.TotalQty * brokerRate;
+
+                // 🔥 Sync SubDetails also
+                if (item.SubDetails && item.SubDetails.length > 0) {
+                    item.SubDetails.forEach(sub => {
+                        sub.Rate = brokerRate;
+                    });
+                }
+            });
+            bindMainTable();
+            updateSummary();
+            resetModal();
+        })
+        function openDesignModal() {
+
+            $("#DesignNo").val('');
+            $("#ColorMatchingID").empty();
+            $("#divColorMatchingTable").empty();
+            getDesignEntryForm();
+            $("#designModal").modal("show");
+        }
+        function getDesignEntryForm() {
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/GetDesignEntryData',
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+
+                success: function (response) {
+
+                    let data = JSON.parse(response.d);
+                    console.log("GetDesignEntryData", data);
+
+                    if (data.Code == 200) {
+                        $("#DesignNo").prop("disabled", false);
+                        // ================= DESIGN =================
+                        $("#DesignNo").html('<option value="-1">Select Design</option>');
+
+                        $.each(data.Designs, function (i, item) {
+
+                            $("#DesignNo").append(`
+                                        <option
+                                            value="${item.DesignEntryFormID}|${item.DesignColorMatchingFormID}"
+                                            data-typeid="${item.TypeID}"
+                                            data-type="${item.Type}"
+                                            data-unitid="${item.UnitId}"
+                                            data-unit="${item.UnitCode}"
+                                            data-salerate="${item.SaleRate}"   // 🔥 ADD THIS
+                                            data-colors='${JSON.stringify(item.ColorGroups)}'>
+                                            ${item.DesignerCode} - ${item.DesignNo}
+                                        </option>
+                                    `);
+                        });
+
+                        // ================= TYPE =================
+                        $("#TypeRow").html('<option value="-1">Select Type</option>');
+                        $.each(data.Types, function (i, item) {
+                            $("#TypeRow").append(`
+                                    <option value="${item.TypeID}">
+                                        ${item.Type}
+                                    </option>
+                                `);
+                        });
+
+                        // ================= UNIT =================
+                        $("#UnitRow").html('<option value="-1">Select Unit</option>');
+                        $.each(data.Units, function (i, item) {
+                            $("#UnitRow").append(`
+                                    <option value="${item.UnitId}">
+                                        ${item.UnitCode}
+                                    </option>
+                                `);
+                        });
+
+                        // ================= GLOBAL COLOR LIST =================
+                        $("#ddlColourGroup").html('<option value="-1">Select Color Group</option>');
+                        $.each(data.ColorGroups, function (i, item) {
+                            $("#ddlColourGroup").append(`
+                                    <option value="${item.ColorGroupID}">
+                                        ${item.ColorGroup}
+                                    </option>
+                                `);
+                        });
+                    }
+                },
+                error: function (err) {
+                    console.error("Error:", err);
+                }
+            });
+        }
+        function showError(message) {
+            $("#AlertsMsg").text(message).show();
+            // Optional: auto hide after 3 seconds
+            setTimeout(() => {
+                $("#AlertsMsg").text('').hide();
+            }, 3000);
+        }
+        function noDataRow() {
+            return `
+                <tr class="no-data">
+                    <td colspan="4" class="text-center">
+                        No Data Available In Table
+                    </td>
+                </tr>`;
+        }
+        function formatMoney(val) {
+            return parseFloat(val).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        function updateMainTotals(index) {
+            let item = SaleOrderDetails[index];
+            let totalQty = 0;
+            item.SubDetails.forEach(x => { totalQty += x.Qty; });
+            item.TotalQty = totalQty;
+            item.NoOfColors = item.SubDetails.length;
+            item.Amount = totalQty * item.BrokerRate;
+            bindMainTable();
+            updateSummary();
+        }
+        function getFormData() {
+
+            const designId = $("#DesignNo").val();
+            const typeId = $("#TypeRow").val();
+            const unitId = $("#UnitRow").val();
+
+            return {
+                valid: designId && typeId && unitId,
+                DesignId: designId,
+                DesignNo: $("#DesignNo option:selected").text().trim(),
+
+                TypeId: typeId,
+                Type: $("#TypeRow option:selected").text().trim(),
+
+                UnitId: unitId,
+                Unit: $("#UnitRow option:selected").text().trim(),
+
+                ColorGroupId: $("#ddlColourGroup").val(),
+                ColorGroup: $("#ddlColourGroup option:selected").text().trim(),
+
+                Remark: $("#Remark").val() || "",
+                markup: parseFloat($("#Markup").val()) || 0
+            };
+        }
+        function calculateBrokerRate(rate, markup) {
+            return rate + (rate * markup / 100);
+        }
+        function setPreviewImage(url) {
+
+            if (!url) {
+                $("#upload-ColorMatching-default-preview").html("No Image");
+                return;
+            }
+
+            $("#upload-ColorMatching-default-preview").html(`
+                    <img src="${url}"
+                         onerror="this.src='/images/no-image.png';"
+                         style="width:100%;height:100%;object-fit:contain;">
+                `);
+        }
+        function resetSubTable() {
+            $("#itemTableBody").html(noDataRow());
+            srNo = 1;
+        }
+        function updateSrNo() {
+            $("#itemTableBody tr").each(function (i) {
+                $(this).find("td:first").text(i + 1);
+            });
+
+            // Check if there are active rows (excluding the no-data row)
+            let hasRows = $("#itemTableBody tr").not(".no-data").length > 0;
+            $("#DesignNo").prop("disabled", hasRows);
+        }
+        function loadOrderNo() {
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetNewOrderNo",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#OrderNo").val(response.d);
+                }
+            });
+        }  
+        function AdditionalRemarks() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetAdditionalRemarks",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    AdditionalRemarksArray = JSON.parse(response.d);
+                    console.log("Additional Remarks Loaded:", AdditionalRemarksArray);
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        // 🌟 Delegated input handler for dynamic Additional Text inputs
+        $(document).on("input", ".AdditionalText", function () {
+            var $input = $(this);
+            var query = $input.val().toLowerCase().trim();
+
+            // Find or create the suggestion dropdown container relative to this input
+            var $wrapper = $input.closest('.position-relative');
+            var $dropdown = $wrapper.find(".CustomDropdownList");
+
+            if ($dropdown.length === 0) {
+                // Create dropdown if it doesn't exist in this row yet
+                $dropdown = $('<ul class="CustomDropdownList dropdown-menu shadow-sm w-100 m-0 bg-white" style="display: none; position: absolute; top: 100%; left: 0; max-height: 140px; overflow-y: auto; z-index: 1060; border: 1px solid #ced4da;"></ul>');
+                $wrapper.append($dropdown);
+            }
+
+            $dropdown.empty();
+
+            if (query === "") {
+                $dropdown.hide();
+                return;
+            }
+
+            // Filter remarks matching input text
+            var filtered = $.grep(AdditionalRemarksArray, function (item) {
+                return item.AdditionalRemark.toLowerCase().indexOf(query) !== -1;
+            });
+
+            if (filtered.length > 0) {
+                $.each(filtered, function (i, item) {
+                    $dropdown.append(
+                        '<li><a class="dropdown-item custom-item" href="javascript:void(0);" data-remark="' + item.AdditionalRemark + '">' + item.AdditionalRemark + '</a></li>'
+                    );
+                });
+                $dropdown.show();
+            } else {
+                $dropdown.hide();
+            }
+        });
+        // 🌟 Handle selection from the suggestion dropdown
+        $(document).on("click", ".custom-item", function (e) {
+            e.preventDefault();
+            var $item = $(this);
+            var remark = $item.data("remark");
+            var $row = $item.closest('.summary-row, .additional-row');
+
+            // Set the remark value and hide suggestions
+            $row.find(".AdditionalText").val(remark);
+            $row.find(".CustomDropdownList").hide();
+            updateSummary();
+        });
+        // Hide dropdown when clicking outside
+        $(document).on("click", function (e) {
+            if (!$(e.target).closest(".AdditionalText, .CustomDropdownList").length) {
+                $(".CustomDropdownList").hide();
+            }
+        });
+        // Add Additional Charges Row
+        $(document).on("click", "#btnAddMoreAdditional", function () {
+            let newRow = `
+        <div class="summary-row align-items-center d-flex pb-2 mb-2 border-bottom additional-row">
+            <div class="position-relative flex-grow-1 me-2">
+                <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
+            </div>
+            <div class="input-group input-group-sm me-2" style="width: 100px;">
+                <span class="input-group-text">₹</span>
+                <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
+            </div>          
+            <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
+        </div>`;
+            $("#additionalChargesContainer").append(newRow);
+        })
+        // Trigger summary update when the per-qty checkbox changes
+        $(document).on("change", ".isPerQtyCheckbox, .AdditionalValue", function () {
+            updateSummary();
+        });
+        // Remove dynamic rows and refresh totals
+        $(document).on("click", ".remove-additional", function () {
+            $(this).closest(".summary-row").remove();
+            updateSummary();
+        });
+        // Bahar click karne par dropdown band ho jaye
+        $(document).on("click", function (e) {
+            if (!$(e.target).closest("#AdditionalText, #CustomDropdownList").length) {
+                $("#CustomDropdownList").hide();
+            }
+        });
+        // Flag to prevent recursive loop between amount and percentage inputs
+        let isUpdatingDiscount = false;
+        // 1. Amount Input Changed -> Calculate and update Percentage
+        $(document).on("input", "#discountValueAmount", function () {
+            if (isUpdatingDiscount) return;
+            isUpdatingDiscount = true;
+
+            let totalAmount = parseFloat($("#totalAmount").text()) || 0;
+            let amtVal = parseFloat($(this).val()) || 0;
+
+            if (totalAmount > 0) {
+                let percentVal = (amtVal / totalAmount) * 100;
+                // Limit decimal places for cleanliness
+                $("#discountValuePercent").val(percentVal > 100 ? 100 : percentVal.toFixed(2));
+            } else {
+                $("#discountValuePercent").val(0);
+            }
+
+            isUpdatingDiscount = false;
+            updateSummary();
+        });
+        // 2. Percentage Input Changed -> Calculate and update Amount
+        $(document).on("input", "#discountValuePercent", function () {
+            if (isUpdatingDiscount) return;
+            isUpdatingDiscount = true;
+
+            let totalAmount = parseFloat($("#totalAmount").text()) || 0;
+            let percentVal = parseFloat($(this).val()) || 0;
+
+            if (percentVal > 100) {
+                percentVal = 100;
+                $(this).val(100);
+            }
+
+            let amtVal = (totalAmount * percentVal) / 100;
+            $("#discountValueAmount").val(amtVal.toFixed(2));
+
+            isUpdatingDiscount = false;
+            updateSummary();
+        });
+        // 3. Clear Discount Button
+        $(document).on("click", "#btnClearDiscount", function () {
+            $("#discountValueAmount").val(0);
+            $("#discountValuePercent").val(0);
+            updateSummary();
+        });
+
+
+        function afterPartySave() {
+            $("#addNewContact").modal("hide");
+
+            // reload GST dropdown
+            bindPartyGST();
+        }
+        function bindPartyGST() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetPartyList',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (res) {
+
+                    let data = JSON.parse(res.d); // 🔥 FIX
+
+                    console.log("Parsed Data:", data);
+
+                    $("#ddlPartyGST").empty();
+                    $("#ddlPartyGST").append('<option value="-1">Select</option>');
+
+                    $.each(data, function (i, item) {
+
+                        $("#ddlPartyGST").append(`
+                                        <option value="${item.PartyId}"
+                                                data-name="${item.PartyName || ''}"
+                                                data-gstin="${item.GSTIN || ''}"
+                                                data-address="${item.BillingAddress || ''}"
+                                                data-brokercode="${item.BrokerCode || 0}"
+                                                data-brokername="${item.BrokerName || ''}">
+                                            ${item.GSTIN || ''} - ${item.PartyName || ''}
+                                        </option>
+                                    `);
+
+                    });
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notes.show(request.statusText, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function functionSearch() {
+            displayPagginationData();
+            displayData(0);
+        }
+        function bindBrokerDropdown() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetBrokerList',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    let data = JSON.parse(response.d);
+                    console.log("GetBrokerList", data);
+                    $("#BrokerModel").empty().append('<option value="-1">Select</option>');
+                    $("#ddlBroker").empty().append('<option value="-1">Select</option>');
+                    $.each(data, function (i, item) {
+                        $("#BrokerModel").append(`
+                               <option value="${item.BrokerCode}">
+                                   ${item.BrokerCode} - ${item.BrokerName}
+                               </option>
+                           `);
+                    });
+                    $.each(data, function (i, item) {
+                        $("#ddlBroker").append(`
+                                    <option value="${item.BrokerCode}">
+                                        ${item.BrokerCode} - ${item.BrokerName}
+                                    </option>
+                                `);
+                    });
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+        function getStates(GSTStateCode) {
+            //alert(GSTStateCode);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getStates',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#placeOfSupply option[value]").each(function () {
+                        $(this).remove();
+                    });
+                    $('#placeOfSupply').empty();
+                    appendTemp = "<option value='0'>Select Place Of Supply</option >";
+                    $('#placeOfSupply').append(appendTemp);
+
+                    if (GSTStateCode == "0") {
+
+                        for (var i = 0; i < jsonData.length; i++) {
+                            admin = jsonData[i];
+
+                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                            $('#placeOfSupply').append(appendTemp);
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < jsonData.length; i++) {
+                            admin = jsonData[i];
+                            if (admin.GSTStateCode == GSTStateCode) {
+                                appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                            }
+                            else {
+                                appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
+                            }
+
+
+                            $('#placeOfSupply').append(appendTemp);
+                        }
+                    }
+                    //$('#placeOfSupply').append("<option value=''> -- Select State -- </option>");
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function validate(code) {
+            if (!code || !code.value) {
+                if (code) {
+                    $(code).addClass("is-invalid").removeClass("is-valid");
+                }
+                return false;
+            }
+
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var $el = $(code);
+
+            if (code.id === "gstin") {
+                if (code.value.length === 15) {
+                    var gstVal = code.value.toUpperCase();
+                    var pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+                    if (pattern.test(gstVal)) {
+                        $el.addClass("is-valid").removeClass("is-invalid");
+
+                        // Auto-fill PAN Number from GSTIN
+                        $('#PanNo').val(gstVal.substring(2, 12));
+
+                        // Fetch details from GST API
+                        fetchGstDetails(gstVal);
+
+                        return true;
+                    } else {
+                        $el.addClass("is-invalid").removeClass("is-valid");
+                        $("#GSTError").html("Please enter a valid 15-digit GSTIN.");
+                        return false;
+                    }
+                } else {
+                    $el.removeClass("is-valid is-invalid");
+                    return false;
+                }
+            }
+
+            $el.addClass("is-valid").removeClass("is-invalid");
+            return true;
+        }
+        function fetchGstDetails(gstin) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+                data: JSON.stringify({ gstin: gstin }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    // Un-wrap response.d from ASMX string serialization
+                    var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
+
+                    if (res && res.success && res.data) {
+                        var d = res.data;
+
+                        // 1. Party Name -> trade_name or legal_name
+                        $("#party-name").val(d.trade_name || d.legal_name || '');
+
+                        // 2. Billing Address -> address
+                        $("#billingAddress").val(d.address || '');
+                        checkShippingAdd();
+
+                        // 3. City -> city
+                        $("#city").val(d.city || '');
+
+                        // 4. Pincode -> pincode
+                        $("#pincode").val(d.pincode || '');
+
+                        // 5. Place of Supply -> state_code
+                        if (d.state_code) {
+                            // Check if option exists, if not append it
+                            if ($("#placeOfSupply option[value='" + d.state_code + "']").length === 0) {
+                                var newOption = new Option(d.state_name || d.state_code, d.state_code, true, true);
+                                $("#placeOfSupply").append(newOption).trigger('change');
+                            } else {
+                                $("#placeOfSupply").val(d.state_code).trigger('change');
+                            }
+                        }
+
+                        Toast.fire({ icon: 'success', title: 'GST Details Auto-filled!' });
+                    } else {
+                        Toast.fire({ icon: 'warning', title: 'GST Details not found' });
+                    }
+                },
+                error: function () {
+                    Toast.fire({ icon: 'error', title: 'Failed to fetch GST details.' });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") window.location.replace("/Index");
+                }
+            });
+        }
+        function checkShippingAdd() {
+            if ($("#chcekAddress").prop("checked") == true) {
+                $("#shippingAddress").val($("#billingAddress").val());
+            }
+        }
+        function toggleShippingAddress() {
+            if ($("#chcekAddress").prop("checked") == true) {
+
+                $("#shippingAddress").attr("disabled", true);
+                $("#shippingAddress").val($("#billingAddress").val());
+                //$('#shippingAddress').prop('disabled', true);
+            }
+            else {
+
+                $("#shippingAddress").attr("disabled", false);
+
+
+            }
+        }
+        function saveparty() {
+
+            var name = document.getElementById('party-name');
+            var phone = document.getElementById('phone');
+            if (validate(name) == false || validate(phone) == false) {
+                validate(name);
+                validate(phone);
+            }
+            else {
+
+                var email = document.getElementById('email');
+
+                var altPhone = document.getElementById('alt-phone');
+                var placeOfSupply = $("#placeOfSupply option:selected").text();
+                var gst = document.getElementById("gstin");
+                var PanNo = document.getElementById("PanNo");
+                var Pincode = document.getElementById("pincode");
+                var city = document.getElementById("city");
+                var billingAddress = document.getElementById("billingAddress");
+                var shippingAddress = document.getElementById("shippingAddress");
+                var BankHolderName = document.getElementById('BankHolderName');
+                var BankAccountNo = document.getElementById('BankAccountNo');
+                var BankIFSCCode = document.getElementById('BankIFSCCode');
+                var BankName = document.getElementById('BankName');
+                var BankBranch = document.getElementById('BankBranch');
+                var SundryParty = document.getElementById('SundryParty');
+                var Broker = $("#Broker").val();
+
+                var IsActiveParty = "0";
+                if ($("#chcekIsActiveParty").is(':checked')) {
+                    //$("#isDefault").attr('value', 'true');
+                    IsActiveParty = "1";
+                }
+
+
+                var IsSameAddress = "0";
+                if ($("#chcekAddress").is(':checked')) {
+                    //$("#isDefault").attr('value', 'true');
+                    IsSameAddress = "1";
+                }
+
+                var formData = new FormData();
+
+                formData.append('PartyName', name.value);
+                formData.append('MobileNo', phone.value);
+                if (altPhone.value == "") {
+                    formData.append('AlterMobileNo', '0');
+                }
+                else {
+                    formData.append('AlterMobileNo', altPhone.value);
+                }
+                formData.append('Email', email.value);
+                formData.append('BillingAddress', billingAddress.value);
+                formData.append('ShippingAddress', shippingAddress.value);
+                formData.append('IsSameAddress', IsSameAddress);
+                formData.append('GSTIN', gst.value);
+                formData.append('State', placeOfSupply);
+                formData.append('PanNo', PanNo.value);
+                formData.append('Pincode', Pincode.value);
+                formData.append('city', city.value);
+                formData.append('BankHolderName', BankHolderName.value);
+                formData.append('BankAccountNo', BankAccountNo.value);
+                formData.append('BankIFSCCode', BankIFSCCode.value);
+                formData.append('BankName', BankName.value);
+                formData.append('BankBranch', BankBranch.value);
+                formData.append('IsActiveParty', IsActiveParty);
+                formData.append('SundryParty', SundryParty.value);
+                formData.append('BrokerCode', Broker);
+
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            displayData(0);
+                            $("#ddlPartyGST").val(response.id).trigger('change');
+                            notess.show(response.Message, {
+                                type: 'success',
+                            });
+                        }
+                        else {
+                            notess.show(response.Message, {
+                                type: 'danger',
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        //$("#add-alert").removeClass("alert-success");
+                        //$("#add-alert").addClass("alert-danger");
+                        //$("#add-alert").html(response.Message);
+                        //$("#add-alert").show();
+
+                        notess.show(response.Message, {
+                            type: 'danger',
+                            //title: 'Opps.!',
+                            //icon: '<i class="icon-alert-triangle"></i>'
+                        });
+                    }
+                });
+
+            }
+        }
+        function getColorGroup() {
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorGroup',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    if (response.Code == "200") {
+
+                        let $dropdown = $('#ddlColourGroup');
+
+                        $dropdown.empty(); // 🔥 clear old data
+                        // Default option
+                        $dropdown.append(`<option value="">Select Color Group</option>`);
+                        if (response.listColorGroupMaster.length > 0) {
+                            $.each(response.listColorGroupMaster, function (i, item) {
+                                $dropdown.append(`
+                                <option value="${item.ColorGroupID}">${item.ColorGroup}</option>
+                            `);
+                            });
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                    //window.location.href = 'SaleInvoice';
+
+                }
+            });
+
+
+
+
+
+        }
+        function getDesignNo(DesignEntryFormID, DesignColorMatchingFormID) {
+
+            $("#divColorMatchingTable").html('');
+
+            listDesignColorMatchingDetails = [];
+            listDesignEntryWeftData = [];
+
+            if (DesignEntryFormID && DesignColorMatchingFormID) {
+
+                var formData = new FormData();
+                formData.append('DesignEntryFormID', DesignEntryFormID);
+                formData.append('DesignColorMatchingFormID', DesignColorMatchingFormID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getCreateColorMatchingFormDetails',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+
+                        console.log(response);
+
+                        // 🔥 IMAGE
+                        let imgStr = `<img src="${response.listDesignColorMatchingForm[0].PhotoOfDesign}"  style="width:100%; height:100%;">`;
+
+                        $("#upload-PhotoOfDesign-default-preview").html(imgStr);
+
+                        // 🔥 LENGTH DATA
+                        let data = response.listDesignColorMatchingForm[0];
+
+                        $("#weftLength").val(data.TotalWeft);
+                        $("#warpLength").val(data.TotalWarp);
+                        $("#WarpCheckBox").val(data.WarpCheckBox);
+                        $("#WeftCheckBox").val(data.WeftCheckBox);
+
+                        // 🔥 COLOR MATCHING DROPDOWN
+                        let $dropdown = $("#ColorMatchingID");
+                        $dropdown.empty().append('<option value="">Select Color Matching</option>');
+
+                        $.each(data.listDesignColorMatchingDetails, function (i, item) {
+                            $dropdown.append(`
+                                    <option value="${item.DesignColorMatchingDetailsID}">
+                                        ${item.WarpMatchingID} - ${item.FeederMatchingID}
+                                    </option>
+                                `);
+                        });
+
+                        // 🔥 STORE DATA
+                        listDesignColorMatchingDetails.push(data.listDesignColorMatchingDetails);
+                        listDesignEntryWeftData.push(data.listDesignEntryWeftData);
+                        $("#Previousbtn").hide();
+                        $("#Nextbtn").show();
+                        if (data.listDesignColorMatchingDetails.length > 0) {
+                            let firstId = data.listDesignColorMatchingDetails[0].DesignColorMatchingDetailsID;
+
+                            $dropdown.val(firstId);   // 🔥 set selected value
+
+                            // 🔥 trigger change manually
+                            getColorMatchingId(document.getElementById("ColorMatchingID"));
+                        }
+                    }
+                });
+            }
+            else {
+                $("#upload-PhotoOfDesign-default-preview").html('Photo Of Design.');
+                $("#weftLength").val('');
+                $("#warpLength").val('');
+            }
+        }
+        function getColorMatchingId(abc) {
+            //alert(abc.value);
+
+            if (abc.value == "0") {
+                $("#btnclearColorMatchingDefault").click();
+            }
+            else {
+
+                var selectedOption = $('#ColorMatchingID').find('option:selected');
+
+                var prevOption = selectedOption.prev();
+                var nextOption = selectedOption.next();
+
+                console.log("getColorMatchingId ", selectedOption.val());
+                console.log("getColorMatchingId TEXT ", selectedOption.text())
+                $(".ColorMatchingID").text(selectedOption.val());
+                $(".ColorMatchingName").text(selectedOption.text());
+                $("#Nextbtn").show();
+                $("#Previousbtn").show();
+
+                if (prevOption.text() == "") {
+                    $("#Previousbtn").hide();
+                    $("#Nextbtn").show();
+                }
+
+                //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
+
+                if (nextOption.text() == "") {
+
+                    $("#Nextbtn").hide();
+                    $("#Previousbtn").show();
+                }
+
+
+                //alert(listDesignColorMatchingDetails[0].length);
+
+                var warpLength = $("#warpLength").val();
+                var weftLength = $("#weftLength").val();
+
+                console.log(listDesignColorMatchingDetails[0]);
+
+                DesignColorMatchingDetails = listDesignColorMatchingDetails[0];
+
+                var tempColorMatchingTable = "";
+                if (Array.isArray(listDesignColorMatchingDetails) && listDesignColorMatchingDetails.length > 0) {
+
+                    let list = listDesignColorMatchingDetails[0] || [];
+
+                    for (let i = 0; i < list.length; i++) {
+
+                        if (abc.value == listDesignColorMatchingDetails[0][i].DesignColorMatchingDetailsID) {
+                            if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
+                                //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
+                                var imgStr = `<img src="${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}"  style="width:100%; height:100%;">`;
+                                $("#upload-ColorMatching-default-preview").html(imgStr);
+                                $("#upload-ColorMatching-default-preview").css('color', 'initial');
+                                //alert(imgStr);
+                                $("#upload-ColorMatching-temp-default").val(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto);
+                            }
+                            else {
+                                $("#upload-ColorMatching-temp-default").val('');
+
+                                $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
+                                $("#upload-ColorMatching-default").val("");
+                            }
+
+
+                            if (listDesignColorMatchingDetails[0][i].ColorGroupID != "0") {
+                                $("#ColorGroup").val(listDesignColorMatchingDetails[0][i].ColorGroupID);
+                            }
+                            else {
+                                $("#ColorGroup").val(0);
+                            }
+
+
+
+
+                            tempColorMatchingTable += '<br /><br />';
+                            tempColorMatchingTable += '<input type="hidden" id="WarpMatchingID" value="' + listDesignColorMatchingDetails[0][i].WarpMatchingID + '" class="form-control"/>';
+                            tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
+                            tempColorMatchingTable += ' <tbody>';
+
+                            //var warpLength = 5;
+                            var warpData = listDesignColorMatchingDetails[0][i];
+                            var warps = {};
+
+                            //  var WarpCheckBoxArry = $("#WarpCheckBox").val().split("|");
+
+                            for (let w = 1; w <= warpLength; w++) {
+                                warps["Warp" + w] = warpData["Warp" + w];
+
+                                var srNos = w - 1;
+
+                                tempColorMatchingTable += '<tr style="text-align: center;">';
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Warp ' + w + '</th>';
+                                if (srNos == 0) {
+                                    tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> </th>';
+                                }
+                                else {
+                                    tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <input type="hidden" value="' + WarpCheckBoxArry[srNos] + '" id="ischeckWarp' + w + '" disabled/></th>';
+                                }
+                                tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
+                                tempColorMatchingTable += ' <select id="MatchingWarp' + w + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp(' + w + ')" disabled>';
+                                tempColorMatchingTable += ' <option value="0"> Select Color </option>';
+                                var ColorCode = "";
+                                for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                                    if (warpData["Warp" + w] == ArrayYarnColor[0][j].YarnColorID) {
+                                        tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                        ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
+                                    }
+                                    else {
+                                        tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                    }
+                                }
+
+                                tempColorMatchingTable += '</select>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '<td id="tdWarColor' + w + '" style="padding: .3rem .3rem; width: 15%; ">';
+                                tempColorMatchingTable += '<div id="tddivColor' + w + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
+                                tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(' + w + ')">';
+                                tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
+                                tempColorMatchingTable += '</a>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '</tr>';
+
+                                //alert("Warp " + w + "  " + warpData["Warp" + w]);
+                            }
+
+
+                            tempColorMatchingTable += '</tbody>';
+                            tempColorMatchingTable += '</table>';
+
+                            tempColorMatchingTable += '<hr style="height: 5px;">';
+
+                            tempColorMatchingTable += '<input type="hidden" id="FeederMatchingID" value="' + listDesignColorMatchingDetails[0][i].FeederMatchingID + '" class="form-control"/>';
+                            tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
+                            tempColorMatchingTable += ' <tbody>';
+
+                            var FeederData = listDesignColorMatchingDetails[0][i];
+                            var Feeder = {};
+
+                            console.log(listDesignEntryWeftData[0][0].DesignSpecification);
+
+                            var DesignEntryWeftData = listDesignEntryWeftData[0][i];
+                            var DesignSpecification = {};
+
+
+                            //var WeftCheckBoxArry = $("#WeftCheckBox").val().split("|");
+
+                            for (let fe = 1; fe <= weftLength; fe++) {
+                                Feeder["Feeder" + fe] = warpData["Feeder" + fe];
+
+                                var srNo = fe - 1;
+                                //DesignSpecification["DesignSpecification" + fe] = warpData["DesignSpecification" + fe];
+                                //alert("Feeder " + fe + "  " + warpData["Feeder" + fe]);
+                                tempColorMatchingTable += '<tr style="text-align: center;">';
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Feeder ' + fe + '</th>';
+                                if (listDesignEntryWeftData[0][srNo].DesignSpecification == "GROUND") {
+                                    tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span></th>';
+                                }
+                                else {
+                                    tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span> &nbsp; <input type="hidden" value="' + WeftCheckBoxArry[srNo] + '" id="ischeckWeft' + fe + '" disabled/></th>';
+                                }
+
+                                tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
+                                tempColorMatchingTable += ' <select id="MatchingFeeder' + fe + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder(' + fe + ')" disabled>';
+                                tempColorMatchingTable += ' <option value="0"> Select Color </option>';
+                                var ColorCode = "";
+                                for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                                    if (warpData["Feeder" + fe] == ArrayYarnColor[0][j].YarnColorID) {
+                                        tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                        ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
+                                    }
+                                    else {
+                                        tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                    }
+                                }
+                                tempColorMatchingTable += '</select>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '<td id="tdWarColor' + fe + '" style="padding: .3rem .3rem; width: 15%; ">';
+                                tempColorMatchingTable += '<div id="tddivFeederColor' + fe + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
+                                tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(' + fe + ')">';
+                                tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
+                                tempColorMatchingTable += '</a>';
+                                tempColorMatchingTable += '</td>';
+                                tempColorMatchingTable += '</tr>';
+                            }
+
+                            tempColorMatchingTable += '</tbody>';
+                            tempColorMatchingTable += '</table>';
+
+                            tempColorMatchingTable += '<br /> ';
+                            tempColorMatchingTable += '<center><span class="field-placeholder" style="position: relative; padding: 0px 12px 0px 12px; width: 90%; text-align: center; color:red; font-size: medium; font-weight: 600;" id="spanDuplicate"></span></center>';
+                            tempColorMatchingTable += '<br /> ';
+                            $("#divColorMatchingTable").html(tempColorMatchingTable);
+                            //divColorMatchingTable
+                        }
+
+
+
+
+
+
+
+                    }
+                }
+            }
+        }
+        function checkNext() {
+
+            let $ddl = $("#ColorMatchingID");
+            let $options = $ddl.find("option:not(:first)"); // skip default
+
+            let index = $options.index($options.filter(":selected"));
+
+            if (index < $options.length - 1) {
+                let nextVal = $options.eq(index + 1).val();
+
+                $ddl.val(nextVal).trigger("change"); // 🔥 important
+            }
+
+            updateNavButtons();
+        }
+        function checkPrevious() {
+
+            let $ddl = $("#ColorMatchingID");
+            let $options = $ddl.find("option:not(:first)");
+
+            let index = $options.index($options.filter(":selected"));
+
+            if (index > 0) {
+                let prevVal = $options.eq(index - 1).val();
+
+                $ddl.val(prevVal).trigger("change"); // 🔥 important
+            }
+
+            updateNavButtons();
+        }
+        function updateNavButtons() {
+
+            let $ddl = $("#ColorMatchingID");
+            let $options = $ddl.find("option:not(:first)");
+            let index = $options.index($options.filter(":selected"));
+
+            $("#Previousbtn").toggle(index > 0);
+            $("#Nextbtn").toggle(index < $options.length - 1);
+        }
+        function myFunctionIFSC(abc) {
+            var code = abc.value;
+            //alert(code);
+
+            if (code == "") {
+                document.getElementById(abc.id).classList.remove("is-valid");
+                document.getElementById(abc.id).classList.add("is-invalid");
+
+            }
+            else {
+                //alert(code);
+                if (code.length == 11) {
+                    var ifscurl = "https://ifsc.razorpay.com/" + code;
+                    $.ajax({
+                        type: "GET",
+                        url: ifscurl,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            //console.log(response);
+
+
+                            if (response.length != 0) {
+                                //alert("Hello World");
+
+                                $("#BankName").val(response.BANK);
+                                $("#BankBranch").val(response.BRANCH);
+
+                                //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                                //$("#divIFSC").html("Good.");
+
+                                document.getElementById(abc.id).classList.add("is-valid");
+                                document.getElementById(abc.id).classList.remove("is-invalid");
+                            }
+                            else {
+                                //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                                //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                                document.getElementById(abc.id).classList.remove("is-valid");
+                                document.getElementById(abc.id).classList.add("is-invalid");
+                                $("#BankName").val('');
+                                $("#BankBranch").val('');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            // console.log(error);
+                            document.getElementById(abc.id).classList.remove("is-valid");
+                            document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                            $("#BankName").val('');
+                            $("#BankBranch").val('');
+
+                        }
+                    });
+                }
+                else {
+                    document.getElementById(abc.id).classList.remove("is-valid");
+                    document.getElementById(abc.id).classList.add("is-invalid");
+
+                    $("#BankName").val('');
+                    $("#BankBranch").val('');
+
+                }
+            }
+        }
+        function myFunctionPINCODE(abc) {
+            var code = abc.value;
+            //alert(code);
+
+            if (code == "") {
+                document.getElementById(abc.id).classList.remove("is-valid");
+                document.getElementById(abc.id).classList.add("is-invalid");
+
+            }
+            else {
+                //alert(code);
+                console.log(code.length);
+                if (code.length == "6") {
+                    //alert(code + " asd ");
+                    var ifscurl = "https://api.postalpincode.in/pincode/" + code;
+                    $.ajax({
+                        type: "GET",
+                        url: ifscurl,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            console.log(response);
+                            if (response.length != 0) {
+                                //alert("Hello World");
+                                $("#city").val(response[0].PostOffice[0].District);
+                                //$("#IFSC").css("border-color", "#2ab57d").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/success.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#2ab57d");
+                                //$("#divIFSC").html("Good.");
+                                document.getElementById(abc.id).classList.add("is-valid");
+                                document.getElementById(abc.id).classList.remove("is-invalid");
+                            }
+                            else {
+                                //$("#IFSC").css("border-color", "#fd625e").css("padding-right", "calc(1.5em + .94rem)").css("background-image", "url(assets/error.svg)").css("background-repeat", "no-repeat").css("background-position", "right calc(.375em + .235rem) center").css("background-size", "calc(.75em + .47rem) calc(.75em + .47rem)");
+                                //$("#divIFSC").css("width", "100%").css("margin-top", ".25rem").css("font-size", "80%").css("color", "#fd625e");
+                                //$("#divIFSC").html("Opps! Invalid IFSC Code.");
+
+                                document.getElementById(abc.id).classList.remove("is-valid");
+                                document.getElementById(abc.id).classList.add("is-invalid");
+
+                                $("#city").val('');
+
+                            }
+
+
+
+                        },
+                        error: function (request, status, error) {
+                            // console.log(error);
+                            document.getElementById(abc.id).classList.remove("is-valid");
+                            document.getElementById(abc.id).classList.add("is-invalid");
+
+
+                            $("#city").val('');
+
+
+                        }
+                    });
+                }
+                else {
+                    document.getElementById(abc.id).classList.remove("is-valid");
+                    document.getElementById(abc.id).classList.add("is-invalid");
+
+                    $("#BankName").val('');
+                    $("#BankBranch").val('');
+
+                }
+            }
+        }
+        function bindTransport() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetTransportList',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (res) {
+
+                    let data = res.d; // ✅ FIX
+
+                    console.log("GetTransportList", data);
+
+                    $("#ddlTransport").empty();
+                    $("#ddlTransport").append('<option value="-1">Select Transport</option>');
+
+                    $.each(data, function (i, item) {
+                        $("#ddlTransport").append(`
+                                <option value="${item.TransportCode}">
+                                    ${item.TransportName}
+                                </option>
+                            `);
+                    });
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+        function addTransport() {
+
+            $('#TransportForm')[0]?.reset();
+            $('#TransportId').val(0);
+            $('#transportModal').modal('show');
+        }
+        function saveTransport() {
+            let isValid = true;
+
+            $('.form-control').removeClass('is-invalid');
+
+            let mobile = $('#MobileNo').val().trim();
+
+            // Broker Name
+            if (!$('#TransportName').val().trim()) {
+                $('#TransportName').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#gstTransport').val().trim()) {
+                $('#gstTransport').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#TransportPanNo').val().trim()) {
+                $('#TransportPanNo').addClass('is-invalid');
+                isValid = false;
+            }
+            if (!$('#ContactPerson').val().trim()) {
+                $('#ContactPerson').addClass('is-invalid');
+                isValid = false;
+            }
+            // Mobile Required
+            if (!mobile) {
+                $('#MobileNo').addClass('is-invalid');
+                isValid = false;
+            }
+
+            // Mobile Format Check
+            else if (!/^[6-9]\d{9}$/.test(mobile)) {
+                $('#MobileNo').addClass('is-invalid');
+                $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+                isValid = false;
+            }
+
+
+            if (!isValid) return;
+
+            let obj = {
+                TransportId: parseInt($('#TransportId').val()) || 0,
+                TransportName: $('#TransportName').val(),
+                FirmName: $('#FirmName').val(),
+                ContactPerson: $('#ContactPerson').val(),
+                Email: $('#Email').val(),
+                MobileNo: $('#MobileNo').val(),
+                AlternateMobileNo: $('#AlternateMobileNo').val(),
+                Address: $('#Address').val(),
+                CityName: $('#CityName').val(),
+                PANCard: $('#TransportPanNo').val(),
+                GSTNo: $('#gstTransport').val(),
+                VehicleType: $('#VehicleType').val(),
+                IsActive: $('#IsActive').val() === "true"
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveTransport',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ obj: obj }),
+                success: function (res) {
+
+                    if (res.d === "success") {
+                        showToast('success', 'Saved Successfully');
+                        $('#TransportModal').modal('hide');
+                        LoadTransportList();
+                    }
+                }
+            });
+        }
+        function showToast(type, msg) {
+
+            const iconMap = {
+                success: "success",
+                error: "error",
+                danger: "error",
+                warning: "warning",
+                info: "info",
+                question: "question"
+            };
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: iconMap[type] || "info", // fallback
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+        function getTransportById(id, mode) {
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetTransportById',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ TransportId: id }),
+
+                success: function (res) {
+
+                    let d = res.d;
+
+                    $('#TransportId').val(d.TransportId);
+                    $('#TransportCode').val(d.TransportCode);
+                    $('#TransportName').val(d.TransportName);
+                    $('#FirmName').val(d.FirmName);
+                    $('#ContactPerson').val(d.ContactPerson);
+                    $('#Email').val(d.Email);
+                    $('#MobileNo').val(d.MobileNo);
+                    $('#AlternateMobileNo').val(d.AlternateMobileNo);
+                    $('#Address').val(d.Address);
+                    $('#CityName').val(d.CityName);
+                    $('#PANCard').val(d.PANCard);
+                    $('#GSTNo').val(d.GSTNo);
+                    $('#VehicleType').val(d.VehicleType);
+                    $('#IsActive').val(d.IsActive.toString());
+
+                    if (mode === "view") {
+                        disableTransportForm(true);
+                        $('#btnSaveTransport').hide();
+                        $('#transportModalLabel').text("View Transport");
+                    } else {
+                        disableTransportForm(false);
+                        $('#btnSaveTransport').show();
+                        $('#transportModalLabel').text("Edit Transport");
+                    }
+
+                    $('#TransportModal').modal('show');
+                }
+            });
+        }
+        function disableTransportForm(flag) {
+            $('#TransportModal input, #TransportModal select').prop('disabled', flag);
+            $('#TransportModal input, #TransportModal select ').prop('disabled', flag);
+        }
+        function getItemGST() {
+
+            $.ajax({
+
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGSTSlabList',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#GSTSLABId option[value]").each(function () {
+                        $(this).remove();
+                    });
+                    appendTemp = "<option value='0' selected>Select GST</option >";
+                    $('#GSTSLABId').append(appendTemp);
+                    //$('#GSTSLABId').append("<option value='0' selected> </option>");
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+                        appendTemp = `<option value="${admin.GSTSLABId}">
+                            ${admin.GSTSLABName}
+                          </option>`;
+                        $('#GSTSLABId').append(appendTemp);
+                    }
+
+
+                },
+                error: function (request, status, error) {
+                }
+
+            });
+
+
+        }
+        $("#gstTransport").on("input", function () {
+            let gstVal = $(this).val().toUpperCase().trim();
+            let element = this;
+
+            $(element).val(gstVal);
+
+            if (gstVal.length === 15) {
+                let pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+                if (pattern.test(gstVal)) {
+                    $(element).addClass("is-valid").removeClass("is-invalid");
+                    $("#GSTError").hide();
+
+                    // Auto-fill PAN Number from GSTIN (Chars 3 to 12)
+                    let pan = gstVal.substring(2, 12);
+                    $("#TransportPanNo").val(pan).addClass("is-valid");
+
+                    // Fetch details from GST API and populate Transport fields
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+                        data: JSON.stringify({ gstin: gstVal }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        success: function (response) {
+                            var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
+
+                            if (res && res.success && res.data) {
+                                var d = res.data;
+                                // Map fields to Transport form inputs
+                                $("#TransportName").val(d.trade_name || d.legal_name || '').addClass("is-valid");
+                                $("#Address").val(d.address || '');
+                                $("#CityName").val(d.city || '');
+                                $("#ContactPerson").val(d.legal_name).addClass("is-valid");
+                                // If mobile or contact person are provided in the response data structure
+                                if (d.mobile) $("#MobileNo").val(d.mobile).addClass("is-valid");
+                                if (d.contact_person) $("#ContactPerson").val(d.contact_person).addClass("is-valid");
+
+                                Toast.fire({ icon: 'success', title: 'Transport GST Details Auto-filled!' });
+                            } else {
+                                Toast.fire({ icon: 'warning', title: 'GST Details not found' });
+                            }
+                        },
+                        error: function () {
+                            Toast.fire({ icon: 'error', title: 'Failed to fetch GST details.' });
+                        }
+                    });
+
+                } else {
+                    $(element).addClass("is-invalid").removeClass("is-valid");
+                    $("#GSTError").html("Please enter a valid 15-digit GSTIN.").show();
+                }
+            } else {
+                $(element).removeClass("is-valid is-invalid");
+            }
+        });
+        $("#TransportPanNo").on("input", function () {
+
+            let element = this; // ✅ FIX
+            let pan = $(element).val().toUpperCase().trim();
+
+            $(element).val(pan);
+
+            let pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+            if (pattern.test(pan)) {
+
+                $(element).removeClass("is-invalid").addClass("is-valid");
+                $("#PanNoError").hide();
+
+                return true;
+
+            } else {
+
+                $(element).removeClass("is-valid").addClass("is-invalid");
+                $("#PanNoError").html("Please Provide Valid PanNo Number").show();
+                return false;
+            }
+        });
+        $("#ColorGroupAddbtn").click(function () {
+
+            let qty = parseFloat($("#ColorGroupQty").val());
+            let saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
+
+            if (!qty || qty <= 0) {
+                showError("Enter valid Qty");
+                return;
+            }
+
+            let $dropdown = $("#ColorMatchingID");
+            let tbody = $("#itemTableBody");
+
+            tbody.find(".no-data").remove();
+
+            let designNo = $("#DesignNo").val();
+            let designName = $("#DesignNo option:selected").text().trim();
+            let colorGroupId = $("#ddlColourGroup").val();
+            let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+            let remark = $("#DesignSelectionRemark").val() || "";
+
+            let duplicateFound = false; // 🔥 track duplicates
+
+            $dropdown.find("option").each(function () {
+
+                let colorId = $(this).val();
+                let colorName = $(this).text().trim();
+                if (!colorId) return;
+                let imageUrl = $(this).attr("data-img") || "";
+                let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
+                if (existingRow.length > 0) {
+                    duplicateFound = true; // 🔥 mark duplicate
+                    return; // skip only this color
+                }
+                tbody.append(createSubRow(
+                    designNo,
+                    designName,
+                    colorGroupId,
+                    colorGroupName,
+                    remark,
+                    colorId,
+                    colorName,
+                    qty,
+                    imageUrl,
+                    saleRate
+                ));
+            });
+
+            updateSrNo();
+
+            // 🔥 show message once
+            if (duplicateFound) {
+                showError("Some colors already added");
+            }
+
+            // 🔥 RESET
+            $("#ColorGroupQty").val("");
+            $("#DesignSelectionRemark").val("");
+        });
+        $("#ddlColourGroup").on("change", function () {
+
+            let colorGroupId = $(this).val();
+
+            // ✅ GET DESIGN VALUE CORRECTLY
+            let designVal = $("#DesignNo").val();
+
+            if (!designVal) return;
+
+            let parts = designVal.split('|');
+
+            let designEntryId = parts[0];
+            let colorMatchingId = parts[1]; // ✅ correct
+
+            console.log("Selected ColorGroupID:", colorGroupId);
+            console.log("DesignColorMatchingFormID:", colorMatchingId);
+
+            if (!colorGroupId || !colorMatchingId) return;
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetColorMatchingDetails",
+                data: JSON.stringify({
+                    designColorMatchingFormID: colorMatchingId, // ✅ FIXED
+                    colorGroupID: colorGroupId
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+
+                success: function (response) {
+
+                    let data = JSON.parse(response.d);
+                    console.log("Details:", data);
+
+                    let $dropdown = $("#ColorMatchingID");
+
+                    if (data.Code == 200) {
+
+                        $dropdown.empty().append('<option value="">Select Color Matching</option>');
+
+                        $.each(data.Data, function (i, item) {  // ✅ FIXED
+                            $dropdown.append(`
+                                        <option value="${item.DesignColorMatchingDetailsID}">
+                                            ${item.WarpMatchingID} - ${item.FeederMatchingID}
+                                        </option>
+                                    `);
+                        });
+                        // ✅ Auto select first item (correct way)
+                        let firstId = data.Data[0].DesignColorMatchingDetailsID;
+                        console.log("firstId", firstId);
+                        setTimeout(function () {
+                            $dropdown.val(firstId).trigger('change');
+                        }, 0);
+                    }
+                },
+
+                error: function (err) {
+                    console.error("Error:", err);
+                }
+            });
+
+        });
+        $("#btnAddToOrder").click(function () {
+
+            const designId = $("#DesignNo").val();
+            const designName = $("#DesignNo option:selected").text().trim();
+
+            const typeId = $("#TypeRow").val();
+            const type = $("#TypeRow option:selected").text().trim();
+
+            const unitId = $("#UnitRow").val();
+            const unit = $("#UnitRow option:selected").text().trim();
+
+            const colorGroupId = $("#ddlColourGroup").val();
+            const colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+
+            const markup = parseFloat($("#Markup").val()) || 0;
+            const designRemark = $("#DesignSelectionRemark").val() || "";
+
+            // 🌟 READ ADDITIONAL REMARK & UNIT VALUE
+            const addRemark = $("#AdditionalText").val().trim();
+            const unitAddValue = parseFloat($("#AdditionalValue").val()) || 0;
+
+            // ✅ CAPTURE DESIGN PREVIEW IMAGE URL
+            const designImageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
+
+            if (!designId || designId == "-1")
+                return Swal.fire("Error", "Select Design", "error");
+
+            if (!colorGroupId || colorGroupId == "-1")
+                return Swal.fire("Error", "Select Color Group", "error");
+
+            let uniqueMap = {};
+
+            // Rate fetch logic
+            let firstRow = $("#itemTableBody tr").not(".no-data").first();
+            let saleRate = 0;
+
+            if (firstRow.length > 0) {
+                saleRate = parseFloat(firstRow.attr("data-rate")) || 0;
+            }
+
+            if (!saleRate) {
+                saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
+            }
+
+            // Collect Colors (SubDetails)
+            $("#itemTableBody tr").not(".no-data").each(function () {
+                let row = $(this);
+                let colorId = row.attr("data-colorid");
+                let colorName = row.find("td:eq(4)").text().trim();
+                let qty = parseFloat(row.find("td:eq(5)").text()) || 0;
+                let remark = row.find("td:eq(6)").text().trim() || "";
+                let rowRate = parseFloat(row.attr("data-rate")) || saleRate;
+                let rowImg = row.attr("data-img") || designImageUrl; // fallback to main image
+
+                if (!colorId || qty <= 0) return;
+
+                if (uniqueMap[colorId]) {
+                    uniqueMap[colorId].Qty += qty;
+                    if (remark && !uniqueMap[colorId].Remark.includes(remark)) {
+                        uniqueMap[colorId].Remark += ', ' + remark;
+                    }
+                } else {
+                    uniqueMap[colorId] = {
+                        ColorMatchingID: colorId,
+                        ColorMatchingName: colorName,
+                        Qty: qty,
+                        Remark: remark,
+                        Rate: rowRate,
+                        ImageUrl: rowImg
+                    };
+                }
+            });
+
+            let subDetails = Object.values(uniqueMap);
+            if (subDetails.length === 0) return Swal.fire("Error", "Add color first", "error");
+
+            let totalQty = subDetails.reduce((sum, x) => sum + x.Qty, 0);
+            let brokerRate = calculateBrokerRate(saleRate, markup);
+
+            let calculatedAddAmount = unitAddValue * totalQty;
+
+            // 🌟 CREATE MAIN ITEM OBJECT WITH IMAGE INCLUDED
+            const obj = {
+                DesignId: designId,
+                DesignNo: designName,
+                TypeId: typeId,
+                Type: type,
+                UnitId: unitId,
+                Unit: unit,
+                ColorGroupId: colorGroupId,
+                ColorGroup: colorGroupName,
+                Remark: designRemark,
+                TotalQty: totalQty,
+                NoOfColors: subDetails.length,
+                Rate: saleRate,
+                BrokerRate: brokerRate,
+                UnitAdditionalValue: unitAddValue,
+                AdditionalRemark: addRemark,
+                AdditionalValue: calculatedAddAmount,
+                Amount: (totalQty * brokerRate) + calculatedAddAmount,
+                ImageUrl: designImageUrl, // ✅ Saved in main object
+                SubDetails: subDetails
+            };
+
+            // Check existing item
+            let existingIndex = SaleOrderDetails.findIndex(item => item.DesignId === obj.DesignId);
+
+            if (isEditMode && currentViewIndex !== -1) {
+                let old = SaleOrderDetails[currentViewIndex];
+                obj.Rate = old.Rate;
+                obj.BrokerRate = old.BrokerRate;
+                obj.Amount = (obj.TotalQty * obj.BrokerRate) + calculatedAddAmount;
+
+                SaleOrderDetails[currentViewIndex] = obj;
+            } else if (existingIndex !== -1) {
+                let existing = SaleOrderDetails[existingIndex];
+                existing.TotalQty += obj.TotalQty;
+                existing.UnitAdditionalValue = unitAddValue ? unitAddValue : existing.UnitAdditionalValue;
+                existing.AdditionalRemark = addRemark ? addRemark : existing.AdditionalRemark;
+                existing.AdditionalValue = existing.UnitAdditionalValue * existing.TotalQty;
+                existing.Amount = (existing.TotalQty * existing.BrokerRate) + existing.AdditionalValue;
+                existing.Remark = obj.Remark;
+                existing.ImageUrl = obj.ImageUrl || existing.ImageUrl;
+
+                obj.SubDetails.forEach(newItem => {
+                    let match = existing.SubDetails.find(x => x.ColorMatchingID === newItem.ColorMatchingID);
+                    if (match) {
+                        match.Qty += newItem.Qty;
+                        if (newItem.Remark && !match.Remark.includes(newItem.Remark)) {
+                            match.Remark += ', ' + newItem.Remark;
+                        }
+                    } else {
+                        existing.SubDetails.push(newItem);
+                    }
+                });
+
+                existing.NoOfColors = existing.SubDetails.length;
+            } else {
+                SaleOrderDetails.push(obj);
+            }
+
+            // Reset state & Refresh UI
+            currentViewIndex = -1;
+            isEditMode = false;
+
+            bindMainTable();
+            updateSummary();
+            resetModal();
+        });
+        function createSubRow(
+            designNo,
+            designName,
+            colorGroupId,
+            colorGroupName,
+            remark,
+            colorId,
+            colorName,
+            qty,
+            imageUrl = "",
+            saleRate
+        ) {
+            return `
+                    <tr data-colorid="${colorId}"data-colorgroupid="${colorGroupId}" data-rate="${saleRate}">
+                    <td></td>
+                    <td hidden>${designNo}</td>
+                    <td hidden>${designName}</td>
+                    <td hidden>${colorGroupName}</td>
+                    <td>${colorName}</td>
+                    <td>${qty}</td>
+                    <td>${remark}</td>
+
+                    <td>
+                        <a href="#" class="deleteRow text-danger">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>`;
+        }
+        function formatImageUrl(url) {
+            if (!url || typeof url !== 'string') return '/images/no-image.png';
+
+            url = url.trim().replace(/^\/+/, ''); // Clean up leading slashes/spaces
+            if (url === '') return '/images/no-image.png';
+
+            // If it's already a full http/https URL, pass it through
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            // Target domain for external or root-relative
+            const baseDomain = isLocalhost ? 'https://weavelanesoft.in/' : '/';
+
+            return baseDomain + url;
+        }
+        function handleImageError(imgElement, originalUrl) {
+            // If we haven't tried converting to uppercase yet
+            if (!imgElement.dataset.triedUppercase && originalUrl) {
+                imgElement.dataset.triedUppercase = "true";
+
+                // Convert path & filename to UPPERCASE
+                let upperUrl = originalUrl.toUpperCase();
+                imgElement.src = formatImageUrl(upperUrl);
+            } else {
+                // Fallback to placeholder if uppercase attempt also fails
+                imgElement.onerror = null;
+                imgElement.src = '/images/no-image.png';
+            }
+        }
+        function bindMainTable() {
+            const tbody = $("#orderBody");
+            tbody.empty();
+
+            if (SaleOrderDetails.length === 0) {
+                tbody.html(`<tr><td colspan="12" class="text-center">No Data Available</td></tr>`);
+                return;
+            }
+
+            // 🔥 Sum up all active per-unit additional charge inputs from all additional rows
+            let totalAdditionalPerUnit = 0;
+            $(".additional-row").each(function () {
+                let val = parseFloat($(this).find(".AdditionalValue").val()) || 0;
+                totalAdditionalPerUnit += val;
+            });
+
+            SaleOrderDetails.forEach((item, index) => {
+                let colorText = item.SubDetails.map((x, i) =>
+                    `${i + 1}. ${x.ColorMatchingName} - ${x.Qty}`
+                ).join("<br>");
+
+                let combinedRemark = item.SubDetails
+                    .map(x => x.Remark)
+                    .filter(x => x && x.trim() !== "")
+                    .join("<br>");
+
+                let designDisplay = item.DesignNo;
+                if (item.ImageUrl && item.ImageUrl.trim() !== "") {
+                    let imgSrc = formatImageUrl(item.ImageUrl);
+
+                    designDisplay = `
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${imgSrc}" alt="Design" 
+                             style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" 
+                             onerror="handleImageError(this, '${item.ImageUrl}')">
+                        <span>${item.DesignNo}</span>
+                    </div>`;
+                }
+
+                let baseRate = parseFloat(item.BrokerRate) || 0;
+
+                // 🔥 Effective Rate = Base Broker Rate + Sum of All Additional Charges per unit
+                let effectiveRate = baseRate + totalAdditionalPerUnit;
+
+                item.UnitAdditionalValue = totalAdditionalPerUnit;
+                item.Amount = parseFloat(item.TotalQty) * effectiveRate;
+
+                let tr = `
+        <tr data-index="${index}">
+            <td class="col-srno">${index + 1}</td>
+            <td class="col-design">${designDisplay}</td>
+            <td class="col-type">${item.Type}</td>
+            <td class="col-colors">${item.NoOfColors}</td>
+            <td class="col-colorText">${colorText}</td>
+            <td class="col-qty">${item.TotalQty}</td>
+            <td class="col-unit">${item.Unit}</td>
+            <td class="col-rate" hidden>${item.Rate}</td>
+            <td class="col-brokerRate">
+                <input type="number"
+                       class="form-control form-control-sm brokerRateInput"
+                       value="${effectiveRate}"
+                       data-index="${index}"
+                       style="width:80px;" />
+            </td>
+            <td class="col-amount amountCell">${parseFloat(item.Amount || 0).toFixed(2)}</td>
+            <td class="col-remark">
+                <div><b>${item.Remark || ''}</b></div>
+                <small style="color:gray">${combinedRemark}</small>
+            </td>
+            <td class="col-action">
+                <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
+                <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
+            </td>
+        </tr>`;
+
+                tbody.append(tr);
+            });
+        }
+        function updateSummary() {
+            let totalQty = 0;
+            let totalAmount = 0;
+
+            let totalAdditionalPerUnit = 0;
+            $(".additional-row").each(function () {
+                totalAdditionalPerUnit += parseFloat($(this).find(".AdditionalValue").val()) || 0;
+            });
+
+            SaleOrderDetails.forEach(item => {
+                let effectiveRate = (parseFloat(item.BrokerRate) || 0) + totalAdditionalPerUnit;
+                item.Amount = parseFloat(item.TotalQty) * effectiveRate;
+
+                totalQty += parseFloat(item.TotalQty) || 0;
+                totalAmount += parseFloat(item.Amount) || 0;
+            });
+
+            // Update Totals Display
+            $("#totalQty").text(totalQty);
+            $("#totalAmount").text(totalAmount.toFixed(2));
+
+            // Discount Calculation
+            let discountAmount = parseFloat($("#discountValueAmount").val()) || 0;
+            if (discountAmount > totalAmount) {
+                discountAmount = totalAmount;
+            }
+            $("#discountAmount").text(discountAmount.toFixed(2));
+
+            let afterDiscount = totalAmount - discountAmount;
+
+            // Additional Charges Total (if any fixed additional amount exists)
+            let totalAdditionalValue = parseFloat($("#AdditionalValue").val()) || 0;
+            $("#AdditionalAmount").text(totalAdditionalValue.toFixed(2));
+
+            let taxableAmount = afterDiscount + totalAdditionalValue;
+
+            // 🔥 GST Calculation based on dropdown selection
+            let gstPercent = parseFloat($("#gstPercent").val()) || 0;
+            let gstAmount = (taxableAmount * gstPercent) / 100;
+            $("#gstAmount").text(gstAmount.toFixed(2));
+
+            // Final Total & Round Off
+            let finalAmount = taxableAmount + gstAmount;
+            let roundedAmount = Math.round(finalAmount);
+            let roundOff = roundedAmount - finalAmount;
+
+            $("#RoundOff").text(roundOff.toFixed(2));
+            $("#invoiceAmount").text(roundedAmount.toFixed(2));
+        }
+        // Ensure change/input on any dynamic additional row input or remove button updates totals
+        $(document).on("input change", ".AdditionalValue", function () {
+            bindMainTable();
+            updateSummary();
+        });
+        $(document).on("click", ".remove-additional", function () {
+            $(this).closest(".summary-row").remove();
+            bindMainTable();
+            updateSummary();
+        });
+        $(document).on("change", ".brokerRateInput", function () {
+            let index = $(this).data("index");
+            let inputRate = parseFloat($(this).val()) || 0;
+            let additionalPerUnit = parseFloat($(".additional-row:first .AdditionalValue").val()) || 0;
+
+            // Extract base broker rate by subtracting additional charges
+            let baseRate = inputRate - additionalPerUnit;
+            let item = SaleOrderDetails[index];
+
+            item.IsRateManual = true;
+            item.Rate = baseRate;
+            item.BrokerRate = baseRate;
+            item.Amount = item.TotalQty * inputRate;
+
+            if (item.SubDetails && item.SubDetails.length > 0) {
+                item.SubDetails.forEach(sub => {
+                    sub.Rate = baseRate;
+                });
+            }
+
+            let row = $(this).closest("tr");
+            row.find(".col-rate").text(item.Rate);
+            row.find(".amountCell").text(item.Amount.toFixed(2));
+
+            updateSummary();
+        });
+        $(document).on("click", ".viewSub", function () {
+
+            const index = $(this).closest("tr").data("index");
+            currentViewIndex = index;
+            isEditMode = true;
+            const item = SaleOrderDetails[index];
+            $("#DesignNo").val(item.DesignId).trigger('change').prop("disabled", true);
+            bindSubTable(item.SubDetails);
+            bindFormFields(item);
+            let selectedId = item.SelectedColorId || item.SubDetails?.[0]?.ColorMatchingID;
+            if (selectedId) {
+                $("#ColorMatchingID").val(selectedId).trigger("change");
+                getColorMatchingId(document.getElementById("ColorMatchingID"));
+            }
+            $("#designModal").modal("show");
+        });
+        function bindSubTable(subData) {
+
+            const $tbody = $("#itemTableBody");
+            $tbody.empty();
+
+            if (!Array.isArray(subData) || subData.length === 0) {
+                $tbody.html(noDataRow());
+                return;
+            }
+
+            let rows = "";
+
+            let parent = currentViewIndex !== -1
+                ? SaleOrderDetails[currentViewIndex]
+                : null;
+
+            subData.forEach((item, i) => {
+
+                // 🔥 ALWAYS USE LATEST RATE FROM PARENT
+                let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
+
+                rows += `
+                    <tr data-colorid="${item.ColorMatchingID}"
+                        data-colorgroupid="${item.ColorGroupId || ""}"
+                        data-rate="${saleRate}"
+                        data-img="${item.ImageUrl || ""}">
+
+                        <td>${i + 1}</td>
+
+                        <td hidden>${item.DesignNo || ""}</td>
+                        <td hidden>${item.DesignName || ""}</td>
+                        <td hidden>${item.ColorGroup || ""}</td>
+
+                        <td>${item.ColorMatchingName}</td>
+
+                        <td>${item.Qty}</td>
+
+                        <td>${item.Remark || ""}</td>
+
+                        <td>
+                            <a href="javascript:void(0)" class="deleteRow text-danger">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>`;
+            });
+
+            $tbody.html(rows);
+        }
+        function bindFormFields(item) {
+
+            $("#DesignNo").val(item.DesignId).trigger('change');
+
+            $("#TypeRow").val(item.TypeId);
+            $("#UnitRow").val(item.UnitId);
+
+            $("#ddlColourGroup").val(item.ColorGroupId);
+
+            $("#Remark").val(item.Remark);
+
+            //$("#Markup").val(item.markup || 0);
+
+            setTimeout(() => {
+
+                let firstSub = item.SubDetails[0];
+
+                if (firstSub) {
+                    $("#ColorMatchingID").val(firstSub.ColorMatchingID);
+                }
+
+                getColorMatchingId(document.getElementById("ColorMatchingID"));
+
+            }, 150);
+        }
+        function escapeHtml(text) {
+            return $("<div>").text(text || "").html();
+        }
+        $(document).on("click", ".deleteRow", function () {
+
+            let row = $(this).closest("tr");
+            let colorId = row.attr("data-colorid");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this row!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    if (currentViewIndex !== -1) {
+
+                        let subList = SaleOrderDetails[currentViewIndex].SubDetails;
+
+                        SaleOrderDetails[currentViewIndex].SubDetails =
+                            subList.filter(x => x.ColorMatchingID != colorId);
+
+                        updateMainTotals(currentViewIndex);
+                    }
+
+                    row.remove();
+
+                    let rows = $("#itemTableBody tr").not(".no-data");
+
+                    if (rows.length === 0) {
+
+                        $("#itemTableBody").html(noDataRow());
+                        $("#ColorMatchingID").val("");
+                        $("#upload-ColorMatching-default-preview").html("No Image");
+
+                    } else {
+
+                        let firstRow = rows.first();
+                        let id = firstRow.attr("data-colorid");
+
+                        $("#ColorMatchingID").val(id).trigger("change");
+                        getColorMatchingId(document.getElementById("ColorMatchingID"));
+
+                        if (currentViewIndex !== -1) {
+                            SaleOrderDetails[currentViewIndex].SelectedColorId = id;
+                        }
+                    }
+
+                    updateSrNo();
+
+                    // ✅ Success message after delete
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Row has been deleted successfully.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        });
+        function resetModal() {
+
+            $("#itemTableBody").html(`
+                    <tr class="no-data">
+                        <td colspan="6" class="text-center">No Data Available</td>
+                    </tr>
+                `);
+
+            $("#DesignSelectionRemark").val("");
+            $("#designModal").modal("hide");
+        }
+        function saveSaleOrder() {
+            let broker = $("#ddlBroker");
+            let transport = $("#ddlTransport");
+            let party = $("#ddlPartyGST");
+
+            let isValid = true;
+
+            // Validation checks
+            if (!transport.val() || transport.val() === "-1") {
+                transport.addClass("is-invalid").removeClass("is-valid");
+                showToast("error", "Please select Transport");
+                isValid = false;
+            } else {
+                transport.addClass("is-valid").removeClass("is-invalid");
+            }
+
+            if (!broker.val() || broker.val() === "-1") {
+                broker.addClass("is-invalid").removeClass("is-valid");
+                showToast("error", "Please select Broker");
+                isValid = false;
+            } else {
+                broker.addClass("is-valid").removeClass("is-invalid");
+            }
+
+            if (!party.val() || party.val() === "-1") {
+                party.addClass("is-invalid").removeClass("is-valid");
+                showToast("error", "Please select Party");
+                isValid = false;
+            } else {
+                party.addClass("is-valid").removeClass("is-invalid");
+            }
+
+            if (!SaleOrderDetails || SaleOrderDetails.length === 0) {
+                showToast("error", "Please add at least one design!");
+                isValid = false;
+            }
+
+            if (!isValid) return false;
+
+            showLoader();
+            $("#btnSave").prop("disabled", true);
+
+            let totalQty = 0;
+            let totalAmount = 0;
+
+            // 🔥 Corrected Rate and Amount Calculation Logic for SaleOrderDetails
+            SaleOrderDetails.forEach((item) => {
+                item.ItemType = item.TypeId || "";
+                if (!item.SubDetails) {
+                    item.SubDetails = [];
+                }
+
+                let baseRate = parseFloat(item.Rate) || parseFloat(item.BrokerRate) || 0;
+                let brokerRate = parseFloat(item.BrokerRate) || baseRate;
+
+                item.Rate = baseRate;
+                item.BrokerRate = brokerRate;
+
+                let rowQty = 0;
+                item.SubDetails.forEach(sub => {
+                    sub.ColourID = sub.ColorMatchingID || 0;
+                    sub.ColourName = sub.ColorMatchingName || "";
+                    sub.Unit = sub.Unit || item.Unit || "PCS";
+                    sub.Rate = brokerRate;
+                    rowQty += parseFloat(sub.Qty || 0);
+                });
+
+                item.NoOfColours = item.SubDetails.length;
+                item.Qty = rowQty;
+                item.Amount = rowQty * brokerRate; // Ensures correct calculation using effective broker rate
+
+                totalQty += rowQty;
+                totalAmount += item.Amount;
+            });
+
+            // Discount calculations
+            let discountValPercent = parseFloat($("#discountValuePercent").val()) || 0;
+            let discountValAmount = parseFloat($("#discountValueAmount").val()) || 0;
+            let type = $("#discountType").val();
+            let discountAmount = 0;
+
+            if (discountValAmount > 0) {
+                discountAmount = discountValAmount;
+            } else if (discountValPercent > 0) {
+                discountAmount = (totalAmount * discountValPercent) / 100;
+            }
+
+            if (discountAmount > totalAmount) {
+                discountAmount = totalAmount;
+            }
+            $("#discountAmount").text(discountAmount.toFixed(2));
+
+            let afterDiscount = totalAmount - discountAmount;
+
+            // Collect Dynamic Additional Charges rows for 'SaleOrderAdditionalCharges' table mapping
+            let additionalChargesList = [];
+            let totalAdditionalValue = 0;
+
+            $(".additional-row").each(function () {
+                let remark = $(this).find(".AdditionalText").val().trim();
+                let chargeVal = parseFloat($(this).find(".AdditionalValue").val()) || 0;
+
+                if (chargeVal > 0 || remark !== "") {
+                    let calculatedLineTotal = chargeVal * totalQty;
+
+                    additionalChargesList.push({
+                        ChargeRemark: remark,
+                        ChargeValue: chargeVal,
+                        TotalCalculatedAmount: calculatedLineTotal
+                    });
+                    totalAdditionalValue += chargeVal;
+                }
+            });
+
+            let afterAdditional = afterDiscount + totalAdditionalValue;
+            let gstPercent = parseFloat($("#gstPercent").val()) || 0;
+            let gstAmount = (afterAdditional * gstPercent) / 100;
+            $("#gstAmount").text(gstAmount.toFixed(2));
+
+            // Final Amount & Round Off
+            let finalAmount = afterAdditional + gstAmount;
+            let roundedAmount = Math.round(finalAmount);
+            let roundOff = roundedAmount - finalAmount;
+
+            $("#RoundOff").text(roundOff.toFixed(2));
+            $("#invoiceAmount").text(roundedAmount.toFixed(2));
+
+            let model = {
+                SaleOrderID: parseInt($("#SaleOrderID").val() || 0),
+                OrderNo: $("#OrderNo").val(),
+                OrderDate: $("#OrderDate").val(),
+                PartyID: parseInt($("#ddlPartyGST option:selected").val() || 0),
+                BrokerID: ($("#ddlBroker option:selected").val() || ""),
+                MarkupPercent: parseFloat($("#Markup").val() || 0),
+                TransportID: ($("#ddlTransport option:selected").val() || ""),
+                TotalQty: totalQty,
+                TotalAmount: totalAmount,
+                DiscountType: (type || "Percentage"),
+                AdditionalRemark: ($("#AdditionalText").val() || ""),
+                AdditionalValue: totalAdditionalValue,
+                DiscountPercent: discountValPercent,
+                DiscountAmount: discountAmount,
+                GSTPercent: gstPercent,
+                GSTAmount: gstAmount,
+                InvoiceAmount: roundedAmount,
+                RoundOff: roundOff,
+                Remark: $("#NotesRemark").val(),
+                Details: SaleOrderDetails,
+                AdditionalCharges: additionalChargesList
+            };
+
+            console.log("FINAL SAVE/UPDATE MODEL:", model);
+
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/SaveSaleOrder",
+                type: "POST",
+                data: JSON.stringify({ model: model }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    let data = res.d;
+                    hideLoader();
+                    if (data.success) {
+                        notes.show("Saved Successfully ✅", { type: 'success' });
+                        $("#SaleOrderID").val(data.id);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/WebServiceNikunjTextile.asmx/ExportSaleOrderPDF",
+                            data: JSON.stringify({ saleOrderID: data.id }),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (response) {
+                                var pdfData = response.d;
+                                if (typeof pdfData === "string") pdfData = JSON.parse(pdfData);
+                                if (pdfData.Status) {
+                                    window.open(pdfData.FilePath, "_blank");
+                                    notes.show("PDF Generated Successfully ✅", { type: "success" });
+                                    setTimeout(function () { window.location.href = "listSaleOrderEntry"; }, 1000);
+                                } else {
+                                    alert(pdfData.Message);
+                                }
+                            },
+                            error: function () {
+                                alert("PDF Generation Failed");
+                            }
+                        });
+                    } else {
+                        hideLoader();
+                        $("#btnSave").prop("disabled", false);
+                        alert(data.message || "Save Failed ❌");
+                    }
+                },
+                error: function (err) {
+                    hideLoader();
+                    $("#btnSave").prop("disabled", false);
+                    console.error("Error:", err);
+                    alert("Save Failed ❌");
+                }
+            });
+        }
+        function showLoader() {
+            $("#loaderOverlay").css("display", "flex");
+        }
+        function hideLoader() {
+            $("#loaderOverlay").hide();
+        }
+        $(document).on("change", ".brokerRateInput", function () {
+            let index = $(this).data("index");
+            let newRate = parseFloat($(this).val()) || 0;
+            let item = SaleOrderDetails[index];
+            // ✅ Manual override flag
+            item.IsRateManual = true;
+            item.Rate = newRate;
+            item.BrokerRate = newRate;
+            item.Amount = item.TotalQty * newRate;
+            // ✅ Sync SubDetails
+            if (item.SubDetails && item.SubDetails.length > 0) {
+                item.SubDetails.forEach(sub => {
+                    sub.Rate = newRate;
+                });
+            }
+            let row = $(this).closest("tr");
+            row.find(".col-rate").text(item.Rate);
+            row.find(".amountCell").text(item.Amount.toFixed(2));
+            if (row.next().hasClass("child-row")) {
+                bindSubTable(item.SubDetails);
+            }
+            updateSummary();
+        });  
+
+    </script>
+}

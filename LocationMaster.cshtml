@@ -1,0 +1,602 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Location</button>
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Location</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="add-alert" class="alert alert-success" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+                        <br />
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+                                    <div class="col-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="LocationTitle" name="LocationTitle" placeholder="Location" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Location Title<sup style="color:red;">*</sup></div>
+                                            <div class="LocationTitle-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="LocationTitle-invalid-feedback invalid-feedback">Please Location Title</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+
+                                    </div>
+
+                                    <div class="col-4">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <textarea class="form-control clear-field" id="LocationAddress" name="Location Address" placeholder="Location Address"></textarea>
+                                            <div class="field-placeholder">Location Address</div>
+                                            <div class="Type-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="Type-invalid-feedback invalid-feedback">Please Mention Description</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+
+                                    </div>
+
+                                    <div class="col-3">
+
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <div class="form-check form-check-inline">
+                                                <br />
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
+
+                                            </div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Location</div>
+                    <br />
+
+                    <div class="table-responsive">
+                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr>
+                                    <th>Sr No</th>
+                                    <th>Location Title</th>
+                                    <th>Location Address</th>
+                                    <th>Is Active</th>
+                                    <!--<th>Position</th>-->
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="view-more-styl-class">
+        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
+        <br /><br /><br />
+    </div>
+    <!-- Row end -->
+
+</div>
+<!-- Content wrapper end -->
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#AddFinacialYearModel").hide();
+                }
+            }
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+
+            $("#master-tab").addClass("active");
+            $("#tab-Master").addClass("show active");
+            $("#aLocation").addClass("current-page");
+
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getLocationMaster?startFrom=' + rowStart,
+                data: "{ 'startFrom':'" + rowStart + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+                    var operation = "";
+                    if (response.listLocationMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listLocationMaster.length; i++) {
+                        var Top = i - 1;
+                        var Previous = i + 1;
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listLocationMaster[i].LocationTitle + "</td>";
+                        temp += "<td>" + response.listLocationMaster[i].LocationAddress + "</td>";
+
+                        if (response.listLocationMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        }
+                        else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listLocationMaster[i].LocationID + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;&nbsp; <a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listLocationMaster[i].LocationID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                        temp += "</tr>";
+                    }
+
+                    dataTable.append(temp);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        //Delete Type
+        function functionFYDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Financial Year record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('FinancialYearIDs', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                displayData(0);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Financial Year deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting Financial Year.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting Financial Year.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Location");
+            $("#add-alert").hide();
+
+            $("#LocationTitle").val('');
+            $("#LocationAddress").val('');
+            $("#Location").val('');
+            $("#Storage").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+
+            var LocationTitle = $('#LocationTitle').val();
+            var LocationAddress = $('#LocationAddress').val();
+
+            if (validate(document.getElementById('LocationTitle')) == false) {
+                validate(document.getElementById('LocationTitle'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('LocationTitle', LocationTitle);
+                formData.append('LocationAddress', LocationAddress);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertLocationMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+
+            var LocationTitle = $('#LocationTitle').val();
+            var LocationAddress = $('#LocationAddress').val();
+
+            if (validate(document.getElementById('LocationTitle')) == false) {
+                validate(document.getElementById('LocationTitle'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('LocationTitle', LocationTitle);
+                formData.append('LocationAddress', LocationAddress);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertLocationMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+
+            var LocationTitle = $('#LocationTitle').val();
+            var LocationAddress = $('#LocationAddress').val();
+
+            if (validate(document.getElementById('LocationTitle')) == false) {
+                validate(document.getElementById('LocationTitle'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('LocationID', id);
+                formData.append('LocationTitle', LocationTitle);
+                formData.append('LocationAddress', LocationAddress);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/EditLocationMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#Type').val('');
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while updating your data.');
+                    }
+                });
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Location");
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getLocationTitleById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#LocationTitle").val(response.listLocationMaster[0].LocationTitle);
+                        $("#LocationAddress").val(response.listLocationMaster[0].LocationAddress);
+
+                        if (response.listLocationMaster[0].IsActive == "1") {
+                            $("#IsActive").prop('checked', true);
+                        }
+                        else {
+                            $("#IsActive").prop('checked', false);
+                        }
+                    }
+                    else {
+                        showToast('error', response.Message);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', 'Failed to retrieve record details.');
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Type record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('LocationID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteLocationMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Type deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting Type.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting Type.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+

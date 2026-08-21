@@ -1,0 +1,599 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+<div class="content-wrapper">
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <!-- 🔹 LEFT FILTER PANEL -->
+            <div class="col-md-2">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h4>Filters</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="field-wrapper">
+                            <select id="filterBox" class="select-single detail" data-live-search="true">
+                                <option value="">All Box</option>
+                            </select>
+                            <div class="field-placeholder">Box</div>
+                        </div>
+                        <div class="field-wrapper">
+                            <select id="filterMaterial" class="select-single detail" data-live-search="true">
+                                <option value="">All Material</option>
+                            </select>
+                            <div class="field-placeholder">Material</div>
+                        </div>
+                        <div class="field-wrapper">
+
+                            <select id="filterColor" class="select-single detail" data-live-search="true">
+                                <option value="">All Color</option>
+                            </select>
+                            <div class="field-placeholder">Color</div>
+                        </div>
+                        <div class="field-wrapper">
+
+
+                            <select id="filterParty" class="select-single detail" data-live-search="true">
+                                <option value="">All Party</option>
+                            </select>
+                            <div class="field-placeholder">Party</div>
+                        </div>
+                        <div class="field-wrapper">
+                            <select id="filterPO" class="select-single detail" data-live-search="true">
+                                <option value="">All PO</option>
+                            </select>
+                            <div class="field-placeholder">PO Number</div>
+                        </div>
+                        <div class="field-wrapper">
+                            <select id="filterGodown" class="select-single detail" data-live-search="true">
+                                <option value="">All Godown</option>
+                            </select>
+                            <div class="field-placeholder">Godown</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔹 RIGHT TABLE -->
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Yarn Inter Change Report</h4>
+
+                        <div>
+                            <button onclick="exportToExcel()" class="btn btn-success btn-sm" id="btnExcel">
+                                <i class="bi bi-file-earmark-excel"></i> Excel
+                            </button>
+                            <button onclick="exportToPDF()" class="btn btn-danger btn-sm" id="btnPdf">
+                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                            </button>
+                            <button onclick="printReport()" class="btn btn-secondary btn-sm" id="btnPrint">
+                                <i class="bi bi-printer"></i> Print
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="text" id="searchBox" class="form-control" placeholder="Search...">
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive" id="pdfContainer">
+                            <table class="table table-bordered table-hover" id="tblReport">
+                                <thead>
+                                    <tr>
+                                        <th style="width:4%">#</th>
+                                        <th style="width:4%">Date</th>
+                                        <th style="width:4%">User</th>
+                                        <th style="width:8%">Box</th>
+                                        <th style="width:10%">Material</th>
+                                        <th style="width:12%">Color</th>
+                                        <th style="width:15%">Party</th>
+                                        <th style="width:6%">PO</th>
+                                        <th style="width:12%">Godown</th>
+                                        <th style="width:8%">From</th>
+                                        <th style="width:8%">To</th>
+                                        <th style="width:5%">Wt</th>
+                                        <th style="width:6%">Move</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination" id="pagination"></ul>
+                        </nav>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        let fullData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        const { jsPDF } = window.jspdf;
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            let d = new Date(dateStr);
+            return d.toLocaleString('en-IN');
+        }
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#Report-tab").addClass("active");
+            $("#tab-Report").addClass("show active");
+            $("#aYarnInterChangeReport").addClass("current-page");
+            $(".nav-tabs .nav-link").removeClass("active");
+            $(".nav-tabs .nav-link").attr("aria-selected", "false");
+            $(".nav-tabs .nav-link[data-report='1']").addClass("active");
+            $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");
+            FunctionIsLogin();
+            loadReport();
+        });
+        $("#filterBox, #filterMaterial, #filterColor, #filterParty, #filterPO, #filterGodown, #filterMove")
+            .on("change", function () {
+                applyFilters();
+            });
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                }
+            });
+        }
+        let groupedData = {}; // ✅ GLOBAL (important)
+        function applyFilters() {
+
+            let box = $("#filterBox").val().toLowerCase();
+            let material = $("#filterMaterial").val().toLowerCase();
+            let color = $("#filterColor").val().toLowerCase();
+            let party = $("#filterParty").val().toLowerCase();
+            let po = $("#filterPO").val().toLowerCase();
+            let godown = $("#filterGodown").val().toLowerCase();
+            let move = $("#filterMove").val();
+
+            filteredData = fullData.filter(x => {
+
+                return (!box || x.Box?.toLowerCase().includes(box)) &&
+                    (!material || x.Material?.toLowerCase().includes(material)) &&
+                    (!color || x.Color?.toLowerCase().includes(color)) &&
+                    (!party || x.Party?.toLowerCase().includes(party)) &&
+                    (!po || x.PO?.toString().includes(po)) &&
+                    (!godown || x.Godown?.toLowerCase().includes(godown)) &&
+                    (!move || x.Move === move);
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+        function loadReport() {
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/YarnInterChangeReport",
+                data: JSON.stringify({}),
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+
+                    fullData = JSON.parse(res.d);
+                    filteredData = [...fullData];
+                    console.log("YarnInterChangeReport", fullData)
+                    bindDropdowns();
+                    renderTable();
+                }
+            });
+        }
+        function renderTable() {
+
+            let start = (currentPage - 1) * pageSize;
+            let pageData = filteredData.slice(start, start + pageSize);
+            let html = "";
+
+            pageData.forEach((item, i) => {
+
+                let badge = item.Move === "YES"
+                    ? '<span class="badge bg-success">YES</span>'
+                    : '<span class="badge bg-danger">NO</span>';
+
+                let rowClass = item.Move === "YES" ? "table-success" : "";
+
+                const date = item.DateAndTime
+                    ? new Date(item.DateAndTime).toLocaleString('en-IN')
+                    : '-';
+
+                let row = `
+                            <tr class="${rowClass}">
+                                <td>${start + i + 1}</td>
+                                <td>${date}</td>
+                                <td>${item.User || '-'}</td>
+                                <td>${item.Box || '-'}</td>
+                                <td>${item.Material || '-'}</td>
+                                <td>${item.Color || '-'}</td>
+                                <td>${item.Party || '-'}</td>
+                                <td>${item.PO || '-'}</td>
+                                <td>${item.Godown || '-'}</td>
+                                <td>${item.From || '-'}</td>
+                                <td>${item.To || '-'}</td>
+                                <td>${item.Wt || 0}</td>
+                                <td>${badge}</td>
+                            </tr>`;
+
+                html += row; // ✅ MOST IMPORTANT LINE
+            });
+
+            $("#tblReport tbody").html(html);
+
+            renderPagination();
+        }
+        function renderPagination() {
+
+            let totalPages = Math.ceil(filteredData.length / pageSize);
+            let html = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-light'} page-btn" data-page="${i}">${i}</button>`;
+            }
+
+            $("#pagination").html(html);
+        }
+        $(document).on("click", ".btn-expand", function () {
+
+            let id = $(this).data("id");
+            let row = $("#expand-" + id);
+
+            if (row.hasClass("d-none")) {
+
+                row.removeClass("d-none");
+
+                // 🔥 Load history via AJAX
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetMovementHistory',
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ yarnDetailId: id }),
+                    success: function (res) {
+
+                        let data = JSON.parse(res.d);
+
+                        let html = `
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>User</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                        data.forEach(x => {
+                            html += `
+                            <tr>
+                                <td>${x.DateAndTime}</td>
+                                <td>${x.FromLocation ?? '-'}</td>
+                                <td>${x.ToLocation}</td>
+                                <td>${x.UserAccountId}</td>
+                            </tr>`;
+                        });
+
+                        html += `</tbody></table>`;
+
+                        row.find("div").html(html);
+                    }
+                });
+
+            } else {
+                row.addClass("d-none");
+            }
+        });
+        $(document).on("click", ".page-btn", function () {
+            currentPage = parseInt($(this).data("page"));
+            renderTable();
+        });
+        $(document).on("click", ".page-link", function (e) {
+            e.preventDefault();
+            currentPage = parseInt($(this).text());
+            renderTable();
+        });
+        $("#searchBox").on("input", function () {
+
+            let search = $(this).val().trim().toLowerCase();
+
+            filteredData = fullData.filter(x => {
+
+                return (
+                    !search ||
+
+                    String(x.Box || '').toLowerCase().includes(search) ||
+                    String(x.Material || '').toLowerCase().includes(search) ||
+                    String(x.Color || '').toLowerCase().includes(search) ||
+                    String(x.Party || '').toLowerCase().includes(search) ||
+                    String(x.PO || '').toLowerCase().includes(search) ||
+                    String(x.Godown || '').toLowerCase().includes(search) ||
+                    String(x.From || '').toLowerCase().includes(search) ||
+                    String(x.To || '').toLowerCase().includes(search) ||
+                    String(x.Wt || '').toLowerCase().includes(search) ||
+                    String(x.Move || '').toLowerCase().includes(search) ||
+                    String(x.User || '').toLowerCase().includes(search)
+                );
+            });
+
+            currentPage = 1;
+            renderTable();
+        });
+        function bindDropdowns() {
+
+            bindDropdown("#filterBox", "Box");
+            bindDropdown("#filterMaterial", "Material");
+            bindDropdown("#filterColor", "Color");
+            bindDropdown("#filterParty", "Party");
+            bindDropdown("#filterPO", "PO");
+            bindDropdown("#filterGodown", "Godown");
+            bindDropdown("#filterMove", "Move");
+        }
+        function bindDropdown(selector, field) {
+
+            let values = [...new Set(
+                fullData
+                    .map(x => x[field])
+                    .filter(v => v !== undefined && v !== null && v !== "")
+            )];
+
+            // 🔥 Optional: sort values
+            values.sort();
+
+            let dropdown = $(selector);
+
+            // 🔥 Better label
+            let label = field;
+
+            dropdown.empty().append(`<option value="">All ${label}</option>`);
+
+            values.forEach(v => {
+                dropdown.append(`<option value="${v}">${v}</option>`);
+            });
+        }
+        $(document).on("click", ".btn-expand", function () {
+
+            let id = $(this).data("id");
+
+            expandedRows[id] = !expandedRows[id];
+
+            renderTable(); // re-render to toggle
+
+            if (expandedRows[id]) {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/WebServiceNikunjTextile.asmx/GetMovementHistory",
+                    data: JSON.stringify({ yarnDetailId: id }),
+                    contentType: "application/json",
+                    success: function (res) {
+
+                        let data = JSON.parse(res.d);
+
+                        let html = `
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>User</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                        data.forEach(x => {
+                            html += `
+                            <tr>
+                                <td>${x.DateAndTime}</td>
+                                <td>${x.FromLocation || '-'}</td>
+                                <td>${x.ToLocation}</td>
+                                <td>${x.UserAccountId}</td>
+                            </tr>`;
+                        });
+
+                        html += `</tbody></table>`;
+
+                        $("#history-" + id).html(html);
+                    }
+                });
+            }
+        });
+        function groupByGodown(data) {
+
+            let grouped = {};
+
+            data.forEach(item => {
+                if (!grouped[item.GodownTitle]) {
+                    grouped[item.GodownTitle] = [];
+                }
+                grouped[item.GodownTitle].push(item);
+            });
+
+            let html = "";
+
+            Object.keys(grouped).forEach(godown => {
+
+                html += `
+                <tr class="table-dark">
+                    <td colspan="12"><b>${godown}</b></td>
+                </tr>`;
+
+                grouped[godown].forEach((item, i) => {
+
+                    let badge = item.MOVEBOXORNOT === "YES"
+                        ? '<span class="badge bg-success">YES</span>'
+                        : '<span class="badge bg-danger">NO</span>';
+
+                    let rowClass = item.MOVEBOXORNOT === "YES" ? "table-success" : "";
+
+                    html += `
+                    <tr class="${rowClass}">
+                        <td>${i + 1}</td>
+                        <td>${item.BoxNo}</td>
+                        <td>${item.YarnMaterial}</td>
+                        <td>${item.YarnColor}</td>
+                        <td>${item.PartyName}</td>
+                        <td>${item.PONo}</td>
+                        <td>${item.GodownTitle}</td>
+                        <td>${item.FromLocation ?? '-'}</td>
+                        <td>${item.ToLocation}</td>
+                        <td>${item.NetWeight}</td>
+                        <td>${badge}</td>
+                    </tr>`;
+                });
+            });
+
+            $("#tblBody").html(html);
+        }
+        function exportToExcel() {
+            let table = document.getElementById("tblReport").outerHTML;
+            let url = 'data:application/vnd.ms-excel,' + encodeURIComponent(table);
+            let link = document.createElement("a");
+            link.href = url;
+            link.download = "YarnInterChangeReport.xls";
+            link.click();
+        }
+        function preparePDFData() {
+
+            let html = "";
+            filteredData.forEach((item, i) => {
+                let move = item.MOVEBOXORNOT === "YES" ? "YES" : "NO";
+                html += `
+                    <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.BoxNo}</td>
+                    <td>${item.YarnMaterial}</td>
+                    <td>${item.YarnColor}</td>
+                    <td>${item.PartyName}</td>
+                    <td>${item.PONo}</td>
+                    <td>${item.GodownTitle}</td>
+                    <td>${item.FromLocation || '-'}</td>
+                    <td>${item.ToLocation || '-'}</td>
+                    <td>${item.NetWeight}</td>
+                    <td>${move}</td>
+                </tr>`;
+            });
+
+            $("#tblReport tbody").html(html);
+        }
+        function exportToPDF() {
+
+            let doc = new jsPDF('landscape', 'pt', 'A4');
+
+            doc.text("Yarn Inter Change Report", 40, 30);
+
+            let rows = filteredData.map((x, i) => [
+                i + 1,
+                x.DateAndTime ? formatDate(x.DateAndTime) : '-',
+                x.User || '-',
+                x.Box || '-',
+                x.Material || '-',
+                x.Color || '-',
+                x.Party || '-',
+                x.PO || '-',
+                x.Godown || '-',
+                x.From || '-',
+                x.To || '-',
+                x.Wt || 0,
+                x.Move || '-'
+            ]);
+
+            doc.autoTable({
+                startY: 50,
+                head: [['#', 'Date', 'User', 'Box', 'Material', 'Color', 'Party', 'PO', 'Godown', 'From', 'To', 'Wt', 'Move']],
+                body: rows,
+                styles: { fontSize: 7 }
+            });
+
+            doc.save("YarnReport.pdf");
+        }
+        function printReport() {
+
+            let content = document.getElementById("pdfContainer").innerHTML;
+
+            let printWindow = window.open('', '', 'width=1200,height=800');
+
+            printWindow.document.write(`
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ccc; padding: 5px; font-size: 12px; }
+                    th { background: #0d6efd; color: white; }
+                </style>
+            </head>
+            <body>
+                <h3 style="text-align:center;">Yarn Interchange Report</h3>
+                ${content}
+            </body>
+            </html>
+            `);
+
+            printWindow.document.close();
+
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+    </script>
+}

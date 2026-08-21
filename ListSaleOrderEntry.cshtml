@@ -1,0 +1,769 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<style>
+    #tblSaleOrderMaster {
+        width: 100% !important;
+    }
+
+        #tblSaleOrderMaster td, #tblSaleOrderMaster th {
+            vertical-align: middle !important;
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        #tblSaleOrderMaster td {
+            white-space: nowrap;
+        }
+
+            #tblSaleOrderMaster td:nth-child(4) { /* Address column */
+                white-space: normal;
+                max-width: 250px;
+                word-break: break-word;
+            }
+
+        #tblSaleOrderMaster th {
+            background-color: #1f6ed4;
+            color: #fff;
+            font-weight: 500;
+        }
+
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        margin-bottom: 10px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .fa {
+        font-size: 14px;
+    }
+
+    .mt-3 {
+        margin-top: 2rem !important;
+    }
+
+    #pageNumbers {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .page-btn {
+        min-width: 35px;
+        height: 35px;
+        border: 1px solid #ddd;
+        background: #fff;
+        cursor: pointer;
+    }
+
+        .page-btn.active {
+            background: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+
+    .page-dots {
+        padding: 0 5px;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <a href="saleOrderEntry" id="AddsaleOrderEntry" style="float:right;" class="btn btn-primary"><i class="fa fa-plus"></i> Add SaleOrder Master</a>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">SaleOrder Master</div>
+
+                    <br />
+                    <div class="row gutters">
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                            <button class="btn btn-danger" id="btnGeneratePDF">
+                                <span id="btnText">
+                                    <i class="fa fa-file-pdf-o"></i> PDF
+                                </span>
+
+                                <span id="btnLoader" style="display:none;">
+                                    <i class="fa fa-spinner fa-spin"></i> Generating...
+                                </span>
+                            </button>
+                        </div>
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div class="field-wrapper">
+                                <input id="SearchRequirementNo" placeholder="Search Order No / Party Name." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
+                                <div class="field-placeholder">Order No / Party Name </div>
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+
+                    </div>
+                    <div class="table-responsive">
+                        <table id="saleOrderTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th><input id="selectAll" type="checkbox" /></th>
+                                    <th>Order No</th>
+                                    <th>Date</th>
+                                    <th>Party</th>
+                                    <th>Broker</th>
+                                    <th>Transport</th>
+                                    <th>Total Qty</th>
+                                    <th>Invoice Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <button id="prevPage" class="btn btn-secondary btn-sm me-2">
+                            Previous
+                        </button>
+
+                        <div id="pageNumbers" class="d-flex"></div>
+
+                        <button id="nextPage" class="btn btn-secondary btn-sm ms-2">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Sale Order View Modal -->
+            <div class="modal fade" id="viewSaleOrderModal" tabindex="-1" aria-labelledby="viewSaleOrderModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+                    <div class="modal-content shadow-lg border-0 rounded-3">
+                        <div class="modal-header bg-dark text-white py-3 px-4">
+                            <h5 class="modal-title fw-bold fs-5" id="viewSaleOrderModalLabel">
+                                <i class="fa fa-file-text-o me-2"></i> View Sale Order Details
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            <!-- Master Info Summary Card -->
+                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <span class="text-muted small d-block">Order No</span>
+                                        <strong id="viewOrderNo" class="text-dark">--</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted small d-block">Order Date</span>
+                                        <strong id="viewOrderDate" class="text-dark">--</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted small d-block">Party Name</span>
+                                        <strong id="viewPartyName" class="text-dark">--</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted small d-block">Broker</span>
+                                        <strong id="viewBroker" class="text-dark">--</strong>
+                                    </div>
+                                    <div class="col-md-3 mt-2">
+                                        <span class="text-muted small d-block">Transport</span>
+                                        <strong id="viewTransport" class="text-dark">--</strong>
+                                    </div>
+                                    <div class="col-md-3 mt-2">
+                                        <span class="text-muted small d-block">Markup %</span>
+                                        <strong id="viewMarkup" class="text-dark">--</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items Details Table -->
+                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+                                <h6 class="fw-bold text-primary mb-3">Ordered Items</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle" id="viewItemsTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Design No</th>
+                                                <th>Type</th>
+                                                <th>Colours & Quantities</th>
+                                                <th>Total Qty</th>
+                                                <th>Unit</th>
+                                                <th>Rate</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Dynamically populated rows -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Additional Charges Table Format (Placed under items / above remarks) -->
+                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+                                <h6 class="fw-bold text-secondary mb-2">Additional Charges</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle mb-0" id="viewAdditionalChargesTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Charge Remark</th>
+                                                <th>Rate / Value</th>
+                                                <th>Total Calculated Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="viewAdditionalChargesContainer">
+                                            <tr><td colspan="4" class="text-center text-muted">No additional charges.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Notes & Totals Section -->
+                            <div class="row gutters">
+                                <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12">
+                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100">
+                                        <span class="text-muted small d-block mb-1">Notes / Remarks</span>
+                                        <p id="viewRemarks" class="text-dark fw-medium mb-0">--</p>
+                                    </div>
+                                </div>
+                                <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12 ms-auto">
+                                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                        <div class="d-flex justify-content-between py-1 border-bottom">
+                                            <span class="text-muted">Total Amount:</span>
+                                            <strong id="viewTotalAmount">0.00</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-1 border-bottom">
+                                            <span class="text-muted">Discount:</span>
+                                            <strong id="viewDiscount">0.00</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-1 border-bottom">
+                                            <span class="text-muted">GST Amount:</span>
+                                            <strong id="viewGstAmount">0.00</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-1 border-bottom">
+                                            <span class="text-muted">Round Off:</span>
+                                            <strong id="viewRoundOff">0.00</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-2 mt-1">
+                                            <span class="fs-6 fw-bold text-dark">Invoice Total:</span>
+                                            <span id="viewInvoiceAmount" class="fs-5 fw-bold text-primary">0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-white py-2 px-4 border-top">
+                            <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Row end -->
+
+</div>
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        let SaleOrderList = [];
+        let FilteredSaleOrderList = [];
+        let currentPage = 1;
+        let pageSize = 10;
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            loadSaleOrders();
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        $(document).on("click", ".page-btn", function () {
+            currentPage = parseInt($(this).data("page"));
+            renderPage();
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function loadSaleOrders() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetSaleOrderList",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    let data = res.d;
+
+                    if (data.success) {
+                        SaleOrderList = data.Data;
+                        FilteredSaleOrderList = [...SaleOrderList];
+                        currentPage = 1;
+                        renderPage();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message
+                        });
+                    }
+                }
+            });
+        }
+
+        function renderPage() {
+            let start = (currentPage - 1) * pageSize;
+            let end = start + pageSize;
+
+            let pageData = FilteredSaleOrderList.slice(start, end);
+
+            bindDataTable(pageData);
+
+            let totalPages = Math.ceil(FilteredSaleOrderList.length / pageSize);
+
+            $("#pageInfo").html(`Page ${currentPage} of ${totalPages}`);
+
+            $("#prevPage").prop("disabled", currentPage === 1);
+            $("#nextPage").prop("disabled", currentPage === totalPages);
+
+            renderPageNumbers();
+        }
+
+        function renderPageNumbers() {
+            let totalPages = Math.ceil(FilteredSaleOrderList.length / pageSize);
+            let html = '';
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            // First page
+            if (startPage > 1) {
+                html += `<button class="page-btn" data-page="1">1</button>`;
+
+                if (startPage > 2) {
+                    html += `<span class="page-dots">...</span>`;
+                }
+            }
+
+            // Middle pages
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                        <button class="page-btn ${i === currentPage ? 'active' : ''}"
+                                data-page="${i}">
+                            ${i}
+                        </button>
+                    `;
+            }
+
+            // Last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="page-dots">...</span>`;
+                }
+
+                html += `
+                        <button class="page-btn" data-page="${totalPages}">
+                            ${totalPages}
+                        </button>
+                    `;
+            }
+
+            $("#pageNumbers").html(html);
+        }
+
+        $(document).on("click", "#nextPage", function () {
+            let totalPages = Math.ceil(FilteredSaleOrderList.length / pageSize);
+
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage();
+            }
+        });
+
+        $(document).on("click", "#prevPage", function () {
+            console.log("Previous Clicked");
+
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage();
+            }
+        });
+
+        function bindDataTable(data) {
+            let tbody = $("#saleOrderTable tbody");
+            tbody.empty();
+
+            $.each(data, function (i, row) {
+                let encodedId = btoa(row.SaleOrderID);
+                let actionHtml = '';
+
+                actionHtml += `<i class="fa fa-edit text-primary edit me-2" data-id="${encodedId}" title="Edit"></i>`;
+                actionHtml += `<i class="fa fa-eye text-dark view me-2" data-id="${encodedId}" title="View"></i>`;
+                actionHtml += `<i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}" title="Delete"></i>`;
+
+                let tr = `
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="row-checkbox me-2" value="${row.SaleOrderID}" />
+                            </td>
+                            <td>${row.OrderNo}</td>
+                            <td>${row.OrderDate}</td>
+                            <td>${row.PartyName || '-'}</td>
+                            <td>${row.BrokerName || '-'}</td>
+                            <td>${row.TransportName || '-'}</td>
+                            <td>${row.TotalQty}</td>
+                            <td>${row.InvoiceAmount}</td>
+                            <td>${actionHtml}</td>
+                        </tr>
+                    `;
+
+                tbody.append(tr);
+                var permission = getCookie("PagePermission");
+                if (permission != null && permission != "") {
+                    var currentPagePermission = JSON.parse(permission);
+                    if (currentPagePermission.Add == false) {
+                        $("#AddsaleOrderEntry").hide();
+                    }
+                    if (currentPagePermission.Edit == false) { $(".edit").hide(); }
+                    if (currentPagePermission.Delete == false) { $(".delete").hide(); }
+                    if (currentPagePermission.view == false) { $(".view").hide(); }
+                }
+            });
+        }
+
+        $(document).on('click', '.edit', function () {
+            let id = $(this).attr('data-id');
+            window.location.href = "/UpdateSaleOrderEntry?id=" + encodeURIComponent(id);
+        });
+
+        $(document).on('click', '.view', function () {
+            let encodedId = $(this).attr('data-id');
+            let saleOrderId = atob(decodeURIComponent(encodedId));
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetSaleOrderById',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ SaleOrderID: parseInt(saleOrderId) }),
+                success: function (res) {
+                    let response = res.d;
+                    if (response.success) {
+                        let d = response.Data;
+                        
+                        // 1. Fill Master Summary Fields (Using Names instead of IDs)
+                        $("#viewOrderNo").text(d.OrderNo || '--');
+                        $("#viewOrderDate").text(d.OrderDate || '--');
+                        $("#viewPartyName").text(d.PartyName || '--');
+                        $("#viewBroker").text(d.BrokerName || d.BrokerID || '--'); // 🔥 Shows Broker Name
+                        $("#viewTransport").text(d.TransportName || d.TransportID || '--'); // 🔥 Shows Transport Name
+                        $("#viewMarkup").text((d.MarkupPercent || 0) + '%');
+                        $("#viewRemarks").text(d.Remark || 'No remarks provided.');
+
+                        // 2. Fill Totals Summary Fields
+                        $("#viewTotalAmount").text(parseFloat(d.TotalAmount || 0).toFixed(2));
+                        $("#viewDiscount").text(parseFloat(d.DiscountAmount || 0).toFixed(2));
+                        $("#viewGstAmount").text(parseFloat(d.GSTAmount || 0).toFixed(2));
+                        $("#viewRoundOff").text(parseFloat(d.RoundOff || 0).toFixed(2));
+                        $("#viewInvoiceAmount").text(parseFloat(d.InvoiceAmount || 0).toFixed(2));
+
+                        // 3. Render Additional Charges Table Rows Correctly
+                        let addChargesTbody = $("#viewAdditionalChargesContainer");
+                        addChargesTbody.empty();
+
+                        if (d.AdditionalCharges && d.AdditionalCharges.length > 0) {
+                            d.AdditionalCharges.forEach((ac, idx) => {
+                                let row = `
+                                <tr>
+                                    <td>${idx + 1}</td>
+                                    <td>${ac.ChargeRemark || '--'}</td>
+                                    <td>₹ ${parseFloat(ac.ChargeValue || 0).toFixed(2)}</td>
+                                    <td>₹ ${parseFloat(ac.TotalCalculatedAmount || 0).toFixed(2)}</td>
+                                </tr>`;
+                                addChargesTbody.append(row);
+                            });
+                        } else {
+                            addChargesTbody.html(`<tr><td colspan="4" class="text-center text-muted">No additional charges found.</td></tr>`);
+                        }
+
+                        // 4. Render Items Sub-table inside the modal
+                        let itemTbody = $("#viewItemsTable tbody");
+                        itemTbody.empty();
+
+                        if (d.Details && d.Details.length > 0) {
+                            d.Details.forEach((item, index) => {
+                                let colorBreakdown = "";
+                                if (item.SubDetails && item.SubDetails.length > 0) {
+                                    colorBreakdown = item.SubDetails.map((sub, sIdx) =>
+                                        `${sIdx + 1}. ${sub.ColourName} (${sub.Qty} ${sub.Unit})`
+                                    ).join("<br/>");
+                                }
+
+                                let row = `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">${item.DesignName || item.DesignNo || '--'}</div>
+                                    </td>
+                                    <td>${item.Type || '--'}</td>
+                                    <td><small>${colorBreakdown || 'No colors specified'}</small></td>
+                                    <td>${item.Qty || 0}</td>
+                                    <td>${item.Unit || 'PCS'}</td>
+                                    <td>${parseFloat(item.BrokerRate || item.Rate || 0).toFixed(2)}</td>
+                                    <td>${parseFloat(item.Amount || 0).toFixed(2)}</td>
+                                </tr>`;
+                                itemTbody.append(row);
+                            });
+                        } else {
+                            itemTbody.html(`<tr><td colspan="8" class="text-center text-muted">No line items found.</td></tr>`);
+                        }
+
+                        // 5. Open Modal
+                        $("#viewSaleOrderModal").modal("show");
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to fetch order details.', 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'Server connection error occurred.', 'error');
+                }
+            });
+        });
+
+        $(document).on('click', '.delete', function () {
+            let id = $(this).data('id');
+            console.log("Delete Click:", id);
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Sale Order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteSaleOrder(id);
+                }
+            });
+        });
+
+        function deleteSaleOrder(id) {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/DeleteSaleOrder",
+                type: "POST",
+                data: JSON.stringify({ SaleOrderID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    let data = res.d;
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Sale Order deleted successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        loadSaleOrders(); // 🔄 reload table
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message
+                        });
+                    }
+                }
+            });
+        }
+
+        var selectedIds = [];
+        function getSelectedSaleorderID() {
+            selectedIds = [];
+            $("#saleOrderTable tbody .row-checkbox:checked").each(function () {
+                selectedIds.push($(this).val());
+            });
+            console.log("Selected IDs:", selectedIds);
+            return selectedIds;
+        }
+
+        $(document).on("change", "#selectAll", function () {
+            $("#saleOrderTable tbody .row-checkbox").prop(
+                "checked",
+                $(this).is(":checked")
+            );
+            getSelectedSaleorderID();
+        });
+
+        $(document).on("change", "#saleOrderTable tbody .row-checkbox", function () {
+            let totalCheckboxes = $("#saleOrderTable tbody .row-checkbox").length;
+            let checkedCheckboxes = $("#saleOrderTable tbody .row-checkbox:checked").length;
+            $("#selectAll").prop("checked", totalCheckboxes === checkedCheckboxes);
+            getSelectedSaleorderID();
+        });
+
+        $(document).on("click", "#btnGeneratePDF", function () {
+            getSelectedSaleorderID();
+            if (selectedIds.length === 0) {
+                showToast('warning', 'Please select at least one record');
+                return;
+            }
+            ExportPDF(selectedIds);
+        });
+
+        function ExportPDF(ids) {
+            // Check if IDs array is empty
+            if (!ids || ids.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please select at least one sale order.'
+                });
+                return;
+            }
+
+            $("#btnText").hide();
+            $("#btnLoader").show();
+            $("#btnGeneratePDF").prop("disabled", true); // Fixed context scope for $(this)
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/SaleOrderReport",
+                data: JSON.stringify({ saleOrderID: ids }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var result = response.d;
+                    console.log("Server Response:", result);
+
+                    // Reset UI states
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    if (result && result.Status && result.FilePath) {
+                        window.open(result.FilePath, "_blank");
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Notice',
+                            text: result.Message || 'PDF not generated'
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("AJAX Error:", xhr);
+
+                    // Reset UI states
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while generating the PDF.'
+                    });
+                }
+            });
+        }
+
+        function functionSearch() {
+            let search = $("#SearchRequirementNo").val()
+                .toLowerCase()
+                .trim();
+
+            FilteredSaleOrderList = SaleOrderList.filter(x =>
+                (x.OrderNo && x.OrderNo.toLowerCase().includes(search)) ||
+                (x.PartyName && x.PartyName.toLowerCase().includes(search))
+            );
+
+            currentPage = 1;
+            renderPage();
+        }
+    </script>
+}
+

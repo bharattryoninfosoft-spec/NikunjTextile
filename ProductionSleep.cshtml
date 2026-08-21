@@ -1,0 +1,411 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<style>
+    /* Clean up row lines and remove extra bottom borders per row */
+    #tblOrderListTable tbody tr,
+    #tblProductionReportTable tbody tr {
+        border-bottom: none !important;
+    }
+
+    #tblOrderListTable td,
+    #tblProductionReportTable td {
+        border-bottom: 1px solid #f2f2f2 !important;
+        border-top: none !important;
+    }
+</style>
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+
+    <!-- Main Page Row -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <!-- Header Title -->
+                    <div class="form-section-header" style="text-align: center; font-size: 16px; font-weight: bold; background: #28a745; color: white; padding: 6px; border-radius: 4px; margin-bottom: 20px;">
+                        FOR PRODUCTION SLEEP
+                    </div>
+
+                    <!-- Split Layout: Tables on Left (9 Cols), Filters on Right (3 Cols) -->
+                    <div class="row gutters">
+                        <!-- RIGHT COLUMN: Filters and Configuration Form -->
+                        <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 border-start ps-lg-3">
+                            <div class="form-section-header light-bg mb-3">Filters & Setup</div>
+
+                            <div class="field-wrapper mb-3">
+                                <select id="filterOrderNo" class="select-single detail" title="Sales Order No" data-live-search="true">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                                <div class="field-placeholder">Sales Order No</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <select id="filterOrderDate" class="select-single detail" title="Sales Order Date" data-live-search="true">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                                <div class="field-placeholder">Sales Order Date</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <select id="filterDesignNo" class="select-single detail" title="Design No" data-live-search="true">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                                <div class="field-placeholder">Design No</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <input type="text" class="form-control" id="txtWarpQuality" readonly placeholder="Warp Quality" />
+                                <div class="field-placeholder">Warp Quality</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <input type="text" class="form-control" id="txtWeftQuality" readonly placeholder="Weft Quality" />
+                                <div class="field-placeholder">Weft Quality</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <select id="filterColor" class="select-single detail" title="Color Maching" data-live-search="true">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                                <div class="field-placeholder">Color Maching</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <select id="filterPartyName" class="select-single detail" title="Party Name" data-live-search="true">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                                <div class="field-placeholder">Party Name With Address</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <input type="text" class="form-control border-primary" id="txtJobWorker" value="NIKUNJ TEXTILES" placeholder="Job Worker" />
+                                <div class="field-placeholder">Job Worker</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <input type="number" class="form-control border-primary" id="txtJobRate" value="128" placeholder="Job Rate" />
+                                <div class="field-placeholder">Job Rate</div>
+                            </div>
+
+                            <div class="field-wrapper mb-3">
+                                <input type="text" class="form-control" id="txtTraders" placeholder="Traders" />
+                                <div class="field-placeholder">Traders</div>
+                            </div>
+                        </div>
+                        <!-- LEFT COLUMN: Main Data Tables & Actions -->
+                        <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+
+                            <!-- Main Data Table Section with Scrollable Body & Sticky Header -->
+                            <div class="row gutters">
+                                <div class="col-12">
+                                    <div class="form-section-header light-bg">Order Item Details</div>
+
+                                    <div class="table-responsive" style="max-height: 350px; overflow-y: auto; display: block; border: 1px solid #e0e0e0;">
+                                        <table class="tbl-item-detail table-clean mb-0" id="tblOrderListTable" style="width: 100%;">
+                                            <thead style="position: sticky; top: 0; z-index: 10; background-color: #0067ff;">
+                                                <tr style="background-color: #0067ff; color: white;">
+                                                    <th style="width: 4%; text-align:center; color:white; background-color: #0067ff;">#</th>
+                                                    <th style="width: 0%; text-align:center; color:white; background-color: #0067ff;">Order No</th>
+                                                    <th style="width: 11%; text-align:center; color:white; background-color: #0067ff;">Order Date</th>
+                                                    <th style="width: 25%; text-align:center; color:white; background-color: #0067ff;">Party Name</th>
+                                                    <th style="width: 10%; text-align:center; color:white; background-color: #0067ff;">Design No</th>
+                                                    <th style="width: 18%; text-align:center; color:white; background-color: #0067ff;">Color Maching</th>
+                                                    <th style="width: 6%; text-align:center; color:white; background-color: #0067ff;">Pcs</th>
+                                                    <th style="width: 8%; text-align:center; color:white; background-color: #0067ff;">Production</th>
+                                                    <th style="width: 8%; text-align:center; color:white; background-color: #0067ff;">Pending PC</th>
+                                                    <th style="width: 0%; text-align:center; color:white; background-color: #0067ff; display:none;">Rate</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tblOrderListBody">
+                                                <tr>
+                                                    <td colspan="10" class="text-center text-muted py-4">No data loaded yet.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mt-4" />
+
+                            <!-- Production Report Summary Section -->
+                            <div class="row gutters mt-3">
+                                <div class="col-12">
+                                    <div class="form-section-header light-bg">Production Report Summary</div>
+
+                                    <div class="table-responsive">
+                                        <table class="tbl-item-detail table-clean" id="tblProductionReportTable">
+                                            <thead>
+                                                <tr style="background-color: #0067ff; color: white;">
+                                                    <th style="width: 22%; text-align:center; color: white; background-color: #0067ff;">Job Worker</th>
+                                                    <th style="width: 0%; text-align:center; color:white; background-color: #0067ff;">Order No</th>
+                                                    <th style="width: 12%; text-align:center; color:white; background-color: #0067ff;">Pro. Date</th>
+                                                    <th style="width: 12%; text-align:center; color:white; background-color: #0067ff;">Design No</th>
+                                                    <th style="width: 22%; text-align:center; color: white; background-color: #0067ff;">Color Maching</th>
+                                                    <th style="width: 8%; text-align:center; color:white; background-color: #0067ff;">Pcs</th>
+                                                    <th style="width: 10%; text-align:center; color:white; background-color: #0067ff;">Job Rate</th>
+                                                    <th style="width: 12%; text-align:center; color:white; background-color: #0067ff;">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tblProductionReportBody">
+                                                <tr>
+                                                    <td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="5" class="text-end fw-bold align-middle">TOTAL:</td>
+                                                    <td class="text-center align-middle fw-bold text-primary" id="lblTotalPcs">0</td>
+                                                    <td></td>
+                                                    <td class="text-center align-middle fw-bold text-success" id="lblTotalAmount">0.00</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br />
+
+                            <!-- Bottom Action Buttons Matching PO Page -->
+                            <div class="modal-footer px-0 pb-0">
+                                <a href="Dashboard" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i> Back</a>
+                                <button id="btnAddForProduction" type="button" class="btn btn-primary" style="font-size: medium;">Add For Production</button>
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        $(document).ready(function () {
+            let globalOrderData = [];
+            let selectedItemsMap = {};
+
+            loadPendingOrders();
+
+            function loadPendingOrders() {
+                $.ajax({
+                    url: 'WebServiceNikunjTextile.asmx/GetPendingOrdersForProduction',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (res) {
+                        globalOrderData = res;
+                        renderTable(res);
+                        populateDropdownFilters(res);
+                    }
+                });
+            }
+
+            function renderTable(data) {
+                let rows = '';
+                let currentOrderNo = '';
+
+                if (!data || data.length === 0) {
+                    $('#tblOrderListBody').html('<tr><td colspan="10" class="text-center text-muted py-4">No pending records found.</td></tr>');
+                    return;
+                }
+
+                $.each(data, function (i, item) {
+                    if (currentOrderNo !== item.OrderNo) {
+                        currentOrderNo = item.OrderNo;
+                        rows += `<tr class="table-secondary fw-bold text-start" style="background-color: #00bb5c;color:white;" data-orderno="${item.OrderNo}">
+                                            <td class="text-center"><input type="checkbox" class="chk-order-group" /></td>
+                                            <td colspan="9" class="">${item.OrderNo} &nbsp;|&nbsp; Date: ${item.OrderDate}</td>
+                                       </tr>`;
+                    }
+
+                    let defaultPcs = item.Qty;
+                    let subId = item.SubDetailID;
+                    let isChecked = selectedItemsMap.hasOwnProperty(subId) ? 'checked' : '';
+                    let prodVal = selectedItemsMap.hasOwnProperty(subId) ? selectedItemsMap[subId].prodPcs : 0;
+                    let endingVal = defaultPcs - prodVal;
+                    let activeClass = isChecked ? 'table-active' : '';
+
+                    rows += `<tr class="${activeClass}" data-subid="${subId}" data-orderno="${item.OrderNo}">
+                                        <td class="text-center"><input type="checkbox" class="chk-subitem" ${isChecked}
+                                            data-orderno="${item.OrderNo}"
+                                            data-date="${item.OrderDate}"
+                                            data-party="${item.PartyName}"
+                                            data-design="${item.DesignNo}"
+                                            data-color="${item.ColourName}"
+                                            data-maxpcs="${defaultPcs}"
+                                            data-rate="${item.Rate}" /></td>
+                                        <td class="text-center fw-semibold text-secondary">${item.OrderNo}</td>
+                                        <td class="text-center">${item.OrderDate}</td>
+                                        <td class="text-center">${item.PartyName}</td>
+                                        <td class="text-center fw-semibold">${item.DesignNo}</td>
+                                        <td class="text-center">${item.ColourName}</td>
+                                        <td class="text-center td-pcs fw-bold">${defaultPcs}</td>
+                                        <td class="text-center"><input type="number" class="form-control form-control-sm text-center p-0 txt-production border-primary" value="${prodVal}" min="0" max="${defaultPcs}" style="width:65px; margin:auto;" /></td>
+                                        <td class="text-center td-ending fw-bold text-danger">${endingVal}</td>
+                                        <td class="text-center text-muted" style="display:none;">${item.Rate}</td>
+                                       </tr>`;
+                });
+                $('#tblOrderListBody').html(rows);
+            }
+
+            function populateDropdownFilters(data) {
+                let orders = [], dates = [], designs = [], parties = [], colors = [];
+
+                $.each(data, function (i, item) {
+                    if (!orders.includes(item.OrderNo)) orders.push(item.OrderNo);
+                    if (!dates.includes(item.OrderDate)) dates.push(item.OrderDate);
+                    if (!designs.includes(item.DesignNo)) designs.push(item.DesignNo);
+                    if (!parties.includes(item.PartyName)) parties.push(item.PartyName);
+                    if (!colors.includes(item.ColourName)) colors.push(item.ColourName);
+                });
+
+                fillSelect('#filterOrderNo', orders);
+                fillSelect('#filterOrderDate', dates);
+                fillSelect('#filterDesignNo', designs);
+                fillSelect('#filterPartyName', parties);
+                fillSelect('#filterColor', colors);
+            }
+
+            function fillSelect(selector, array) {
+                let $el = $(selector);
+                $el.empty().append('<option value="">-- ALL --</option>');
+                $.each(array, function (i, val) {
+                    $el.append(`<option value="${val}">${val}</option>`);
+                });
+            }
+
+            $('#filterOrderNo, #filterOrderDate, #filterDesignNo, #filterPartyName, #filterColor').change(function () {
+                let fOrder = $('#filterOrderNo').val();
+                let fDate = $('#filterOrderDate').val();
+                let fDesign = $('#filterDesignNo').val();
+                let fParty = $('#filterPartyName').val();
+                let fColor = $('#filterColor').val();
+
+                let filtered = globalOrderData.filter(x => {
+                    return (!fOrder || x.OrderNo === fOrder) &&
+                        (!fDate || x.OrderDate === fDate) &&
+                        (!fDesign || x.DesignNo === fDesign) &&
+                        (!fParty || x.PartyName === fParty) &&
+                        (!fColor || x.ColourName === fColor);
+                });
+                renderTable(filtered);
+            });
+
+            $(document).on('input', '.txt-production', function () {
+                let $tr = $(this).closest('tr');
+                let subId = $tr.data('subid');
+                let maxPcs = parseFloat($tr.find('.td-pcs').text()) || 0;
+                let prodPcs = parseFloat($(this).val()) || 0;
+
+                if (prodPcs > maxPcs) {
+                    alert("Production pieces cannot exceed total order pieces!");
+                    $(this).val(maxPcs);
+                    prodPcs = maxPcs;
+                }
+
+                let endingPc = maxPcs - prodPcs;
+                $tr.find('.td-ending').text(endingPc);
+
+                let $chk = $tr.find('.chk-subitem');
+                if ($chk.is(':checked')) {
+                    selectedItemsMap[subId] = { prodPcs: prodPcs };
+                    updateProductionReportRow($tr, $chk);
+                }
+            });
+
+            $(document).on('change', '.chk-subitem', function () {
+                let $tr = $(this).closest('tr');
+                let isChecked = $(this).is(':checked');
+                let subId = $tr.data('subid');
+
+                if (isChecked) {
+                    let $prodInput = $tr.find('.txt-production');
+                    if (parseFloat($prodInput.val()) === 0) {
+                        $prodInput.val($tr.find('.td-pcs').text());
+                    }
+                    let prodPcs = parseFloat($prodInput.val()) || 0;
+                    let maxPcs = parseFloat($tr.find('.td-pcs').text()) || 0;
+
+                    $tr.find('.td-ending').text(maxPcs - prodPcs);
+                    selectedItemsMap[subId] = { prodPcs: prodPcs };
+
+                    addOrUpdateReportRow($tr, $(this));
+                    $tr.addClass('table-active');
+                } else {
+                    delete selectedItemsMap[subId];
+                    $(`#tblProductionReportBody tr[data-reportid="${subId}"]`).remove();
+                    calculateTotals();
+                    $tr.removeClass('table-active');
+                }
+            });
+
+            function addOrUpdateReportRow($tr, $chk) {
+                let subId = $tr.data('subid');
+                let jobWorker = $('#txtJobWorker').val();
+                let orderNo = $chk.data('orderno');
+                let currentDate = new Date().toLocaleDateString();
+                let designNo = $chk.data('design');
+                let colorName = $chk.data('color');
+                let prodPcs = parseFloat($tr.find('.txt-production').val()) || 0;
+                let jobRate = parseFloat($('#txtJobRate').val()) || 128;
+                let amount = prodPcs * jobRate;
+
+                if ($('#tblProductionReportBody tr td.text-muted').length > 0) {
+                    $('#tblProductionReportBody').empty();
+                }
+
+                let existingRow = $(`#tblProductionReportBody tr[data-reportid="${subId}"]`);
+                let newRowHtml = `<tr data-reportid="${subId}">
+                                            <td class="text-center">${jobWorker}</td>
+                                            <td class="text-center">${orderNo}</td>
+                                            <td class="text-center">${currentDate}</td>
+                                            <td class="text-center">${designNo}</td>
+                                            <td class="text-start">${colorName}</td>
+                                            <td class="text-center rep-pcs fw-bold">${prodPcs}</td>
+                                            <td class="text-center">${jobRate.toFixed(2)}</td>
+                                            <td class="text-center rep-amt fw-bold text-success">${amount.toFixed(2)}</td>
+                                         </tr>`;
+
+                if (existingRow.length > 0) {
+                    existingRow.replaceWith(newRowHtml);
+                } else {
+                    $('#tblProductionReportBody').append(newRowHtml);
+                }
+                calculateTotals();
+            }
+
+            function updateProductionReportRow($tr, $chk) {
+                if ($chk.is(':checked')) {
+                    addOrUpdateReportRow($tr, $chk);
+                }
+            }
+
+            function calculateTotals() {
+                let totalPcs = 0;
+                let totalAmount = 0;
+
+                $('#tblProductionReportBody tr[data-reportid]').each(function () {
+                    totalPcs += parseFloat($(this).find('.rep-pcs').text()) || 0;
+                    totalAmount += parseFloat($(this).find('.rep-amt').text()) || 0;
+                });
+
+                if ($('#tblProductionReportBody tr[data-reportid]').length === 0) {
+                    $('#tblProductionReportBody').html('<tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
+                }
+
+                $('#lblTotalPcs').text(totalPcs);
+                $('#lblTotalAmount').text(totalAmount.toFixed(2));
+            }
+        });
+    </script>
+}

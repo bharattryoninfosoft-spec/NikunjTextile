@@ -1,0 +1,998 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+
+
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Yarn Inter Change</div>
+                    <br />
+                    <!--Images-->
+                    <div class="row gutters">
+
+
+                        <!-- Button trigger modal -->
+                        <button type="button" id="btnYarnInterChngeLedger" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#exampleModalExtraLarge" style="display:none;">
+                            Modal Extra Large
+                        </button>
+
+                        <!-- Modal start -->
+                        <div class="modal fade" id="exampleModalExtraLarge" tabindex="-1" aria-labelledby="exampleModalExtraLargeTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalExtraLargeTitle">Yarn Inter Change Ledger</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+
+
+
+
+
+
+                                        <div class="row gutters">
+                                            <div class="col-12">
+                                                <div class="table-responsive">
+
+                                                    <table class="table table-bordered" style="overflow: hidden; border:1px solid;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:5%;">#</th>
+                                                                <th style="width:15%;">Date And Time</th>
+                                                                <th style="width:11%;">Box No<br> Net Weight</th>
+                                                                <th style="width:11%;">Yarn <br> Material</th>
+                                                                <th style="width:11%;">Yarn Code<br> Yarn Color</th>
+                                                                <th style="width:10%;">Godown</th>
+                                                                <th style="width:10%;">Godown<br /> Location</th>
+
+
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody id="tableYarnInterchangeLedger"></tbody>
+
+
+
+
+
+                                                    </table>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal end -->
+
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm">
+
+                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+
+                            </div>
+
+                            <!-- Field wrapper end -->
+
+                        </div>
+
+
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <!--Weft Data -->
+
+                    <div class="row gutters">
+
+                        <style>
+                            table {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table, th, td {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table {
+                                border-collapse: collapse; /* Collapses borders */
+                            }
+                        </style>
+
+
+
+
+
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+
+
+
+                            <div class="card">
+
+                                <div class="card-body">
+
+                                    <!-- Row start -->
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px; ">
+                                        <div id="notes"></div>
+
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+
+
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlGodownID" class="select-single detail" title="Godown" data-live-search="true" onchange="OnChangeGown(this.value)">
+                                                            <option value="-1">Godown</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Godown</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlLocation" class="select-single detail" title="Location" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">Location</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Location</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlSupplier" class="select-single detail" title="PO & Supplier" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">PO & Supplier</option>
+                                                        </select>
+                                                        <div class="field-placeholder">PO & Supplier</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+                                            </div>
+
+
+                                            <div class="row gutters">
+
+
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlYarnMaterial" class="select-single detail" title="Yarn Material" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">Material</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Material</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlYarnColor" class="select-single detail" title="Yarn Color" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">Color</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Color</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlYarnCode" class="select-single detail" title="Yarn Code" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">Code</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Code</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlBoxNo" class="select-single detail" title="Box No" data-live-search="true" disabled onchange="onchangeYarnInterChange()">
+                                                            <option value="-1">Box No</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Box No</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+
+
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <h5 id="hGodownDetail" style=" margin-top: 20px;"></h5>
+                                                        <div class="field-placeholder" style="top: -20px;">Godown</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+                                                <div class="col-3">
+
+                                                    <!-- Field wrapper start -->
+                                                    <!--<div class="field-wrapper">
+                                                        <h5 id="hLocationDetail" style=" margin-top: 20px;"></h5>
+                                                        <div class="field-placeholder" style="top: -20px;">Location Detail</div>-->
+                                                    <!-- Field wrapper end -->
+                                                    <!--</div>-->
+
+
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlLocationDetail" class="select-single detail" title="Location" data-live-search="true" disabled>
+                                                            <option value="-1">Location</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Location</div>
+                                                    </div>
+
+                                                </div>
+
+
+
+
+                                            </div>
+                                            <!-- Row end -->
+                                        </div>
+
+                                        <hr />
+
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                            <div class="col-12">
+                                                @*<div class="form-section-header light-bg" style="text-align: center; margin: 0; padding: 0; background-color: transparent !important; font-size: large; "> SIFT/ MOVE TO &nbsp; <i class="fa fa fa-arrow-right"></i></div>*@
+                                                <input type="hidden" id="siftYarnInwardDetailID" class="form-control" placeholder="Yarn Inward DetailI D" title="YarnInwardDetailID" />
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                                        </div>
+
+
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+
+
+                                            <br />
+
+                                            <div class="row gutters">
+                                                <div class="col-12">
+                                                    <div class="table-responsive">
+
+                                                        <table class="table table-bordered" style="overflow: hidden;">
+                                                            <thead>
+                                                                <tr class="text-center">
+                                                                    <th style="width:5%;">#</th>
+                                                                    <th style="width:20%;">Name</th>
+                                                                    <th style="width:15%;"> Material</th>
+                                                                    <th style="width:13%;"> Color</th>
+                                                                    <th style="width:11%;"> Code</th>
+                                                                    <th style="width:11%;"> No</th>
+                                                                    <th style="width:10%;">Net <br /> Weight</th>
+                                                                    <th style="width: 10%; border-left: 1px solid #c3c3c3;">Sift To</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody id="tableYarnData">
+                                                            </tbody>
+
+
+
+
+
+                                                        </table>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style=" border-left: 1px solid #c3c3c3;">
+
+
+                                            <br />
+
+                                            <div class="row gutters">
+                                                <div class="col-12">
+                                                    <div class="table-responsive">
+
+                                                        <table class="table table-bordered" style="overflow: hidden;">
+                                                            <thead>
+                                                                <tr class="text-center">
+                                                                    <th style="width: 10%; border-right: 1px solid #c3c3c3;">Sift Back</th>
+                                                                    <th style="width:5%;">#</th>
+                                                                    <th style="width:20%;"> Name</th>
+                                                                    <th style="width:15%;"> Material</th>
+                                                                    <th style="width:13%;"> Color</th>
+                                                                    <th style="width:11%;"> Code</th>
+                                                                    <th style="width:11%;"> No</th>
+                                                                    <th style="width:10%;">Net <br /> Weight</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tableSiftYarnData">
+                                                            </tbody>
+
+
+
+
+
+                                                        </table>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+
+
+                                    </div>
+                                    <!-- Row end -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divMatchingColor">
+                    </div>
+                    <br />
+                    <div class="modal-footer">
+                        <a href="YarnPO" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                        <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+
+        // Configure SweetAlert2 Toast helper for non-blocking alerts
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#savebtn").hide();
+                }
+            }
+
+            var liSelected;
+            $(document).keydown(function (key) {
+                var li = $('li');
+                switch (parseInt(key.which, 10)) {
+                    case 27: // Esc Key
+                        $("#DivDDLItemDetail").hide();
+                        $("#DivAddItem").show();
+                        $("#CloseItemModel").click();
+                        $("#cancelbtn").click();
+                        $("#cancelItembtn").click();
+                        break;
+                    case 40:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.next();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.eq(0).addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                        break;
+                    case 38:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.prev();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.last().addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+
+            $("#YarnForm-tab").addClass("active");
+            $("#tab-YarnForm").addClass("show active");
+            $("#aYarnInterChange").addClass("current-page");
+
+            FunctionIsLogin();
+            getGodownDetail();
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: request.statusText || 'Failed to fetch default company.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function validate(code) {
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "0" || code.value == "") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+
+        function getGodownDetail() {
+            var formData = new FormData();
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        if (response.listGodownMaster.length > 0) {
+                            $('#ddlGodownID').empty();
+                            var tempPartyName = "<option value='0'> Select Godown </option>";
+                            $('#ddlGodownID').append(tempPartyName);
+
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>";
+                                $('#ddlGodownID').append(tempPartyName);
+                            }
+                        }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function OnChangeGown(GodownID) {
+            $("#siftYarnInwardDetailID").val('');
+            $("#tableSiftYarnData").html('');
+            onchangeYarnInterChange();
+            OnChangeLocation(GodownID);
+
+            $("#hGodownDetail").html($('#ddlGodownID').find(":selected").text());
+
+            $('#ddlSupplier').prop('disabled', true).empty().append("<option value='0'> Select PO & Supplier </option>");
+            $('#ddlYarnMaterial').prop('disabled', true).empty().append("<option value='0'> Yarn Material </option>");
+            $('#ddlYarnColor').prop('disabled', true).empty().append("<option value='0'> Yarn Color </option>");
+            $('#ddlYarnCode').prop('disabled', true).empty().append("<option value='0'> Yarn Code </option>");
+            $('#ddlBoxNo').prop('disabled', true).empty().append("<option value='0'> Box No </option>");
+
+            var formData = new FormData();
+            formData.append('GodownID', GodownID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getLocationDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        if (response.listGodownMaster.length > 0) {
+                            $('#ddlLocation').empty();
+                            $('#ddlLocationDetail').empty();
+                            $('#ddlLocation').prop('disabled', false);
+                            $('#ddlLocationDetail').prop('disabled', false);
+
+                            var tempPartyName = "<option value='0'> Select Location </option>";
+                            $('#ddlLocation').append(tempPartyName);
+                            $('#ddlLocationDetail').append(tempPartyName);
+
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listGodownMaster[i].GodownLocationID + "'> " + response.listGodownMaster[i].LocationTitle + " </option>";
+                                $('#ddlLocation').append(tempPartyName);
+                                $('#ddlLocationDetail').append(tempPartyName);
+                            }
+                        }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function OnChangeLocation(ddlGodownID) {
+            onchangeYarnInterChange();
+
+            $('#ddlYarnColor').prop('disabled', true).empty().append("<option value='0'> Yarn Color </option>");
+            $('#ddlYarnCode').prop('disabled', true).empty().append("<option value='0'> Yarn Code </option>");
+            $('#ddlBoxNo').prop('disabled', true).empty().append("<option value='0'> Box No </option>");
+            $('#ddlYarnMaterial').prop('disabled', true).empty().append("<option value='0'> Yarn Material </option>");
+            $('#ddlSupplier').prop('disabled', true).empty().append("<option value='0'> Select PO & Supplier   </option>");
+
+            var formData = new FormData();
+            formData.append('GodownID', ddlGodownID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnMateraColorSupplier',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        if (response.listYarnPOMaster.length > 0) {
+                            $('#ddlSupplier').empty().prop('disabled', false);
+                            $('#ddlSupplier').append("<option value='0'> Select PO & Supplier </option>");
+                            for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+                                $('#ddlSupplier').append("<option value='" + response.listYarnPOMaster[i].YarnPOID + "'> " + response.listYarnPOMaster[i].PONo + " - " + response.listYarnPOMaster[i].CompanyPartyName + " </option>");
+                            }
+                        } else {
+                            $('#ddlSupplier').empty().prop('disabled', true).append("<option value='0' selected> Select PO & Supplier </option>");
+                        }
+
+                        if (response.listYarnMaterialMaster.length > 0) {
+                            $('#ddlYarnMaterial').empty().prop('disabled', false);
+                            $('#ddlYarnMaterial').append("<option value='0'> Yarn Material </option>");
+                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+                                $('#ddlYarnMaterial').append("<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>");
+                            }
+                        } else {
+                            $('#ddlYarnMaterial').empty().prop('disabled', true).append("<option value='0' selected> Yarn Material </option>");
+                        }
+
+                        if (response.listYarnColorMaster.length > 0) {
+                            $('#ddlYarnColor').empty().prop('disabled', false);
+                            $('#ddlYarnColor').append("<option value='0'> Yarn Color </option>");
+                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+                                $('#ddlYarnColor').append("<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>");
+                            }
+                        } else {
+                            $('#ddlYarnColor').empty().prop('disabled', true).append("<option value='0' selected> Yarn Color </option>");
+                        }
+
+                        if (response.listYarnPODetails.length > 0) {
+                            $('#ddlYarnCode').empty().prop('disabled', false);
+                            $('#ddlYarnCode').append("<option value='0'> Yarn Code </option>");
+                            for (var i = 0; i < response.listYarnPODetails.length; i++) {
+                                $('#ddlYarnCode').append("<option value='" + response.listYarnPODetails[i].YarnPODetailID + "'> " + response.listYarnPODetails[i].CompanyCode + " </option>");
+                            }
+                        } else {
+                            $('#ddlYarnCode').empty().prop('disabled', true).append("<option value='0' selected> Yarn Code</option>");
+                        }
+
+                        if (response.listYarnInwardDetail.length > 0) {
+                            $('#ddlBoxNo').empty().prop('disabled', false);
+                            $('#ddlBoxNo').append("<option value='0'> Box No </option>");
+                            for (var i = 0; i < response.listYarnInwardDetail.length; i++) {
+                                $('#ddlBoxNo').append("<option value='" + response.listYarnInwardDetail[i].YarnInwardDetailID + "'> " + response.listYarnInwardDetail[i].BoxNo + " </option>");
+                            }
+                        } else {
+                            $('#ddlBoxNo').empty().prop('disabled', true).append("<option value='0' selected> Box No</option>");
+                        }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function onchangeYarnInterChange() {
+            var ddlGodownID = $("#ddlGodownID").val();
+            var YarnMaterialID = $("#ddlYarnMaterial").val();
+            var YarnColorID = $("#ddlYarnColor").val();
+            var GodownLocationID = $("#ddlLocation").val();
+            var YarnPODetailIDCompanyCode = $("#ddlYarnCode").val();
+            var YarnPOID = $("#ddlSupplier").val();
+            var YarnInwardDetailID = $("#ddlBoxNo").val();
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+
+            if (ddlGodownID != 0 && ddlGodownID != "") {
+                var formData = new FormData();
+                formData.append('GodownID', ddlGodownID);
+                formData.append('GodownLocationID', GodownLocationID);
+                formData.append('YarnMaterialID', YarnMaterialID);
+                formData.append('YarnColorID', YarnColorID);
+                formData.append('YarnPODetailIDCompanyCode', YarnPODetailIDCompanyCode);
+                formData.append('YarnPOID', YarnPOID);
+                formData.append('YarnInwardDetailID', YarnInwardDetailID);
+                formData.append('YarnInwardDetailIDs', siftYarnInwardDetailID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getYarnInterChangeTable',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == "200") {
+                            if (response.listYarnInterChangeMaster.length > 0) {
+                                var tempInterChangeTbl = "";
+                                var SRno = 0;
+                                for (var i = 0; i < response.listYarnInterChangeMaster.length; i++) {
+                                    SRno = i + 1;
+                                    tempInterChangeTbl += "<tr id='tr_" + response.listYarnInterChangeMaster[i].YarnInwardDetailID + "'>";
+                                    tempInterChangeTbl += "<td>" + SRno + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].PartyName + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnMaterial + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnColor + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].CompanyCode + "</td>";
+                                    tempInterChangeTbl += "<td><a href='javascript:void(0)' onclick='functionYarnInwardDetailId(" + response.listYarnInterChangeMaster[i].YarnInwardDetailID + ")'> <u>" + response.listYarnInterChangeMaster[i].BoxNo + "</u> </a></td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].NetWeight + "</td>";
+                                    tempInterChangeTbl += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='yarnsift(" + response.listYarnInterChangeMaster[i].YarnInwardDetailID + ")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
+                                    tempInterChangeTbl += "</tr>";
+                                }
+                                $("#tableYarnData").html(tempInterChangeTbl);
+                            } else {
+                                $("#tableYarnData").html('');
+                            }
+                        }
+                    },
+                    error: function (request, status, error) { }
+                });
+            }
+        }
+
+        function functionYarnInwardDetailId(YarnInwardDetailID) {
+            if (YarnInwardDetailID != 0) {
+                var formData = new FormData();
+                formData.append('YarnInwardDetailID', YarnInwardDetailID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getYarnInterChangeLedgerTable',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == "200") {
+                            if (response.listYarnInterChangeMaster.length > 0) {
+                                var tempInterChangeTbl = "";
+                                var SRno = 0;
+                                for (var i = 0; i < response.listYarnInterChangeMaster.length; i++) {
+                                    SRno = i + 1;
+                                    tempInterChangeTbl += "<tr id='tr_" + response.listYarnInterChangeMaster[i].YarnInterchangeID + "'>";
+                                    tempInterChangeTbl += "<td>" + SRno + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].DateAndTimes + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].BoxNo + " <br /> " + response.listYarnInterChangeMaster[i].NetWeight + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnMaterial + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnColorCode + "<br /> " + response.listYarnInterChangeMaster[i].YarnColor + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].GodownTitle + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].LocationTitle + "</td>";
+                                    tempInterChangeTbl += "</tr>";
+                                }
+                                $("#tableYarnInterchangeLedger").html(tempInterChangeTbl);
+                                $("#btnYarnInterChngeLedger").click();
+                            } else {
+                                $("#tableYarnInterchangeLedger").html('');
+                                Toast.fire({
+                                    icon: 'warning',
+                                    title: 'No Record Found.'
+                                });
+                            }
+                        }
+                    },
+                    error: function (request, status, error) { }
+                });
+            }
+        }
+
+        function yarnsift(YarnInwardDetailID) {
+            var currentVal = $("#siftYarnInwardDetailID").val();
+            var trYarnInwardDetailID = "#tr_" + YarnInwardDetailID + "";
+            $(trYarnInwardDetailID).remove();
+
+            if (currentVal == "") {
+                $("#siftYarnInwardDetailID").val(YarnInwardDetailID + ",");
+            } else {
+                $("#siftYarnInwardDetailID").val(currentVal + YarnInwardDetailID + ",");
+            }
+            onsiftYarnInterChange();
+        }
+
+        function onsiftYarnInterChange() {
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+
+            if (siftYarnInwardDetailID != 0 && siftYarnInwardDetailID != "") {
+                var formData = new FormData();
+                formData.append('YarnInwardDetailID', siftYarnInwardDetailID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getSiftYarnInterChangeTable',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == "200") {
+                            if (response.listYarnInterChangeMaster.length > 0) {
+                                var tempInterChangeTbl = "";
+                                var SRno = 0;
+                                for (var i = 0; i < response.listYarnInterChangeMaster.length; i++) {
+                                    SRno = i + 1;
+                                    tempInterChangeTbl += "<tr id='tr_" + response.listYarnInterChangeMaster[i].YarnInwardDetailID + "'>";
+                                    tempInterChangeTbl += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='yarnsiftback(" + response.listYarnInterChangeMaster[i].YarnInwardDetailID + ")'><img src='/img/left-rrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
+                                    tempInterChangeTbl += "<td>" + SRno + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].PartyName + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnMaterial + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].YarnColor + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].CompanyCode + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].BoxNo + "</td>";
+                                    tempInterChangeTbl += "<td>" + response.listYarnInterChangeMaster[i].NetWeight + "</td>";
+                                    tempInterChangeTbl += "</tr>";
+                                }
+                                $("#tableSiftYarnData").html(tempInterChangeTbl);
+                            } else {
+                                $("#tableSiftYarnData").html('');
+                            }
+                        }
+                    },
+                    error: function (request, status, error) { }
+                });
+            }
+        }
+
+        function yarnsiftback(YarnInwardDetailID) {
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+            var YIDID = YarnInwardDetailID + ",";
+            var newdata = siftYarnInwardDetailID.replace(YIDID, "");
+
+            $("#siftYarnInwardDetailID").val(newdata);
+
+            var trYarnInwardDetailID = "#tr_" + YarnInwardDetailID + "";
+            $(trYarnInwardDetailID).remove();
+
+            onchangeYarnInterChange();
+        }
+
+        function checkSave() {
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+            var GodownLocationID = $("#ddlLocationDetail").val();
+
+            if (siftYarnInwardDetailID == "") {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please Sift Any Yarn.'
+                });
+            }
+            else if (GodownLocationID <= 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please Select Godown Location.'
+                });
+            }
+            else {
+                var cleanIds = siftYarnInwardDetailID.replace(/,\s*$/, "");
+                var formData = new FormData();
+                formData.append('YarnInwardDetailIDs', cleanIds);
+                formData.append('GodownLocationID', GodownLocationID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertYarnInterChangeTable',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            $("#ddlLocationDetail").val('0');
+                            $("#select2-ddlLocationDetail-container").html('Select Location');
+                            $("#siftYarnInwardDetailID").val('');
+                            $("#tableSiftYarnData").html('');
+                            onsiftYarnInterChange();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Operation Failed',
+                            text: 'An error occurred while saving. Please try again.'
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+}

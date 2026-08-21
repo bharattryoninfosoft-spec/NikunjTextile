@@ -1,0 +1,2312 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+<!-- Loading wrapper start -->
+<div id="loading-wrapper">
+    <div class="spinner-border"></div>
+    Loading...
+</div>
+<!-- Loading wrapper end -->
+
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Update Yarn Inward</div>
+                    <br />
+                    <!--Images-->
+                    <div class="row gutters">
+
+
+
+
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <!-- Field wrapper start -->
+                            <div id="dropzone-sm">
+
+                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+
+                            </div>
+
+                            <!-- Field wrapper end -->
+
+                        </div>
+
+
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+                    <!--Weft Data -->
+
+                    <div class="row gutters">
+
+                        <style>
+                            table {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table, th, td {
+                                border: none; /* Removes all borders */
+                            }
+
+                            table {
+                                border-collapse: collapse; /* Collapses borders */
+                            }
+                        </style>
+
+
+
+
+
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+
+
+
+                            <div class="card">
+
+                                <div class="card-body">
+                                    <input type="hidden" id="YarnInwardID" class="form-control datepicker">
+                                    <!-- Row start -->
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px; ">
+                                        <div id="notes"></div>
+
+
+
+                                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+
+
+
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control datepicker" id="txtChallanDate" title="Challan Date" placeholder="Date">
+                                                        <div class="field-placeholder">Challan Date <sup style="color:red;">*</sup></div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="tel" class="form-control" id="txtPartyChallanNo" title="Party Challan No" placeholder="0" maxlength="25" onkeyup="validate(this)">
+                                                        <div class="field-placeholder">Party Challan No <sup style="color:red;">*</sup> </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+
+                                                <div class="col-6" style="display:none;">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control datepicker" id="txtInwardDate" title="Inward Date" placeholder="Date">
+                                                        <div class="field-placeholder">Date</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+                                                <div class="col-6" style="display:none;">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="tel" class="form-control" id="txtChallanNo" title="ChallanNo" placeholder="0" maxlength="5" onkeyup="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57 )" readonly>
+                                                        <div class="field-placeholder">Challan No</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <div style="display:none;">
+                                                            <!--<select id="ddlPONumber" class="select-single detail" title="Select Supplier" data-live-search="true" onchange="OnPONumber(this.value)" style="display:none;">
+                                                            </select>-->
+                                                            <input type="hidden" id="ddlPONumber" class="form-control" />
+                                                        </div>
+                                                        <label id="PYarnPONo" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; "></label>
+                                                        <div class="field-placeholder">PO Number <sup style="color:red;">*</sup></div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalExtraLarge" style=" width: 100%;" onclick="getPendingPOForm()"><i class="fa fa-plus"></i> PENDING PO</button>
+
+
+                                                        <!-- Modal start -->
+                                                        <div class="modal fade" id="exampleModalExtraLarge" tabindex="-1" aria-labelledby="exampleModalExtraLargeTitle" aria-hidden="true">
+                                                            <div class="modal-dialog modal-xl">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalExtraLargeTitle">Yarn Pending PO</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+
+
+
+
+                                                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+                                                                            <div class="card">
+                                                                                <div class="card-body">
+
+
+                                                                                    <div class="row gutters">
+
+
+
+                                                                                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                                                                                        </div>
+
+
+
+                                                                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                                            <!-- Field wrapper start -->
+                                                                                            <div class="field-wrapper">
+                                                                                                <!-- Yarn PO No. / Supplier Name / Bill To Name / Company Name / Godown Name / YarnMaterial-->
+                                                                                                <input id="SearchRequirementNo" placeholder="Search." type="text" class="form-control clear-field detail" onkeyup="getPendingPOForm()">
+                                                                                                <div class="field-placeholder">Search </div>
+                                                                                            </div>
+                                                                                            <!-- Field wrapper end -->
+                                                                                        </div>
+                                                                                    </div>
+
+
+                                                                                    <div class="table-responsive">
+
+                                                                                        <input type="hidden" id="PendingYarnPODetailID" value="0" />
+                                                                                        <input type="hidden" id="PendingYarnPOID" value="0" />
+                                                                                        <input type="hidden" id="PendingPONo" value="0" />
+                                                                                        <input type="hidden" id="PendingYarnMaterialID" value="0" />
+                                                                                        <input type="hidden" id="PendingYarnColorID" value="0" />
+                                                                                        <input type="hidden" id="PendingCompanyCode" value="0" />
+
+                                                                                        <table id="tblPendingPO" class="table table-bordered" style="border: 1px solid; overflow: hidden; text-align: center;">
+                                                                                            <thead>
+                                                                                                <tr style=" background-color: #1273eb;">
+                                                                                                    <th style="color: white !important;">Sr No</th>
+                                                                                                    <th style="color: white !important;">PO <br> No</th>
+                                                                                                    <th style="color: white !important;">PO <br> Date</th>
+                                                                                                    <th style="color: white !important;">Supplier <br> Name</th>
+                                                                                                    <th style="color: white !important;">Bill To <br> Name</th>
+                                                                                                    <th style="color: white !important;">Company <br> Name</th>
+                                                                                                    <th style="color: white !important;">Godown <br> Details</th>
+                                                                                                    <th style="color: white !important;">Yarn <br> Material</th>
+                                                                                                    <th style="color: white !important;">Yarn <br> Color</th>
+                                                                                                    <th style="color: white !important;">Company <br> Code</th>
+                                                                                                    <th style="color: white !important;">Qty</th>
+                                                                                                    <th style="color: white !important;">Pending <br> Qty</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody></tbody>
+                                                                                        </table>
+                                                                                    </div>
+
+
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+
+
+
+
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnPendingClose">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Modal end -->
+
+
+
+
+
+
+
+                                                    </div>
+                                                </div>
+
+
+
+
+
+
+
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="CompanyName" title="CompanyName" placeholder="CompanyName" readonly>-->
+                                                        <label id="CompanyName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Company Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="ShippedToName" title="Shipped To Name" placeholder="Shipped To Name" readonly>-->
+                                                        <label id="ShippedToName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Shipped To Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="SupplierName" title="Supplier Name" placeholder="Supplier Name" readonly>-->
+                                                        <label id="SupplierName" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Supplier Name</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<textarea id="ShippedToAddress" class="form-control detail" rows="3" placeholder="Enter Shipped To Address" readonly></textarea>-->
+                                                        <label id="ShippedToAddress" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Shipped to Address</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <!--<input type="text" class="form-control" id="MobileNo" title="MobileNo" placeholder="MobileNo" readonly>-->
+                                                        <label id="MobileNo" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Mobile No</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                <hr />
+                                                <br />
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<select id="ddlYarnMaterial" class="select-single detail" title="Select Yarn Material" data-live-search="true" onchange="OnYarnMaterial(this.value)">
+                                                            <option value="0">Yarn Material</option>
+                                                        </select>-->
+                                                        <input type="hidden" id="ddlYarnMaterial" class="form-control" />
+                                                        <label id="lblYarnMaterial" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Select Yarn Material</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<select id="ddlYarnColor" class="select-single detail" title="Select Yarn Color" data-live-search="true" onchange="OnYarnColor(this.value)">
+                                                            <option value="0">Yarn Color</option>
+                                                        </select>-->
+                                                        <input type="hidden" id="ddlYarnColor" class="form-control" />
+                                                        <label id="lblYarnColor" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Select Yarn Color</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-6">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <!--<select id="ddlCompanyColourCode" class="select-single detail" title="Company Colour Code" data-live-search="true" onchange="OnYarnTotalWeightChange(this.value)">
+                                                            <option value="0">Colour Code</option>
+                                                        </select>-->
+                                                        <input type="hidden" id="ddlCompanyColourCode" class="form-control" />
+                                                        <label id="lblCompanyColourCode" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+                                                        <div class="field-placeholder">Colour Code</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="txtLotNo" title="Lot No" placeholder="Lot No">
+                                                        <!--<label id="lblLotNo" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>-->
+                                                        <div class="field-placeholder">Lot No</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control" id="ReceivePOQty" hidden>
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <input type="hidden" class="form-control" id="PreviousTotalWeight" title="Total Weight" placeholder="0" maxlength="10" onchange="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" readonly>
+                                                        <input type="text" class="form-control" id="TotalWeight" title="Total Weight" placeholder="0" maxlength="10" onchange="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" onkeyup="PendingWeightCalc()">
+
+                                                        <div class="field-placeholder">Mention Weight</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+                                                <div class="col-6">
+                                                    <!-- Field wrapper start-->
+                                                    <div class="field-wrapper">
+                                                        <input type="hidden" class="form-control" id="TotalPOTotalWeight" title="Total Pending Weight" placeholder="0" maxlength="10" onchange="validate(this)" readonly>
+                                                        <input type="hidden" class="form-control" id="TotalPendingTotalWeight" title="Total Pending Weight" placeholder="0" maxlength="10" onchange="validate(this)" readonly>
+                                                        <input type="text" class="form-control" id="TotalTotalWeight" title="Total Weight" placeholder="0" maxlength="10" onchange="validate(this)" readonly>
+
+                                                        <div class="field-placeholder">Total PO Weight</div>
+                                                    </div>
+                                                    <!--  Field wrapper end -->
+                                                </div>
+
+                                                <div class="col-12">
+
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <div style="display:none;">
+                                                            <select id="ddlGodown" class="select-single detail" title="Select Godown Selecteion" data-live-search="true" onchange="OnlistGodown(this.value)">
+                                                            </select>
+                                                        </div>
+
+                                                        <label id="lblGodown" style="margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">
+                                                        </label>
+
+                                                        <div class="field-placeholder">Select Godown Selecteion</div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+
+                                                </div>
+
+
+
+                                                <div class="col-12">
+                                                    <!-- Field wrapper start -->
+                                                    <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                                        <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                                            <input type="file" id="upload-PhotoOfInward-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
+                                                            <input type="hidden" id="upload-PhotoOfInward-temp-default" value="" />
+                                                            <div class="dz-message needsclick" style="text-align: center; ">
+                                                                <label id="upload-PhotoOfInward-default-preview" for="upload-PhotoOfInward-default" style="width: 100%; padding-top: 80px; padding-bottom: 80px; ">Photo Of Inward.</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style="text-align:center;padding-top:10px;">
+                                                            <button class="btn btn-outline-primary" onclick="clearPhotoOfInwardDefault()">Clear Photo Of Inward</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+
+
+
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12" style="border-left: 1px solid #c3c3c3;">
+                                            <!-- Row start -->
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divWarpData">
+                                                <div class="row gutters">
+                                                    <div class="row gutters">
+
+                                                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                                        </div>
+
+                                                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                                                            <button type="button" class="btn btn-secondary" id="smallmodal" style="display:none; width: 100%;" data-bs-toggle="modal" data-bs-target="#exampleModalSmall"><i class="fa fa-plus"></i> </button>
+                                                            <button type="button" class="btn btn-secondary" style=" width: 100%;" onclick="btnEmptyLocation()"><i class="fa fa-plus"></i> EMPTY LOCATION</button>
+                                                        </div>
+
+                                                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+
+
+                                                <br />
+                                                <br />
+
+
+                                            </div>
+
+
+
+
+
+
+                                            <!-- Modal start -->
+                                            <div class="modal fade" id="exampleModalSmall" tabindex="-1" aria-labelledby="exampleModalSmallTitle" aria-hidden="true">
+                                                <div class="modal-dialog modal-sm">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalSmallTitle">Modal title</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+
+
+                                                            <div id="divSmallModal"></div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Modal end -->
+
+
+
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                <div class="row gutters">
+
+
+                                                    <div class="row gutters">
+                                                        <div class="col-12">
+                                                            <div class="table-responsive">
+                                                                <input type="hidden" id="txtPurchasenStock" value="0" />
+                                                                <table class="table table-bordered" id="copy-print-csv" style="overflow: hidden; text-align: center;" border="1">
+                                                                    <thead>
+
+                                                                        <tr>
+                                                                            <th style="width:10%;">Box No</th>
+                                                                            <th style="width:5%;">Net Weight</th>
+                                                                            <th style="width:10%;">Location</th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                    <tbody id="tableLocationData">
+                                                                    </tbody>
+
+
+
+                                                                </table>
+
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+
+
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+                                                <div class="col-12">
+                                                    <div class="table-responsive" style=" height: 450px; overflow: auto;">
+                                                        <input type="hidden" id="txtPurchasenStock" value="0" />
+                                                        <table class="table table-bordered" style="overflow: hidden;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="2">Yarn Inward </th>
+                                                                    <th colspan="3">
+
+
+                                                                        <div style="display:flex;">
+                                                                            <div style="flex: 1; background: blanchedalmond;" class="field-placeholder"><label style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px;   ">Total Pending Weight</label></div>
+                                                                            <div style="flex: 1; background: bisque;" id="divTotalPendingWeight"><label id="TotalPendingWeight" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">0</label></div>
+                                                                        </div>
+
+                                                                        <div style="display: flex; border-top: 1px solid;">
+                                                                            <div style="flex:1; background:lightblue;" class="field-placeholder"><label style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px;   ">Pending Weight</label></div>
+                                                                            <div style="flex:1; background:lightgreen;" id="divPendingWeight"><label id="PendingWeight" style=" margin-top: 8px; margin-left: 15px; display: inline-block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; cursor: pointer; ">0</label></div>
+                                                                        </div>
+
+
+
+
+
+                                                                    </th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th style="width:3%;">#</th>
+                                                                    <th style="text-align: center; width: 29%;">Box No</th>
+                                                                    <th style="text-align: center; width: 29%;">Net Weight</th>
+                                                                    <th style="text-align: center; width: 29%;">Location</th>
+                                                                    <th style="width:3%;"></th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody id="tableItemData">
+                                                                <tr id="trMatching1">
+                                                                    <td style="width:3%;"></td>
+                                                                    <td>
+
+                                                                        <div class="field-wrapper" style="display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0;">
+                                                                            <input type="text" class="form-control" id="BoxNo1" placeholder="Box No" onfocusout="validate(this)" />
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+
+                                                                        <div class="field-wrapper" style="display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0;">
+                                                                            <input type="tel" class="form-control" id="NetWeight1" placeholder="0" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="9" onkeyup="PendingWeightCalc()" />
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <div class="field-wrapper" style="display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0;">
+                                                                            <div id="tdLocation1" style="width: 35px; height: 35px; border-radius: 3px;"></div>
+                                                                            <select id="Location1" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">
+                                                                            </select>
+                                                                        </div>
+                                                                    </td>
+
+
+                                                                </tr>
+
+                                                            </tbody>
+
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="4">
+
+
+                                                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divWarpData">
+                                                                            <div class="row gutters">
+                                                                                <div class="row gutters">
+                                                                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                                    </div>
+                                                                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                                        <button type="button" class="btn btn-success" style=" width: 100%;" onclick="btnAddRow()" onfocusout="btnAddRow()"><i class="fa fa-plus"></i> ADD DATA</button>
+                                                                                    </div>
+
+                                                                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                    </td>
+                                                                </tr>
+
+
+                                                            </tfoot>
+
+
+
+                                                        </table>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+
+
+
+
+
+                                            <div class="modal-footer" style="border: none;">
+                                                <a href="YarnInward" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                                                <button id="Savebtn" type="button" class="btn btn-primary" style="font-size: medium;">Save</button>
+                                                @*<button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Update Yarn Inward </button>
+                                                    <button id="saveClosebtn" type="button" class="btn btn-danger" onclick="checkCloseSave()" style="font-size: medium;">Update & Close</button>
+                                                    <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Yarn PO </button>*@
+                                            </div>
+
+
+                                            <!-- Row end -->
+                                        </div>
+
+
+
+                                    </div>
+                                    <!-- Row end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+
+
+
+
+                    <input type="hidden" id="txtYarnDetailsArray" title="txtYarnDetailsArray" value="1|" />
+                    <input type="hidden" id="txtDeleteYarnDetailsArray" title="DeleteYarnDetailsArray" />
+
+
+
+                    <div id="divMatchingColor">
+
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+
+        $('body').addClass('fullscreen');
+        var isColorLoaded = false;
+        var PartyId = 0;
+        $(document).ready(function () {
+            var liSelected;
+            $(document).keydown(function (key) {
+                var li = $('li');
+                switch (parseInt(key.which, 10)) {
+
+                    case 27:
+                        $("#DivDDLItemDetail").hide();
+                        $("#DivAddItem").show();
+                        //Esc Key
+                        $("#CloseItemModel").click();
+                        $("#cancelbtn").click();
+                        $("#cancelItembtn").click();
+
+                        break;
+
+                    case 40:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.next();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.eq(0).addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                        break;
+
+                    case 38:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.prev();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.last().addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+
+            $("#YarnForm-tab").addClass("active");
+            $("#tab-YarnForm").addClass("show active");
+            $("#aYarnOutWardChallan").addClass("current-page");
+
+            FunctionIsLogin();
+
+            $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlGodownMaster-container").css("color", "white");
+
+            $('#ddlGodownMaster')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+
+            $("#select2-ddlParty-container").css("background-color", "lightslategrey");
+            $("#select2-ddlParty-container").css("color", "white");
+
+            $('#ddlParty')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+            $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlYarnGodownManager-container").css("color", "white");
+
+            $('#ddlYarnGodownManager')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+            GetAllDropDownData();
+        });
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var GodownIDs = "";
+        var TotalInwardStockAry = "";
+        var TotalOutwardStockAry = "";
+        var TotalExistingOutwardStockAry = "";
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnOutwardID', DecryptID);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    var userTable = $('#TblUser');
+
+                    for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
+                        /* ---------- View Party Details ---------- */
+
+                        $("#hYarnOutwardID").val(response.listYarnOutwardMaster[i].YarnOutwardID);
+                        $("#ddlYarnGodownManager").val(response.listYarnOutwardMaster[i].GodownManagerUserAccountId);
+                        $("#select2-ddlYarnGodownManager-container").html(response.listYarnOutwardMaster[i].UserAccountName)
+                        $("#ListNo").val(response.listYarnOutwardMaster[i].OutwardListNo);
+                        $("#ListDate").val(response.listYarnOutwardMaster[i].OutwardListDates);
+                        $("#SundryParty").val(response.listYarnOutwardMaster[i].SundryParty);
+                        changeSundryPartyId(response.listYarnOutwardMaster[i].SundryParty + "|" + response.listYarnOutwardMaster[i].PartyId);
+
+                        /* ---------- Yarn Requirement Detail  ---------- */
+
+                        var siftGodownInputBox = "";
+
+                        for (var j = 0; j < response.listYarnOutwardMaster[i].listYarnOutwardDetail.length; j++) {
+                            var GodownLocationID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].GodownLocationID;
+                            var BillToPartyID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].BillToPartyID;
+                            var YarnMaterialID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnMaterialID;
+                            var YarnColorID = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColorID;
+                            var InpuNoOfBox = response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox;
+
+                            siftGodownInputBox += "(" + GodownLocationID + "," + BillToPartyID + "," + YarnMaterialID + "," + YarnColorID + "," + InpuNoOfBox + ")|";
+                        }
+
+                        $("#siftGodownInputBox").val(siftGodownInputBox);
+                        displaySiftData();
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    notes.show(request.statusText, {
+                        type: 'danger'
+                    });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function validate(code) {
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "0") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            if (code.html == "0") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "gstin")) {
+                if (code.value.length == 2) {
+                    $('#placeOfSupply').val(code.value);
+                    $("#select2-placeOfSupply-container").html($('#placeOfSupply option:selected').text());
+                }
+
+                if (code.value.length == 15) {
+                    $("#gstin").val(code.value.toUpperCase());
+                    let gstVal = code.value.toUpperCase();
+                    let eMMessage = "No Errors";
+                    let statecode = gstVal.substring(0, 2);
+                    let patternstatecode = /^[0-9]{2}$/
+                    let threetoseven = gstVal.substring(2, 7);
+                    let patternthreetoseven = /^[A-Z]{5}$/
+                    let seventoten = gstVal.substring(7, 11);
+                    let patternseventoten = /^[0-9]{4}$/
+                    let Twelveth = gstVal.substring(11, 12);
+                    let patternTwelveth = /^[A-Z]{1}$/
+                    let Thirteen = gstVal.substring(12, 13);
+                    let patternThirteen = /^[1-9A-Z]{1}$/
+                    let fourteen = gstVal.substring(13, 14);
+                    let patternfourteen = /^Z$/
+                    let fifteen = gstVal.substring(14, 15);
+                    let patternfifteen = /^[0-9A-Z]{1}$/
+                    if (gstVal.length != 15) {
+                        eMMessage = 'Length should be restricted to 15 digits and should not allow anything more or less';
+                    } else if (!patternstatecode.test(statecode)) {
+                        eMMessage = 'First two characters of GSTIN should be numbers';
+                    } else if (!patternthreetoseven.test(threetoseven)) {
+                        eMMessage = 'Third to seventh characters of GSTIN should be alphabets';
+                    } else if (!patternseventoten.test(seventoten)) {
+                        eMMessage = 'Eighth to Eleventh characters of GSTIN should be numbers';
+                    } else if (!patternTwelveth.test(Twelveth)) {
+                        eMMessage = 'Twelveth character of GSTIN should be alphabet';
+                    } else if (!patternThirteen.test(Thirteen)) {
+                        eMMessage = 'Thirteen characters of GSTIN can be either alphabet or numeric';
+                    } else if (!patternfourteen.test(fourteen)) {
+                        eMMessage = 'fourteen characters of GSTIN should be Z';
+                    } else if (!patternfifteen.test(fifteen)) {
+                        eMMessage = 'fifteen characters of GSTIN can be either alphabet or numeric';
+                    }
+
+                    if (eMMessage == "No Errors") {
+                        $("#GSTError").html("Valid GSTIN");
+                        document.getElementById(code.id).classList.add("is-valid");
+                        document.getElementById(code.id).classList.remove("is-invalid");
+                        $(errorMessageValid).show();
+                        $(errorMessageInvalid).hide();
+
+                        var pan = code.value.substring(2, 12);
+                        $('#PanNo').val(pan);
+                        return true;
+                    }
+                    else {
+                        $("#GSTError").html(eMMessage);
+                        document.getElementById(code.id).classList.remove("is-valid");
+                        document.getElementById(code.id).classList.add("is-invalid");
+                        $(errorMessageInvalid).show();
+                        return false;
+                    }
+                }
+                else {
+                    document.getElementById(code.id).classList.add("is-valid");
+                    document.getElementById(code.id).classList.remove("is-invalid");
+                    $(errorMessageValid).show();
+                    $(errorMessageInvalid).hide();
+                    $(".company-invalid-feedback").show();
+                    $("#GSTError").html("");
+                    return false;
+                }
+            }
+            else if (code.value == "") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+        function changeSundryParty() {
+            var SundryParty = $("#SundryParty").val();
+            var formData = new FormData();
+            formData.append('SundryParty', SundryParty);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getSundryPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.listPartyMaster.length > 0) {
+                        var tempPartyName = "";
+                        tempPartyName = "<option value='0'> Select Party </option>";
+                        $('#ddlParty').append(tempPartyName);
+                        for (var i = 0; i < response.listPartyMaster.length; i++) {
+                            tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                            $('#ddlParty').append(tempPartyName);
+                        }
+                    }
+                    else {
+                        $('#ddlParty').empty();
+                        $("#ddlParty").prop('disabled', true)
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function changeSundryPartyId(abc) {
+            var SundryParty = abc.split('|')[0];
+            var PartyID = abc.split('|')[1];
+            var formData = new FormData();
+            formData.append('SundryParty', SundryParty);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getSundryPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.listPartyMaster.length > 0) {
+                        $('#ddlParty').empty();
+                        var tempPartyName = "";
+                        tempPartyName = "<option value='0'> Select Party </option>";
+                        $('#ddlParty').append(tempPartyName);
+                        for (var i = 0; i < response.listPartyMaster.length; i++) {
+                            if (PartyID == response.listPartyMaster[i].PartyId) {
+                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "' selected> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlParty').append(tempPartyName);
+                            }
+                            else {
+                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlParty').append(tempPartyName);
+                            }
+                        }
+                    }
+                    else {
+                        $('#ddlParty').empty();
+                        $("#ddlParty").prop('disabled', true)
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function ChangeYarnColor(YarnColorID) {
+            $("#ddlYarnColorCode").val(YarnColorID);
+            var ColorCode = $("#ddlYarnColorCode option:selected").text();
+            $("#select2-ddlYarnColorCode-container").html(ColorCode);
+            GridBindData();
+        }
+        function ChangeYarnColorCode(YarnColorID) {
+            $("#ddlYarnColor").val(YarnColorID);
+            var Color = $("#ddlYarnColor option:selected").text();
+            $("#select2-ddlYarnColor-container").html(Color);
+            GridBindData();
+        }
+        function ChangeYarnMaterial(YarnMaterialID) {
+            $("#ddlYarnMaterial").val(YarnMaterialID);
+            var YarnMaterialID = $("#ddlYarnMaterial option:selected").text();
+            $("#select2-ddlYarnMaterial-container").html(YarnMaterialID);
+            GridBindData();
+        }
+        function ChangeYarnCompany(YarnCompanyID) {
+            $("#ddlYarnCompany").val(YarnCompanyID);
+            var YarnCompanyID = $("#ddlYarnCompany option:selected").text();
+            $("#select2-ddlYarnCompany-container").html(YarnCompanyID);
+        }
+        function showBarcodeRecords(YarnInwardDetailID) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardDetailID,
+                data: "{ 'id':'" + YarnInwardDetailID + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.open('/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function Yrancolor(list) {
+            var selectedColor = $("#ddlYarnColor").val();
+            $('#ddlYarnColor').empty();
+            $('#ddlYarnColorCode').empty();
+            $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
+            $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
+
+            var uniqueColors = {};
+
+            for (var i = 0; i < list.length; i++) {
+                var colorID = list[i].YarnColorID;
+                if (!uniqueColors[colorID]) {
+                    $('#ddlYarnColor').append(
+                        "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
+                    );
+                    $('#ddlYarnColorCode').append(
+                        "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
+                    );
+                    uniqueColors[colorID] = true;
+                }
+            }
+
+            $("#ddlYarnColor").val(selectedColor);
+            $("#ddlYarnColorCode").val(selectedColor);
+        }
+        function YarnMaterial(list) {
+            var selectedColor = $("#ddlYarnMaterial").val();
+            $('#ddlYarnMaterial').empty();
+            var tempPartyName = "";
+            $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
+            var uniqueColors = {};
+
+            for (var i = 0; i < list.length; i++) {
+                var YarnMaterialID = list[i].YarnMaterialID;
+                if (!uniqueColors[YarnMaterialID]) {
+                    $('#ddlYarnMaterial').append(
+                        "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
+                    );
+                    uniqueColors[YarnMaterialID] = true;
+                }
+            }
+
+            $("#ddlYarnMaterial").val(selectedColor);
+        }
+        function yarnInwardCheck(YarnInwardDetailID) {
+            var checkid = "#" + YarnInwardDetailID;
+            var YIDID = YarnInwardDetailID.split('_')[1] + "|";
+            var tr = "#tr" + YarnInwardDetailID.split('_')[1];
+            var txtYarnInwardDetailIDs = $("#txtYarnInwardDetailIDs").val();
+
+            if ($(checkid).prop('checked') == true) {
+                $("#txtYarnInwardDetailIDs").val(txtYarnInwardDetailIDs + YIDID);
+                $(tr).css("background-color", "lightskyblue");
+            }
+            else {
+                $("#txtYarnInwardDetailIDs").val(txtYarnInwardDetailIDs.replace(YIDID, ""));
+                $(tr).css("background-color", "");
+            }
+        }
+        function StockCalculation(abc) {
+            var txtid = "#" + "txtid_" + abc.id.split('_')[1];
+            var SpanStockid = "#" + "spanStock_" + abc.id.split('_')[1];
+            var TextStock = abc.value;
+            var SpanStock = $(SpanStockid).text();
+            var txtinputid = "#" + "txtinputstock_" + abc.id.split('_')[1];
+
+            if (parseInt(TextStock) > parseInt(SpanStock)) {
+                notes.show("Please Mention Below Stock Value.", {
+                    type: 'danger'
+                });
+                $(txtinputid).addClass("is-invalid");
+            }
+            else {
+                $(txtinputid).removeClass("is-invalid");
+            }
+        }
+        function GetAllDropDownData() {
+            var GodownID = $("#ddlGodownMaster").val();
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var DecryptID = (hashes[0].split('=')[1]);
+            var formData = new FormData();
+            formData.append('GodownID', GodownID);
+            formData.append('YarnOutwardID', DecryptID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnOutWardDropDownData',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("response.YarnInwardMasterData", response.YarnInwardMasterData);
+
+                    if (response.Code == "200") {
+                        if (response.listPartyMaster.length > 0) {
+                            $('#ddlParty').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Party </option>";
+                            $('#ddlParty').append(tempPartyName);
+                            for (var i = 0; i < response.listPartyMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlParty').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlParty').empty();
+                            $("#ddlParty").prop('disabled', true)
+                        }
+
+                        if (response.listCompanyMaster.length > 0) {
+                            $('#ddlYarnCompany').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Company </option>";
+                            $('#ddlYarnCompany').append(tempPartyName);
+                            for (var i = 0; i < response.listCompanyMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listCompanyMaster[i].PartyId + "'> " + response.listCompanyMaster[i].PartyName + " </option>";
+                                $('#ddlYarnCompany').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnCompany').empty();
+                            $("#ddlYarnCompany").prop('disabled', true)
+                        }
+
+                        if (response.listYarnMaterialMaster.length > 0) {
+                            $('#ddlYarnMaterial').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Yarn Material </option>";
+                            $('#ddlYarnMaterial').append(tempPartyName);
+                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
+                                $('#ddlYarnMaterial').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnMaterial').empty();
+                            $("#ddlYarnMaterial").prop('disabled', true)
+                        }
+
+                        if (response.listYarnColorMaster.length > 0) {
+                            $('#ddlYarnColor').empty();
+                            $('#ddlYarnColorCode').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Yarn Color </option>";
+                            $('#ddlYarnColor').append(tempPartyName);
+                            $('#ddlYarnColorCode').append("<option value='0'> Yarn Color Code</option>");
+                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
+                                $('#ddlYarnColor').append(tempPartyName);
+                                $('#ddlYarnColorCode').append("<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColorCode + " </option>");
+                            }
+                        }
+                        else {
+                            $('#ddlYarnColor').empty();
+                            $('#ddlYarnColorCode').empty();
+                            $("#ddlYarnColor").prop('disabled', true)
+                            $("#ddlYarnColorCode").prop('disabled', true)
+                        }
+
+                        if (response.listUserAccountMaster.length > 0) {
+                            $('#ddlYarnGodownManager').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Godown Manager </option>";
+                            $('#ddlYarnGodownManager').append(tempPartyName);
+                            for (var i = 0; i < response.listUserAccountMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listUserAccountMaster[i].UserAccountId + "'> " + response.listUserAccountMaster[i].UserAccountName + " </option>";
+                                $('#ddlYarnGodownManager').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnGodownManager').empty();
+                            $("#ddlYarnGodownManager").prop('disabled', true)
+                        }
+
+                        if (response.listGodownMaster.length > 0) {
+                            $('#ddlGodownMaster').empty();
+                            var tempPartyName = "";
+                            tempPartyName = "<option value='0'> Select Godown </option>";
+                            $('#ddlGodownMaster').append(tempPartyName);
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+                                if (response.listGodownMaster[i].IsDefault == "1") {
+                                    tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "' selected> " + response.listGodownMaster[i].GodownTitle + " </option>";
+                                }
+                                else {
+                                    tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>";
+                                }
+                                $('#ddlGodownMaster').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlGodownMaster').empty();
+                            $("#ddlGodownMaster").prop('disabled', true)
+                        }
+
+                        if (response.listYarnOutwardMaster.length > 0) {
+                            $("#ListNo").val(response.listYarnOutwardMaster[0].OutwardListNo);
+                        }
+                        else {
+                            $("#ListNo").val('0')
+                        }
+                        GridBindData();
+                        var PartyId = response.YarnInwardMasterData?.[0]?.PartyId;
+                        console.log("PartyId", PartyId);
+                        $("#ddlPartytextbox").val(PartyId);
+                        $("#ddlParty").val(PartyId).trigger("change");
+                        setTimeout(function () {
+                            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                            ViewYarnOutWardRecordQueryString(hashes[0].split('=')[1]);
+                        }, 1000);
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        function GridBindData() {
+            var GodownID = $("#ddlGodownMaster").val();
+            var BillToPartyID = $("#ddlYarnCompany").val();
+            var YarnMaterialID = $("#ddlYarnMaterial").val();
+            var YarnColorID = $("#ddlYarnColor").val();
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
+            var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
+            if (GodownID != "0") {
+                var formData = new FormData();
+                formData.append('GodownID', GodownID);
+                formData.append('BillToPartyID', BillToPartyID);
+                formData.append('YarnMaterialID', YarnMaterialID);
+                formData.append('YarnColorID', YarnColorID);
+                formData.append('SiftGodownLocationId', siftSiftGodownLocationId.slice(0, -1).replace(/\|/g, ','));
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getYarnOutwardMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+
+                    success: function (response) {
+                        var temp = "";
+                        $("#tableYarnOutward").empty();
+                        var dataTable = $('#tableYarnOutward');
+                        if (response.listYarnOutwardMaster.length > 0) {
+                            var srno = parseInt(0) + parseInt(1);
+                            if (response.listYarnOutwardMaster.length > 0) {
+                                for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
+                                    temp += "<tr><td>" + srno++ + "</td>";
+                                    temp += "<td><span id='span_Name_" + srno + "'>" + response.listYarnOutwardMaster[i].CompanyName + "</span></td>";
+                                    temp += "<td><span id='span_Material_" + srno + "'>" + response.listYarnOutwardMaster[i].YarnMaterial + "</span></td>";
+                                    temp += "<td><span id='span_Color_" + srno + "'>" + response.listYarnOutwardMaster[i].YarnColor + "</span></td>";
+                                    temp += "<td><span id='span_Code_" + srno + "'>" + response.listYarnOutwardMaster[i].YarnColorCode + "</span></td>";
+                                    var allids = srno + "_" + response.listYarnOutwardMaster[i].BillToPartyID + "_" + response.listYarnOutwardMaster[i].YarnMaterialID + "_" + response.listYarnOutwardMaster[i].YarnColorID;
+                                    temp += "<td style='text-align: center;'> <span id='spanStock_" + srno + "' >" + response.listYarnOutwardMaster[i].Stock + "<span></td>";
+                                    temp += "<td><input type='text' id='txtinputstock_" + srno + "' class='form-control' maxlength='2' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)''/><br/>";
+                                    temp += " <input type='hidden' id='txtid_" + srno + "' value='" + allids + "' class='form-control' style='padding: 5px 5px 5px 5px; min-height: 0px; margin-top: -5px;' onkeypress='return (event.charCode>=48 && event.charCode<=57)'  /></td>";
+                                    temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='StockTransferSiftTo(\"" + allids + "\")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
+                                    temp += "</tr>";
+                                }
+
+                                dataTable.append(temp);
+                                var PartyId = $("#ddlPartytextbox").val();
+                                console.log("ddlPartytextbox", PartyId);
+                                $("#ddlParty").val(PartyId).trigger("change");
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        function StockTransferSiftTo(abc) {
+            if (!abc) return;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var YarnOutwardID = (hashes[0].split('=')[1]);
+            var parts = abc.split("_");
+            if (parts.length < 4) return;
+            var SrNo = parts[0];
+            var BillToPartyID = parts[1];
+            var YarnMaterialID = parts[2];
+            var YarnColorID = parts[3];
+            var GodownID = $("#ddlGodownMaster").val();
+
+            var $stockSpan = $("#spanStock_" + SrNo);
+            var $inputBox = $("#txtinputstock_" + SrNo);
+            var TextStock = parseInt($inputBox.val()) || 0;
+            var AvailableStock = parseInt($stockSpan.text()) || 0;
+            if (!TextStock) {
+                $inputBox.addClass("is-invalid");
+                notes.show("Please Mention No Of Box.", { type: 'danger' });
+                return;
+            }
+
+            if (TextStock > AvailableStock) {
+                $inputBox.addClass("is-invalid");
+                notes.show("Please Mention Below Stock Value.", { type: 'danger' });
+                return;
+            }
+
+            $inputBox.removeClass("is-invalid");
+            $("#tblSpanCompanyName").html($("#span_Name_" + SrNo).html());
+            $("#tblSpanYarnMaterial").html($("#span_Material_" + SrNo).html());
+            $("#tblSpanYarnColor").html($("#span_Color_" + SrNo).html());
+            $("#tblSpanColorCode").html($("#span_Code_" + SrNo).html());
+            $("#tblSpanNoOfBox").html(TextStock);
+            $("#txtBillToPartyID").val(BillToPartyID);
+            $("#txtYarnMaterialID").val(YarnMaterialID);
+            $("#txtYarnColorID").val(YarnColorID);
+            $("#txtTextStock").val(TextStock);
+            var formData = new FormData();
+            formData.append('BillToPartyID', BillToPartyID);
+            formData.append('YarnMaterialID', YarnMaterialID);
+            formData.append('YarnColorID', YarnColorID);
+            formData.append('GodownID', GodownID);
+            formData.append('YarnOutwardID', YarnOutwardID);
+            var siftGodownInputBox = $("#siftGodownInputBox").val() || "";
+            formData.append(
+                'siftGodownInputBox',
+                siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : ""
+            );
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardSiftMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var list = response.listYarnOutwardMaster || [];
+                    var $tbody = $("#tblYarnSift");
+
+                    $tbody.empty();
+
+                    if (!list.length) {
+                        $("#hTotalNoOfBox").html(0);
+                        return;
+                    }
+
+                    var temp = "";
+                    var srno = 1;
+                    var RemainingStock = TextStock;
+                    var locationIds = [];
+
+                    list.forEach(function (item) {
+                        var maxBox = parseInt(item.NoOfBox) || 0;
+                        var MentionNoOfBox = 0;
+
+                        if (RemainingStock > 0) {
+                            MentionNoOfBox = Math.min(RemainingStock, maxBox);
+                            RemainingStock -= MentionNoOfBox;
+                        }
+
+                        temp += `
+                              <tr
+                                  data-billto="${item.BillToPartyID}"
+                                  data-godownlocationid="${item.GodownLocationID}"
+                                  data-yarncolorid="${item.YarnColorID}"
+                                  data-yarnmaterialid="${item.YarnMaterialID}"
+                                  data-companyname="${item.CompanyName}"
+                                  data-yarnmaterial="${item.YarnMaterial}"
+                                  data-yarncolor="${item.YarnColor}"
+                                  data-yarncolorcode="${item.YarnColorCode}">
+
+                                  <td>${srno}</td>
+                                  <td>${item.GodownTitle}</td>
+                                  <td>${item.LocationTitle}</td>
+                                  <td>${maxBox}</td>
+                                  <td>
+                                      <input type="tel"
+                                          class="form-control txtNoOfBox"
+                                          id="txtNoOfBox_${item.GodownLocationID}"
+                                          data-max="${maxBox}"
+                                          value="${MentionNoOfBox}"
+                                          maxlength="2"
+                                          style="width:60px; min-height:30px;"
+                                          onkeypress="return (event.charCode>=48 && event.charCode<=57)"
+                                          onkeyup="GodownNoOfBox(this)" />
+                                  </td>
+                              </tr>`;
+
+                        locationIds.push(item.GodownLocationID);
+                        srno++;
+                    });
+
+                    $tbody.append(temp);
+
+                    $("#hTotalNoOfBox").html(TextStock);
+                    $("#txtGodownLocationID").val(locationIds.join(",") + ",");
+
+                    HideAlreadySifted();
+
+                    setTimeout(function () {
+                        $("#btnSaveSiftYarnBox").focus();
+                    }, 300);
+                }
+            });
+
+            $("#btnShiftModel").click();
+        }
+        function SaveSiftYarnBox() {
+            var dataArray = [];
+            var BillToPartyID = $("#txtBillToPartyID").val();
+            var YarnMaterialID = $("#txtYarnMaterialID").val();
+            var YarnColorID = $("#txtYarnColorID").val();
+
+            var GodownLocationIDRaw = $("#txtGodownLocationID").val();
+            if (!GodownLocationIDRaw) return;
+
+            var GodownLocationIDs = GodownLocationIDRaw.slice(0, -1).split(",");
+            var TotalNoOfBox = 0;
+
+            GodownLocationIDs.forEach(function (id) {
+                var qty = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+                TotalNoOfBox += qty;
+            });
+
+            $("#hTotalNoOfBox").html(TotalNoOfBox);
+
+            var SpanNoOfBox = parseInt($("#tblSpanNoOfBox").html()) || 0;
+
+            if (TotalNoOfBox !== SpanNoOfBox) {
+                return;
+            }
+
+            var existingValue = $("#siftGodownInputBox").val() || "";
+            var newEntries = "";
+            var qtyMap = {};
+
+            GodownLocationIDs.forEach(function (id) {
+                var qty = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+                if (qty > 0) {
+                    var entry = "(" + id + "," + BillToPartyID + "," + YarnMaterialID + "," + YarnColorID + "," + qty + ")|";
+                    newEntries += entry;
+
+                    var mapKey = BillToPartyID + "_" + YarnMaterialID + "_" + YarnColorID;
+                    if (!qtyMap[mapKey]) {
+                        qtyMap[mapKey] = 0;
+                    }
+                    qtyMap[mapKey] += qty;
+                }
+            });
+
+            $("#siftGodownInputBox").val(existingValue + newEntries);
+
+            $("#tableYarnOutward tr").each(function () {
+                var $row = $(this);
+                var hiddenId = $row.find("input[type='hidden']").val();
+                if (!hiddenId) return;
+
+                var parts = hiddenId.split("_");
+                if (parts.length < 4) return;
+
+                var rowKey = parts[1] + "_" + parts[2] + "_" + parts[3];
+
+                if (qtyMap[rowKey]) {
+                    var stockSpan = $row.find("span[id^='spanStock_']");
+                    var currentStock = parseInt(stockSpan.text()) || 0;
+                    var newStock = currentStock - qtyMap[rowKey];
+
+                    if (newStock < 0) newStock = 0;
+
+                    stockSpan.text(newStock);
+                    $row.find("input[id^='txtinputstock_']").val("");
+
+                    if (newStock === 0) {
+                        $row.hide();
+                    }
+                }
+            });
+            $("#tableYarnOutward tr:visible").each(function (index) {
+                $(this).find("td:eq(0)").text(index + 1);
+            });
+            $("#tblYarnSift tr").each(function () {
+                var id = $(this).data("godownlocationid");
+                var noOfBox = parseInt($("#txtNoOfBox_" + id).val()) || 0;
+
+                if (noOfBox <= 0) return;
+
+                dataArray.push({
+                    Id: id,
+                    Company: $(this).data("companyname"),
+                    Material: $(this).data("yarnmaterial"),
+                    Color: $(this).data("yarncolor"),
+                    YarnCode: $(this).data("yarncolorcode"),
+                    Godown: $(this).find("td:eq(1)").text().trim(),
+                    Location: $(this).find("td:eq(2)").text().trim(),
+                    NoOfBox: noOfBox
+                });
+            });
+
+            if (dataArray.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please enter at least one box.'
+                });
+                return;
+            }
+
+            $("#btnClose").click();
+
+            var dataTable = $('#tableSiftYarnData');
+            var temp = "";
+            var srno = $("#tableSiftYarnData tr").length + 1;
+
+            for (var i = 0; i < dataArray.length; i++) {
+                temp += "<tr>";
+
+                var hiddenValue = "(" + dataArray[i].Id + "," +
+                    BillToPartyID + "," +
+                    YarnMaterialID + "," +
+                    YarnColorID + "," +
+                    dataArray[i].NoOfBox + ")";
+
+                temp += "<td style='text-align:center;'>" +
+                    "<a href='javascript:void(0);' onclick='yarnbacksift(this,\"" + hiddenValue + "\")'>" +
+                    "<img src='/img/left-rrow.png' title='Sift Back Yarn' style='width:20px;'/>" +
+                    "</a>" +
+                    "</td>";
+
+                temp += "<td>" + srno + "</td>";
+                temp += "<td>" + dataArray[i].Company + "</td>";
+                temp += "<td>" + dataArray[i].Material + "</td>";
+                temp += "<td>" + dataArray[i].Color + "</td>";
+                temp += "<td>" + dataArray[i].YarnCode + "</td>";
+                temp += "<td>" + dataArray[i].Location + "</td>";
+                temp += "<td>" + dataArray[i].NoOfBox + "</td>";
+
+                temp += "<input type='hidden' id='txtsiftid_" + srno + "' " +
+                    "value='" + dataArray[i].Id + "' />";
+
+                temp += "</tr>";
+
+                srno++;
+            }
+            dataTable.append(temp);
+        }
+        function GodownNoOfBox(abc) {
+            var GodownLocationID = abc.id.split('_')[1];
+            var spanValue = "#span_" + GodownLocationID;
+            var trrow = "#tr" + GodownLocationID;
+
+            var InputNoOfBox = abc.value;
+            var SpanNoOfBox = $(spanValue).html();
+
+            if (parseInt(InputNoOfBox) > parseInt(SpanNoOfBox)) {
+                $(trrow).css("background-color", "darkred");
+                $(trrow).css("color", "white");
+                notess.show("Please Mention Less " + SpanNoOfBox + " No Of Box.", {
+                    type: 'danger'
+                });
+            }
+            else {
+                $(trrow).css("background-color", "transparent");
+                $(trrow).css("color", "#6f7479");
+            }
+
+            var tblSpanNoOfBox = $("#tblSpanNoOfBox").html();
+            var GodownLocationID = $("#txtGodownLocationID").val().slice(0, -1);
+
+            var TotalNoOfBox = 0;
+            for (var i = 0; i < GodownLocationID.split(',').length; i++) {
+                var InpuNoOfBox = "#txtNoOfBox_" + GodownLocationID.split(',')[i];
+
+                if ($(InpuNoOfBox).val() == "") {
+                    TotalNoOfBox = parseInt(TotalNoOfBox) + parseInt(0);
+                }
+                else {
+                    TotalNoOfBox = parseInt(TotalNoOfBox) + parseInt($(InpuNoOfBox).val());
+                }
+            }
+
+            $("#hTotalNoOfBox").html(TotalNoOfBox);
+
+            if (parseInt(tblSpanNoOfBox) < parseInt(TotalNoOfBox)) {
+                $('.modal-header').css('background', '#ff0000');
+                notess.show("Please Mention Only " + tblSpanNoOfBox + " No Of Box.", {
+                    type: 'danger'
+                });
+            }
+            else {
+                $('.modal-header').css('background', '#1273eb');
+            }
+        }
+        function HideAlreadySifted() {
+            let count = 1;
+            var balance = parseInt($("#tblSpanNoOfBox").text()) || 0;
+
+            $("#tblYarnSift tr").each(function () {
+                var $modalRow = $(this);
+                var locationId = $modalRow.data("godownlocationid");
+                var billTo = $modalRow.data("billto");
+                var material = $modalRow.data("yarnmaterialid");
+                var color = $modalRow.data("yarncolorid");
+
+                var modalMaxQty = parseInt($modalRow.find("td:eq(3)").text()) || 0;
+                var usedQty = 0;
+
+                $("#tableSiftYarnData tr").each(function () {
+                    var anchor = $(this).find("a[onclick]");
+                    if (!anchor.length) return;
+
+                    var onclickText = anchor.attr("onclick");
+                    var match = onclickText.match(/"\((.*?)\)"/);
+                    if (!match) return;
+
+                    var parts = match[1].split(",");
+                    if (parts.length < 5) return;
+
+                    if (locationId == parts[0] &&
+                        billTo == parts[1] &&
+                        material == parts[2] &&
+                        color == parts[3]) {
+                        usedQty += parseInt(parts[4]) || 0;
+                    }
+                });
+
+                var remaining = modalMaxQty - usedQty;
+                if (remaining < 0) remaining = 0;
+
+                var textbox = $modalRow.find(".txtNoOfBox");
+                var finalQty = Math.min(remaining, balance);
+                textbox.val(finalQty);
+
+                balance -= finalQty;
+
+                $modalRow.find("td:eq(3)").text(remaining);
+
+                if (remaining === 0) {
+                    textbox.prop("disabled", true).addClass("bg-light");
+                    $modalRow.hide();
+                    return;
+                } else {
+                    textbox.prop("disabled", false).removeClass("bg-light");
+                }
+
+                $(this).find("td:eq(0)").text(count);
+                count++;
+            });
+        }
+        function checkSave() {
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            var YarnOutwardID = (hashes[0].split('=')[1]);
+            var PartyId = document.getElementById("ddlParty");
+            var OutwardListNo = document.getElementById("ListNo");
+            var OutwardListDate = document.getElementById("ListDate");
+            var GodownManagerUserAccountId = document.getElementById("ddlYarnGodownManager");
+            var GodownID = $("#ddlGodownMaster").val();
+
+            if (validate(PartyId) == false) {
+                validate(PartyId);
+                notes.show("Please Select Sundry Creditors Party.", {
+                    type: 'danger'
+                });
+            }
+            else if (validate(OutwardListNo) == false) {
+                validate(OutwardListNo);
+                notes.show("Please Mention List No.", {
+                    type: 'danger'
+                });
+            }
+            else if (validate(OutwardListDate) == false) {
+                validate(OutwardListDate);
+                notes.show("Please Mention List Date.", {
+                    type: 'danger'
+                });
+            }
+            else if (validate(GodownManagerUserAccountId) == false) {
+                validate(GodownManagerUserAccountId);
+                notes.show("Please Select Godown Manager.", {
+                    type: 'danger'
+                });
+            }
+            else if ($("#siftGodownInputBox").val() == "") {
+                notes.show("Please Sift Any Yarn.", {
+                    type: 'danger'
+                });
+            }
+            else {
+                var siftGodownInputBox = $("#siftGodownInputBox").val();
+                var updatesiftGodownInputBox = $("#updatesiftGodownInputBox").val();
+                var formData = new FormData();
+                formData.append('YarnOutwardID', YarnOutwardID);
+                formData.append('PartyId', PartyId.value);
+                formData.append('OutwardListNo', OutwardListNo.value);
+                formData.append('OutwardListDate', OutwardListDate.value);
+                formData.append('GodownManagerUserAccountId', GodownManagerUserAccountId.value);
+                formData.append('siftGodownInputBox', siftGodownInputBox);
+                formData.append('updatesiftGodownInputBox', updatesiftGodownInputBox);
+                formData.append('GodownID', GodownID);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log(response)
+                        if (response.Code == 201) {
+                            clearAll();
+                            notes.show(response.Message, {
+                                type: 'success',
+                            });
+                            window.location.href = 'YarnOutWardChallanDetails';
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            notess.show(response.Message, {
+                                type: 'danger',
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        notess.show(response.Message, {
+                            type: 'danger',
+                        });
+                    }
+                });
+            }
+        }
+        function yarnbacksift(el, key) {
+            var originalKey = key;
+            key = key.replace("(", "").replace(")", "");
+            var ids = key.split(",");
+            var locationId = ids[0];
+            var partyId = ids[1];
+            var materialId = ids[2];
+            var colorId = ids[3];
+            var qty = parseInt(ids[4]) || 0;
+            var $rightRow = $(el).closest("tr");
+            var companyName = $rightRow.find("td:eq(2)").text().trim();
+            var materialName = $rightRow.find("td:eq(3)").text().trim();
+            var colorName = $rightRow.find("td:eq(4)").text().trim();
+            var colorCode = $rightRow.find("td:eq(5)").text().trim();
+            var rowFound = false;
+
+            $("#tableYarnOutward tr").each(function () {
+                var $row = $(this);
+                var hiddenId = $row.find("input[type='hidden']").val();
+                if (!hiddenId) return;
+                var parts = hiddenId.split("_");
+                if (partyId == parts[1] &&
+                    materialId == parts[2] &&
+                    colorId == parts[3]) {
+                    var stockSpan = $row.find("span[id^='spanStock_']");
+                    var currentStock = parseInt(stockSpan.text()) || 0;
+                    var newStock = currentStock + qty;
+                    stockSpan.text(newStock);
+                    if (newStock > 0) {
+                        $row.show();
+                        rowFound = true;
+                    }
+                }
+            });
+            if (!rowFound) {
+                var $tbody = $("#tableYarnOutward");
+                var temp = "";
+                var lastId = 0;
+                $tbody.find("span[id^='span_Name_']").each(function () {
+                    var id = $(this).attr("id");
+                    var num = parseInt(id.split("_")[2]);
+                    if (num > lastId) {
+                        lastId = num;
+                    }
+                });
+                var newId = lastId + 1;
+                var srno = $tbody.find("tr:has(td)").length + 1;
+                var allids = newId + "_" + partyId + "_" + materialId + "_" + colorId;
+                temp += "<tr>";
+                temp += "<td class='srno'>" + srno + "</td>";
+                temp += "<td><span id='span_Name_" + newId + "'>" + companyName + "</span></td>";
+                temp += "<td><span id='span_Material_" + newId + "'>" + materialName + "</span></td>";
+                temp += "<td><span id='span_Color_" + newId + "'>" + colorName + "</span></td>";
+                temp += "<td><span id='span_Code_" + newId + "'>" + colorCode + "</span></td>";
+                temp += "<td style='text-align:center;'>";
+                temp += "<span id='spanStock_" + newId + "'>" + qty + "</span>";
+                temp += "</td>";
+                temp += "<td>";
+                temp += "<input type='text' id='txtinputstock_" + newId + "' ";
+                temp += "class='form-control' maxlength='2' ";
+                temp += "style='padding:5px; min-height:0px; margin-top:-5px;' ";
+                temp += "onkeypress='return (event.charCode>=48 && event.charCode<=57)' />";
+                temp += "<br/>";
+                temp += "<input type='hidden' id='txtid_" + newId + "' value='" + allids + "' />";
+                temp += "</td>";
+                temp += "<td style='padding: 0; margin: 0; text-align: center;'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Sift Yarn' onclick='StockTransferSiftTo(\"" + allids + "\")'><img src='/img/arrow.png' title='Sift Yarn' style='width: 40%;'/></a></td>";
+                temp += "</tr>";
+                $tbody.append(temp);
+            }
+            $(el).closest("tr").remove();
+            var currentValue = $("#siftGodownInputBox").val() || "";
+            var updatedValue = currentValue.replace(originalKey + "|", "");
+            $("#siftGodownInputBox").val(updatedValue);
+            $("#tableSiftYarnData tr").each(function (index) {
+                $(this).find("td:eq(1)").text(index + 1);
+            });
+        }
+        function yarnsift(abc) {
+            if (!abc) return;
+            var parts = abc.split("_");
+            if (parts.length < 4) return;
+            var SrNo = parts[0];
+            var BillToPartyID = parts[1];
+            var YarnMaterialID = parts[2];
+            var YarnColorID = parts[3];
+            var GodownID = $("#ddlGodownMaster").val();
+
+            var $stockSpan = $("#spanStock_" + SrNo);
+            var $inputBox = $("#txtinputstock_" + SrNo);
+            var TextStock = parseInt($inputBox.val()) || 0;
+            var AvailableStock = parseInt($stockSpan.text()) || 0;
+            if (!TextStock) {
+                $inputBox.addClass("is-invalid");
+                notes.show("Please Mention No Of Box.", { type: 'danger' });
+                return;
+            }
+
+            if (TextStock > AvailableStock) {
+                $inputBox.addClass("is-invalid");
+                notes.show("Please Mention Below Stock Value.", { type: 'danger' });
+                return;
+            }
+
+            $inputBox.removeClass("is-invalid");
+            $("#tblSpanCompanyName").html($("#span_Name_" + SrNo).html());
+            $("#tblSpanYarnMaterial").html($("#span_Material_" + SrNo).html());
+            $("#tblSpanYarnColor").html($("#span_Color_" + SrNo).html());
+            $("#tblSpanColorCode").html($("#span_Code_" + SrNo).html());
+            $("#tblSpanNoOfBox").html(TextStock);
+
+            $("#txtBillToPartyID").val(BillToPartyID);
+            $("#txtYarnMaterialID").val(YarnMaterialID);
+            $("#txtYarnColorID").val(YarnColorID);
+            $("#txtTextStock").val(TextStock);
+            var formData = new FormData();
+            formData.append('BillToPartyID', BillToPartyID);
+            formData.append('YarnMaterialID', YarnMaterialID);
+            formData.append('YarnColorID', YarnColorID);
+            formData.append('GodownID', GodownID);
+
+            var siftGodownInputBox = $("#siftGodownInputBox").val() || "";
+            formData.append(
+                'siftGodownInputBox',
+                siftGodownInputBox ? siftGodownInputBox.slice(0, -1).replace(/\|/g, ',') : ""
+            );
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutwardSiftMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var list = response.listYarnOutwardMaster || [];
+                    var $tbody = $("#tblYarnSift");
+
+                    $tbody.empty();
+
+                    if (!list.length) {
+                        $("#hTotalNoOfBox").html(0);
+                        return;
+                    }
+
+                    var temp = "";
+                    var srno = 1;
+                    var RemainingStock = TextStock;
+                    var locationIds = [];
+                    stockAssigned = false
+                    list.forEach(function (item) {
+                        var maxBox = parseInt(item.NoOfBox) || 0;
+                        var MentionNoOfBox = 0;
+
+                        if (!stockAssigned && TextStock <= maxBox) {
+                            MentionNoOfBox = TextStock;
+                            stockAssigned = true;
+                        } else {
+                            MentionNoOfBox = 0;
+                        }
+
+                        temp += `
+                              <tr
+                                  data-billto="${item.BillToPartyID}"
+                                  data-godownlocationid="${item.GodownLocationID}"
+                                  data-yarncolorid="${item.YarnColorID}"
+                                  data-yarnmaterialid="${item.YarnMaterialID}"
+                                  data-companyname="${item.CompanyName}"
+                                  data-yarnmaterial="${item.YarnMaterial}"
+                                  data-yarncolor="${item.YarnColor}"
+                                  data-yarncolorcode="${item.YarnColorCode}">
+
+                                  <td>${srno}</td>
+                                  <td>${item.GodownTitle}</td>
+                                  <td>${item.LocationTitle}</td>
+                                  <td>${maxBox}</td>
+                                  <td>
+                                      <input type="tel"
+                                          class="form-control txtNoOfBox"
+                                          id="txtNoOfBox_${item.GodownLocationID}"
+                                          data-max="${maxBox}"
+                                          value="${MentionNoOfBox}"
+                                          maxlength="2"
+                                          style="width:60px; min-height:30px;"
+                                          onkeypress="return (event.charCode>=48 && event.charCode<=57)"
+                                          onkeyup="GodownNoOfBox(this)" />
+                                  </td>
+                              </tr>`;
+
+                        locationIds.push(item.GodownLocationID);
+                        srno++;
+                    });
+
+                    $tbody.append(temp);
+
+                    $("#hTotalNoOfBox").html(TextStock);
+                    $("#txtGodownLocationID").val(locationIds.join(",") + ",");
+
+                    HideAlreadySifted();
+
+                    $('#modalYarnSift').on('shown.bs.modal', function () {
+                        $("#btnSaveSiftYarnBox").trigger("focus");
+                    });
+                }
+            });
+
+            $("#btnShiftModel").click();
+        }
+        function ViewYarnOutWardRecordQueryString(DecryptID) {
+            var dataArray = [];
+            var GodownIDs = $("#ddlGodownMaster").val();
+            var BillToPartyID = $("#txtBillToPartyID").val();
+            var YarnMaterialID = $("#txtYarnMaterialID").val();
+            var YarnColorID = $("#txtYarnColorID").val();
+            var formData = new FormData();
+            formData.append('YarnOutwardID', DecryptID);
+            formData.append('GodownID', GodownIDs);
+            var PartyId = 0;
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutWardArraysData',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var list = response.listTotalExistingOutwardStockArray || [];
+                    var godownMasterID = response.YarnOutwardcondition?.[0]?.GodownID ?? 0;
+                    var PartyId = response.YarnOutwardcondition?.[0]?.PartyId ?? 0;
+                    var OutwardListNo = response.YarnOutwardcondition?.[0]?.OutwardListNo ?? 0;
+                    var OutwardListDate = response.YarnOutwardcondition?.[0]?.OutwardListDate ?? 0;
+                    var GodownManagerUserAccountId = response.YarnOutwardcondition?.[0]?.GodownManagerUserAccountId ?? 0;
+                    var SundryParty = response.listPartyMaster?.[0]?.SundryParty ?? 0;
+                    $("#SundryParty").val(SundryParty).trigger("change");
+                    changeSundryPartyId(SundryParty + "|" + PartyId);
+                    console.log("SundryParty + " | " + PartyId", SundryParty + "|" + PartyId);
+                    $("#SundryParty").val(SundryParty).trigger("change");
+                    $("#ListNo").val(OutwardListNo);
+                    console.log("OutwardListDate", OutwardListDate)
+                    if (OutwardListDate) {
+                        var milliseconds = parseInt(OutwardListDate.replace(/\/Date\((\d+)\)\//, "$1"));
+                        var date = new Date(milliseconds);
+
+                        var day = ("0" + date.getDate()).slice(-2);
+                        var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                        var year = date.getFullYear();
+
+                        var formattedDate = day + "/" + month + "/" + year;
+                        $("#ListDate").val(formattedDate);
+                    }
+                    $("#ddlGodownMaster").val(godownMasterID).trigger("change");
+                    $("#ddlYarnGodownManager").val(GodownManagerUserAccountId).trigger("change");
+                    $("#ddlGodownMaster").prop("disabled", true);
+                    var $tbody = $("#tblYarnSift");
+
+                    $tbody.empty();
+
+                    if (!list.length) {
+                        $("#hTotalNoOfBox").html(0);
+                        return;
+                    }
+                    var userTable = $('#TblUser');
+                    TotalInwardStockAry = response.listTotalInwardStockArray;
+                    TotalOutwardStockAry = response.listTotalOutwardStockArray;
+                    TotalExistingOutwardStockAry = response.listTotalExistingOutwardStockArray;
+                    dataArray = response.listTotalExistingOutwardStockArray;
+                    if (dataArray.length > 0) {
+                        var dataTable = $('#tableSiftYarnData');
+                        var temp = "";
+                        var locationIds = [];
+                        var srno = $("#tableSiftYarnData tr").length + 1;
+                        for (var i = 0; i < dataArray.length; i++) {
+                            temp += "<tr>";
+                            var hiddenValue = "(" + dataArray[i].GodownLocationID + "," +
+                                dataArray[i].BillToPartyID + "," +
+                                dataArray[i].YarnMaterialID + "," +
+                                dataArray[i].YarnColorID + "," +
+                                dataArray[i].Stock + ")";
+
+                            temp += "<td style='text-align:center;'>" +
+                                "<a href='javascript:void(0);' onclick='yarnbacksift(this,\"" + hiddenValue + "\")'>" +
+                                "<img src='/img/left-rrow.png' title='Sift Back Yarn' style='width:20px;'/>" +
+                                "</a>" +
+                                "</td>";
+
+                            temp += "<td>" + srno + "</td>";
+                            temp += "<td>" + dataArray[i].CompanyName + "</td>";
+                            temp += "<td>" + dataArray[i].YarnMaterial + "</td>";
+                            temp += "<td>" + dataArray[i].YarnColor + "</td>";
+                            temp += "<td>" + dataArray[i].YarnColorCode + "</td>";
+                            temp += "<td>" + dataArray[i].LocationTitle + "</td>";
+                            temp += "<td>" + dataArray[i].Stock + "</td>";
+
+                            temp += "<input type='hidden' id='txtsiftid_" + srno + "' " +
+                                "value='" + dataArray[i].GodownLocationID + "' />";
+
+                            temp += "</tr>";
+
+                            locationIds.push(hiddenValue);
+                            srno++;
+                        }
+                        dataTable.append(temp);
+                        $("#siftGodownInputBox").val(locationIds.join("|") + "|");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        $('#Savebtn').on('click', function () {
+            let location = $('#Location1').val();
+
+            if (!location || location === "0") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Please Select Location',
+                    text: 'Location is required before saving!'
+                });
+                return;
+            }
+
+            let totalWeight = parseFloat($('#TotalTotalWeight').val() || $('#TotalTotalWeight').text()) || 0;
+            let receiveWeight = 0;
+            $('#tableItemData').find('[id^="NetWeight"]').each(function () {
+                receiveWeight += parseFloat($(this).val()) || 0;
+            });
+            let ReceivePOQty = parseFloat($('#ReceivePOQty').val()) || 0;
+            let ChallanWeight = parseFloat($('#TotalWeight').val()) || 0;
+            let TotalPendingWeight = parseFloat($('#TotalPendingWeight').text()) || 0;
+
+            let pending = totalWeight - receiveWeight;
+            $('#TotalPendingWeight').text(pending.toFixed(2));
+
+            if (ChallanWeight !== receiveWeight) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Challan Pending Weight InComplete',
+                    text: `Total: ${ChallanWeight} | Received: ${receiveWeight}`
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Confirm Save',
+                html: `
+                        <b>Total Weight:</b> ${totalWeight} <br>
+                        <b>Receive Weight:</b> ${ReceivePOQty + receiveWeight}<br>
+                        <b>Pending Weight:</b> ${TotalPendingWeight}
+                    `,
+                icon: 'info',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Save',
+                denyButtonText: 'Save & Close',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    checkSave();
+                }
+                else if (result.isDenied) {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Are you sure you want to Close this Yarn PO?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No'
+                    }).then((confirmResult) => {
+                        if (confirmResult.isConfirmed) {
+                            checkCloseSave();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
