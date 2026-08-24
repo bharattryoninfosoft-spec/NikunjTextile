@@ -31,26 +31,26 @@
                                             <hr class="my-2" />
                                         </div>
 
-                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
                                             <div class="field-wrapper">
-                                                <select id="SundryParty" class="form-select" name="SundryParty">
+                                                <select id="SundryParty" class="form-select" name="SundryParty" onchange="validate(this)">
                                                     <option value="0">Select Sundry Party</option>
                                                     <option value="1">Sundry Creditors</option>
                                                     <option value="2">Sundry Debtors</option>
-                                                    <option value="3">Job Work</option>
                                                 </select>
-                                                <div class="field-placeholder">Sundry Type</div>
+                                                <div class="field-placeholder">Sundry Type<span class="text-danger">*</span></div>
+                                                <div class="invalid-feedback">Please Seleted Sundry Type</div>
                                             </div>
                                         </div>
 
-                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        @*<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
                                                 <select id="Broker" class="form-select">
                                                     <option value="-1">Select Broker</option>
                                                 </select>
                                                 <div class="field-placeholder">Broker</div>
                                             </div>
-                                        </div>
+                                        </div>*@
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
@@ -70,7 +70,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12 mb-3">
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
                                             <div class="field-wrapper">
                                                 <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
                                                 <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
@@ -78,13 +78,13 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                        @*<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                                             <div class="field-wrapper">
                                                 <input id="PartyPrefix" placeholder="PREFIX" type="text" maxlength="4" class="form-control clear-field detail" style="text-transform: uppercase;" />
                                                 <div class="field-placeholder">Party Prefix</div>
                                                 <div class="invalid-feedback">Please Provide Party Prefix</div>
                                             </div>
-                                        </div>
+                                        </div>*@
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
@@ -197,8 +197,9 @@
 
                                         <div class="col-12 mb-3">
                                             <div class="field-wrapper">
-                                                <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="2" placeholder="Enter Billing Address"></textarea>
-                                                <div class="field-placeholder">Billing Address</div>
+                                                <textarea id="billingAddress" onkeyup="checkShippingAdd()" onfocusout="validate(this)" class="form-control clear-field detail" rows="2" placeholder="Enter Billing Address"></textarea>
+                                                <div class="field-placeholder">Billing Address<span class="text-danger">*</span></div>
+                                                <div class="invalid-feedback">Please Provide Billing Address</div>
                                             </div>
                                         </div>
 
@@ -577,17 +578,21 @@
         }
 
         function savePartyData(closeModalAfterSave) {
+            debugger;
+            var sundry = document.getElementById('SundryParty');
             var name = document.getElementById('party-name');
             var phone = document.getElementById('phone');
-            var SundryParty = $('#SundryParty').val();
-            var PartyPrefix = document.getElementById('PartyPrefix');
+            var billingAddress = document.getElementById('billingAddress');
 
-            if (!validate(name) || !validate(phone)) return;
-
-            if (SundryParty == "3" && !validate(PartyPrefix)) {
-                Toast.fire({ icon: 'warning', title: 'Please enter prefix for Job Work Party' });
+            if (!validate(sundry) || !validate(name) || !validate(phone) || !validate(billingAddress)) {
+                Toast.fire({ icon: 'warning', title: 'Please fill out all required fields correctly.' });
                 return;
             }
+
+            //if (SundryParty == "3" && !validate(PartyPrefix)) {
+            //    Toast.fire({ icon: 'warning', title: 'Please enter prefix for Job Work Party' });
+            //    return;
+            //}
 
             var formData = new FormData();
             formData.append('PartyName', name.value);
@@ -635,13 +640,15 @@
         }
 
         function checkEdit() {
-            var id = $("#edit-id").val();
+            var sundry = document.getElementById('SundryParty');
             var name = document.getElementById('party-name');
             var phone = document.getElementById('phone');
-            var SundryParty = $('#SundryParty').val();
-            var PartyPrefix = document.getElementById('PartyPrefix');
+            var billingAddress = document.getElementById('billingAddress');
 
-            if (!validate(name) || !validate(phone)) return;
+            if (!validate(sundry) || !validate(name) || !validate(phone) || !validate(billingAddress)) {
+                Toast.fire({ icon: 'warning', title: 'Please fill out all required fields correctly.' });
+                return;
+            }
 
             var formData = new FormData();
             formData.append('PartyId', id);
@@ -776,30 +783,34 @@
         }
 
         function validate(code) {
-            if (!code || !code.value) {
-                if (code) {
-                    $(code).addClass("is-invalid").removeClass("is-valid");
-                }
+            // If an ID string or direct element/value is passed
+            var $el = typeof code === "string" ? $("#" + code) : $(code);
+            var el = $el[0];
+
+            if (!el) return false;
+
+            var val = $(el).val();
+
+            // Check for empty, default dropdown values ("0"), or whitespace
+            if (!val || val.toString().trim() === "" || val === "0" || val === "-1") {
+                $el.addClass("is-invalid").removeClass("is-valid");
                 return false;
             }
 
-            code.value = code.value.replace(/\s+/g, ' ').trim();
-            var $el = $(code);
+            // Clean up extra whitespace for text inputs/textareas
+            if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                el.value = el.value.replace(/\s+/g, ' ').trim();
+            }
 
-            if (code.id === "gstin") {
-                if (code.value.length === 15) {
-                    var gstVal = code.value.toUpperCase();
+            // Specific field validations
+            if (el.id === "gstin") {
+                if (val.length === 15) {
+                    var gstVal = val.toUpperCase();
                     var pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-
                     if (pattern.test(gstVal)) {
                         $el.addClass("is-valid").removeClass("is-invalid");
-
-                        // Auto-fill PAN Number from GSTIN
                         $('#PanNo').val(gstVal.substring(2, 12));
-
-                        // Fetch details from GST API
                         fetchGstDetails(gstVal);
-
                         return true;
                     } else {
                         $el.addClass("is-invalid").removeClass("is-valid");
@@ -808,6 +819,13 @@
                     }
                 } else {
                     $el.removeClass("is-valid is-invalid");
+                    return false;
+                }
+            }
+
+            if (el.id === "phone") {
+                if (val.length !== 10) {
+                    $el.addClass("is-invalid").removeClass("is-valid");
                     return false;
                 }
             }
