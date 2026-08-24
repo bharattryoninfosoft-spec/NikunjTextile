@@ -40,9 +40,7 @@ using System.Web.UI.WebControls;
 
 namespace NikunjTextile
 {
-    /// <summary>
-    /// Summary description for WebServiceNikunjTextile
-    /// </summary>
+    
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
@@ -52,7 +50,10 @@ namespace NikunjTextile
     {
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         //UserLogin Web Service 
-
+        string connString = System.Configuration.ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+        /// <summary>
+        /// Summary description for WebServiceNikunjTextile
+        /// </summary>
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         private string Encrypt(string clearText)
@@ -32700,6 +32701,231 @@ FROM Filtered
             Context.Response.ContentType = "application/json";
             Context.Response.Write(new JavaScriptSerializer().Serialize(orderList));
         }
+
+
+        #region Jobber Master
+        // 1. GET ALL JOBBERS (List View)
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public List<JobberViewModel> GetJobberList()
+        {
+            List<JobberViewModel> list = new List<JobberViewModel>();
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                string query = "SELECT Id, JobberType, PartyName, MobileNumber, City FROM JobberMaster";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    con.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            JobberViewModel jobber = new JobberViewModel
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                JobberType = reader["JobberType"].ToString(),
+                                PartyName = reader["PartyName"].ToString(),
+                                MobileNumber = reader["MobileNumber"].ToString(),
+                                City = reader["City"].ToString()
+                            };
+                            list.Add(jobber);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        // 2. VIEW SINGLE RECORD (Get details + single machine row columns)
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public JobberViewModel GetJobberById(int id)
+        {
+            JobberViewModel jobber = null;
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                con.Open();
+                string query = "SELECT * FROM JobberMaster WHERE Id = @Id";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            jobber = new JobberViewModel
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                JobberType = reader["JobberType"].ToString(),
+                                Gstin = reader["Gstin"]?.ToString(),
+                                PanNo = reader["PanNo"]?.ToString(),
+                                PartyName = reader["PartyName"].ToString(),
+                                Prefix = reader["Prefix"]?.ToString(),
+                                MobileNumber = reader["MobileNumber"].ToString(),
+                                AlternateNumber = reader["AlternateNumber"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                PlaceOfSupply = reader["PlaceOfSupply"]?.ToString(),
+                                Pincode = reader["Pincode"]?.ToString(),
+                                City = reader["City"].ToString(),
+                                BankHolderName = reader["BankHolderName"]?.ToString(),
+                                BankAcNo = reader["BankAcNo"]?.ToString(),
+                                BankName = reader["BankName"]?.ToString(),
+                                BankIfsc = reader["BankIfsc"]?.ToString(),
+                                BankBranch = reader["BankBranch"]?.ToString(),
+                                BillingAddress = reader["BillingAddress"]?.ToString(),
+                                MachineType = reader["MachineType"]?.ToString(),
+                                Rpm = reader["Rpm"] != DBNull.Value ? Convert.ToInt32(reader["Rpm"]) : 0,
+                                PanaRepeat = reader["PanaRepeat"] != DBNull.Value ? Convert.ToInt32(reader["PanaRepeat"]) : 0,
+                                PanaWidth = reader["PanaWidth"] != DBNull.Value ? Convert.ToInt32(reader["PanaWidth"]) : 0,
+                                NoOfMachines = reader["NoOfMachines"] != DBNull.Value ? Convert.ToInt32(reader["NoOfMachines"]) : 0
+                            };
+                        }
+                    }
+                }
+            }
+            return jobber ?? new JobberViewModel();
+        }
+
+        // 3. INSERT / UPDATE (Save record saving machine columns directly)
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public bool SaveJobber(JobberViewModel model)
+        {
+            if (model == null) return false;
+
+            // Extract UserAccountId and CompanyId safely from Cookies
+            long userAccountId = 0;
+            long companyId = 0;
+
+            if (Context.Request.Cookies["UserIDs"] != null)
+            {
+                long.TryParse(Context.Request.Cookies["UserIDs"].Value, out userAccountId);
+            }
+
+            if (Context.Request.Cookies["CompanyID"] != null)
+            {
+                long.TryParse(Context.Request.Cookies["CompanyID"].Value, out companyId);
+            }
+
+            model.UserAccountId = userAccountId;
+            model.CompanyId = companyId;
+
+            if (model.JobberType == null || !model.JobberType.Contains("Weaving"))
+            {
+                model.MachineType = string.Empty;
+                model.Rpm = 0;
+                model.PanaRepeat = 0;
+                model.PanaWidth = 0;
+                model.NoOfMachines = 0;
+            }
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                con.Open();
+                try
+                {
+                    if (model.Id == 0)
+                    {
+                        // --- INSERT LOGIC ---
+                        string insertQuery = @"INSERT INTO JobberMaster 
+                (CompanyId, UserAccountId, DateAndTime, JobberType, Gstin, PanNo, PartyName, Prefix, MobileNumber, AlternateNumber, Email, PlaceOfSupply, Pincode, City, BankHolderName, BankAcNo, BankName, BankIfsc, BankBranch, BillingAddress, MachineType, Rpm, PanaRepeat, PanaWidth, NoOfMachines, IsActiveParty)
+                VALUES 
+                (@CompanyId, @UserAccountId, GETDATE(), @JobberType, @Gstin, @PanNo, @PartyName, @Prefix, @MobileNumber, @AlternateNumber, @Email, @PlaceOfSupply, @Pincode, @City, @BankHolderName, @BankAcNo, @BankName, @BankIfsc, @BankBranch, @BillingAddress, @MachineType, @Rpm, @PanaRepeat, @PanaWidth, @NoOfMachines, @IsActiveParty)";
+
+                        using (SqlCommand cmd = new SqlCommand(insertQuery, con))
+                        {
+                            AddJobberParameters(cmd, model);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // --- UPDATE LOGIC ---
+                        string updateQuery = @"UPDATE JobberMaster SET 
+                JobberType=@JobberType, Gstin=@Gstin, PanNo=@PanNo, PartyName=@PartyName, Prefix=@Prefix, 
+                MobileNumber=@MobileNumber, AlternateNumber=@AlternateNumber, Email=@Email, PlaceOfSupply=@PlaceOfSupply, 
+                Pincode=@Pincode, City=@City, BankHolderName=@BankHolderName, BankAcNo=@BankAcNo, 
+                BankName=@BankName, BankIfsc=@BankIfsc, BankBranch=@BankBranch, BillingAddress=@BillingAddress,
+                MachineType=@MachineType, Rpm=@Rpm, PanaRepeat=@PanaRepeat, PanaWidth=@PanaWidth, NoOfMachines=@NoOfMachines,
+                IsActiveParty=@IsActiveParty
+                WHERE Id=@Id";
+
+                        using (SqlCommand cmd = new SqlCommand(updateQuery, con))
+                        {
+                            AddJobberParameters(cmd, model);
+                            cmd.Parameters.AddWithValue("@Id", model.Id);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        private void AddJobberParameters(SqlCommand cmd, JobberViewModel model)
+        {
+            cmd.Parameters.AddWithValue("@CompanyId", model.CompanyId); // Pull from session context if needed
+            cmd.Parameters.AddWithValue("@UserAccountId", model.UserAccountId); // Pull from session context if needed
+            cmd.Parameters.AddWithValue("@JobberType", model.JobberType ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Gstin", model.Gstin ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PanNo", model.PanNo ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PartyName", model.PartyName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Prefix", model.Prefix ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@MobileNumber", model.MobileNumber ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@AlternateNumber", model.AlternateNumber ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Email", model.Email ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PlaceOfSupply", model.PlaceOfSupply ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Pincode", model.Pincode ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@City", model.City ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BankHolderName", model.BankHolderName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BankAcNo", model.BankAcNo ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BankName", model.BankName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BankIfsc", model.BankIfsc ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BankBranch", model.BankBranch ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BillingAddress", model.BillingAddress ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@MachineType", model.MachineType ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Rpm", model.Rpm);
+            cmd.Parameters.AddWithValue("@PanaRepeat", model.PanaRepeat);
+            cmd.Parameters.AddWithValue("@PanaWidth", model.PanaWidth);
+            cmd.Parameters.AddWithValue("@NoOfMachines", model.NoOfMachines);
+            cmd.Parameters.AddWithValue("@IsActiveParty", model.IsActiveParty);
+        }
+
+        // 4. DELETE RECORD
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public bool DeleteJobber(int id)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connString))
+                {
+                    string query = @"
+                DELETE FROM JobberMaster
+                WHERE Id = @Id";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", id);
+
+                        con.Open();
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting Jobber: " + ex.Message);
+            }
+        }
+        #endregion
     }
 
 }

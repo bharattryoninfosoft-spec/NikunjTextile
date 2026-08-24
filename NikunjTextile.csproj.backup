@@ -609,6 +609,8 @@
   <ItemGroup>
     <Content Include="bin\NikunjTextile.dll" />
     <Content Include="bin\NikunjTextile.pdb" />
+<Content Include="ColorMatchingPhoto\gwvzjjPC070-2.bmp" />
+<Content Include="ColorMatchingPhoto\wwvexjPC070-2.bmp" />
     <Content Include="css\bootstrap.min.css" />
     <Content Include="css\main.css" />
     <Content Include="fonts\icomoonf33b.svg" />
@@ -3281,6 +3283,83 @@
     <Content Include="packages\System.Xml.XDocument.4.0.11\ref\netstandard1.3\zh-hans\System.Xml.XDocument.xml" />
     <Content Include="packages\System.Xml.XDocument.4.0.11\ref\netstandard1.3\zh-hant\System.Xml.XDocument.xml" />
     <Content Include="packages\System.Xml.XDocument.4.0.11\ThirdPartyNotices.txt" />
+<Content Include="PhotoOfDesign\ajmnmoWhatsApp Image 2025-08-01 at 14.20.55_99d8a242.jpg" />
+<Content Include="PhotoOfDesign\bmdbfhTRM.png" />
+<Content Include="PhotoOfDesign\brqrjtVC3=814 %2854%29.jpg" />
+<Content Include="PhotoOfDesign\cefmeadrop_icon.png" />
+<Content Include="PhotoOfDesign\czjpnzf81cef9d54.jpg" />
+<Content Include="PhotoOfDesign\ektuhmPC=072 N %2845%29.png" />
+<Content Include="PhotoOfDesign\fnyaccnt113.jpg" />
+<Content Include="PhotoOfDesign\fqilwq302584853_612255283939130_2929442403584280205_n.jpg" />
+<Content Include="PhotoOfDesign\gcdzprNT-111-2.bmp" />
+<Content Include="PhotoOfDesign\gzbmioWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\gzvibdWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\inangqDeliveredBy.png" />
+<Content Include="PhotoOfDesign\ixuznq302584853_612255283939130_2929442403584280205_n.jpg" />
+<Content Include="PhotoOfDesign\jpnqcfWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\khhjxvDeliveredBy.png" />
+<Content Include="PhotoOfDesign\ktzfpfVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\kyhubvWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\lsapkfWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\mkzbrlVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\molmzhVC3=789.jpg" />
+<Content Include="PhotoOfDesign\nbpbayWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\ngxlyqPC=062 %2845%29.png" />
+<Content Include="PhotoOfDesign\nsrxcgVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\ocytplPC=073 %2845%29.png" />
+<Content Include="PhotoOfDesign\oqacyginvoices.png" />
+<Content Include="PhotoOfDesign\otmbjnWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\owsghtVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\ptodpqNT-111-2.bmp" />
+<Content Include="PhotoOfDesign\pxmbeeWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\pzplsoVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\rbdejhWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\sgvmenNT-111-2.bmp" />
+<Content Include="PhotoOfDesign\stjocsWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\tbjdsgaa578cfd5e.png" />
+<Content Include="PhotoOfDesign\ttmyezWhatsApp Image 2025-07-14 at 2.15.49 PM.jpeg" />
+<Content Include="PhotoOfDesign\uggqpqWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\vdaepfPC=074 %2845%29.png" />
+<Content Include="PhotoOfDesign\vkzlcgPC=061 N %2845%29.png" />
+<Content Include="PhotoOfDesign\vzecguDeliveredBy.png" />
+<Content Include="PhotoOfDesign\wmwfgvPC=075 N %2845%29.png" />
+<Content Include="PhotoOfDesign\wyhyjiWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\xeypdgWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\xhcgvdWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+<Content Include="PhotoOfDesign\xplfyuVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\xzhhxkVC3=760%2848%29.jpg" />
+<Content Include="PhotoOfDesign\ywjnqy475770d0-905d-4bd3-ab4f-15f2426fc678.jfif" />
+<Content Include="PhotoOfSketch\ackmwpapp_cover2.png" />
+    <Content Include="PhotoOfSketch\ayoidhContastant-Contain.png" />
+    <Content Include="PhotoOfSketch\bwjldyapp_cover2.png" />
+    <Content Include="PhotoOfSketch\cunypbJGP=011.bmp" />
+    <Content Include="PhotoOfSketch\diaanbrocket-launch.png" />
+    <Content Include="PhotoOfSketch\ezxmviOneClick.jpg" />
+    <Content Include="PhotoOfSketch\hdizbz302584853_612255283939130_2929442403584280205_n.jpg" />
+    <Content Include="PhotoOfSketch\iixgvptryon-logo.jpg" />
+    <Content Include="PhotoOfSketch\jnrsqk03.jpg" />
+    <Content Include="PhotoOfSketch\kfxtecOrderIN.png" />
+    <Content Include="PhotoOfSketch\lyakne03.jpg" />
+    <Content Include="PhotoOfSketch\mdiiofJGP=011.bmp" />
+    <Content Include="PhotoOfSketch\nasuznapp_cover2.png" />
+    <Content Include="PhotoOfSketch\ngxonsl-intro-1705084553.jpg" />
+    <Content Include="PhotoOfSketch\nlnopw5.bmp" />
+    <Content Include="PhotoOfSketch\oinjmvWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+    <Content Include="PhotoOfSketch\onvxxksample1.bmp" />
+    <Content Include="PhotoOfSketch\qgoqak03.jpg" />
+    <Content Include="PhotoOfSketch\qqzdptWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
+    <Content Include="PhotoOfSketch\rbljwepickup_icon.png" />
+    <Content Include="PhotoOfSketch\rvojvzpickup_icon.png" />
+    <Content Include="PhotoOfSketch\sselmuOrderIN.png" />
+    <Content Include="PhotoOfSketch\titcaxapp_cover2.png" />
+    <Content Include="PhotoOfSketch\tohvzsJGP=011.bmp" />
+    <Content Include="PhotoOfSketch\wjzmznapp_cover2.png" />
+    <Content Include="PhotoOfSketch\wmvqvv475770d0-905d-4bd3-ab4f-15f2426fc678.jfif" />
+    <Content Include="PhotoOfSketch\wsbjzfbilling_buddy_icon_new.png" />
+    <Content Include="PhotoOfSketch\wtcgmsOrderIN.png" />
+    <Content Include="PhotoOfSketch\ycrybsapp_cover2.png" />
+    <Content Include="PhotoOfSketch\yjnghqWorkiva.png" />
+    <Content Include="PhotoOfSketch\zsfqahapp_cover2.png" />
     <Content Include="SqlServerTypes\readme.htm" />
     <Content Include="SqlServerTypes\x64\msvcr120.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -3480,7 +3559,6 @@
     <Compile Include="Class\GstSlabMasterResponse.cs" />
     <Compile Include="Class\ItemMasterModel.cs" />
     <Compile Include="Class\JobberInward.cs" />
-    <Compile Include="Class\JobberViewModel.cs" />
     <Compile Include="Class\LocationMaster.cs" />
     <Compile Include="Class\LocationMasterResponse.cs" />
     <Compile Include="Class\MaterialMaster.cs" />
@@ -3652,6 +3730,8 @@
     <Content Include="TypeMaster.cshtml" />
     <Content Include="UpdateDesignEntry.cshtml" />
     <Content Include="UpdateDesignColorMatching.cshtml" />
+<Content Include="PhotoOfDesign\oymgioshopping %281%29.webp" />
+<Content Include="PhotoOfDesign\xcxfbtshopping %281%29.webp" />
     <Content Include="PartyMaster.cshtml" />
     <Content Include="UpdateYarnRequirement.cshtml" />
     <Content Include="UpdateYarnPO.cshtml" />
@@ -3673,7 +3753,6 @@
     <Content Include="CreateJobberInward.cshtml" />
     <Content Include="JobberOutWardList.cshtml" />
     <Content Include="JobberStockReport.cshtml" />
-    <Content Include="JobberMaster.cshtml" />
     <None Include="packages.config" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\.signature.p7s" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\BouncyCastle.Cryptography.2.6.2.nupkg" />
