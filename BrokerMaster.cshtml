@@ -34,15 +34,31 @@
                     <input type="hidden" id="BrokerId" value="0">
                     <div class="row g-3">
                         <!-- Broker Code -->
-                        <div class="col-md-2">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <input type="text" class="form-control" id="BrokerCode" readonly>
                                 <div class="field-placeholder">Broker Code</div>
                             </div>
                         </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                            <div class="field-wrapper">
+                                <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 24XXXXX9438X1XX" minlength="15" maxlength="15" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                <input id="gstintemp" type="hidden" class="clear-field detail">
+                                <div class="field-placeholder">GSTIN</div>
+                                <div class="invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
+                            </div>
+                        </div>
 
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                            <div class="field-wrapper">
+                                <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PAN No" minlength="10" maxlength="10" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                <input id="PanNotemp" type="hidden" class="clear-field detail">
+                                <div class="field-placeholder">PAN No</div>
+                                <div class="invalid-feedback" id="PanNoError">Please Provide Valid PAN Number</div>
+                            </div>
+                        </div>
                         <!-- Broker Name -->
-                        <div class="col-md-5">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <input type="text" class="form-control" id="BrokerName">
                                 <div class="field-placeholder">Broker Name <span style="color:red">*</span></div>
@@ -51,7 +67,7 @@
                         </div>
 
                         <!-- Mobile -->
-                        <div class="col-md-5">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <input type="tel" class="form-control" id="MobileNo" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
                                 <div class="field-placeholder">Mobile <span style="color:red">*</span></div>
@@ -60,7 +76,7 @@
                         </div>
 
                         <!-- Address -->
-                        <div class="col-md-5">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <input type="text" class="form-control" id="Address">
                                 <div class="field-placeholder">Address</div>
@@ -68,7 +84,7 @@
                         </div>
 
                         <!-- City -->
-                        <div class="col-md-2">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <input type="text" class="form-control" id="CityName">
                                 <div class="field-placeholder">City</div>
@@ -76,15 +92,14 @@
                         </div>
 
                         <!-- Commission -->
-                        <div class="col-md-3">
+                        <!--<div class="col-md-3">
                             <div class="field-wrapper">
                                 <input type="number" class="form-control" id="CommissionRate" maxlength="3" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
                                 <div class="field-placeholder">Commission (%)</div>
                             </div>
-                        </div>
-
+                        </div>-->
                         <!-- Status -->
-                        <div class="col-md-2">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
                             <div class="field-wrapper">
                                 <select class="form-control" id="IsActive">
                                     <option value="true">Active</option>
@@ -119,14 +134,13 @@
                         <table id="tblBroker" class="table table-bordered table-hover align-middle">
                             <thead style="background-color: #2573e8">
                                 <tr>
-                                    <th class="text-white" >Broker Code</th>
-                                    <th class="text-white" >Broker Name</th>
-                                    <th class="text-white" >Mobile</th>
-                                    <th class="text-white" >Address</th>
-                                    <th class="text-white" >City</th>
-                                    <th class="text-white" >Commission (%)</th>
-                                    <th class="text-white" >Status</th>
-                                    <th class="text-white"  style="width: 100px;">Action</th>
+                                    <th class="text-white">Broker Code</th>
+                                    <th class="text-white">Broker Name</th>
+                                    <th class="text-white">Mobile</th>
+                                    <th class="text-white">Address</th>
+                                    <th class="text-white">City</th>                              
+                                    <th class="text-white">Status</th>
+                                    <th class="text-white" style="width: 100px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -139,9 +153,6 @@
 </div>
 
 @section Scripts{
-    <!-- SweetAlert2 Library CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         var currentPagePermission = {};
 
@@ -221,9 +232,7 @@
                 html += "<td>" + item.BrokerName + "</td>";
                 html += "<td>" + item.MobileNo + "</td>";
                 html += "<td>" + (item.Address || "-") + "</td>";
-                html += "<td>" + (item.CityName || "-") + "</td>";
-                html += "<td>" + parseFloat(item.CommissionRate || 0).toFixed(2) + "</td>";
-
+                html += "<td>" + (item.CityName || "-") + "</td>";                
                 html += "<td>";
                 html += item.IsActive
                     ? "<span class='badge bg-success'>Active</span>"
@@ -278,12 +287,88 @@
             $(this).find('input, textarea').val('');
             $(this).find('input[type="checkbox"]').prop('checked', false);
             $(this).find('select').val('true').trigger('change');
-            $('.form-control').removeClass('is-invalid');
+            $('.form-control').removeClass('is-invalid is-valid');
         });
 
         $('.form-control').on('input change', function () {
             $(this).removeClass('is-invalid');
         });
+
+        // --- GSTIN VALIDATION & AUTO-FILL HELPERS ---
+        function validate(code) {
+            var $el = typeof code === "string" ? $("#" + code) : $(code);
+            var el = $el[0];
+
+            if (!el) return false;
+            var val = $(el).val();
+
+            if (!val || val.toString().trim() === "") {
+                $el.removeClass("is-valid is-invalid");
+                return false;
+            }
+
+            el.value = el.value.replace(/\s+/g, ' ').trim();
+
+            if (el.id === "gstin") {
+                if (val.length === 15) {
+                    var gstVal = val.toUpperCase();
+                    var pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                    if (pattern.test(gstVal)) {
+                        $el.addClass("is-valid").removeClass("is-invalid");
+
+                        // Auto-fill PAN Number from GSTIN (Chars 3 to 12)
+                        $('#PanNo').val(gstVal.substring(2, 12));
+
+                        // Fetch details from your ASMX web service GST API endpoint
+                        fetchGstDetails(gstVal);
+                        return true;
+                    } else {
+                        $el.addClass("is-invalid").removeClass("is-valid");
+                        $("#GSTError").html("Please enter a valid 15-digit GSTIN.");
+                        return false;
+                    }
+                } else {
+                    $el.removeClass("is-valid is-invalid");
+                    return false;
+                }
+            }
+
+            $el.addClass("is-valid").removeClass("is-invalid");
+            return true;
+        }
+
+        function fetchGstDetails(gstin) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+                data: JSON.stringify({ gstin: gstin }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
+
+                    if (res && res.success && res.data) {
+                        var d = res.data;
+
+                        // 1. Broker Name -> trade_name or legal_name
+                        $("#BrokerName").val(d.trade_name || d.legal_name || '');
+
+                        // 2. Address -> address
+                        $("#Address").val(d.address || '');
+
+                        // 3. City -> city
+                        $("#CityName").val(d.city || '');
+
+                        showToast('success', 'GST Details Auto-filled!');
+                    } else {
+                        showToast('warning', 'GST Details not found');
+                    }
+                },
+                error: function () {
+                    showToast('error', 'Failed to fetch GST details.');
+                }
+            });
+        }
 
         function getBrokerById(id, mode) {
             $.ajax({
@@ -304,6 +389,10 @@
                     $('#CommissionRate').val(data.CommissionRate);
                     $('#IsActive').val(data.IsActive.toString());
 
+                    // ✅ Bind GSTIN and PAN values
+                    $('#gstin').val(data.GSTNo || '');
+                    $('#PanNo').val(data.PANCard || '');
+
                     if (mode === "view") {
                         $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", true);
                         $('#brokerModalLabel').text("View Broker");
@@ -317,6 +406,74 @@
                 },
                 error: function (err) {
                     showToast('error', 'Failed to fetch broker details.');
+                }
+            });
+        }
+
+        function saveBroker() {
+            let isValid = true;
+            $('.form-control').removeClass('is-invalid');
+
+            let mobile = $('#MobileNo').val().trim();
+
+            if (!$('#BrokerName').val().trim()) {
+                $('#BrokerName').addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (!mobile) {
+                $('#MobileNo').addClass('is-invalid');
+                isValid = false;
+            } else if (!/^[6-9]\d{9}$/.test(mobile)) {
+                $('#MobileNo').addClass('is-invalid');
+                $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            $("#btnText").text("Saving...");
+            $("#btnLoader").removeClass("d-none");
+            $("#saveBtn").prop("disabled", true);
+
+            var obj = {
+                BrokerId: $('#BrokerId').val(),
+                BrokerCode: $('#BrokerCode').val(),
+                BrokerName: $('#BrokerName').val().trim(),
+                MobileNo: mobile,
+                Address: $('#Address').val().trim(),
+                CityName: $('#CityName').val().trim(),
+                CommissionRate: $('#CommissionRate').val() || 0,
+                IsActive: $('#IsActive').val() === "true",
+                // ✅ Send GST and PAN properties to backend
+                GSTNo: $('#gstin').val().trim(),
+                PANCard: $('#PanNo').val().trim()
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveBroker',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ obj: obj }),
+                success: function (res) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+
+                    if (res.d === "success") {
+                        showToast('success', 'Broker details saved successfully.');
+                        $('#brokerModal').modal('hide');
+                        LoadBrokerList();
+                    } else {
+                        showToast('error', res.d);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+                    showToast('error', 'Server error while saving record.');
                 }
             });
         }
@@ -366,69 +523,5 @@
             });
         }
 
-        function saveBroker() {
-            let isValid = true;
-            $('.form-control').removeClass('is-invalid');
-
-            let mobile = $('#MobileNo').val().trim();
-
-            if (!$('#BrokerName').val().trim()) {
-                $('#BrokerName').addClass('is-invalid');
-                isValid = false;
-            }
-
-            if (!mobile) {
-                $('#MobileNo').addClass('is-invalid');
-                isValid = false;
-            } else if (!/^[6-9]\d{9}$/.test(mobile)) {
-                $('#MobileNo').addClass('is-invalid');
-                $('#MobileNo').siblings('.invalid-feedback').text("Invalid mobile number");
-                isValid = false;
-            }
-
-            if (!isValid) return;
-
-            $("#btnText").text("Saving...");
-            $("#btnLoader").removeClass("d-none");
-            $("#saveBtn").prop("disabled", true);
-
-            var obj = {
-                BrokerId: $('#BrokerId').val(),
-                BrokerCode: $('#BrokerCode').val(),
-                BrokerName: $('#BrokerName').val().trim(),
-                MobileNo: mobile,
-                Address: $('#Address').val().trim(),
-                CityName: $('#CityName').val().trim(),
-                CommissionRate: $('#CommissionRate').val() || 0,
-                IsActive: $('#IsActive').val() === "true"
-            };
-
-            $.ajax({
-                url: '/WebServiceNikunjTextile.asmx/SaveBroker',
-                type: 'POST',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: JSON.stringify({ obj: obj }),
-                success: function (res) {
-                    $("#btnText").text("Save");
-                    $("#btnLoader").addClass("d-none");
-                    $("#saveBtn").prop("disabled", false);
-
-                    if (res.d === "success") {
-                        showToast('success', 'Broker details saved successfully.');
-                        $('#brokerModal').modal('hide');
-                        LoadBrokerList();
-                    } else {
-                        showToast('error', res.d);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    $("#btnText").text("Save");
-                    $("#btnLoader").addClass("d-none");
-                    $("#saveBtn").prop("disabled", false);
-                    showToast('error', 'Server error while saving record.');
-                }
-            });
-        }
-    </script>
+    </script>   
 }

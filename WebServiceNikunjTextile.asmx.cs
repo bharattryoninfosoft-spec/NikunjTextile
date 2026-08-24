@@ -26633,18 +26633,19 @@ INNER JOIN PartyMaster PM1
         }
         #endregion
         #region Broker Master
+
         [WebMethod]
         public string GetBrokerList()
         {
             try
             {
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
                 DataTable dt = new DataTable();
 
                 using (SqlConnection con = new SqlConnection(cs))
                 {
-                    string query = @"SELECT  BrokerId,BrokerCode,BrokerName,MobileNo,Address,CityName,CommissionRate,IsActive FROM BrokerMaster ORDER BY BrokerId DESC";
+                    // ✅ Added GSTNo and PANCard to selection list
+                    string query = @"SELECT BrokerId, BrokerCode, BrokerName, MobileNo, Address, CityName, GSTNo, PANCard, CommissionRate, IsActive FROM BrokerMaster ORDER BY BrokerId DESC";
                     SqlDataAdapter da = new SqlDataAdapter(query, con);
                     da.Fill(dt);
                 }
@@ -26656,37 +26657,16 @@ INNER JOIN PartyMaster PM1
                 return new JavaScriptSerializer().Serialize(ex.Message);
             }
         }
-        [WebMethod]
-        public string GetNextBrokerCode()
-        {
-            string result = "";
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                string query = @"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode, 3, LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster";
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                con.Open();
-
-                int maxCode = Convert.ToInt32(cmd.ExecuteScalar());
-                int nextCode = maxCode + 1;
-
-                result = "BR" + nextCode.ToString("D3"); // BR001
-            }
-
-            return result;
-        }
         [WebMethod]
         public BrokerMaster GetBrokerById(int BrokerId)
         {
             BrokerMaster obj = new BrokerMaster();
-
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             using (SqlConnection con = new SqlConnection(cs))
             {
                 string query = "SELECT * FROM BrokerMaster WHERE BrokerId = @BrokerId";
-
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
 
@@ -26703,36 +26683,15 @@ INNER JOIN PartyMaster PM1
                     obj.CityName = dr["CityName"].ToString();
                     obj.CommissionRate = Convert.ToDecimal(dr["CommissionRate"]);
                     obj.IsActive = Convert.ToBoolean(dr["IsActive"]);
+
+                    // ✅ Map GST and PAN properties
+                    obj.GSTNo = dr["GSTNo"] != DBNull.Value ? dr["GSTNo"].ToString() : "";
+                    obj.PANCard = dr["PANCard"] != DBNull.Value ? dr["PANCard"].ToString() : "";
                 }
             }
-
             return obj;
         }
-        [WebMethod]
-        public string DeleteBroker(int BrokerId)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
-            try
-            {
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-                    string query = "DELETE FROM BrokerMaster WHERE BrokerId = @BrokerId";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
-
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                }
-
-                return "success";
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-        }
         [WebMethod]
         public string SaveBroker(BrokerMaster obj)
         {
@@ -26740,19 +26699,14 @@ INNER JOIN PartyMaster PM1
 
             try
             {
-
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     con.Open();
 
-                    // ✅ Safe UserId from Cookie
                     int userId = GetCookieValue();
-
-                    // ✅ Get Default FY & Company (one time)
                     int financialYearId = 0, companyId = 0;
 
                     SqlCommand cmdDefault = new SqlCommand(@"SELECT (SELECT TOP 1 FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),(SELECT TOP 1 CompanyId FROM CompanyMaster WHERE is_default = 1)", con);
-
                     SqlDataReader dr = cmdDefault.ExecuteReader();
 
                     if (dr.Read())
@@ -26762,40 +26716,35 @@ INNER JOIN PartyMaster PM1
                     }
                     dr.Close();
 
-                    // ✅ Duplicate Mobile Check
+                    // Duplicate Mobile Check
                     SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM BrokerMaster WHERE MobileNo=@MobileNo And BrokerId<>@BrokerId", con);
                     checkCmd.Parameters.Add("@MobileNo", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                    if (obj.BrokerId <= 0 || obj.BrokerId == null)
-                    {
-                        obj.BrokerId = 0;
-                    }
+                    if (obj.BrokerId <= 0) obj.BrokerId = 0;
                     checkCmd.Parameters.Add("@BrokerId", SqlDbType.Int).Value = obj.BrokerId;
 
                     if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
                         return "Mobile number already exists";
 
-                    // ✅ Generate Broker Code
                     SqlCommand cmdCode = new SqlCommand(@"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode,3,LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster", con);
-
                     int max = Convert.ToInt32(cmdCode.ExecuteScalar());
                     string newCode = "BR" + (max + 1).ToString("D3");
 
                     if (obj.BrokerId == 0)
                     {
-                        // 🔥 INSERT
+                        // 🔥 INSERT QUERY WITH GSTNo & PANCard
                         SqlCommand cmd = new SqlCommand(@"
                     INSERT INTO BrokerMaster
-                    (BrokerCode,BrokerName,FirmName,Email,MobileNo,Address,CityName,PANCard,GSTNo,CommissionRate,IsActive,UserAccountId,FinancialYearID,CompanyId,DateAndTime)
+                    (BrokerCode, BrokerName, FirmName, Email, MobileNo, Address, CityName, PANCard, GSTNo, CommissionRate, IsActive, UserAccountId, FinancialYearID, CompanyId, DateAndTime)
                     VALUES
-                    (@Code,@Name,@Firm,@Email,@Mobile,@Address,@City,@PAN,@GST,@Commission,@Active,@UserId,@FY,@Company,GETDATE())", con);
+                    (@Code, @Name, @Firm, @Email, @Mobile, @Address, @City, @PAN, @GST, @Commission, @Active, @UserId, @FY, @Company, GETDATE())", con);
 
                         cmd.Parameters.Add("@Code", SqlDbType.VarChar).Value = newCode;
-                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
-                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.BrokerName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
                         cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
                         cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
-                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.NVarChar).Value = obj.CityName ?? "";
                         cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
                         cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
                         cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;
@@ -26809,28 +26758,28 @@ INNER JOIN PartyMaster PM1
                     }
                     else
                     {
-                        // 🔥 UPDATE
+                        // 🔥 UPDATE QUERY WITH GSTNo & PANCard
                         SqlCommand cmd = new SqlCommand(@"
                     UPDATE BrokerMaster SET
-                    BrokerName=@Name,
-                    FirmName=@Firm,
-                    Email=@Email,
-                    MobileNo=@Mobile,
-                    Address=@Address,
-                    CityName=@City,
-                    PANCard=@PAN,
-                    GSTNo=@GST,
-                    CommissionRate=@Commission,
-                    IsActive=@Active
-                    WHERE BrokerId=@Id", con);
+                        BrokerName = @Name,
+                        FirmName = @Firm,
+                        Email = @Email,
+                        MobileNo = @Mobile,
+                        Address = @Address,
+                        CityName = @City,
+                        PANCard = @PAN,
+                        GSTNo = @GST,
+                        CommissionRate = @Commission,
+                        IsActive = @Active
+                    WHERE BrokerId = @Id", con);
 
                         cmd.Parameters.Add("@Id", SqlDbType.Int).Value = obj.BrokerId;
-                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
-                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
+                        cmd.Parameters.Add("@Name", SqlDbType.NVarChar).Value = obj.BrokerName ?? "";
+                        cmd.Parameters.Add("@Firm", SqlDbType.NVarChar).Value = obj.FirmName ?? "";
                         cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
                         cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
-                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
+                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
+                        cmd.Parameters.Add("@City", SqlDbType.NVarChar).Value = obj.CityName ?? "";
                         cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
                         cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
                         cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;

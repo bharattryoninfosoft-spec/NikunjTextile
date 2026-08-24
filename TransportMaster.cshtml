@@ -114,7 +114,7 @@
                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                     <input id="gstTransport" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                     <input id="gstTransport" type="hidden" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                    <div class="field-placeholder">GSTIN <sup class="text-danger">*</sup></div>
+                                    <div class="field-placeholder">GSTIN</div>
                                     <div class="gstTransport-valid-feedback valid-feedback">Looks good!</div>
                                     <div class="gstTransport-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
                                 </div>
@@ -126,7 +126,7 @@
                                     @*<input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeydown="validate(this)" />*@
                                     <input id="TransportPanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
                                     <input id="TransportPanNo" type="hidden" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" style=" text-transform: uppercase;" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode>=48 && event.charCode<=57 )">
-                                    <div class="field-placeholder">PAN No <sup class="text-danger">*</sup></div>
+                                    <div class="field-placeholder">PAN No</div>
                                     <div class="TransportPanNo-valid-feedback valid-feedback">Looks good!</div>
                                     <div class="TransportPanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
 
@@ -408,14 +408,14 @@
                 $('#TransportName').addClass('is-invalid');
                 isValid = false;
             }
-            if (!$('#gstTransport').val().trim()) {
-                $('#gstTransport').addClass('is-invalid');
-                isValid = false;
-            }
-            if (!$('#TransportPanNo').val().trim()) {
-                $('#TransportPanNo').addClass('is-invalid');
-                isValid = false;
-            }
+            //if (!$('#gstTransport').val().trim()) {
+            //    $('#gstTransport').addClass('is-invalid');
+            //    isValid = false;
+            //}
+            //if (!$('#TransportPanNo').val().trim()) {
+            //    $('#TransportPanNo').addClass('is-invalid');
+            //    isValid = false;
+            //}
             if (!$('#ContactPerson').val().trim()) {
                 $('#ContactPerson').addClass('is-invalid');
                 isValid = false;
