@@ -217,6 +217,9 @@
                                             <div class="field-wrapper mb-0">
                                                 <select id="ddlBroker" class="select-single detail form-control" data-live-search="true"></select>
                                                 <div class="field-placeholder">Broker <sup style="color:red;">*</sup></div>
+                                                <button class="btn btn-primary btn-sm position-absolute brokerModal" data-bs-toggle="modal" data-bs-target="#brokerModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                    <i class="fa fa-plus"></i> 
+                                                </button>
                                             </div>
                                         </div>
 
@@ -1036,6 +1039,83 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Broker Modal Section -->
+                    <div class="modal fade" id="brokerModal" tabindex="-1" aria-labelledby="brokerModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="brokerModalLabel">Add Broker</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="overflow:auto" id="brokerForm">
+                                    <input type="hidden" id="BrokerId" value="0">
+                                    <div class="row g-3">
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="BrokerCode" readonly>
+                                                <div class="field-placeholder">Broker Code</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input id="Brokergstin" type="text" class="form-control clear-field detail" placeholder="ex: 24XXXXX9438X1XX" minlength="15" maxlength="15" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                                <div class="field-placeholder">GSTIN</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input id="BrokerPanNo" type="text" class="form-control clear-field detail" placeholder="PAN No" minlength="10" maxlength="10" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                                <div class="field-placeholder">PAN No</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="BrokerName">
+                                                <div class="field-placeholder">Broker Name <span style="color:red">*</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input type="tel" class="form-control" id="BrokerMobileNo" maxlength="10">
+                                                <div class="field-placeholder">Mobile <span style="color:red">*</span></div>
+                                                <div class="invalid-feedback">Enter valid 10-digit mobile number</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="BrokerAddress">
+                                                <div class="field-placeholder">Address</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <input type="text" class="form-control" id="BrokerCityName">
+                                                <div class="field-placeholder">City</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                            <div class="field-wrapper">
+                                                <select class="form-control" id="BrokerIsActive">
+                                                    <option value="true">Active</option>
+                                                    <option value="false">Inactive</option>
+                                                </select>
+                                                <div class="field-placeholder">Status</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="saveBtn" class="btn btn-success px-4" onclick="saveBroker()">
+                                        <span id="btnText">Save</span>
+                                        <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1356,12 +1436,12 @@
                 $("#DesignSelectionRemark").val("");
                 return;
             }
+            let imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
             let designNo = $("#DesignNo").val();
             let designName = $("#DesignNo option:selected").text().trim();
             let colorGroupId = $("#ddlColourGroup").val();
             let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
-            let remark = $("#DesignSelectionRemark").val() || "";
-            let imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
+            let remark = $("#DesignSelectionRemark").val() || "";          
             tbody.append(createSubRow(
                 designNo,
                 designName,
@@ -2775,8 +2855,7 @@
 
                     if (res.d === "success") {
                         showToast('success', 'Saved Successfully');
-                        $('#TransportModal').modal('hide');
-                        LoadTransportList();
+                        $('#TransportModal').modal('hide');                        
                     }
                 }
             });
@@ -2963,7 +3042,7 @@
 
             let qty = parseFloat($("#ColorGroupQty").val());
             let saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
-
+            let imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
             if (!qty || qty <= 0) {
                 showError("Enter valid Qty");
                 return;
@@ -3091,8 +3170,9 @@
             const unitId = $("#UnitRow").val();
             const unit = $("#UnitRow option:selected").text().trim();
 
-            const colorGroupId = $("#ddlColourGroup").val();
-            const colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+            // 🔥 Modified: Color Group is now optional (fallback to empty string if not selected)
+            const colorGroupId = $("#ddlColourGroup").val() || "";
+            const colorGroupName = colorGroupId && colorGroupId !== "-1" ? $("#ddlColourGroup option:selected").text().trim() : "";
 
             const markup = parseFloat($("#Markup").val()) || 0;
             const designRemark = $("#DesignSelectionRemark").val() || "";
@@ -3107,8 +3187,9 @@
             if (!designId || designId == "-1")
                 return Swal.fire("Error", "Select Design", "error");
 
-            if (!colorGroupId || colorGroupId == "-1")
-                return Swal.fire("Error", "Select Color Group", "error");
+            // ❌ Removed mandatory check for Color Group here:
+            // if (!colorGroupId || colorGroupId == "-1")
+            //     return Swal.fire("Error", "Select Color Group", "error");
 
             let uniqueMap = {};
 
@@ -3242,7 +3323,7 @@
             saleRate
         ) {
             return `
-                    <tr data-colorid="${colorId}"data-colorgroupid="${colorGroupId}" data-rate="${saleRate}">
+                <tr data-colorid="${colorId}" data-colorgroupid="${colorGroupId}" data-rate="${saleRate}" data-img="${imageUrl}">
                     <td></td>
                     <td hidden>${designNo}</td>
                     <td hidden>${designName}</td>
@@ -3250,7 +3331,6 @@
                     <td>${colorName}</td>
                     <td>${qty}</td>
                     <td>${remark}</td>
-
                     <td>
                         <a href="#" class="deleteRow text-danger">
                             <i class="fa fa-trash"></i>
@@ -3784,28 +3864,30 @@
                     if (data.success) {
                         notes.show("Saved Successfully ✅", { type: 'success' });
                         $("#SaleOrderID").val(data.id);
-
-                        $.ajax({
-                            type: "POST",
-                            url: "/WebServiceNikunjTextile.asmx/ExportSaleOrderPDF",
-                            data: JSON.stringify({ saleOrderID: data.id }),
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            success: function (response) {
-                                var pdfData = response.d;
-                                if (typeof pdfData === "string") pdfData = JSON.parse(pdfData);
-                                if (pdfData.Status) {
-                                    window.open(pdfData.FilePath, "_blank");
-                                    notes.show("PDF Generated Successfully ✅", { type: "success" });
-                                    setTimeout(function () { window.location.href = "listSaleOrderEntry"; }, 1000);
-                                } else {
-                                    alert(pdfData.Message);
-                                }
-                            },
-                            error: function () {
-                                alert("PDF Generation Failed");
-                            }
-                        });
+                        setTimeout(function () {
+                            window.location.href = "listSaleOrderEntry"; // Update with your actual page URL/extension
+                        }, 1500);
+                        //$.ajax({
+                        //    type: "POST",
+                        //    url: "/WebServiceNikunjTextile.asmx/SaleOrderReport",
+                        //    data: JSON.stringify({ saleOrderID: data.id }),
+                        //    contentType: "application/json; charset=utf-8",
+                        //    dataType: "json",
+                        //    success: function (response) {
+                        //        var pdfData = response.d;
+                        //        if (typeof pdfData === "string") pdfData = JSON.parse(pdfData);
+                        //        if (pdfData.Status) {
+                        //            window.open(pdfData.FilePath, "_blank");
+                        //            notes.show("PDF Generated Successfully ✅", { type: "success" });
+                        //            setTimeout(function () { window.location.href = "listSaleOrderEntry"; }, 1000);
+                        //        } else {
+                        //            alert(pdfData.Message);
+                        //        }
+                        //    },
+                        //    error: function () {
+                        //        alert("PDF Generation Failed");
+                        //    }
+                        //});
                     } else {
                         hideLoader();
                         $("#btnSave").prop("disabled", false);
@@ -3849,6 +3931,369 @@
             }
             updateSummary();
         });  
+        /*Broker Master Strat*/
+        var currentPagePermission = {};
 
+        $(document).ready(function () {
+            FunctionIsLogin();
+            LoadBrokerList();
+        });
+
+        // Helper function to read cookie value safely
+        function getCookie(name) {
+            let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d === "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("Login check failed:", error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d === "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("Logout failed:", error);
+                }
+            });
+        }
+
+        function LoadBrokerList() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetBrokerList",
+                type: "POST",
+                data: "{}",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d;
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+                    bindBrokerTable(data);
+                },
+                error: function (err) {
+                    console.error("Error loading broker list:", err);
+                }
+            });
+        }
+
+        function bindBrokerTable(data) {
+            var html = "";
+
+            $.each(data, function (i, item) {
+                html += "<tr>";
+                html += "<td>" + item.BrokerCode + "</td>";
+                html += "<td>" + item.BrokerName + "</td>";
+                html += "<td>" + item.MobileNo + "</td>";
+                html += "<td>" + (item.Address || "-") + "</td>";
+                html += "<td>" + (item.CityName || "-") + "</td>";
+                html += "<td>";
+                html += item.IsActive
+                    ? "<span class='badge bg-success'>Active</span>"
+                    : "<span class='badge bg-danger'>Inactive</span>";
+                html += "</td>";
+
+                html += "<td>";
+                html += "<i class='fa fa-edit text-primary me-2 EditBtn' title='Edit' style='cursor:pointer' onclick='getBrokerById(" + item.BrokerId + ",\"edit\")'></i>";
+                html += "<i class='fa fa-eye text-dark me-2 ViewBtn' title='View' style='cursor:pointer' onclick='getBrokerById(" + item.BrokerId + ",\"view\")'></i>";
+                html += "<i class='fa fa-trash text-danger DeleteBtn' title='Delete' style='cursor:pointer' onclick='deleteBroker(" + item.BrokerId + ")'></i>";
+                html += "</td>";
+
+                html += "</tr>";
+            });
+
+            $("#tblBroker tbody").html(html);
+
+            var permission = getCookie("PagePermission");
+            if (permission) {
+                currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add === false) { $(".brokerModal").hide(); }
+                if (currentPagePermission.Edit === false) { $(".EditBtn").hide(); }
+                if (currentPagePermission.Delete === false) { $(".DeleteBtn").hide(); }
+                if (currentPagePermission.view === false) { $(".ViewBtn").hide(); }
+            }
+        }
+
+        $('#brokerModal').on('show.bs.modal', function () {
+            if ($('#BrokerId').val() == '0') {
+                $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", false);
+                $('#brokerModalLabel').text("Add Broker");
+                $("#saveBtn").show();
+
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetNextBrokerCode',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: '{}',
+                    success: function (response) {
+                        $('#BrokerCode').val(response.d);
+                    },
+                    error: function (err) {
+                        console.error("Error getting broker code:", err);
+                    }
+                });
+            }
+        });
+
+        $('#brokerModal').on('hidden.bs.modal', function () {
+            $('#BrokerId').val('0');
+            $(this).find('input, textarea').val('');
+            $(this).find('input[type="checkbox"]').prop('checked', false);
+            $(this).find('select').val('true').trigger('change');
+            $('.form-control').removeClass('is-invalid is-valid');
+        });
+
+        $('.form-control').on('input change', function () {
+            $(this).removeClass('is-invalid');
+        });
+
+        // --- GSTIN VALIDATION & AUTO-FILL HELPERS ---
+        function validate(code) {
+            var $el = typeof code === "string" ? $("#" + code) : $(code);
+            var el = $el[0];
+
+            if (!el) return false;
+            var val = $(el).val();
+
+            if (!val || val.toString().trim() === "") {
+                $el.removeClass("is-valid is-invalid");
+                return false;
+            }
+
+            el.value = el.value.replace(/\s+/g, ' ').trim();
+
+            if (el.id === "Brokergstin") {
+                if (val.length === 15) {
+                    var gstVal = val.toUpperCase();
+                    var pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                    if (pattern.test(gstVal)) {
+                        $el.addClass("is-valid").removeClass("is-invalid");
+
+                        // Auto-fill PAN Number from GSTIN (Chars 3 to 12)
+                        $('#BrokerPanNo').val(gstVal.substring(2, 12));
+
+                        // Fetch details from your ASMX web service GST API endpoint
+                        fetchGstDetails(gstVal);
+                        return true;
+                    } else {
+                        $el.addClass("is-invalid").removeClass("is-valid");
+                        $("#GSTError").html("Please enter a valid 15-digit GSTIN.");
+                        return false;
+                    }
+                } else {
+                    $el.removeClass("is-valid is-invalid");
+                    return false;
+                }
+            }
+
+            $el.addClass("is-valid").removeClass("is-invalid");
+            return true;
+        }
+
+        function fetchGstDetails(gstin) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+                data: JSON.stringify({ gstin: gstin }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
+
+                    if (res && res.success && res.data) {
+                        var d = res.data;
+
+                        // 1. Broker Name -> trade_name or legal_name
+                        $("#BrokerName").val(d.trade_name || d.legal_name || '');
+
+                        // 2. Address -> address
+                        $("#Address").val(d.address || '');
+
+                        // 3. City -> city
+                        $("#CityName").val(d.city || '');
+
+                        showToast('success', 'GST Details Auto-filled!');
+                    } else {
+                        showToast('warning', 'GST Details not found');
+                    }
+                },
+                error: function () {
+                    showToast('error', 'Failed to fetch GST details.');
+                }
+            });
+        }
+
+        function getBrokerById(id, mode) {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetBrokerById',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ BrokerId: id }),
+                success: function (res) {
+                    let data = res.d;
+
+                    $('#BrokerId').val(data.BrokerId);
+                    $('#BrokerCode').val(data.BrokerCode);
+                    $('#BrokerName').val(data.BrokerName);
+                    $('#MobileNo').val(data.MobileNo);
+                    $('#Address').val(data.Address);
+                    $('#CityName').val(data.CityName);
+                    $('#CommissionRate').val(data.CommissionRate);
+                    $('#IsActive').val(data.IsActive.toString());
+
+                    // ✅ Bind GSTIN and PAN values
+                    $('#gstin').val(data.GSTNo || '');
+                    $('#PanNo').val(data.PANCard || '');
+
+                    if (mode === "view") {
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", true);
+                        $('#brokerModalLabel').text("View Broker");
+                        $("#saveBtn").hide();
+                    } else {
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea").prop("disabled", false);
+                        $('#brokerModalLabel').text("Edit Broker");
+                        $("#saveBtn").show();
+                    }
+                    $('#brokerModal').modal('show');
+                },
+                error: function (err) {
+                    showToast('error', 'Failed to fetch broker details.');
+                }
+            });
+        }
+
+        function saveBroker() {
+            let isValid = true;
+            $('.form-control').removeClass('is-invalid');
+
+            let mobile = $('#BrokerMobileNo').val().trim();
+
+            if (!$('#BrokerName').val().trim()) {
+                $('#BrokerName').addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (!mobile || !/^[6-9]\d{9}$/.test(mobile)) {
+                $('#BrokerMobileNo').addClass('is-invalid');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            $("#btnText").text("Saving...");
+            $("#btnLoader").removeClass("d-none");
+            $("#saveBtn").prop("disabled", true);
+
+            var obj = {
+                BrokerId: $('#BrokerId').val() || 0,
+                BrokerCode: $('#BrokerCode').val(),
+                BrokerName: $('#BrokerName').val().trim(),
+                MobileNo: mobile,
+                Address: $('#BrokerAddress').val().trim(),
+                CityName: $('#BrokerCityName').val().trim(),
+                IsActive: $('#BrokerIsActive').val() === "true",
+                GSTNo: $('#Brokergstin').val().trim(),
+                PANCard: $('#BrokerPanNo').val().trim()
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveBroker',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ obj: obj }),
+                success: function (res) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+
+                    if (res.d === "success") {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Broker saved successfully.', showConfirmButton: false, timer: 2000 });
+                        $('#brokerModal').modal('hide');
+                        bindBrokerDropdown();
+                    } else {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: res.d, showConfirmButton: false, timer: 2000 });
+                    }
+                },
+                error: function () {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Server error.', showConfirmButton: false, timer: 2000 });
+                }
+            });
+        }
+
+        function deleteBroker(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this broker!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/WebServiceNikunjTextile.asmx/DeleteBroker',
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify({ BrokerId: id }),
+                        success: function (res) {
+                            if (res.d === "success") {
+                                Swal.fire("Deleted!", "Broker removed successfully.", "success");
+                                LoadBrokerList();
+                            } else {
+                                Swal.fire("Error", res.d, "error");
+                            }
+                        },
+                        error: function (err) {
+                            Swal.fire("Error", "Failed to delete record.", "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+        /* Broker Mater End*/
     </script>
 }

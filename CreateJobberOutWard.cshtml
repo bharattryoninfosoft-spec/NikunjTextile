@@ -183,6 +183,7 @@
         $('body').addClass('fullscreen');
         var currentPagePermission = {};
         var inwardData = [];
+        var globalPartyList = [];
 
         $(document).ready(function () {
             var permission = getCookie("PagePermission");
@@ -794,6 +795,8 @@
                 success: function (response) {
                     if (response.Code == "200") {
                         if (response.listPartyMaster && response.listPartyMaster.length > 0) {
+                            globalPartyList = response.listPartyMaster; // Store globally for lookup
+
                             $('#ddlParty').empty();
                             var tempPartyName = "<option value='0'> Select Party </option>";
                             $('#ddlParty').append(tempPartyName);
@@ -810,5 +813,25 @@
                 error: function (request, status, error) { }
             });
         }
+        // Bind Party change event to auto-fill Billing Address
+        $('#ddlParty').change(function () {
+            var selectedPartyId = parseInt($(this).val()) || 0;
+
+            if (selectedPartyId <= 0) {
+                $('#txtBillingAddress').val('');
+                return;
+            }
+
+            // Find the matching party from our global list
+            var foundParty = globalPartyList.find(function (party) {
+                return parseInt(party.PartyId) === selectedPartyId;
+            });
+
+            if (foundParty) {
+                $('#txtBillingAddress').val(foundParty.BillingAddress || '');
+            } else {
+                $('#txtBillingAddress').val('');
+            }
+        });
     </script>
 }

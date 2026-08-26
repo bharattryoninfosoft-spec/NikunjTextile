@@ -174,7 +174,6 @@
             timer: 3000,
             timerProgressBar: true
         });
-
         $(document).ready(function () {
             if ($.fn.select2) {
                 $('#ddlParty').select2({
@@ -186,7 +185,6 @@
             FunctionIsLogin();
             displayData(0);
         });
-
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -199,11 +197,9 @@
                 }
             });
         }
-
         function functionSearch() {
             displayData(0);
         }
-
         // --- GRID DATA BINDING ---
         function displayData(rowStartCheck) {
             var rowStart = 0;
@@ -280,7 +276,6 @@
                 }
             });
         }
-
         // --- TOGGLE & ENTRY HELPERS ---
         function functionIsManual() {
             if ($('#IsManually').is(':checked')) {
@@ -291,7 +286,6 @@
                 $("#divNoOfRack, #divGoLocation").show();
             }
         }
-
         function AddLocationbtn() {
             var GodownTitle = $("#GodownTitle").val();
             if (GodownTitle == "") {
@@ -333,7 +327,6 @@
                 Toast.fire({ icon: 'warning', title: 'Please fill all previous location fields.' });
             }
         }
-
         function deleteLocationData(abc) {
             var GodownID = "#GodownLocationID" + abc;
             var val = $(GodownID).val();
@@ -347,7 +340,6 @@
             var ColorArray = $("#txtLocationArray").val();
             $("#txtLocationArray").val(ColorArray.replace(abc + "|", ''));
         }
-
         function clearAll() {
             BindParty();
             $("#savebtn, #saveViewbtn").show();
@@ -376,16 +368,13 @@
             $("#tableItemData").html(tempLocation);
             functionIsManual();
         }
-
         // --- SAVE / EDIT OPERATIONS ---
         function checkSaveView() {
             executeSave(true);
         }
-
         function checkSave() {
             executeSave(false);
         }
-
         function executeSave(closeModal) {
             var godownTitle = document.getElementById('GodownTitle');
             if (!validate(godownTitle)) return;
@@ -464,7 +453,6 @@
                 }
             });
         }
-
         function checkEdit() {
             var id = $("#edit-id").val();
             var godownTitle = document.getElementById('GodownTitle');
@@ -539,7 +527,6 @@
                 }
             });
         }
-
         // --- RECORD FETCH & ACTIONS ---
         function showRecords(id) {
             clearAll();
@@ -559,7 +546,6 @@
                 }
             });
         }
-
         function ViewRecordQueryString(DecryptID) {
             var formData = new FormData();
             formData.append('GodownID', DecryptID);
@@ -616,7 +602,6 @@
                 }
             });
         }
-
         function functionYarnDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -650,7 +635,6 @@
                 }
             });
         }
-
         function functionYarnActive(abc) {
             Swal.fire({
                 title: 'Update Default Status?',
@@ -682,7 +666,6 @@
                 }
             });
         }
-
         function BindParty() {
             $.ajax({
                 type: "POST",
@@ -695,7 +678,7 @@
                     var $ddl = $("#ddlParty").empty().append('<option value="">Select Party</option>');
 
                     $.each(data, function (i, item) {
-                        $ddl.append($('<option></option>').val(item.PartyId).html(item.PartyDisplayName));
+                        $ddl.append($('<option></option>').val(item.ID).html(item.PartyDisplayName));
                     });
 
                     if ($.fn.select2 && $ddl.hasClass("select2-hidden-accessible")) {
@@ -704,7 +687,6 @@
                 }
             });
         }
-
         function validate(code) {
             if (!code || code.value === undefined) return false;
             code.value = code.value.replace(/\s+/g, ' ').trim();

@@ -3546,12 +3546,6 @@
       <DependentUpon>SaleBillImageWise.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Reports\SaleOrder%2817-08-2026%29.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SaleOrder%2817-08-2026%29.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Reports\SaleOrder.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -3574,6 +3568,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>HelloWorld.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\SaleorderReportNEW.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SaleorderReportNEW.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SaleOrderAdditionalCharges.Designer.cs">
@@ -5066,9 +5066,9 @@
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>SaleBillImageWise.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\SaleOrder%2817-08-2026%29.rpt">
+    <EmbeddedResource Include="C:\Users\BHARAT\Desktop\SaleOrder%2817-08-2026%29.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>SaleOrder%2817-08-2026%29.cs</LastGenOutput>
+      <Link>Reports\SaleOrder%2817-08-2026%29.rpt</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\SaleOrder.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
@@ -5085,6 +5085,10 @@
     <EmbeddedResource Include="Reports\HelloWorld.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>HelloWorld.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\SaleorderReportNEW.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>SaleorderReportNEW.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

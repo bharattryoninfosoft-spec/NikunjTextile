@@ -102,7 +102,7 @@
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
                                                 <select id="ddlJobberType" class="form-select clear-field detail" onchange="toggleMachineSection()">
-                                                    <option value="Weaving / Process">Weaving / Process</option>
+                                                    <option value="Weaving">Weaving</option>
                                                     <option value="Processing Only">Processing Only</option>
                                                 </select>
                                                 <div class="field-placeholder">Jobber Type</div>
@@ -373,7 +373,7 @@
             $("#editbtn").hide();
             $("#addNewContactLabel").html("Add Jobber Information");
             $(".clear-field,.form-control").val("");
-            $("#ddlJobberType").val("Weaving / Process");
+            $("#ddlJobberType").val("Weaving");
             $("#ddlPlaceOfSupply").val("0");
             $("#txtRPM, #txtPanaRepeat, #txtPanaWidth, #txtNoOfMachines").val(0);
             toggleMachineSection();
@@ -614,7 +614,7 @@
                 Prefix: $("#txtPrefix").val(),
                 City: $("#txtCity").val(),
                 Pincode: $("#txtPincode").val(),
-                PlaceOfSupply: $("#ddlPlaceOfSupply option:selected").text(),
+                PlaceOfSupply: $("#ddlPlaceOfSupply").val() === "0" ? "" : $("#ddlPlaceOfSupply").val(),
                 BankHolderName: $("#txtBankHolderName").val(),
                 BankAcNo: $("#txtBankAcNo").val(),
                 BankIfsc: $("#txtBankIFSC").val(),
@@ -682,11 +682,9 @@
 
                     // Set Place of Supply dropdown based on matching text or code
                     if (jobber.PlaceOfSupply) {
-                        $("#ddlPlaceOfSupply option").each(function () {
-                            if ($(this).text().includes(jobber.PlaceOfSupply)) {
-                                $(this).prop("selected", true);
-                            }
-                        });
+                        $("#ddlPlaceOfSupply").val(jobber.PlaceOfSupply);
+                    } else {
+                        $("#ddlPlaceOfSupply").val("0");
                     }
 
                     $("#txtBankHolderName").val(jobber.BankHolderName || "");

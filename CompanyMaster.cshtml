@@ -358,7 +358,7 @@
                                                         <span aria-hidden="true"></span>
                                                     </button>
                                                 </div>
-                                                <div class="modal-body">
+                                                <div class="modal-body" style="overflow:auto;">
                                                     <div id="add-alert" class="alert alert-success" role="alert">
                                                         Record has been saved Successfully.
                                                     </div>
@@ -673,14 +673,6 @@
         $('body').addClass('fullscreen');
         var currentPagePermission = {};
         $(document).ready(function () {
-            var permission = getCookie("PagePermission");
-            if (permission != null && permission != "") {
-                var currentPagePermission = JSON.parse(permission);
-                if (currentPagePermission.Add == false) {
-                    $("#AddCompayModel").hide();
-                }
-
-            }
             displayData(0);
             getDefaultCompany();
             $(document).keydown(function (key) {
@@ -982,6 +974,7 @@
                 rowStart = 0;
                 $("#rowStartCount").val("0");
             }
+
             $.ajax({
                 type: "GET",
                 url: '/WebServiceNikunjTextile.asmx/getCompanyMaster?startFrom=' + rowStart,
@@ -990,19 +983,29 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (rowStart == 0) {
-                        $("#copy-print-csv tbody").empty();
+                    // Your original cookie permission check setup
+                    var permission = getCookie("PagePermission");
+                    if (permission != null && permission != "") {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) {
+                            $("#AddCompayModel").hide();
+                        }
                     }
-                    var dataTable = $('#copy-print-csv');
+                    // Clear only the tbody content so the DataTable structure stays intact
+                    var tbody = $('#copy-print-csv tbody');
+                    if (rowStart == 0) {
+                        tbody.empty();
+                    }
+
                     var temp = "";
                     var operation = "";
+
                     if (response.listCompanyMaster.length < 10) {
                         $("#view-more-btn").hide();
                     }
                     else {
                         $("#view-more-btn").show();
                     }
-                    var deleteStr = "";
 
                     if (response.listCompanyMaster.length == 2) {
                         $("#AddCompayModel").hide();
@@ -1012,36 +1015,36 @@
                     }
 
                     for (var i = 0; i < response.listCompanyMaster.length; i++) {
+                        var deleteStr = "";
                         if (response.listCompanyMaster[i].is_default == "1" || response.listCompanyMaster[i].is_default == 1) {
                             operation = "<span class='badge bg-success'>Yes</span>";
-                            deleteStr = "";
                         }
                         else {
                             operation = "<span class='badge bg-danger'>No</span>";
-                            deleteStr = "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionCompanyDelete(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-x-circle text-danger'></i></a>";
+                            if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
+                                deleteStr = "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Delete' onclick='functionCompanyDelete(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-x-circle text-danger'></i></a>";
+                            }
                         }
-                        temp += "<tr><td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td><td>" + response.listCompanyMaster[i].MobileNo + "</td><td>" + response.listCompanyMaster[i].Email + "</td><td>" + response.listCompanyMaster[i].StateTitle + "</td><td>" + operation + "</td>";
+
+                        temp += "<tr>";
+                        temp += "<td><div class='media-box'><img style='width:40px;height:40px;' src='" + response.listCompanyMaster[i].CompanyLogo + "' class='media-avatar' alt='Logo'><div class='media-box-body'><a href='javascript:void(0);' class='text-truncate'>" + response.listCompanyMaster[i].CompanyName + "</a><p></p></div></div></td>";
+                        temp += "<td>" + response.listCompanyMaster[i].MobileNo + "</td>";
+                        temp += "<td>" + response.listCompanyMaster[i].Email + "</td>";
+                        temp += "<td>" + response.listCompanyMaster[i].StateTitle + "</td>";
+                        temp += "<td>" + operation + "</td>";
                         temp += "<td><div class='actions'>";
 
-                        // EDIT
-                        if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
-                            temp += "<a href='javascript:void(0);' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='Edit' " +
-                                "data-bs-toggle='modal' " +
-                                "data-bs-target='#addNewContact' " +
-                                "onclick='showRecords(" + response.listCompanyMaster[i].CompanyId + ")'>" +
-                                "<i class='icon-edit1 text-info'></i>" +
-                                "</a>&nbsp;";
+                   
 
+                        // Permission-based Edit action
+                        if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
+                            temp += "<a href='javascript:void(0);' title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listCompanyMaster[i].CompanyId + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;";
                             $("#editbtn-default").show();
-                        }
-                        else {
+                        } else {
                             $("#editbtn-default").hide();
                         }
 
-                        // DELETE
+                        // Permission-based Delete action
                         if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
                             temp += deleteStr;
                         }
@@ -1050,9 +1053,11 @@
                         temp += "</tr>";
                     }
 
-                    dataTable.append(temp);
+                    // Append rows directly to the table body
+                    tbody.append(temp);
                 },
                 error: function (request, status, error) {
+                    showToast('error', 'Failed to load company records.');
                 }
             });
         }

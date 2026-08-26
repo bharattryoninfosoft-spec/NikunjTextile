@@ -12483,6 +12483,203 @@ namespace NikunjTextile
         // ******************************************   Party Master *******************************
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        //public void insertPartyMaster()
+        //{
+        //    // Fix: Defined India Standard Time timezone mapping safely
+        //    TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        //    DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+
+        //    CommanResponse comman = new CommanResponse();
+        //    PartyMaster ilist = new PartyMaster();
+
+        //    // Core parameters mapping
+        //    ilist.PartyName = HttpContext.Current.Request.Params["PartyName"];
+        //    ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
+        //    ilist.AlterMobileNo = HttpContext.Current.Request.Params["AlterMobileNo"];
+        //    ilist.BillingAddress = HttpContext.Current.Request.Params["BillingAddress"];
+        //    ilist.ShippingAddress = HttpContext.Current.Request.Params["ShippingAddress"];
+        //    ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
+        //    ilist.PanNo = HttpContext.Current.Request.Params["PanNo"];
+        //    ilist.State = HttpContext.Current.Request.Params["State"];
+        //    ilist.City = HttpContext.Current.Request.Params["City"];
+        //    ilist.Pincode = HttpContext.Current.Request.Params["Pincode"];
+        //    ilist.Email = HttpContext.Current.Request.Params["Email"];
+        //    ilist.IsSameAddress = Convert.ToInt32(HttpContext.Current.Request.Params["IsSameAddress"]);
+
+        //    // Cookie safety assignment validations
+        //    ilist.UserAccountId = Context.Request.Cookies["UserIDs"] != null ? Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]) : 0;
+        //    ilist.CompanyId = Context.Request.Cookies["CompanyID"] != null ? Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]) : 0;
+
+        //    ilist.BankHolderName = HttpContext.Current.Request.Params["BankHolderName"];
+        //    ilist.BankAccountNo = HttpContext.Current.Request.Params["BankAccountNo"];
+        //    ilist.BankIFSCCode = HttpContext.Current.Request.Params["BankIFSCCode"];
+        //    ilist.BankName = HttpContext.Current.Request.Params["BankName"];
+        //    ilist.BankBranch = HttpContext.Current.Request.Params["BankBranch"];
+        //    ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
+        //    ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
+
+        //    // FIX: Map text input from your front-end field parameter key name mapping
+        //    ilist.prefixInput = HttpContext.Current.Request.Params["prefixInput"];
+
+        //    try
+        //    {
+        //        int UserRole = Convert.ToInt32(ilist.SundryParty);
+        //        string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+        //        using (SqlConnection con = new SqlConnection(cs))
+        //        {
+        //            SqlCommand cmd = new SqlCommand();
+        //            cmd.Connection = con;
+        //            cmd.CommandType = System.Data.CommandType.Text;
+        //            con.Open();
+
+        //            // 1. Check GSTIN
+        //            cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and SundryParty=@SundryParty ";
+        //            cmd.Parameters.Clear();
+        //            cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
+        //            using (SqlDataReader rdr = cmd.ExecuteReader())
+        //            {
+        //                if (rdr.Read())
+        //                {
+        //                    comman.Code = 410;
+        //                    comman.Message = $"This GSTIN {ilist.GSTIN} already exists.";
+        //                    WriteJsonResponse(comman);
+        //                    return;
+        //                }
+        //            }
+
+        //            // 2. Check PAN
+        //            cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and SundryParty=@SundryParty";
+        //            cmd.Parameters.Clear();
+        //            cmd.Parameters.AddWithValue("@PAN", ilist.PanNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
+        //            using (SqlDataReader rdr = cmd.ExecuteReader())
+        //            {
+        //                if (rdr.Read())
+        //                {
+        //                    comman.Code = 410;
+        //                    comman.Message = $"This PAN no {ilist.PanNo} already exists.";
+        //                    WriteJsonResponse(comman);
+        //                    return;
+        //                }
+        //            }
+
+        //            // 3. Check MobileNo
+        //            cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and SundryParty=@SundryParty";
+        //            cmd.Parameters.Clear();
+        //            cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
+        //            using (SqlDataReader rdr = cmd.ExecuteReader())
+        //            {
+        //                if (rdr.Read())
+        //                {
+        //                    comman.Code = 410;
+        //                    comman.Message = $"This Mobile No {ilist.MobileNo} already exists.";
+        //                    WriteJsonResponse(comman);
+        //                    return;
+        //                }
+        //            }
+
+        //            // FIX: Refactored structural syntax to clean up vulnerable string interpolations using Parameters instead
+        //            string sql = @"INSERT INTO PartyMaster (
+        //                        CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email,
+        //                        BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode,
+        //                        BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty, PartyPrefix
+        //                    )
+        //                    OUTPUT INSERTED.PartyId
+        //                    VALUES
+        //                    (
+        //                        (SELECT TOP 1 CompanyId FROM companymaster WHERE is_default = 1),
+        //                        @UserAccountId, @DateAndTime, @SundryParty, @PartyName, @MobileNo, @AlterMobileNo, @Email,
+        //                        @BillingAddress, @ShippingAddress, @IsSameAddress, @GSTIN, @PAN, @State, @City, @Pincode,
+        //                        @BankHolderName, @BankAccountNo, @BankIFSCCode, @BankName, @BankBranch, @IsActiveParty, @PartyPrefix
+        //                    )";
+
+        //            cmd.CommandText = sql;
+        //            cmd.Parameters.Clear();
+        //            cmd.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+        //            cmd.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
+        //            cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
+        //            cmd.Parameters.AddWithValue("@PartyName", ilist.PartyName ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@AlterMobileNo", ilist.AlterMobileNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@Email", ilist.Email ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BillingAddress", ilist.BillingAddress ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@ShippingAddress", ilist.ShippingAddress ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@IsSameAddress", ilist.IsSameAddress);
+        //            cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@PAN", ilist.PanNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@State", ilist.State ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@City", ilist.City ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@Pincode", ilist.Pincode ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BankHolderName", ilist.BankHolderName ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BankAccountNo", ilist.BankAccountNo ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BankIFSCCode", ilist.BankIFSCCode ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BankName", ilist.BankName ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@BankBranch", ilist.BankBranch ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@IsActiveParty", ilist.IsActiveParty);
+
+        //            // FIX: Dynamic fallback logic verification for non-JobWork rows
+        //            cmd.Parameters.AddWithValue("@PartyPrefix", string.IsNullOrEmpty(ilist.prefixInput) ? (object)DBNull.Value : ilist.prefixInput.Trim().ToUpper());
+
+        //            Int64 PartyId = Convert.ToInt64(cmd.ExecuteScalar());
+        //            cmd.Dispose();
+
+        //            if (PartyId > 0)
+        //            {
+        //                if (UserRole == 3) // Jobber Account Creation Block
+        //                {
+        //                    using (SqlCommand cmdUser = new SqlCommand())
+        //                    {
+        //                        cmdUser.Connection = con;
+        //                        cmdUser.CommandText = @"
+        //                    INSERT INTO UserAccountMaster
+        //                    (UserAccountDateAndTime, CompanyId, UserAccountName, UserRole, UserAccountMobileNo, UserAccountEmail, UserAccountPassword, AllowLogin, PartyId)
+        //                    VALUES
+        //                    (GETDATE(), @CompanyId, @UserAccountName, 'Job Work', @MobileNo, @Email, @Password, 1, @PartyId)";
+
+        //                        cmdUser.Parameters.AddWithValue("@CompanyId", ilist.CompanyId);
+        //                        cmdUser.Parameters.AddWithValue("@UserAccountName", ilist.PartyName);
+        //                        cmdUser.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
+        //                        cmdUser.Parameters.AddWithValue("@Password", getMd5Hash(ilist.MobileNo));
+        //                        cmdUser.Parameters.AddWithValue("@Email", ilist.Email ?? (object)DBNull.Value);
+        //                        cmdUser.Parameters.AddWithValue("@PartyId", PartyId);
+
+        //                        cmdUser.ExecuteNonQuery();
+        //                    }
+        //                }
+
+        //                comman.Code = 201;
+        //                comman.Message = "Record has been saved successfully.";
+        //                comman.id = Convert.ToInt32(PartyId);
+        //                WriteJsonResponse(comman);
+        //                return;
+        //            }
+        //            else
+        //            {
+        //                comman.Code = 410;
+        //                comman.Message = "Problem has occurred while submitting your data.";
+        //                WriteJsonResponse(comman);
+        //                return;
+        //            }
+        //        }
+        //    }
+        //    catch (SqlException ex)
+        //    {
+        //        if (ex.Number == 2601 || ex.Number == 2627)
+        //        {
+        //            comman.Code = 405;
+        //            comman.Message = "Cannot insert duplicate values.";
+        //        }
+        //        else
+        //        {
+        //            comman.Code = 410;
+        //            comman.Message = "Problem has occurred while submitting your data: " + ex.Message;
+        //        }
+        //        WriteJsonResponse(comman);
+        //    }
+        //}
         public void insertPartyMaster()
         {
             // Fix: Defined India Standard Time timezone mapping safely
@@ -12518,7 +12715,7 @@ namespace NikunjTextile
             ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
             ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
 
-            // FIX: Map text input from your front-end field parameter key name mapping
+            // Map text input from your front-end field parameter key name mapping
             ilist.prefixInput = HttpContext.Current.Request.Params["prefixInput"];
 
             try
@@ -12581,20 +12778,20 @@ namespace NikunjTextile
                         }
                     }
 
-                    // FIX: Refactored structural syntax to clean up vulnerable string interpolations using Parameters instead
+                    // Insert Party Master
                     string sql = @"INSERT INTO PartyMaster (
-                                CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email,
-                                BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode,
-                                BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty, PartyPrefix
-                            )
-                            OUTPUT INSERTED.PartyId
-                            VALUES
-                            (
-                                (SELECT TOP 1 CompanyId FROM companymaster WHERE is_default = 1),
-                                @UserAccountId, @DateAndTime, @SundryParty, @PartyName, @MobileNo, @AlterMobileNo, @Email,
-                                @BillingAddress, @ShippingAddress, @IsSameAddress, @GSTIN, @PAN, @State, @City, @Pincode,
-                                @BankHolderName, @BankAccountNo, @BankIFSCCode, @BankName, @BankBranch, @IsActiveParty, @PartyPrefix
-                            )";
+                            CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email,
+                            BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode,
+                            BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty, PartyPrefix
+                        )
+                        OUTPUT INSERTED.PartyId
+                        VALUES
+                        (
+                            (SELECT TOP 1 CompanyId FROM companymaster WHERE is_default = 1),
+                            @UserAccountId, @DateAndTime, @SundryParty, @PartyName, @MobileNo, @AlterMobileNo, @Email,
+                            @BillingAddress, @ShippingAddress, @IsSameAddress, @GSTIN, @PAN, @State, @City, @Pincode,
+                            @BankHolderName, @BankAccountNo, @BankIFSCCode, @BankName, @BankBranch, @IsActiveParty, @PartyPrefix
+                        )";
 
                     cmd.CommandText = sql;
                     cmd.Parameters.Clear();
@@ -12619,8 +12816,6 @@ namespace NikunjTextile
                     cmd.Parameters.AddWithValue("@BankName", ilist.BankName ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@BankBranch", ilist.BankBranch ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@IsActiveParty", ilist.IsActiveParty);
-
-                    // FIX: Dynamic fallback logic verification for non-JobWork rows
                     cmd.Parameters.AddWithValue("@PartyPrefix", string.IsNullOrEmpty(ilist.prefixInput) ? (object)DBNull.Value : ilist.prefixInput.Trim().ToUpper());
 
                     Int64 PartyId = Convert.ToInt64(cmd.ExecuteScalar());
@@ -12628,25 +12823,48 @@ namespace NikunjTextile
 
                     if (PartyId > 0)
                     {
-                        if (UserRole == 3) // Jobber Account Creation Block
+                        // If this party is a Jobber (UserRole == 3), save into JobberMaster instead of UserAccountMaster
+                        if (UserRole == 3)
                         {
-                            using (SqlCommand cmdUser = new SqlCommand())
+                            using (SqlCommand cmdJobber = new SqlCommand())
                             {
-                                cmdUser.Connection = con;
-                                cmdUser.CommandText = @"
-                            INSERT INTO UserAccountMaster
-                            (UserAccountDateAndTime, CompanyId, UserAccountName, UserRole, UserAccountMobileNo, UserAccountEmail, UserAccountPassword, AllowLogin, PartyId)
-                            VALUES
-                            (GETDATE(), @CompanyId, @UserAccountName, 'Job Work', @MobileNo, @Email, @Password, 1, @PartyId)";
+                                cmdJobber.Connection = con;
+                                cmdJobber.CommandText = @"
+                                INSERT INTO JobberMaster 
+                                (CompanyId, UserAccountId, DateAndTime, JobberType, Gstin, PanNo, PartyName, Prefix, MobileNumber, AlternateNumber, Email, PlaceOfSupply, Pincode, City, BankHolderName, BankAcNo, BankName, BankIfsc, BankBranch, BillingAddress, MachineType, Rpm, PanaRepeat, PanaWidth, NoOfMachines, IsActiveParty)
+                                VALUES 
+                                (@CompanyId, @UserAccountId, @DateAndTime, @JobberType, @Gstin, @PanNo, @PartyName, @Prefix, @MobileNumber, @AlternateNumber, @Email, @PlaceOfSupply, @Pincode, @City, @BankHolderName, @BankAcNo, @BankName, @BankIfsc, @BankBranch, @BillingAddress, @MachineType, @Rpm, @PanaRepeat, @PanaWidth, @NoOfMachines, @IsActiveParty)";
 
-                                cmdUser.Parameters.AddWithValue("@CompanyId", ilist.CompanyId);
-                                cmdUser.Parameters.AddWithValue("@UserAccountName", ilist.PartyName);
-                                cmdUser.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
-                                cmdUser.Parameters.AddWithValue("@Password", getMd5Hash(ilist.MobileNo));
-                                cmdUser.Parameters.AddWithValue("@Email", ilist.Email ?? (object)DBNull.Value);
-                                cmdUser.Parameters.AddWithValue("@PartyId", PartyId);
+                                cmdJobber.Parameters.AddWithValue("@CompanyId", ilist.CompanyId);
+                                cmdJobber.Parameters.AddWithValue("@UserAccountId", ilist.UserAccountId);
+                                cmdJobber.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
+                                cmdJobber.Parameters.AddWithValue("@JobberType", HttpContext.Current.Request.Params["JobberType"] ?? "Weaving");
+                                cmdJobber.Parameters.AddWithValue("@Gstin", ilist.GSTIN ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@PanNo", ilist.PanNo ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@PartyName", ilist.PartyName ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@Prefix", string.IsNullOrEmpty(ilist.prefixInput) ? (object)DBNull.Value : ilist.prefixInput.Trim().ToUpper());
+                                cmdJobber.Parameters.AddWithValue("@MobileNumber", ilist.MobileNo ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@AlternateNumber", ilist.AlterMobileNo ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@Email", ilist.Email ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@PlaceOfSupply", ilist.State ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@Pincode", ilist.Pincode ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@City", ilist.City ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BankHolderName", ilist.BankHolderName ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BankAcNo", ilist.BankAccountNo ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BankName", ilist.BankName ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BankIfsc", ilist.BankIFSCCode ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BankBranch", ilist.BankBranch ?? (object)DBNull.Value);
+                                cmdJobber.Parameters.AddWithValue("@BillingAddress", ilist.BillingAddress ?? (object)DBNull.Value);
 
-                                cmdUser.ExecuteNonQuery();
+                                // Optional Machine defaults (safe fallback)
+                                cmdJobber.Parameters.AddWithValue("@MachineType", HttpContext.Current.Request.Params["MachineType"] ?? string.Empty);
+                                cmdJobber.Parameters.AddWithValue("@Rpm", Convert.ToInt32(HttpContext.Current.Request.Params["Rpm"] ?? "0"));
+                                cmdJobber.Parameters.AddWithValue("@PanaRepeat", Convert.ToInt32(HttpContext.Current.Request.Params["PanaRepeat"] ?? "0"));
+                                cmdJobber.Parameters.AddWithValue("@PanaWidth", Convert.ToInt32(HttpContext.Current.Request.Params["PanaWidth"] ?? "0"));
+                                cmdJobber.Parameters.AddWithValue("@NoOfMachines", Convert.ToInt32(HttpContext.Current.Request.Params["NoOfMachines"] ?? "0"));
+                                cmdJobber.Parameters.AddWithValue("@IsActiveParty", ilist.IsActiveParty);
+
+                                cmdJobber.ExecuteNonQuery();
                             }
                         }
 
@@ -26691,7 +26909,40 @@ INNER JOIN PartyMaster PM1
             }
             return obj;
         }
+        [WebMethod]
+        public string GetNextBrokerCode()
+        {
 
+            string result = "";
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+
+                string query = @"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode, 3, LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster";
+
+
+
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                con.Open();
+
+
+
+                int maxCode = Convert.ToInt32(cmd.ExecuteScalar());
+
+                int nextCode = maxCode + 1;
+
+
+
+                result = "BR" + nextCode.ToString("D3"); // BR001
+
+            }
+
+
+
+            return result;
+
+        }
         [WebMethod]
         public string SaveBroker(BrokerMaster obj)
         {
@@ -30013,7 +30264,7 @@ FROM Filtered
                     // ============================================================
                     // 4. CRYSTAL REPORT PATH
                     // ============================================================
-                    string reportPath = HttpContext.Current.Server.MapPath("~/Reports/SaleOrder(17-08-2026).rpt");
+                    string reportPath = HttpContext.Current.Server.MapPath("~/Reports/SaleorderReportNEW.rpt");
                     if (!File.Exists(reportPath))
                     {
                         throw new Exception("SaleOrder Report not found : " + reportPath);
@@ -30047,122 +30298,122 @@ FROM Filtered
                         {
                             DataSet ds = new DataSet();
 
-                            // 8.1 MASTER
-                            using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrder", con))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                                {
-                                    da.Fill(ds, "SaleOrderMaster");
-                                }
-                            }
+                            //// 8.1 MASTER
+                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrder", con))
+                            //{
+                            //    cmd.CommandType = CommandType.StoredProcedure;
+                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            //    {
+                            //        da.Fill(ds, "SaleOrderMaster");
+                            //    }
+                            //}
 
-                            // 8.2 DETAILS
-                            using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderDetails", con))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                                {
-                                    da.Fill(ds, "SaleOrderDetails");
-                                }
-                            }
+                            //// 8.2 DETAILS
+                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderDetails", con))
+                            //{
+                            //    cmd.CommandType = CommandType.StoredProcedure;
+                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            //    {
+                            //        da.Fill(ds, "SaleOrderDetails");
+                            //    }
+                            //}
 
-                            // 8.3 ADDITIONAL CHARGES
-                            using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderAdditionalCharges", con))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                                {
-                                    da.Fill(ds, "SaleOrderAdditionalCharges");
-                                }
-                            }
+                            //// 8.3 ADDITIONAL CHARGES
+                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderAdditionalCharges", con))
+                            //{
+                            //    cmd.CommandType = CommandType.StoredProcedure;
+                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            //    {
+                            //        da.Fill(ds, "SaleOrderAdditionalCharges");
+                            //    }
+                            //}
 
-                            // ====================================================
-                            // 9 & 10. VALIDATE TABLES
-                            // ====================================================
-                            if (!ds.Tables.Contains("SaleOrderMaster") || ds.Tables["SaleOrderMaster"].Rows.Count == 0)
-                                continue;
+                            //// ====================================================
+                            //// 9 & 10. VALIDATE TABLES
+                            //// ====================================================
+                            //if (!ds.Tables.Contains("SaleOrderMaster") || ds.Tables["SaleOrderMaster"].Rows.Count == 0)
+                            //    continue;
 
-                            if (!ds.Tables.Contains("SaleOrderDetails") || ds.Tables["SaleOrderDetails"].Rows.Count == 0)
-                                continue;
+                            //if (!ds.Tables.Contains("SaleOrderDetails") || ds.Tables["SaleOrderDetails"].Rows.Count == 0)
+                            //    continue;
 
-                            // ====================================================
-                            // 11 & 12. AMOUNT IN WORDS
-                            // ====================================================
-                            DataTable master = ds.Tables["SaleOrderMaster"];
-                            if (!master.Columns.Contains("AmountInWords"))
-                            {
-                                master.Columns.Add("AmountInWords", typeof(string));
-                            }
+                            //// ====================================================
+                            //// 11 & 12. AMOUNT IN WORDS
+                            //// ====================================================
+                            //DataTable master = ds.Tables["SaleOrderMaster"];
+                            //if (!master.Columns.Contains("AmountInWords"))
+                            //{
+                            //    master.Columns.Add("AmountInWords", typeof(string));
+                            //}
 
-                            decimal netAmount = 0;
-                            if (master.Rows[0]["NetAmount"] != DBNull.Value)
-                            {
-                                netAmount = Convert.ToDecimal(master.Rows[0]["NetAmount"]);
-                            }
+                            //decimal netAmount = 0;
+                            //if (master.Rows[0]["NetAmount"] != DBNull.Value)
+                            //{
+                            //    netAmount = Convert.ToDecimal(master.Rows[0]["NetAmount"]);
+                            //}
 
-                            master.Rows[0]["AmountInWords"] = NumberToWordsHelper.ConvertAmount(netAmount);
+                            //master.Rows[0]["AmountInWords"] = NumberToWordsHelper.ConvertAmount(netAmount);
 
-                            // ====================================================
-                            // 13, 14, 15, 16. DETAILS & IMAGE PATH RESOLUTION
-                            // ====================================================
-                            DataTable details = ds.Tables["SaleOrderDetails"];
+                            //// ====================================================
+                            //// 13, 14, 15, 16. DETAILS & IMAGE PATH RESOLUTION
+                            //// ====================================================
+                            //DataTable details = ds.Tables["SaleOrderDetails"];
 
-                            if (!details.Columns.Contains("PhotoOfDesign"))
-                            {
-                                throw new Exception("PhotoOfDesign column is missing in SPR_GetSaleOrderDetails.");
-                            }
+                            //if (!details.Columns.Contains("PhotoOfDesign"))
+                            //{
+                            //    throw new Exception("PhotoOfDesign column is missing in SPR_GetSaleOrderDetails.");
+                            //}
 
-                            if (!details.Columns.Contains("ImagePath"))
-                            {
-                                throw new Exception("ImagePath column is missing in SPR_GetSaleOrderDetails. Please add CAST('' AS NVARCHAR(500)) AS ImagePath.");
-                            }
+                            //if (!details.Columns.Contains("ImagePath"))
+                            //{
+                            //    throw new Exception("ImagePath column is missing in SPR_GetSaleOrderDetails. Please add CAST('' AS NVARCHAR(500)) AS ImagePath.");
+                            //}
 
-                            int imageCount = 0;
+                            //int imageCount = 0;
 
-                            foreach (DataRow row in details.Rows)
-                            {
-                                try
-                                {
-                                    string photoPath = "";
-                                    if (row["PhotoOfDesign"] != DBNull.Value)
-                                    {
-                                        photoPath = Convert.ToString(row["PhotoOfDesign"]).Trim();
-                                    }
+                            //foreach (DataRow row in details.Rows)
+                            //{
+                            //    try
+                            //    {
+                            //        string photoPath = "";
+                            //        if (row["PhotoOfDesign"] != DBNull.Value)
+                            //        {
+                            //            photoPath = Convert.ToString(row["PhotoOfDesign"]).Trim();
+                            //        }
 
-                                    if (string.IsNullOrWhiteSpace(photoPath))
-                                    {
-                                        row["ImagePath"] = "";
-                                        continue;
-                                    }
+                            //        if (string.IsNullOrWhiteSpace(photoPath))
+                            //        {
+                            //            row["ImagePath"] = "";
+                            //            continue;
+                            //        }
 
-                                    string fileNameOnly = Path.GetFileName(photoPath.Replace("/", "\\"));
-                                    if (string.IsNullOrWhiteSpace(fileNameOnly))
-                                    {
-                                        row["ImagePath"] = "";
-                                        continue;
-                                    }
+                            //        string fileNameOnly = Path.GetFileName(photoPath.Replace("/", "\\"));
+                            //        if (string.IsNullOrWhiteSpace(fileNameOnly))
+                            //        {
+                            //            row["ImagePath"] = "";
+                            //            continue;
+                            //        }
 
-                                    string physicalImagePath = Path.Combine(imageFolder, fileNameOnly);
+                            //        string physicalImagePath = Path.Combine(imageFolder, fileNameOnly);
 
-                                    if (File.Exists(physicalImagePath))
-                                    {
-                                        row["ImagePath"] = physicalImagePath;
-                                        imageCount++;
-                                    }
-                                    else
-                                    {
-                                        row["ImagePath"] = "";
-                                    }
-                                }
-                                catch
-                                {
-                                    row["ImagePath"] = "";
-                                }
-                            }
+                            //        if (File.Exists(physicalImagePath))
+                            //        {
+                            //            row["ImagePath"] = physicalImagePath;
+                            //            imageCount++;
+                            //        }
+                            //        else
+                            //        {
+                            //            row["ImagePath"] = "";
+                            //        }
+                            //    }
+                            //    catch
+                            //    {
+                            //        row["ImagePath"] = "";
+                            //    }
+                            //}
                         // ====================================================
                         // 18. CRYSTAL REPORT GENERATION
                         // ====================================================
@@ -30170,39 +30421,39 @@ FROM Filtered
 
                         try
                         {
-                            report.Load(reportPath, OpenReportMethod.OpenReportByTempCopy);
-
                             // 1. Set Database Logins for Main Report and Subreports
-                            SetCrystalDatabaseLogin(report, connectionString);
-
+                       
+                            report.Load(reportPath, OpenReportMethod.OpenReportByDefault);
+                            report.SetDatabaseLogon("weavelanesoftDB", "TC@gVizd@8rrb17n", "115.124.106.158", "weavelanesoftDB");
+                            //  SetCrystalDatabaseLogin(report, connectionString);
                             // 2. Bind Main Dataset Source to Main Report
-                            report.SetDataSource(ds);
+                           // report.SetDataSource(ds);
 
                             // 3. Explicitly Bind Subreports to their corresponding DataSet tables
-                            foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
-                            {
-                                foreach (ReportObject obj in section.ReportObjects)
-                                {
-                                    if (obj is SubreportObject subReportObj)
-                                    {
-                                        ReportDocument subReport = report.OpenSubreport(subReportObj.SubreportName);
+                            //foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
+                            //{
+                            //    foreach (ReportObject obj in section.ReportObjects)
+                            //    {
+                            //        if (obj is SubreportObject subReportObj)
+                            //        {
+                            //            ReportDocument subReport = report.OpenSubreport(subReportObj.SubreportName);
 
-                                        if (subReportObj.SubreportName.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0)
-                                        {
-                                            subReport.SetDataSource(ds.Tables["SaleOrderDetails"]);
-                                        }
-                                        else if (subReportObj.SubreportName.IndexOf("Charge", StringComparison.OrdinalIgnoreCase) >= 0)
-                                        {
-                                            subReport.SetDataSource(ds.Tables["SaleOrderAdditionalCharges"]);
-                                        }
-                                        else
-                                        {
-                                            // Fallback to Master or general dataset table if needed
-                                            subReport.SetDataSource(ds.Tables["SaleOrderMaster"]);
-                                        }
-                                    }
-                                }
-                            }
+                            //            if (subReportObj.SubreportName.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0)
+                            //            {
+                            //                subReport.SetDataSource(ds.Tables["SaleOrderDetails"]);
+                            //            }
+                            //            else if (subReportObj.SubreportName.IndexOf("Charge", StringComparison.OrdinalIgnoreCase) >= 0)
+                            //            {
+                            //                subReport.SetDataSource(ds.Tables["SaleOrderAdditionalCharges"]);
+                            //            }
+                            //            else
+                            //            {
+                            //                // Fallback to Master or general dataset table if needed
+                            //                subReport.SetDataSource(ds.Tables["SaleOrderMaster"]);
+                            //            }
+                            //        }
+                            //    }
+                            //}
 
                             report.Refresh();
 
@@ -30444,7 +30695,7 @@ FROM Filtered
 
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT PartyId,PartyName + ' - ' + ISNULL(GSTIN,'') AS PartyDisplayName FROM PartyMaster ORDER BY PartyName", con))
+                using (SqlCommand cmd = new SqlCommand("SELECT ID,PartyName + ' - ' + ISNULL(GSTIN,'') AS PartyDisplayName FROM JobberMaster ORDER BY PartyName", con))
                 {
                     using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                     {
@@ -30950,11 +31201,11 @@ FROM Filtered
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = @"SELECT * FROM PartyMaster PM
-                                INNER JOIN UserAccountMaster UM ON UM.PartyId = PM.PartyID
-                                WHERE PM.SundryParty = 3 AND PM.IsActiveParty = 1 
-                                  AND PM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-                                  AND PM.PartyId <> " + PartyId;
+                cmd.CommandText = @"SELECT * FROM JobberMaster JM
+                                INNER JOIN UserAccountMaster UM ON UM.PartyId = JM.Id
+                                WHERE JM.IsActiveParty = 1 
+                                  AND JM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                                  AND JM.Id <> " + PartyId;
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
                 if (rdr.HasRows)
@@ -30962,8 +31213,9 @@ FROM Filtered
                     while (rdr.Read())
                     {
                         PartyMaster condition = new PartyMaster();
-                        condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
+                        condition.PartyId = Convert.ToInt32(rdr["Id"].ToString());
                         condition.PartyName = rdr["PartyName"].ToString().ToUpper();
+                        condition.BillingAddress = rdr["BillingAddress"].ToString();
                         listPartyMaster.Add(condition);
                     }
 
@@ -32090,16 +32342,12 @@ FROM Filtered
                     });
                 }
 
-                string connString =
-                    ConfigurationManager
-                        .ConnectionStrings["sqlconnstr"]
-                        .ConnectionString;
+                string connString = ConfigurationManager .ConnectionStrings["sqlconnstr"].ConnectionString;
 
                 DataTable dtMaster = new DataTable();
                 DataTable dtDetails = new DataTable();
 
-                using (SqlConnection con =
-                    new SqlConnection(connString))
+                using (SqlConnection con =  new SqlConnection(connString))
                 {
                     con.Open();
 
@@ -32108,30 +32356,23 @@ FROM Filtered
                     // ==========================================
 
                     string masterQuery = @"
-        SELECT
-            JOM.JobberOutwardID,
-            JOM.DateAndTime,
-            JOM.GodownID,
-            JOM.PartyId,
-            JOM.OutwardListNo,
-            JOM.OutwardListDate,                
-            JOM.UserAccountId,
-            JOM.FinancialYearID,
-            JOM.CompanyId,
-            JOM.SundryPartyID,
-            JOM.TotalWeight,
-
-            PM.PartyName,
-            PM.BillingAddress
-
-        FROM JobberOutwardMaster JOM
-
-        LEFT JOIN PartyMaster PM
-            ON PM.PartyId = JOM.PartyId
-
-        WHERE
-            JOM.JobberOutwardID = @JobberOutwardID
-    ";
+                                SELECT
+                                    JOM.JobberOutwardID,
+                                    JOM.DateAndTime,
+                                    JOM.GodownID,
+                                    JOM.PartyId,
+                                    JOM.OutwardListNo,
+                                    JOM.OutwardListDate,                
+                                    JOM.UserAccountId,
+                                    JOM.FinancialYearID,
+                                    JOM.CompanyId,
+                                    JOM.SundryPartyID,
+                                    JOM.TotalWeight,
+                                    PM.PartyName,
+                                    PM.BillingAddress
+                                FROM JobberOutwardMaster JOM
+                                LEFT JOIN JobberMaster JM ON JM.Id = JOM.PartyId
+                                WHERE JOM.JobberOutwardID = @JobberOutwardID";
 
                     using (SqlCommand cmd = new SqlCommand(masterQuery, con))
                     {
@@ -32147,62 +32388,38 @@ FROM Filtered
                     // ==========================================
 
                     string detailQuery = @"
-    SELECT
-        JOD.JobberOutwardDetailID,
-        JOD.DateAndTime,
-        JOD.JobberOutwardID,
-        JOD.BillToPartyId,
-        JOD.CompanyPartyId,  
-        JOD.YarnMaterialID,
-        JOD.YarnColorID,
-        JOD.NoOfBox,
-        JOD.UserAccountId,
-        JOD.NetWeight,
-        JOD.BarcodeNo,
-        JOD.BoxNo,
-        JOD.YarnPOID,
-        JOD.DetailsJson, -- <--- ADDED THIS LINE TO SELECT THE JSON TRACKING DATA
+                                SELECT
+                                    JOD.JobberOutwardDetailID,
+                                    JOD.DateAndTime,
+                                    JOD.JobberOutwardID,
+                                    JOD.BillToPartyId,
+                                    JOD.CompanyPartyId,  
+                                    JOD.YarnMaterialID,
+                                    JOD.YarnColorID,
+                                    JOD.NoOfBox,
+                                    JOD.UserAccountId,
+                                    JOD.NetWeight,
+                                    JOD.BarcodeNo,
+                                    JOD.BoxNo,
+                                    JOD.YarnPOID,
+                                    JOD.DetailsJson, -- <--- ADDED THIS LINE TO SELECT THE JSON TRACKING DATA
+                                    YM.YarnMaterial,
+                                    YC.YarnColor,
+                                    YC.YarnColorCode,
+                                    PM.PartyName AS BillToPartyName,
+                                    CPM.PartyName AS CompanyPartyName
+                                FROM JobberOutwardDetail JOD
+                                LEFT JOIN YarnMaterialMaster YM ON YM.YarnMaterialID = JOD.YarnMaterialID
+                                LEFT JOIN YarnColorMaster YC ON YC.YarnColorID = JOD.YarnColorID
+                                LEFT JOIN PartyMaster PM ON PM.PartyId = JOD.BillToPartyId
+                                LEFT JOIN PartyMaster CPM ON CPM.PartyId = JOD.CompanyPartyId
+                                WHERE JOD.JobberOutwardID = @JobberOutwardID
+                                ORDER BY  JOD.JobberOutwardDetailID";
 
-        YM.YarnMaterial,
-
-        YC.YarnColor,
-        YC.YarnColorCode,
-
-        PM.PartyName AS BillToPartyName,
-        CPM.PartyName AS CompanyPartyName
-
-    FROM JobberOutwardDetail JOD
-
-    LEFT JOIN YarnMaterialMaster YM
-        ON YM.YarnMaterialID =
-           JOD.YarnMaterialID
-
-    LEFT JOIN YarnColorMaster YC
-        ON YC.YarnColorID =
-           JOD.YarnColorID
-
-    LEFT JOIN PartyMaster PM 
-        ON PM.PartyId = JOD.BillToPartyId
-
-    LEFT JOIN PartyMaster CPM 
-        ON CPM.PartyId = JOD.CompanyPartyId
-
-    WHERE JOD.JobberOutwardID = @JobberOutwardID
-
-    ORDER BY
-        JOD.JobberOutwardDetailID
-";
-
-                    using (SqlCommand cmd =
-                        new SqlCommand(detailQuery, con))
+                    using (SqlCommand cmd =  new SqlCommand(detailQuery, con))
                     {
-                        cmd.Parameters.Add(
-                            "@JobberOutwardID",
-                            SqlDbType.Int
-                        ).Value = outwardId;
-
-                        using (SqlDataAdapter da =
-                            new SqlDataAdapter(cmd))
+                        cmd.Parameters.Add("@JobberOutwardID",SqlDbType.Int).Value = outwardId;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             da.Fill(dtDetails);
                         }
@@ -32684,7 +32901,6 @@ FROM Filtered
             }
             return list;
         }
-
         // 2. VIEW SINGLE RECORD (Get details + single machine row columns)
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -32734,7 +32950,6 @@ FROM Filtered
             }
             return jobber ?? new JobberViewModel();
         }
-
         // 3. INSERT / UPDATE (Save record saving machine columns directly)
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -32743,21 +32958,8 @@ FROM Filtered
             if (model == null) return false;
 
             // Extract UserAccountId and CompanyId safely from Cookies
-            long userAccountId = 0;
-            long companyId = 0;
-
-            if (Context.Request.Cookies["UserIDs"] != null)
-            {
-                long.TryParse(Context.Request.Cookies["UserIDs"].Value, out userAccountId);
-            }
-
-            if (Context.Request.Cookies["CompanyID"] != null)
-            {
-                long.TryParse(Context.Request.Cookies["CompanyID"].Value, out companyId);
-            }
-
-            model.UserAccountId = userAccountId;
-            model.CompanyId = companyId;
+            model.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
+            model.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
 
             if (model.JobberType == null || !model.JobberType.Contains("Weaving"))
             {
@@ -32773,31 +32975,110 @@ FROM Filtered
                 con.Open();
                 try
                 {
+                    // --- CHECK DUPLICATE PREFIX ---
+                    if (!string.IsNullOrEmpty(model.Prefix))
+                    {
+                        string checkQuery = "SELECT COUNT(1) FROM JobberMaster WHERE CompanyId = @CompanyId AND LTRIM(RTRIM(UPPER(Prefix))) = LTRIM(RTRIM(UPPER(@Prefix))) AND Id <> @Id";
+                        using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
+                        {
+                            checkCmd.Parameters.AddWithValue("@CompanyId", model.CompanyId);
+                            checkCmd.Parameters.AddWithValue("@Prefix", model.Prefix.Trim());
+                            checkCmd.Parameters.AddWithValue("@Id", model.Id); // Exclude current record during update
+
+                            int existingCount = Convert.ToInt32(checkCmd.ExecuteScalar());
+                            if (existingCount > 0)
+                            {
+                                // Duplicate prefix found, reject saving
+                                return false;
+                            }
+                        }
+                    }
+
+                    long savedJobberId = model.Id;
+
                     if (model.Id == 0)
                     {
                         // --- INSERT LOGIC ---
                         string insertQuery = @"INSERT INTO JobberMaster 
-                (CompanyId, UserAccountId, DateAndTime, JobberType, Gstin, PanNo, PartyName, Prefix, MobileNumber, AlternateNumber, Email, PlaceOfSupply, Pincode, City, BankHolderName, BankAcNo, BankName, BankIfsc, BankBranch, BillingAddress, MachineType, Rpm, PanaRepeat, PanaWidth, NoOfMachines, IsActiveParty)
-                VALUES 
-                (@CompanyId, @UserAccountId, GETDATE(), @JobberType, @Gstin, @PanNo, @PartyName, @Prefix, @MobileNumber, @AlternateNumber, @Email, @PlaceOfSupply, @Pincode, @City, @BankHolderName, @BankAcNo, @BankName, @BankIfsc, @BankBranch, @BillingAddress, @MachineType, @Rpm, @PanaRepeat, @PanaWidth, @NoOfMachines, @IsActiveParty)";
+                        (CompanyId, UserAccountId, DateAndTime, JobberType, Gstin, PanNo, PartyName, Prefix, MobileNumber, AlternateNumber, Email, PlaceOfSupply, Pincode, City, BankHolderName, BankAcNo, BankName, BankIfsc, BankBranch, BillingAddress, MachineType, Rpm, PanaRepeat, PanaWidth, NoOfMachines, IsActiveParty)
+                        OUTPUT INSERTED.Id
+                        VALUES 
+                        (@CompanyId, @UserAccountId, GETDATE(), @JobberType, @Gstin, @PanNo, @PartyName, @Prefix, @MobileNumber, @AlternateNumber, @Email, @PlaceOfSupply, @Pincode, @City, @BankHolderName, @BankAcNo, @BankName, @BankIfsc, @BankBranch, @BillingAddress, @MachineType, @Rpm, @PanaRepeat, @PanaWidth, @NoOfMachines, @IsActiveParty)";
 
                         using (SqlCommand cmd = new SqlCommand(insertQuery, con))
                         {
                             AddJobberParameters(cmd, model);
-                            cmd.ExecuteNonQuery();
+                            savedJobberId = Convert.ToInt64(cmd.ExecuteScalar());
+                        }
+
+                        // --- JOBBER USER ACCOUNT CREATION (INSERT) ---
+                        if (savedJobberId > 0)
+                        {
+                            string checkUserQuery = "SELECT COUNT(1) FROM UserAccountMaster WHERE CompanyId = @CompanyId AND UserAccountMobileNo = @MobileNo";
+                            int userExists = 0;
+
+                            using (SqlCommand cmdCheckUser = new SqlCommand(checkUserQuery, con))
+                            {
+                                cmdCheckUser.Parameters.AddWithValue("@CompanyId", model.CompanyId);
+                                cmdCheckUser.Parameters.AddWithValue("@MobileNo", model.MobileNumber ?? (object)DBNull.Value);
+                                userExists = Convert.ToInt32(cmdCheckUser.ExecuteScalar());
+                            }
+
+                            if (userExists > 0)
+                            {
+                                // Update existing user account linked to this party/mobile
+                                string updateUserQuery = @"
+                                        UPDATE UserAccountMaster 
+                                        SET UserAccountName = @UserAccountName, 
+                                            UserAccountEmail = @Email,
+                                            PartyId = @PartyId
+                                        WHERE CompanyId = @CompanyId AND UserAccountMobileNo = @MobileNo";
+
+                                using (SqlCommand cmdUserUpdate = new SqlCommand(updateUserQuery, con))
+                                {
+                                    cmdUserUpdate.Parameters.AddWithValue("@CompanyId", model.CompanyId);
+                                    cmdUserUpdate.Parameters.AddWithValue("@UserAccountName", model.PartyName ?? (object)DBNull.Value);
+                                    cmdUserUpdate.Parameters.AddWithValue("@Email", model.Email ?? (object)DBNull.Value);
+                                    cmdUserUpdate.Parameters.AddWithValue("@PartyId", savedJobberId);
+                                    cmdUserUpdate.Parameters.AddWithValue("@MobileNo", model.MobileNumber ?? (object)DBNull.Value);
+
+                                    cmdUserUpdate.ExecuteNonQuery();
+                                }
+                            }
+                            else
+                            {
+                                // Insert new user account
+                                string insertUserQuery = @"
+                                    INSERT INTO UserAccountMaster
+                                    (UserAccountDateAndTime, CompanyId, UserAccountName, UserRole, UserAccountMobileNo, UserAccountEmail, UserAccountPassword, AllowLogin, PartyId)
+                                    VALUES
+                                    (GETDATE(), @CompanyId, @UserAccountName, 'Job Work', @MobileNo, @Email, @Password, 1, @PartyId)";
+
+                                using (SqlCommand cmdUser = new SqlCommand(insertUserQuery, con))
+                                {
+                                    cmdUser.Parameters.AddWithValue("@CompanyId", model.CompanyId);
+                                    cmdUser.Parameters.AddWithValue("@UserAccountName", model.PartyName ?? (object)DBNull.Value);
+                                    cmdUser.Parameters.AddWithValue("@MobileNo", model.MobileNumber ?? (object)DBNull.Value);
+                                    cmdUser.Parameters.AddWithValue("@Password", getMd5Hash(model.MobileNumber ?? "123456"));
+                                    cmdUser.Parameters.AddWithValue("@Email", model.Email ?? (object)DBNull.Value);
+                                    cmdUser.Parameters.AddWithValue("@PartyId", savedJobberId);
+
+                                    cmdUser.ExecuteNonQuery();
+                                }
+                            }
                         }
                     }
                     else
                     {
                         // --- UPDATE LOGIC ---
-                        string updateQuery = @"UPDATE JobberMaster SET 
-                JobberType=@JobberType, Gstin=@Gstin, PanNo=@PanNo, PartyName=@PartyName, Prefix=@Prefix, 
-                MobileNumber=@MobileNumber, AlternateNumber=@AlternateNumber, Email=@Email, PlaceOfSupply=@PlaceOfSupply, 
-                Pincode=@Pincode, City=@City, BankHolderName=@BankHolderName, BankAcNo=@BankAcNo, 
-                BankName=@BankName, BankIfsc=@BankIfsc, BankBranch=@BankBranch, BillingAddress=@BillingAddress,
-                MachineType=@MachineType, Rpm=@Rpm, PanaRepeat=@PanaRepeat, PanaWidth=@PanaWidth, NoOfMachines=@NoOfMachines,
-                IsActiveParty=@IsActiveParty
-                WHERE Id=@Id";
+                        string updateQuery = @"UPDATE JobberMaster SET CompanyId=@CompanyId, UserAccountId=@UserAccountId,
+                        JobberType=@JobberType, Gstin=@Gstin, PanNo=@PanNo, PartyName=@PartyName, Prefix=@Prefix, 
+                        MobileNumber=@MobileNumber, AlternateNumber=@AlternateNumber, Email=@Email, PlaceOfSupply=@PlaceOfSupply, 
+                        Pincode=@Pincode, City=@City, BankHolderName=@BankHolderName, BankAcNo=@BankAcNo, 
+                        BankName=@BankName, BankIfsc=@BankIfsc, BankBranch=@BankBranch, BillingAddress=@BillingAddress,
+                        MachineType=@MachineType, Rpm=@Rpm, PanaRepeat=@PanaRepeat, PanaWidth=@PanaWidth, NoOfMachines=@NoOfMachines,
+                        IsActiveParty=@IsActiveParty
+                        WHERE Id=@Id";
 
                         using (SqlCommand cmd = new SqlCommand(updateQuery, con))
                         {
@@ -32805,16 +33086,35 @@ FROM Filtered
                             cmd.Parameters.AddWithValue("@Id", model.Id);
                             cmd.ExecuteNonQuery();
                         }
+
+                        // --- JOBBER USER ACCOUNT SYNC (UPDATE) ---
+                        string updateUserQuery = @"
+                        UPDATE UserAccountMaster 
+                        SET UserAccountName = @UserAccountName, 
+                            UserAccountMobileNo = @MobileNo, 
+                            UserAccountEmail = @Email 
+                        WHERE PartyId = @PartyId AND CompanyId = @CompanyId";
+
+                        using (SqlCommand cmdUserUpdate = new SqlCommand(updateUserQuery, con))
+                        {
+                            cmdUserUpdate.Parameters.AddWithValue("@CompanyId", model.CompanyId);
+                            cmdUserUpdate.Parameters.AddWithValue("@UserAccountName", model.PartyName ?? (object)DBNull.Value);
+                            cmdUserUpdate.Parameters.AddWithValue("@MobileNo", model.MobileNumber ?? (object)DBNull.Value);
+                            cmdUserUpdate.Parameters.AddWithValue("@Email", model.Email ?? (object)DBNull.Value);
+                            cmdUserUpdate.Parameters.AddWithValue("@PartyId", model.Id);
+
+                            cmdUserUpdate.ExecuteNonQuery();
+                        }
                     }
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // Optional: Log exception here for debugging
                     return false;
                 }
             }
         }
-
         private void AddJobberParameters(SqlCommand cmd, JobberViewModel model)
         {
             cmd.Parameters.AddWithValue("@CompanyId", model.CompanyId); // Pull from session context if needed
@@ -32843,7 +33143,6 @@ FROM Filtered
             cmd.Parameters.AddWithValue("@NoOfMachines", model.NoOfMachines);
             cmd.Parameters.AddWithValue("@IsActiveParty", model.IsActiveParty);
         }
-
         // 4. DELETE RECORD
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
