@@ -44,13 +44,13 @@
                                         </div>
 
                                         @*<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
-                                            <div class="field-wrapper">
-                                                <select id="Broker" class="form-select">
-                                                    <option value="-1">Select Broker</option>
-                                                </select>
-                                                <div class="field-placeholder">Broker</div>
-                                            </div>
-                                        </div>*@
+                                                <div class="field-wrapper">
+                                                    <select id="Broker" class="form-select">
+                                                        <option value="-1">Select Broker</option>
+                                                    </select>
+                                                    <div class="field-placeholder">Broker</div>
+                                                </div>
+                                            </div>*@
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
@@ -79,12 +79,12 @@
                                         </div>
 
                                         @*<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
-                                            <div class="field-wrapper">
-                                                <input id="PartyPrefix" placeholder="PREFIX" type="text" maxlength="4" class="form-control clear-field detail" style="text-transform: uppercase;" />
-                                                <div class="field-placeholder">Party Prefix</div>
-                                                <div class="invalid-feedback">Please Provide Party Prefix</div>
-                                            </div>
-                                        </div>*@
+                                                <div class="field-wrapper">
+                                                    <input id="PartyPrefix" placeholder="PREFIX" type="text" maxlength="4" class="form-control clear-field detail" style="text-transform: uppercase;" />
+                                                    <div class="field-placeholder">Party Prefix</div>
+                                                    <div class="invalid-feedback">Please Provide Party Prefix</div>
+                                                </div>
+                                            </div>*@
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
                                             <div class="field-wrapper">
@@ -241,7 +241,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">Party Master</div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">                        
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title m-0"></h4>
                         <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                             <input id="search-party-name" placeholder="Search Party Name / Mobile No / GSTIN..." type="text" class="form-control" onkeyup="functionSearch(this)">
@@ -410,6 +410,7 @@
             $("#checkAddress").prop("checked", true);
             $("#shippingAddress").prop("disabled", true);
             $("#checkIsActiveParty").prop("checked", true);
+            $("#edit-id").val("");
         }
 
         function functionSearch() {
@@ -449,27 +450,27 @@
                                 : "<span class='badge bg-danger'>Not Approved</span>";
 
                             temp += `<tr>
-                                <td>${srno++}</td>
-                                <td>${item.DateandTimes || ''}</td>
-                                <td>${item.PartyName}<br/>${SpanSundryParty}</td>
-                                <td>${item.MobileNo}${item.AltMobileNo != '0' ? '<br/>' + item.AltMobileNo : ''}</td>
-                                <td>${item.GSTIN || '-'}<br/>${item.PanNo || '-'}</td>
-                                <td>${item.City || ''}<br/>${item.State || ''}<br/>${item.Pincode || ''}</td>
-                                <td>${isApproved}</td>
-                                <td>
-                                    <div class='actions d-flex gap-2'>
-                                        <a href='javascript:void(0)' class='EditBtn' title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(${item.PartyId}, 1)'>
-                                            <i class='icon-edit1 text-info '></i>
-                                        </a>
-                                        <a href='javascript:void(0)' class='ViewBtn' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(${item.PartyId}, 0)'>
-                                            <i class='fa fa-eye text-secondary'></i>
-                                        </a>
-                                        <a href='javascript:void(0)' class='DeleteBtn' title='Delete' onclick='functionUserDelete(${item.PartyId})'>
-                                            <i class='icon-x-circle text-danger'></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>`;
+                                    <td>${srno++}</td>
+                                    <td>${item.DateandTimes || ''}</td>
+                                    <td>${item.PartyName}<br/>${SpanSundryParty}</td>
+                                    <td>${item.MobileNo}${item.AltMobileNo && item.AltMobileNo != '0' ? '<br/>' + item.AltMobileNo : ''}</td>
+                                    <td>${item.GSTIN || '-'}<br/>${item.PanNo || '-'}</td>
+                                    <td>${item.City || ''}<br/>${item.State || ''}<br/>${item.Pincode || ''}</td>
+                                    <td>${isApproved}</td>
+                                    <td>
+                                        <div class='actions d-flex gap-2'>
+                                            <a href='javascript:void(0)' class='EditBtn' title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(${item.PartyId}, 1)'>
+                                                <i class='icon-edit1 text-info '></i>
+                                            </a>
+                                            <a href='javascript:void(0)' class='ViewBtn' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(${item.PartyId}, 0)'>
+                                                <i class='fa fa-eye text-secondary'></i>
+                                            </a>
+                                            <a href='javascript:void(0)' class='DeleteBtn' title='Delete' onclick='functionUserDelete(${item.PartyId})'>
+                                                <i class='icon-x-circle text-danger'></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>`;
                         });
                     } else {
                         temp = `<tr><td colspan='8' class='text-center text-muted'>No records found</td></tr>`;
@@ -502,8 +503,8 @@
                             html += `<li class='page-item ${CurrentPage == 1 ? "disabled" : ""}'><a class='page-link' href='javascript:void(0)' onclick='PreviousPage()'>Previous</a></li>`;
                             for (var i = 1; i <= Paggination; i++) {
                                 html += `<li class='page-item ${i == CurrentPage ? "active" : ""}' id='a${i}'>
-                                    <a class='page-link' href='javascript:void(0)' onclick='funcationPaggination(${i})'>${i}</a>
-                                </li>`;
+                                        <a class='page-link' href='javascript:void(0)' onclick='funcationPaggination(${i})'>${i}</a>
+                                    </li>`;
                             }
                             html += `<li class='page-item ${CurrentPage == Paggination ? "disabled" : ""}'><a class='page-link' href='javascript:void(0)' onclick='NextPage()'>Next</a></li>`;
                         }
@@ -516,6 +517,7 @@
         function funcationPaggination(pageNo) {
             CurrentPage = pageNo;
             var startFrom = (pageNo - 1) * 10;
+            $("#rowStartCount").val(startFrom);
             displayData(startFrom);
         }
 
@@ -578,7 +580,6 @@
         }
 
         function savePartyData(closeModalAfterSave) {
-            debugger;
             var sundry = document.getElementById('SundryParty');
             var name = document.getElementById('party-name');
             var phone = document.getElementById('phone');
@@ -588,11 +589,6 @@
                 Toast.fire({ icon: 'warning', title: 'Please fill out all required fields correctly.' });
                 return;
             }
-
-            //if (SundryParty == "3" && !validate(PartyPrefix)) {
-            //    Toast.fire({ icon: 'warning', title: 'Please enter prefix for Job Work Party' });
-            //    return;
-            //}
 
             var formData = new FormData();
             formData.append('PartyName', name.value);
@@ -612,9 +608,9 @@
             formData.append('BankIFSCCode', $('#BankIFSCCode').val());
             formData.append('BankName', $('#BankName').val());
             formData.append('BankBranch', $('#BankBranch').val());
-            formData.append('SundryParty', SundryParty);
+            formData.append('SundryParty', sundry.value);
             formData.append('IsActiveParty', $("#checkIsActiveParty").is(':checked') ? "1" : "0");
-            formData.append('prefixInput', SundryParty == "3" ? PartyPrefix.value.trim().toUpperCase() : '');
+            formData.append('prefixInput', sundry.value == "3" ? $('#PartyPrefix').val().trim().toUpperCase() : '');
 
             $.ajax({
                 type: "POST",
@@ -640,6 +636,7 @@
         }
 
         function checkEdit() {
+            var partyId = $("#edit-id").val();
             var sundry = document.getElementById('SundryParty');
             var name = document.getElementById('party-name');
             var phone = document.getElementById('phone');
@@ -651,7 +648,7 @@
             }
 
             var formData = new FormData();
-            formData.append('PartyId', id);
+            formData.append('PartyId', partyId);
             formData.append('PartyName', name.value);
             formData.append('MobileNo', phone.value);
             formData.append('MobileNotemp', $('#phonetemp').val());
@@ -673,9 +670,9 @@
             formData.append('BankName', $('#BankName').val());
             formData.append('BankBranch', $('#BankBranch').val());
             formData.append('IsActiveParty', $("#checkIsActiveParty").is(':checked') ? "1" : "0");
-            formData.append('SundryParty', SundryParty);
+            formData.append('SundryParty', sundry.value);
             formData.append('BrokerCode', $("#Broker").val());
-            formData.append('prefixInput', SundryParty == "3" ? PartyPrefix.value.trim().toUpperCase() : '');
+            formData.append('prefixInput', sundry.value == "3" ? $('#PartyPrefix').val().trim().toUpperCase() : '');
 
             $.ajax({
                 type: "POST",
@@ -783,7 +780,6 @@
         }
 
         function validate(code) {
-            // If an ID string or direct element/value is passed
             var $el = typeof code === "string" ? $("#" + code) : $(code);
             var el = $el[0];
 
@@ -791,18 +787,15 @@
 
             var val = $(el).val();
 
-            // Check for empty, default dropdown values ("0"), or whitespace
             if (!val || val.toString().trim() === "" || val === "0" || val === "-1") {
                 $el.addClass("is-invalid").removeClass("is-valid");
                 return false;
             }
 
-            // Clean up extra whitespace for text inputs/textareas
             if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
                 el.value = el.value.replace(/\s+/g, ' ').trim();
             }
 
-            // Specific field validations
             if (el.id === "gstin") {
                 if (val.length === 15) {
                     var gstVal = val.toUpperCase();
@@ -833,6 +826,7 @@
             $el.addClass("is-valid").removeClass("is-invalid");
             return true;
         }
+
         function fetchGstDetails(gstin) {
             $.ajax({
                 type: "POST",
@@ -841,30 +835,18 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 success: function (response) {
-                    // Un-wrap response.d from ASMX string serialization
                     var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
 
                     if (res && res.success && res.data) {
                         var d = res.data;
-
-                        // 1. Party Name -> trade_name or legal_name
                         $("#party-name").val(d.trade_name || d.legal_name || '');
-
-                        // 2. Billing Address -> address
                         $("#billingAddress").val(d.address || '');
                         checkShippingAdd();
-
-                        // 3. City -> city
                         $("#city").val(d.city || '');
-
-                        // 4. Pincode -> pincode
                         $("#pincode").val(d.pincode || '');
-
-                        // 5. Place of Supply -> state_code
                         if (d.state_code) {
                             $("#placeOfSupply").val(d.state_code);
                         }
-
                         Toast.fire({ icon: 'success', title: 'GST Details Auto-filled!' });
                     } else {
                         Toast.fire({ icon: 'warning', title: 'GST Details not found' });
@@ -875,6 +857,7 @@
                 }
             });
         }
+
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",

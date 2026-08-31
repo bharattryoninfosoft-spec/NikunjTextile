@@ -2,23 +2,34 @@
 # NikunjTextile - Project Specific Ignore
 # ==========================================
 
+
 # ------------------------------------------
-# Generated PDF / Report Files
+# Generated PDF / Report Output
 # ------------------------------------------
 *.pdf
 GeneratedPDF/
 ReportsOutput/
 
+
 # ------------------------------------------
-# Design Images / Bulk Image Data
+# Upload / User Generated Files
+# ------------------------------------------
+AadharUpload/
+ColorMatchingPhoto/
+CompanyPictures/
+CompressImages/
+PhotoOfInward/
+UploadedVideos/
+Uploads/
+UserProfile/
+
+
+# ------------------------------------------
+# Design / Bulk Image Data
 # ------------------------------------------
 PhotoOFDesign/
 *.bmp
 
-# ------------------------------------------
-# Upload / Temporary Files
-# ------------------------------------------
-Uploads/
 
 # ------------------------------------------
 # Visual Studio Local Files
@@ -32,6 +43,7 @@ Uploads/
 *.userosscache
 *.sln.docstates
 
+
 # ------------------------------------------
 # Build Output
 # ------------------------------------------
@@ -42,12 +54,14 @@ Release/
 x64/
 x86/
 
+
 # ------------------------------------------
 # NuGet / Package Generated Files
 # ------------------------------------------
 packages/
 *.nupkg
 *.snupkg
+
 
 # ------------------------------------------
 # Upgrade / Backup Files
@@ -59,6 +73,7 @@ UpgradeLog*.xml
 Backup*/
 MigrationBackup/
 
+
 # ------------------------------------------
 # Temporary Files
 # ------------------------------------------
@@ -68,6 +83,7 @@ MigrationBackup/
 *.log
 *.bak
 *.old
+
 
 # ------------------------------------------
 # Test / Coverage Output

@@ -181,22 +181,59 @@ namespace NikunjTextile
         // ***** Image Compress ********
         private void GenerateThumbnails(double scaleFactor, Stream sourcePath, string targetPath)
         {
-            using (var image = System.Drawing.Image.FromStream(sourcePath))
+            // 1. Ensure the target directory exists
+            var directory = Path.GetDirectoryName(targetPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
-                // ✅ Compress width and height using scaleFactor
-                var newWidth = (int)(image.Width * scaleFactor);
-                var newHeight = (int)(image.Height * scaleFactor);
+                Directory.CreateDirectory(directory);
+            }
 
+            // 2. Isolate source stream into a local MemoryStream
+            using (var memoryStream = new MemoryStream())
+            {
+                sourcePath.CopyTo(memoryStream);
+                memoryStream.Position = 0;
 
-                var thumbnailImg = new Bitmap(newWidth, newHeight);
-                var thumbGraph = Graphics.FromImage(thumbnailImg);
-                thumbGraph.CompositingQuality = CompositingQuality.HighQuality;
-                thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
-                thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                var imageRectangle = new System.Drawing.Rectangle(0, 0, newWidth, newHeight);
-                thumbGraph.DrawImage(image, imageRectangle);
-                thumbnailImg.Save(targetPath, image.RawFormat);
+                using (var image = System.Drawing.Image.FromStream(memoryStream))
+                {
+                    var newWidth = (int)(image.Width * scaleFactor);
+                    var newHeight = (int)(image.Height * scaleFactor);
 
+                    if (newWidth <= 0) newWidth = 1;
+                    if (newHeight <= 0) newHeight = 1;
+
+                    using (var thumbnailImg = new Bitmap(newWidth, newHeight))
+                    {
+                        using (var thumbGraph = Graphics.FromImage(thumbnailImg))
+                        {
+                            thumbGraph.CompositingQuality = CompositingQuality.HighQuality;
+                            thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
+                            thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                            var imageRectangle = new System.Drawing.Rectangle(0, 0, newWidth, newHeight);
+                            thumbGraph.DrawImage(image, imageRectangle);
+                        }
+
+                        // 3. Save to a MemoryStream first to prevent GDI+ file-lock exceptions
+                        using (var imgMemoryStream = new MemoryStream())
+                        {
+                            thumbnailImg.Save(imgMemoryStream, System.Drawing.Imaging.ImageFormat.Png);
+                            imgMemoryStream.Position = 0;
+
+                            // Delete old target file safely if it exists
+                            if (File.Exists(targetPath))
+                            {
+                                try { File.Delete(targetPath); } catch { }
+                            }
+
+                            // Write the bytes from memory to the final target file
+                            using (var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                            {
+                                imgMemoryStream.CopyTo(fileStream);
+                            }
+                        }
+                    }
+                }
             }
         }
         private void GenerateThumbnailsV2(double scaleFactor, Stream sourceStream, string targetPath)
@@ -614,134 +651,7 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-        [WebMethod]
-        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void insertCompanyMaster()
-        {
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
-            CommanResponse comman = new CommanResponse();
-            CompanyMaster ilist = new CompanyMaster();
-
-            ilist.CompanyName = HttpContext.Current.Request.Params["CompanyNames"];
-            ilist.Email = HttpContext.Current.Request.Params["Email"];
-            ilist.AlterMobileNo = HttpContext.Current.Request.Params["AlterMobileNo"];
-            ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
-            ilist.is_default = HttpContext.Current.Request.Params["is_default"];
-            ilist.State = HttpContext.Current.Request.Params["State"];
-            ilist.BusinessAddress = HttpContext.Current.Request.Params["BusinessAddress"];
-            ilist.BusinessType = HttpContext.Current.Request.Params["BusinessType"];
-            ilist.BusinessCategory = HttpContext.Current.Request.Params["BusinessCategory"];
-            ilist.BusinessDescription = HttpContext.Current.Request.Params["BusinessDescription"];
-
-            ilist.BankName = HttpContext.Current.Request.Params["BankName"];
-            ilist.IFSC = HttpContext.Current.Request.Params["IFSC"];
-            ilist.ACNo = HttpContext.Current.Request.Params["ACNo"];
-            ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
-            ilist.Sign = HttpContext.Current.Request.Params["Sign"];
-            ilist.CompanyLogo = HttpContext.Current.Request.Params["CompanyLogo"];
-
-            String imagePath = "";
-            String Signature = "";
-            if (request.Files.Count > 0)
-            {
-                var photo = request.Files["CompanyLogo"];
-                if (photo != null && photo.ContentLength != 0)
-                {
-                    imagePath = "CompanyPictures/" + RandomString(6, true) + photo.FileName;
-                    //photo.SaveAs(HttpContext.Current.Server.MapPath(imagePath));
-
-                    var path = (HttpContext.Current.Server.MapPath(imagePath));
-
-                    Stream strm = photo.InputStream;
-                    var targetFile = path;
-                    //Based on scalefactor image size will vary
-                    GenerateThumbnails(0.2, strm, targetFile);
-
-                }
-
-                var photoS = request.Files["Sign"];
-                if (photoS != null && photoS.ContentLength != 0)
-                {
-                    Signature = "CompanyPictures/" + RandomString(6, true) + photoS.FileName;
-                    //photoS.SaveAs(HttpContext.Current.Server.MapPath(Signature));
-                    var path = (HttpContext.Current.Server.MapPath(imagePath));
-
-                    Stream strm = photoS.InputStream;
-                    var targetFile = path;
-                    //Based on scalefactor image size will vary
-                    GenerateThumbnails(0.2, strm, targetFile);
-
-
-                }
-            }
-
-
-            try
-            {
-
-                int i = 0;
-                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = con;
-
-                    if (ilist.is_default == "1")
-                    {
-                        cmd.CommandText = "update CompanyMaster set is_default = '0' where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " ";
-                        con.Open();
-                        i = cmd.ExecuteNonQuery();
-                        cmd.Dispose();
-                        con.Close();
-                    }
-
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    cmd.CommandText = "Insert Into CompanyMaster  (CompanyName, MobileNo, AlterMobileNo, Email, BusinessAddress, GSTIN, State, BusinessType, BusinessCategory, BusinessDescription, BankName, ACNo, IFSC, CompanyLogo, Sign, is_default, UserAccountId) Values " +
-                                    " ('" + ilist.CompanyName + "', '" + ilist.MobileNo + "' , '" + ilist.AlterMobileNo + "' , '" + ilist.Email + "', '" + ilist.BusinessAddress + "', '" + ilist.GSTIN + "', '" + ilist.State + "', '" + ilist.BusinessType + "', '" + ilist.BusinessCategory + "', '" + ilist.BusinessDescription + "', '" + ilist.BankName + "', '" + ilist.ACNo + "', '" + ilist.IFSC + "', '" + imagePath + "', '" + Signature + "', '" + ilist.is_default + "', " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " )";
-                    con.Open();
-                    i = cmd.ExecuteNonQuery();
-                    cmd.Dispose();
-                    con.Close();
-
-                    if (i > 0)
-                    {
-                        comman.Code = 201;
-                        comman.Message = "Record has been saved successfully.";
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-                    }
-                }
-
-
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 2601 || ex.Number == 2627)
-                {
-                    comman.Code = 405;
-                    comman.Message = "Cannot insert duplicate values..";
-
-                }
-                else
-                {
-                    comman.Code = 410;
-                    comman.Message = "Problem has been occurred while submitting your data.";
-                }
-
-            }
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(comman));
-        }
+    
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCompanyMasterById(string id)
@@ -817,8 +727,6 @@ namespace NikunjTextile
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
             var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
             CommanResponse comman = new CommanResponse();
             CompanyMaster ilist = new CompanyMaster();
 
@@ -833,173 +741,276 @@ namespace NikunjTextile
             ilist.BusinessType = HttpContext.Current.Request.Params["BusinessType"];
             ilist.BusinessCategory = HttpContext.Current.Request.Params["BusinessCategory"];
             ilist.BusinessDescription = HttpContext.Current.Request.Params["BusinessDescription"];
-
             ilist.BankName = HttpContext.Current.Request.Params["BankName"];
             ilist.IFSC = HttpContext.Current.Request.Params["IFSC"];
             ilist.ACNo = HttpContext.Current.Request.Params["ACNo"];
             ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
             ilist.BarcodeTitle = HttpContext.Current.Request.Params["BarcodeTitle"];
             ilist.SetCreditPercentage = HttpContext.Current.Request.Params["SetCreditPercentage"];
-            ilist.Sign = HttpContext.Current.Request.Params["Sign"];
-            ilist.CompanyLogo = HttpContext.Current.Request.Params["CompanyLogo"];
             ilist.SupportNumber = HttpContext.Current.Request.Params["SupportNumber"];
+
             String pictureStr = "";
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            String oldLogo = "";
+            String oldSign = "";
+
             using (SqlConnection con1 = new SqlConnection(cs))
             {
                 SqlCommand cmd1 = new SqlCommand();
                 cmd1.Connection = con1;
                 cmd1.CommandType = System.Data.CommandType.Text;
-                cmd1.CommandText = " select * " +
-                    " from CompanyMaster where CompanyId = " + Convert.ToInt32(ilist.CompanyId) + " " +
-                    " ";
+                cmd1.CommandText = "select * from CompanyMaster where CompanyId = " + ilist.CompanyId;
                 con1.Open();
                 SqlDataReader rdr = cmd1.ExecuteReader();
 
                 if (rdr.HasRows)
                 {
-                    String photo = "";
-
-                    String sign = "";
-                    String imagePath = "";
-                    String Signature = "";
                     while (rdr.Read())
                     {
-                        photo = rdr["CompanyLogo"].ToString();
-                        sign = rdr["Sign"].ToString();
+                        oldLogo = rdr["CompanyLogo"]?.ToString() ?? "";
+                        oldSign = rdr["Sign"]?.ToString() ?? "";
                     }
-
-
-
-                    if (request.Files.Count > 0)
-                    {
-                        var photoT = request.Files["CompanyLogo"];
-                        if (photoT != null && photoT.ContentLength != 0)
-                        {
-                            string path = Server.MapPath(@"" + photo);
-                            FileInfo filess = new FileInfo(path);
-                            if (filess.Exists)
-                            {
-                                filess.Delete();
-                            }
-                            imagePath = "CompanyPictures/" + RandomString(6, true) + photoT.FileName;
-                            //photoT.SaveAs(HttpContext.Current.Server.MapPath(imagePath));
-
-                            var pathC = (HttpContext.Current.Server.MapPath(imagePath));
-
-                            Stream strm = photoT.InputStream;
-                            var targetFile = pathC;
-                            //Based on scalefactor image size will vary
-                            GenerateThumbnails(0.2, strm, targetFile);
-
-                            pictureStr += ", CompanyLogo='" + imagePath + "'";
-                        }
-
-                        var photoS = request.Files["Sign"];
-                        if (photoS != null && photoS.ContentLength != 0)
-                        {
-                            string path1 = Server.MapPath(@"" + sign);
-                            FileInfo filess1 = new FileInfo(path1);
-                            if (filess1.Exists)
-                            {
-                                filess1.Delete();
-                            }
-                            Signature = "CompanyPictures/" + RandomString(6, true) + photoS.FileName;
-                            //photoS.SaveAs(HttpContext.Current.Server.MapPath(Signature));
-
-                            var pathS = (HttpContext.Current.Server.MapPath(imagePath));
-
-                            Stream strm = photoS.InputStream;
-                            var targetFile = pathS;
-                            //Based on scalefactor image size will vary
-                            GenerateThumbnails(0.2, strm, targetFile);
-
-                            pictureStr += ", Sign='" + Signature + "'";
-                        }
-
-                        //pictureStr = ", CompanyLogo='" + imagePath + "', Sign='" + Signature + "'";
-                    }
-
                 }
-                con1.Close();
+                rdr.Close();
+            }
 
-
-
-                try
+            // Handle Company Logo Update / Clear
+            var photoT = request.Files["CompanyLogo"];
+            if (photoT != null && photoT.ContentLength != 0)
+            {
+                // Delete old file if exists
+                if (!string.IsNullOrEmpty(oldLogo))
                 {
+                    string oldPath = Server.MapPath("~/" + oldLogo.TrimStart('/'));
+                    if (File.Exists(oldPath)) { try { File.Delete(oldPath); } catch { } }
+                }
 
-                    int i = 0;
-                    using (SqlConnection con = new SqlConnection(cs))
+                string relativePath = "CompanyPictures/" + RandomString(6, true) + Path.GetFileName(photoT.FileName);
+                string targetPhysicalPath = Server.MapPath("~/" + relativePath);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(targetPhysicalPath));
+                GenerateThumbnails(0.2, photoT.InputStream, targetPhysicalPath);
+                pictureStr += ", CompanyLogo='" + relativePath + "'";
+            }
+            else
+            {
+                // Check if the logo was explicitly cleared from the frontend (sent as empty or marker string)
+                string logoParam = HttpContext.Current.Request.Params["CompanyLogo"];
+                if (logoParam == "" && !string.IsNullOrEmpty(oldLogo))
+                {
+                    string oldPath = Server.MapPath("~/" + oldLogo.TrimStart('/'));
+                    if (File.Exists(oldPath)) { try { File.Delete(oldPath); } catch { } }
+                    pictureStr += ", CompanyLogo=''";
+                }
+            }
+
+            // Handle Signature Update / Clear
+            var photoS = request.Files["Sign"];
+            if (photoS != null && photoS.ContentLength != 0)
+            {
+                if (!string.IsNullOrEmpty(oldSign))
+                {
+                    string oldPath1 = Server.MapPath("~/" + oldSign.TrimStart('/'));
+                    if (File.Exists(oldPath1)) { try { File.Delete(oldPath1); } catch { } }
+                }
+
+                string relativeSignPath = "CompanyPictures/" + RandomString(6, true) + Path.GetFileName(photoS.FileName);
+                string targetPhysicalSignPath = Server.MapPath("~/" + relativeSignPath);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(targetPhysicalSignPath));
+                GenerateThumbnails(0.2, photoS.InputStream, targetPhysicalSignPath);
+                pictureStr += ", Sign='" + relativeSignPath + "'";
+            }
+            else
+            {
+                string signParam = HttpContext.Current.Request.Params["Sign"];
+                if (signParam == "" && !string.IsNullOrEmpty(oldSign))
+                {
+                    string oldPath1 = Server.MapPath("~/" + oldSign.TrimStart('/'));
+                    if (File.Exists(oldPath1)) { try { File.Delete(oldPath1); } catch { } }
+                    pictureStr += ", Sign=''";
+                }
+            }
+
+            try
+            {
+                int i = 0;
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = con;
+
+                    string temp = "";
+                    if (!string.IsNullOrEmpty(ilist.Email))
                     {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
+                        temp += ", Email='" + ilist.Email + "'";
+                    }
+                    if (!string.IsNullOrEmpty(ilist.MobileNo))
+                    {
+                        temp += ", MobileNo='" + ilist.MobileNo + "'";
+                    }
+                    if (!string.IsNullOrEmpty(ilist.is_default))
+                    {
+                        temp += ", is_default='" + ilist.is_default + "'";
+                    }
 
+                    cmd.CommandType = System.Data.CommandType.Text;
 
-                        string temp = "";
-                        if (ilist.Email != "")
-                        {
-                            temp += ", Email='" + ilist.Email + "'";
-                        }
-                        if (ilist.MobileNo != "")
-                        {
-                            temp += ", MobileNo='" + ilist.MobileNo + "'";
-                        }
-                        if (ilist.is_default != "")
-                        {
-                            temp += ", is_default='" + ilist.is_default + "'";
-                        }
-
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-                        if (ilist.is_default == "1")
-                        {
-                            cmd.CommandText = "update CompanyMaster set is_default = '0'  ";
-                            con.Open();
-                            i = cmd.ExecuteNonQuery();
-                            cmd.Dispose();
-                            con.Close();
-                        }
-
-                        cmd.CommandText = "Update CompanyMaster set CompanyName='" + ilist.CompanyName + "'" + temp + ", AlterMobileNo='" + ilist.AlterMobileNo + "' , BusinessAddress='" + ilist.BusinessAddress + "', GSTIN='" + ilist.GSTIN + "', State='" + ilist.State + "', BankName='" + ilist.BankName + "', ACNo='" + ilist.ACNo + "', IFSC='" + ilist.IFSC + "' " + pictureStr + " where CompanyId= '" + ilist.CompanyId + "'";
+                    if (ilist.is_default == "1")
+                    {
+                        cmd.CommandText = "update CompanyMaster set is_default = '0'";
                         con.Open();
                         i = cmd.ExecuteNonQuery();
-                        cmd.Dispose();
                         con.Close();
-
-                        if (i > 0)
-                        {
-                            comman.Code = 201;
-                            comman.Message = "Record has been updated successfully.";
-                        }
-                        else
-                        {
-                            comman.Code = 410;
-                            comman.Message = "Problem has been occurred while submitting your data.";
-                        }
                     }
 
+                    cmd.CommandText = "Update CompanyMaster set CompanyName='" + ilist.CompanyName + "'" + temp +
+                                      ", AlterMobileNo='" + ilist.AlterMobileNo + "' , BusinessAddress='" + ilist.BusinessAddress +
+                                      "', GSTIN='" + ilist.GSTIN + "', State='" + ilist.State + "', BankName='" + ilist.BankName +
+                                      "', ACNo='" + ilist.ACNo + "', IFSC='" + ilist.IFSC + "' " + pictureStr +
+                                      " where CompanyId= '" + ilist.CompanyId + "'";
+                    con.Open();
+                    i = cmd.ExecuteNonQuery();
+                    con.Close();
 
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 2601 || ex.Number == 2627)
+                    if (i > 0)
                     {
-                        comman.Code = 405;
-                        comman.Message = "Cannot insert duplicate values..";
+                        comman.Code = 201;
+                        comman.Message = "Record has been updated successfully.";
                     }
                     else
                     {
                         comman.Code = 410;
                         comman.Message = "Problem has been occurred while submitting your data.";
                     }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    comman.Code = 405;
+                    comman.Message = "Cannot insert duplicate values..";
+                }
+                else
+                {
+                    comman.Code = 410;
+                    comman.Message = "Problem has been occurred while submitting your data.";
+                }
+            }
 
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(comman));
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void insertCompanyMaster()
+        {
+            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+
+            var request = HttpContext.Current.Request;
+            CommanResponse comman = new CommanResponse();
+            CompanyMaster ilist = new CompanyMaster();
+
+            ilist.CompanyName = HttpContext.Current.Request.Params["CompanyNames"];
+            ilist.Email = HttpContext.Current.Request.Params["Email"];
+            ilist.AlterMobileNo = HttpContext.Current.Request.Params["AlterMobileNo"];
+            ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
+            ilist.is_default = HttpContext.Current.Request.Params["is_default"];
+            ilist.State = HttpContext.Current.Request.Params["State"];
+            ilist.BusinessAddress = HttpContext.Current.Request.Params["BusinessAddress"];
+            ilist.BusinessType = HttpContext.Current.Request.Params["BusinessType"];
+            ilist.BusinessCategory = HttpContext.Current.Request.Params["BusinessCategory"];
+            ilist.BusinessDescription = HttpContext.Current.Request.Params["BusinessDescription"];
+            ilist.BankName = HttpContext.Current.Request.Params["BankName"];
+            ilist.IFSC = HttpContext.Current.Request.Params["IFSC"];
+            ilist.ACNo = HttpContext.Current.Request.Params["ACNo"];
+            ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
+
+            String imagePath = "";
+            String Signature = "";
+
+            if (request.Files.Count > 0)
+            {
+                var photo = request.Files["CompanyLogo"];
+                if (photo != null && photo.ContentLength != 0)
+                {
+                    imagePath = "CompanyPictures/" + RandomString(6, true) + Path.GetFileName(photo.FileName);
+                    string targetPath = Server.MapPath("~/" + imagePath);
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                    GenerateThumbnails(0.2, photo.InputStream, targetPath);
                 }
 
+                var photoS = request.Files["Sign"];
+                if (photoS != null && photoS.ContentLength != 0)
+                {
+                    Signature = "CompanyPictures/" + RandomString(6, true) + Path.GetFileName(photoS.FileName);
+                    string targetPathSign = Server.MapPath("~/" + Signature);
 
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                js.MaxJsonLength = Int32.MaxValue;
-                Context.Response.Write(js.Serialize(comman));
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPathSign));
+                    GenerateThumbnails(0.2, photoS.InputStream, targetPathSign);
+                }
             }
+
+            try
+            {
+                int i = 0;
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = con;
+
+                    string userIdVal = Context.Request.Cookies["UserIDs"]?.Value?.Split('=')[1] ?? "0";
+
+                    if (ilist.is_default == "1")
+                    {
+                        cmd.CommandText = "update CompanyMaster set is_default = '0' where UserAccountId = " + userIdVal;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = "Insert Into CompanyMaster (CompanyName, MobileNo, AlterMobileNo, Email, BusinessAddress, GSTIN, State, BusinessType, BusinessCategory, BusinessDescription, BankName, ACNo, IFSC, CompanyLogo, Sign, is_default, UserAccountId) Values " +
+                                      " ('" + ilist.CompanyName + "', '" + ilist.MobileNo + "' , '" + ilist.AlterMobileNo + "' , '" + ilist.Email + "', '" + ilist.BusinessAddress + "', '" + ilist.GSTIN + "', '" + ilist.State + "', '" + ilist.BusinessType + "', '" + ilist.BusinessCategory + "', '" + ilist.BusinessDescription + "', '" + ilist.BankName + "', '" + ilist.ACNo + "', '" + ilist.IFSC + "', '" + imagePath + "', '" + Signature + "', '" + ilist.is_default + "', " + userIdVal + " )";
+                    con.Open();
+                    i = cmd.ExecuteNonQuery();
+                    con.Close();
+
+                    if (i > 0)
+                    {
+                        comman.Code = 201;
+                        comman.Message = "Record has been saved successfully.";
+                    }
+                    else
+                    {
+                        comman.Code = 410;
+                        comman.Message = "Problem has been occurred while submitting your data.";
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    comman.Code = 405;
+                    comman.Message = "Cannot insert duplicate values..";
+                }
+                else
+                {
+                    comman.Code = 410;
+                    comman.Message = "Problem has been occurred while submitting your data.";
+                }
+            }
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+            Context.Response.Write(js.Serialize(comman));
         }
 
         [WebMethod]
@@ -26850,8 +26861,8 @@ INNER JOIN PartyMaster PM1
             return JsonConvert.SerializeObject(list);
         }
         #endregion
-        #region Broker Master
 
+        #region Broker Master
         [WebMethod]
         public string GetBrokerList()
         {
@@ -26875,7 +26886,6 @@ INNER JOIN PartyMaster PM1
                 return new JavaScriptSerializer().Serialize(ex.Message);
             }
         }
-
         [WebMethod]
         public BrokerMaster GetBrokerById(int BrokerId)
         {
@@ -27047,6 +27057,7 @@ INNER JOIN PartyMaster PM1
             }
         }
         #endregion
+
         #region  Transport Master
         [WebMethod]
         public List<TransportMaster> GetTransportList()
@@ -30222,198 +30233,213 @@ FROM Filtered
             }
         }
 
-        
-            [WebMethod]
-            public object SaleOrderReport(List<int> saleOrderID)
+
+        [WebMethod]
+        public object SaleOrderReport(List<int> saleOrderID)
+        {
+            List<string> individualPdfFiles = new List<string>();
+
+            try
             {
-                List<string> individualPdfFiles = new List<string>();
-
-                try
+                // ============================================================
+                // 1. VALIDATE SALE ORDER IDS
+                // ============================================================
+                if (saleOrderID == null || saleOrderID.Count == 0)
                 {
-                    // ============================================================
-                    // 1. VALIDATE SALE ORDER IDS
-                    // ============================================================
-                    if (saleOrderID == null || saleOrderID.Count == 0)
+                    return new
                     {
-                        return new
+                        Status = false,
+                        Message = "No Sale Order Selected.",
+                        FilePath = ""
+                    };
+                }
+
+                // ============================================================
+                // 2. GENERATED PDF FOLDER
+                // ============================================================
+                string generatedFolder = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+                if (!Directory.Exists(generatedFolder))
+                {
+                    Directory.CreateDirectory(generatedFolder);
+                }
+
+                // ============================================================
+                // 3. FINAL MERGED PDF NAME
+                // ============================================================
+                string fileName = "SaleOrder_Merged_" +
+                                  DateTime.Now.ToString("yyyyMMddHHmmss") + "_" +
+                                  Guid.NewGuid().ToString("N") + ".pdf";
+
+                string pdfPath = Path.Combine(generatedFolder, fileName);
+
+                // ============================================================
+                // 4. CRYSTAL REPORT PATH
+                // ============================================================
+                string reportPath = HttpContext.Current.Server.MapPath("~/Reports/SaleOrder(17-08-2026).rpt");
+                if (!File.Exists(reportPath))
+                {
+                    throw new Exception("SaleOrder Report not found : " + reportPath);
+                }
+
+                // ============================================================
+                // 5. COLOR MATCHING PHOTO LOCAL FOLDER
+                // ============================================================
+                //string imageFolder = HttpContext.Current.Server.MapPath("~/ColorMatchingPhoto/");
+                //if (!Directory.Exists(imageFolder))
+                //{
+                //    throw new Exception("ColorMatchingPhoto folder not found : " + imageFolder);
+                //}
+
+                // ============================================================
+                // 6. CONNECTION STRING
+                // ============================================================
+                string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                // ============================================================
+                // 7. SQL CONNECTION
+                // ============================================================
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    // ========================================================
+                    // 8. EACH SALE ORDER
+                    // ========================================================
+                    foreach (int orderId in saleOrderID)
+                    {
+                        DataSet ds = new DataSet();
+
+                        // 8.1 MASTER
+                        using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrder", con))
                         {
-                            Status = false,
-                            Message = "No Sale Order Selected.",
-                            FilePath = ""
-                        };
-                    }
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            {
+                                da.Fill(ds, "SaleOrderMaster");
+                            }
+                        }
 
-                    // ============================================================
-                    // 2. GENERATED PDF FOLDER
-                    // ============================================================
-                    string generatedFolder = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
-                    if (!Directory.Exists(generatedFolder))
-                    {
-                        Directory.CreateDirectory(generatedFolder);
-                    }
-
-                    // ============================================================
-                    // 3. FINAL MERGED PDF NAME
-                    // ============================================================
-                    string fileName = "SaleOrder_Merged_" +
-                                      DateTime.Now.ToString("yyyyMMddHHmmss") + "_" +
-                                      Guid.NewGuid().ToString("N") + ".pdf";
-
-                    string pdfPath = Path.Combine(generatedFolder, fileName);
-
-                    // ============================================================
-                    // 4. CRYSTAL REPORT PATH
-                    // ============================================================
-                    string reportPath = HttpContext.Current.Server.MapPath("~/Reports/SaleorderReportNEW.rpt");
-                    if (!File.Exists(reportPath))
-                    {
-                        throw new Exception("SaleOrder Report not found : " + reportPath);
-                    }
-
-                    // ============================================================
-                    // 5. COLOR MATCHING PHOTO LOCAL FOLDER
-                    // ============================================================
-                    string imageFolder = HttpContext.Current.Server.MapPath("~/ColorMatchingPhoto/");
-                    if (!Directory.Exists(imageFolder))
-                    {
-                        throw new Exception("ColorMatchingPhoto folder not found : " + imageFolder);
-                    }
-
-                    // ============================================================
-                    // 6. CONNECTION STRING
-                    // ============================================================
-                    string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-                    // ============================================================
-                    // 7. SQL CONNECTION
-                    // ============================================================
-                    using (SqlConnection con = new SqlConnection(connectionString))
-                    {
-                        con.Open();
-
-                        // ========================================================
-                        // 8. EACH SALE ORDER
-                        // ========================================================
-                        foreach (int orderId in saleOrderID)
+                        // 8.2 DETAILS
+                        using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderDetails", con))
                         {
-                            DataSet ds = new DataSet();
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            {
+                                da.Fill(ds, "SaleOrderDetails");
+                            }
+                        }
 
-                            //// 8.1 MASTER
-                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrder", con))
-                            //{
-                            //    cmd.CommandType = CommandType.StoredProcedure;
-                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                            //    {
-                            //        da.Fill(ds, "SaleOrderMaster");
-                            //    }
-                            //}
+                        // 8.3 ADDITIONAL CHARGES
+                        using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderAdditionalCharges", con))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            {
+                                da.Fill(ds, "SaleOrderAdditionalCharges");
+                            }
+                        }
 
-                            //// 8.2 DETAILS
-                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderDetails", con))
-                            //{
-                            //    cmd.CommandType = CommandType.StoredProcedure;
-                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                            //    {
-                            //        da.Fill(ds, "SaleOrderDetails");
-                            //    }
-                            //}
+                        // ====================================================
+                        // 9 & 10. VALIDATE TABLES
+                        // ====================================================
+                        if (!ds.Tables.Contains("SaleOrderMaster") || ds.Tables["SaleOrderMaster"].Rows.Count == 0)
+                            continue;
 
-                            //// 8.3 ADDITIONAL CHARGES
-                            //using (SqlCommand cmd = new SqlCommand("SPR_GetSaleOrderAdditionalCharges", con))
-                            //{
-                            //    cmd.CommandType = CommandType.StoredProcedure;
-                            //    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = orderId;
-                            //    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                            //    {
-                            //        da.Fill(ds, "SaleOrderAdditionalCharges");
-                            //    }
-                            //}
+                        if (!ds.Tables.Contains("SaleOrderDetails") || ds.Tables["SaleOrderDetails"].Rows.Count == 0)
+                            continue;
 
-                            //// ====================================================
-                            //// 9 & 10. VALIDATE TABLES
-                            //// ====================================================
-                            //if (!ds.Tables.Contains("SaleOrderMaster") || ds.Tables["SaleOrderMaster"].Rows.Count == 0)
-                            //    continue;
+                        // ====================================================
+                        // 11 & 12. AMOUNT IN WORDS
+                        // ====================================================
+                        DataTable master = ds.Tables["SaleOrderMaster"];
+                        if (!master.Columns.Contains("AmountInWords"))
+                        {
+                            master.Columns.Add("AmountInWords", typeof(string));
+                        }
 
-                            //if (!ds.Tables.Contains("SaleOrderDetails") || ds.Tables["SaleOrderDetails"].Rows.Count == 0)
-                            //    continue;
+                        decimal netAmount = 0;
+                        if (master.Rows[0]["NetAmount"] != DBNull.Value)
+                        {
+                            netAmount = Convert.ToDecimal(master.Rows[0]["NetAmount"]);
+                        }
 
-                            //// ====================================================
-                            //// 11 & 12. AMOUNT IN WORDS
-                            //// ====================================================
-                            //DataTable master = ds.Tables["SaleOrderMaster"];
-                            //if (!master.Columns.Contains("AmountInWords"))
-                            //{
-                            //    master.Columns.Add("AmountInWords", typeof(string));
-                            //}
+                        master.Rows[0]["AmountInWords"] = NumberToWordsHelper.ConvertAmount(netAmount);
 
-                            //decimal netAmount = 0;
-                            //if (master.Rows[0]["NetAmount"] != DBNull.Value)
-                            //{
-                            //    netAmount = Convert.ToDecimal(master.Rows[0]["NetAmount"]);
-                            //}
+                        // ====================================================
+                        // 13, 14, 15, 16. DETAILS & IMAGE PATH RESOLUTION
+                        // ====================================================
+                        DataTable details = ds.Tables["SaleOrderDetails"];
 
-                            //master.Rows[0]["AmountInWords"] = NumberToWordsHelper.ConvertAmount(netAmount);
+                        if (!details.Columns.Contains("PhotoOfDesign"))
+                        {
+                            throw new Exception("PhotoOfDesign column is missing in SPR_GetSaleOrderDetails.");
+                        }
 
-                            //// ====================================================
-                            //// 13, 14, 15, 16. DETAILS & IMAGE PATH RESOLUTION
-                            //// ====================================================
-                            //DataTable details = ds.Tables["SaleOrderDetails"];
+                        if (!details.Columns.Contains("ImagePath"))
+                        {
+                            throw new Exception("ImagePath column is missing in SPR_GetSaleOrderDetails. Please add CAST('' AS NVARCHAR(500)) AS ImagePath.");
+                        }
 
-                            //if (!details.Columns.Contains("PhotoOfDesign"))
-                            //{
-                            //    throw new Exception("PhotoOfDesign column is missing in SPR_GetSaleOrderDetails.");
-                            //}
+                        int imageCount = 0;
 
-                            //if (!details.Columns.Contains("ImagePath"))
-                            //{
-                            //    throw new Exception("ImagePath column is missing in SPR_GetSaleOrderDetails. Please add CAST('' AS NVARCHAR(500)) AS ImagePath.");
-                            //}
+                        foreach (DataRow row in details.Rows)
+                        {
+                            string photo = row["PhotoOfDesign"]?.ToString();
 
-                            //int imageCount = 0;
+                            if (!string.IsNullOrWhiteSpace(photo))
+                            {
+                                string physicalPath = Path.Combine(
+                                    @"E:\DesktopSoftwares\NikunjTextile\NikunjTextile",
+                                    photo
+                                );
 
-                            //foreach (DataRow row in details.Rows)
-                            //{
-                            //    try
-                            //    {
-                            //        string photoPath = "";
-                            //        if (row["PhotoOfDesign"] != DBNull.Value)
-                            //        {
-                            //            photoPath = Convert.ToString(row["PhotoOfDesign"]).Trim();
-                            //        }
+                                row["ImagePath"] = physicalPath;
+                            }
+                            else
+                            {
+                                row["ImagePath"] = "";
+                            }
+                            try
+                            {
+                                string photoPath = "";
+                                if (row["PhotoOfDesign"] != DBNull.Value)
+                                {
+                                    photoPath = Convert.ToString(row["PhotoOfDesign"]).Trim();
+                                }
 
-                            //        if (string.IsNullOrWhiteSpace(photoPath))
-                            //        {
-                            //            row["ImagePath"] = "";
-                            //            continue;
-                            //        }
+                                if (string.IsNullOrWhiteSpace(photoPath))
+                                {
+                                    row["ImagePath"] = "";
+                                    continue;
+                                }
 
-                            //        string fileNameOnly = Path.GetFileName(photoPath.Replace("/", "\\"));
-                            //        if (string.IsNullOrWhiteSpace(fileNameOnly))
-                            //        {
-                            //            row["ImagePath"] = "";
-                            //            continue;
-                            //        }
+                                string fileNameOnly = Path.GetFileName(photoPath.Replace("/", "\\"));
+                                if (string.IsNullOrWhiteSpace(fileNameOnly))
+                                {
+                                    row["ImagePath"] = "";
+                                    continue;
+                                }
 
-                            //        string physicalImagePath = Path.Combine(imageFolder, fileNameOnly);
+                                //string physicalImagePath = Path.Combine(imageFolder, fileNameOnly);
 
-                            //        if (File.Exists(physicalImagePath))
-                            //        {
-                            //            row["ImagePath"] = physicalImagePath;
-                            //            imageCount++;
-                            //        }
-                            //        else
-                            //        {
-                            //            row["ImagePath"] = "";
-                            //        }
-                            //    }
-                            //    catch
-                            //    {
-                            //        row["ImagePath"] = "";
-                            //    }
-                            //}
+                                //if (File.Exists(physicalImagePath))
+                                //{
+                                //    row["ImagePath"] = physicalImagePath;
+                                //    imageCount++;
+                                //}
+                                //else
+                                //{
+                                //    row["ImagePath"] = "";
+                                //}
+                            }
+                            catch
+                            {
+                                row["ImagePath"] = "";
+                            }
+                        }
                         // ====================================================
                         // 18. CRYSTAL REPORT GENERATION
                         // ====================================================
@@ -30421,39 +30447,39 @@ FROM Filtered
 
                         try
                         {
+                            report.Load(reportPath, OpenReportMethod.OpenReportByTempCopy);
+
                             // 1. Set Database Logins for Main Report and Subreports
-                       
-                            report.Load(reportPath, OpenReportMethod.OpenReportByDefault);
-                            report.SetDatabaseLogon("weavelanesoftDB", "TC@gVizd@8rrb17n", "115.124.106.158", "weavelanesoftDB");
-                            //  SetCrystalDatabaseLogin(report, connectionString);
+                            SetCrystalDatabaseLogin(report, connectionString);
+
                             // 2. Bind Main Dataset Source to Main Report
-                           // report.SetDataSource(ds);
+                            report.SetDataSource(ds);
 
                             // 3. Explicitly Bind Subreports to their corresponding DataSet tables
-                            //foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
-                            //{
-                            //    foreach (ReportObject obj in section.ReportObjects)
-                            //    {
-                            //        if (obj is SubreportObject subReportObj)
-                            //        {
-                            //            ReportDocument subReport = report.OpenSubreport(subReportObj.SubreportName);
+                            foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
+                            {
+                                foreach (ReportObject obj in section.ReportObjects)
+                                {
+                                    if (obj is SubreportObject subReportObj)
+                                    {
+                                        ReportDocument subReport = report.OpenSubreport(subReportObj.SubreportName);
 
-                            //            if (subReportObj.SubreportName.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0)
-                            //            {
-                            //                subReport.SetDataSource(ds.Tables["SaleOrderDetails"]);
-                            //            }
-                            //            else if (subReportObj.SubreportName.IndexOf("Charge", StringComparison.OrdinalIgnoreCase) >= 0)
-                            //            {
-                            //                subReport.SetDataSource(ds.Tables["SaleOrderAdditionalCharges"]);
-                            //            }
-                            //            else
-                            //            {
-                            //                // Fallback to Master or general dataset table if needed
-                            //                subReport.SetDataSource(ds.Tables["SaleOrderMaster"]);
-                            //            }
-                            //        }
-                            //    }
-                            //}
+                                        if (subReportObj.SubreportName.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+                                            subReport.SetDataSource(ds.Tables["SaleOrderDetails"]);
+                                        }
+                                        else if (subReportObj.SubreportName.IndexOf("Charge", StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+                                            subReport.SetDataSource(ds.Tables["SaleOrderAdditionalCharges"]);
+                                        }
+                                        else
+                                        {
+                                            // Fallback to Master or general dataset table if needed
+                                            subReport.SetDataSource(ds.Tables["SaleOrderMaster"]);
+                                        }
+                                    }
+                                }
+                            }
 
                             report.Refresh();
 
@@ -30480,93 +30506,94 @@ FROM Filtered
                             individualPdfFiles.Add(singlePdfPath);
                         }
                         finally
-                            {
-                                try { report.Close(); } catch { }
-                                try { report.Dispose(); } catch { }
-                                GC.Collect();
-                                GC.WaitForPendingFinalizers();
-                            }
+                        {
+                            try { report.Close(); } catch { }
+                            try { report.Dispose(); } catch { }
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
                         }
                     }
-
-                    if (individualPdfFiles.Count == 0)
-                    {
-                        return new
-                        {
-                            Status = false,
-                            Message = "No PDF generated for selected Sale Orders.",
-                            FilePath = ""
-                        };
-                    }
-
-                    // ============================================================
-                    // 20. MERGE ALL PDFs USING iTextSharp
-                    // ============================================================
-                    using (Document document = new Document())
-                    {
-                        using (FileStream fs = new FileStream(pdfPath, FileMode.Create))
-                        {
-                            using (PdfCopy copy = new PdfCopy(document, fs))
-                            {
-                                document.Open();
-                                foreach (string file in individualPdfFiles)
-                                {
-                                    using (PdfReader reader = new PdfReader(file))
-                                    {
-                                        copy.AddDocument(reader);
-                                    }
-                                }
-                                document.Close();
-                            }
-                        }
-                    }
-
-                    // ============================================================
-                    // 21. DELETE INDIVIDUAL TEMPORARY PDFs
-                    // ============================================================
-                    foreach (string file in individualPdfFiles)
-                    {
-                        try
-                        {
-                            if (File.Exists(file)) File.Delete(file);
-                        }
-                        catch { }
-                    }
-
-                    // ============================================================
-                    // 22 & 23. FINAL SUCCESS RESPONSE
-                    // ============================================================
-                    string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/GeneratedPDF/" + fileName;
-
-                    return new
-                    {
-                        Status = true,
-                        Message = "Sale Order PDF Generated Successfully.",
-                        FilePath = filePath
-                    };
                 }
-                catch (Exception ex)
-                {
-                    // Error Cleanup
-                    foreach (string file in individualPdfFiles)
-                    {
-                        try
-                        {
-                            if (File.Exists(file)) File.Delete(file);
-                        }
-                        catch { }
-                    }
 
+                if (individualPdfFiles.Count == 0)
+                {
                     return new
                     {
                         Status = false,
-                        Message = ex.ToString(),
+                        Message = "No PDF generated for selected Sale Orders.",
                         FilePath = ""
                     };
                 }
-            }
 
-            private void SetCrystalDatabaseLogin(ReportDocument report, string connectionString)
+                // ============================================================
+                // 20. MERGE ALL PDFs USING iTextSharp
+                // ============================================================
+                using (Document document = new Document())
+                {
+                    using (FileStream fs = new FileStream(pdfPath, FileMode.Create))
+                    {
+                        using (PdfCopy copy = new PdfCopy(document, fs))
+                        {
+                            document.Open();
+                            foreach (string file in individualPdfFiles)
+                            {
+                                using (PdfReader reader = new PdfReader(file))
+                                {
+                                    copy.AddDocument(reader);
+                                }
+                            }
+                            document.Close();
+                        }
+                    }
+                }
+
+                // ============================================================
+                // 21. DELETE INDIVIDUAL TEMPORARY PDFs
+                // ============================================================
+                foreach (string file in individualPdfFiles)
+                {
+                    try
+                    {
+                        if (File.Exists(file)) File.Delete(file);
+                    }
+                    catch { }
+                }
+
+                // ============================================================
+                // 22 & 23. FINAL SUCCESS RESPONSE
+                // ============================================================
+                string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/GeneratedPDF/" + fileName;
+
+                return new
+                {
+                    Status = true,
+                    Message = "Sale Order PDF Generated Successfully.",
+                    FilePath = filePath
+                };
+            }
+            catch (Exception ex)
+            {
+                // Error Cleanup
+                foreach (string file in individualPdfFiles)
+                {
+                    try
+                    {
+                        if (File.Exists(file)) File.Delete(file);
+                    }
+                    catch { }
+                }
+
+                return new
+                {
+                    Status = false,
+                    Message = ex.ToString(),
+                    FilePath = ""
+                };
+            }
+        }
+
+
+        private void SetCrystalDatabaseLogin(ReportDocument report, string connectionString)
             {
                 SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder(connectionString);
 

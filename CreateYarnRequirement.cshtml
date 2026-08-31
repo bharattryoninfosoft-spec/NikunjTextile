@@ -869,7 +869,7 @@
                                                             <td style="width: 20%; text-align: center;">
 
                                                                 <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <select id="yarnMaterial1" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany('1')">
+                                                                    <select id="yarnMaterial1" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(this)">
                                                                     </select>
                                                                 </div>
                                                             </td>
@@ -1203,7 +1203,7 @@
 
         }
         function YarnPOCompany(rowno) {
-
+            debugger
             var YarnMaterial = "yarnMaterial" + rowno;
             var YarnColor = "YarnColor" + rowno;
 
