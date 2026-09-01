@@ -142,16 +142,22 @@
                         <!-- BUTTONS -->
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
 
-                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','UserAccount')">
-                                <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                            <button class="btn btn-success btn-sm"
+                                    onclick="exportTableToExcel('copy-print-csv','GST_Slab')">
+                                <i class="bi bi-file-earmark-excel-fill"></i>
+                                Excel
                             </button>
 
-                            <button class="btn btn-danger btn-sm" onclick="generatePDF()">
-                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="generatePDF()">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                PDF
                             </button>
 
-                            <button class="btn btn-primary btn-sm" onclick="printTable()">
-                                <i class="bi bi-printer-fill"></i> Print
+                            <button class="btn btn-primary btn-sm"
+                                    onclick="printTable()">
+                                <i class="bi bi-printer-fill"></i>
+                                Print
                             </button>
                         </div>
                         <!-- SEARCH -->
@@ -196,24 +202,31 @@
     <!-- Row end -->
 
 </div>
-
 @section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         $('body').addClass('fullscreen');
-        var currentPagePermission = {};
+        var currentPagePermission = { Add: true, Edit: true, Delete: true }; // Default fallback
+
         $(document).ready(function () {
             var permission = getCookie("PagePermission");
             if (permission != null && permission != "") {
-                var currentPagePermission = JSON.parse(permission);
-                if (currentPagePermission.Add == false) {
-                    $("#AddGstModel").hide();
+                try {
+                    currentPagePermission = JSON.parse(permission);
+                } catch (e) {
+                    console.error("Error parsing PagePermission cookie", e);
                 }
+            }
+
+            // Hide Add Button if permission is false
+            if (currentPagePermission.Add === false || currentPagePermission.Add === "false") {
+                $("#AddGstModel").hide();
             }
 
             FunctionIsLogin();
             displayData(0);
-
-            //getDefaultCompany();
 
             // Shortcut Key
             $(document).keydown(function (key) {
@@ -225,14 +238,19 @@
                     case 18 && 79:
                         // Alt + O
                         $("#AddGstModel").click();
-                        //addnewcontact
                         break;
                     default:
-                        //alert(key.which);
                         break;
                 }
             });
         });
+
+        // Helper function to read cookies
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
 
         // Helper function for SweetAlert2 toast notifications
         function showToast(type, msg) {
@@ -275,7 +293,6 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data, status) {
-                    console.log(data);
                     if (data.d == "false") {
                         window.location.replace("/Index");
                     }
@@ -347,31 +364,36 @@
                         temp += "<td>" + response.listGstSlabMaster[i].IGST + "%</td>";
                         temp += "<td>" + response.listGstSlabMaster[i].dates + "</td>";
 
-                        // ACTIONS
+                        // ==========================================
+                        // ACTIONS COLUMN WITH PERMISSION CONTROLS
+                        // ==========================================
                         temp += "<td><div class='actions'>";
 
-                        // EDIT
-                        if (currentPagePermission.Edit == true ||
-                            currentPagePermission.Edit == "true") {
+                        var canEdit = currentPagePermission.Edit === true || currentPagePermission.Edit === "true";
+                        var canDelete = currentPagePermission.Delete === true || currentPagePermission.Delete === "true";
 
-                            temp += "<a href='javascript:void(0);' " +
-                                "title='Edit' " +
-                                "data-bs-toggle='modal' " +
-                                "data-bs-target='#addNewContact' " +
-                                "onclick='showRecords(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
-                                "<i class='icon-edit1 text-info'></i>" +
-                                "</a>&nbsp;&nbsp;";
-                        }
+                        if (!canEdit && !canDelete) {
+                            temp += "-";
+                        } else {
+                            // EDIT
+                            if (canEdit) {
+                                temp += "<a href='javascript:void(0);' " +
+                                    "title='Edit' " +
+                                    "data-bs-toggle='modal' " +
+                                    "data-bs-target='#addNewContact' " +
+                                    "onclick='showRecords(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                    "<i class='icon-edit1 text-info'></i>" +
+                                    "</a>&nbsp;&nbsp;";
+                            }
 
-                        // DELETE
-                        if (currentPagePermission.Delete == true ||
-                            currentPagePermission.Delete == "true") {
-
-                            temp += "<a href='javascript:void(0);' " +
-                                "title='Delete' " +
-                                "onclick='functionUserDelete(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
-                                "<i class='icon-x-circle text-danger'></i>" +
-                                "</a>";
+                            // DELETE
+                            if (canDelete) {
+                                temp += "<a href='javascript:void(0);' " +
+                                    "title='Delete' " +
+                                    "onclick='functionUserDelete(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                    "<i class='icon-x-circle text-danger'></i>" +
+                                    "</a>";
+                            }
                         }
 
                         temp += "</div></td>";
@@ -699,108 +721,155 @@
             }
         }
 
-        function exportTableToExcel(tableID, filename = '') {
-            var downloadLink;
-            var dataType = 'application/vnd.ms-excel';
-            var tableSelect = document.getElementById(tableID);
-            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
-
-            filename = filename ? filename + '.xls' : 'excel_data.xls';
-            downloadLink = document.createElement("a");
-            document.body.appendChild(downloadLink);
-
-            if (navigator.msSaveOrOpenBlob) {
-                var blob = new Blob(['\ufeff', tableHTML], {
-                    type: dataType
-                });
-                navigator.msSaveOrOpenBlob(blob, filename);
+        function exportTableToExcel(tableID, filename) {
+            var table = document.getElementById(tableID);
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
             }
-            else {
-                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
-                downloadLink.download = filename;
-                downloadLink.click();
-            }
+            var clonedTable = table.cloneNode(true);
+            var rows = clonedTable.querySelectorAll('tr');
+            rows.forEach(function (row) {
+                if (row.cells.length >= 6) {
+                    row.deleteCell(5);
+                }
+            });
+            clonedTable.removeAttribute('id');
+            clonedTable.removeAttribute('class');
+            var html = `<html><head><meta charset="UTF-8"></head><body>${clonedTable.outerHTML}</body></html>`;
+            var blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = (filename || 'GST_Slab') + '_' + getExportDateTime() + '.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         function generatePDF() {
+            if (typeof window.jspdf === "undefined") {
+                showToast('error', 'jsPDF library is not loaded.');
+                return;
+            }
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'pt', 'a4');
-            doc.setFontSize(14);
-            doc.text("User Account Report", 40, 40);
-
+            var doc = new jsPDF('l', 'pt', 'a4');
+            if (typeof doc.autoTable !== "function") {
+                showToast('error', 'PDF AutoTable plugin is not loaded.');
+                return;
+            }
+            var table = document.getElementById('copy-print-csv');
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
+            }
+            doc.setFontSize(16);
+            doc.text('GST Tax Slab', 40, 40);
+            var headers = ['GST Slab Name', 'SGST', 'CGST', 'IGST', 'Date'];
+            var data = [];
+            var rows = table.querySelectorAll('tbody tr');
+            rows.forEach(function (row) {
+                if (row.style.display === 'none') { return; }
+                var cells = row.querySelectorAll('td');
+                if (cells.length < 5) { return; }
+                data.push([
+                    cells[0].textContent.trim(),
+                    cells[1].textContent.trim(),
+                    cells[2].textContent.trim(),
+                    cells[3].textContent.trim(),
+                    cells[4].textContent.trim()
+                ]);
+            });
+            if (data.length === 0) {
+                showToast('warning', 'No data available to export.');
+                return;
+            }
             doc.autoTable({
-                html: '#copy-print-csv',
+                head: [headers],
+                body: data,
                 startY: 60,
                 theme: 'grid',
-                styles: {
-                    fontSize: 8
+                margin: { top: 60, left: 30, right: 30 },
+                styles: { fontSize: 9, cellPadding: 6, valign: 'middle' },
+                headStyles: { fontSize: 9, fontStyle: 'bold', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 200 },
+                    1: { cellWidth: 80, halign: 'right' },
+                    2: { cellWidth: 80, halign: 'right' },
+                    3: { cellWidth: 80, halign: 'right' },
+                    4: { cellWidth: 130 }
                 },
-                headStyles: {
-                    fillColor: [41, 128, 185]
+                didDrawPage: function () {
+                    doc.setFontSize(8);
+                    doc.text('GST Tax Slab Report', 30, 20);
+                    doc.text('Page ' + doc.internal.getNumberOfPages(), doc.internal.pageSize.width - 70, doc.internal.pageSize.height - 20);
                 }
             });
-
-            doc.save('UserAccountReport.pdf');
+            doc.save('GST_Slab_' + getExportDateTime() + '.pdf');
         }
 
         function printTable() {
-            var table = document.getElementById("copy-print-csv").outerHTML;
-
+            var table = document.getElementById('copy-print-csv');
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
+            }
+            var clonedTable = table.cloneNode(true);
+            var rows = clonedTable.querySelectorAll('tr');
+            rows.forEach(function (row) {
+                if (row.cells.length >= 6) {
+                    row.deleteCell(5);
+                }
+                var actions = row.querySelectorAll('.actions');
+                actions.forEach(function (element) {
+                    element.remove();
+                });
+            });
             var style = `
-                   <style>
-                       body{
-                           font-family: Arial;
-                           padding:20px;
-                       }
-                       h3{
-                           text-align:center;
-                           margin-bottom:20px;
-                       }
-                       table{
-                           width:100%;
-                           border-collapse: collapse;
-                       }
-                       table, th, td{
-                           border:1px solid #000;
-                       }
-                       th, td{
-                           padding:8px;
-                           text-align:left;
-                           font-size:12px;
-                       }
-                       .actions{
-                           display:none;
-                       }
-                       img{
-                           width:40px !important;
-                           height:40px !important;
-                           border-radius:50%;
-                       }
-                   </style>
+                    <style>
+                        @@page { size: landscape; margin: 10mm; }
+                        * { box-sizing: border-box; }
+                        body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 10px; color: #000; }
+                        .print-header { text-align: center; margin-bottom: 15px; }
+                        .print-header h2 { margin: 0; font-size: 20px; }
+                        .print-header p { margin: 5px 0 0; font-size: 11px; }
+                        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                        table, th, td { border: 1px solid #000; }
+                        th { font-weight: bold; text-align: center; padding: 8px; font-size: 11px; }
+                        td { padding: 7px; font-size: 10px; vertical-align: middle; word-break: break-word; }
+                        th:nth-child(1), td:nth-child(1) { width: 35%; }
+                        th:nth-child(2), td:nth-child(2) { width: 15%; text-align: right; }
+                        th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+                        th:nth-child(4), td:nth-child(4) { width: 15%; text-align: right; }
+                        th:nth-child(5), td:nth-child(5) { width: 20%; }
+                        .actions { display: none !important; }
+                        @@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+                    </style>
                 `;
-
-            var win = window.open('', '', 'height=900,width=1200');
-
-            win.document.write(`
-                    <html>
-                        <head>
-                            <title>User Account Report</title>
-                            ${style}
-                        </head>
-                        <body>
-                            <h3>User Account Report</h3>
-                            ${table}
-                        </body>
-                    </html>
-                `);
-
+            var win = window.open('', '_blank', 'height=900,width=1200');
+            if (!win) {
+                showToast('warning', 'Please allow pop-ups for printing.');
+                return;
+            }
+            win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>GST Tax Slab</title>${style}</head><body><div class="print-header"><h2>GST Tax Slab</h2><p>Generated On: ${new Date().toLocaleString()}</p></div>${clonedTable.outerHTML}</body></html>`);
             win.document.close();
             win.focus();
-
             setTimeout(function () {
                 win.print();
-                win.close();
-            }, 500);
+                setTimeout(function () { win.close(); }, 500);
+            }, 700);
+        }
+
+        function getExportDateTime() {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            return year + month + day + '_' + hours + minutes + seconds;
         }
 
         function searchTable() {
@@ -823,7 +892,6 @@
                         }
                     }
                 }
-
                 tr[i].style.display = found ? "" : "none";
             }
         }

@@ -18,13 +18,10 @@
                     <br />
                     <!--Images-->
                     <div class="row gutters">
-
-
                         <!-- Button trigger modal -->
                         <button type="button" id="btnYarnInterChngeLedger" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#exampleModalExtraLarge" style="display:none;">
                             Modal Extra Large
                         </button>
-
                         <!-- Modal start -->
                         <div class="modal fade" id="exampleModalExtraLarge" tabindex="-1" aria-labelledby="exampleModalExtraLargeTitle" aria-hidden="true">
                             <div class="modal-dialog modal-xl">
@@ -34,16 +31,9 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-
-
-
-
-
-
                                         <div class="row gutters">
                                             <div class="col-12">
                                                 <div class="table-responsive">
-
                                                     <table class="table table-bordered" style="overflow: hidden; border:1px solid;">
                                                         <thead>
                                                             <tr>
@@ -54,20 +44,10 @@
                                                                 <th style="width:11%;">Yarn Code<br> Yarn Color</th>
                                                                 <th style="width:10%;">Godown</th>
                                                                 <th style="width:10%;">Godown<br /> Location</th>
-
-
                                                             </tr>
                                                         </thead>
-
                                                         <tbody id="tableYarnInterchangeLedger"></tbody>
-
-
-
-
-
                                                     </table>
-
-
                                                 </div>
                                             </div>
                                         </div>
@@ -931,68 +911,159 @@
             onchangeYarnInterChange();
         }
 
-        function checkSave() {
-            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val();
-            var GodownLocationID = $("#ddlLocationDetail").val();
 
-            if (siftYarnInwardDetailID == "") {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Please Sift Any Yarn.'
-                });
+function checkSave() {
+
+    var siftYarnInwardDetailID = $.trim($("#siftYarnInwardDetailID").val() || "");
+    var GodownLocationID = parseInt($("#ddlLocationDetail").val() || "0", 10);
+
+    // -----------------------------
+    // Validate Yarn Selection
+    // -----------------------------
+    if (siftYarnInwardDetailID === "") {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Please Sift Any Yarn.'
+        });
+        return false;
+    }
+
+    // -----------------------------
+    // Validate Godown Location
+    // -----------------------------
+    if (GodownLocationID <= 0) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Please Select Godown Location.'
+        });
+        return false;
+    }
+
+    // -----------------------------
+    // Clean Selected IDs
+    // Supports:
+    // 1,2,3,
+    // 1,2,3
+    // -----------------------------
+    var ids = siftYarnInwardDetailID
+        .split(',')
+        .map(function (id) {
+            return $.trim(id);
+        })
+        .filter(function (id) {
+            return id !== "" && !isNaN(id);
+        });
+
+    if (ids.length === 0) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'Please select valid Yarn.'
+        });
+        return false;
+    }
+
+    // Remove duplicate IDs
+    ids = [...new Set(ids)];
+
+    var cleanIds = ids.join(',');
+
+    // -----------------------------
+    // Prevent Double Click
+    // -----------------------------
+    var $btn = $("#btnSave");
+
+    if ($btn.length) {
+        $btn.prop("disabled", true);
+    }
+
+    var formData = new FormData();
+
+    formData.append("YarnInwardDetailIDs", cleanIds);
+    formData.append("GodownLocationID", GodownLocationID);
+
+    $.ajax({
+        type: "POST",
+        url: "/WebServiceNikunjTextile.asmx/insertYarnInterChangeTable",
+        data: formData,
+        dataType: "json",
+        contentType: false,
+        processData: false,
+
+        success: function (response) {
+
+            // ASP.NET ASMX can return JSON inside response.d
+            var result = response;
+
+            if (response && response.d) {
+                try {
+                    result = typeof response.d === "string"
+                        ? JSON.parse(response.d)
+                        : response.d;
+                }
+                catch (e) {
+                    result = response.d;
+                }
             }
-            else if (GodownLocationID <= 0) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Please Select Godown Location.'
+
+            if (result && result.Code == 201) {
+
+                // Reset location
+                $("#ddlLocationDetail").val("0").trigger("change");
+
+                // Reset selected yarn IDs
+                $("#siftYarnInwardDetailID").val("");
+
+                // Clear table
+                $("#tableSiftYarnData").html("");
+
+                // Reload yarn data
+                onsiftYarnInterChange();
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: result.Message || "Record has been saved successfully.",
+                    timer: 2000,
+                    showConfirmButton: false
                 });
             }
             else {
-                var cleanIds = siftYarnInwardDetailID.replace(/,\s*$/, "");
-                var formData = new FormData();
-                formData.append('YarnInwardDetailIDs', cleanIds);
-                formData.append('GodownLocationID', GodownLocationID);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertYarnInterChangeTable',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            $("#ddlLocationDetail").val('0');
-                            $("#select2-ddlLocationDetail-container").html('Select Location');
-                            $("#siftYarnInwardDetailID").val('');
-                            $("#tableSiftYarnData").html('');
-                            onsiftYarnInterChange();
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Operation Failed',
-                            text: 'An error occurred while saving. Please try again.'
-                        });
-                    }
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: (result && result.Message)
+                        ? result.Message
+                        : "Unable to save record."
                 });
             }
+        },
+
+        error: function (xhr, status, error) {
+
+            console.error("Yarn Interchange Error:", {
+                status: status,
+                error: error,
+                response: xhr.responseText
+            });
+
+            Swal.fire({
+                icon: "error",
+                title: "Operation Failed",
+                text: "An error occurred while saving. Please try again."
+            });
+        },
+
+        complete: function () {
+
+            if ($btn.length) {
+                $btn.prop("disabled", false);
+            }
         }
+    });
+
+    return false;
+}
+
     </script>
 }

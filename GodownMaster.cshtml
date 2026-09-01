@@ -66,7 +66,8 @@
                             <div class="col-12"><hr /></div>
 
                             <div class="col-12" id="divLocation">
-                                <div class="row gutters">
+                                <div class="row gutters align-items-center">
+                                    <!-- Manual Location Entry Switch -->
                                     <div class="col-md-3 col-12 mb-2" id="divManuallyOrAuto">
                                         <div class="field-wrapper pt-2">
                                             <div class="form-check form-switch">
@@ -76,7 +77,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4 col-12 mb-3" id="divNoOfRack">
+                                    <!-- Auto Generation Inputs -->
+                                    <div class="col-md-3 col-12 mb-3" id="divNoOfRack">
                                         <div class="field-wrapper">
                                             <input type="text" id="NoOfRack" name="NoOfRack" placeholder="No Of Rack" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
                                             <div class="field-placeholder">No Of Racks <span class="text-danger">*</span></div>
@@ -84,7 +86,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-5 col-12 mb-3" id="divGoLocation">
+                                    <div class="col-md-3 col-12 mb-3" id="divGoLocation">
                                         <div class="field-wrapper">
                                             <input type="text" id="PrefixTitle" name="PrefixTitle" placeholder="Prefix Title (e.g. RACK)" class="form-control clear-field" onfocusout="validate(this)">
                                             <div class="field-placeholder">Prefix Title <span class="text-danger">*</span></div>
@@ -92,7 +94,15 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-9 col-12 mb-3" id="divTableLocation" style="display:none;">
+                                    <!-- Add Location Button -->
+                                    <div class="col-md-3 col-12 mb-3 text-end" id="divAddLocationBtnWrapper">
+                                        <button id="AddLocationbtn" type="button" class="btn btn-primary" onclick="AddLocationbtn()">
+                                            <i class="fa fa-plus me-1"></i> Add Location
+                                        </button>
+                                    </div>
+
+                                    <!-- Location Table -->
+                                    <div class="col-12 mb-3" id="divTableLocation">
                                         <div class="table-responsive">
                                             <table class="table table-bordered m-0" id="tblYarnMaterial">
                                                 <tbody id="tableItemData">
@@ -100,9 +110,6 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <button id="AddLocationbtn" type="button" class="btn btn-secondary mt-2" onclick="AddLocationbtn()">
-                                            <i class="fa fa-plus me-1"></i> Add Location
-                                        </button>
                                     </div>
                                 </div>
 
@@ -140,10 +147,10 @@
                             <thead>
                                 <tr class="bg-primary text-white">
                                     <th class="text-white" style="width: 5%;">Sr No</th>
-                                    <th class="text-white" >Godown Title</th>
-                                    <th class="text-white" >Address</th>
-                                    <th  class="text-white" style="width: 10%;">Is Active</th>
-                                    <th  class="text-white" style="width: 10%;">Is Default</th>
+                                    <th class="text-white">Godown Title</th>
+                                    <th class="text-white">Address</th>
+                                    <th class="text-white" style="width: 10%;">Is Active</th>
+                                    <th class="text-white" style="width: 10%;">Is Default</th>
                                     <th class="text-white" style="width: 12%;">Actions</th>
                                 </tr>
                             </thead>
@@ -161,12 +168,10 @@
         <button type="button" class="btn btn-primary px-4" id="view-more-btn" onclick="displayData(1)">View More</button>
     </div>
 </div>
-
 @section Scripts {
     <script>
         var currentPagePermission = {};
 
-        // Toast Feedback Alert Setup
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -174,6 +179,7 @@
             timer: 3000,
             timerProgressBar: true
         });
+
         $(document).ready(function () {
             if ($.fn.select2) {
                 $('#ddlParty').select2({
@@ -185,6 +191,7 @@
             FunctionIsLogin();
             displayData(0);
         });
+
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -197,9 +204,11 @@
                 }
             });
         }
+
         function functionSearch() {
             displayData(0);
         }
+
         // --- GRID DATA BINDING ---
         function displayData(rowStartCheck) {
             var rowStart = 0;
@@ -276,57 +285,155 @@
                 }
             });
         }
-        // --- TOGGLE & ENTRY HELPERS ---
+
+        // --- TOGGLE MANUAL SWITCH HANDLER ---
         function functionIsManual() {
             if ($('#IsManually').is(':checked')) {
-                $("#divTableLocation").show();
                 $("#divNoOfRack, #divGoLocation").hide();
             } else {
-                $("#divTableLocation").hide();
                 $("#divNoOfRack, #divGoLocation").show();
             }
         }
+        // --- ADD LOCATIONS (HANDLES BOTH MANUAL SINGLE ROW & AUTO GENERATION) ---
+        
+        // --- ADD LOCATIONS (HANDLES BOTH MANUAL SINGLE ROW & AUTO SEQUENCING) ---
         function AddLocationbtn() {
-            var GodownTitle = $("#GodownTitle").val();
-            if (GodownTitle == "") {
+            var godownTitle = document.getElementById('GodownTitle');
+            if (!validate(godownTitle)) {
                 Toast.fire({ icon: 'warning', title: 'Please enter Godown Title first.' });
                 return;
             }
 
-            var txtColorArray = $("#txtLocationArray").val();
-            var txtColorData = txtColorArray.slice(0, -1).split('|');
-            var isValid = true;
+            var isManual = $('#IsManually').is(':checked');
+            var txtColorArray = $("#txtLocationArray").val() || "";
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
+            var nextIndex = 1;
 
-            for (var j = 0; j < txtColorData.length; j++) {
-                var GL = document.getElementById("GodownLocation" + txtColorData[j]);
-                if (GL && !validate(GL)) {
-                    isValid = false;
+            if (txtColorData.length > 0 && txtColorData[0] !== "") {
+                var lastVal = parseInt(txtColorData[txtColorData.length - 1]);
+                if (!isNaN(lastVal)) {
+                    nextIndex = lastVal + 1;
                 }
             }
 
-            if (isValid) {
-                var ArrayNo = parseInt(txtColorData[txtColorData.length - 1] || 0) + 1;
-                var tempColorMatching = `<tr id="trLocation${ArrayNo}">
+            var temp = "";
+
+            if (isManual) {
+                // --- MANUAL ENTRY MODE: Add single blank row for manual typing ---
+                var currentIndex = nextIndex++;
+                temp = `<tr id="trLocation${currentIndex}">
+                    <td style="width:10%; text-align: end; vertical-align: middle;">
+                        <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${currentIndex}')"></i>
+                    </td>
+                    <td style="width: 90%;">
+                        <div class="field-wrapper m-0">
+                            <input type="hidden" id="GodownLocationID${currentIndex}" value="0">
+                            <input type="text" id="GodownLocation${currentIndex}" placeholder="Location Title" class="form-control clear-field" onfocusout="checkManualDuplicate(this)">
+                            <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
+                            <div class="invalid-feedback">Please Mention Unique Location Title</div>
+                        </div>
+                    </td>
+                </tr>`;
+                txtColorArray += currentIndex + "|";
+                $("#tableItemData").append(temp);
+                $("#txtLocationArray").val(txtColorArray);
+                setTimeout(() => { $("#GodownLocation" + currentIndex).focus(); }, 200);
+            } else {
+                // --- AUTO GENERATION MODE: Your exact code block ---
+                var noOfRack = document.getElementById('NoOfRack');
+                var prefixTitle = document.getElementById('PrefixTitle');
+
+                if (!validate(noOfRack) || !validate(prefixTitle)) {
+                    Toast.fire({ icon: 'warning', title: 'Please enter No Of Racks and Prefix Title.' });
+                    return;
+                }
+
+                var countToAdd = parseInt(noOfRack.value);
+                var prefix = prefixTitle.value.trim().toUpperCase();
+
+                var existingPrefixCount = 0;
+                var maxSeqForPrefix = 0;
+
+                $('#tableItemData input[id^="GodownLocation"]').each(function () {
+                    var inputVal = $(this).val();
+                    if (inputVal && inputVal.indexOf('-') !== -1) {
+                        var parts = inputVal.split('-');
+                        var existingPrefix = parts[0].trim().toUpperCase();
+                        var existingNum = parseInt(parts[parts.length - 1]);
+
+                        if (existingPrefix === prefix) {
+                            existingPrefixCount++;
+                            if (!isNaN(existingNum) && existingNum > maxSeqForPrefix) {
+                                maxSeqForPrefix = existingNum;
+                            }
+                        }
+                    }
+                });
+
+                if (existingPrefixCount > 0 && existingPrefixCount >= maxSeqForPrefix && countToAdd <= existingPrefixCount) {
+                    Toast.fire({ icon: 'warning', title: 'This prefix and rack range already exists in the table.' });
+                    return;
+                }
+
+                var startNum = maxSeqForPrefix + 1;
+                var actualToAdd = countToAdd;
+
+                if (existingPrefixCount > 0) {
+                    if (countToAdd <= existingPrefixCount) {
+                        Toast.fire({ icon: 'warning', title: 'Racks for prefix ' + prefix + ' already up to ' + existingPrefixCount + '.' });
+                        return;
+                    }
+                    actualToAdd = countToAdd - existingPrefixCount;
+                }
+
+                for (var i = 0; i < actualToAdd; i++) {
+                    var currentNum = startNum + i;
+                    var generatedTitle = prefix + "-" + currentNum;
+                    var currentIndex = nextIndex++;
+
+                    temp += `<tr id="trLocation${currentIndex}">
                         <td style="width:10%; text-align: end; vertical-align: middle;">
-                            <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${ArrayNo}')"></i>
+                            <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${currentIndex}')"></i>
                         </td>
                         <td style="width: 90%;">
                             <div class="field-wrapper m-0">
-                                <input type="hidden" id="GodownLocationID${ArrayNo}" value="0">
-                                <input type="text" id="GodownLocation${ArrayNo}" placeholder="Location Title" class="form-control clear-field" onfocusout="validate(this)">
+                                <input type="hidden" id="GodownLocationID${currentIndex}" value="0">
+                                <input type="text" id="GodownLocation${currentIndex}" placeholder="Location Title" class="form-control clear-field is-valid" value="${generatedTitle}" onfocusout="validate(this)">
                                 <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
                                 <div class="invalid-feedback">Please Mention Location Title</div>
                             </div>
                         </td>
                     </tr>`;
+                    txtColorArray += currentIndex + "|";
+                }
 
-                $("#txtLocationArray").val(txtColorArray + ArrayNo + "|");
-                $("#tableItemData").append(tempColorMatching);
-                setTimeout(() => { $("#GodownLocation" + ArrayNo).focus(); }, 200);
-            } else {
-                Toast.fire({ icon: 'warning', title: 'Please fill all previous location fields.' });
+                $("#tableItemData").append(temp);
+                $("#txtLocationArray").val(txtColorArray);
+
+                $("#NoOfRack, #PrefixTitle").val("").removeClass("is-valid is-invalid");
+                Toast.fire({ icon: 'success', title: 'Locations added successfully!' });
             }
         }
+        function checkManualDuplicate(inputElement) {
+            validate(inputElement);
+            var typedVal = $(inputElement).val().trim().toUpperCase();
+            if (typedVal === "") return;
+
+            var isDuplicate = false;
+            $('#tableItemData input[id^="GodownLocation"]').each(function () {
+                // Check against other inputs in the table, excluding the current input element itself
+                if (this !== inputElement && $(this).val().trim().toUpperCase() === typedVal) {
+                    isDuplicate = true;
+                    return false; // break loop
+                }
+            });
+
+            if (isDuplicate) {
+                Toast.fire({ icon: 'error', title: 'Location "' + typedVal + '" already exists in the table!' });
+                $(inputElement).val("").addClass("is-invalid").removeClass("is-valid");
+            }
+        }
+
         function deleteLocationData(abc) {
             var GodownID = "#GodownLocationID" + abc;
             var val = $(GodownID).val();
@@ -338,84 +445,65 @@
 
             $("#trLocation" + abc).remove();
             var ColorArray = $("#txtLocationArray").val();
-            $("#txtLocationArray").val(ColorArray.replace(abc + "|", ''));
+            if (ColorArray) {
+                $("#txtLocationArray").val(ColorArray.replace(abc + "|", ''));
+            }
         }
+
         function clearAll() {
             BindParty();
             $("#savebtn, #saveViewbtn").show();
             $("#editbtn").hide();
-            $("#divManuallyOrAuto").show();
             $("#addNewContactLabel").html("Add Godown / Warehouse");
             $(".clear-field").val("").removeClass("is-valid is-invalid");
-            $("#txtLocationArray").val('1|');
+            $("#txtLocationArray").val('');
             $("#txtDeleteLocationArray").val('');
             $('#IsActive').prop('checked', true);
             $('#IsDefault').prop('checked', false);
             $('#IsManually').prop('checked', false);
-
-            var tempLocation = `<tr id="trLocation1">
-                    <td style="width:10%;"></td>
-                    <td style="width: 90%;">
-                        <div class="field-wrapper m-0">
-                            <input type="hidden" id="GodownLocationID1" value="0">
-                            <input type="text" id="GodownLocation1" placeholder="Location Title" class="form-control clear-field" onfocusout="validate(this)">
-                            <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
-                            <div class="invalid-feedback">Please Mention Location Title</div>
-                        </div>
-                    </td>
-                </tr>`;
-
-            $("#tableItemData").html(tempLocation);
             functionIsManual();
+
+            $("#tableItemData").html("");
         }
+
         // --- SAVE / EDIT OPERATIONS ---
         function checkSaveView() {
             executeSave(true);
         }
+
         function checkSave() {
             executeSave(false);
         }
+
         function executeSave(closeModal) {
             var godownTitle = document.getElementById('GodownTitle');
             if (!validate(godownTitle)) return;
 
-            var isManual = $("#IsManually").is(':checked');
             var locationList = [];
+            var txtColorArray = $("#txtLocationArray").val();
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
+            var isLocationValid = true;
 
-            if (!isManual) {
-                var noOfRack = document.getElementById('NoOfRack');
-                var prefixTitle = document.getElementById('PrefixTitle');
-                if (!validate(noOfRack) || !validate(prefixTitle)) return;
-
-                var totalRacks = parseInt(noOfRack.value);
-                for (var i = 1; i <= totalRacks; i++) {
-                    locationList.push({
-                        SrNo: i.toString(),
-                        GodownLocationID: "0",
-                        LocationTitle: prefixTitle.value + "-" + i
-                    });
-                }
-            } else {
-                var txtColorData = $("#txtLocationArray").val().slice(0, -1).split('|');
-                var isLocationValid = true;
-
-                for (var j = 0; j < txtColorData.length; j++) {
-                    if (txtColorData[j] != "") {
-                        var GL = document.getElementById("GodownLocation" + txtColorData[j]);
-                        if (!validate(GL)) isLocationValid = false;
-                        else {
+            for (var j = 0; j < txtColorData.length; j++) {
+                if (txtColorData[j] != "") {
+                    var GL = document.getElementById("GodownLocation" + txtColorData[j]);
+                    if (GL) {
+                        if (!validate(GL)) {
+                            isLocationValid = false;
+                        } else {
                             locationList.push({
-                                SrNo: (j + 1).toString(),
+                                SrNo: (locationList.length + 1).toString(),
                                 GodownLocationID: "0",
                                 LocationTitle: $(GL).val()
                             });
                         }
                     }
                 }
-                if (!isLocationValid || locationList.length === 0) {
-                    Toast.fire({ icon: 'warning', title: 'Please provide at least one valid Godown Location.' });
-                    return;
-                }
+            }
+
+            if (!isLocationValid || locationList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'Please provide at least one valid Godown Location.' });
+                return;
             }
 
             var godownDataObject = {
@@ -425,6 +513,7 @@
                 PartyId: $('#ddlParty').val() || "0",
                 IsActive: $("#IsActive").is(':checked') ? "1" : "0",
                 IsDefault: $("#IsDefault").is(':checked') ? "1" : "0",
+                IsManual: $('#IsManually').is(':checked') ? "1" : "0",
                 listGodownLocationMaster: locationList
             };
 
@@ -453,42 +542,33 @@
                 }
             });
         }
+
         function checkEdit() {
             var id = $("#edit-id").val();
             var godownTitle = document.getElementById('GodownTitle');
             if (!validate(godownTitle)) return;
 
-            var isManual = $("#IsManually").is(':checked');
             var locationList = [];
+            var txtColorArray = $("#txtLocationArray").val();
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
 
-            if (!isManual) {
-                var noOfRack = document.getElementById('NoOfRack');
-                var prefixTitle = document.getElementById('PrefixTitle');
-                if (!validate(noOfRack) || !validate(prefixTitle)) return;
-
-                var totalRacks = parseInt(noOfRack.value);
-                for (var i = 1; i <= totalRacks; i++) {
-                    locationList.push({
-                        SrNo: i.toString(),
-                        GodownLocationID: "0",
-                        LocationTitle: prefixTitle.value + "-" + i
-                    });
-                }
-            } else {
-                var txtColorData = $("#txtLocationArray").val().slice(0, -1).split('|');
-                for (var j = 0; j < txtColorData.length; j++) {
-                    if (txtColorData[j] != "") {
-                        var GLVal = $("#GodownLocation" + txtColorData[j]).val();
-                        var GIDVal = $("#GodownLocationID" + txtColorData[j]).val() || "0";
-                        if (GLVal != "") {
-                            locationList.push({
-                                SrNo: (j + 1).toString(),
-                                GodownLocationID: GIDVal,
-                                LocationTitle: GLVal
-                            });
-                        }
+            for (var j = 0; j < txtColorData.length; j++) {
+                if (txtColorData[j] != "") {
+                    var GLVal = $("#GodownLocation" + txtColorData[j]).val();
+                    var GIDVal = $("#GodownLocationID" + txtColorData[j]).val() || "0";
+                    if (GLVal && GLVal.trim() !== "") {
+                        locationList.push({
+                            SrNo: (locationList.length + 1).toString(),
+                            GodownLocationID: GIDVal,
+                            LocationTitle: GLVal
+                        });
                     }
                 }
+            }
+
+            if (locationList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'Please provide at least one valid Godown Location.' });
+                return;
             }
 
             var deleteLocations = $("#txtDeleteLocationArray").val();
@@ -500,7 +580,7 @@
                 IsActive: $("#IsActive").is(':checked') ? "1" : "0",
                 IsDefault: $("#IsDefault").is(':checked') ? "1" : "0",
                 PartyId: $('#ddlParty').val() || "0",
-                IsManual: isManual ? "1" : "0",
+                IsManual: $('#IsManually').is(':checked') ? "1" : "0",
                 DeleteGodownArray: deleteLocations.endsWith(',') ? deleteLocations.slice(0, -1) : deleteLocations,
                 listGodownLocationMaster: locationList
             };
@@ -527,11 +607,12 @@
                 }
             });
         }
+
         // --- RECORD FETCH & ACTIONS ---
         function showRecords(id) {
             clearAll();
             $("#edit-id").val(id);
-            $("#saveViewbtn, #savebtn, #divManuallyOrAuto").hide();
+            $("#saveViewbtn, #savebtn").hide();
             $("#editbtn").show();
             $("#addNewContactLabel").html("Edit Godown / Warehouse");
 
@@ -546,6 +627,7 @@
                 }
             });
         }
+
         function ViewRecordQueryString(DecryptID) {
             var formData = new FormData();
             formData.append('GodownID', DecryptID);
@@ -560,13 +642,13 @@
                 success: function (response) {
                     if (response.listGodownMaster && response.listGodownMaster.length > 0) {
                         var master = response.listGodownMaster[0];
-
                         $("#GodownTitle").val(master.GodownTitle);
                         $("#GodownAddress").val(master.GodownAddress);
                         $("#GSTNumber").val(master.GSTIN);
                         $("#IsActive").prop('checked', master.IsActive == "1");
                         $("#IsDefault").prop('checked', master.IsDefault == "1");
-                        $("#IsManually").prop('checked', true);
+                        $("#IsManually").prop('checked', master.IsManual == "1");
+                        functionIsManual();
 
                         if (master.PartyId) {
                             $("#ddlParty").val(master.PartyId).trigger('change');
@@ -597,11 +679,11 @@
 
                         $("#tableItemData").html(temp);
                         $("#txtLocationArray").val(txtColorArray);
-                        functionIsManual();
                     }
                 }
             });
         }
+
         function functionYarnDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -635,6 +717,7 @@
                 }
             });
         }
+
         function functionYarnActive(abc) {
             Swal.fire({
                 title: 'Update Default Status?',
@@ -666,6 +749,7 @@
                 }
             });
         }
+
         function BindParty() {
             $.ajax({
                 type: "POST",
@@ -687,6 +771,7 @@
                 }
             });
         }
+
         function validate(code) {
             if (!code || code.value === undefined) return false;
             code.value = code.value.replace(/\s+/g, ' ').trim();

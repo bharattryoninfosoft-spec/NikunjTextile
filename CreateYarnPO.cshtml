@@ -24,11 +24,10 @@
             border-bottom: 2px solid #dee2e6 !important;
         }
 
-        /* Input entry row styling inside the table header */
         .tbl-item-detail thead tr.bg-light th,
         .tbl-item-detail thead tr.bg-light td {
             background-color: #2573e8 !important;
-            color:#ffffff;
+            color: #ffffff;
             border-bottom: 2px solid #ced4da !important;
             padding-top: 12px !important;
             padding-bottom: 12px !important;
@@ -40,6 +39,7 @@
             border-bottom: none !important;
             padding: 12px 8px !important;
         }
+
     #GSTEntry {
         font-size: 12px !important;
         padding-left: 6px !important;
@@ -51,9 +51,6 @@
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
 
-    <!-- Hidden Trigger Button for Modals -->
-    <button id="AddPartyModel" style="float:right; display:none;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact"></button>
-
     <!-- Master Add Modal (Handles Party, Yarn Material & Yarn Color dynamically) -->
     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
@@ -63,181 +60,187 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="modal-body" id="divModelBody" style="overflow: initial !important; height:auto !important; min-height:200px !important;">
+                <div class="modal-body" id="divModelBody" style="overflow: auto; height:auto !important; min-height:200px !important;">
 
                     <!-- 1. Party Master Section -->
                     <div class="row gutters" id="DivPartyMaster">
                         <div class="row gutters">
-                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                            <!-- Left Column: Party Details -->
+                            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
                                 <div class="row gutters">
-                                    <div class="col-6">
-                                        <div class="row gutters">
-                                            <div class="col-6">
-                                                <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
-                                            </div>
-                                            <div class="col-6"></div>
-                                            <hr />
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <select id="SundryParty" class="form-control" name="SundryParty">
-                                                        <option value="0"></option>
-                                                        <option value="1">Sundry Creditors</option>
-                                                        <option value="2">Sundry Debtors</option>
-                                                        <option value="3">Job Work</option>
-                                                    </select>
-                                                    <div class="field-placeholder">Select Sundry Party</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style="text-transform: uppercase;">
-                                                    <div class="field-placeholder">GSTIN<sup class="text-danger">*</sup></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style="text-transform: uppercase;">
-                                                    <div class="field-placeholder">PAN No<sup class="text-danger">*</sup></div>
-                                                </div>
-                                            </div>
+                                    <div class="col-12">
+                                        <div class="form-section-header fw-bold mt-1">Party Details</div>
+                                        <hr class="my-2" />
+                                    </div>
 
-                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
-                                                    <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="phone" placeholder="Enter Mobile" type="tel" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
-                                                    <div class="field-placeholder">Mobile Number <span class="text-danger">*</span></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" min="10" maxlength="10">
-                                                    <div class="field-placeholder">Alternate Number</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="email" placeholder="Enter Email" type="text" class="form-control clear-field detail">
-                                                    <div class="field-placeholder">Email</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
-                                                <div class="field-wrapper">
-                                                    <select id="placeOfSupply" class="select-single js-states clear-field detail">
-                                                        <option value="-1">Select</option>
-                                                    </select>
-                                                    <div class="field-placeholder">Place Of Supply</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeyup="myFunctionPINCODE(this)">
-                                                    <div class="field-placeholder">Pincode</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="city" placeholder="Enter City" type="text" class="form-control clear-field detail">
-                                                    <div class="field-placeholder">City</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
-                                                <div class="field-wrapper">
-                                                    <select id="BrokerModel" class="select-single js-states clear-field detail">
-                                                        <option value="-1">Select</option>
-                                                    </select>
-                                                    <div class="field-placeholder">Broker</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input clear-field detail" type="checkbox" id="chcekIsActiveParty" checked style="cursor:pointer;">
-                                                        <label class="form-check-label" for="chcekIsActiveParty">Is Active Party</label>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <select id="SundryParty" class="form-select" name="SundryParty" onchange="validate(this)">
+                                                <option value="0">Select Sundry Party</option>
+                                                <option value="1">Sundry Creditors</option>
+                                                <option value="2">Sundry Debtors</option>
+                                            </select>
+                                            <div class="field-placeholder">Sundry Type<span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Select Sundry Type</div>
                                         </div>
                                     </div>
 
-                                    <div class="col-6" style="border-left: 1px solid #c3c3c3;">
-                                        <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Bank Details</div>
-                                        <hr style="margin: 0px 0px 16px 0;" />
-
-                                        <div class="row gutters">
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="BankHolderName" type="text" class="form-control clear-field detail" placeholder="Bank Holder Name">
-                                                    <div class="field-placeholder">Bank Holder Name</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="BankAccountNo" type="text" class="form-control clear-field detail" placeholder="Bank Account No">
-                                                    <div class="field-placeholder">Bank A/c No</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onkeyup="myFunctionIFSC(this)">
-                                                    <div class="field-placeholder">Bank IFSC</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="BankName" type="text" class="form-control clear-field detail" placeholder="Bank Name" readonly>
-                                                    <div class="field-placeholder">Bank Name</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                <div class="field-wrapper">
-                                                    <input id="BankBranch" type="text" class="form-control clear-field detail" placeholder="Bank Branch" readonly>
-                                                    <div class="field-placeholder">Bank Branch</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
-                                        <hr style="margin: 5px 0px 16px 0;" />
-
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                            <div class="field-wrapper">
-                                                <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="3" placeholder="Enter Billing Address"></textarea>
-                                                <div class="field-placeholder">Billing Address</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
-                                            <div class="field-wrapper">
-                                                <div class="form-check form-check-inline" style="margin-left: 65%;">
-                                                    <input class="form-check-input clear-field detail" onclick="toggleShippingAddress()" type="checkbox" id="chcekAddress" value="option" checked style="cursor:pointer;">
-                                                    <label class="form-check-label" for="chcekAddress">Same as Billing Address</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                                            <div class="field-wrapper">
-                                                <textarea id="shippingAddress" class="form-control clear-field" rows="3" placeholder="Enter Shipping Address" disabled></textarea>
-                                                <div class="field-placeholder">Shipping Address</div>
-                                            </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 24XXXXX9438X1XX" minlength="15" maxlength="15" onkeyup="validateGstinInput(this)" style="text-transform: uppercase;">
+                                            <input id="gstintemp" type="hidden" class="clear-field detail">
+                                            <div class="field-placeholder">GSTIN</div>
+                                            <div class="invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
                                         </div>
                                     </div>
 
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PAN No" minlength="10" maxlength="10" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                            <input id="PanNotemp" type="hidden" class="clear-field detail">
+                                            <div class="field-placeholder">PAN No</div>
+                                            <div class="invalid-feedback" id="PanNoError">Please Provide Valid PAN Number</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Provide Party Name</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="phone" placeholder="Enter Mobile" type="tel" class="form-control clear-field detail" onfocusout="validate(this)" minlength="10" maxlength="10" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+                                            <input id="phonetemp" type="hidden" class="clear-field detail">
+                                            <div class="field-placeholder">Mobile Number <span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Provide Mobile Number</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" minlength="10" maxlength="10" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+                                            <div class="field-placeholder">Alternate Number</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="email" placeholder="Enter Email" onfocusout="validateEmail(this.value, this)" type="text" class="form-control clear-field detail">
+                                            <div class="field-placeholder">Email</div>
+                                            <div class="invalid-feedback">Please Provide Proper Email</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <select id="placeOfSupply" class="form-select clear-field detail">
+                                                <option value="0">Select Place Of Supply</option>
+                                            </select>
+                                            <div class="field-placeholder">Place Of Supply</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" minlength="6" maxlength="6" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" onkeyup="myFunctionPINCODE(this)">
+                                            <div class="field-placeholder">Pincode</div>
+                                            <div class="invalid-feedback">Please Provide Valid Pincode</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="city" placeholder="Enter City" type="text" class="form-control clear-field detail">
+                                            <div class="field-placeholder">City</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check form-check-inline mt-2">
+                                            <input class="form-check-input clear-field detail" type="checkbox" id="checkIsActiveParty" checked style="cursor:pointer;">
+                                            <label class="form-check-label" for="checkIsActiveParty">Is Active Party</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Bank & Address Details -->
+                            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 border-start">
+                                <!-- Bank Details -->
+                                <div class="row gutters">
+                                    <div class="col-12">
+                                        <div class="form-section-header fw-bold mt-1">Bank Details</div>
+                                        <hr class="my-2" />
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="BankHolderName" type="text" class="form-control clear-field detail" placeholder="Bank Holder Name">
+                                            <div class="field-placeholder">Bank Holder Name</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="BankAccountNo" type="text" class="form-control clear-field detail" placeholder="Bank Account No">
+                                            <div class="field-placeholder">Bank A/c No</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" maxlength="11" class="form-control clear-field detail" onkeyup="myFunctionIFSC(this)" style="text-transform: uppercase;">
+                                            <div class="field-placeholder">Bank IFSC</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="BankName" type="text" class="form-control clear-field detail" placeholder="Bank Name" readonly>
+                                            <div class="field-placeholder">Bank Name</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <input id="BankBranch" type="text" class="form-control clear-field detail" placeholder="Bank Branch" readonly>
+                                            <div class="field-placeholder">Bank Branch</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address Details -->
+                                <div class="row gutters mt-2">
+                                    <div class="col-12">
+                                        <div class="form-section-header fw-bold mt-1">Address Details</div>
+                                        <hr class="my-2" />
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <textarea id="billingAddress" onkeyup="checkShippingAdd()" onfocusout="validate(this)" class="form-control clear-field detail" rows="2" placeholder="Enter Billing Address"></textarea>
+                                            <div class="field-placeholder">Billing Address<span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Provide Billing Address</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mb-2 text-end">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input clear-field detail" onclick="toggleShippingAddress()" type="checkbox" id="checkAddress" checked style="cursor:pointer;">
+                                            <label class="form-check-label" for="checkAddress">Same as Billing Address</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <div class="field-wrapper">
+                                            <textarea id="shippingAddress" class="form-control clear-field" rows="2" placeholder="Enter Shipping Address" disabled></textarea>
+                                            <div class="field-placeholder">Shipping Address</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -376,8 +379,6 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px;">
-                                        <div id="notes"></div>
-
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-4">
                                             <div class="field-wrapper" style="text-align: center; margin: 0;">
                                                 <div class="form-check form-check-inline">
@@ -387,7 +388,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Vendor Dropdown with '+' Party Button -->
+                                        <!-- Vendor Dropdown -->
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                             <div class="row gutters">
                                                 <div class="col-12">
@@ -399,7 +400,7 @@
                                                             <option value="-1">Supplier</option>
                                                         </select>
                                                         <div class="field-placeholder">Supplier</div>
-                                                        <button type="button" id="AddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addparty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                        <button type="button" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addparty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     </div>
@@ -428,7 +429,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Company Dropdown with '+' Party Button -->
+                                        <!-- Company Dropdown -->
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
                                             <div class="row gutters">
                                                 <div class="col-12">
@@ -441,7 +442,7 @@
                                                             <option value="-1">Company</option>
                                                         </select>
                                                         <div class="field-placeholder">Company</div>
-                                                        <button type="button" id="CompanyAddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addCompanyParty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                        <button type="button" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addCompanyParty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                     </div>
@@ -463,6 +464,7 @@
                                             </div>
                                         </div>
 
+                                        <!-- Bill To Section -->
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                             <div class="row gutters">
                                                 <div class="col-12">
@@ -494,6 +496,7 @@
                                             </div>
                                         </div>
 
+                                        <!-- Shipping Section -->
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
                                             <div class="row gutters">
                                                 <div class="col-12">
@@ -521,12 +524,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Selection Bar: Yarn Material '+' and Yarn Color '+' Buttons -->
-                                    <!-- Selection Bar aligned with Table Columns -->
+                                    <!-- Selection Bar for Line Items -->
                                     <div class="row gutters align-items-end mt-4 mb-3">
                                         <input type="hidden" id="editingRowId" value="0" />
 
-                                        <!-- 1. Yarn Material (Width: 22%) -->
                                         <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-12" style="width: 18%;">
                                             <div class="field-wrapper mb-0">
                                                 <select id="yarnMaterialEntry" class="select-single detail" title="Yarn Material" data-live-search="true" onchange="YarnYarnMaterialEntry()">
@@ -539,7 +540,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- 2. Yarn Color (Width: 18%) -->
                                         <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-12" style="width: 18%;">
                                             <div class="field-wrapper mb-0">
                                                 <div class="d-flex align-items-center">
@@ -557,7 +557,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- 3. Yarn Color Code (Width: 16%) -->
                                         <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6 col-12" style="width: 10%;">
                                             <div class="field-wrapper-custom mb-0">
                                                 <label for="CompanyCodeEntry">Yarn Color Code</label>
@@ -565,7 +564,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- 4. Qty (Width: 10%) -->
                                         <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 8%;">
                                             <div class="field-wrapper-custom mb-0">
                                                 <label for="QtyEntry">Qty</label>
@@ -573,7 +571,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- 5. Rate (Width: 10%) -->
                                         <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 8%;">
                                             <div class="field-wrapper-custom mb-0">
                                                 <label for="RateEntry">Rate</label>
@@ -581,16 +578,13 @@
                                             </div>
                                         </div>
 
-                                        <!-- 6. GST (Width: 8%) -->
                                         <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 10%;">
                                             <div class="field-wrapper-custom mb-0">
                                                 <label for="GSTEntry">GST</label>
-                                                <select id="GSTEntry" class="form-select" onchange="calculationYarnEntry()">
-                                                </select>
+                                                <select id="GSTEntry" class="form-select" onchange="calculationYarnEntry()"></select>
                                             </div>
                                         </div>
 
-                                        <!-- 7. Amount (Width: 10%) -->
                                         <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 10%;">
                                             <div class="field-wrapper-custom mb-0">
                                                 <label for="AmountEntry">Amount</label>
@@ -598,39 +592,25 @@
                                             </div>
                                         </div>
 
-                                        <!-- 8. Action / Add Item Button -->
-                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 15%; ">
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 15%;">
                                             <button type="button" id="btnAddItem" class="btn btn-primary fw-bold px-4" style="height: 38px;" onclick="AddSingleRowToTable()">
                                                 Add Item
                                             </button>
-                                            <button type="button"
-                                                    id="btnCancelEdit"
-                                                    class="btn btn-secondary fw-bold"
-                                                    style="height: 38px; width: 45px; display:none;"
-                                                    title="Cancel"
-                                                    onclick="resetSingleEntryRow()">
+                                            <button type="button" id="btnCancelEdit" class="btn btn-secondary fw-bold" style="height: 38px; width: 45px; display:none;" title="Cancel" onclick="resetSingleEntryRow()">
                                                 <i class="fa fa-times"></i>
                                             </button>
-                                        </div>                                    
+                                        </div>
                                     </div>
 
                                     <!-- Table Area -->
                                     <div class="row gutters mt-3">
                                         <div class="col-12">
-                                            <div class="col-12">
-                                                <div class="form-section-header light-bg">  Item Detail</div>
-                                            </div>
-                               
-
+                                            <div class="form-section-header light-bg"> Item Detail</div>
                                             <div class="table-responsive">
-                                                <input type="hidden" id="txtPurchasenStock" value="0" />
-                                                <input type="hidden" id="editingRowId" value="0" />
-
                                                 <table class="tbl-item-detail table-clean" id="tblYarnItemDetails">
                                                     <thead>
-                                                        <!-- Header Title Row -->
                                                         <tr>
-                                                            <th style="width: 22%;text-align:center">Yarn Material</th>
+                                                            <th style="width: 22%; text-align:center">Yarn Material</th>
                                                             <th style="width: 18%; text-align: center">Yarn Color</th>
                                                             <th style="width: 16%; text-align: center">Yarn Color Code</th>
                                                             <th style="width: 10%; text-align: center">Qty</th>
@@ -645,7 +625,6 @@
                                                             <td colspan="8" class="text-center text-muted py-4">No items added yet. Use the fields above to add an item.</td>
                                                         </tr>
                                                     </tbody>
-
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="3" class="text-end fw-bold align-middle">TOTAL WEIGHT / QTY:</td>
@@ -666,58 +645,41 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                            <div class="row gutters mt-3">
-                                <div class="col-3">
-                                    <div class="field-wrapper">
-                                        <input type="text" class="form-control" id="DeliveryTime" value="2-3 Days" title="DeliveryTime">
-                                        <div class="field-placeholder">Delivery Time in Days <span class="text-danger">*</span></div>
-                                    </div>
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="row gutters mt-3">
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="DeliveryTime" value="2-3 Days" title="DeliveryTime">
+                                    <div class="field-placeholder">Delivery Time in Days <span class="text-danger">*</span></div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="PaymentCondition" value="45-60 Days" title="PaymentCondition">
+                                    <div class="field-placeholder">Payment Condition in Days <span class="text-danger">*</span></div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="DivAddNotes">
+                                    <p style="color: #1273eb; cursor: pointer; font-weight: 600;" onclick="AddNotes()">+ Add Notes / Remarks</p>
                                 </div>
 
-                                <div class="col-3">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-4 col-12" id="DivNotes" style="display:none;">
                                     <div class="field-wrapper">
-                                        <input type="text" class="form-control" id="PaymentCondition" value="45-60 Days" title="PaymentCondition">
-                                        <div class="field-placeholder">Payment Condition in Days <span class="text-danger">*</span></div>
+                                        <h6 style="text-align:end; margin-top: -18px;">
+                                            <span onclick="CloseNotes()" style="cursor:pointer;"><i class="icon-x-circle"></i></span>
+                                        </h6>
+                                        <textarea id="NotesRemarks" class="form-control" placeholder="Enter your Notes or Remarks"></textarea>
+                                        <div class="field-placeholder">Notes / Remarks <span class="text-danger">*</span></div>
                                     </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="DivAddNotes">
-                                        <p style="color: #1273eb; cursor: pointer; font-weight: 600;" onclick="AddNotes()">+ Add Notes / Remarks</p>
-                                    </div>
-
-                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-4 col-12" id="DivNotes" style="display:none;">
-                                        <div class="field-wrapper">
-                                            <h6 style="text-align:end; margin-top: -18px;">
-                                                <span onclick="CloseNotes()" style="cursor:pointer;"><i class="icon-x-circle"></i></span>
-                                            </h6>
-                                            <textarea id="NotesRemarks" class="form-control" placeholder="Enter your Notes or Remarks"></textarea>
-                                            <div class="field-placeholder">Notes / Remarks <span class="text-danger">*</span></div>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        function AddNotes() {
-                                            $("#DivAddNotes").hide();
-                                            $("#DivNotes").show();
-                                            $("#NotesRemarks").focus().val('');
-                                        }
-                                        function CloseNotes() {
-                                            $("#DivAddNotes").show();
-                                            $("#DivNotes").hide();
-                                            $("#NotesRemarks").val('');
-                                        }
-                                    </script>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <input type="hidden" id="txtYarnDetailsArray" title="txtYarnDetailsArray" value="" />
-                    <input type="hidden" id="txtDeleteYarnDetailsArray" title="DeleteYarnDetailsArray" />
-                    <div id="divMatchingColor"></div>
-                    <br />
 
                     <div class="modal-footer">
                         <a href="YarnPO" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
@@ -733,14 +695,12 @@
 @section Scripts{
     <script>
         $('body').addClass('fullscreen');
-        var currentPagePermission = {};
         var ArrayYarnColor = [];
         var ArrayYarnMaterial = [];
         var ArrayGstSlab = [];
         var ListPartyArray = [];
         var ListGodownArray = [];
         var CompanyAddParty = false;
-
         var addedItemsArray = [];
         var rowCounter = 0;
 
@@ -776,12 +736,61 @@
             getItemGST();
         });
 
+        function validateGstinInput(el) {
+            var val = el.value;
+            var $el = $(el);
+            if (val.length === 15) {
+                var gstVal = val.toUpperCase();
+                var pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                if (pattern.test(gstVal)) {
+                    $el.addClass("is-valid").removeClass("is-invalid");
+                    $('#PanNo').val(gstVal.substring(2, 12));
+                    fetchGstDetails(gstVal);
+                    return true;
+                } else {
+                    $el.addClass("is-invalid").removeClass("is-valid");
+                    return false;
+                }
+            } else {
+                $el.removeClass("is-valid is-invalid");
+                return false;
+            }
+        }
+
+        function fetchGstDetails(gstin) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+                data: JSON.stringify({ gstin: gstin }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var res = (typeof response.d === 'string') ? JSON.parse(response.d) : response.d;
+                    if (res && res.success && res.data) {
+                        var d = res.data;
+                        $("#party-name").val(d.trade_name || d.legal_name || '');
+                        $("#billingAddress").val(d.address || '');
+                        checkShippingAdd();
+                        $("#city").val(d.city || '');
+                        $("#pincode").val(d.pincode || '');
+                        if (d.state_code) {
+                            $("#placeOfSupply").val(d.state_code);
+                        }
+                        Toast.fire({ icon: 'success', title: 'GST Details Auto-filled!' });
+                    } else {
+                        Toast.fire({ icon: 'warning', title: 'GST Details not found' });
+                    }
+                },
+                error: function () {
+                    Toast.fire({ icon: 'error', title: 'Failed to fetch GST details.' });
+                }
+            });
+        }
+
         function getDesignEntryForm(autoSelectMaterialId = 0, autoSelectColorId = 0) {
-            var formData = new FormData();
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryYarnPOForm',
-                data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
@@ -793,7 +802,7 @@
 
                         populateEntryDropdowns(autoSelectMaterialId, autoSelectColorId);
 
-                        if (response.listYarnPOMaster.length > 0) {
+                        if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
                             $('#PONo').val(response.listYarnPOMaster[0].PONo);
                         }
                     }
@@ -830,14 +839,11 @@
             }
         }
 
-        // Trigger Add Yarn Material in shared modal
         function addYarnMaterialModal() {
             getItemUnit();
             getItemGST();
-
             $("#DivPartyMaster, #DivYarnColor").hide();
             $("#DivYarnMaterial").show();
-
             $("#addNewContactLabel").html("Add Yarn Material");
             $("#YarnMaterial, #Denier, #HSNSACCOde").val('');
             $(".clear-field").removeClass("is-valid is-invalid");
@@ -849,23 +855,17 @@
 
         function checkYarnMaterialSaveViewModal() {
             var IsActive = $("#IsActiveYarnMaterial").is(':checked') ? "1" : "0";
-            var YarnMaterial = $('#YarnMaterial').val();
-            var Denier = $('#Denier').val();
-            var UnitId = $('#ServiceUnit').val();
-            var HSNCode = $('#HSNSACCOde').val();
-            var GSTSLABId = $('#GSTSLABId').val();
+            var formData = new FormData();
+            formData.append('YarnMaterial', $('#YarnMaterial').val());
+            formData.append('Denier', $('#Denier').val());
+            formData.append('UnitId', $('#ServiceUnit').val());
+            formData.append('HSNCode', $('#HSNSACCOde').val());
+            formData.append('GSTSLABId', $('#GSTSLABId').val());
+            formData.append('IsActive', IsActive);
 
             if (!validate(document.getElementById('YarnMaterial')) || !validate(document.getElementById('ServiceUnit')) || !validate(document.getElementById('HSNSACCOde')) || !validate(document.getElementById('GSTSLABId'))) {
                 return;
             }
-
-            var formData = new FormData();
-            formData.append('YarnMaterial', YarnMaterial);
-            formData.append('Denier', Denier);
-            formData.append('UnitId', UnitId);
-            formData.append('HSNCode', HSNCode);
-            formData.append('GSTSLABId', GSTSLABId);
-            formData.append('IsActive', IsActive);
 
             $.ajax({
                 type: "POST",
@@ -877,8 +877,7 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         Toast.fire({ icon: 'success', title: 'Yarn Material saved successfully!' });
-                        var newMaterialId = response.id ? parseInt(response.id) : 0;
-                        getDesignEntryForm(newMaterialId, 0);
+                        getDesignEntryForm(response.id ? parseInt(response.id) : 0, 0);
                         $("#cancelbtn").click();
                     } else {
                         Toast.fire({ icon: 'error', title: response.Message || 'Failed to save.' });
@@ -887,11 +886,9 @@
             });
         }
 
-        // Trigger Add Yarn Color in shared modal
         function addYarnColorModal() {
             $("#DivPartyMaster, #DivYarnMaterial").hide();
             $("#DivYarnColor").show();
-
             $("#addNewContactLabel").html("Add Yarn Color");
             $("#YarnColor, #YarnColorCode").val('');
             $(".clear-field").removeClass("is-valid is-invalid");
@@ -903,20 +900,16 @@
 
         function checkYarnColorSaveViewModal() {
             var IsActive = $("#IsActiveYarnColor").is(':checked') ? "1" : "0";
-            var YarnColor = $('#YarnColor').val();
-            var YarnColorCode = $('#YarnColorCode').val();
-
-            if (YarnColorCode.startsWith("#")) {
-                YarnColorCode = YarnColorCode.substring(1);
-            }
+            var colorCode = $('#YarnColorCode').val();
+            if (colorCode.startsWith("#")) colorCode = colorCode.substring(1);
 
             if (!validate(document.getElementById('YarnColor')) || !validate(document.getElementById('YarnColorCode'))) {
                 return;
             }
 
             var formData = new FormData();
-            formData.append('YarnColor', YarnColor);
-            formData.append('YarnColorCode', YarnColorCode);
+            formData.append('YarnColor', $('#YarnColor').val());
+            formData.append('YarnColorCode', colorCode);
             formData.append('IsActive', IsActive);
 
             $.ajax({
@@ -929,8 +922,7 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         Toast.fire({ icon: 'success', title: 'Yarn Color saved successfully!' });
-                        var newColorId = response.id ? parseInt(response.id) : 0;
-                        getDesignEntryForm(0, newColorId);
+                        getDesignEntryForm(0, response.id ? parseInt(response.id) : 0);
                         $("#cancelbtn").click();
                     } else {
                         Toast.fire({ icon: 'error', title: response.Message || 'Failed to save.' });
@@ -967,29 +959,23 @@
             var val = parseInt($("#yarnMaterialEntry").val());
             var mat = yarnMaterials ? yarnMaterials.find(item => item.YarnMaterialID === val) : null;
             if (mat) {
-                if (mat.GSTSLABId == '0') {
-                    $("#GSTEntry").val("14");
-                } else {
-                    $("#GSTEntry").val(mat.GSTSLABId);
-                }
+                $("#GSTEntry").val(mat.GSTSLABId == '0' ? "14" : mat.GSTSLABId);
             }
             calculationYarnEntry();
         }
 
         function calculationYarnEntry() {
-            var QtyValue = $("#QtyEntry").val() || 0;
-            var RateValue = $("#RateEntry").val() || 0;
-            var GSTValue = $("#GSTEntry").val() || 0;
+            var QtyValue = parseFloat($("#QtyEntry").val()) || 0;
+            var RateValue = parseFloat($("#RateEntry").val()) || 0;
+            var GSTValue = parseInt($("#GSTEntry").val()) || 0;
 
             var GstSlab = ArrayGstSlab[0];
-            var GSTIGST = GstSlab ? GstSlab.find(item => item.GSTSLABId === parseInt(GSTValue)) : null;
+            var GSTIGST = GstSlab ? GstSlab.find(item => item.GSTSLABId === GSTValue) : null;
             var IGSTVAL = GSTIGST ? parseFloat(GSTIGST.IGST) / 100 : 0;
 
-            var TotalAmount = 0;
-            if (IGSTVAL == 0) {
-                TotalAmount = (parseFloat(QtyValue) * parseFloat(RateValue));
-            } else {
-                TotalAmount = ((parseFloat(QtyValue) * parseFloat(RateValue)) * parseFloat(IGSTVAL)) + ((parseFloat(QtyValue) * parseFloat(RateValue)));
+            var TotalAmount = (QtyValue * RateValue);
+            if (IGSTVAL > 0) {
+                TotalAmount += (TotalAmount * IGSTVAL);
             }
 
             $("#AmountEntry").val(TotalAmount.toFixed(2));
@@ -1006,10 +992,7 @@
             var editingId = parseInt($("#editingRowId").val() || "0");
 
             if (matId == "0" || colorId == "0" || qty <= 0 || rate <= 0) {
-                Toast.fire({
-                    icon: 'warning',
-                    title: 'Please select Yarn Material, Yarn Color, Quantity, and Rate.'
-                });
+                Toast.fire({ icon: 'warning', title: 'Please select Yarn Material, Yarn Color, Quantity, and Rate.' });
                 return;
             }
 
@@ -1021,38 +1004,21 @@
             if (editingId > 0) {
                 var index = addedItemsArray.findIndex(x => x.RowId === editingId);
                 if (index !== -1) {
-                    addedItemsArray[index].YarnMaterialID = matId;
-                    addedItemsArray[index].YarnMaterialName = matName;
-                    addedItemsArray[index].YarnColorID = colorId;
-                    addedItemsArray[index].YarnColorName = colorName;
-                    addedItemsArray[index].YarnColorBg = colorBg;
-                    addedItemsArray[index].CompanyCode = code;
-                    addedItemsArray[index].Qty = qty;
-                    addedItemsArray[index].Rate = rate;
-                    addedItemsArray[index].GSTSLABId = gstId;
-                    addedItemsArray[index].GSTSLABName = gstName;
-                    addedItemsArray[index].Amount = amount;
-
+                    addedItemsArray[index] = {
+                        ...addedItemsArray[index],
+                        YarnMaterialID: matId, YarnMaterialName: matName,
+                        YarnColorID: colorId, YarnColorName: colorName, YarnColorBg: colorBg,
+                        CompanyCode: code, Qty: qty, Rate: rate, GSTSLABId: gstId, GSTSLABName: gstName, Amount: amount
+                    };
                     Toast.fire({ icon: 'success', title: 'Item updated successfully.' });
                 }
             } else {
                 rowCounter++;
-                var rowObj = {
-                    RowId: rowCounter,
-                    YarnMaterialID: matId,
-                    YarnMaterialName: matName,
-                    YarnColorID: colorId,
-                    YarnColorName: colorName,
-                    YarnColorBg: colorBg,
-                    CompanyCode: code,
-                    Qty: qty,
-                    Rate: rate,
-                    GSTSLABId: gstId,
-                    GSTSLABName: gstName,
-                    Amount: amount
-                };
-
-                addedItemsArray.push(rowObj);
+                addedItemsArray.push({
+                    RowId: rowCounter, YarnMaterialID: matId, YarnMaterialName: matName,
+                    YarnColorID: colorId, YarnColorName: colorName, YarnColorBg: colorBg,
+                    CompanyCode: code, Qty: qty, Rate: rate, GSTSLABId: gstId, GSTSLABName: gstName, Amount: amount
+                });
                 Toast.fire({ icon: 'success', title: 'Item added successfully.' });
             }
 
@@ -1064,8 +1030,6 @@
             var item = addedItemsArray.find(x => x.RowId === rowId);
             if (item) {
                 $("#editingRowId").val(item.RowId);
-                $("#editingPODetailID").val(item.YarnPODetailID);
-
                 $("#yarnMaterialEntry").val(item.YarnMaterialID).trigger('change');
                 $("#YarnColorEntry").val(item.YarnColorID).trigger('change');
                 $("#tdYarnColorEntry").css("background-color", item.YarnColorBg);
@@ -1085,14 +1049,13 @@
             $tbody.empty();
 
             if (addedItemsArray.length === 0) {
-                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No items added yet. Select item parameters above and click "Add Item".</td></tr>');
+                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No items added yet. Use the fields above to add an item.</td></tr>');
                 $("#TotalQty, #TotalRate").text("0");
                 $("#TotalAmount").text("0.00");
                 return;
             }
 
             var totalQty = 0, totalRate = 0, totalAmount = 0;
-
             $.each(addedItemsArray, function (i, item) {
                 totalQty += item.Qty;
                 totalRate += item.Rate;
@@ -1134,8 +1097,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Delete',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Yes, Delete'
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (parseInt($("#editingRowId").val()) === rowId) {
@@ -1150,7 +1112,6 @@
 
         function resetSingleEntryRow() {
             $("#editingRowId").val("0");
-            $("#editingPODetailID").val("0");
             $("#yarnMaterialEntry, #YarnColorEntry").val("0").trigger('change');
             $("#tdYarnColorEntry").css("background-color", "#eee");
             $("#CompanyCodeEntry, #QtyEntry, #RateEntry, #AmountEntry").val("");
@@ -1165,14 +1126,11 @@
             var Company = $("#ddlCompany").val();
             var Godown = $("#ddlGodownID").val();
 
-            if (Supplier === "0" || !Supplier) return Toast.fire({ icon: 'warning', title: 'Please Select Supplier Name.' });
-            if (Company === "0" || !Company) return Toast.fire({ icon: 'warning', title: 'Please Select Company Detail.' });
-            if (BillTo === "0" || !BillTo) return Toast.fire({ icon: 'warning', title: 'Please Select Bill To.' });
-            if (Godown === "0" || !Godown) return Toast.fire({ icon: 'warning', title: 'Please Select Godown.' });
-
-            if (addedItemsArray.length === 0) {
-                return Toast.fire({ icon: 'warning', title: 'Please add at least one item to the table.' });
-            }
+            if (!Supplier || Supplier === "0") return Toast.fire({ icon: 'warning', title: 'Please Select Supplier Name.' });
+            if (!Company || Company === "0") return Toast.fire({ icon: 'warning', title: 'Please Select Company Detail.' });
+            if (!BillTo || BillTo === "0") return Toast.fire({ icon: 'warning', title: 'Please Select Bill To.' });
+            if (!Godown || Godown === "0") return Toast.fire({ icon: 'warning', title: 'Please Select Godown.' });
+            if (addedItemsArray.length === 0) return Toast.fire({ icon: 'warning', title: 'Please add at least one item.' });
 
             var PODate = document.getElementById("PODate");
             var PONo = document.getElementById("PONo");
@@ -1181,99 +1139,76 @@
 
             if (!validate(PODate) || !validate(PONo) || !validate(DeliveryTime) || !validate(PaymentCondition)) {
                 return Toast.fire({ icon: 'warning', title: 'Please fill all required fields.' });
-            } else {
-                var appendTemp = '';
-                $.each(addedItemsArray, function (i, item) {
-                    appendTemp += '{';
-                    appendTemp += '"YarnMaterialID": "' + item.YarnMaterialID + '",';
-                    appendTemp += '"YarnColorID": "' + item.YarnColorID + '",';
-                    appendTemp += '"CompanyCode": "' + item.CompanyCode + '",';
-                    appendTemp += '"Qty": "' + item.Qty + '",';
-                    appendTemp += '"Rate": "' + item.Rate + '",';
-                    appendTemp += '"GSTSLABId": "' + item.GSTSLABId + '",';
-                    appendTemp += '"Amount": "' + item.Amount + '"';
-                    appendTemp += '},';
-                });
-
-                var IsSameAsSupplier = $('#chcekSupplierDetails').prop('checked') ? 1 : 0;
-                var IsSameAsCompany = $('#chcekCompanyDetails').prop('checked') ? 1 : 0;
-
-                var YarnPO = '{';
-                YarnPO += '"PODates":"' + PODate.value + '", ';
-                YarnPO += '"PONo":"' + PONo.value + '",';
-                YarnPO += '"SupplierPartyID":"' + Supplier + '",';
-                YarnPO += '"IsSameAsSupplier":"' + IsSameAsSupplier + '",';
-                YarnPO += '"BillToPartyID":"' + BillTo + '",';
-                YarnPO += '"CompanyPartyID":"' + Company + '",';
-                YarnPO += '"IsSameAsCompany":"' + IsSameAsCompany + '",';
-                YarnPO += '"GodownID":"' + Godown + '",';
-                YarnPO += '"TotalQty":"' + $("#TotalQty").text() + '",';
-                YarnPO += '"TotalRate":"' + $("#TotalRate").text() + '",';
-                YarnPO += '"TotalAmount":"' + $("#TotalAmount").text() + '",';
-                YarnPO += '"DeliveryTime":"' + DeliveryTime.value + '",';
-                YarnPO += '"PaymentCondition":"' + PaymentCondition.value + '",';
-                YarnPO += '"NotesRemarks":"' + $("#NotesRemarks").val() + '",';
-                YarnPO += '"listYarnPODetails": [' + appendTemp.slice(0, -1) + ']';
-                YarnPO += '}';
-
-                const formData = new FormData();
-                formData.append('YarnPOArray', YarnPO);
-                formData.append('isForce', isForce);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertYarnPOMasterMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code === 200) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Yarn PO Created Successfully.',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                window.location.href = 'YarnPO';
-                            });
-                        } else if (response.Code === 409 && !isForce) {
-                            Swal.fire({
-                                title: 'Duplicate Entry',
-                                html: `<div style="text-align: center;">
-                                            <b>Yarn PO ID:</b> ${response.id}<br>
-                                            <b>PO Date:</b> ${response.PODate}<br><br>
-                                            Save anyway?
-                                           </div>`,
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: 'Yes, Save',
-                                cancelButtonText: 'No',
-                                confirmButtonColor: '#3085d6',
-                                cancelButtonColor: '#d33'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    checkSave(true);
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message || 'Failed to process request.'
-                            });
-                        }
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Request Failed',
-                            text: 'A problem occurred while submitting your data.'
-                        });
-                    }
-                });
             }
+
+            var detailsList = addedItemsArray.map(item => ({
+                YarnMaterialID: item.YarnMaterialID,
+                YarnColorID: item.YarnColorID,
+                CompanyCode: item.CompanyCode,
+                Qty: item.Qty,
+                Rate: item.Rate,
+                GSTSLABId: item.GSTSLABId,
+                Amount: item.Amount
+            }));
+
+            var yarnPOObj = {
+                PODates: PODate.value,
+                PONo: PONo.value,
+                SupplierPartyID: Supplier,
+                IsSameAsSupplier: $('#chcekSupplierDetails').prop('checked') ? 1 : 0,
+                BillToPartyID: BillTo,
+                CompanyPartyID: Company,
+                GodownID: Godown,
+                TotalQty: $("#TotalQty").text(),
+                TotalRate: $("#TotalRate").text(),
+                TotalAmount: $("#TotalAmount").text(),
+                DeliveryTime: DeliveryTime.value,
+                PaymentCondition: PaymentCondition.value,
+                NotesRemarks: $("#NotesRemarks").val(),
+                listYarnPODetails: detailsList
+            };
+
+            var formData = new FormData();
+            formData.append('YarnPOArray', JSON.stringify(yarnPOObj));
+            formData.append('isForce', isForce);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertYarnPOMasterMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code === 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Yarn PO Created Successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = 'YarnPO';
+                        });
+                    } else if (response.Code === 409 && !isForce) {
+                        Swal.fire({
+                            title: 'Duplicate Entry',
+                            html: `<div><b>Yarn PO ID:</b> ${response.id}<br><b>PO Date:</b> ${response.PODate}<br><br>Save anyway?</div>`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, Save',
+                            cancelButtonText: 'No'
+                        }).then((result) => {
+                            if (result.isConfirmed) checkSave(true);
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to process request.' });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Request Failed', text: 'A problem occurred while submitting your data.' });
+                }
+            });
         }
 
         /* Generic Helpers */
@@ -1287,14 +1222,32 @@
 
         function validate(code) {
             if (!code || !code.id) return true;
+            var el = document.getElementById(code.id);
             if (code.value == "0" || code.value == "") {
-                document.getElementById(code.id).classList.remove("is-valid");
-                document.getElementById(code.id).classList.add("is-invalid");
+                el.classList.remove("is-valid");
+                el.classList.add("is-invalid");
                 return false;
             } else {
-                document.getElementById(code.id).classList.add("is-valid");
-                document.getElementById(code.id).classList.remove("is-invalid");
+                el.classList.add("is-valid");
+                el.classList.remove("is-invalid");
                 return true;
+            }
+        }
+
+        function validateEmail(email, el) {
+            if (!email) {
+                el.classList.remove("is-valid", "is-invalid");
+                return true;
+            }
+            var regex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (regex.test(email)) {
+                el.classList.add("is-valid");
+                el.classList.remove("is-invalid");
+                return true;
+            } else {
+                el.classList.add("is-invalid");
+                el.classList.remove("is-valid");
+                return false;
             }
         }
 
@@ -1307,11 +1260,7 @@
                 dataType: "json",
                 success: function (data) {
                     if (data.d == "false") {
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Session Expired",
-                            text: "Please login again."
-                        }).then(() => {
+                        Swal.fire({ icon: "warning", title: "Session Expired", text: "Please login again." }).then(() => {
                             window.location.replace("/Index");
                         });
                     }
@@ -1328,18 +1277,17 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == "200") {
-                        ListPartyArray = [response.listPartyMaster];
+                        ListPartyArray = response.listPartyMaster;
                         if (response.listPartyMaster.length > 0) {
-                            $('#ddlSupplier, #ddlBillTo, #ddlCompany, #ddlShipped').empty();
+                            $('#ddlSupplier, #ddlBillTo, #ddlCompany').empty();
                             $('#ddlSupplier').append("<option value='0'> Select Vendor </option>");
                             $('#ddlCompany').append("<option value='0'> Select Company </option>");
                             $('#ddlBillTo').append("<option value='0'> Select Bill To Name</option>");
-                            $('#ddlShipped').append("<option value='0'> Select Shipped Name </option>");
 
-                            for (var i = 0; i < response.listPartyMaster.length; i++) {
-                                var tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
-                                $('#ddlSupplier, #ddlBillTo, #ddlCompany, #ddlShipped').append(tempPartyName);
-                            }
+                            $.each(response.listPartyMaster, function (i, item) {
+                                var opt = `<option value='${item.PartyId}'>${item.PartyName}</option>`;
+                                $('#ddlSupplier, #ddlBillTo, #ddlCompany').append(opt);
+                            });
                         }
                     }
                 }
@@ -1355,12 +1303,12 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == "200") {
-                        ListGodownArray = [response.listGodownMaster];
+                        ListGodownArray = response.listGodownMaster;
                         if (response.listGodownMaster.length > 0) {
                             $('#ddlGodownID').empty().append("<option value='0'>Godown </option>");
-                            for (var i = 0; i < response.listGodownMaster.length; i++) {
-                                $('#ddlGodownID').append("<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>");
-                            }
+                            $.each(response.listGodownMaster, function (i, item) {
+                                $('#ddlGodownID').append(`<option value='${item.GodownID}'>${item.GodownTitle}</option>`);
+                            });
                         }
                     }
                 }
@@ -1375,10 +1323,9 @@
                 dataType: 'json',
                 success: function (response) {
                     let data = JSON.parse(response.d);
-                    $("#BrokerModel, #ddlBroker").empty().append('<option value="-1">Select</option>');
+                    $("#ddlBroker").empty().append('<option value="-1">Select</option>');
                     $.each(data, function (i, item) {
-                        var opt = `<option value="${item.BrokerCode}">${item.BrokerCode} - ${item.BrokerName}</option>`;
-                        $("#BrokerModel, #ddlBroker").append(opt);
+                        $("#ddlBroker").append(`<option value="${item.BrokerCode}">${item.BrokerCode} - ${item.BrokerName}</option>`);
                     });
                 }
             });
@@ -1393,11 +1340,10 @@
                 success: function (data) {
                     var jsonData = JSON.parse(data.d);
                     $('#placeOfSupply').empty().append("<option value='0'>Select Place Of Supply</option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        var admin = jsonData[i];
+                    $.each(jsonData, function (i, admin) {
                         var selected = (admin.GSTStateCode == GSTStateCode) ? "selected" : "";
-                        $('#placeOfSupply').append("<option value='" + admin.GSTStateCode + "' " + selected + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option>");
-                    }
+                        $('#placeOfSupply').append(`<option value='${admin.GSTStateCode}' ${selected}>${admin.GSTStateCode}-${admin.StateTitle}</option>`);
+                    });
                 }
             });
         }
@@ -1411,9 +1357,9 @@
                 success: function (data) {
                     var jsonData = JSON.parse(data.d);
                     $("#ServiceUnit").empty().append("<option value='' selected> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        $('#ServiceUnit').append("<option value='" + jsonData[i].UnitId + "'>" + jsonData[i].Unit + "</option>");
-                    }
+                    $.each(jsonData, function (i, item) {
+                        $('#ServiceUnit').append(`<option value='${item.UnitId}'>${item.Unit}</option>`);
+                    });
                 }
             });
         }
@@ -1427,67 +1373,60 @@
                 success: function (data) {
                     var jsonData = JSON.parse(data.d);
                     $("#GSTSLABId").empty().append("<option value='0' selected></option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        $('#GSTSLABId').append("<option value='" + jsonData[i].GSTSLABId + "'>" + jsonData[i].GSTSLABName + "</option>");
-                    }
+                    $.each(jsonData, function (i, item) {
+                        $('#GSTSLABId').append(`<option value='${item.GSTSLABId}'>${item.GSTSLABName}</option>`);
+                    });
                 }
             });
         }
+
         function OnSupplierParty(abc) {
-            if ($("#chcekSupplierDetails").is(':checked')) {
-                if ($("#ddlSupplier").val() == "0") {
-                    $("#SupplierGST, #SupplierAddress, #SupplierPhone").val('');
-                    $("#chcekSupplierDetails").prop("checked", false);
-                    $('#ddlBillTo').removeAttr('disabled');
-                } else {
-                    var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
-                    if (PartyDetail) {
-                        $("#SupplierGST").val(PartyDetail.GSTIN);
-                        $("#SupplierAddress").val(PartyDetail.BillingAddress);
-                        $("#SupplierPhone").val(PartyDetail.MobileNo);
-                        $("#ddlBillTo").prop("disabled", true).val(abc);
-                        $("#select2-ddlBillTo-container").html(PartyDetail.PartyName);
-                        $("#BillToGST").val(PartyDetail.GSTIN);
-                        $("#BillToAddress").val(PartyDetail.BillingAddress);
-                    }
-                }
-            } else {
-                $('#ddlBillTo').removeAttr('disabled');
-                var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
-                if (PartyDetail) {
-                    $("#SupplierGST").val(PartyDetail.GSTIN);
-                    $("#SupplierAddress").val(PartyDetail.BillingAddress);
-                    $("#SupplierPhone").val(PartyDetail.MobileNo);
+            var partyId = parseInt(abc);
+            var PartyDetail = ListPartyArray.find(item => parseInt(item.PartyId) === partyId);
+            if (PartyDetail) {
+                $("#SupplierGST").val(PartyDetail.GSTIN);
+                $("#SupplierAddress").val(PartyDetail.BillingAddress);
+                $("#SupplierPhone").val(PartyDetail.MobileNo);
+
+                if ($("#chcekSupplierDetails").is(':checked')) {
+                    $("#ddlBillTo").prop("disabled", true).val(partyId).trigger('change');
+                    $("#BillToGST").val(PartyDetail.GSTIN);
+                    $("#BillToAddress").val(PartyDetail.BillingAddress);
                 }
             }
         }
+
         function OnBillToParty(abc) {
-            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+            var PartyDetail = ListPartyArray.find(item => parseInt(item.PartyId) === parseInt(abc));
             if (PartyDetail) {
                 $("#BillToGST").val(PartyDetail.GSTIN);
                 $("#BillToAddress").val(PartyDetail.BillingAddress);
             }
         }
+
         function OnCompanyParty(abc) {
-            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+            var PartyDetail = ListPartyArray.find(item => parseInt(item.PartyId) === parseInt(abc));
             if (PartyDetail) {
                 $("#CompanyGST").val(PartyDetail.GSTIN);
                 $("#CompanyAddress").val(PartyDetail.BillingAddress);
             }
         }
+
         function OnChangeGown(abc) {
-            var GoDownDetail = ListGodownArray[0].find(item => item.GodownID === parseInt(abc));
+            var GoDownDetail = ListGodownArray.find(item => item.GodownID === parseInt(abc));
             if (GoDownDetail) {
                 $("#GodownAddress").val(GoDownDetail.GodownAddress);
             }
         }
+
         function toggleSupplierDetails() {
             if ($("#chcekSupplierDetails").is(':checked')) {
-                if ($("#ddlSupplier").val() == "0") {
+                var supplierVal = $("#ddlSupplier").val();
+                if (!supplierVal || supplierVal == "0") {
                     Toast.fire({ icon: "warning", title: "Please Select Supplier." });
+                    $("#chcekSupplierDetails").prop("checked", false);
                 } else {
-                    $("#ddlCompany").prop("disabled", true).val($("#ddlSupplier").val());
-                    $("#select2-ddlCompany-container").html($("#ddlCompany").find('option:selected').text());
+                    $("#ddlCompany").prop("disabled", true).val(supplierVal).trigger('change');
                     $("#CompanyGST").val($("#SupplierGST").val());
                     $("#CompanyAddress").val($("#SupplierAddress").val());
                 }
@@ -1495,84 +1434,77 @@
                 $('#ddlCompany').removeAttr('disabled');
             }
         }
+
         function toggleShippingAddress() {
-            if ($("#chcekAddress").prop("checked") == true) {
+            if ($("#checkAddress").prop("checked")) {
                 $("#shippingAddress").attr("disabled", true).val($("#billingAddress").val());
             } else {
                 $("#shippingAddress").attr("disabled", false);
             }
         }
+
         function checkShippingAdd() {
-            if ($("#chcekAddress").prop("checked") == true) {
+            if ($("#checkAddress").prop("checked")) {
                 $("#shippingAddress").val($("#billingAddress").val());
             }
         }
-        function resetPartyForm() {
-            $(".clear-field").val("");
-            $("#SundryParty").val("0");
-            $("#placeOfSupply, #Broker").val("-1");
-            $("#editbtn").hide();
-            $("#savebtn, #saveViewbtn").show();
-            $("#addNewContactLabel").text("Add Party");
-        }
-        $("#cancelbtn").on("click", function () { resetPartyForm(); });
+
         function saveparty() {
             var name = document.getElementById('party-name');
             var phone = document.getElementById('phone');
-            if (validate(name) == false || validate(phone) == false) {
-                validate(name); validate(phone);
-            } else {
-                var formData = new FormData();
-                formData.append('PartyName', name.value);
-                formData.append('MobileNo', phone.value);
-                formData.append('AlterMobileNo', $('#alt-phone').val() || '0');
-                formData.append('Email', $('#email').val());
-                formData.append('BillingAddress', $('#billingAddress').val());
-                formData.append('ShippingAddress', $('#shippingAddress').val());
-                formData.append('IsSameAddress', $("#chcekAddress").is(':checked') ? "1" : "0");
-                formData.append('GSTIN', $('#gstin').val());
-                formData.append('State', $("#placeOfSupply option:selected").text());
-                formData.append('PanNo', $('#PanNo').val());
-                formData.append('Pincode', $('#pincode').val());
-                formData.append('city', $('#city').val());
-                formData.append('BankHolderName', $('#BankHolderName').val());
-                formData.append('BankAccountNo', $('#BankAccountNo').val());
-                formData.append('BankIFSCCode', $('#BankIFSCCode').val());
-                formData.append('BankName', $('#BankName').val());
-                formData.append('BankBranch', $('#BankBranch').val());
-                formData.append('IsActiveParty', $("#chcekIsActiveParty").is(':checked') ? "1" : "0");
-                formData.append('SundryParty', $('#SundryParty').val());
-                formData.append('BrokerCode', $("#Broker").val());
+            if (!validate(name) || !validate(phone)) return;
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            $("#addNewContact").modal("hide");
-                            getPartyDetail();
-                            setTimeout(function () {
-                                var partyId = parseInt(response.id);
-                                if (!CompanyAddParty) {
-                                    $("#ddlSupplier").val(partyId).trigger('change');
-                                    OnSupplierParty(partyId);
-                                } else {
-                                    $("#ddlBillTo").val(partyId).trigger('change');
-                                    OnBillToParty(partyId);
-                                }
-                            }, 300);
-                            Toast.fire({ icon: 'success', title: response.Message || 'Party saved successfully!' });
-                        } else {
-                            Toast.fire({ icon: 'error', title: response.Message || 'Failed to save party.' });
-                        }
+            var formData = new FormData();
+            formData.append('PartyName', name.value);
+            formData.append('MobileNo', phone.value);
+            formData.append('AlterMobileNo', $('#alt-phone').val() || '0');
+            formData.append('Email', $('#email').val());
+            formData.append('BillingAddress', $('#billingAddress').val());
+            formData.append('ShippingAddress', $('#shippingAddress').val());
+            formData.append('IsSameAddress', $("#checkAddress").is(':checked') ? "1" : "0");
+            formData.append('GSTIN', $('#gstin').val());
+            formData.append('State', $("#placeOfSupply option:selected").text());
+            formData.append('PanNo', $('#PanNo').val());
+            formData.append('Pincode', $('#pincode').val());
+            formData.append('city', $('#city').val());
+            formData.append('BankHolderName', $('#BankHolderName').val());
+            formData.append('BankAccountNo', $('#BankAccountNo').val());
+            formData.append('BankIFSCCode', $('#BankIFSCCode').val());
+            formData.append('BankName', $('#BankName').val());
+            formData.append('BankBranch', $('#BankBranch').val());
+            formData.append('IsActiveParty', $("#checkIsActiveParty").is(':checked') ? "1" : "0");
+            formData.append('SundryParty', $('#SundryParty').val());
+            formData.append('BrokerCode', $("#Broker").val());
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 201) {
+                        $("#addNewContact").modal("hide");
+                        getPartyDetail();
+                        setTimeout(function () {
+                            var partyId = parseInt(response.id);
+                            if (!CompanyAddParty) {
+                                $("#ddlSupplier").val(partyId).trigger('change');
+                                OnSupplierParty(partyId);
+                            } else {
+                                $("#ddlBillTo").val(partyId).trigger('change');
+                                OnBillToParty(partyId);
+                            }
+                        }, 300);
+                        Toast.fire({ icon: 'success', title: response.Message || 'Party saved successfully!' });
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.Message || 'Failed to save party.' });
                     }
-                });
-            }
+                }
+            });
         }
+
         function myFunctionIFSC(abc) {
             var code = abc.value.trim().toUpperCase();
             if (!code || code.length !== 11) {
@@ -1593,9 +1525,11 @@
                 error: function () { setInvalid(abc); clearBankFields(); }
             });
         }
+
         function setValid(el) { el.classList.add("is-valid"); el.classList.remove("is-invalid"); }
         function setInvalid(el) { el.classList.remove("is-valid"); el.classList.add("is-invalid"); }
         function clearBankFields() { $("#BankName, #BankBranch").val(''); }
+
         function myFunctionPINCODE(abc) {
             var code = abc.value;
             if (code.length == 6) {

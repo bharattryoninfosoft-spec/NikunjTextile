@@ -289,7 +289,6 @@
             bindBrokerDropdown();
             displayData(0);
         });
-
         // Toast Feedback Alert Setup
         const Toast = Swal.mixin({
             toast: true,
@@ -302,7 +301,6 @@
         $('#PartyPrefix').on('input', function () {
             this.value = this.value.toUpperCase();
         });
-
         // --- API HELPERS ---
         function myFunctionPINCODE(element) {
             var code = $(element).val().trim();
@@ -326,7 +324,6 @@
                 });
             }
         }
-
         function myFunctionIFSC(element) {
             var code = $(element).val().trim().toUpperCase();
             var $el = $(element);
@@ -359,7 +356,6 @@
                 $("#BankBranch").val('');
             }
         }
-
         function validateEmail(emailValue, element) {
             var $el = $(element);
             var emailReg = /^[\w-\.]+@@([\w-]+\.)+[\w-]{2,4}$/;
@@ -375,7 +371,6 @@
                 $el.addClass("is-valid").removeClass("is-invalid");
             }
         }
-
         function toggleShippingAddress() {
             var isSameAddress = $("#checkAddress").is(":checked");
             var $shipping = $("#shippingAddress");
@@ -387,17 +382,14 @@
                 $shipping.prop("disabled", false).val("");
             }
         }
-
         function checkShippingAdd() {
             if ($("#checkAddress").is(":checked")) {
                 $("#shippingAddress").val($("#billingAddress").val());
             }
         }
-
         function AddPartyModel() {
             clearAll();
         }
-
         function clearAll() {
             $(".detail").attr("disabled", false);
             $("#saveViewbtn, #savebtn").show();
@@ -412,13 +404,11 @@
             $("#checkIsActiveParty").prop("checked", true);
             $("#edit-id").val("");
         }
-
         function functionSearch() {
             $("#rowStartCount").val(0);
             CurrentPage = 1;
             displayData(0);
         }
-
         // --- GRID BINDING & PAGINATION ---
         function displayData(rowStart) {
             var searchpartyname = $("#search-party-name").val();
@@ -481,7 +471,6 @@
                 }
             });
         }
-
         function displayPagginationData() {
             var formData = new FormData();
             formData.append('PartyName', $("#search-party-name").val());
@@ -513,28 +502,24 @@
                 }
             });
         }
-
         function funcationPaggination(pageNo) {
             CurrentPage = pageNo;
             var startFrom = (pageNo - 1) * 10;
             $("#rowStartCount").val(startFrom);
             displayData(startFrom);
         }
-
         function NextPage() {
             if (CurrentPage < Paggination) {
                 CurrentPage++;
                 funcationPaggination(CurrentPage);
             }
         }
-
         function PreviousPage() {
             if (CurrentPage > 1) {
                 CurrentPage--;
                 funcationPaggination(CurrentPage);
             }
         }
-
         // --- DROPDOWN DATA LOADERS ---
         function getStates(GSTStateCode) {
             $.ajax({
@@ -553,7 +538,6 @@
                 }
             });
         }
-
         function bindBrokerDropdown() {
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/GetBrokerList',
@@ -569,16 +553,13 @@
                 }
             });
         }
-
         // --- CRUD ACTIONS ---
         function checkSaveView() {
             savePartyData(true);
         }
-
         function checkSave() {
             savePartyData(false);
         }
-
         function savePartyData(closeModalAfterSave) {
             var sundry = document.getElementById('SundryParty');
             var name = document.getElementById('party-name');
@@ -634,7 +615,6 @@
                 }
             });
         }
-
         function checkEdit() {
             var partyId = $("#edit-id").val();
             var sundry = document.getElementById('SundryParty');
@@ -693,7 +673,6 @@
                 }
             });
         }
-
         function showRecords(id, status) {
             clearAll();
             $("#edit-id").val(id);
@@ -745,7 +724,6 @@
                 }
             });
         }
-
         function functionUserDelete(partyId) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -778,7 +756,6 @@
                 }
             });
         }
-
         function validate(code) {
             var $el = typeof code === "string" ? $("#" + code) : $(code);
             var el = $el[0];
@@ -826,7 +803,6 @@
             $el.addClass("is-valid").removeClass("is-invalid");
             return true;
         }
-
         function fetchGstDetails(gstin) {
             $.ajax({
                 type: "POST",
@@ -857,7 +833,6 @@
                 }
             });
         }
-
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",

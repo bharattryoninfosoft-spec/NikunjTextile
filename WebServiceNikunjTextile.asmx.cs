@@ -22,6 +22,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -39,8 +40,7 @@ using System.Web.UI.WebControls;
 
 
 namespace NikunjTextile
-{
-    
+{    
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
@@ -5230,12 +5230,26 @@ namespace NikunjTextile
                 {
                     while (rdr.Read())
                     {
-                        TypeMaster condition = new TypeMaster();
-                        condition.TypeID = Convert.ToInt32(rdr["TypeID"].ToString());
-                        condition.Type = rdr["Type"].ToString().ToUpper();
-                        condition.IsActive = Convert.ToInt32(rdr["IsActive"].ToString());
-                        condition.UnitId = Convert.ToInt32(rdr["UnitId"].ToString());
-                        listUser.Add(condition);
+                        TypeMaster typeMaster = new TypeMaster
+                        {
+                            TypeID = rdr["TypeID"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["TypeID"])
+                                : 0,
+
+                            Type = rdr["Type"] != DBNull.Value
+                                ? rdr["Type"].ToString().Trim().ToUpper()
+                                : string.Empty,
+
+                            IsActive = rdr["IsActive"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["IsActive"])
+                                : 0,
+
+                            UnitId = rdr["UnitId"] != DBNull.Value
+                                ? Convert.ToInt32(rdr["UnitId"])
+                                : 0
+                        };
+
+                        listUser.Add(typeMaster);
                     }
                 }
 
@@ -12101,20 +12115,14 @@ namespace NikunjTextile
             Int64 customer_id = 0;
 
             string DesignColorMatchingFormIDs = "0";
-
             if (Context.Request.Cookies["DesignColorMatchingFormIDs"] != null)
             {
                 DesignColorMatchingFormIDs = DesignColorMatchingFormIDs = Context.Request.Cookies["DesignColorMatchingFormIDs"].Value.Split('=')[1];
             }
-
-
-
-
             if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
             {
                 customer_id = Convert.ToInt64(request.Form["CustomerId"]);
             }
-
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
             string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<DesignEntryForm> listDesignerMaster = new List<DesignEntryForm>();
@@ -12152,15 +12160,12 @@ namespace NikunjTextile
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
-
             }
             DesignEntryForm.Code = 200;
             DesignEntryForm.Message = "Success";
             DesignEntryForm.listDesignEntryForm = listDesignerMaster;
-
             JavaScriptSerializer js = new JavaScriptSerializer();
             Context.Response.Write(js.Serialize(DesignEntryForm));
-
             return;
         }
         [WebMethod]
@@ -21737,7 +21742,7 @@ ORDER BY
                                     LEFT JOIN YarnPOMaster YPM ON YIM.YarnPOID = YPM.YarnPOID
                                     LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
                                     LEFT JOIN YarnPODetails YPD ON  YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
-                                    WHERE YID.YarnInwardDetailID in (" + ilist.YarnInwardDetailIDs.Remove(ilist.YarnInwardDetailIDs.Length - 1) + @")
+                                    WHERE YID.YarnInwardDetailID in (" + ilist.YarnInwardDetailIDs + @")
                                    ";
 
                     con.Open();
@@ -27056,6 +27061,40 @@ INNER JOIN PartyMaster PM1
                 return ex.Message;
             }
         }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string DeleteBroker(int BrokerId)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connString))
+                {
+                    string query = "DELETE FROM BrokerMaster WHERE BrokerId = @BrokerId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.CommandType = CommandType.Text; // Yeh plain query ke liye Text hota hai
+                        cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
+
+                        con.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            return "success";
+                        }
+                        else
+                        {
+                            return "Broker record not found.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
         #endregion
 
         #region  Transport Master
@@ -29701,33 +29740,88 @@ INNER JOIN PartyMaster PM1
                     while (rdr.Read())
                     {
                         YarnPOMaster condition = new YarnPOMaster();
-                        condition.YarnPOID = Convert.ToInt32(rdr["YarnPOID"].ToString());
-                        condition.YarnPODetailID = Convert.ToInt32(rdr["YarnPODetailID"].ToString());
-                        condition.PODate = Convert.ToDateTime(rdr["PODate"].ToString());
-                        condition.PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd-MM-yyyy");
-                        condition.PONo = Convert.ToInt32(rdr["PONo"].ToString());
-                        condition.SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper();
-                        condition.SupplierMobileNo = rdr["SupplierMobileNo"].ToString().ToUpper();
-                        condition.SupplierAlterMobileNo = rdr["SupplierAlterMobileNo"].ToString().ToUpper();
-                        condition.BillToPartyName = rdr["BillToPartyName"].ToString().ToUpper();
-                        condition.BillToMobileNo = rdr["BillToMobileNo"].ToString().ToUpper();
-                        condition.BillToAlterMobileNo = rdr["BillToAlterMobileNo"].ToString().ToUpper();
-                        condition.CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper();
-                        condition.CompanyMobileNo = rdr["CompanyMobileNo"].ToString().ToUpper();
-                        condition.CompanyAlterMobileNo = rdr["CompanyAlterMobileNo"].ToString().ToUpper();
-                        condition.ShippedToPartyName = rdr["ShippedToPartyName"].ToString().ToUpper();
-                        condition.ShippedToMobileNo = rdr["ShippedToMobileNo"].ToString().ToUpper();
-                        condition.ShippedToAlterMobileNo = rdr["ShippedToAlterMobileNo"].ToString().ToUpper();
-                        condition.GodownTitle = rdr["GodownTitle"].ToString().ToUpper();
-                        condition.GodownAddress = rdr["GodownAddress"].ToString().ToUpper();
-                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
-                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
-                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
-                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
-                        condition.CompanyCode = rdr["CompanyCode"].ToString().ToUpper();
-                        condition.Qty = Convert.ToDecimal(rdr["Qty"].ToString().ToUpper());
-                        condition.PendingQty = Convert.ToDecimal(rdr["PendingQty"].ToString().ToUpper());
-                        condition.IsComplete = Convert.ToBoolean(rdr["IsClose"]);
+
+                        condition.YarnPOID = rdr["YarnPOID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnPOID"]);
+                        condition.YarnPODetailID = rdr["YarnPODetailID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnPODetailID"]);
+
+                        if (rdr["PODate"] != DBNull.Value)
+                        {
+                            condition.PODate = Convert.ToDateTime(rdr["PODate"]);
+                            condition.PODates = condition.PODate.ToString("dd-MM-yyyy");
+                        }
+                        else
+                        {
+                            condition.PODates = "";
+                        }
+
+                        condition.PONo = rdr["PONo"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["PONo"]);
+
+                        condition.SupplierPartyName = rdr["SupplierPartyName"] == DBNull.Value
+                            ? "" : rdr["SupplierPartyName"].ToString().ToUpper();
+
+                        condition.SupplierMobileNo = rdr["SupplierMobileNo"] == DBNull.Value
+                            ? "" : rdr["SupplierMobileNo"].ToString().ToUpper();
+
+                        condition.SupplierAlterMobileNo = rdr["SupplierAlterMobileNo"] == DBNull.Value
+                            ? "" : rdr["SupplierAlterMobileNo"].ToString().ToUpper();
+
+                        condition.BillToPartyName = rdr["BillToPartyName"] == DBNull.Value
+                            ? "" : rdr["BillToPartyName"].ToString().ToUpper();
+
+                        condition.BillToMobileNo = rdr["BillToMobileNo"] == DBNull.Value
+                            ? "" : rdr["BillToMobileNo"].ToString().ToUpper();
+
+                        condition.BillToAlterMobileNo = rdr["BillToAlterMobileNo"] == DBNull.Value
+                            ? "" : rdr["BillToAlterMobileNo"].ToString().ToUpper();
+
+                        condition.CompanyPartyName = rdr["CompanyPartyName"] == DBNull.Value
+                            ? "" : rdr["CompanyPartyName"].ToString().ToUpper();
+
+                        condition.CompanyMobileNo = rdr["CompanyMobileNo"] == DBNull.Value
+                            ? "" : rdr["CompanyMobileNo"].ToString().ToUpper();
+
+                        condition.CompanyAlterMobileNo = rdr["CompanyAlterMobileNo"] == DBNull.Value
+                            ? "" : rdr["CompanyAlterMobileNo"].ToString().ToUpper();
+
+                        condition.ShippedToPartyName = rdr["ShippedToPartyName"] == DBNull.Value
+                            ? "" : rdr["ShippedToPartyName"].ToString().ToUpper();
+
+                        condition.ShippedToMobileNo = rdr["ShippedToMobileNo"] == DBNull.Value
+                            ? "" : rdr["ShippedToMobileNo"].ToString().ToUpper();
+
+                        condition.ShippedToAlterMobileNo = rdr["ShippedToAlterMobileNo"] == DBNull.Value
+                            ? "" : rdr["ShippedToAlterMobileNo"].ToString().ToUpper();
+
+                        condition.GodownTitle = rdr["GodownTitle"] == DBNull.Value
+                            ? "" : rdr["GodownTitle"].ToString().ToUpper();
+
+                        condition.GodownAddress = rdr["GodownAddress"] == DBNull.Value
+                            ? "" : rdr["GodownAddress"].ToString().ToUpper();
+
+                        condition.YarnMaterialID = rdr["YarnMaterialID"] == DBNull.Value
+                            ? 0 : Convert.ToInt32(rdr["YarnMaterialID"]);
+
+                        condition.YarnMaterial = rdr["YarnMaterial"] == DBNull.Value
+                            ? "" : rdr["YarnMaterial"].ToString().ToUpper();
+
+                        condition.YarnColorID = rdr["YarnColorID"] == DBNull.Value
+                            ? 0 : Convert.ToInt32(rdr["YarnColorID"]);
+
+                        condition.YarnColor = rdr["YarnColor"] == DBNull.Value
+                            ? "" : rdr["YarnColor"].ToString().ToUpper();
+
+                        condition.CompanyCode = rdr["CompanyCode"] == DBNull.Value
+                            ? "" : rdr["CompanyCode"].ToString().ToUpper();
+
+                        condition.Qty = rdr["Qty"] == DBNull.Value
+                            ? 0 : Convert.ToDecimal(rdr["Qty"]);
+
+                        condition.PendingQty = rdr["PendingQty"] == DBNull.Value
+                            ? 0 : Convert.ToDecimal(rdr["PendingQty"]);
+
+                        condition.IsComplete = rdr["IsClose"] == DBNull.Value
+                            ? false : Convert.ToBoolean(rdr["IsClose"]);
+
                         listUser.Add(condition);
                     }
                 }
@@ -30232,8 +30326,6 @@ FROM Filtered
                 };
             }
         }
-
-
         [WebMethod]
         public object SaleOrderReport(List<int> saleOrderID)
         {
@@ -30350,7 +30442,10 @@ FROM Filtered
 
                         if (!ds.Tables.Contains("SaleOrderDetails") || ds.Tables["SaleOrderDetails"].Rows.Count == 0)
                             continue;
-
+                        if (!ds.Tables.Contains("SaleOrderAdditionalCharges"))
+                        {
+                            ds.Tables.Add(new DataTable("SaleOrderAdditionalCharges"));
+                        }
                         // ====================================================
                         // 11 & 12. AMOUNT IN WORDS
                         // ====================================================
@@ -30591,8 +30686,6 @@ FROM Filtered
                 };
             }
         }
-
-
         private void SetCrystalDatabaseLogin(ReportDocument report, string connectionString)
             {
                 SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder(connectionString);
@@ -30632,8 +30725,6 @@ FROM Filtered
                     }
                 }
             }
-
-
         public static class NumberToWordsHelper
         {
             private static readonly string[] Units =
@@ -30713,8 +30804,6 @@ FROM Filtered
                 return words.Trim();
             }
         }
-
-
         [WebMethod]
         public object AllPartyData()
         {
@@ -31926,136 +32015,411 @@ FROM Filtered
         [WebMethod]
         public void ExportDesignExcel()
         {
-            string connString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+            string connString =
+                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             DataTable dt = new DataTable();
 
-            // Get Design Data
+            // =====================================================
+            // GET DESIGN + COLOR MATCHING DATA
+            // =====================================================
             using (SqlConnection con = new SqlConnection(connString))
             {
                 string query = @"
-                            SELECT  DesignEntryFormID,DesignerCode,DesignNo,SaleRate,HSNCode,PhotoOfDesign FROM DesignEntryFormMaster WHERE SaleRate IS NULL
-                            ORDER BY DesignEntryFormID";
+            SELECT
+                DEFM.DesignerCode,
+                DEFM.DesignNo,
+                DCMD.MatchingID,
+                CGM.ColorGroup,
+              DCMD.ColorMatchingPhoto
 
-                using (SqlDataAdapter da = new SqlDataAdapter(query, con))
+            FROM DesignColorMatchingFormMaster AS DCMFM
+
+            LEFT JOIN DesignEntryFormMaster AS DEFM
+                ON DEFM.DesignEntryFormID =
+                   DCMFM.DesignEntryFormID
+
+            INNER JOIN DesignColorMatchingDetails AS DCMD
+                ON DCMD.DesignColorMatchingFormID =
+                   DCMFM.DesignColorMatchingFormID
+
+            INNER JOIN ColorGroupMaster AS CGM
+                ON CGM.ColorGroupID =
+                   DCMD.ColorGroupID
+
+            WHERE DCMFM.FinancialYearID = (
+                SELECT FinancialYearID
+                FROM FinancialYearMaster
+                WHERE IsDefault = 1
+            )
+
+            AND DCMFM.CompanyId = (
+                SELECT CompanyId
+                FROM CompanyMaster
+                WHERE is_default = 1
+            )
+
+            AND CGM.ColorGroup IS NOT NULL
+
+            ORDER BY
+                DEFM.DesignerCode,
+                DEFM.DesignNo,
+                DCMD.MatchingNo;";
+
+                using (SqlDataAdapter da =
+                    new SqlDataAdapter(query, con))
                 {
                     da.Fill(dt);
                 }
             }
 
+            // =====================================================
+            // CREATE EXCEL
+            // =====================================================
             using (XLWorkbook wb = new XLWorkbook())
             {
-                IXLWorksheet ws = wb.Worksheets.Add("Design Master");
+                IXLWorksheet ws =
+                    wb.Worksheets.Add("Design Master");
 
-                // =========================
+                // =================================================
                 // HEADER
-                // =========================
+                // =================================================
+                ws.Cell(1, 1).Value =
+                    "DesignerCode-DesignNo";
 
-                ws.Cell(1, 1).Value = "DesignEntryFormID";
-                ws.Cell(1, 2).Value = "DesignerCode-DesignNo";
-                ws.Cell(1, 3).Value = "SaleRate";
-                ws.Cell(1, 4).Value = "HSNCode";
-                ws.Cell(1, 5).Value = "Design Image";
+                ws.Cell(1, 2).Value =
+                    "MatchingID";
 
-                ws.Range(1, 1, 1, 5).Style.Font.Bold = true;
+                ws.Cell(1, 3).Value =
+                    "ColorGroup";
 
-                int excelRow = 2;
+                ws.Cell(1, 4).Value =
+                    "PhotoOfDesign";
 
-                // =========================
+                // Header formatting
+                ws.Range(1, 1, 1, 4)
+                    .Style.Font.Bold = true;
+
+                ws.Range(1, 1, 1, 4)
+                    .Style.Alignment.Horizontal =
+                    XLAlignmentHorizontalValues.Center;
+
+                ws.Range(1, 1, 1, 4)
+                    .Style.Alignment.Vertical =
+                    XLAlignmentVerticalValues.Center;
+
+                ws.Row(1).Height = 25;
+
+                // =================================================
                 // DATA
-                // =========================
+                // =================================================
+                int excelRow = 2;
 
                 foreach (DataRow dr in dt.Rows)
                 {
+                    // =============================================
+                    // DESIGNER CODE
+                    // =============================================
+                    string designerCode =
+                        dr["DesignerCode"] == DBNull.Value
+                            ? ""
+                            : dr["DesignerCode"]
+                                .ToString()
+                                .Trim()
+                                .ToUpper();
+
+                    // =============================================
+                    // DESIGN NO
+                    // =============================================
+                    string designNo =
+                        dr["DesignNo"] == DBNull.Value
+                            ? ""
+                            : dr["DesignNo"]
+                                .ToString()
+                                .Trim()
+                                .ToUpper();
+
+                    // =============================================
+                    // DESIGNER CODE - DESIGN NO
+                    // =============================================
                     ws.Cell(excelRow, 1).Value =
-                        dr["DesignEntryFormID"].ToString();
-
-                    string designerCode = dr["DesignerCode"].ToString();
-                    string designNo = dr["DesignNo"].ToString();
-
-                    ws.Cell(excelRow, 2).Value =
                         designerCode + "-" + designNo;
 
-                    if (dr["SaleRate"] != DBNull.Value)
-                    {
-                        ws.Cell(excelRow, 3).Value =
-                            Convert.ToDecimal(dr["SaleRate"]);
-                    }
+                    // =============================================
+                    // MATCHING ID
+                    // =============================================
+                    ws.Cell(excelRow, 2).Value =
+                        dr["MatchingID"] == DBNull.Value
+                            ? ""
+                            : dr["MatchingID"]
+                                .ToString()
+                                .Trim()
+                                .ToUpper();
 
-                    ws.Cell(excelRow, 4).Value =
-                        dr["HSNCode"].ToString();
+                    // =============================================
+                    // COLOR GROUP
+                    // =============================================
+                    ws.Cell(excelRow, 3).Value =
+                        dr["ColorGroup"] == DBNull.Value
+                            ? ""
+                            : dr["ColorGroup"]
+                                .ToString()
+                                .Trim()
+                                .ToUpper();
 
-                    // =========================
-                    // IMAGE
-                    // =========================
-
+                    // =================================================
+                    // DESIGN IMAGE
+                    // =================================================
                     string photoPath = "";
 
-                    if (dr["PhotoOfDesign"] != DBNull.Value)
+                    if (dr["ColorMatchingPhoto"] != DBNull.Value)
                     {
-                        photoPath = dr["PhotoOfDesign"].ToString().Trim();
+                        photoPath =
+                            dr["ColorMatchingPhoto"]
+                                .ToString()
+                                .Trim();
                     }
 
                     if (!string.IsNullOrWhiteSpace(photoPath))
                     {
-                        string relativePath = photoPath
-                            .Replace("/", "\\")
-                            .TrimStart('\\');
-
-                        string physicalImagePath =
-                            Server.MapPath("~/" + relativePath);
-
-                        if (File.Exists(physicalImagePath))
+                        try
                         {
-                            ws.AddPicture(physicalImagePath)
-                                .MoveTo(ws.Cell(excelRow, 5))
-                                .WithSize(100, 100);
+                            // Example DB value:
+                            //
+                            // COLORMATCHINGPHOTO/YGRKBIRS025-5.BMP
+                            //
+                            // Get only:
+                            //
+                            // YGRKBIRS025-5.BMP
 
-                            ws.Row(excelRow).Height = 80;
+                            string fileName =
+                                Path.GetFileName(
+                                    photoPath.Replace("/", "\\")
+                                );
+
+                            // =========================================
+                            // ACTUAL IMAGE PATH
+                            // =========================================
+                            //
+                            // E:\Bharat\New folder\weavelanesoft\
+                            // ColorMatchingPhoto\
+                            //
+
+                            string physicalImagePath =
+                                Server.MapPath(
+                                    "~/ColorMatchingPhoto/" +
+                                    fileName
+                                );
+
+                            if (File.Exists(physicalImagePath))
+                            {
+                                // =====================================
+                                // TEMP FOLDER
+                                // =====================================
+                                string tempFolder =
+                                    Server.MapPath(
+                                        "~/Uploads/TempDesignImages/"
+                                    );
+
+                                if (!Directory.Exists(tempFolder))
+                                {
+                                    Directory.CreateDirectory(
+                                        tempFolder
+                                    );
+                                }
+
+                                // =====================================
+                                // UNIQUE TEMP IMAGE NAME
+                                // =====================================
+                                string tempFileName =
+                                    Guid.NewGuid().ToString("N") +
+                                    ".jpg";
+
+                                string tempImagePath =
+                                    Path.Combine(
+                                        tempFolder,
+                                        tempFileName
+                                    );
+
+                                // =====================================
+                                // RESIZE + COMPRESS IMAGE
+                                // =====================================
+                                ResizeImageToJpeg(
+                                    physicalImagePath,
+                                    tempImagePath,
+                                    80,
+                                    80
+                                );
+
+                                // =====================================
+                                // ADD SMALL JPEG TO EXCEL
+                                // =====================================
+                                if (File.Exists(tempImagePath))
+                                {
+                                    ws.AddPicture(tempImagePath)
+                                        .MoveTo(
+                                            ws.Cell(
+                                                excelRow,
+                                                4
+                                            )
+                                        )
+                                        .WithSize(80, 80);
+
+                                    ws.Row(excelRow).Height = 65;
+
+                                    // =================================
+                                    // DELETE TEMP FILE
+                                    // =================================
+                                    try
+                                    {
+                                        File.Delete(
+                                            tempImagePath
+                                        );
+                                    }
+                                    catch
+                                    {
+                                        // Ignore delete error
+                                    }
+                                }
+                                else
+                                {
+                                    ws.Cell(
+                                        excelRow,
+                                        4
+                                    ).Value =
+                                        "Image Conversion Failed";
+                                }
+                            }
+                            else
+                            {
+                                ws.Cell(
+                                    excelRow,
+                                    4
+                                ).Value =
+                                    "Image Not Found";
+                            }
                         }
-                        else
+                        catch (OutOfMemoryException)
                         {
-                            ws.Cell(excelRow, 5).Value = "Image Not Found";
+                            // =========================================
+                            // BAD / VERY LARGE / CORRUPT IMAGE
+                            // =========================================
+                            ws.Cell(
+                                excelRow,
+                                4
+                            ).Value =
+                                "Image Too Large";
                         }
+                        catch (Exception ex)
+                        {
+                            ws.Cell(
+                                excelRow,
+                                4
+                            ).Value =
+                                "Image Error";
+
+                            // For debugging if required:
+                            //
+                            // ws.Cell(excelRow, 5).Value =
+                            //     ex.Message;
+                        }
+                    }
+                    else
+                    {
+                        ws.Cell(
+                            excelRow,
+                            4
+                        ).Value =
+                            "No Image";
                     }
 
                     excelRow++;
                 }
 
-                // =========================
+                // =====================================================
                 // FORMAT
-                // =========================
+                // =====================================================
 
-                ws.Column(1).Width = 20;
-                ws.Column(2).Width = 25;
-                ws.Column(3).Width = 15;
-                ws.Column(4).Width = 15;
-                ws.Column(5).Width = 22;
+                ws.Column(1).Width = 25;
+                ws.Column(2).Width = 30;
+                ws.Column(3).Width = 25;
+                ws.Column(4).Width = 22;
 
-                ws.Column(3).Style.NumberFormat.Format = "#,##0.00";
+                if (excelRow > 1)
+                {
+                    ws.Range(
+                        1,
+                        1,
+                        excelRow - 1,
+                        4
+                    )
+                    .Style
+                    .Alignment
+                    .Vertical =
+                        XLAlignmentVerticalValues.Center;
 
-                ws.Range(
-                    1,
-                    1,
-                    excelRow - 1,
-                    5
-                ).Style.Alignment.Vertical =
-                    XLAlignmentVerticalValues.Center;
+                    ws.Range(
+                        1,
+                        1,
+                        excelRow - 1,
+                        4
+                    )
+                    .Style
+                    .Alignment
+                    .WrapText = true;
+                }
 
-                // =========================
+                // =====================================================
+                // FREEZE HEADER
+                // =====================================================
+                ws.SheetView.FreezeRows(1);
+
+                // =====================================================
+                // AUTO FILTER
+                // =====================================================
+                if (excelRow > 2)
+                {
+                    ws.Range(
+                        1,
+                        1,
+                        excelRow - 1,
+                        4
+                    ).SetAutoFilter();
+                }
+
+                // =====================================================
                 // SAVE EXCEL
-                // =========================
+                // =====================================================
+                string uploadFolder =
+                    Server.MapPath("~/Uploads/");
 
-                string excelFileName = "DesignMaster_" +  DateTime.Now.ToString("yyyyMMddHHmmss") +".xlsx";
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(
+                        uploadFolder
+                    );
+                }
 
-                string excelFilePath = Server.MapPath("~/Uploads/" + excelFileName);
+                string excelFileName =
+                    "colormaching_" +
+                    DateTime.Now.ToString(
+                        "yyyyMMddHHmmss"
+                    ) +
+                    ".xlsx";
+
+                string excelFilePath =
+                    Path.Combine(
+                        uploadFolder,
+                        excelFileName
+                    );
+
                 wb.SaveAs(excelFilePath);
 
-                // =========================
+                // =====================================================
                 // DOWNLOAD
-                // =========================
-
-                HttpResponse response = HttpContext.Current.Response;
+                // =====================================================
+                HttpResponse response =
+                    HttpContext.Current.Response;
 
                 response.Clear();
                 response.ClearHeaders();
@@ -32066,15 +32430,148 @@ FROM Filtered
 
                 response.AddHeader(
                     "Content-Disposition",
-                    "attachment; filename=\"" + excelFileName + "\""
+                    "attachment; filename=\"" +
+                    excelFileName +
+                    "\""
                 );
 
-                response.TransmitFile(excelFilePath);
+                response.TransmitFile(
+                    excelFilePath
+                );
 
                 response.Flush();
 
                 HttpContext.Current.ApplicationInstance
                     .CompleteRequest();
+            }
+        }
+
+
+        // =============================================================
+        // RESIZE + COMPRESS IMAGE
+        // =============================================================
+        private void ResizeImageToJpeg(
+            string sourcePath,
+            string destinationPath,
+            int maxWidth,
+            int maxHeight)
+        {
+            using (System.Drawing.Image originalImage =
+                System.Drawing.Image.FromFile(sourcePath))
+            {
+                // =============================================
+                // Calculate aspect ratio
+                // =============================================
+                double ratioX =
+                    (double)maxWidth /
+                    originalImage.Width;
+
+                double ratioY =
+                    (double)maxHeight /
+                    originalImage.Height;
+
+                double ratio =
+                    Math.Min(
+                        ratioX,
+                        ratioY
+                    );
+
+                int newWidth =
+                    Math.Max(
+                        1,
+                        (int)(
+                            originalImage.Width *
+                            ratio
+                        )
+                    );
+
+                int newHeight =
+                    Math.Max(
+                        1,
+                        (int)(
+                            originalImage.Height *
+                            ratio
+                        )
+                    );
+
+                // =============================================
+                // Create small bitmap
+                // =============================================
+                using (Bitmap bitmap =
+                    new Bitmap(
+                        newWidth,
+                        newHeight
+                    ))
+                {
+                    using (Graphics graphics =
+                        Graphics.FromImage(bitmap))
+                    {
+                        graphics.CompositingQuality =
+                            CompositingQuality.HighQuality;
+
+                        graphics.InterpolationMode =
+                            InterpolationMode.HighQualityBicubic;
+
+                        graphics.SmoothingMode =
+                            SmoothingMode.HighQuality;
+
+                        graphics.PixelOffsetMode =
+                            PixelOffsetMode.HighQuality;
+
+                        graphics.DrawImage(
+                            originalImage,
+                            0,
+                            0,
+                            newWidth,
+                            newHeight
+                        );
+                    }
+
+                    // =============================================
+                    // JPEG encoder
+                    // =============================================
+                    ImageCodecInfo jpegCodec = null;
+
+                    ImageCodecInfo[] codecs =
+                        ImageCodecInfo.GetImageEncoders();
+
+                    foreach (ImageCodecInfo codec in codecs)
+                    {
+                        if (codec.FormatID ==
+                            System.Drawing.Imaging.ImageFormat.Jpeg.Guid)
+                        {
+                            jpegCodec = codec;
+                            break;
+                        }
+                    }
+
+                    if (jpegCodec != null)
+                    {
+                        EncoderParameters encoderParameters =
+                            new EncoderParameters(1);
+
+                        encoderParameters.Param[0] =
+                            new EncoderParameter(
+                                System.Drawing.Imaging.Encoder.Quality,
+                                75L
+                            );
+
+                        bitmap.Save(
+                            destinationPath,
+                            jpegCodec,
+                            encoderParameters
+                        );
+
+                        encoderParameters.Dispose();
+                    }
+                    else
+                    {
+                        bitmap.Save(
+                            destinationPath,
+                            System.Drawing.Imaging.ImageFormat.Jpeg
+                        );
+                    }
+                }
             }
         }
         [WebMethod]
@@ -32905,7 +33402,7 @@ FROM Filtered
             List<JobberViewModel> list = new List<JobberViewModel>();
             using (SqlConnection con = new SqlConnection(connString))
             {
-                string query = "SELECT Id, JobberType, PartyName, MobileNumber, City FROM JobberMaster";
+                string query = "SELECT Id, JobberType, PartyName, MobileNumber, City FROM JobberMaster order by Id desc";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     con.Open();

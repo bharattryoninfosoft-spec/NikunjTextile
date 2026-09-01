@@ -1392,31 +1392,18 @@
             $("#ColorMatchingID").val(id);
             getColorMatchingId(id);
         });
-        $("#Markup").on("input change", function () {
-
-            const markup = parseFloat($(this).val()) || 0;
-
-            SaleOrderDetails.forEach(item => {
-
-                // ❌ Skip if manually edited
-                if (item.IsRateManual) return;
-
-                const brokerRate = calculateBrokerRate(item.Rate, markup);
-
-                item.BrokerRate = brokerRate;
-                item.Amount = item.TotalQty * brokerRate;
-
-                // 🔥 Sync SubDetails also
-                if (item.SubDetails && item.SubDetails.length > 0) {
-                    item.SubDetails.forEach(sub => {
-                        sub.Rate = brokerRate;
-                    });
-                }
+        $(document).on("input change", "#Markup", function () {
+            let markup = parseFloat($(this).val()) || 0; if (markup < 0) { markup = 0; $(this).val(0); } SaleOrderDetails.forEach(item => {
+                // Manual rate ko Markup se overwrite mat karo
+                if (item.IsRateManual) { return; } let baseRate = parseFloat(item.Rate) || 0; let brokerRate = baseRate + (baseRate * markup / 100);
+                item.BrokerRate = brokerRate; item.Amount = (parseFloat(item.TotalQty) || 0) * brokerRate;
+                // SubDetails rate sync
+                if (Array.isArray(item.SubDetails)) { item.SubDetails.forEach(sub => { sub.Rate = brokerRate; }); }
             });
+            // Refresh table + complete calculation
             bindMainTable();
             updateSummary();
-            resetModal();
-        })
+        });
         function openDesignModal() {
 
             $("#DesignNo").val('');
@@ -3295,55 +3282,182 @@
                 tbody.append(tr);
             });
         }
-        function updateSummary() {
-            let totalQty = 0;
-            let totalAmount = 0;
+function updateSummary() {
 
-            let totalAdditionalPerUnit = 0;
-            $(".additional-row").each(function () {
-                totalAdditionalPerUnit += parseFloat($(this).find(".AdditionalValue").val()) || 0;
-            });
+    let totalQty = 0;
+    let totalAmount = 0;
 
-            SaleOrderDetails.forEach(item => {
-                let effectiveRate = (parseFloat(item.BrokerRate) || 0) + totalAdditionalPerUnit;
-                item.Amount = parseFloat(item.TotalQty) * effectiveRate;
+    // ============================================================
+    // ADDITIONAL CHARGES PER UNIT
+    // ============================================================
 
-                totalQty += parseFloat(item.TotalQty) || 0;
-                totalAmount += parseFloat(item.Amount) || 0;
-            });
+    let totalAdditionalPerUnit = 0;
 
-            // Update Totals Display
-            $("#totalQty").text(totalQty);
-            $("#totalAmount").text(totalAmount.toFixed(2));
+    $(".additional-row").each(function () {
+        totalAdditionalPerUnit +=
+            parseFloat($(this).find(".AdditionalValue").val()) || 0;
+    });
 
-            // Discount Calculation
-            let discountAmount = parseFloat($("#discountValueAmount").val()) || 0;
-            if (discountAmount > totalAmount) {
-                discountAmount = totalAmount;
-            }
-            $("#discountAmount").text(discountAmount.toFixed(2));
 
-            let afterDiscount = totalAmount - discountAmount;
+    // ============================================================
+    // ITEM TOTAL
+    // ============================================================
 
-            // Additional Charges Total (if any fixed additional amount exists)
-            let totalAdditionalValue = parseFloat($("#AdditionalValue").val()) || 0;
-            $("#AdditionalAmount").text(totalAdditionalValue.toFixed(2));
+    SaleOrderDetails.forEach(item => {
 
-            let taxableAmount = afterDiscount + totalAdditionalValue;
+        let brokerRate =
+            parseFloat(item.BrokerRate) || 0;
 
-            // 🔥 GST Calculation based on dropdown selection
-            let gstPercent = parseFloat($("#gstPercent").val()) || 0;
-            let gstAmount = (taxableAmount * gstPercent) / 100;
-            $("#gstAmount").text(gstAmount.toFixed(2));
+        let effectiveRate =
+            brokerRate + totalAdditionalPerUnit;
 
-            // Final Total & Round Off
-            let finalAmount = taxableAmount + gstAmount;
-            let roundedAmount = Math.round(finalAmount);
-            let roundOff = roundedAmount - finalAmount;
+        item.UnitAdditionalValue = totalAdditionalPerUnit;
 
-            $("#RoundOff").text(roundOff.toFixed(2));
-            $("#invoiceAmount").text(roundedAmount.toFixed(2));
-        }
+        item.Amount =
+            (parseFloat(item.TotalQty) || 0) * effectiveRate;
+
+        totalQty +=
+            parseFloat(item.TotalQty) || 0;
+
+        totalAmount +=
+            parseFloat(item.Amount) || 0;
+    });
+
+
+    // ============================================================
+    // DISPLAY TOTAL
+    // ============================================================
+
+    $("#totalQty").text(totalQty);
+
+    $("#totalAmount").text(
+        totalAmount.toFixed(2)
+    );
+
+
+    // ============================================================
+    // DISCOUNT - PERCENTAGE IS THE ONLY INPUT
+    // ============================================================
+
+    let discountValPercent =
+        parseFloat($("#discountValuePercent").val()) || 0;
+
+    // Validate percentage
+    if (discountValPercent < 0) {
+        discountValPercent = 0;
+    }
+
+    if (discountValPercent > 100) {
+        discountValPercent = 100;
+    }
+
+    $("#discountValuePercent").val(discountValPercent);
+
+
+    // Calculate discount ONLY from percentage
+    let discountAmount =
+        (totalAmount * discountValPercent) / 100;
+
+    // Safety
+    if (discountAmount > totalAmount) {
+        discountAmount = totalAmount;
+    }
+
+    if (discountAmount < 0) {
+        discountAmount = 0;
+    }
+
+
+    // Update calculated amount
+    $("#discountValueAmount").val(
+        discountAmount.toFixed(2)
+    );
+
+    $("#discountAmount").text(
+        discountAmount.toFixed(2)
+    );
+
+    let afterDiscount = totalAmount - discountAmount;
+    // ============================================================
+    // SHOW CALCULATED DISCOUNT AMOUNT
+    // ============================================================
+
+    $("#discountValueAmount").val(
+        discountAmount.toFixed(2)
+    );
+
+    $("#discountAmount").text(
+        discountAmount.toFixed(2)
+    );
+
+    // ============================================================
+    // ADDITIONAL FIXED CHARGE
+    // ============================================================
+
+    let totalAdditionalValue = 0;
+
+    $(".additional-row").each(function () {
+
+        let value =
+            parseFloat($(this).find(".AdditionalValue").val()) || 0;
+
+        // Since this is per-unit charge,
+        // total amount = value × total quantity
+        totalAdditionalValue +=
+            value * totalQty;
+    });
+
+
+    $("#AdditionalAmount").text(
+        totalAdditionalValue.toFixed(2)
+    );
+
+
+    // ============================================================
+    // TAXABLE AMOUNT
+    // ============================================================
+
+    let taxableAmount =  afterDiscount + totalAdditionalValue;
+
+
+    // ============================================================
+    // GST
+    // ============================================================
+
+    let gstPercent =
+        parseFloat($("#gstPercent").val()) || 0;
+
+    let gstAmount =
+        (taxableAmount * gstPercent) / 100;
+
+    $("#gstAmount").text(
+        gstAmount.toFixed(2)
+    );
+
+
+    // ============================================================
+    // FINAL TOTAL
+    // ============================================================
+
+    let finalAmount =
+        taxableAmount + gstAmount;
+
+    let roundedAmount =
+        Math.round(finalAmount);
+
+    let roundOff =
+        roundedAmount - finalAmount;
+
+
+    $("#RoundOff").text(
+        roundOff.toFixed(2)
+    );
+
+    $("#invoiceAmount").text(
+        roundedAmount.toFixed(2)
+    );
+}
+
         // Ensure change/input on any dynamic additional row input or remove button updates totals
         $(document).on("input change", ".AdditionalValue", function () {
             bindMainTable();
@@ -3711,30 +3825,7 @@
                     if (data.success) {
                         notes.show("Saved Successfully ✅", { type: 'success' });
                         $("#SaleOrderID").val(data.id);
-                        setTimeout(function () {
-                            window.location.href = "listSaleOrderEntry"; // Update with your actual page URL/extension
-                        }, 1500);
-                        //$.ajax({
-                        //    type: "POST",
-                        //    url: "/WebServiceNikunjTextile.asmx/SaleOrderReport",
-                        //    data: JSON.stringify({ saleOrderID: data.id }),
-                        //    contentType: "application/json; charset=utf-8",
-                        //    dataType: "json",
-                        //    success: function (response) {
-                        //        var pdfData = response.d;
-                        //        if (typeof pdfData === "string") pdfData = JSON.parse(pdfData);
-                        //        if (pdfData.Status) {
-                        //            window.open(pdfData.FilePath, "_blank");
-                        //            notes.show("PDF Generated Successfully ✅", { type: "success" });
-                        //            setTimeout(function () { window.location.href = "listSaleOrderEntry"; }, 1000);
-                        //        } else {
-                        //            alert(pdfData.Message);
-                        //        }
-                        //    },
-                        //    error: function () {
-                        //        alert("PDF Generation Failed");
-                        //    }
-                        //});
+                        window.location.href = "ListSaleOrderEntry";
                     } else {
                         hideLoader();
                         $("#btnSave").prop("disabled", false);
@@ -3777,7 +3868,8 @@
                 bindSubTable(item.SubDetails);
             }
             updateSummary();
-        });  
+        });
+        $(document).on("input change keyup", "#Markup, " + "#discountValuePercent, " + "#GSTSLABId, " + ".AdditionalValue, " + ".brokerRateInput", function () { updateSummary(); });
         /*Broker Master Strat*/
         var currentPagePermission = {};
 

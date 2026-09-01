@@ -350,7 +350,7 @@
                                     <div class="d-flex gap-2 align-items-center">
                                         <div class="input-group input-group-sm" style="width: 110px;">
                                             <span class="input-group-text">₹</span>
-                                            <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0">
+                                            <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0" readonly>
                                         </div>
                                         <div class="input-group input-group-sm" style="width: 90px;">
                                             <span class="input-group-text">%</span>
@@ -1425,31 +1425,47 @@
                 $("#ColorMatchingID").val(id);
                 getColorMatchingId(id);
             });
-            $("#Markup").on("input change", function () {
+$(document).on("input change", "#Markup", function () {
 
-                const markup = parseFloat($(this).val()) || 0;
+    let markup = parseFloat($(this).val()) || 0;
 
-                SaleOrderDetails.forEach(item => {
+    if (markup < 0) {
+        markup = 0;
+        $(this).val(0);
+    }
 
-                    // ❌ Skip if manually edited
-                    if (item.IsRateManual) return;
+    SaleOrderDetails.forEach(item => {
 
-                    const brokerRate = calculateBrokerRate(item.Rate, markup);
+        // Manual rate ko Markup se overwrite mat karo
+        if (item.IsRateManual) {
+            return;
+        }
 
-                    item.BrokerRate = brokerRate;
-                    item.Amount = item.TotalQty * brokerRate;
+        let baseRate = parseFloat(item.Rate) || 0;
 
-                    // 🔥 Sync SubDetails also
-                    if (item.SubDetails && item.SubDetails.length > 0) {
-                        item.SubDetails.forEach(sub => {
-                            sub.Rate = brokerRate;
-                        });
-                    }
-                });
-                bindMainTable();
-                updateSummary();
-                resetModal();
-            })
+        let brokerRate =
+            baseRate + (baseRate * markup / 100);
+
+        item.BrokerRate = brokerRate;
+
+        item.Amount =
+            (parseFloat(item.TotalQty) || 0) * brokerRate;
+
+        // SubDetails rate sync
+        if (Array.isArray(item.SubDetails)) {
+
+            item.SubDetails.forEach(sub => {
+                sub.Rate = brokerRate;
+            });
+        }
+    });
+
+    // Refresh table + complete calculation
+    bindMainTable();
+    updateSummary();
+});
+
+
             function openDesignModal() {
 
                 $("#DesignNo").val('');
@@ -1750,22 +1766,9 @@
                 updateSummary();
             });
             // 2. Percentage Input Changed -> Calculate and update Amount
-            $(document).on("input", "#discountValuePercent", function () {
-                if (isUpdatingDiscount) return;
-                isUpdatingDiscount = true;
-
-                let totalAmount = parseFloat($("#totalAmount").text()) || 0;
-                let percentVal = parseFloat($(this).val()) || 0;
-
-                if (percentVal > 100) {
-                    percentVal = 100;
-                    $(this).val(100);
-                }
-
-                let amtVal = (totalAmount * percentVal) / 100;
-                $("#discountValueAmount").val(amtVal.toFixed(2));
-
-                isUpdatingDiscount = false;
+            $(document).on("input change", "#discountValuePercent", function () {
+                let percent = parseFloat($(this).val()) || 0; if (percent < 0) percent = 0; if (percent > 100) percent = 100; $(this).val(percent);
+                // COMPLETE RECALCULATION 
                 updateSummary();
             });
             // 3. Clear Discount Button
@@ -1774,7 +1777,7 @@
                 $("#discountValuePercent").val(0);
                 updateSummary();
             });
-
+            $(document).on("input change keyup", "#Markup, " + "#discountValuePercent, " + "#GSTSLABId, " + ".AdditionalValue, " + ".brokerRateInput", function () { updateSummary(); });
 
             function afterPartySave() {
                 $("#addNewContact").modal("hide");
@@ -3763,28 +3766,7 @@
                         if (data.success) {
                             notes.show("Saved Successfully ✅", { type: 'success' });
                             $("#SaleOrderID").val(data.id);
-
-                            $.ajax({
-                                type: "POST",
-                                url: "/WebServiceNikunjTextile.asmx/ExportSaleOrderPDF",
-                                data: JSON.stringify({ saleOrderID: data.id }),
-                                contentType: "application/json; charset=utf-8",
-                                dataType: "json",
-                                success: function (response) {
-                                    var pdfData = response.d;
-                                    if (typeof pdfData === "string") pdfData = JSON.parse(pdfData);
-                                    if (pdfData.Status) {
-                                        window.open(pdfData.FilePath, "_blank");
-                                        notes.show("PDF Generated Successfully ✅", { type: "success" });
-                                        setTimeout(function () { window.location.href = "listSaleOrderEntry"; }, 1000);
-                                    } else {
-                                        alert(pdfData.Message);
-                                    }
-                                },
-                                error: function () {
-                                    alert("PDF Generation Failed");
-                                }
-                            });
+                            window.location.href = "ListSaleOrderEntry"; // Update with your actual page URL/extension                                             
                         } else {
                             hideLoader();
                             $("#btnSave").prop("disabled", false);

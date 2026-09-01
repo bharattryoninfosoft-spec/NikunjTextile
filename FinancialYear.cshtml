@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -123,7 +122,7 @@
                         <!-- BUTTONS -->
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
 
-                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','UserAccount')">
+                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','FinancialYearReport')">
                                 <i class="bi bi-file-earmark-excel-fill"></i> Excel
                             </button>
 
@@ -154,7 +153,7 @@
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Is Default</th>
-                                    <th>Action</th>
+                                    <th class="no-export">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -175,43 +174,53 @@
 
 </div>
 @section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
         $('body').addClass('fullscreen');
-        var currentPagePermission = {};
+        var currentPagePermission = { Add: true, Edit: true, Delete: true }; // Default fallback
+
         $(document).ready(function () {
             var permission = getCookie("PagePermission");
             if (permission != null && permission != "") {
-                var currentPagePermission = JSON.parse(permission);
-                if (currentPagePermission.Add == false) {
-                    $("#AddFinacialYearModel").hide();
+                try {
+                    currentPagePermission = JSON.parse(permission);
+                } catch (e) {
+                    console.error("Error parsing PagePermission cookie", e);
                 }
+            }
+
+            // Hide Add Button if permission is false
+            if (currentPagePermission.Add === false || currentPagePermission.Add === "false") {
+                $("#AddFinacialYearModel").hide();
             }
 
             FunctionIsLogin();
             displayData(0);
-            //getDefaultCompany();
             getCurrentYear();
 
             // Shortcut Key
             $(document).keydown(function (key) {
                 switch (parseInt(key.which, 10)) {
                     case 27:
-                        //Esc Key
                         $("#cancelbtn").click();
                         break;
                     case 18 && 79:
-                        // Alt + O
                         $("#AddFinacialYearModel").click();
-                        //addnewcontact
                         break;
                     default:
-                        //alert(key.which);
                         break;
                 }
             });
         });
 
-        // Helper function for SweetAlert2 toast notifications
+        // Helper function to read cookies
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
+
         function showToast(type, msg) {
             Swal.fire({
                 toast: true,
@@ -242,7 +251,6 @@
         }
 
         function checkYearRange(yearRange) {
-            console.log("check");
             $.ajax({
                 type: "POST",
                 url: "/WebServiceNikunjTextile.asmx/checkValidYearRange",
@@ -255,7 +263,6 @@
         }
 
         function OnSuccessRangeValidity(data, status) {
-            console.log(data);
             if (data.d == "true") {
                 showToast('error', "This year is already exists");
             }
@@ -293,7 +300,6 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data, status) {
-                    console.log(data);
                     if (data.d == "false") {
                         window.location.replace("/Index");
                     }
@@ -338,16 +344,13 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    // CLEAR TABLE
                     if (rowStart == 0) {
                         $("#copy-print-csv tbody").empty();
                     }
 
-                    // HTML TABLE BODY
                     var tableBody = $("#copy-print-csv tbody");
                     var temp = "";
 
-                    // VIEW MORE
                     if (response.listFinancialYearMaster.length < 10) {
                         $("#view-more-btn").hide();
                     }
@@ -355,7 +358,6 @@
                         $("#view-more-btn").show();
                     }
 
-                    // LOOP
                     for (var i = 0; i < response.listFinancialYearMaster.length; i++) {
                         temp += "<tr>";
                         temp += "<td>" + response.listFinancialYearMaster[i].FinancialYear + "</td>";
@@ -368,46 +370,34 @@
                             "</span>" +
                             "</td>";
 
-                        // ACTIONS
-                        temp += "<td><div class='actions'>";
+                        // ==========================================
+                        // ACTIONS COLUMN WITH PERMISSION CONTROLS
+                        // ==========================================
+                        temp += "<td class='no-export'><div class='actions'>";
 
-                        // DEFAULT UPDATE
-                        if (currentPagePermission.Edit == true ||
-                            currentPagePermission.Edit == "true") {
-                            temp += "<a href='javascript:void(0);' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='Update' " +
-                                "onclick='functionFYActive(" + response.listFinancialYearMaster[i].FinancialYearID + ")'>" +
-                                "<i class='icon-verified_user text-primary'></i>" +
-                                "</a>&nbsp;&nbsp;";
-                        }
+                        var canEdit = currentPagePermission.Edit === true || currentPagePermission.Edit === "true";
+                        var canDelete = currentPagePermission.Delete === true || currentPagePermission.Delete === "true";
 
-                        temp += "<a href='javascript:void(0);' " +
-                            "data-toggle='tooltip' " +
-                            "data-placement='top' " +
-                            "title='Is Default Update' " +
-                            "onclick='functionFYActive(" + response.listFinancialYearMaster[i].FinancialYearID + ")'>" +
-                            "<i class='icon-verified_user text-primary'></i>" +
-                            "</a>&nbsp;&nbsp;";
+                        if (!canEdit && !canDelete) {
+                            temp += "-";
+                        } else {
+                            if (canEdit) {
+                                temp += "<a href='javascript:void(0);' title='Update' onclick='functionFYActive(" + response.listFinancialYearMaster[i].FinancialYearID + ")'>" +
+                                    "<i class='icon-verified_user text-primary'></i>" +
+                                    "</a>&nbsp;&nbsp;";
+                            }
 
-                        // DELETE
-                        if (currentPagePermission.Delete == true ||
-                            currentPagePermission.Delete == "true") {
-                            temp += "<a href='javascript:void(0);' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='Delete' " +
-                                "onclick='functionFYDelete(" + response.listFinancialYearMaster[i].FinancialYearID + ")'>" +
-                                "<i class='icon-x-circle text-danger'></i>" +
-                                "</a>";
+                            if (canDelete) {
+                                temp += "<a href='javascript:void(0);' title='Delete' onclick='functionFYDelete(" + response.listFinancialYearMaster[i].FinancialYearID + ")'>" +
+                                    "<i class='icon-x-circle text-danger'></i>" +
+                                    "</a>";
+                            }
                         }
 
                         temp += "</div></td>";
                         temp += "</tr>";
                     }
 
-                    // APPEND HTML
                     tableBody.append(temp);
                 },
                 error: function (request, status, error) {
@@ -467,7 +457,6 @@
             });
         }
 
-        //Delete Financial Year
         function functionFYDelete(abc) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -528,7 +517,6 @@
             $("#add-alert").hide();
 
             $(".company-invalid-feedback").hide();
-
             $(".clear-field").removeClass("is-valid is-invalid");
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
@@ -537,7 +525,6 @@
         function checkSave() {
             var FinancialYear = $('#FinancialYear').val();
             var AssessmentYear = $('#AssessmentYear').val();
-
             var StartYears = $('#year').val();
             var EndYears = parseInt($('#year').val()) + parseInt(1);
 
@@ -599,12 +586,6 @@
                 $(errorMessageInvalid).show();
                 return false;
             }
-            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
-                document.getElementById(code.id).classList.remove("is-valid");
-                document.getElementById(code.id).classList.add("is-invalid");
-                $(errorMessageInvalid).show();
-                return false;
-            }
             else {
                 document.getElementById(code.id).classList.add("is-valid");
                 document.getElementById(code.id).classList.remove("is-invalid");
@@ -615,48 +596,81 @@
             }
         }
 
+        // --- EXCEL EXPORT (Excludes .no-export column) ---
         function exportTableToExcel(tableID, filename = '') {
-            var downloadLink;
-            var dataType = 'application/vnd.ms-excel';
             var tableSelect = document.getElementById(tableID);
-            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+            var cloneTable = tableSelect.cloneNode(true);
 
+            $(cloneTable).find('.no-export').remove();
+
+            var tableHTML = cloneTable.outerHTML.replace(/ /g, '%20');
             filename = filename ? filename + '.xls' : 'excel_data.xls';
-            downloadLink = document.createElement("a");
+
+            var downloadLink = document.createElement("a");
             document.body.appendChild(downloadLink);
 
             if (navigator.msSaveOrOpenBlob) {
-                var blob = new Blob(['\ufeff', tableHTML], {
-                    type: dataType
-                });
+                var blob = new Blob(['\ufeff', tableHTML], { type: 'application/vnd.ms-excel' });
                 navigator.msSaveOrOpenBlob(blob, filename);
-            }
-            else {
-                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            } else {
+                downloadLink.href = 'data:application/vnd.ms-excel, ' + tableHTML;
                 downloadLink.download = filename;
                 downloadLink.click();
             }
         }
 
+        // --- PDF EXPORT (Excludes .no-export column using jsPDF-AutoTable correctly) ---
         function generatePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'pt', 'a4');
             doc.setFontSize(14);
-            doc.text("User Account Report", 40, 40);
+            doc.text("Financial Year Report", 40, 40);
 
             doc.autoTable({
                 html: '#copy-print-csv',
                 startY: 60,
                 theme: 'grid',
-                styles: {
-                    fontSize: 8
-                },
-                headStyles: {
-                    fillColor: [41, 128, 185]
-                }
+                excludeColumns: [5],
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [41, 128, 185] }
             });
 
-            doc.save('UserAccountReport.pdf');
+            doc.save('FinancialYearReport.pdf');
+        }
+
+        // --- PRINT FUNCTION (Excludes .no-export column) ---
+        function printTable() {
+            var printContents = document.getElementById("copy-print-csv").cloneNode(true);
+
+            $(printContents).find('.no-export').remove();
+
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = "<h3>Financial Year Report</h3>" + printContents.outerHTML;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+
+        // --- SEARCH FUNCTION ---
+        function searchTable() {
+            var input = document.getElementById("searchBox");
+            var filter = input.value.toUpperCase();
+            var table = document.getElementById("copy-print-csv");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var tdArray = tr[i].getElementsByTagName("td");
+                var match = false;
+                for (var j = 0; j < tdArray.length - 1; j++) {
+                    if (tdArray[j]) {
+                        if (tdArray[j].textContent.toUpperCase().indexOf(filter) > -1) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = match ? "" : "none";
+            }
         }
     </script>
 }
