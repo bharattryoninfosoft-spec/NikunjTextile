@@ -305,12 +305,10 @@
                 timerProgressBar: true
             });
         }
-
         $(document).on("click", ".page-btn", function () {
             currentPage = parseInt($(this).data("page"));
             renderPage();
         });
-
         function getDefaultCompany() {
             $.ajax({
                 type: "GET",
@@ -329,7 +327,6 @@
                 }
             });
         }
-
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -348,7 +345,6 @@
                 }
             });
         }
-
         function logout() {
             $.ajax({
                 type: "POST",
@@ -364,7 +360,6 @@
                 }
             });
         }
-
         function loadSaleOrders() {
             $.ajax({
                 url: "/WebServiceNikunjTextile.asmx/GetSaleOrderList",
@@ -389,7 +384,6 @@
                 }
             });
         }
-
         function renderPage() {
             let start = (currentPage - 1) * pageSize;
             let end = start + pageSize;
@@ -407,7 +401,6 @@
 
             renderPageNumbers();
         }
-
         function renderPageNumbers() {
             let totalPages = Math.ceil(FilteredSaleOrderList.length / pageSize);
             let html = '';
@@ -449,7 +442,6 @@
 
             $("#pageNumbers").html(html);
         }
-
         $(document).on("click", "#nextPage", function () {
             let totalPages = Math.ceil(FilteredSaleOrderList.length / pageSize);
 
@@ -458,7 +450,6 @@
                 renderPage();
             }
         });
-
         $(document).on("click", "#prevPage", function () {
             console.log("Previous Clicked");
 
@@ -467,7 +458,6 @@
                 renderPage();
             }
         });
-
         function bindDataTable(data) {
             let tbody = $("#saleOrderTable tbody");
             tbody.empty();
@@ -509,106 +499,145 @@
                 }
             });
         }
-
         $(document).on('click', '.edit', function () {
             let id = $(this).attr('data-id');
             window.location.href = "/UpdateSaleOrderEntry?id=" + encodeURIComponent(id);
         });
-
         $(document).on('click', '.view', function () {
-            let encodedId = $(this).attr('data-id');
-            let saleOrderId = atob(decodeURIComponent(encodedId));
+    debugger;
+    let encodedId = $(this).attr('data-id');
+    let saleOrderId = atob(decodeURIComponent(encodedId));
 
-            $.ajax({
-                url: '/WebServiceNikunjTextile.asmx/GetSaleOrderById',
-                type: 'POST',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: JSON.stringify({ SaleOrderID: parseInt(saleOrderId) }),
-                success: function (res) {
-                    let response = res.d;
-                    if (response.success) {
-                        let d = response.Data;
-                        
-                        // 1. Fill Master Summary Fields (Using Names instead of IDs)
-                        $("#viewOrderNo").text(d.OrderNo || '--');
-                        $("#viewOrderDate").text(d.OrderDate || '--');
-                        $("#viewPartyName").text(d.PartyName || '--');
-                        $("#viewBroker").text(d.BrokerName || d.BrokerID || '--'); // 🔥 Shows Broker Name
-                        $("#viewTransport").text(d.TransportName || d.TransportID || '--'); // 🔥 Shows Transport Name
-                        $("#viewMarkup").text((d.MarkupPercent || 0) + '%');
-                        $("#viewRemarks").text(d.Remark || 'No remarks provided.');
+    $.ajax({
+        url: '/WebServiceNikunjTextile.asmx/GetSaleOrderById',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ SaleOrderID: parseInt(saleOrderId) }),
+        success: function (res) {
+            let response = res.d;
+            if (response.success) {
+                let d = response.Data;
 
-                        // 2. Fill Totals Summary Fields
-                        $("#viewTotalAmount").text(parseFloat(d.TotalAmount || 0).toFixed(2));
-                        $("#viewDiscount").text(parseFloat(d.DiscountAmount || 0).toFixed(2));
-                        $("#viewGstAmount").text(parseFloat(d.GSTAmount || 0).toFixed(2));
-                        $("#viewRoundOff").text(parseFloat(d.RoundOff || 0).toFixed(2));
-                        $("#viewInvoiceAmount").text(parseFloat(d.InvoiceAmount || 0).toFixed(2));
+                // 1. Fill Master Summary Fields
+                $("#viewOrderNo").text(d.OrderNo || '--');
+                $("#viewOrderDate").text(d.OrderDate || '--');
+                $("#viewPartyName").text(d.PartyName || '--');
+                $("#viewBroker").text(d.BrokerName || d.BrokerID || '--');
+                $("#viewTransport").text(d.TransportName || d.TransportID || '--');
+                $("#viewMarkup").text((d.MarkupPercent || 0) + '%');
+                $("#viewRemarks").text(d.Remark || 'No remarks provided.');
 
-                        // 3. Render Additional Charges Table Rows Correctly
-                        let addChargesTbody = $("#viewAdditionalChargesContainer");
-                        addChargesTbody.empty();
+                // 3. Render Additional Charges Table Rows
+                let addChargesTbody = $("#viewAdditionalChargesContainer");
+                addChargesTbody.empty();
 
-                        if (d.AdditionalCharges && d.AdditionalCharges.length > 0) {
-                            d.AdditionalCharges.forEach((ac, idx) => {
-                                let row = `
-                                <tr>
-                                    <td>${idx + 1}</td>
-                                    <td>${ac.ChargeRemark || '--'}</td>
-                                    <td>₹ ${parseFloat(ac.ChargeValue || 0).toFixed(2)}</td>
-                                    <td>₹ ${parseFloat(ac.TotalCalculatedAmount || 0).toFixed(2)}</td>
-                                </tr>`;
-                                addChargesTbody.append(row);
-                            });
-                        } else {
-                            addChargesTbody.html(`<tr><td colspan="4" class="text-center text-muted">No additional charges found.</td></tr>`);
-                        }
+                let totalAdditionalChargeValue = 0;
 
-                        // 4. Render Items Sub-table inside the modal
-                        let itemTbody = $("#viewItemsTable tbody");
-                        itemTbody.empty();
+                if (d.AdditionalCharges && d.AdditionalCharges.length > 0) {
+                    d.AdditionalCharges.forEach((ac, idx) => {
+                        let calculatedChargeAmount = parseFloat(ac.TotalCalculatedAmount || ac.totalCalculatedAmount || 0);
+                        totalAdditionalChargeValue += parseFloat(ac.ChargeValue || ac.chargeValue || 0);
 
-                        if (d.Details && d.Details.length > 0) {
-                            d.Details.forEach((item, index) => {
-                                let colorBreakdown = "";
-                                if (item.SubDetails && item.SubDetails.length > 0) {
-                                    colorBreakdown = item.SubDetails.map((sub, sIdx) =>
-                                        `${sIdx + 1}. ${sub.ColourName} (${sub.Qty} ${sub.Unit})`
-                                    ).join("<br/>");
-                                }
-
-                                let row = `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td>
-                                        <div class="fw-bold text-dark">${item.DesignName || item.DesignNo || '--'}</div>
-                                    </td>
-                                    <td>${item.Type || '--'}</td>
-                                    <td><small>${colorBreakdown || 'No colors specified'}</small></td>
-                                    <td>${item.Qty || 0}</td>
-                                    <td>${item.Unit || 'PCS'}</td>
-                                    <td>${parseFloat(item.BrokerRate || item.Rate || 0).toFixed(2)}</td>
-                                    <td>${parseFloat(item.Amount || 0).toFixed(2)}</td>
-                                </tr>`;
-                                itemTbody.append(row);
-                            });
-                        } else {
-                            itemTbody.html(`<tr><td colspan="8" class="text-center text-muted">No line items found.</td></tr>`);
-                        }
-
-                        // 5. Open Modal
-                        $("#viewSaleOrderModal").modal("show");
-                    } else {
-                        Swal.fire('Error', response.Message || 'Failed to fetch order details.', 'error');
-                    }
-                },
-                error: function () {
-                    Swal.fire('Error', 'Server connection error occurred.', 'error');
+                        let row = `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${ac.ChargeRemark || '--'}</td>
+                            <td>₹ ${parseFloat(ac.ChargeValue || 0).toFixed(2)}</td>
+                            <td>₹ ${calculatedChargeAmount.toFixed(2)}</td>
+                        </tr>`;
+                        addChargesTbody.append(row);
+                    });
+                } else {
+                    addChargesTbody.html(`<tr><td colspan="4" class="text-center text-muted">No additional charges found.</td></tr>`);
                 }
-            });
-        });
 
+                // 4. Render Items Sub-table & Calculate Dynamic Line Totals
+                let itemTbody = $("#viewItemsTable tbody");
+                itemTbody.empty();
+
+                let calculatedSubTotalAmount = 0;
+
+                if (d.Details && d.Details.length > 0) {
+                    d.Details.forEach((item, index) => {
+                        let colorBreakdown = "";
+                        if (item.SubDetails && item.SubDetails.length > 0) {
+                            colorBreakdown = item.SubDetails.map((sub, sIdx) =>
+                                `${sIdx + 1}. ${sub.ColourName} (${sub.Qty} ${sub.Unit})`
+                            ).join("<br/>");
+                        }
+
+                        let saleRate = parseFloat(item.Rate || 0);
+                        let chargeValue = parseFloat(item.ChargeValue || item.chargeValue || totalAdditionalChargeValue);
+
+                        // Formula: SaleRate + ChargeValue = Rate
+                        let calculatedRate = saleRate + chargeValue;
+                        let qty = parseFloat(item.Qty || item.qty || 0);
+
+                        // Formula: Rate * Qty = Amount
+                        let calculatedAmount = calculatedRate * qty;
+
+                        calculatedSubTotalAmount += calculatedAmount;
+
+                        let row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>
+                                <div class="fw-bold text-dark">${item.DesignName || item.DesignNo || '--'}</div>
+                            </td>
+                            <td>${item.Type || '--'}</td>
+                            <td><small>${colorBreakdown || 'No colors specified'}</small></td>
+                            <td>${qty}</td>
+                            <td>${item.Unit || 'PCS'}</td>
+                            <td>${calculatedRate.toFixed(2)}</td>
+                            <td>${calculatedAmount.toFixed(2)}</td>
+                        </tr>`;
+                        itemTbody.append(row);
+                    });
+                } else {
+                    itemTbody.html(`<tr><td colspan="8" class="text-center text-muted">No line items found.</td></tr>`);
+                }
+                // 2. Compute and Fill Totals Summary Fields using Percentage-based calculations
+                let finalTotalAmount = calculatedSubTotalAmount; // e.g., 9840.00
+
+                // Get Discount Percent (fallback to 0 if not provided)
+                let discountPercent = parseFloat(d.DiscountPercent || d.discountPercent || 0);
+                let discountAmount = finalTotalAmount * (discountPercent / 100);
+
+                // Taxable Amount after discount
+                let taxableAmount = finalTotalAmount - discountAmount;
+
+                // Get GST Percent (fallback to 10% or from database model)
+                let gstPercent = parseFloat(d.GSTPercent || d.gstPercent || 10);
+                let gstAmount = taxableAmount * (gstPercent / 100);
+
+                // Step 1: Calculate the exact unrounded total before round-off
+                let unroundedInvoiceTotal = taxableAmount + gstAmount;
+
+                // Step 2: Automatically calculate round-off to snap to the nearest whole integer
+                let roundedInvoiceTotal = Math.round(unroundedInvoiceTotal);
+                let roundOff = roundedInvoiceTotal - unroundedInvoiceTotal;
+
+                // Step 3: Final invoice total takes the rounded value directly
+                let invoiceAmount = roundedInvoiceTotal;
+
+                // Bind to view fields with accurate precision
+                $("#viewTotalAmount").text(finalTotalAmount.toFixed(2));
+                $("#viewDiscount").text(discountAmount.toFixed(2));
+                $("#viewGstAmount").text(gstAmount.toFixed(2));
+                $("#viewRoundOff").text(roundOff.toFixed(2));
+                $("#viewInvoiceAmount").text(invoiceAmount.toFixed(2));
+                // 5. Open Modal
+                $("#viewSaleOrderModal").modal("show");
+            } else {
+                Swal.fire('Error', response.Message || 'Failed to fetch order details.', 'error');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Server connection error occurred.', 'error');
+        }
+    });
+});
         $(document).on('click', '.delete', function () {
             let id = $(this).data('id');
             console.log("Delete Click:", id);
@@ -627,7 +656,6 @@
                 }
             });
         });
-
         function deleteSaleOrder(id) {
             $.ajax({
                 url: "/WebServiceNikunjTextile.asmx/DeleteSaleOrder",
@@ -659,7 +687,6 @@
                 }
             });
         }
-
         var selectedIds = [];
         function getSelectedSaleorderID() {
             selectedIds = [];
@@ -669,7 +696,6 @@
             console.log("Selected IDs:", selectedIds);
             return selectedIds;
         }
-
         $(document).on("change", "#selectAll", function () {
             $("#saleOrderTable tbody .row-checkbox").prop(
                 "checked",
@@ -677,14 +703,12 @@
             );
             getSelectedSaleorderID();
         });
-
         $(document).on("change", "#saleOrderTable tbody .row-checkbox", function () {
             let totalCheckboxes = $("#saleOrderTable tbody .row-checkbox").length;
             let checkedCheckboxes = $("#saleOrderTable tbody .row-checkbox:checked").length;
             $("#selectAll").prop("checked", totalCheckboxes === checkedCheckboxes);
             getSelectedSaleorderID();
         });
-
         $(document).on("click", "#btnGeneratePDF", function () {
             getSelectedSaleorderID();
             if (selectedIds.length === 0) {
@@ -693,7 +717,6 @@
             }
             ExportPDF(selectedIds);
         });
-
         function ExportPDF(ids) {
             // Check if IDs array is empty
             if (!ids || ids.length === 0) {
@@ -750,7 +773,6 @@
                 }
             });
         }
-
         function functionSearch() {
             let search = $("#SearchRequirementNo").val()
                 .toLowerCase()

@@ -26,7 +26,7 @@ namespace NikunjTextile.Class
         public int YarnColorID { get; set; }
         public string YarnColor { get; set; }
         public string YarnColorCode { get; set; }
-
+        public int companyId { get; set; }
         public string CompanyName { get; set; }
         public string CompanyColourCode { get; set; }
         public int NoofBoxes { get; set; }

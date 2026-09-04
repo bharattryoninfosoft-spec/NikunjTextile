@@ -3282,181 +3282,181 @@
                 tbody.append(tr);
             });
         }
-function updateSummary() {
+        function updateSummary() {
+            debugger;
+            let totalQty = 0;
+            let totalAmount = 0;
 
-    let totalQty = 0;
-    let totalAmount = 0;
+            // ============================================================
+            // ADDITIONAL CHARGES PER UNIT
+            // ============================================================
 
-    // ============================================================
-    // ADDITIONAL CHARGES PER UNIT
-    // ============================================================
+            let totalAdditionalPerUnit = 0;
 
-    let totalAdditionalPerUnit = 0;
-
-    $(".additional-row").each(function () {
-        totalAdditionalPerUnit +=
-            parseFloat($(this).find(".AdditionalValue").val()) || 0;
-    });
-
-
-    // ============================================================
-    // ITEM TOTAL
-    // ============================================================
-
-    SaleOrderDetails.forEach(item => {
-
-        let brokerRate =
-            parseFloat(item.BrokerRate) || 0;
-
-        let effectiveRate =
-            brokerRate + totalAdditionalPerUnit;
-
-        item.UnitAdditionalValue = totalAdditionalPerUnit;
-
-        item.Amount =
-            (parseFloat(item.TotalQty) || 0) * effectiveRate;
-
-        totalQty +=
-            parseFloat(item.TotalQty) || 0;
-
-        totalAmount +=
-            parseFloat(item.Amount) || 0;
-    });
+            $(".additional-row").each(function () {
+                totalAdditionalPerUnit +=
+                    parseFloat($(this).find(".AdditionalValue").val()) || 0;
+            });
 
 
-    // ============================================================
-    // DISPLAY TOTAL
-    // ============================================================
+            // ============================================================
+            // ITEM TOTAL
+            // ============================================================
 
-    $("#totalQty").text(totalQty);
+            SaleOrderDetails.forEach(item => {
 
-    $("#totalAmount").text(
-        totalAmount.toFixed(2)
-    );
+                let brokerRate =
+                    parseFloat(item.BrokerRate) || 0;
 
+                let effectiveRate =
+                    brokerRate + totalAdditionalPerUnit;
 
-    // ============================================================
-    // DISCOUNT - PERCENTAGE IS THE ONLY INPUT
-    // ============================================================
+                item.UnitAdditionalValue = totalAdditionalPerUnit;
 
-    let discountValPercent =
-        parseFloat($("#discountValuePercent").val()) || 0;
+                item.Amount =
+                    (parseFloat(item.TotalQty) || 0) * effectiveRate;
 
-    // Validate percentage
-    if (discountValPercent < 0) {
-        discountValPercent = 0;
-    }
+                totalQty +=
+                    parseFloat(item.TotalQty) || 0;
 
-    if (discountValPercent > 100) {
-        discountValPercent = 100;
-    }
-
-    $("#discountValuePercent").val(discountValPercent);
+                totalAmount +=
+                    parseFloat(item.Amount) || 0;
+            });
 
 
-    // Calculate discount ONLY from percentage
-    let discountAmount =
-        (totalAmount * discountValPercent) / 100;
+            // ============================================================
+            // DISPLAY TOTAL
+            // ============================================================
 
-    // Safety
-    if (discountAmount > totalAmount) {
-        discountAmount = totalAmount;
-    }
+            $("#totalQty").text(totalQty);
 
-    if (discountAmount < 0) {
-        discountAmount = 0;
-    }
+            $("#totalAmount").text(
+                totalAmount.toFixed(2)
+            );
 
 
-    // Update calculated amount
-    $("#discountValueAmount").val(
-        discountAmount.toFixed(2)
-    );
+            // ============================================================
+            // DISCOUNT - PERCENTAGE IS THE ONLY INPUT
+            // ============================================================
 
-    $("#discountAmount").text(
-        discountAmount.toFixed(2)
-    );
+            let discountValPercent =
+                parseFloat($("#discountValuePercent").val()) || 0;
 
-    let afterDiscount = totalAmount - discountAmount;
-    // ============================================================
-    // SHOW CALCULATED DISCOUNT AMOUNT
-    // ============================================================
+            // Validate percentage
+            if (discountValPercent < 0) {
+                discountValPercent = 0;
+            }
 
-    $("#discountValueAmount").val(
-        discountAmount.toFixed(2)
-    );
+            if (discountValPercent > 100) {
+                discountValPercent = 100;
+            }
 
-    $("#discountAmount").text(
-        discountAmount.toFixed(2)
-    );
-
-    // ============================================================
-    // ADDITIONAL FIXED CHARGE
-    // ============================================================
-
-    let totalAdditionalValue = 0;
-
-    $(".additional-row").each(function () {
-
-        let value =
-            parseFloat($(this).find(".AdditionalValue").val()) || 0;
-
-        // Since this is per-unit charge,
-        // total amount = value × total quantity
-        totalAdditionalValue +=
-            value * totalQty;
-    });
+            $("#discountValuePercent").val(discountValPercent);
 
 
-    $("#AdditionalAmount").text(
-        totalAdditionalValue.toFixed(2)
-    );
+            // Calculate discount ONLY from percentage
+            let discountAmount =
+                (totalAmount * discountValPercent) / 100;
+
+            // Safety
+            if (discountAmount > totalAmount) {
+                discountAmount = totalAmount;
+            }
+
+            if (discountAmount < 0) {
+                discountAmount = 0;
+            }
 
 
-    // ============================================================
-    // TAXABLE AMOUNT
-    // ============================================================
+            // Update calculated amount
+            $("#discountValueAmount").val(
+                discountAmount.toFixed(2)
+            );
 
-    let taxableAmount =  afterDiscount + totalAdditionalValue;
+            $("#discountAmount").text(
+                discountAmount.toFixed(2)
+            );
+
+            let afterDiscount = totalAmount - discountAmount;
+            // ============================================================
+            // SHOW CALCULATED DISCOUNT AMOUNT
+            // ============================================================
+
+            $("#discountValueAmount").val(
+                discountAmount.toFixed(2)
+            );
+
+            $("#discountAmount").text(
+                discountAmount.toFixed(2)
+            );
+
+            // ============================================================
+            // ADDITIONAL FIXED CHARGE
+            // ============================================================
+
+            let totalAdditionalValue = 0;
+
+            $(".additional-row").each(function () {
+
+                let value =
+                    parseFloat($(this).find(".AdditionalValue").val()) || 0;
+
+                // Since this is per-unit charge,
+                // total amount = value × total quantity
+                totalAdditionalValue +=
+                    value * totalQty;
+            });
 
 
-    // ============================================================
-    // GST
-    // ============================================================
-
-    let gstPercent =
-        parseFloat($("#gstPercent").val()) || 0;
-
-    let gstAmount =
-        (taxableAmount * gstPercent) / 100;
-
-    $("#gstAmount").text(
-        gstAmount.toFixed(2)
-    );
+            $("#AdditionalAmount").text(
+                totalAdditionalValue.toFixed(2)
+            );
 
 
-    // ============================================================
-    // FINAL TOTAL
-    // ============================================================
+            // ============================================================
+            // TAXABLE AMOUNT
+            // ============================================================
 
-    let finalAmount =
-        taxableAmount + gstAmount;
-
-    let roundedAmount =
-        Math.round(finalAmount);
-
-    let roundOff =
-        roundedAmount - finalAmount;
+            let taxableAmount =  afterDiscount ;
 
 
-    $("#RoundOff").text(
-        roundOff.toFixed(2)
-    );
+            // ============================================================
+            // GST
+            // ============================================================
 
-    $("#invoiceAmount").text(
-        roundedAmount.toFixed(2)
-    );
-}
+            let gstPercent =
+                parseFloat($("#gstPercent").val()) || 0;
+
+            let gstAmount =
+                (taxableAmount * gstPercent) / 100;
+
+            $("#gstAmount").text(
+                gstAmount.toFixed(2)
+            );
+
+
+            // ============================================================
+            // FINAL TOTAL
+            // ============================================================
+
+            let finalAmount =
+                taxableAmount + gstAmount;
+
+            let roundedAmount =
+                Math.round(finalAmount);
+
+            let roundOff =
+                roundedAmount - finalAmount;
+
+
+            $("#RoundOff").text(
+                roundOff.toFixed(2)
+            );
+
+            $("#invoiceAmount").text(
+                roundedAmount.toFixed(2)
+            );
+        }
 
         // Ensure change/input on any dynamic additional row input or remove button updates totals
         $(document).on("input change", ".AdditionalValue", function () {
@@ -4286,5 +4286,6 @@ function updateSummary() {
                 $el.removeClass("is-valid is-invalid");
             }
         }
+
     </script>
 }

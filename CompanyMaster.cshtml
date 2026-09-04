@@ -734,7 +734,7 @@
             $("#upload-sign-temp").val("");
             $("#upload-image").val("");
             $("#upload-sign").val("");
-            $("#edit-id").val(id);
+            $("#edit-id-default").val(id);
             $("#savebtn").hide();
             $("#editbtn").show();
             $("#addNewContactLabel").html("Edit Company");
@@ -928,7 +928,7 @@
             if (!areFieldsValid) return;
 
             var formData = new FormData();
-            var id = $("#edit-id").val();
+            var id = $("#edit-id-default").val();
             formData.append('CompanyIds', id);
             formData.append('CompanyNames', name.value);
             formData.append('Email', $("#email-default").val());

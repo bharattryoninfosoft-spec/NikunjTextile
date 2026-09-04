@@ -1,38 +1,11 @@
-﻿@{
-    Layout = "/_LayoutPage1.cshtml";
-}
+﻿@{ Layout = "/_LayoutPage1.cshtml"; }
 
-
-<style>
-    /* Hide Export Buttons */
-    .dt-buttons,
-    .dataTables_wrapper .dt-buttons {
-        display: none !important;
-    }
-
-    /* Hide Search Box */
-    .dataTables_filter {
-        display: none !important;
-    }
-
-    /* Hide "Showing x to y of z entries" */
-    .dataTables_info {
-        display: none !important;
-    }
-
-    /* Hide Pagination */
-    .dataTables_paginate {
-        display: none !important;
-    }
-
-    /* Hide "Show Entries" Dropdown */
-    .dataTables_length {
-        display: none !important;
-    }
-</style>
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
+
+
+
     <button id="AddPartyModel" style="float:right; display:none;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact"> </button>
     <!-- Party Mastwer Modal -->
     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
@@ -57,7 +30,7 @@
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
                                         <input type="text" id="YarnMaterial" name="YarnMaterial" class="form-control clear-field" onfocusout="validate(this)">
-                                        <div class="field-placeholder">Yarn Material & Quality<sup style="color:red;">*</sup></div>
+                                        <div class="field-placeholder">Material & Quality<sup style="color:red;">*</sup></div>
                                         <div class="YarnMaterial-valid-feedback valid-feedback">Looks good!</div>
                                         <div class="YarnMaterial-invalid-feedback invalid-feedback">Please Mention Yarn Material & Quality</div>
                                     </div>
@@ -130,19 +103,11 @@
                                         <div class="GSTSLABId-valid-feedback valid-feedback">Looks good!</div>
                                         <div class="GSTSLABId-invalid-feedback invalid-feedback">Please Select GST Slab</div>
                                     </div>
-
-
-
                                     <!-- Field wrapper end -->
                                 </div>
-
-
-
-
                             </div>
                         </div>
                     </div>
-
                     <div class="row gutters" id="DivYarnColor" style="display:none;">
                         <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
                             <div class="row gutters">
@@ -150,7 +115,7 @@
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
                                         <input type="text" id="YarnColor" name="YarnColor" class="form-control clear-field" onfocusout="validate(this)">
-                                        <div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>
+                                        <div class="field-placeholder">Color<sup style="color:red;">*</sup></div>
                                         <div class="YarnColor-valid-feedback valid-feedback">Looks good!</div>
                                         <div class="YarnColor-invalid-feedback invalid-feedback">Please Mention Yarn Color</div>
                                     </div>
@@ -164,7 +129,7 @@
                                             <span class="input-group-text">#</span>
                                             <input type="text" id="YarnColorCode" name="YarnColorCode" class="form-control clear-field" onfocusout="validate(this)" onkeyup="changeYarnColor(this)">
                                         </div>
-                                        <div class="field-placeholder">Yarn Color Code<sup style="color:red;">*</sup></div>
+                                        <div class="field-placeholder">Color Code<sup style="color:red;">*</sup></div>
                                         <div class="YarnColor-valid-feedback valid-feedback">Looks good!</div>
                                         <div class="YarnColor-invalid-feedback invalid-feedback">Please Mention Yarn Color Code</div>
                                     </div>
@@ -172,46 +137,32 @@
                                 </div>
 
                                 <div class="col-2">
-
                                     <!-- Field wrapper start -->
                                     <div class="field-wrapper">
                                         <div class="form-check form-check-inline">
                                             <br />
                                             <input id="IsActiveYarnColor" class="form-check-input" type="checkbox" value="1" checked>
                                             <label class="form-check-label" for="IsActiveYarnColor-default" style="background-color: white; border-radius: 10px; padding: 3px;">Is Active</label>
-
                                         </div>
                                     </div>
                                     <!-- Field wrapper end -->
                                 </div>
-
-
-
-
                             </div>
                         </div>
                     </div>
 
                     <div class="row gutters" id="DivPartyMaster" style="display:none;">
-
                         <div class="row gutters">
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
                                 <div class="row gutters">
-
                                     <div class="col-6">
-
-
                                         <div class="row gutters">
-
-
                                             <div class="col-6">
                                                 <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
                                             </div>
                                             <div class="col-6">
-
                                             </div>
                                             <hr />
-
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
@@ -221,9 +172,7 @@
                                                     <div class="field-placeholder">GSTIN</div>
                                                     <div class="gstin-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="gstin-invalid-feedback invalid-feedback" id="GSTError">Please Provide Valid GSTIN Number</div>
-
                                                 </div>
-
                                             </div>
 
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -235,14 +184,8 @@
                                                     <div class="field-placeholder">PAN No</div>
                                                     <div class="PanNo-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="PanNo-invalid-feedback invalid-feedback" id="PanNoError">Please Provide Valid PanNo Number</div>
-
                                                 </div>
-
                                             </div>
-
-
-
-
                                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
@@ -253,12 +196,6 @@
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
-
-
-
-
-
-
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
@@ -272,7 +209,6 @@
                                                 <!-- Field wrapper end -->
                                             </div>
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
                                                     <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" @*onfocusout="validate(this)"*@ min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
@@ -282,11 +218,8 @@
                                                     <div class="alt-phone-less-feedback invalid-feedback">Invalid Number</div>
                                                 </div>
                                                 <!-- Field wrapper end -->
-
                                             </div>
-
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
                                                     <input id="email" placeholder="Enter Email" onfocusout="validateEmail(this.value,this)" type="text" class="form-control clear-field detail" onkeypress="return ((event.charCode >= 46 && event.charCode <= 57) && event.charCode != 47 || (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122))">
@@ -297,7 +230,6 @@
                                                     <div class="email-invalid-feedback invalid-feedback">Please Provide Proper Email</div>
                                                 </div>
                                                 <!-- Field wrapper end -->
-
                                             </div>
 
                                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -666,6 +598,7 @@
                 </div>
                 <input id="edit-id" type="hidden" />
                 <input id="catedit-id" type="hidden" />
+                <input id="YarnRequirementID" type="hidden" value="0" />
                 <div id="notess"></div>
                 <div class="modal-footer" id="divModalFooter">
 
@@ -693,7 +626,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <div class="form-section-header">Create Yarn Requirement Form</div>
+                    <div class="form-section-header">Update Yarn Requirement Form</div>
                     <br />
                     <!--Images-->
                     <div class="row gutters">
@@ -768,7 +701,7 @@
                                         <div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
                                             <!-- Row start -->
                                             <div class="row gutters">
-                                                <input type="hidden" id="YarnRequirementID" class="form-control datepicker">
+
                                                 <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
@@ -805,7 +738,7 @@
 
                                                 <div class="col-3">
 
-                                                    <button type="button" class="btn btn-warning" style="margin-top: 8px; display: none;" onclick="addparty()"> + ADD PARTY</button>
+                                                    <button type="button" class="btn btn-warning" style="margin-top: 8px; display:none;" onclick="addparty()"> + ADD PARTY</button>
                                                 </div>
 
 
@@ -856,1657 +789,1174 @@
 
                                         </div>
                                     </div>
-                                    <!-- Row end -->
+                                    <br />
+                                    <div class="row gutters mb-3">
+
+                                        <!-- Material -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="field-wrapper">
+                                                <select id="yarnMaterial1"
+                                                        class="form-control"
+                                                        onchange="YarnMaterialChange(1)">
+                                                    <option value="0">Select Material</option>
+                                                </select>
+
+                                                <div class="field-placeholder">
+                                                    Material <span class="text-danger">*</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
 
+                                        <!-- Color -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="field-wrapper">
+                                                <select id="YarnColor1"
+                                                        class="form-control"
+                                                        onchange="YarnColorChange(1)">
+                                                    <option value="0">Select Color</option>
+                                                </select>
+
+                                                <div class="field-placeholder">
+                                                    Color <span class="text-danger">*</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
 
+                                        <!-- Name -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+
+                                            <div class="field-wrapper">
+
+                                                <select id="CompanyName1"
+                                                        class="form-control"
+                                                        title="Select Company"
+                                                        onchange="YarnCompanyChange(1)" disabled>
+
+                                                    <option value="0">
+                                                        Select Company
+                                                    </option>
+
+                                                </select>
+
+                                                <div class="field-placeholder">
+                                                    Company
+                                                    <span class="text-danger">*</span>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
 
 
+                                        <!-- Colour Code -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="field-wrapper">
+                                                <input type="text"
+                                                       id="ColorCode1"
+                                                       class="form-control"
+                                                       placeholder="Colour Code"
+                                                       readonly />
+
+                                                <div class="field-placeholder">
+                                                    Colour Code
+                                                </div>
+                                            </div>
+                                        </div>
 
 
+                                        <!-- No Of Boxes -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="field-wrapper">
+                                                <input type="number"
+                                                       id="NoOfBox1"
+                                                       class="form-control"
+                                                       placeholder="No Of Boxes"
+                                                       min="1"
+                                                       onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
 
+                                                <div class="field-placeholder">
+                                                    No Of Boxes <span class="text-danger">*</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Add / Update -->
+                                        <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="field-wrapper">
+                                                <button type="button"
+                                                        id="btnAddYarn"
+                                                        class="btn btn-secondary w-100"
+                                                        style="margin-top:8px;"
+                                                        onclick="AddYarnDetailData()">
+
+                                                    <i class="fa fa-plus"></i>
+                                                    ADD YARN DATA
+
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!-- =========================================================
+                 YARN DETAILS TABLE
+            ========================================================= -->
                                     <div class="row gutters">
+
                                         <div class="col-12">
+
                                             <div class="table-responsive">
-                                                <input type="hidden" id="txtPurchasenStock" value="0" />
-                                                <table class="table table-bordered" id="tblYarnMaterial" style="overflow: hidden;">
+
+                                                <input type="hidden"
+                                                       id="txtPurchasenStock"
+                                                       value="0" />
+
+
+                                                <table class="table table-bordered"
+                                                       id="tblYarnMaterial">
+
                                                     <thead>
+
                                                         <tr>
-                                                            <th colspan="6">Yarn Details</th>
+                                                            <th colspan="6">
+                                                                Details
+                                                            </th>
                                                         </tr>
+
                                                         <tr>
-                                                            <th style="width:3%;">#</th>
-                                                            <th style="width: 20%; text-align: center;">Yarn Material &nbsp; <button type="button" class="btn btn-warning" style="padding: 2px 10px 2px 10px; display:none;" onclick="addYarnMaterial()"> + ADD</button></th>
-                                                            <th style="width: 20%; text-align: center;">Yarn Color &nbsp; <button type="button" class="btn btn-warning" style="padding: 2px 10px 2px 10px; display: none;" onclick="addYarnColor()"> + ADD</button></th>
-                                                            <th style="width: 20%; text-align: center;">Company Name</th>
-                                                            <th style="width: 20%; text-align: center;">Company Colour Code</th>
-                                                            <th style="width: 17%; text-align: center;">No of Boxes</th>
+
+                                                            <th style="width:20%;">
+                                                                Material
+                                                            </th>
+
+                                                            <th style="width:20%;">
+                                                                Color
+                                                            </th>
+
+                                                            <th style="width:20%;">
+                                                                Company Name
+                                                            </th>
+
+                                                            <th style="width:15%;">
+                                                                Colour Code
+                                                            </th>
+
+                                                            <th style="width:15%;">
+                                                                No Of Boxes
+                                                            </th>
+
+                                                            <th style="width:10%;">
+                                                                Action
+                                                            </th>
+
                                                         </tr>
+
                                                     </thead>
 
+
                                                     <tbody id="tableItemData">
-                                                        <tr id="trMatching1">
-                                                            <td style="width:3%;">
-                                                                <div class="field-wrapper" style="display:flex;align-items:center; gap:5px;">
-                                                                </div>
-                                                            </td>
-                                                            <td style="width: 20%; text-align: center;">
 
-                                                                <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <select id="yarnMaterial1" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">
-                                                                    </select>
-                                                                </div>
-                                                            </td>
-
-                                                            <td style="width: 20%; text-align: center;">
-                                                                <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <div id="tdYarnColor1" style="width: 35px; height: 35px; border-radius: 3px;"></div>
-                                                                    <select id="YarnColor1" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange('1')">
-                                                                    </select>
-                                                                </div>
-                                                            </td>
-
-                                                            <td style="width: 20%; text-align: center;">
-
-                                                                <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <input type="text" class="form-control" id="CompanyName1" placeholder="Company Name" onfocusout="validate(this)" />
-                                                                </div>
-                                                            </td>
-                                                            <td style="width: 20%; text-align: center;">
-
-                                                                <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <input type="text" class="form-control" id="ColorCode1" placeholder="Color Code" onfocusout="validate(this)" />
-                                                                </div>
-                                                            </td>
-                                                            <td style="width: 17%; text-align: center;">
-                                                                <div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">
-                                                                    <input type="tel" class="form-control" id="NoOfBox1" placeholder="No Of Boxes" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                        <!-- First input row table mein nahi chahiye -->
+                                                        <!-- Added records yahan aayenge -->
 
                                                     </tbody>
-
-
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="6">
-
-
-                                                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divWarpData">
-                                                                    <div class="row gutters">
-                                                                        <div class="row gutters">
-                                                                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                                                            </div>
-                                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                                                <button type="button" class="btn btn-secondary" style=" width: 100%;" onclick="AddYarnDetailData()"><i class="fa fa-plus"></i> ADD YARN DATA</button>
-                                                                            </div>
-                                                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                                                <button type="button" class="btn btn-success" style=" width: 100%;" onclick="AddDuplicateYarnDetailData()"><i class="fa fa-plus"></i> ADD DUPLICATE YARN DATA</button>
-                                                                            </div>
-                                                                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                    </div>
-                                                                </div>
-
-
-                                                            </td>
-                                                        </tr>
-
-                                                    </tfoot>
-
 
                                                 </table>
 
 
+                                                <!-- =================================================
+                             YARN ARRAY
+                        ================================================== -->
+
+                                                <input type="hidden"
+                                                       id="txtYarnDetailsArray"
+                                                       value="" />
+
+                                                <input type="hidden"
+                                                       id="txtDeleteYarnDetailsArray"
+                                                       value="" />
+
+
+                                                <div id="divMatchingColor"></div>
+
+
+                                                <!-- =================================================
+                             SAVE FOOTER
+                        ================================================== -->
+
+                                                <div class="modal-footer">
+
+                                                    <a href="YarnRequirement"
+                                                       class="btn btn-light"
+                                                       style="font-size:medium;">
+
+                                                        <i class="fa fa-arrow-left"></i>
+                                                        Back
+
+                                                    </a>
+
+
+                                                    <button id="savebtn"
+                                                            type="button"
+                                                            class="btn btn-primary"
+                                                            onclick="checkSave()">
+
+                                                        <span id="btnText">
+                                                            Save
+                                                        </span>
+
+                                                        <span id="btnLoader"
+                                                              style="display:none;">
+
+                                                            <i class="fa fa-spinner fa-spin"></i>
+                                                            Saving...
+
+                                                        </span>
+
+                                                    </button>
+
+
+                                                    <button id="Updatebtn"
+                                                            type="button"
+                                                            class="btn btn-primary"
+                                                            onclick="checkUpdate()"
+                                                            style="font-size:medium;display:none;">
+
+                                                        Update Yarn Requirement
+
+                                                    </button>
+
+                                                </div>
+
                                             </div>
+
                                         </div>
+
                                     </div>
-
-
-
-
-
-
-
-
-
-
                                 </div>
                             </div>
-                        </div>
+                            @section Scripts {
+                                <script>
+                                    $('body').addClass('fullscreen');
 
+                                    var currentPagePermission = {};
+                                    var ArrayYarnColor = [];
+                                    var ArrayYarnMaterial = [];
+                                    var IsJobWork = 0;
+                                    var editingYarnRowNo = 0;
+                                    var isSubmitting = false;
 
+                                    $(document).ready(function () {
+                                        var permission = getCookie("PagePermission");
+                                        if (permission != null && permission != "") {
+                                            currentPagePermission = JSON.parse(permission);
+                                            if (currentPagePermission.Edit === false) {
+                                                $("#Updatebtn").hide();
+                                            }
+                                        }
 
+                                        $('.active, .show, .current-page').removeClass('active show current-page');
+                                        $("#YarnForm-tab").addClass("active");
+                                        $("#tab-YarnForm").addClass("show active");
+                                        $("#aCreateYarnRequirement").addClass("current-page");
 
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                        </div>
+                                        FunctionIsLogin();
 
+                                        var requirementId = getRequirementIdFromUrl();
+                                        if (!requirementId) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Invalid Requirement",
+                                                text: "Yarn Requirement ID is missing."
+                                            }).then(function () {
+                                                window.location.href = "/YarnRequirement";
+                                            });
+                                            return;
+                                        }
 
+                                        $("#YarnRequirementID").val(requirementId);
 
+                                        // Sequentially load master data -> party list -> existing requirement details
+                                        getDesignEntryForm(function () {
+                                            getPartyDetail(function () {
+                                                functionYarnRequirement(requirementId);
+                                            });
+                                        });
+                                    });
+                                    function getDesignEntryForm(callback) {
+                                        var formData = new FormData();
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryYarnReqForm',
+                                            data: formData,
+                                            dataType: 'json',
+                                            contentType: false,
+                                            processData: false,
+                                            success: function (response) {
+                                                if (response.Code == "200") {
+                                                    IsJobWork = parseInt(response.IsJobWork) || 0;
+                                                    ArrayYarnMaterial = [];
+                                                    ArrayYarnColor = [];
 
+                                                    ArrayYarnMaterial.push(response.listYarnMaterialMaster || []);
+                                                    ArrayYarnColor.push(response.listYarnColorMaster || []);
 
+                                                    $("#yarnMaterial1").empty();
+                                                    $("#yarnMaterial1").append("<option value='0' selected>Select Yarn Material</option>");
 
+                                                    if (response.listYarnMaterialMaster && response.listYarnMaterialMaster.length > 0) {
+                                                        $.each(response.listYarnMaterialMaster, function (i, item) {
+                                                            $("#yarnMaterial1").append($("<option>", {
+                                                                value: item.YarnMaterialID,
+                                                                text: item.YarnMaterial
+                                                            }));
+                                                        });
+                                                    }
 
+                                                    $("#YarnColor1").empty();
+                                                    $("#YarnColor1").append("<option value='0' selected>Select Yarn Color</option>");
 
+                                                    if (IsJobWork === 0) {
+                                                        BindAllYarnColors(1);
+                                                    }
 
-                    </div>
+                                                    if (response.listYarnRequirementMaster && response.listYarnRequirementMaster.length > 0) {
+                                                        $("#RequirementNo").val(response.listYarnRequirementMaster[0].RequirementNo);
+                                                    }
 
-
-
-
-
-                    <input type="hidden" id="txtYarnDetailsArray" title="txtYarnDetailsArray" value="1|" />
-                    <input type="hidden" id="txtDeleteYarnDetailsArray" title="DeleteYarnDetailsArray" />
-
-
-                    <div id="divMatchingColor">
-
-                    </div>
-
-
-
-
-
-
-
-
-                    <br />
-
-                    <div class="modal-footer">
-                        <a href="javascript:void(0);" onclick="history.back();" class="btn btn-light" style="font-size: medium;">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-                        <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Update Yarn Requirement </button>
-                        <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Yarn Requirement </button>
-                    </div>
-
-
-
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-
-</div>
-
-@section Scripts{
-    <script>
-        $('body').addClass('fullscreen');
-        $(document).ready(function () {
-
-            var liSelected;
-            $(document).keydown(function (key) {
-                var li = $('li');
-                switch (parseInt(key.which, 10)) {
-                    case 27:
-                        $("#DivDDLItemDetail").hide();
-                        $("#DivAddItem").show();
-                        //Esc Key
-                        $("#CloseItemModel").click();
-                        $("#cancelbtn").click();
-                        $("#cancelItembtn").click();
-                        break;
-                    case 40:
-                        if (liSelected) {
-                            liSelected.removeClass('selected');
-                            next = liSelected.next();
-                            if (next.length > 0) {
-                                liSelected = next.addClass('selected');
-                            } else {
-                                liSelected = li.eq(0).addClass('selected');
-                            }
-                        } else {
-                            liSelected = li.eq(0).addClass('selected');
-                        }
-                        break;
-                    case 38:
-                        if (liSelected) {
-                            liSelected.removeClass('selected');
-                            next = liSelected.prev();
-                            if (next.length > 0) {
-                                liSelected = next.addClass('selected');
-                            } else {
-                                liSelected = li.last().addClass('selected');
-                            }
-                        } else {
-                            liSelected = li.last().addClass('selected');
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            });
-
-            $('.active, .show, .current-page').removeClass('active show current-page');
-            $("#YarnForm-tab").addClass("active");
-            $("#tab-YarnForm").addClass("show active");
-            $("#aCreateYarnRequirement").addClass("current-page");
-
-            FunctionIsLogin();
-            getPartyDetail();
-            getDesignEntryForm();
-
-            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-            functionYarnRequirement(hashes[0].split('=')[1]);
-        });
-
-        $('body').click(function (evt) {
-            if (evt.target.id == "DivAddParty") { } else if (evt.target.id == "DivDDLPartyDetail") { }
-            else if (evt.target.id == "DivLblPartyDetails") { } else if (evt.target.id == "users-list") { }
-            else if (evt.target.id == "btnChangeParty") { } else {
-                if ($("#PartyArray").val() == "") {
-                    $("#DivDDLPartyDetail").hide();
-                    $("#DivAddParty").show();
-                }
-            }
-        });
-
-        var ArrayYarnColor = [];
-        var ArrayYarnMaterial = [];
-
-        function getDesignEntryForm() {
-            var formData = new FormData();
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryYarnReqForm',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    console.log(response);
-
-                    if (response.Code == "200") {
-                        ArrayYarnColor.push(response.listYarnColorMaster);
-                        ArrayYarnMaterial.push(response.listYarnMaterialMaster);
-
-                        //Yarn Color
-                        if (response.listYarnColorMaster.length > 0) {
-                            var templistYarnColorMaster = "<option value='0' selected> Select Yarn Color </option>";
-                            $('#YarnColor1').append(templistYarnColorMaster);
-                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
-                                templistYarnColorMaster = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
-                                $('#YarnColor1').append(templistYarnColorMaster);
-                            }
-                        }
-
-                        //Yarn Material
-                        if (response.listYarnMaterialMaster.length > 0) {
-                            var templistYarnMaterialMaster = "<option value='0' selected> Select Yarn Material </option>";
-                            $('#yarnMaterial1').append(templistYarnMaterialMaster);
-
-                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
-                                templistYarnMaterialMaster = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
-                                $('#yarnMaterial1').append(templistYarnMaterialMaster);
-                            }
-                        }
-
-                        //Yarn Requirement NO
-                        if (response.listYarnRequirementMaster.length > 0) {
-                            $('#RequirementNo').val(response.listYarnRequirementMaster[0].RequirementNo);
-                        }
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function YarnColorChange(rowno) {
-            var yarnColors = ArrayYarnColor[0];
-            var YarColo = "#YarnColor" + rowno;
-            var tdYarnColor = "#tdYarnColor" + rowno;
-
-            var yarnColor = yarnColors.find(item => item.YarnColorID === parseInt($(YarColo).val()));
-            var ColorCode = "#" + yarnColor.YarnColorCode;
-            $(tdYarnColor).css("background-color", ColorCode);
-
-            YarnPOCompany(rowno);
-        }
-
-        function YarnPOCompany(rowno) {
-            var YarnMaterial = "yarnMaterial" + rowno;
-            var YarnColor = "YarnColor" + rowno;
-
-            var YM = document.getElementById(YarnMaterial);
-            var YC = document.getElementById(YarnColor);
-
-            if (YM.value != '0' && YC.value != '0') {
-                var formData = new FormData();
-                formData.append('YarnMaterialID', YM.value);
-                formData.append('YarnColorID', YC.value);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/getYarnPOBillToCompany',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        console.log(response);
-                        if (response.listPartyMaster.length > 0) {
-                            var appendTemp = "";
-                            for (var j = 1; j <= response.listPartyMaster.length; j++) {
-                                var CompanyName = "CompanyName" + rowno;
-                                var CN = "#CompanyName" + rowno;
-                                document.getElementById(CompanyName).innerHTML = "";
-                                $(CN).empty();
-
-                                if (response.listPartyMaster.length == 1) {
-                                    $(CN).append("<option value='0' > Select Company </option>");
-                                    for (var i = 0; i < response.listPartyMaster.length; i++) {
-                                        appendTemp = "<option value='" + response.listPartyMaster[i].PartyId + "' selected> " + response.listPartyMaster[i].PartyName + " </option>";
-                                        $(CN).append(appendTemp);
+                                                    if (typeof callback === "function") {
+                                                        callback();
+                                                    }
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Error",
+                                                        text: response.Message || "Unable to load Yarn master data."
+                                                    });
+                                                }
+                                            },
+                                            error: function (request, status, error) {
+                                                console.log("getAllDesignEntryYarnReqForm Error:", error);
+                                                Swal.fire({
+                                                    icon: "error",
+                                                    title: "Server Error",
+                                                    text: "Unable to load Yarn master data."
+                                                });
+                                            }
+                                        });
                                     }
-                                } else {
-                                    $(CN).append("<option value='0' selected> Select Company </option>");
-                                    for (var i = 0; i < response.listPartyMaster.length; i++) {
-                                        appendTemp = "<option value='" + response.listPartyMaster[i].PartyId + "' > " + response.listPartyMaster[i].PartyName + " </option>";
-                                        $(CN).append(appendTemp);
+                                    function getRequirementIdFromUrl() {
+                                        var query = window.location.search || "";
+                                        if (!query) return "";
+                                        var params = new URLSearchParams(query);
+                                        var id = params.get("id");
+                                        if (!id) {
+                                            var first = query.substring(1).split("&")[0];
+                                            if (first.indexOf("=") > -1) {
+                                                id = first.substring(first.indexOf("=") + 1);
+                                            }
+                                        }
+                                        return $.trim(id || "");
                                     }
-                                }
-                            }
-                            YarnCompanyChange(rowno);
-                        } else {
-                            var CompanyName = "CompanyName" + rowno;
-                            var CN = "#CompanyName" + rowno;
-                            document.getElementById(CompanyName).innerHTML = "";
-                            $(CN).empty();
-                        }
-                    },
-                    error: function (request, status, error) { }
-                });
-            }
-        }
+                                    function YarnMaterialChange(rowNo) {
+                                        var materialId = parseInt($("#yarnMaterial" + rowNo).val()) || 0;
+                                        var $company = $("#CompanyName" + rowNo);
 
-        function YarnCompanyChange(rowno) {
-            var YarnMaterial = "yarnMaterial" + rowno;
-            var YarnColor = "YarnColor" + rowno;
-            var CompanyName = "CompanyName" + rowno;
-
-            var YM = document.getElementById(YarnMaterial);
-            var YC = document.getElementById(YarnColor);
-            var CN = document.getElementById(CompanyName);
-
-            if (YM.value != '0' && YC.value != '0' && CN.value != '0') {
-                var formData = new FormData();
-                formData.append('YarnMaterialID', YM.value);
-                formData.append('YarnColorID', YC.value);
-                formData.append('CompanyCode', CN.value);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/getYarnReqCompanyColorCode',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        console.log(response);
-                        if (response.listYarnRequirementMaster.length > 0) {
-                            var ColorCode = "#ColorCode" + rowno;
-                            $(ColorCode).val(response.listYarnRequirementMaster[0].CompanyColourCode);
-                        }
-                    },
-                    error: function (request, status, error) { }
-                });
-            }
-        }
-
-        function functionYarnRequirement(DesignEntryFormID) {
-            var formData = new FormData();
-            formData.append('YarnRequirementID', DesignEntryFormID);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnRequirementDetails',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    console.log(response);
-                    if (response.Code == "200") {
-                        var userTable = $('#TblUser');
-                        for (var i = 0; i < response.listYarnRequirementMaster.length; i++) {
-                            $("#YarnRequirementID").val(response.listYarnRequirementMaster[i].YarnRequirementID);
-                            $("#InvoiceDate").val(response.listYarnRequirementMaster[i].RequirementDates);
-                            $("#RequirementNo").val(response.listYarnRequirementMaster[i].RequirementNo);
-                            $("#ddlParty").val(response.listYarnRequirementMaster[i].PartyId);
-                            $("#select2-ddlParty-container").html(response.listYarnRequirementMaster[i].PartyName);
-                            $("#divPartyName").html(response.listYarnRequirementMaster[i].PartyName);
-                            $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnRequirementMaster[i].MobileNo + " / " + response.listYarnRequirementMaster[i].AlterMobileNo);
-                            $("#PEmail").html("<b>Email: </b>" + response.listYarnRequirementMaster[i].Email);
-                            $("#PBillingAddress").html("<b>Billing Address: </b>" + response.listYarnRequirementMaster[i].BillingAddress);
-                            $("#PState").html("<b>State: </b>" + response.listYarnRequirementMaster[i].State);
-                            $("#PGSTIN").html("<b>GSTIn: </b>" + response.listYarnRequirementMaster[i].GSTIN);
-                            $("#DivLblPartyDetails").show();
-
-                            var tempColorMatching = '';
-                            var YarnDetailsArray = "";
-                            for (var j = 0; j < response.listYarnRequirementMaster[i].listYarnRequirementDetail.length; j++) {
-                                var SrNo = j + 1;
-                                if (j == 0) {
-                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
-                                    tempColorMatching += '<td style="width:3%;">';
-                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')>';
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
-                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
-                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        if ($company.is("select")) {
+                                            $company.empty().append($("<option>", { value: "0", text: "Select Company" }));
                                         } else {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                            $company.val("");
+                                        }
+                                        $("#CompanyID" + rowNo).val("0");
+                                        $("#ColorCode" + rowNo).val("");
+
+                                        if (materialId === 0) {
+                                            $("#YarnColor" + rowNo).empty().append($("<option>", { value: "0", text: "Select Yarn Color" }));
+                                            if (IsJobWork === 0) {
+                                                BindAllYarnColors(rowNo);
+                                            }
+                                            return;
+                                        }
+                                        BindYarnColorsByMaterial(rowNo, materialId, 0);
+                                    }
+                                    function BindAllYarnColors(rowno) {
+                                        var colorDDL = $("#YarnColor" + rowno);
+                                        colorDDL.empty();
+                                        colorDDL.append("<option value='0'>Select Yarn Color</option>");
+
+                                        if (!ArrayYarnColor || !ArrayYarnColor[0]) return;
+
+                                        $.each(ArrayYarnColor[0], function (i, item) {
+                                            colorDDL.append($("<option>", {
+                                                value: item.YarnColorID,
+                                                text: item.YarnColor
+                                            }));
+                                        });
+                                    }
+                                    function BindYarnColorsByMaterial(rowNo, materialId, selectedColorId) {
+                                        var colorDDL = $("#YarnColor" + rowNo);
+                                        colorDDL.empty();
+                                        colorDDL.append($("<option>", { value: "0", text: "Select Yarn Color" }));
+
+                                        if (!ArrayYarnColor || !ArrayYarnColor[0]) return;
+
+                                        $.each(ArrayYarnColor[0], function (i, item) {
+                                            var itemMaterialId = parseInt(item.YarnMaterialID) || 0;
+                                            var itemColorId = parseInt(item.YarnColorID) || 0;
+
+                                            if (IsJobWork > 0) {
+                                                if (itemMaterialId === parseInt(materialId)) {
+                                                    colorDDL.append($("<option>", { value: itemColorId, text: item.YarnColor }));
+                                                }
+                                            } else {
+                                                colorDDL.append($("<option>", { value: itemColorId, text: item.YarnColor }));
+                                            }
+                                        });
+
+                                        if (selectedColorId) {
+                                            colorDDL.val(String(selectedColorId));
                                         }
                                     }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + ';"></div>';
-                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
-                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
-                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                    function YarnColorChange(rowNo) {
+                                        debugger;
+                                        var materialId =
+                                            parseInt($("#yarnMaterial" + rowNo).val()) || 0;
+
+                                        var colorId =
+                                            parseInt($("#YarnColor" + rowNo).val()) || 0;
+
+                                        var $company =
+                                            $("#CompanyName" + rowNo);
+
+                                        var $colorCode =
+                                            $("#ColorCode" + rowNo);
+
+                                        // Clear Company
+                                        $company.empty().append(
+                                            $("<option>", {
+                                                value: "0",
+                                                text: "Select Company"
+                                            })
+                                        );
+
+                                        $colorCode.val("");
+
+                                        if (materialId === 0 || colorId === 0) {
+                                            return;
+                                        }
+
+                                        if (!ArrayYarnColor || !ArrayYarnColor[0]) {
+                                            return;
+                                        }
+
+                                        var yarnColor = null;
+
+                                        $.each(ArrayYarnColor[0], function (i, item) {
+
+                                            var itemMaterialId =
+                                                parseInt(item.YarnMaterialID) || 0;
+
+                                            var itemColorId =
+                                                parseInt(item.YarnColorID) || 0;
+
+                                            if (
+                                                itemMaterialId === materialId &&
+                                                itemColorId === colorId
+                                            ) {
+                                                yarnColor = item;
+                                                return false;
+                                            }
+
+                                        });
+
+                                        if (!yarnColor) {
+                                            console.log(
+                                                "Yarn Color not found:",
+                                                materialId,
+                                                colorId
+                                            );
+                                            return;
+                                        }
+
+                                        console.log("Selected Yarn Color:", yarnColor);
+
+                                        // =====================================================
+                                        // COMPANY DATA
+                                        // CompanyId = actual Company ID
+                                        // CompanyName = display name
+                                        // CompanyCode = color/company code
+                                        // =====================================================
+
+                                        var companyId =
+                                            parseInt(yarnColor.CompanyId) || 0;
+
+                                        var companyName =
+                                            yarnColor.CompanyName || "";
+
+                                        var companyCode =
+                                            yarnColor.CompanyCode || "";
+
+                                        // Bind Company
+                                        if (companyId > 0 && companyName !== "") {
+
+                                            $company.append(
+                                                $("<option>", {
+                                                    value: companyId,
+                                                    text: companyName
+                                                })
+                                            );
+
+                                            // Automatically select company
+                                            $company.val(String(companyId));
+
+                                            // Call company change
+                                            YarnCompanyChange(rowNo);
+                                        }
+
+                                        // Bind Company Code
+                                        $colorCode.val(companyCode);
+
+                                    }
+                                    function YarnPOCompany(rowNo) {
+
+                                        var materialId =
+                                            parseInt($("#yarnMaterial" + rowNo).val()) || 0;
+
+                                        var colorId =
+                                            parseInt($("#YarnColor" + rowNo).val()) || 0;
+
+                                        var $company =
+                                            $("#CompanyName" + rowNo);
+
+                                        var $colorCode =
+                                            $("#ColorCode" + rowNo);
+
+                                        // Clear
+                                        $company.empty().append(
+                                            $("<option>", {
+                                                value: "0",
+                                                text: "Select Company"
+                                            })
+                                        );
+
+                                        $colorCode.val("");
+
+                                        if (materialId === 0 || colorId === 0) {
+                                            return false;
+                                        }
+
+                                        if (!ArrayYarnColor || !ArrayYarnColor[0]) {
+                                            return false;
+                                        }
+
+                                        var companyFound = false;
+
+                                        $.each(ArrayYarnColor[0], function (i, item) {
+
+                                            var itemMaterialId =
+                                                parseInt(item.YarnMaterialID) || 0;
+
+                                            var itemColorId =
+                                                parseInt(item.YarnColorID) || 0;
+
+                                            if (
+                                                itemMaterialId === materialId &&
+                                                itemColorId === colorId
+                                            ) {
+
+                                                var companyId =
+                                                    parseInt(item.CompanyId) || 0;
+
+                                                var companyName =
+                                                    item.CompanyName || "";
+
+                                                var companyCode =
+                                                    item.CompanyCode || "";
+
+                                                if (
+                                                    companyId > 0 &&
+                                                    companyName !== ""
+                                                ) {
+
+                                                    $company.append(
+                                                        $("<option>", {
+                                                            value: companyId,
+                                                            text: companyName
+                                                        })
+                                                    );
+
+                                                    $company.val(
+                                                        String(companyId)
+                                                    );
+
+                                                    $colorCode.val(
+                                                        companyCode
+                                                    );
+
+                                                    companyFound = true;
+
+                                                    console.log(
+                                                        "Company Bind:",
+                                                        {
+                                                            CompanyId: companyId,
+                                                            CompanyName: companyName,
+                                                            CompanyCode: companyCode
+                                                        }
+                                                    );
+
+                                                    return false;
+                                                }
+
+                                            }
+
+                                        });
+
+                                        return companyFound;
+                                    }
+                                    function YarnCompanyChange(rowNo) {
+
+                                        var companyId =
+                                            $("#CompanyName" + rowNo).val() || "0";
+
+
+                                        /*
+                                         * Here companyId is actual CompanyID.
+                                         * No company name save/use for database.
+                                         */
+
+                                        console.log(
+                                            "Selected CompanyID:",
+                                            companyId
+                                        );
+
+                                    }
+                                    function FunctionIsLogin() {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                                            data: "{ 'userName':'0' }",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            success: function (data) {
+                                                if (data.d == "false") {
+                                                    window.location.replace("/Index");
+                                                }
+                                            }
+                                        });
+                                    }
+                                    function getPartyDetail(callback) {
+                                        var formData = new FormData();
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '/WebServiceNikunjTextile.asmx/getPartyDetails',
+                                            data: formData,
+                                            dataType: 'json',
+                                            contentType: false,
+                                            processData: false,
+                                            success: function (response) {
+                                                if (response.Code == "200") {
+                                                    $('#ddlParty').empty();
+                                                    $('#ddlParty').append($("<option>", { value: "", text: "Select Party Name" }));
+
+                                                    if (response.listPartyMaster && response.listPartyMaster.length > 0) {
+                                                        $.each(response.listPartyMaster, function (i, item) {
+                                                            $('#ddlParty').append($("<option>", {
+                                                                value: item.PartyId,
+                                                                text: item.PartyName
+                                                            }));
+                                                        });
+                                                    }
+                                                }
+                                                if (typeof callback === "function") {
+                                                    callback();
+                                                }
+                                            },
+                                            error: function (request, status, error) {
+                                                console.log("getPartyDetails Error:", error);
+                                                if (typeof callback === "function") {
+                                                    callback();
+                                                }
+                                            }
+                                        });
+                                    }
+                                    function functionParty(abc) {
+                                        if (abc == "") {
+                                            $("#DivLblPartyDetails").hide();
+                                            return;
+                                        }
+                                        $.ajax({
+                                            type: "GET",
+                                            url: '/WebServiceNikunjTextile.asmx/getPartyMasterById?id=' + abc,
+                                            dataType: 'json',
+                                            contentType: false,
+                                            processData: false,
+                                            success: function (response) {
+                                                if (response.Code == 200 || response.Code == "200") {
+                                                    $("#DivLblPartyDetails").show();
+                                                    $('#hPartyId').val(response.listPartyMaster[0].PartyId);
+                                                    $('#PMobileNo').html("<b>Mobile No: </b>" + response.listPartyMaster[0].MobileNo + " / " + response.listPartyMaster[0].AlterMobileNo);
+                                                    $('#PEmail').html("<b>Email : </b>" + response.listPartyMaster[0].Email);
+                                                    $("#PBillingAddress").html("<b>Address : </b>" + response.listPartyMaster[0].BillingAddress);
+                                                    $('#PState').html("<b>State : </b>" + response.listPartyMaster[0].State);
+                                                    $('#PGSTIN').html("<b>GSTIn : </b>" + response.listPartyMaster[0].GSTIN);
+                                                    $('#divPartyName').html(response.listPartyMaster[0].PartyName);
+                                                } else {
+                                                    $("#DivLblPartyDetails").hide();
+                                                }
+                                            }
+                                        });
+                                    }
+                                    function validate(code) {
+                                        if (!code) return true;
+                                        code.value = String(code.value || "").replace(/\s+/g, ' ').trim();
+                                        if (code.value === "" || code.value === "0" || code.value === "-1") {
+                                            document.getElementById(code.id).classList.remove("is-valid");
+                                            document.getElementById(code.id).classList.add("is-invalid");
+                                            return false;
                                         } else {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                            document.getElementById(code.id).classList.add("is-valid");
+                                            document.getElementById(code.id).classList.remove("is-invalid");
+                                            return true;
                                         }
                                     }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
-                                    tempColorMatching += '<option value="0" selected>Select Company</option>';
-                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
-                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        } else {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "'> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                    function checkUpdate() {
+                                        var YarnRequirementID = parseInt($("#YarnRequirementID").val(), 10) || 0;
+                                        var InvoiceDate = $.trim($("#InvoiceDate").val() || "");
+                                        var RequirementNo = $.trim($("#RequirementNo").val() || "");
+                                        var PartyId = parseInt($("#ddlParty").val(), 10) || 0;
+                                        var DeleteYarnDetailsArray = $.trim($("#txtDeleteYarnDetailsArray").val() || "");
+
+                                        if (YarnRequirementID <= 0) {
+                                            Swal.fire({ icon: "warning", title: "Invalid Requirement", text: "Yarn Requirement ID is missing." });
+                                            return false;
                                         }
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:17%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '</tr>';
-                                } else {
-                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
-                                    tempColorMatching += '<td style="width:3%;">';
-                                    tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + SrNo + ')"></i>';
-                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')>';
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
-                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
-                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
-                                        } else {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        if (InvoiceDate === "") {
+                                            Swal.fire({ icon: "warning", title: "Requirement Date Required", text: "Please select Requirement Date." });
+                                            return false;
                                         }
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + '; "></div>';
-                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
-                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
-                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
-                                        } else {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                        if (RequirementNo === "" || RequirementNo === "0") {
+                                            Swal.fire({ icon: "warning", title: "Requirement No Required", text: "Requirement No is required." });
+                                            return false;
                                         }
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
-                                    tempColorMatching += '<option value="0" selected>Select Company</option>';
-                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
-                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        } else {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "'> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                        if (PartyId <= 0) {
+                                            Swal.fire({ icon: "warning", title: "Party Required", text: "Please Select Party Name." });
+                                            return false;
                                         }
+
+                                        var rows = $("#tableItemData > tr");
+                                        if (rows.length === 0) {
+                                            Swal.fire({ icon: "warning", title: "No Yarn Data", text: "Please add at least one Yarn Data." });
+                                            return false;
+                                        }
+
+                                        var details = [];
+                                        var duplicateMap = {};
+                                        var valid = true;
+
+                                        rows.each(function (index) {
+                                            if (!valid) return;
+                                            var rowNo = ($(this).attr("id") || "").replace("trMatching", "");
+                                            if (!rowNo) return;
+
+                                            var detailId = parseInt($("#txtYarnRequirementDetailID" + rowNo).val(), 10) || 0;
+                                            var materialId = parseInt($("#yarnMaterialDetail" + rowNo).val(), 10) || 0;
+                                            var colorId = parseInt($("#YarnColorDetail" + rowNo).val(), 10) || 0;
+                                            var companyId = parseInt($("#CompanyIDDetail" + rowNo).val(), 10) || 0;
+                                            var colorCode = $.trim($("#ColorCodeDetail" + rowNo).val() || "");
+                                            var noOfBox = parseInt($("#NoOfBoxDetail" + rowNo).val(), 10) || 0;
+
+                                            if (materialId <= 0 || colorId <= 0 || noOfBox <= 0) {
+                                                Swal.fire({ icon: "warning", title: "Invalid Row Data", text: "Please complete all fields in row " + (index + 1) + "." });
+                                                valid = false;
+                                                return;
+                                            }
+
+                                            var duplicateKey = materialId + "_" + colorId + "_" + companyId;
+                                            if (duplicateMap[duplicateKey]) {
+                                                Swal.fire({ icon: "warning", title: "Duplicate Entry", text: "Duplicate material/color/company combination found." });
+                                                valid = false;
+                                                return;
+                                            }
+                                            duplicateMap[duplicateKey] = true;
+
+                                            details.push({
+                                                YarnRequirementDetailID: detailId,
+                                                YarnMaterialID: materialId,
+                                                YarnColorID: colorId,
+                                                CompanyName: companyId,
+                                                CompanyColourCode: colorCode,
+                                                NoofBoxes: noOfBox
+                                            });
+                                        });
+
+                                        if (!valid || details.length === 0) return false;
+
+                                        var payload = {
+                                            YarnRequirementID: YarnRequirementID,
+                                            RequirementDates: InvoiceDate,
+                                            RequirementNo: RequirementNo,
+                                            PartyId: PartyId,
+                                            DeleteYarnDetailsArray: DeleteYarnDetailsArray,
+                                            listYarnRequirementDetail: details
+                                        };
+
+                                        var formData = new FormData();
+                                        formData.append("YarnRequirementArray", JSON.stringify(payload));
+                                        $("#Updatebtn").prop("disabled", true);
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/WebServiceNikunjTextile.asmx/UpdateYarnRequirementMasterMaster",
+                                            data: formData,
+                                            dataType: "json",
+                                            contentType: false,
+                                            processData: false,
+                                            success: function (response) {
+                                                if (response.Code == "200" || response.Code == 200) {
+                                                    Swal.fire({
+                                                        icon: "success",
+                                                        title: "Success",
+                                                        text: "Yarn Requirement Updated Successfully.",
+                                                        allowOutsideClick: false
+                                                    }).then(function () {
+                                                        window.location.href = "YarnRequirement";
+                                                    });
+                                                } else {
+                                                    Swal.fire({ icon: "error", title: "Error", text: response.Message || "Problem occurred while updating." });
+                                                    $("#Updatebtn").prop("disabled", false);
+                                                }
+                                            },
+                                            error: function (request, status, error) {
+                                                console.error("Update error:", error);
+                                                Swal.fire({ icon: "error", title: "Server Error", text: "Problem occurred while submitting your data." });
+                                                $("#Updatebtn").prop("disabled", false);
+                                            }
+                                        });
+                                        return false;
                                     }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '<td style="width:17%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-                                    tempColorMatching += '</tr>';
-                                }
-                                YarnDetailsArray += SrNo + "|";
+                                    function AddYarnDetailData() {
+                                        var material = $("#yarnMaterial1");
+                                        var color = $("#YarnColor1");
+                                        var $company = $("#CompanyName1");
+                                        var colorCode = $("#ColorCode1");
+                                        var noOfBox = $("#NoOfBox1");
+
+                                        var materialId = parseInt(material.val(), 10) || 0;
+                                        var colorId = parseInt(color.val(), 10) || 0;
+
+                                        var companyNameText = $company.is("select") ? $company.find("option:selected").text().trim() : ($company.val() || "");
+
+                                        // Look up the exact numeric Company ID from ArrayYarnColor master list
+                                        var companyIdValue = "0";
+                                        if (ArrayYarnColor && ArrayYarnColor[0]) {
+                                            $.each(ArrayYarnColor[0], function (i, item) {
+                                                var itemMatId = parseInt(item.YarnMaterialID, 10) || 0;
+                                                var itemColId = parseInt(item.YarnColorID, 10) || 0;
+                                                if (itemMatId === materialId && itemColId === colorId) {
+                                                    companyIdValue = String(parseInt(item.CompanyId || item.CompanyID || item.PartyId || 0, 10) || 0);
+                                                    return false;
+                                                }
+                                            });
+                                        }
+
+                                        // Fallback to hidden field if array lookup was 0
+                                        if (companyIdValue === "0" && $("#CompanyID1").length) {
+                                            companyIdValue = $("#CompanyID1").val() || "0";
+                                        }
+
+                                        var codeValue = colorCode.val() || "";
+                                        var boxValue = noOfBox.val() || "";
+
+                                        if (!materialId || materialId === 0) {
+                                            Swal.fire({ icon: "warning", title: "Material Required", text: "Please select Material." });
+                                            return false;
+                                        }
+                                        if (!colorId || colorId === 0) {
+                                            Swal.fire({ icon: "warning", title: "Color Required", text: "Please select Color." });
+                                            return false;
+                                        }
+                                        var boxNumber = parseInt(boxValue, 10);
+                                        if (!boxValue || isNaN(boxNumber) || boxNumber <= 0) {
+                                            Swal.fire({ icon: "warning", title: "Boxes Required", text: "Please enter No Of Boxes." });
+                                            return false;
+                                        }
+
+                                        if (parseInt(IsJobWork, 10) === 1 && (!companyNameText || companyNameText === "" || companyNameText === "Select Company")) {
+                                            Swal.fire({ icon: "warning", title: "Company Required", text: "Please select Company." });
+                                            return false;
+                                        }
+
+                                        if (editingYarnRowNo > 0) {
+                                            return updateYarnDetailData(editingYarnRowNo);
+                                        }
+
+                                        var nextNo = 1;
+                                        $("#tableItemData > tr").each(function () {
+                                            var id = $(this).attr("id") || "";
+                                            if (id.indexOf("trMatching") === 0) {
+                                                var rowNo = parseInt(id.replace("trMatching", ""), 10) || 0;
+                                                if (rowNo >= nextNo) {
+                                                    nextNo = rowNo + 1;
+                                                }
+                                            }
+                                        });
+
+                                        var materialText = material.find("option:selected").text().trim();
+                                        var colorText = color.find("option:selected").text().trim();
+
+                                        var html = '<tr id="trMatching' + nextNo + '">';
+                                        html += '<td><input type="hidden" id="txtYarnRequirementDetailID' + nextNo + '" value="0"><input type="hidden" id="yarnMaterialDetail' + nextNo + '" value="' + escapeHtml(materialId) + '"><span>' + escapeHtml(materialText) + '</span></td>';
+                                        html += '<td><input type="hidden" id="YarnColorDetail' + nextNo + '" value="' + escapeHtml(colorId) + '"><span>' + escapeHtml(colorText) + '</span></td>';
+
+                                        // Store correct numeric CompanyID in CompanyIDDetail and text name in CompanyNameDetail
+                                        html += '<td><input type="hidden" id="CompanyIDDetail' + nextNo + '" value="' + escapeHtml(companyIdValue) + '"><input type="hidden" id="CompanyNameDetail' + nextNo + '" value="' + escapeHtml(companyNameText) + '"><span>' + escapeHtml(companyNameText) + '</span></td>';
+
+                                        html += '<td><input type="hidden" id="ColorCodeDetail' + nextNo + '" value="' + escapeHtml(codeValue) + '"><span>' + escapeHtml(codeValue) + '</span></td>';
+                                        html += '<td><input type="hidden" id="NoOfBoxDetail' + nextNo + '" value="' + escapeHtml(boxNumber) + '"><span>' + escapeHtml(boxNumber) + '</span></td>';
+                                        html += '<td class="text-center" style="white-space:nowrap;">';
+                                        html += '<button type="button" class="btn btn-sm btn-primary mr-1" title="Edit" onclick="editExistingYarnRow(' + nextNo + ')"><i class="fa fa-edit"></i></button>';
+                                        html += '<button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteYarnData(' + nextNo + ')"><i class="fa fa-trash"></i></button>';
+                                        html += '</td></tr>';
+
+                                        $("#tableItemData").append(html);
+
+                                        var currentArray = $("#txtYarnDetailsArray").val() || "";
+                                        $("#txtYarnDetailsArray").val(currentArray + nextNo + "|");
+
+                                        resetYarnInput();
+                                        return true;
+                                    }
+                                    function editExistingYarnRow(rowNo) {
+                                        var materialId = parseInt($("#yarnMaterialDetail" + rowNo).val(), 10) || 0;
+                                        var colorId = parseInt($("#YarnColorDetail" + rowNo).val(), 10) || 0;
+                                        var companyId = parseInt($("#CompanyIDDetail" + rowNo).val(), 10) || 0;
+                                        var companyName = $("#CompanyNameDetail" + rowNo).val() || "";
+                                        var colorCode = $("#ColorCodeDetail" + rowNo).val() || "";
+                                        var boxes = $("#NoOfBoxDetail" + rowNo).val() || "";
+
+                                        $("#yarnMaterial1").val(String(materialId));
+                                        BindYarnColorsByMaterial(1, materialId, colorId);
+                                        $("#YarnColor1").val(String(colorId));
+
+                                        var $company = $("#CompanyName1");
+                                        if ($company.is("select")) {
+                                            $company.empty().append($("<option>", { value: companyId, text: companyName }));
+                                            $company.val(String(companyId));
+                                        } else {
+                                            $company.val(companyName);
+                                        }
+                                        $("#CompanyID1").val(String(companyId));
+                                        $("#ColorCode1").val(colorCode);
+                                        $("#NoOfBox1").val(boxes);
+
+                                        editingYarnRowNo = parseInt(rowNo, 10) || 0;
+                                        $("#btnAddYarn").removeClass("btn-secondary").addClass("btn-success").html('<i class="fa fa-save"></i> UPDATE YARN DATA');
+                                        return false;
+                                    }
+                                    function updateYarnDetailData(rowNo) {
+                                        var material = $("#yarnMaterial1");
+                                        var color = $("#YarnColor1");
+                                        var $company = $("#CompanyName1");
+                                        var colorCode = $("#ColorCode1");
+                                        var noOfBox = $("#NoOfBox1");
+
+                                        var materialId = material.val();
+                                        var colorId = color.val();
+                                        var companyIdValue = $company.val() || "0";
+                                        var companyNameText = $company.is("select") ? $company.find("option:selected").text().trim() : $company.val();
+                                        var codeValue = colorCode.val() || "";
+                                        var boxValue = noOfBox.val() || "";
+
+                                        if (!materialId || materialId === "0") {
+                                            Swal.fire({ icon: "warning", title: "Material Required", text: "Please select Material." });
+                                            return false;
+                                        }
+                                        if (!colorId || colorId === "0") {
+                                            Swal.fire({ icon: "warning", title: "Color Required", text: "Please select Color." });
+                                            return false;
+                                        }
+                                        var boxNumber = parseInt(boxValue, 10);
+                                        if (!boxValue || isNaN(boxNumber) || boxNumber <= 0) {
+                                            Swal.fire({ icon: "warning", title: "Boxes Required", text: "Please enter No Of Boxes." });
+                                            return false;
+                                        }
+
+                                        var materialText = material.find("option:selected").text().trim();
+                                        var colorText = color.find("option:selected").text().trim();
+                                        var detailId = parseInt($("#txtYarnRequirementDetailID" + rowNo).val(), 10) || 0;
+
+                                        var html = '<tr id="trMatching' + rowNo + '" data-detail-id="' + detailId + '">';
+                                        html += '<td><input type="hidden" id="txtYarnRequirementDetailID' + rowNo + '" value="' + detailId + '"><input type="hidden" id="yarnMaterialDetail' + rowNo + '" value="' + escapeHtml(materialId) + '"><span>' + escapeHtml(materialText) + '</span></td>';
+                                        html += '<td><input type="hidden" id="YarnColorDetail' + rowNo + '" value="' + escapeHtml(colorId) + '"><span>' + escapeHtml(colorText) + '</span></td>';
+                                        html += '<td><input type="hidden" id="CompanyIDDetail' + rowNo + '" value="' + escapeHtml(companyIdValue) + '"><input type="hidden" id="CompanyNameDetail' + rowNo + '" value="' + escapeHtml(companyNameText) + '"><span>' + escapeHtml(companyNameText) + '</span></td>';
+                                        html += '<td><input type="hidden" id="ColorCodeDetail' + rowNo + '" value="' + escapeHtml(codeValue) + '"><span>' + escapeHtml(codeValue) + '</span></td>';
+                                        html += '<td><input type="hidden" id="NoOfBoxDetail' + rowNo + '" value="' + escapeHtml(boxNumber) + '"><span>' + escapeHtml(boxNumber) + '</span></td>';
+                                        html += '<td class="text-center" style="white-space:nowrap;">';
+                                        html += '<button type="button" class="btn btn-sm btn-primary mr-1" title="Edit" onclick="editExistingYarnRow(' + rowNo + ')"><i class="fa fa-edit"></i></button>';
+                                        html += '<button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteYarnData(' + rowNo + ')"><i class="fa fa-trash"></i></button>';
+                                        html += '</td></tr>';
+
+                                        $("#trMatching" + rowNo).replaceWith(html);
+                                        editingYarnRowNo = 0;
+
+                                        $("#btnAddYarn").removeClass("btn-success").addClass("btn-secondary").html('<i class="fa fa-plus"></i> ADD YARN DATA');
+                                        resetYarnInput();
+                                        return true;
+                                    }
+                                    function deleteYarnData(rowNo) {
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "Delete Yarn Data?",
+                                            text: "Are you sure you want to delete this row?",
+                                            showCancelButton: true,
+                                            confirmButtonText: "Yes, Delete",
+                                            cancelButtonText: "Cancel"
+                                        }).then(function (result) {
+                                            if (!result.isConfirmed) return;
+
+                                            var detailId = parseInt($("#txtYarnRequirementDetailID" + rowNo).val(), 10) || 0;
+                                            if (detailId > 0) {
+                                                var deleted = $.trim($("#txtDeleteYarnDetailsArray").val() || "");
+                                                if (deleted !== "") {
+                                                    deleted += ",";
+                                                }
+                                                deleted += detailId;
+                                                $("#txtDeleteYarnDetailsArray").val(deleted);
+                                            }
+
+                                            $("#trMatching" + rowNo).remove();
+
+                                            var arr = $("#txtYarnDetailsArray").val().split("|").filter(function (x) {
+                                                return x !== "" && x != rowNo;
+                                            });
+                                            $("#txtYarnDetailsArray").val(arr.length > 0 ? arr.join("|") + "|" : "");
+
+                                            if (editingYarnRowNo == rowNo) {
+                                                editingYarnRowNo = 0;
+                                                resetYarnInput();
+                                            }
+                                        });
+                                    }
+                                    function resetYarnInput() {
+                                        $("#yarnMaterial1").val("0");
+                                        $("#YarnColor1").empty().append($("<option>", { value: "0", text: "Select Yarn Color" }));
+                                        if (IsJobWork === 0) {
+                                            BindAllYarnColors(1);
+                                        }
+                                        var $company = $("#CompanyName1");
+                                        if ($company.is("select")) {
+                                            $company.empty().append($("<option>", { value: "0", text: "Select Company" }));
+                                        } else {
+                                            $company.val("");
+                                        }
+                                        $("#CompanyID1").val("0");
+                                        $("#ColorCode1").val("");
+                                        $("#NoOfBox1").val("");
+                                    }
+                                    function escapeHtml(value) {
+                                        return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                                    }
+                                    function functionYarnRequirement(requirementId) {
+                                        requirementId = $.trim(String(requirementId || ""));
+                                        if (requirementId === "") return false;
+
+                                        var formData = new FormData();
+                                        formData.append("YarnRequirementID", requirementId);
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "/WebServiceNikunjTextile.asmx/getYarnRequirementDetails",
+                                            data: formData,
+                                            dataType: "json",
+                                            contentType: false,
+                                            processData: false,
+                                            success: function (response) {
+                                                if (response.Code != "200" || !response.listYarnRequirementMaster || response.listYarnRequirementMaster.length === 0) {
+                                                    Swal.fire({
+                                                        icon: "error",
+                                                        title: "Error",
+                                                        text: response.Message || "Unable to load Yarn Requirement."
+                                                    }).then(function () {
+                                                        window.location.href = "/YarnRequirement";
+                                                    });
+                                                    return;
+                                                }
+
+                                                var master = response.listYarnRequirementMaster[0];
+                                                $("#YarnRequirementID").val(parseInt(master.YarnRequirementID || requirementId, 10) || requirementId);
+                                                $("#InvoiceDate").val(master.RequirementDates || "");
+                                                $("#RequirementNo").val(master.RequirementNo || "");
+                                                $("#ddlParty").val(String(master.PartyId || ""));
+                                                $("#ddlParty").trigger("change");
+
+                                                $("#divPartyName").html(master.PartyName || "Party Detail");
+                                                $("#PMobileNo").html("<b>Mobile No: </b>" + (master.MobileNo || ""));
+                                                $("#PEmail").html("<b>Email: </b>" + (master.Email || ""));
+                                                $("#PBillingAddress").html("<b>Address: </b>" + (master.BillingAddress || ""));
+                                                $("#PState").html("<b>Place of Supply: </b>" + (master.State || ""));
+                                                $("#PGSTIN").html("<b>GST: </b>" + (master.GSTIN || ""));
+                                                $("#DivLblPartyDetails").show();
+
+                                                renderExistingYarnRows(master.listYarnRequirementDetail || []);
+
+                                                $("#savebtn").hide();
+                                                $("#Updatebtn").show();
+                                            },
+                                            error: function (request, status, error) {
+                                                console.error("getYarnRequirementDetails Error:", error);
+                                                Swal.fire({
+                                                    icon: "error",
+                                                    title: "Server Error",
+                                                    text: "Unable to load Yarn Requirement."
+                                                }).then(function () {
+                                                    window.location.href = "/YarnRequirement";
+                                                });
+                                            }
+                                        });
+                                        return true;
+                                    }
+                                    function renderExistingYarnRows(details) {
+                                        console.log("renderExistingYarnRows", details);
+                                        debugger;
+                                        $("#tableItemData").empty();
+                                        $("#txtYarnDetailsArray").val("");
+                                        $("#txtDeleteYarnDetailsArray").val("");
+                                        var arrayRows = [];
+                                        var rowNo = 1;
+                                        $.each(details || [], function (index, item) {
+
+                                            var detailId = parseInt(item.YarnRequirementDetailID, 10) || 0;
+                                            var materialId = parseInt(item.YarnMaterialID, 10) || 0;
+                                            var colorId = parseInt(item.YarnColorID, 10) || 0;                                            
+                                            var companyId = parseInt(item.companyId || item.companyId || 0, 10) || 0;
+                                            var materialName = item.YarnMaterial || getMaterialNameById(materialId);
+                                            var colorName = item.YarnColor || getColorNameById(colorId);
+                                            var companyName = item.CompanyName || item.Company || "";
+                                            var colorCode = item.CompanyColourCode || item.YarnColorCode || getColorCodeById(colorId) || "";
+                                            var boxes = parseInt(item.NoofBoxes, 10) || 0;
+                                            var html = '<tr id="trMatching' + rowNo + '" data-detail-id="' + detailId + '">';
+                                            html += '<td><input type="hidden" id="txtYarnRequirementDetailID' + rowNo + '" value="' + detailId + '"><input type="hidden" id="yarnMaterialDetail' + rowNo + '" value="' + materialId + '"><span>' + escapeHtml(materialName) + '</span></td>';
+                                            html += '<td><input type="hidden" id="YarnColorDetail' + rowNo + '" value="' + colorId + '"><span>' + escapeHtml(colorName) + '</span></td>';
+
+                                            // Ensure CompanyIDDetail holds the numeric database ID, and CompanyNameDetail holds the text name
+                                            html += '<td><input type="hidden" id="CompanyIDDetail' + rowNo + '" value="' + companyId + '"><input type="hidden" id="CompanyNameDetail' + rowNo + '" value="' + escapeHtml(companyName) + '"><span>' + escapeHtml(companyName) + '</span></td>';
+
+                                            html += '<td><input type="hidden" id="ColorCodeDetail' + rowNo + '" value="' + escapeHtml(colorCode) + '"><span>' + escapeHtml(colorCode) + '</span></td>';
+                                            html += '<td><input type="hidden" id="NoOfBoxDetail' + rowNo + '" value="' + boxes + '"><span>' + boxes + '</span></td>';
+                                            html += '<td class="text-center" style="white-space:nowrap;">';
+                                            html += '<button type="button" class="btn btn-sm btn-primary mr-1" title="Edit" onclick="editExistingYarnRow(' + rowNo + ')"><i class="fa fa-edit"></i></button>';
+                                            html += '<button type="button" class="btn btn-sm btn-danger" title="Delete" onclick="deleteYarnData(' + rowNo + ')"><i class="fa fa-trash"></i></button>';
+                                            html += '</td></tr>';
+
+                                            $("#tableItemData").append(html);
+                                            arrayRows.push(String(rowNo));
+                                            rowNo++;
+                                        });
+
+                                        $("#txtYarnDetailsArray").val(arrayRows.length ? arrayRows.join("|") + "|" : "");
+                                        resetYarnInput();
+                                    }
+                                </script>
                             }
-                            $("#txtYarnDetailsArray").val(YarnDetailsArray);
-                            $("#tableItemData").html(tempColorMatching);
-                        }
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.Message
-                        }).then(() => {
-                            window.location.href = '/YarnRequirement';
-                        });
-                    }
-                },
-                error: function (request, status, error) {
-                    window.location.href = '/YarnRequirement';
-                }
-            });
-        }
-
-        function CloseItemModel() {
-            $("#DivDDLItemDetail").hide();
-            $("#DivAddItem").show();
-        }
-
-        function PartyAdditionally() {
-            $("#DivAddress").show();
-        }
-
-        function PartyAdditionallyClose() {
-            $("#DivAddress").hide();
-        }
-
-        var notes = $('#notes').notify({
-            removeIcon: '<i class="icon-close"></i>'
-        });
-
-        var notess = $('#notess').notify({
-            removeIcon: '<i class="icon-close"></i>'
-        });
-
-        function getDefaultCompany() {
-            $.ajax({
-                type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 200 || response.Code == "200") {
-                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
-                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
-                    }
-                },
-                error: function (request, status, error) {
-                    notes.show(request.statusText, { type: 'danger' });
-                }
-            });
-        }
-
-        function FunctionIsLogin() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-                data: "{ 'userName':'0' }",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    if (data.d == "false") {
-                        window.location.replace("/Index");
-                    }
-                },
-                error: function (request, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-        function logout() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/Logout',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    if (data.d == "done") {
-                        window.location.replace("/Index");
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function clearAll() {
-            getDefaultCompany();
-            $("#savebtn").show();
-            $("#Updatebtn").hide();
-            $("#addNewContactLabel").html("Add Design Entry Form");
-            $("#add-alert").hide();
-            $("#YarnColor").val('');
-            $(".company-invalid-feedback").hide();
-            $(".clear-field").removeClass("is-valid is-invalid");
-            $(".invalid-feedback").hide();
-            $(".valid-feedback").hide();
-        }
-
-        function getStates(GSTStateCode) {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getStates',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#placeOfSupply option[value]").each(function () {
-                        $(this).remove();
-                    });
-
-                    $('#placeOfSupply').empty();
-                    appendTemp = "<option value='0'>Select Place Of Supply</option >";
-                    $('#placeOfSupply').append(appendTemp);
-
-                    if (GSTStateCode == "0") {
-                        for (var i = 0; i < jsonData.length; i++) {
-                            admin = jsonData[i];
-                            appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                            $('#placeOfSupply').append(appendTemp);
-                        }
-                    } else {
-                        for (var i = 0; i < jsonData.length; i++) {
-                            admin = jsonData[i];
-                            if (admin.GSTStateCode == GSTStateCode) {
-                                appendTemp = "<option value=" + admin.GSTStateCode + " selected>" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                            } else {
-                                appendTemp = "<option value=" + admin.GSTStateCode + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option >";
-                            }
-                            $('#placeOfSupply').append(appendTemp);
-                        }
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function validate(code) {
-            code.value = code.value.replace(/\s+/g, ' ').trim();
-            var errorMessageValid = "." + code.id + "-valid-feedback";
-            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
-            $(".invalid-feedback .valid-feedback").hide();
-
-            if (code.value == "0") {
-                document.getElementById(code.id).classList.remove("is-valid");
-                document.getElementById(code.id).classList.add("is-invalid");
-                $(errorMessageInvalid).show();
-                return false;
-            } else if ((code.id == "gstin")) {
-                if (code.value.length == 2) {
-                    $('#placeOfSupply').val(code.value);
-                    $("#select2-placeOfSupply-container").html($('#placeOfSupply option:selected').text());
-                }
-
-                if (code.value.length == 15) {
-                    $("#gstin").val(code.value.toUpperCase());
-                    let gstVal = code.value.toUpperCase();
-                    let eMMessage = "No Errors";
-                    let statecode = gstVal.substring(0, 2);
-                    let patternstatecode = /^[0-9]{2}$/
-                    let threetoseven = gstVal.substring(2, 7);
-                    let patternthreetoseven = /^[A-Z]{5}$/
-                    let seventoten = gstVal.substring(7, 11);
-                    let patternseventoten = /^[0-9]{4}$/
-                    let Twelveth = gstVal.substring(11, 12);
-                    let patternTwelveth = /^[A-Z]{1}$/
-                    let Thirteen = gstVal.substring(12, 13);
-                    let patternThirteen = /^[1-9A-Z]{1}$/
-                    let fourteen = gstVal.substring(13, 14);
-                    let patternfourteen = /^Z$/
-                    let fifteen = gstVal.substring(14, 15);
-                    let patternfifteen = /^[0-9A-Z]{1}$/
-
-                    if (gstVal.length != 15) {
-                        eMMessage = 'Length should be restricted to 15 digits and should not allow anything more or less';
-                    } else if (!patternstatecode.test(statecode)) {
-                        eMMessage = 'First two characters of GSTIN should be numbers';
-                    } else if (!patternthreetoseven.test(threetoseven)) {
-                        eMMessage = 'Third to seventh characters of GSTIN should be alphabets';
-                    } else if (!patternseventoten.test(seventoten)) {
-                        eMMessage = 'Eighth to Eleventh characters of GSTIN should be numbers';
-                    } else if (!patternTwelveth.test(Twelveth)) {
-                        eMMessage = 'Twelveth character of GSTIN should be alphabet';
-                    } else if (!patternThirteen.test(Thirteen)) {
-                        eMMessage = 'Thirteen characters of GSTIN can be either alphabet or numeric';
-                    } else if (!patternfourteen.test(fourteen)) {
-                        eMMessage = 'fourteen characters of GSTIN should be Z';
-                    } else if (!patternfifteen.test(fifteen)) {
-                        eMMessage = 'fifteen characters of GSTIN can be either alphabet or numeric';
-                    }
-
-                    if (eMMessage == "No Errors") {
-                        $("#GSTError").html("Valid GSTIN");
-                        document.getElementById(code.id).classList.add("is-valid");
-                        document.getElementById(code.id).classList.remove("is-invalid");
-                        $(errorMessageValid).show();
-                        $(errorMessageInvalid).hide();
-
-                        var pan = code.value.substring(2, 12);
-                        $('#PanNo').val(pan);
-                        return true;
-                    } else {
-                        $("#GSTError").html(eMMessage);
-                        document.getElementById(code.id).classList.remove("is-valid");
-                        document.getElementById(code.id).classList.add("is-invalid");
-                        $(errorMessageInvalid).show();
-                        return false;
-                    }
-                } else {
-                    document.getElementById(code.id).classList.add("is-valid");
-                    document.getElementById(code.id).classList.remove("is-invalid");
-                    $(errorMessageValid).show();
-                    $(errorMessageInvalid).hide();
-                    $(".company-invalid-feedback").show();
-                    $("#GSTError").html("");
-                    return false;
-                }
-            } else if (code.value == "") {
-                document.getElementById(code.id).classList.remove("is-valid");
-                document.getElementById(code.id).classList.add("is-invalid");
-                $(errorMessageInvalid).show();
-                return false;
-            } else {
-                document.getElementById(code.id).classList.add("is-valid");
-                document.getElementById(code.id).classList.remove("is-invalid");
-                $(errorMessageValid).show();
-                $(errorMessageInvalid).hide();
-                $(".company-invalid-feedback").show();
-                return true;
-            }
-        }
-
-        function getPartyDetail() {
-            var formData = new FormData();
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getPartyDetails',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == "200") {
-                        if (response.listPartyMaster.length > 0) {
-                            $('#ddlParty').empty();
-                            var tempPartyName = "<option value=''> Select Party Name </option>";
-                            $('#ddlParty').append(tempPartyName);
-                            for (var i = 0; i < response.listPartyMaster.length; i++) {
-                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
-                                $('#ddlParty').append(tempPartyName);
-                            }
-                        }
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function functionParty(abc) {
-            if (abc == "") {
-                $("#DivLblPartyDetails").hide();
-            } else {
-                $.ajax({
-                    type: "GET",
-                    url: '/WebServiceNikunjTextile.asmx/getPartyMasterById?id=' + abc,
-                    data: "{ 'id':'" + abc + "' }",
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 200 || response.Code == "200") {
-                            $("#DivLblPartyDetails").show();
-                            $('#hPartyId').val(response.listPartyMaster[0].PartyId);
-                            $('#PMobileNo').html("<b>Mobile No: </b>" + response.listPartyMaster[0].MobileNo + " / " + response.listPartyMaster[0].AlterMobileNo);
-                            $('#PEmail').html("<b>Email : </b>" + response.listPartyMaster[0].Email);
-                            $("#PBillingAddress").html("<b>Address : </b>" + response.listPartyMaster[0].BillingAddress);
-                            $('#PState').html("<b>State : </b>" + response.listPartyMaster[0].State);
-                            $('#PGSTIN').html("<b>GSTIn : </b>" + response.listPartyMaster[0].GSTIN);
-                            $('#divPartyName').html(response.listPartyMaster[0].PartyName);
-                            $('#select2-ddlParty-container').html(response.listPartyMaster[0].PartyName);
-                        } else {
-                            $("#DivLblPartyDetails").hide();
-                            notess.show(response.Message, { type: 'danger' });
-                        }
-                    },
-                    error: function (request, status, error) {
-                        notess.show(response.Message, { type: 'danger' });
-                    }
-                });
-            }
-        }
-
-        function addparty() {
-            $("#DivYarnMaterial").hide();
-            $("#DivYarnColor").hide();
-            $("#DivPartyMaster").show();
-            $("#divModelBody").css("background-color", "white");
-            $("#DivLblPartyDetails").hide();
-            $("#AddPartyModel").click();
-            getStates(0);
-
-            $("#addNewContactLabel").html("Add Party Information");
-            $("#add-alert").hide();
-            $("#name").val('');
-            $(".company-invalid-feedback").hide();
-            $('#DDLSalesExecutive').val('0');
-            $("#DDLTransportDetails").val("0");
-            $('#BankHolderName').val('');
-            $('#BankAccountNo').val('');
-            $('#BankIFSCCode').val('');
-            $('#BankName').val('');
-            $('#BankBranch').val('');
-
-            $(".clear-field").val("");
-            $(".clear-field").removeClass("is-valid is-invalid");
-            $(".invalid-feedback").hide();
-            $(".valid-feedback").hide();
-
-            var tempFooter = '<button id="saveViewPartybtn" type="button" class="btn btn-primary" title="Add New Party" onclick="checkPartySaveView()">Save & View</button>';
-            tempFooter += '<button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>';
-            $("#divModalFooter").html(tempFooter);
-        }
-
-        function getItemUnit() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getItemUnit',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#ServiceUnit option[value]").each(function () {
-                        $(this).remove();
-                    });
-
-                    $('#ServiceUnit').append("<option value='' selected> -- Select -- </option>");
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-                        appendTemp = "<option value='" + admin.UnitId + "'>" + admin.Unit + "</option >";
-                        $('#ServiceUnit').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function getItemGST() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getGSTSlabList',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    var jsonData = JSON.parse(data.d);
-                    $("#GSTSLABId option[value]").each(function () {
-                        $(this).remove();
-                    });
-                    appendTemp = "<option value='0' selected></option >";
-                    $('#GSTSLABId').append(appendTemp);
-                    for (var i = 0; i < jsonData.length; i++) {
-                        admin = jsonData[i];
-                        appendTemp = "<option value='" + admin.GSTSLABId + "'>" + admin.GSTSLABName + "</option >";
-                        $('#GSTSLABId').append(appendTemp);
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function addYarnMaterial() {
-            getItemUnit();
-            getItemGST();
-
-            $("#DivYarnMaterial").show();
-            $("#DivYarnColor").hide();
-            $("#DivPartyMaster").hide();
-            $("#divModelBody").css("background-color", "white");
-            $("#DivLblPartyDetails").hide();
-            $("#AddPartyModel").click();
-
-            $("#addNewContactLabel").html("Add Yarn Material");
-            $("#add-alert").hide();
-            $("#YarnMaterial").val('');
-            $("#Denier").val('');
-            $("#HSNSACCOde").val('');
-            $(".company-invalid-feedback").hide();
-
-            $(".clear-field").val("");
-            $(".clear-field").removeClass("is-valid is-invalid");
-            $(".invalid-feedback").hide();
-            $(".valid-feedback").hide();
-
-            var tempFooter = '<button id="saveViewPartybtn" type="button" class="btn btn-primary" title="Add New Yarn Material" onclick="checkYarnMaerialSaveView()">Save & View</button>';
-            tempFooter += '<button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>';
-            $("#divModalFooter").html(tempFooter);
-        }
-
-        function addYarnColor() {
-            $("#DivYarnMaterial").hide();
-            $("#DivYarnColor").show();
-            $("#DivPartyMaster").hide();
-            $("#divModelBody").css("background-color", "white");
-            $("#DivLblPartyDetails").hide();
-            $("#AddPartyModel").click();
-
-            $("#addNewContactLabel").html("Add Yarn Color");
-            $("#add-alert").hide();
-            $("#YarnColor").val('');
-            $("#YarnColorCode").val('');
-            $(".company-invalid-feedback").hide();
-
-            $(".clear-field").val("");
-            $(".clear-field").removeClass("is-valid is-invalid");
-            $(".invalid-feedback").hide();
-            $(".valid-feedback").hide();
-
-            var tempFooter = '<button id="saveViewPartybtn" type="button" class="btn btn-primary" title="Add New Yarn Color" onclick="checkYarnColorSaveView()">Save & View</button>';
-            tempFooter += '<button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>';
-            $("#divModalFooter").html(tempFooter);
-        }
-
-        function changeYarnColor(abc) {
-            if (abc.value == "") {
-                $("#divModelBody").css("background-color", "white");
-            } else {
-                var colorCode = "#" + abc.value;
-                $("#divModelBody").css("background-color", colorCode);
-            }
-        }
-
-        function toggleShippingAddress() {
-            if ($("#chcekAddress").prop("checked") == true) {
-                $("#shippingAddress").attr("disabled", true);
-                $("#shippingAddress").val($("#billingAddress").val());
-            } else {
-                $("#shippingAddress").attr("disabled", false);
-            }
-        }
-
-        function checkShippingAdd() {
-            if ($("#chcekAddress").prop("checked") == true) {
-                $("#shippingAddress").val($("#billingAddress").val());
-            }
-        }
-
-        function checkPartySaveView() {
-            var name = document.getElementById('party-name');
-            var phone = document.getElementById('phone');
-            if (validate(name) == false || validate(phone) == false) {
-                validate(name);
-                validate(phone);
-            } else {
-                var email = document.getElementById('email');
-                var altPhone = document.getElementById('alt-phone');
-                var placeOfSupply = $("#placeOfSupply option:selected").text();
-                var gst = document.getElementById("gstin");
-                var PanNo = document.getElementById("PanNo");
-                var Pincode = document.getElementById("pincode");
-                var city = document.getElementById("city");
-                var billingAddress = document.getElementById("billingAddress");
-                var shippingAddress = document.getElementById("shippingAddress");
-
-                var BankHolderName = document.getElementById('BankHolderName');
-                var BankAccountNo = document.getElementById('BankAccountNo');
-                var BankIFSCCode = document.getElementById('BankIFSCCode');
-                var BankName = document.getElementById('BankName');
-                var BankBranch = document.getElementById('BankBranch');
-
-                var IsActiveParty = "0";
-                if ($("#chcekIsActiveParty").is(':checked')) {
-                    IsActiveParty = "1";
-                }
-
-                var IsSameAddress = "0";
-                if ($("#chcekAddress").is(':checked')) {
-                    IsSameAddress = "1";
-                }
-
-                var formData = new FormData();
-                formData.append('PartyName', name.value);
-                formData.append('MobileNo', phone.value);
-                if (altPhone.value == "") {
-                    formData.append('AlterMobileNo', '0');
-                } else {
-                    formData.append('AlterMobileNo', altPhone.value);
-                }
-
-                formData.append('Email', email.value);
-                formData.append('BillingAddress', billingAddress.value);
-                formData.append('ShippingAddress', shippingAddress.value);
-                formData.append('IsSameAddress', IsSameAddress);
-                formData.append('GSTIN', gst.value);
-                formData.append('State', placeOfSupply);
-                formData.append('PanNo', PanNo.value);
-                formData.append('Pincode', Pincode.value);
-                formData.append('city', city.value);
-                formData.append('BankHolderName', BankHolderName.value);
-                formData.append('BankAccountNo', BankAccountNo.value);
-                formData.append('BankIFSCCode', BankIFSCCode.value);
-                formData.append('BankName', BankName.value);
-                formData.append('BankBranch', BankBranch.value);
-                formData.append('IsActiveParty', IsActiveParty);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertPartyinYarnRequirementMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            getPartyDetail();
-                            $("#ddlParty").val(response.id);
-                            functionParty(response.id);
-                            notes.show(response.Message, { type: 'success' });
-                            $("#cancelbtn").click();
-                        } else {
-                            notess.show(response.Message, { type: 'danger' });
-                        }
-                    },
-                    error: function (error) {
-                        notess.show(response.Message, { type: 'danger' });
-                    }
-                });
-            }
-        }
-
-        function checkYarnMaerialSaveView() {
-            var IsActive = "0";
-            if ($("#IsActiveYarnMaterial").is(':checked')) {
-                IsActive = "1";
-            }
-
-            var YarnMaterial = $('#YarnMaterial').val();
-            var Denier = $('#Denier').val();
-            var UnitId = $('#ServiceUnit').val();
-            var HSNCode = $('#HSNSACCOde').val();
-            var GSTSLABId = $('#GSTSLABId').val();
-
-            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
-                validate(document.getElementById('YarnMaterial'));
-                validate(document.getElementById('ServiceUnit'));
-                validate(document.getElementById('HSNSACCOde'));
-                validate(document.getElementById('GSTSLABId'));
-            } else {
-                var formData = new FormData();
-                formData.append('YarnMaterial', YarnMaterial);
-                formData.append('Denier', Denier);
-                formData.append('UnitId', UnitId);
-                formData.append('HSNCode', HSNCode);
-                formData.append('GSTSLABId', GSTSLABId);
-                formData.append('IsActive', IsActive);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            setTimeout(function () {
-                                DDLYarnMaterial();
-                            }, 500);
-
-                            clearAll();
-                            notes.show(response.Message, { type: 'success' });
-                            $("#cancelbtn").click();
-                        } else {
-                            notess.show(response.Message, { type: 'danger' });
-                        }
-                    },
-                    error: function (error) {
-                        notess.show(response.Message, { type: 'danger' });
-                    }
-                });
-            }
-        }
-
-        function checkYarnColorSaveView() {
-            var IsActive = "0";
-            if ($("#IsActiveYarnColor").is(':checked')) {
-                IsActive = "1";
-            }
-
-            var YarnColor = $('#YarnColor').val();
-            var YarnColorCode = $('#YarnColorCode').val();
-            var YColor = YarnColorCode.slice(0, 1);
-
-            if (YColor == "#") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Oops!',
-                    text: 'Please Remove # in Yarn Color.'
-                });
-            } else {
-                if (validate(document.getElementById('YarnColor')) == false || validate(document.getElementById('YarnColorCode')) == false) {
-                    validate(document.getElementById('YarnColor'));
-                    validate(document.getElementById('YarnColorCode'));
-                } else {
-                    var formData = new FormData();
-                    formData.append('YarnColor', YarnColor);
-                    formData.append('YarnColorCode', YarnColorCode);
-                    formData.append('IsActive', IsActive);
-
-                    $.ajax({
-                        type: "POST",
-                        url: '/WebServiceNikunjTextile.asmx/insertYarnColorMaster',
-                        data: formData,
-                        dataType: 'json',
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            if (response.Code == 201) {
-                                clearAll();
-                                notes.show(response.Message, { type: 'success' });
-                                setTimeout(function () {
-                                    DDLYarnColor();
-                                }, 500);
-                                $("#cancelbtn").click();
-                            } else {
-                                notess.show(response.Message, { type: 'danger' });
-                            }
-                        },
-                        error: function (error) {
-                            notess.show(response.Message, { type: 'danger' });
-                        }
-                    });
-                }
-            }
-        }
-
-        function DDLYarnMaterial() {
-            var formData = new FormData();
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnMaterial',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == "1") {
-                        var txtColorArray = $("#txtYarnDetailsArray").val();
-                        var txtColorData = txtColorArray.slice(0, -1).split('|');
-                        var appendTemp = "";
-                        for (var j = 1; j <= txtColorData.length; j++) {
-                            var YM = "#yarnMaterial" + j;
-                            var YMVal = $(YM).val();
-                            $(YM).empty();
-                            $(YM).append("<option value='0' > Select Yarn Material </option>");
-                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
-                                if (YMVal == response.listYarnMaterialMaster[i].YarnMaterialID) {
-                                    appendTemp = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "' selected> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
-                                    $(YM).append(appendTemp);
-                                } else {
-                                    appendTemp = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
-                                    $(YM).append(appendTemp);
-                                }
-                            }
-                        }
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-        }
-
-        function DDLYarnColor() {
-            var formData = new FormData();
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnColor',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == "1") {
-                        var txtColorArray = $("#txtYarnDetailsArray").val();
-                        var txtColorData = txtColorArray.slice(0, -1).split('|');
-                        var appendTemp = "";
-                        for (var j = 1; j <= txtColorData.length; j++) {
-                            var YM = "#YarnColor" + j;
-                            var YMVal = $(YM).val();
-                            $(YM).empty();
-                            ArrayYarnColor = [];
-                            ArrayYarnColor.push(response.listYarnColorMaster);
-                            $(YM).append("<option value='0' > Select Yarn Color </option>");
-                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
-                                if (YMVal == response.listYarnColorMaster[i].YarnColorID) {
-                                    appendTemp = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "' selected> " + response.listYarnColorMaster[i].YarnColor + " </option>";
-                                    $(YM).append(appendTemp);
-                                } else {
-                                    appendTemp = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
-                                    $(YM).append(appendTemp);
-                                }
-                            }
-                        }
-                    }
-                },
-                error: function (request, status, error) { }
-            });
-
-            var txtColorArray = $("#txtYarnDetailsArray").val();
-            var txtColorData = txtColorArray.slice(0, -1).split('|');
-            var appendTemp = "";
-            for (var j = 1; j <= txtColorData.length; j++) {
-                var YM = "#YarnColor" + j;
-                var YMVal = $(YM).val();
-                $(YM).empty();
-                $(YM).append("<option value='0' > Select Yarn Color </option>");
-                for (var i = 0; i < ArrayYarnColor[0].length; i++) {
-                    if (YMVal == ArrayYarnColor[0][i].YarnColorID) {
-                        appendTemp = "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
-                        $(YM).append(appendTemp);
-                    } else {
-                        appendTemp = "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
-                        $(YM).append(appendTemp);
-                    }
-                }
-            }
-        }
-
-        function checkSave() {
-            var YarnRequirementID = $("#YarnRequirementID").val();
-            var InvoiceDate = document.getElementById('InvoiceDate');
-            var RequirementNo = document.getElementById('RequirementNo');
-            var PartyId = document.getElementById('ddlParty');
-            var DeleteYarnDetailsArray = $("#txtDeleteYarnDetailsArray").val();
-
-            if (validate(InvoiceDate) == false || validate(RequirementNo) == false || validate(PartyId) == false) {
-                validate(InvoiceDate);
-                validate(RequirementNo);
-                validate(PartyId);
-
-                if (PartyId.value == "") {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Warning',
-                        text: 'Please Select Party Name.'
-                    });
-                }
-            } else {
-                var txtColorArray = $("#txtYarnDetailsArray").val();
-                var txtColorData = txtColorArray.slice(0, -1).split('|');
-
-                var appendTemp = '';
-                for (var j = 0; j < txtColorData.length; j++) {
-                    var YRD = "#txtYarnRequirementDetailID" + txtColorData[j];
-                    var YRDVal = $(YRD).val();
-                    var YM = "#yarnMaterial" + txtColorData[j];
-                    var YMVal = $(YM).val();
-                    var YC = "#YarnColor" + txtColorData[j];
-                    var YCVal = $(YC).val();
-                    var CN = "#CompanyName" + txtColorData[j];
-                    var CNVal = $(CN).val();
-                    var CC = "#ColorCode" + txtColorData[j];
-                    var CCVal = $(CC).val();
-                    var NOB = "#NoOfBox" + txtColorData[j];
-                    var NOBVal = $(NOB).val();
-
-                    appendTemp += '{';
-                    appendTemp += '"YarnRequirementDetailID": "' + YRDVal + '",';
-                    appendTemp += '"YarnMaterialID": "' + YMVal + '",';
-                    appendTemp += '"YarnColorID": "' + YCVal + '",';
-                    appendTemp += '"CompanyName": "' + CNVal + '",';
-                    appendTemp += '"CompanyColourCode": "' + CCVal + '",';
-                    appendTemp += '"NoofBoxes": "' + NOBVal + '"';
-                    appendTemp += '},';
-                }
-
-                var YarnRequirementArray = '';
-                YarnRequirementArray += '{';
-                YarnRequirementArray += '"YarnRequirementID":"' + YarnRequirementID + '", ';
-                YarnRequirementArray += '"RequirementDates":"' + InvoiceDate.value + '", ';
-                YarnRequirementArray += '"RequirementNo":"' + RequirementNo.value + '",';
-                YarnRequirementArray += '"PartyId":"' + PartyId.value + '",';
-                YarnRequirementArray += '"DeleteYarnDetailsArray":"' + DeleteYarnDetailsArray.slice(0, -1) + '",';
-                YarnRequirementArray += '"listYarnRequirementDetail": [' + appendTemp.slice(0, -1) + ']';
-                YarnRequirementArray += '}';
-
-                const formData = new FormData();
-                formData.append('YarnRequirementArray', YarnRequirementArray);
-
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/UpdateYarnRequirementMasterMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 200) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: 'Color Matching Created Successfully.'
-                            }).then(() => {
-                                window.location.href = 'YarnRequirement';
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Problem occurred while submitting your data.'
-                        });
-                    }
-                });
-            }
-        }
-
-        function AddYarnDetailData() {
-            var PartyNo = $("#ddlParty").val();
-
-            if (PartyNo == "") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning',
-                    text: 'Please Select Party Name.'
-                });
-                validate(document.getElementById("ddlParty"));
-            } else {
-                var txtColorArray = $("#txtYarnDetailsArray").val();
-                var tempColorMatching = '';
-                var txtColorData = txtColorArray.slice(0, -1).split('|');
-                var isValid = 0;
-
-                for (var j = 1; j <= txtColorData.length; j++) {
-                    var yarnMaterial = "yarnMaterial" + j;
-                    var YarnColor = "YarnColor" + j;
-                    var CompanyName = "CompanyName" + j;
-                    var ColorCode = "ColorCode" + j;
-                    var NoOfBox = "NoOfBox" + j;
-
-                    var YM = document.getElementById(yarnMaterial);
-                    var YC = document.getElementById(YarnColor);
-                    var CN = document.getElementById(CompanyName);
-                    var CC = document.getElementById(ColorCode);
-                    var NOB = document.getElementById(NoOfBox);
-
-                    if (validate(YM) == false || validate(YC) == false || validate(CN) == false || validate(CC) == false || validate(NOB) == false) {
-                        validate(YM);
-                        validate(YC);
-                        validate(CN);
-                        validate(CC);
-                        validate(NOB);
-                        isValid = parseInt(isValid) + parseInt(1);
-                    }
-                }
-
-                if (isValid == 0) {
-                    for (var i = 0; i < txtColorData.length; i++) {
-                        var no = parseInt(txtColorData[(txtColorData.length - 1)]);
-                        var ArrayNo = parseInt(txtColorData[(txtColorData.length - 1)]) + parseInt(1);
-
-                        tempColorMatching += '<tr id="trMatching' + ArrayNo + '">';
-                        tempColorMatching += '<td style="width:3%;">';
-                        tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + ArrayNo + ')"></i>';
-                        tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + ArrayNo + '" value="0">';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '<td style="width:20%;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<select id="yarnMaterial' + ArrayNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + ArrayNo + '\')">';
-                        tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
-                        for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
-                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
-                        }
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '<td style="width:20%;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<div id="tdYarnColor' + ArrayNo + '" style="width: 35px; height: 35px; border-radius: 3px;"></div>';
-                        tempColorMatching += '<select id="YarnColor' + ArrayNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + ArrayNo + '\')">';
-                        tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
-                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
-                            tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
-                        }
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '<td style="width:20%;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<select id="CompanyName' + ArrayNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" >';
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '<td style="width:20%;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + ArrayNo + '" placeholder="Color Code" onfocusout="validate(this)" />';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '<td style="width:17%;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + ArrayNo + '" placeholder="No Of Boxes" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '</tr>';
-
-                        $("#txtYarnDetailsArray").val(txtColorArray + ArrayNo + "|");
-                        $("#tableItemData").append(tempColorMatching);
-                    }
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Warning',
-                        text: 'Please Fill All Fields.'
-                    });
-                }
-            }
-        }
-
-        function AddDuplicateYarnDetailData() {
-            var PartyNo = $("#ddlParty").val();
-
-            if (PartyNo == "") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning',
-                    text: 'Please Select Party Name.'
-                });
-                validate(document.getElementById("ddlParty"));
-            } else {
-                var txtColorArray = $("#txtYarnDetailsArray").val();
-                var tempColorMatching = '';
-                var txtColorData = txtColorArray.slice(0, -1).split('|');
-                var isValid = 0;
-
-                for (var j = 0; j < txtColorData.length; j++) {
-                    var yarnMaterial = "yarnMaterial" + txtColorData[j];
-                    var YarnColor = "YarnColor" + txtColorData[j];
-                    var CompanyName = "CompanyName" + txtColorData[j];
-                    var ColorCode = "ColorCode" + txtColorData[j];
-                    var NoOfBox = "NoOfBox" + txtColorData[j];
-
-                    var YM = document.getElementById(yarnMaterial);
-                    var YC = document.getElementById(YarnColor);
-                    var CN = document.getElementById(CompanyName);
-                    var CC = document.getElementById(ColorCode);
-                    var NOB = document.getElementById(NoOfBox);
-
-                    if (validate(YM) == false || validate(YC) == false || validate(CN) == false || validate(CC) == false || validate(NOB) == false) {
-                        validate(YM);
-                        validate(YC);
-                        validate(CN);
-                        validate(CC);
-                        validate(NOB);
-                        isValid = parseInt(isValid) + parseInt(1);
-                    }
-                }
-
-                if (isValid == 0) {
-                    for (var i = 0; i < txtColorData.length; i++) {
-                        var no = parseInt(txtColorData[(txtColorData.length - 1)]);
-                        var ArrayNo = parseInt(txtColorData[(txtColorData.length - 1)]) + parseInt(1);
-
-                        tempColorMatching += '<tr id="trMatching' + ArrayNo + '">';
-                        tempColorMatching += '<td style="width:3%;">';
-                        tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + ArrayNo + ')"></i>';
-                        tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + ArrayNo + '" value="0">';
-                        tempColorMatching += '</td>';
-
-                        var YM = "#yarnMaterial" + no;
-                        var YMVal = $(YM).val();
-
-                        tempColorMatching += '<td style="width: 20%; text-align: center;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<select id="yarnMaterial' + ArrayNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + ArrayNo + '\')">';
-                        tempColorMatching += '<option value="0">Select Yarn Material</option>';
-                        for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
-                            if (YMVal == ArrayYarnMaterial[0][i].YarnMaterialID) {
-                                tempColorMatching += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
-                            } else {
-                                tempColorMatching += "<option value='" + ArrayYarnMaterial[0][i].YarnMaterialID + "'> " + ArrayYarnMaterial[0][i].YarnMaterial + " </option>";
-                            }
-                        }
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-
-                        var YC = "#YarnColor" + no;
-                        var YCVal = $(YC).val();
-                        var tdYM = "#tdYarnColor" + no;
-                        var divColor = $(tdYM).css("background-color");
-
-                        tempColorMatching += '<td style="width: 20%; text-align: center;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<div id="tdYarnColor' + ArrayNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: ' + divColor + '"></div>';
-                        tempColorMatching += '<select id="YarnColor' + ArrayNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + ArrayNo + '\')">';
-                        tempColorMatching += '<option value="0" >Select Yarn Color</option>';
-                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
-                            if (YCVal == ArrayYarnColor[0][i].YarnColorID) {
-                                tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
-                            } else {
-                                tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
-                            }
-                        }
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-
-                        var CN = "#CompanyName" + no;
-                        var CNN = "#CompanyName" + no + " option";
-                        let CompanyNameoptions = [];
-                        $(CNN).each(function () {
-                            CompanyNameoptions.push({
-                                value: $(this).val(),
-                                text: $(this).text()
-                            });
-                        });
-
-                        tempColorMatching += '<td style="width: 20%; text-align: center;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<select id="CompanyName' + ArrayNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" >';
-                        for (var i = 0; i < CompanyNameoptions.length; i++) {
-                            if (CompanyNameoptions[i].value == $(CN).val()) {
-                                tempColorMatching += "<option value='" + CompanyNameoptions[i].value + "' selected> " + CompanyNameoptions[i].text + " </option>";
-                            } else {
-                                tempColorMatching += "<option value='" + CompanyNameoptions[i].value + "'> " + CompanyNameoptions[i].text + " </option>";
-                            }
-                        }
-                        tempColorMatching += '</select>';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-
-                        var CC = "#ColorCode" + no;
-                        var CCVal = $(CC).val();
-
-                        tempColorMatching += '<td style="width: 20%; text-align: center;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + ArrayNo + '" placeholder="Color Code" value="' + CCVal + '" onfocusout="validate(this)" />';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-
-                        var NOB = "#NoOfBox" + no;
-                        var NOBVal = $(NOB).val();
-
-                        tempColorMatching += '<td style="width: 17%; text-align: center;">';
-                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                        tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + ArrayNo + '" placeholder="No Of Boxes" value="' + NOBVal + '" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                        tempColorMatching += '</div>';
-                        tempColorMatching += '</td>';
-                        tempColorMatching += '</tr>';
-
-                        $("#txtYarnDetailsArray").val(txtColorArray + ArrayNo + "|");
-                        $("#tableItemData").append(tempColorMatching);
-                    }
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Warning',
-                        text: 'Please Fill All Fields.'
-                    });
-                }
-            }
-        }
-
-        function deleteYarnData(abc) {
-            var trMatching = "#trMatching" + abc;
-            var replace = abc + "|";
-            var ColorArray = $("#txtYarnDetailsArray").val();
-            var DesignColorMatchingDetailsID = "#txtYarnRequirementDetailID" + abc;
-            var DCMDID = $(DesignColorMatchingDetailsID).val() + ",";
-            var DeleteColorArray = $("#txtDeleteYarnDetailsArray").val();
-
-            if ($(DesignColorMatchingDetailsID).val() != "0") {
-                $("#txtDeleteYarnDetailsArray").val(DeleteColorArray + DCMDID);
-            }
-
-            $(trMatching).remove();
-            $("#txtYarnDetailsArray").val(ColorArray.replace(replace, ''));
-        }
-    </script>
-}
