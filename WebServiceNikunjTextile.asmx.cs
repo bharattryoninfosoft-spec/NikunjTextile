@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using iText.IO.Font.Constants;
@@ -9,14 +9,11 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Microsoft.Reporting.WebForms;
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -26,7 +23,6 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -40,7 +36,7 @@ using System.Web.UI.WebControls;
 
 
 namespace NikunjTextile
-{    
+{
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
@@ -651,7 +647,7 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-    
+
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCompanyMasterById(string id)
@@ -5933,182 +5929,758 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditGodownMaster()
         {
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            //Int64 EmployeeId, CourierDetailId;
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
+            DateTime dateTime_Indian =
+                TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.UtcNow,
+                    India_Standard_Time
+                );
 
             CommanResponse comman = new CommanResponse();
             GodownMaster ilist = new GodownMaster();
 
-            ilist.DateAndTime = Convert.ToDateTime(dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss"));
-
-            string UserAccountId = Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
-            string CompanyId = Context.Request.Cookies["CompanyID"].Value.Split('=')[1];
-            string FinancialYearID = Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1];
-            ilist.GodownArray = HttpContext.Current.Request.Params["GodownArray"];
-
-            if (UserAccountId == "" && CompanyId == "" && FinancialYearID == "")
+            try
             {
-                comman.Code = 500;
-                comman.Message = "Please Re-Login your Account.";
-            }
-            else
-            {
-                var myDetails = JsonConvert.DeserializeObject<GodownMaster>(ilist.GodownArray);
-                string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
+                // =========================================================
+                // GET COOKIES
+                // =========================================================
 
+                string UserAccountId = "";
+                string CompanyId = "";
+                string FinancialYearID = "";
 
-                try
+                if (Context.Request.Cookies["UserIDs"] != null)
                 {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
+                    UserAccountId =
+                        Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
+                }
+
+                if (Context.Request.Cookies["CompanyID"] != null)
+                {
+                    CompanyId =
+                        Context.Request.Cookies["CompanyID"].Value.Split('=')[1];
+                }
+
+                if (Context.Request.Cookies["FinacialYearDefaultID"] != null)
+                {
+                    FinancialYearID =
+                        Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1];
+                }
+
+                // =========================================================
+                // LOGIN CHECK
+                // =========================================================
+
+                if (string.IsNullOrWhiteSpace(UserAccountId) ||
+                    string.IsNullOrWhiteSpace(CompanyId) ||
+                    string.IsNullOrWhiteSpace(FinancialYearID))
+                {
+                    comman.Code = 500;
+                    comman.Message = "Please Re-Login your Account.";
+
+                    WriteGodownResponse(comman);
+                    return;
+                }
+
+                // =========================================================
+                // GET GODOWN ARRAY
+                // =========================================================
+
+                ilist.GodownArray =
+                    HttpContext.Current.Request.Params["GodownArray"];
+
+                if (string.IsNullOrWhiteSpace(ilist.GodownArray))
+                {
+                    comman.Code = 500;
+                    comman.Message = "Invalid Godown Data.";
+
+                    WriteGodownResponse(comman);
+                    return;
+                }
+
+                // =========================================================
+                // DESERIALIZE
+                // =========================================================
+
+                GodownMaster myDetails =
+                    JsonConvert.DeserializeObject<GodownMaster>(
+                        ilist.GodownArray
+                    );
+
+                if (myDetails == null)
+                {
+                    comman.Code = 500;
+                    comman.Message = "Invalid Godown Data.";
+
+                    WriteGodownResponse(comman);
+                    return;
+                }
+
+                // =========================================================
+                // VALIDATE GODOWN ID
+                // =========================================================
+
+                if (myDetails.GodownID <= 0)
+                {
+                    comman.Code = 500;
+                    comman.Message = "Invalid Godown ID.";
+
+                    WriteGodownResponse(comman);
+                    return;
+                }
+
+                // =========================================================
+                // CLEAN MASTER DATA
+                // =========================================================
+
+                string GodownTitle =
+                    (myDetails.GodownTitle ?? "")
+                    .Trim()
+                    .ToUpper();
+
+                string GodownAddress =
+                    (myDetails.GodownAddress ?? "")
+                    .Trim()
+                    .ToUpper();
+
+                string GSTIN =
+                    (myDetails.GSTIN ?? "")
+                    .Trim()
+                    .ToUpper();
+
+                long PartyId = 0;
+
+                Int64.TryParse(
+                    Convert.ToString(myDetails.PartyId),
+                    out PartyId
+                );
+
+                if (string.IsNullOrWhiteSpace(GodownTitle))
+                {
+                    comman.Code = 500;
+                    comman.Message = "Please enter Godown Title.";
+
+                    WriteGodownResponse(comman);
+                    return;
+                }
+
+                // =========================================================
+                // CONNECTION
+                // =========================================================
+
+                string cs =
+                    ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    using (SqlTransaction transaction =
+                           con.BeginTransaction())
                     {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-
-
-
-                        cmd.CommandText = " select * from GodownMaster where GodownTitle = '" + myDetails.GodownTitle.ToUpper() + "' AND GodownTitle != (select GodownTitle from GodownMaster where GodownID = '" + myDetails.GodownID + "') AND CompanyId = " + CompanyId + "";
-                        con.Open();
-                        SqlDataReader rdr = cmd.ExecuteReader();
-
-                        if (rdr.HasRows)
+                        try
                         {
-                            comman.Code = 500;
-                            comman.Message = "This Godown Title ALready Exists.";
-                        }
-                        else
-                        {
-                            rdr.Close();
+                            // =================================================
+                            // 1. CHECK DUPLICATE GODOWN TITLE
+                            // =================================================
 
+                            string checkGodownSql = @"
+                        SELECT COUNT(1)
+                        FROM GodownMaster
+                        WHERE CompanyId = @CompanyId
+                        AND GodownID <> @GodownID
+                        AND UPPER(
+                            LTRIM(RTRIM(GodownTitle))
+                        ) = @GodownTitle";
 
-                            string sql = @"UPDATE GodownMaster SET GodownTitle = @GodownTitle, GodownAddress = @GodownAddress, IsActive = @IsActive,
-                                        UserAccountId = @UserAccountId, CompanyId = @CompanyId , GSTIN=@GSTIN ,PartyId=@PartyId WHERE GodownID = @GodownID";
-
-                            cmd.Parameters.Clear();
-                            cmd.CommandText = sql;
-                            cmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
-                            cmd.Parameters.Add("@GodownAddress", SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
-                            cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = myDetails.IsActive;
-                            cmd.Parameters.Add("@UserAccountId", SqlDbType.BigInt).Value = UserAccountId;
-                            cmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = CompanyId;
-                            cmd.Parameters.Add("@GodownID", SqlDbType.BigInt).Value = myDetails.GodownID;
-                            cmd.Parameters.Add("@PartyId", SqlDbType.BigInt).Value = myDetails.PartyId;
-                            cmd.Parameters.AddWithValue("@GSTIN", myDetails.GSTIN);
-                            Int64 id = cmd.ExecuteNonQuery();
-
-
-                            //con.Close();
-                            if (id > 0)
+                            using (SqlCommand checkGodownCmd =
+                                   new SqlCommand(
+                                       checkGodownSql,
+                                       con,
+                                       transaction))
                             {
-                                if (myDetails.listGodownLocationMaster.Count > 0)
+                                checkGodownCmd.Parameters.Add(
+                                    "@CompanyId",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    Convert.ToInt64(CompanyId);
+
+                                checkGodownCmd.Parameters.Add(
+                                    "@GodownID",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    myDetails.GodownID;
+
+                                checkGodownCmd.Parameters.Add(
+                                    "@GodownTitle",
+                                    SqlDbType.NVarChar
+                                ).Value =
+                                    GodownTitle;
+
+                                int godownExists =
+                                    Convert.ToInt32(
+                                        checkGodownCmd.ExecuteScalar()
+                                    );
+
+                                if (godownExists > 0)
                                 {
+                                    transaction.Rollback();
 
-                                    if (myDetails.IsManual == 0)
+                                    comman.Code = 500;
+                                    comman.Message =
+                                        "This Godown Title Already Exists.";
+
+                                    WriteGodownResponse(comman);
+                                    return;
+                                }
+                            }
+
+                            // =================================================
+                            // 2. UPDATE GODOWN MASTER
+                            // =================================================
+
+                            string updateMasterSql = @"
+                        UPDATE GodownMaster
+                        SET
+                            GodownTitle = @GodownTitle,
+                            GodownAddress = @GodownAddress,
+                            IsActive = @IsActive,
+                            UserAccountId = @UserAccountId,
+                            CompanyId = @CompanyId,
+                            GSTIN = @GSTIN,
+                            PartyId = @PartyId
+                        WHERE GodownID = @GodownID";
+
+                            int masterResult = 0;
+
+                            using (SqlCommand updateMasterCmd =
+                                   new SqlCommand(
+                                       updateMasterSql,
+                                       con,
+                                       transaction))
+                            {
+                                updateMasterCmd.Parameters.Add(
+                                    "@GodownTitle",
+                                    SqlDbType.NVarChar
+                                ).Value =
+                                    GodownTitle;
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@GodownAddress",
+                                    SqlDbType.NVarChar
+                                ).Value =
+                                    GodownAddress;
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@IsActive",
+                                    SqlDbType.Bit
+                                ).Value =
+                                    Convert.ToBoolean(
+                                        myDetails.IsActive
+                                    );
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@UserAccountId",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    Convert.ToInt64(
+                                        UserAccountId
+                                    );
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@CompanyId",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    Convert.ToInt64(
+                                        CompanyId
+                                    );
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@GSTIN",
+                                    SqlDbType.NVarChar
+                                ).Value =
+                                    GSTIN;
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@PartyId",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    PartyId;
+
+                                updateMasterCmd.Parameters.Add(
+                                    "@GodownID",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    myDetails.GodownID;
+
+                                masterResult =
+                                    updateMasterCmd.ExecuteNonQuery();
+                            }
+
+                            if (masterResult <= 0)
+                            {
+                                transaction.Rollback();
+
+                                comman.Code = 500;
+                                comman.Message =
+                                    "Godown record not found.";
+
+                                WriteGodownResponse(comman);
+                                return;
+                            }
+
+                            // =================================================
+                            // 3. DELETE LOCATIONS
+                            // =================================================
+
+                            string deleteLocationArray =
+                                (
+                                    myDetails.DeleteGodownArray
+                                    ?? ""
+                                ).Trim();
+
+                            if (!string.IsNullOrWhiteSpace(
+                                deleteLocationArray))
+                            {
+                                string[] deleteIds =
+                                    deleteLocationArray.Split(',');
+
+                                List<long> validDeleteIds =
+                                    new List<long>();
+
+                                foreach (string idValue in deleteIds)
+                                {
+                                    long deleteId = 0;
+
+                                    if (Int64.TryParse(
+                                        idValue.Trim(),
+                                        out deleteId))
                                     {
-                                        foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
+                                        if (deleteId > 0)
                                         {
-
-
-
-                                            string sqls = String.Format("Insert Into GodownLocationMaster  (DateandTime, SrNo, LocationTitle, GodownID ) Values  " +
-                                                   " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.SrNo + "', '" + each.LocationTitle.ToUpper() + "',   " +
-                                                   "  '" + myDetails.GodownID + "' )");
-
-                                            cmd.CommandText = sqls;
-                                            cmd.ExecuteNonQuery();
-
+                                            validDeleteIds.Add(
+                                                deleteId
+                                            );
                                         }
                                     }
+                                }
+
+                                if (validDeleteIds.Count > 0)
+                                {
+                                    List<string> parameters =
+                                        new List<string>();
+
+                                    for (
+                                        int i = 0;
+                                        i < validDeleteIds.Count;
+                                        i++)
+                                    {
+                                        parameters.Add(
+                                            "@DeleteID" + i
+                                        );
+                                    }
+
+                                    string deleteSql = @"
+                                DELETE FROM
+                                    GodownLocationMaster
+                                WHERE
+                                    GodownLocationID IN
+                                    (" +
+                                            string.Join(
+                                                ",",
+                                                parameters
+                                            ) +
+                                            @")
+                                AND GodownID = @GodownID";
+
+                                    using (SqlCommand deleteCmd =
+                                           new SqlCommand(
+                                               deleteSql,
+                                               con,
+                                               transaction))
+                                    {
+                                        for (
+                                            int i = 0;
+                                            i < validDeleteIds.Count;
+                                            i++)
+                                        {
+                                            deleteCmd.Parameters.Add(
+                                                "@DeleteID" + i,
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                validDeleteIds[i];
+                                        }
+
+                                        deleteCmd.Parameters.Add(
+                                            "@GodownID",
+                                            SqlDbType.BigInt
+                                        ).Value =
+                                            myDetails.GodownID;
+
+                                        deleteCmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+
+                            // =================================================
+                            // 4. LOCATION LIST
+                            // =================================================
+
+                            if (myDetails.listGodownLocationMaster != null)
+                            {
+                                int srNo = 1;
+
+                                foreach (
+                                    GodownLocationMaster location
+                                    in myDetails.listGodownLocationMaster)
+                                {
+                                    string locationTitle =
+                                        (
+                                            location.LocationTitle
+                                            ?? ""
+                                        )
+                                        .Trim()
+                                        .ToUpper();
+
+                                    if (string.IsNullOrWhiteSpace(
+                                        locationTitle))
+                                    {
+                                        continue;
+                                    }
+
+                                    long locationId =
+                                        Convert.ToInt64(
+                                            location.GodownLocationID
+                                        );
+
+                                    // =========================================
+                                    // 5. EXISTING LOCATION
+                                    // =========================================
+
+                                    if (locationId > 0)
+                                    {
+                                        // -------------------------------------
+                                        // CHECK SAME TITLE ON OTHER LOCATION
+                                        // -------------------------------------
+
+                                        string duplicateLocationSql = @"
+                                    SELECT COUNT(1)
+                                    FROM GodownLocationMaster
+                                    WHERE
+                                        GodownID = @GodownID
+                                    AND
+                                        GodownLocationID <>
+                                        @GodownLocationID
+                                    AND
+                                        UPPER(
+                                            LTRIM(
+                                                RTRIM(LocationTitle)
+                                            )
+                                        ) = @LocationTitle";
+
+                                        int duplicateLocation = 0;
+
+                                        using (
+                                            SqlCommand duplicateLocationCmd =
+                                            new SqlCommand(
+                                                duplicateLocationSql,
+                                                con,
+                                                transaction))
+                                        {
+                                            duplicateLocationCmd.Parameters.Add(
+                                                "@GodownID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                myDetails.GodownID;
+
+                                            duplicateLocationCmd.Parameters.Add(
+                                                "@GodownLocationID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                locationId;
+
+                                            duplicateLocationCmd.Parameters.Add(
+                                                "@LocationTitle",
+                                                SqlDbType.NVarChar
+                                            ).Value =
+                                                locationTitle;
+
+                                            duplicateLocation =
+                                                Convert.ToInt32(
+                                                    duplicateLocationCmd
+                                                    .ExecuteScalar()
+                                                );
+                                        }
+
+                                        if (duplicateLocation > 0)
+                                        {
+                                            transaction.Rollback();
+
+                                            comman.Code = 500;
+                                            comman.Message =
+                                                "Location '" +
+                                                locationTitle +
+                                                "' already exists in this Godown.";
+
+                                            WriteGodownResponse(
+                                                comman
+                                            );
+
+                                            return;
+                                        }
+
+                                        // -------------------------------------
+                                        // UPDATE EXISTING LOCATION
+                                        // -------------------------------------
+
+                                        string updateLocationSql = @"
+                                    UPDATE
+                                        GodownLocationMaster
+                                    SET
+                                        DateAndTime =
+                                            @DateAndTime,
+                                        SrNo =
+                                            @SrNo,
+                                        LocationTitle =
+                                            @LocationTitle
+                                    WHERE
+                                        GodownLocationID =
+                                            @GodownLocationID
+                                    AND
+                                        GodownID =
+                                            @GodownID";
+
+                                        using (
+                                            SqlCommand updateLocationCmd =
+                                            new SqlCommand(
+                                                updateLocationSql,
+                                                con,
+                                                transaction))
+                                        {
+                                            updateLocationCmd.Parameters.Add(
+                                                "@DateAndTime",
+                                                SqlDbType.DateTime
+                                            ).Value =
+                                                dateTime_Indian;
+
+                                            updateLocationCmd.Parameters.Add(
+                                                "@SrNo",
+                                                SqlDbType.Int
+                                            ).Value =
+                                                srNo;
+
+                                            updateLocationCmd.Parameters.Add(
+                                                "@LocationTitle",
+                                                SqlDbType.NVarChar
+                                            ).Value =
+                                                locationTitle;
+
+                                            updateLocationCmd.Parameters.Add(
+                                                "@GodownLocationID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                locationId;
+
+                                            updateLocationCmd.Parameters.Add(
+                                                "@GodownID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                myDetails.GodownID;
+
+                                            updateLocationCmd.ExecuteNonQuery();
+                                        }
+                                    }
+
+                                    // =================================================
+                                    // 6. NEW LOCATION
+                                    // =================================================
+
                                     else
                                     {
+                                        // -------------------------------------
+                                        // CHECK DUPLICATE LOCATION
+                                        // -------------------------------------
 
+                                        string checkNewLocationSql = @"
+                                    SELECT COUNT(1)
+                                    FROM GodownLocationMaster
+                                    WHERE
+                                        GodownID = @GodownID
+                                    AND
+                                        UPPER(
+                                            LTRIM(
+                                                RTRIM(LocationTitle)
+                                            )
+                                        ) = @LocationTitle";
 
-                                        if (myDetails.DeleteGodownArray != "")
+                                        int locationExists = 0;
+
+                                        using (
+                                            SqlCommand checkNewLocationCmd =
+                                            new SqlCommand(
+                                                checkNewLocationSql,
+                                                con,
+                                                transaction))
                                         {
-                                            string sqld = String.Format("delete from GodownLocationMaster where GodownLocationID in (" + myDetails.DeleteGodownArray + ") ");
+                                            checkNewLocationCmd.Parameters.Add(
+                                                "@GodownID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                myDetails.GodownID;
 
-                                            cmd.CommandText = sqld;
-                                            cmd.ExecuteNonQuery();
+                                            checkNewLocationCmd.Parameters.Add(
+                                                "@LocationTitle",
+                                                SqlDbType.NVarChar
+                                            ).Value =
+                                                locationTitle;
 
+                                            locationExists =
+                                                Convert.ToInt32(
+                                                    checkNewLocationCmd
+                                                    .ExecuteScalar()
+                                                );
                                         }
 
-                                        foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
+                                        // -------------------------------------
+                                        // INSERT ONLY IF NOT EXISTS
+                                        // -------------------------------------
+
+                                        if (locationExists == 0)
                                         {
+                                            string insertLocationSql = @"
+                                        INSERT INTO
+                                            GodownLocationMaster
+                                        (
+                                            DateAndTime,
+                                            SrNo,
+                                            LocationTitle,
+                                            GodownID
+                                        )
+                                        VALUES
+                                        (
+                                            @DateAndTime,
+                                            @SrNo,
+                                            @LocationTitle,
+                                            @GodownID
+                                        )";
 
-
-                                            if (each.GodownLocationID == 0)
+                                            using (
+                                                SqlCommand insertLocationCmd =
+                                                new SqlCommand(
+                                                    insertLocationSql,
+                                                    con,
+                                                    transaction))
                                             {
-                                                string sqls = String.Format("Insert Into GodownLocationMaster  (DateandTime, SrNo, LocationTitle, GodownID ) Values  " +
-                                                 " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.SrNo + "', '" + each.LocationTitle + "',   " +
-                                                 "  '" + myDetails.GodownID + "' )");
+                                                insertLocationCmd.Parameters.Add(
+                                                    "@DateAndTime",
+                                                    SqlDbType.DateTime
+                                                ).Value =
+                                                    dateTime_Indian;
 
-                                                cmd.CommandText = sqls;
-                                                cmd.ExecuteNonQuery();
-                                            }
-                                            else
-                                            {
+                                                insertLocationCmd.Parameters.Add(
+                                                    "@SrNo",
+                                                    SqlDbType.Int
+                                                ).Value =
+                                                    srNo;
 
-                                                string sqls = @"UPDATE GodownLocationMaster SET DateandTime = @DateandTime, LocationTitle = @LocationTitle
-                                                                WHERE  GodownLocationID = @GodownLocationID";
+                                                insertLocationCmd.Parameters.Add(
+                                                    "@LocationTitle",
+                                                    SqlDbType.NVarChar
+                                                ).Value =
+                                                    locationTitle;
 
-                                                cmd.Parameters.Clear();
-                                                cmd.CommandText = sqls;
-                                                cmd.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTime_Indian;
-                                                cmd.Parameters.Add("@LocationTitle", SqlDbType.NVarChar).Value = each.LocationTitle.ToUpper();
-                                                cmd.Parameters.Add("@GodownLocationID", SqlDbType.BigInt).Value = each.GodownLocationID;
-                                                cmd.ExecuteNonQuery();
+                                                insertLocationCmd.Parameters.Add(
+                                                    "@GodownID",
+                                                    SqlDbType.BigInt
+                                                ).Value =
+                                                    myDetails.GodownID;
+
+                                                insertLocationCmd.ExecuteNonQuery();
                                             }
                                         }
                                     }
 
+                                    srNo++;
                                 }
-                                con.Close();
-                                comman.id = Convert.ToInt32(id);
-                                comman.Code = 200;
-                                comman.Message = "Record has been Update successfully";
                             }
-                            else
-                            {
-                                comman.Code = 500;
-                                comman.Message = "Problem has been occurred while submitting your data.";
 
-                            }
+                            // =================================================
+                            // 7. COMMIT TRANSACTION
+                            // =================================================
+
+                            transaction.Commit();
+
+                            comman.id =
+                                Convert.ToInt32(
+                                    myDetails.GodownID
+                                );
+
+                            comman.Code = 200;
+
+                            comman.Message =
+                                "Record has been updated successfully.";
                         }
+                        catch
+                        {
+                            try
+                            {
+                                transaction.Rollback();
+                            }
+                            catch
+                            {
+                            }
 
-
-                        cmd.Dispose();
-                        con.Close();
-
+                            throw;
+                        }
                     }
-                }
-                catch (SqlException ex)
-                {
-
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "This Invoice No is already exists.";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-
-                    }
-
                 }
             }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2601 ||
+                    ex.Number == 2627)
+                {
+                    comman.Code = 405;
+                    comman.Message =
+                        "This Godown or Location already exists.";
+                }
+                else
+                {
+                    comman.Code = 410;
+                    comman.Message =
+                        "Problem has been occurred while updating your data.";
+                }
+            }
+            catch (Exception ex)
+            {
+                comman.Code = 410;
+                comman.Message =
+                    "Problem has been occurred while updating your data.";
+            }
+
+            // =============================================================
+            // FINAL RESPONSE
+            // =============================================================
+
+            WriteGodownResponse(comman);
+        }
 
 
+        // =============================================================
+        // COMMON JSON RESPONSE
+        // =============================================================
 
-            JavaScriptSerializer js = new JavaScriptSerializer();
+        private void WriteGodownResponse(CommanResponse comman)
+        {
+            JavaScriptSerializer js =
+                new JavaScriptSerializer();
+
             js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(comman));
+
+            Context.Response.Write(
+                js.Serialize(comman)
+            );
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14154,7 +14726,7 @@ namespace NikunjTextile
             DesignEntryFormResponse DesignEntryForm = new DesignEntryFormResponse();
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            int IsJobWork = 0;            
+            int IsJobWork = 0;
 
             using (SqlConnection con = new SqlConnection(cs))
             {
@@ -14166,7 +14738,7 @@ namespace NikunjTextile
                             .Value
                             .Split('=')[1]
                     );
-                using (SqlCommand cmdCheck =   new SqlCommand(@"          SELECT COUNT(*)
+                using (SqlCommand cmdCheck = new SqlCommand(@"          SELECT COUNT(*)
                 FROM UserAccountMaster
                 WHERE UserRole = 'Job Work'
                 AND UserAccountId = @UserId
@@ -14382,7 +14954,7 @@ namespace NikunjTextile
 
             DesignEntryForm.IsJobWork = IsJobWork;
 
-            DesignEntryForm.listYarnColorMaster =listYarnColorMaster;
+            DesignEntryForm.listYarnColorMaster = listYarnColorMaster;
             DesignEntryForm.listYarnMaterialMaster = listYarnMaterialMaster;
             DesignEntryForm.listYarnRequirementMaster = listYarnRequirementMaster;
             JavaScriptSerializer js = new JavaScriptSerializer();
@@ -15876,7 +16448,7 @@ namespace NikunjTextile
                                 // YARN DETAILS
                                 // =================================================
 
-                                master.listYarnRequirementDetail =   GetYarnRequirementDetails( yarnRequirementID, cs);
+                                master.listYarnRequirementDetail = GetYarnRequirementDetails(yarnRequirementID, cs);
 
 
                                 masterList.Add(master);
@@ -15927,7 +16499,7 @@ namespace NikunjTextile
 
         private List<YarnRequirementDetail> GetYarnRequirementDetails(int yarnRequirementID, string cs)
         {
-            List<YarnRequirementDetail> detailList =  new List<YarnRequirementDetail>();
+            List<YarnRequirementDetail> detailList = new List<YarnRequirementDetail>();
             using (SqlConnection con = new SqlConnection(cs))
             {
                 con.Open();
@@ -15993,7 +16565,7 @@ namespace NikunjTextile
                                 Convert.ToString(rdr["PartyName"]);
 
                             item.CompanyColourCode =
-                                Convert.ToString(rdr["CompanyColourCode"]); 
+                                Convert.ToString(rdr["CompanyColourCode"]);
                             item.companyId = Convert.ToInt32(rdr["companyId"]);
 
                             item.NoofBoxes =
@@ -17780,13 +18352,13 @@ namespace NikunjTextile
                 if (HttpContext.Current.Request.Cookies["UserIDs"] != null)
                 {
                     userId = HttpContext.Current.Request.Cookies["UserIDs"].Value.Split('=')[1];
-                }             
-                
-               
+                }
+
+
                 DataSet ds = new DataSet();
                 using (SqlConnection con = new SqlConnection(conStr))
                 {
-                    con.Open();                  
+                    con.Open();
                     string userRole = "";
                     int partyId = 0;
 
@@ -18018,7 +18590,7 @@ namespace NikunjTextile
                         SqlDataAdapter da = new SqlDataAdapter(cmd);
                         da.Fill(ds);
                     }
-                   
+
                 }
 
                 // All barcode already inward
@@ -18047,7 +18619,7 @@ namespace NikunjTextile
 
                     return js.Serialize(alreadyAddedResponse);
                 }
-                
+
                 var response = new
                 {
                     Status = true,
@@ -28078,16 +28650,16 @@ INNER JOIN PartyMaster PM1
         }
         #endregion
         #region Sale Order Entry
- [WebMethod]
-public object GetSaleOrderList()
-{
-    try
-    {
-        string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-        using (SqlConnection con = new SqlConnection(conStr))
+        [WebMethod]
+        public object GetSaleOrderList()
         {
-            con.Open();
+            try
+            {
+                string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(conStr))
+                {
+                    con.Open();
 
                     string query = @"
                                   SELECT
@@ -28202,10 +28774,10 @@ OUTER APPLY
 OUTER APPLY
 (
     SELECT
-        SUM(ISNULL(D1.Rate, 0)) AS TotalRate,
+        SUM(ISNULL(D1.BrokerRate, 0)) AS TotalRate,
 
         SUM(
-            ISNULL(D1.Rate, 0) * ISNULL(D1.Qty, 0)
+            ISNULL(D1.BrokerRate, 0) * ISNULL(D1.Qty, 0)
         ) AS DetailAmount,
 
         SUM(ISNULL(D1.Qty, 0)) AS DetailQty
@@ -28339,45 +28911,45 @@ ORDER BY
     TRY_CAST(SO.OrderNo AS INT) DESC,
     SO.OrderDate DESC;";
 
-            using (SqlCommand cmd = new SqlCommand(query, con))
-            {
-                using (SqlDataReader rdr = cmd.ExecuteReader())
-                {
-                    List<SaleOrderVM> list = new List<SaleOrderVM>();
-
-                    while (rdr.Read())
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        list.Add(new SaleOrderVM
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
-                            SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
-                            OrderNo = rdr["OrderNo"]?.ToString() ?? "",
-                            OrderDate = rdr["OrderDate"]?.ToString() ?? "",
-                            PartyName = rdr["PartyName"]?.ToString() ?? "",
-                            BrokerName = rdr["BrokerName"]?.ToString() ?? "",
-                            TransportName = rdr["TransportName"]?.ToString() ?? "",
-                            TotalQty = rdr["TotalQty"] != DBNull.Value ? Convert.ToDecimal(rdr["TotalQty"]) : 0,
-                            InvoiceAmount = rdr["FinalInvoiceAmount"] != DBNull.Value ? Convert.ToDecimal(rdr["FinalInvoiceAmount"]) : 0
-                        });
-                    }
+                            List<SaleOrderVM> list = new List<SaleOrderVM>();
 
-                    return new
-                    {
-                        success = true,
-                        Data = list
-                    };
+                            while (rdr.Read())
+                            {
+                                list.Add(new SaleOrderVM
+                                {
+                                    SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
+                                    OrderNo = rdr["OrderNo"]?.ToString() ?? "",
+                                    OrderDate = rdr["OrderDate"]?.ToString() ?? "",
+                                    PartyName = rdr["PartyName"]?.ToString() ?? "",
+                                    BrokerName = rdr["BrokerName"]?.ToString() ?? "",
+                                    TransportName = rdr["TransportName"]?.ToString() ?? "",
+                                    TotalQty = rdr["TotalQty"] != DBNull.Value ? Convert.ToDecimal(rdr["TotalQty"]) : 0,
+                                    InvoiceAmount = rdr["FinalInvoiceAmount"] != DBNull.Value ? Convert.ToDecimal(rdr["FinalInvoiceAmount"]) : 0
+                                });
+                            }
+
+                            return new
+                            {
+                                success = true,
+                                Data = list
+                            };
+                        }
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    success = false,
+                    message = ex.Message
+                };
+            }
         }
-    }
-    catch (Exception ex)
-    {
-        return new
-        {
-            success = false,
-            message = ex.Message
-        };
-    }
-}
         [WebMethod]
         public string GetDesignEntryData()
         {
@@ -28654,7 +29226,7 @@ ORDER BY
                                                                         @FinancialYearID, @CompanyId, @RoundOff, GETDATE(), @CreatedByUserID
                                                                     );
                                                                     SELECT SCOPE_IDENTITY();";
-                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);                          
+                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     cmd.Parameters.Add("@CreatedByUserID", SqlDbType.Int).Value = userAccountId;
                                     saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                                 }
@@ -29015,10 +29587,10 @@ ORDER BY
                                     TransportName = rdr["TransportName"]?.ToString(),    // 🔥 Added Transport Name
                                     MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                     TotalQty = SafeDecimal(rdr["TotalQty"]),
-                                    TotalAmount = SafeDecimal(rdr["TotalAmount"]),                                                              
-                                   
+                                    TotalAmount = SafeDecimal(rdr["TotalAmount"]),
+
                                     DiscountPercent = SafeDecimal(rdr["DiscountPercent"]),
-                                    DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),                                   
+                                    DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),
                                     RoundOff = SafeDecimal(rdr["RoundOff"]),
                                     GSTPercent = SafeDecimal(rdr["GSTPercent"]),
                                     GSTAmount = SafeDecimal(rdr["GSTAmount"]),
@@ -31417,45 +31989,730 @@ FROM Filtered
                 };
             }
         }
-        private void SetCrystalDatabaseLogin(ReportDocument report, string connectionString)
+
+        private DataSet FetchProductionOrderDataSet(SqlConnection con, long orderId)
+        {
+            DataSet ds = new DataSet();
+
+            // 1. Stored Procedure: GetProductionOrderQuality
+            try
             {
-                SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder(connectionString);
-
-                ConnectionInfo connectionInfo = new ConnectionInfo
+                using (SqlCommand cmd = new SqlCommand("GetProductionOrderQuality", con))
                 {
-                    ServerName = csb.DataSource,
-                    DatabaseName = csb.InitialCatalog,
-                    IntegratedSecurity = false,
-                    UserID = csb.UserID,
-                    Password = csb.Password
-                };
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = orderId;
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt1 = new DataTable("GetProductionOrderQuality");
+                        da.Fill(dt1);
+                        ds.Tables.Add(dt1);
 
-                // Main Report Tables
-                foreach (CrystalDecisions.CrystalReports.Engine.Table table in report.Database.Tables)
+                        DataTable dt1_1 = dt1.Copy();
+                        dt1_1.TableName = "GetProductionOrderQuality;1";
+                        ds.Tables.Add(dt1_1);
+                    }
+                }
+            }
+            catch (Exception exSp1)
+            {
+                System.Diagnostics.Debug.WriteLine("GetProductionOrderQuality SP error: " + exSp1.Message);
+            }
+
+            // 2. Stored Procedure: GetProductionOrderQualityDetails
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("GetProductionOrderQualityDetails", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = orderId;
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt2 = new DataTable("GetProductionOrderQualityDetails");
+                        da.Fill(dt2);
+                        ds.Tables.Add(dt2);
+
+                        DataTable dt2_1 = dt2.Copy();
+                        dt2_1.TableName = "GetProductionOrderQualityDetails;1";
+                        ds.Tables.Add(dt2_1);
+                    }
+                }
+            }
+            catch (Exception exSp2)
+            {
+                System.Diagnostics.Debug.WriteLine("GetProductionOrderQualityDetails SP error: " + exSp2.Message);
+            }
+
+            // 3. Fallback / Direct Table Data
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM ProductionOrderMaster WHERE ProductionOrderID = @ProductionOrderID AND IsActive = 1", con))
+                {
+                    cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = orderId;
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dtM = new DataTable("ProductionOrderMaster");
+                        da.Fill(dtM);
+                        ds.Tables.Add(dtM);
+                    }
+                }
+
+                DataTable dtD = new DataTable("ProductionOrderDetail");
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID AND ISNULL(IsActive, 1) = 1 ORDER BY ProductionOrderDetailID ASC", con))
+                {
+                    cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = orderId;
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dtD);
+                        if (ds.Tables.Contains("ProductionOrderDetail"))
+                            ds.Tables.Remove("ProductionOrderDetail");
+                        ds.Tables.Add(dtD);
+                    }
+                }
+
+                int spDetailRowCount = ds.Tables.Contains("GetProductionOrderQualityDetails") ? ds.Tables["GetProductionOrderQualityDetails"].Rows.Count : 0;
+                if (spDetailRowCount < dtD.Rows.Count)
+                {
+                    string directDetailQuery = @"
+                        SELECT 
+                            pod.ProductionOrderDetailID,
+                            pod.ProductionOrderID,
+                            pod.SalesOrderID,
+                            pod.SalesOrderDetailID,
+                            pod.SubDetailID,
+                            ISNULL(pod.SalesOrderNo, '') AS SalesOrderNo,
+                            ISNULL(pod.SlipNo, '') AS SlipNo,
+                            ISNULL(pod.Barcode, '') AS Barcode,
+                            pod.OrderDate,
+                            pod.PartyID,
+                            ISNULL(pod.PartyName, pom.PartyName) AS PartyName,
+                            pod.DesignEntryFormID,
+                            ISNULL(pod.DesignNo, '') AS DesignNo,
+                            pod.ColourMatchingID,
+                            ISNULL(pod.ColourMatchingName, CAST(pod.ColourMatchingID AS NVARCHAR)) AS ColourMatchingName,
+                            ISNULL(pod.WarpQuality, '') AS WarpQuality,
+                            ISNULL(pod.WeftQuality, '') AS WeftQuality,
+                            ISNULL(pod.PCS, 0) AS PCS,
+                            ISNULL(pod.ProductionPCS, 0) AS ProductionPCS,
+                            ISNULL(pod.PendingPCS, 0) AS PendingPCS,
+                            ISNULL(pod.SalesRate, 0) AS SalesRate,
+                            ISNULL(pom.JobRate, 0) AS JobRate,
+                            ISNULL(pom.PanaRepeat, 0) AS PanaRepeat,
+                            ISNULL(pom.ProductionOrderNo, '') AS ProductionOrderNo,
+                            pom.ProductionOrderDate,
+                            ISNULL(pom.JobWorkerID, 0) AS JobWorkerID,
+                            ISNULL(pom.JobWorkerName, '') AS JobWorkerName
+                        FROM ProductionOrderDetail pod
+                        LEFT JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
+                        WHERE pod.ProductionOrderID = @ProductionOrderID 
+                          AND ISNULL(pod.IsActive, 1) = 1
+                        ORDER BY pod.ProductionOrderDetailID ASC";
+
+                    using (SqlCommand cmdDirect = new SqlCommand(directDetailQuery, con))
+                    {
+                        cmdDirect.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = orderId;
+                        using (SqlDataAdapter daDirect = new SqlDataAdapter(cmdDirect))
+                        {
+                            DataTable dtDirect = new DataTable("GetProductionOrderQualityDetails");
+                            daDirect.Fill(dtDirect);
+
+                            if (ds.Tables.Contains("GetProductionOrderQualityDetails"))
+                                ds.Tables.Remove("GetProductionOrderQualityDetails");
+                            ds.Tables.Add(dtDirect);
+
+                            DataTable dtDirect_1 = dtDirect.Copy();
+                            dtDirect_1.TableName = "GetProductionOrderQualityDetails;1";
+                            if (ds.Tables.Contains("GetProductionOrderQualityDetails;1"))
+                                ds.Tables.Remove("GetProductionOrderQualityDetails;1");
+                            ds.Tables.Add(dtDirect_1);
+                        }
+                    }
+                }
+            }
+            catch (Exception exTables)
+            {
+                System.Diagnostics.Debug.WriteLine("ProductionOrder Master/Detail fetch error: " + exTables.Message);
+            }
+
+            return ds;
+        }
+
+        private DataSet FetchProductionSlipDataSet(SqlConnection con, long detailId)
+        {
+            DataSet ds = new DataSet();
+
+            // 1. Stored Procedure: GetProductionOrderWeaverSlip
+            using (SqlCommand cmd = new SqlCommand("GetProductionOrderWeaverSlip", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@ProductionOrderDetailID", SqlDbType.BigInt).Value = detailId;
+
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dtW = new DataTable("GetProductionOrderWeaverSlip");
+                    da.Fill(dtW);
+
+                    if (dtW.Rows.Count > 0)
+                    {
+                        ds.Tables.Add(dtW);
+                        DataTable dtW1 = dtW.Copy();
+                        dtW1.TableName = "GetProductionOrderWeaverSlip;1";
+                        ds.Tables.Add(dtW1);
+                    }
+                }
+            }
+
+            // 1B. Fallback if empty
+            if (!ds.Tables.Contains("GetProductionOrderWeaverSlip"))
+            {
+                string fallbackSql = @"
+                    SELECT 
+                        POD.*,
+                        POM.ProductionOrderNo,
+                        POM.ProductionOrderDate,
+                        POM.PartyId,
+                        POM.PartyName,
+                        POM.JobWorkerID,
+                        POM.JobWorkerName
+                    FROM ProductionOrderDetail POD
+                    LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                    WHERE POD.ProductionOrderDetailID = @ProductionOrderDetailID
+                      AND ISNULL(POD.IsActive,1) = 1;";
+
+                using (SqlCommand cmd = new SqlCommand(fallbackSql, con))
+                {
+                    cmd.Parameters.Add("@ProductionOrderDetailID", SqlDbType.BigInt).Value = detailId;
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dtF = new DataTable("GetProductionOrderWeaverSlip");
+                        da.Fill(dtF);
+                        ds.Tables.Add(dtF);
+
+                        DataTable dtF1 = dtF.Copy();
+                        dtF1.TableName = "GetProductionOrderWeaverSlip;1";
+                        ds.Tables.Add(dtF1);
+                    }
+                }
+            }
+
+            // 2. ProductionOrderDetail
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @ProductionOrderDetailID AND IsActive = 1", con))
+            {
+                cmd.Parameters.Add("@ProductionOrderDetailID", SqlDbType.BigInt).Value = detailId;
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dtD = new DataTable("ProductionOrderDetail");
+                    da.Fill(dtD);
+                    ds.Tables.Add(dtD);
+                }
+            }
+
+            // 3. ProductionOrderMaster
+            using (SqlCommand cmd = new SqlCommand(@"
+                SELECT POM.*
+                FROM ProductionOrderMaster POM
+                INNER JOIN ProductionOrderDetail POD ON POM.ProductionOrderID = POD.ProductionOrderID
+                WHERE POD.ProductionOrderDetailID = @ProductionOrderDetailID AND POD.IsActive = 1", con))
+            {
+                cmd.Parameters.Add("@ProductionOrderDetailID", SqlDbType.BigInt).Value = detailId;
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dtM = new DataTable("ProductionOrderMaster");
+                    da.Fill(dtM);
+                    ds.Tables.Add(dtM);
+                }
+            }
+
+            return ds;
+        }
+
+        private object GenerateCrystalPdfReportCommon<TId>(
+            List<TId> idList,
+            string rptRelativePath,
+            string pdfPrefix,
+            string parameterName,
+            Func<SqlConnection, TId, DataSet> fetchDataSetFunc)
+        {
+            if (idList == null || idList.Count == 0)
+            {
+                return new { Status = false, Message = "No item selected.", FilePath = "" };
+            }
+
+            List<string> individualPdfFiles = new List<string>();
+
+            try
+            {
+                string generatedFolder = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+                if (!Directory.Exists(generatedFolder))
+                {
+                    Directory.CreateDirectory(generatedFolder);
+                }
+
+                string fileName = $"{pdfPrefix}_Merged_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid():N}.pdf";
+                string pdfPath = Path.Combine(generatedFolder, fileName);
+                string reportPath = HttpContext.Current.Server.MapPath(rptRelativePath);
+
+                if (!File.Exists(reportPath))
+                {
+                    throw new Exception($"Report file not found : {reportPath}");
+                }
+
+                string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    foreach (TId currentId in idList)
+                    {
+                        DataSet ds = fetchDataSetFunc(con, currentId);
+
+                        if (ds == null || ds.Tables.Count == 0)
+                        {
+                            throw new Exception(
+                                $"No DataSet data found for ID : {currentId}"
+                            );
+                        }
+
+                        ReportDocument report = new ReportDocument();
+
+                        try
+                        {
+                            // =====================================================
+                            // 1. LOAD REPORT
+                            // =====================================================
+
+                            report.Load(
+                                reportPath,
+                                OpenReportMethod.OpenReportByTempCopy
+                            );
+
+                            // =====================================================
+                            // 2. APPLY DATABASE LOGIN
+                            // =====================================================
+
+                            SetCrystalDatabaseLogin(
+                                report,
+                                connectionString
+                            );
+
+                            // =====================================================
+                            // 3. MAIN REPORT DATA
+                            // =====================================================
+
+                            report.SetDataSource(ds);
+
+                            // =====================================================
+                            // 4. FIND SUBREPORTS
+                            // IMPORTANT:
+                            // Do NOT use foreach on section.ReportObjects
+                            // =====================================================
+
+                            for (
+                                int sectionIndex = 0;
+                                sectionIndex < report.ReportDefinition.Sections.Count;
+                                sectionIndex++)
+                            {
+                                CrystalDecisions.CrystalReports.Engine.Section section =
+                                    report.ReportDefinition.Sections[sectionIndex];
+
+                                if (section == null)
+                                    continue;
+
+                                for (
+                                    int objectIndex = 0;
+                                    objectIndex < section.ReportObjects.Count;
+                                    objectIndex++)
+                                {
+                                    ReportObject obj = null;
+
+                                    try
+                                    {
+                                        obj = section.ReportObjects[objectIndex];
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine(
+                                            "ReportObject read error [" +
+                                            sectionIndex +
+                                            "," +
+                                            objectIndex +
+                                            "] : " +
+                                            ex.ToString()
+                                        );
+
+                                        continue;
+                                    }
+
+                                    if (!(obj is SubreportObject))
+                                        continue;
+
+                                    SubreportObject subObj =
+                                        (SubreportObject)obj;
+
+                                    try
+                                    {
+                                        // =================================================
+                                        // OPEN SUBREPORT
+                                        // =================================================
+
+                                        ReportDocument subReport =
+                                            report.OpenSubreport(
+                                                subObj.SubreportName
+                                            );
+
+                                        // =================================================
+                                        // APPLY DATABASE LOGIN
+                                        // =================================================
+
+                                        SetCrystalDatabaseLogin(
+                                            subReport,
+                                            connectionString
+                                        );
+
+                                        // =================================================
+                                        // SET SUBREPORT DATA
+                                        // =================================================
+
+                                        subReport.SetDataSource(ds);
+
+                                        // =================================================
+                                        // SET SUBREPORT PARAMETER
+                                        // =================================================
+
+                                        if (!string.IsNullOrEmpty(parameterName))
+                                        {
+                                            SetReportParameterValues(
+                                                subReport,
+                                                parameterName,
+                                                currentId
+                                            );
+                                        }
+                                    }
+                                    catch (Exception subEx)
+                                    {
+                                        throw new Exception(
+                                            "Subreport binding failed. " +
+                                            "Subreport : " +
+                                            subObj.SubreportName +
+                                            " | ID : " +
+                                            currentId +
+                                            " | Error : " +
+                                            subEx.Message,
+                                            subEx
+                                        );
+                                    }
+                                }
+                            }
+
+                            // =====================================================
+                            // 5. MAIN REPORT PARAMETER
+                            // =====================================================
+
+                            if (!string.IsNullOrEmpty(parameterName))
+                            {
+                                SetReportParameterValues(
+                                    report,
+                                    parameterName,
+                                    currentId
+                                );
+                            }
+
+                            // =====================================================
+                            // IMPORTANT:
+                            // DO NOT USE report.Refresh()
+                            // =====================================================
+
+                            // report.Refresh();   <-- REMOVE
+
+                            // =====================================================
+                            // 6. EXPORT PDF
+                            // =====================================================
+
+                            string singlePdfName =
+                                $"{pdfPrefix}_{currentId}_{Guid.NewGuid():N}.pdf";
+
+                            string singlePdfPath =
+                                Path.Combine(
+                                    generatedFolder,
+                                    singlePdfName
+                                );
+
+                            report.ExportToDisk(
+                                ExportFormatType.PortableDocFormat,
+                                singlePdfPath
+                            );
+
+                            // =====================================================
+                            // 7. CHECK PDF
+                            // =====================================================
+
+                            if (File.Exists(singlePdfPath))
+                            {
+                                individualPdfFiles.Add(
+                                    singlePdfPath
+                                );
+                            }
+                            else
+                            {
+                                throw new Exception(
+                                    $"PDF was not generated for ID : {currentId}"
+                                );
+                            }
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                report.Close();
+                            }
+                            catch
+                            {
+                            }
+
+                            try
+                            {
+                                report.Dispose();
+                            }
+                            catch
+                            {
+                            }
+
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
+                    }
+                }
+
+                if (individualPdfFiles.Count == 0)
+                {
+                    return new { Status = false, Message = "No PDF generated.", FilePath = "" };
+                }
+
+                using (Document document = new Document())
+                {
+                    using (FileStream fs = new FileStream(pdfPath, FileMode.Create))
+                    {
+                        using (PdfCopy copy = new PdfCopy(document, fs))
+                        {
+                            document.Open();
+                            foreach (string file in individualPdfFiles)
+                            {
+                                using (PdfReader reader = new PdfReader(file))
+                                {
+                                    copy.AddDocument(reader);
+                                }
+                            }
+                            document.Close();
+                        }
+                    }
+                }
+
+                foreach (string file in individualPdfFiles)
+                {
+                    try { if (File.Exists(file)) File.Delete(file); } catch { }
+                }
+
+                string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/GeneratedPDF/" + fileName + "?v=" + DateTime.Now.Ticks;
+                return new { Status = true, Message = $"{pdfPrefix} PDF Generated Successfully.", FilePath = filePath };
+            }
+            catch (Exception ex)
+            {
+                foreach (string file in individualPdfFiles)
+                {
+                    try { if (File.Exists(file)) File.Delete(file); } catch { }
+                }
+                return new { Status = false, Message = ex.ToString(), FilePath = "" };
+            }
+        }
+
+
+        private void SetReportParameterValues(
+         ReportDocument rpt,
+         string paramName,
+         object val)
+        {
+            if (rpt == null || string.IsNullOrWhiteSpace(paramName))
+                return;
+
+            string cleanName = paramName.StartsWith("@") ? paramName.Substring(1) : paramName;
+            string atName = "@" + cleanName;
+            try
+            {
+                rpt.SetParameterValue(paramName, val);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                rpt.SetParameterValue(cleanName, val);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                rpt.SetParameterValue(atName, val);
+            }
+            catch
+            {
+            }
+            try
+            {
+                if (rpt.DataDefinition != null &&
+                    rpt.DataDefinition.ParameterFields != null)
+                {
+                    foreach (ParameterFieldDefinition pfd
+                             in rpt.DataDefinition.ParameterFields)
+                    {
+                        try
+                        {
+                            string name = pfd.Name;
+
+                            bool isMatch =
+                                name.Equals(
+                                    paramName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.Equals(
+                                    cleanName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.Equals(
+                                    atName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.IndexOf(
+                                    "ProductionOrderDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0
+                                ||
+                                name.IndexOf(
+                                    "OrderDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0;
+
+                            if (isMatch)
+                            {
+                                rpt.SetParameterValue(name, val);
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore individual parameter errors
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore parameter collection errors
+            }
+        }
+
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object ProductionOrderReport(List<long> productionOrderID)
+        {
+            return GenerateCrystalPdfReportCommon(
+                productionOrderID,
+                "~/Reports/ProductionOrderReport.rpt",
+                "ProductionOrder",
+                "@ProductionOrderID",
+                FetchProductionOrderDataSet
+            );
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object JobProductionOrderSlipReport(List<long> productionOrderDetailID)
+        {
+            return GenerateCrystalPdfReportCommon(
+                productionOrderDetailID,
+                "~/Reports/WEAVELANE PRODUCTION SLIP.rpt",
+                "ProductionSlip",
+                "@ProductionOrderDetailID",
+                FetchProductionSlipDataSet
+            );
+        }
+        private void SetCrystalDatabaseLogin(ReportDocument report, string connectionString)
+        {
+            SqlConnectionStringBuilder csb = new SqlConnectionStringBuilder(connectionString);
+
+            ConnectionInfo connectionInfo = new ConnectionInfo
+            {
+                ServerName = csb.DataSource,
+                DatabaseName = csb.InitialCatalog
+            };
+
+            if (csb.IntegratedSecurity)
+            {
+                connectionInfo.IntegratedSecurity = true;
+            }
+            else
+            {
+                connectionInfo.IntegratedSecurity = false;
+                connectionInfo.UserID = csb.UserID;
+                connectionInfo.Password = csb.Password;
+            }
+
+            try
+            {
+                if (csb.IntegratedSecurity)
+                {
+                    report.SetDatabaseLogon("", "", csb.DataSource, csb.InitialCatalog);
+                }
+                else
+                {
+                    report.SetDatabaseLogon(csb.UserID, csb.Password, csb.DataSource, csb.InitialCatalog);
+                }
+            }
+            catch { }
+
+            ApplyTableLogon(report.Database.Tables, connectionInfo);
+
+            foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
+            {
+                foreach (ReportObject obj in section.ReportObjects)
+                {
+                    if (obj is SubreportObject sub)
+                    {
+                        try
+                        {
+                            ReportDocument subReport = sub.OpenSubreport(sub.SubreportName);
+                            try
+                            {
+                                if (csb.IntegratedSecurity)
+                                {
+                                    subReport.SetDatabaseLogon("", "", csb.DataSource, csb.InitialCatalog);
+                                }
+                                else
+                                {
+                                    subReport.SetDatabaseLogon(csb.UserID, csb.Password, csb.DataSource, csb.InitialCatalog);
+                                }
+                            }
+                            catch { }
+                            ApplyTableLogon(subReport.Database.Tables, connectionInfo);
+                        }
+                        catch { }
+                    }
+                }
+            }
+        }
+        private void ApplyTableLogon(CrystalDecisions.CrystalReports.Engine.Tables tables, ConnectionInfo connectionInfo)
+        {
+            foreach (CrystalDecisions.CrystalReports.Engine.Table table in tables)
+            {
+                try
                 {
                     TableLogOnInfo logOnInfo = table.LogOnInfo;
                     logOnInfo.ConnectionInfo = connectionInfo;
                     table.ApplyLogOnInfo(logOnInfo);
                 }
-
-                // Subreports
-                foreach (CrystalDecisions.CrystalReports.Engine.Section section in report.ReportDefinition.Sections)
-                {
-                    foreach (ReportObject obj in section.ReportObjects)
-                    {
-                        if (obj is SubreportObject sub)
-                        {
-                            ReportDocument subReport = sub.OpenSubreport(sub.SubreportName);
-                            foreach (CrystalDecisions.CrystalReports.Engine.Table table in subReport.Database.Tables)
-                            {
-                                TableLogOnInfo logOnInfo = table.LogOnInfo;
-                                logOnInfo.ConnectionInfo = connectionInfo;
-                                table.ApplyLogOnInfo(logOnInfo);
-                            }
-                        }
-                    }
-                }
+                catch { }
             }
+        }
         public static class NumberToWordsHelper
         {
             private static readonly string[] Units =
@@ -33180,7 +34437,7 @@ FROM Filtered
         // =============================================================
         // RESIZE + COMPRESS IMAGE
         // =============================================================
-        private void ResizeImageToJpeg(string sourcePath,string destinationPath,int maxWidth,int maxHeight)
+        private void ResizeImageToJpeg(string sourcePath, string destinationPath, int maxWidth, int maxHeight)
         {
             using (System.Drawing.Image originalImage =
                 System.Drawing.Image.FromFile(sourcePath))
@@ -33422,7 +34679,7 @@ FROM Filtered
 
                     using (SqlCommand cmd = new SqlCommand(masterQuery, con))
                     {
-                        cmd.Parameters.AddWithValue("@JobberInwardID",JobberInwardID);
+                        cmd.Parameters.AddWithValue("@JobberInwardID", JobberInwardID);
 
                         SqlDataAdapter da = new SqlDataAdapter(cmd);
 
@@ -33523,12 +34780,13 @@ FROM Filtered
 
                 ORDER BY
                     ID.JobberInwardDetailID ";
-                    using (SqlCommand cmd = new SqlCommand(detailQuery, con)) 
-                    { cmd.Parameters.AddWithValue("@JobberInwardID", JobberInwardID);
+                    using (SqlCommand cmd = new SqlCommand(detailQuery, con))
+                    {
+                        cmd.Parameters.AddWithValue("@JobberInwardID", JobberInwardID);
                         SqlDataAdapter da = new SqlDataAdapter(cmd); da.Fill(dtDetails);
                     }
-                } 
-                               
+                }
+
                 if (dtMaster.Rows.Count == 0) { return JsonConvert.SerializeObject(new { Status = false, Message = "Jobber Inward not found." }); }
                 return JsonConvert.SerializeObject(new
                 {
@@ -33592,12 +34850,12 @@ FROM Filtered
                     });
                 }
 
-                string connString = ConfigurationManager .ConnectionStrings["sqlconnstr"].ConnectionString;
+                string connString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
                 DataTable dtMaster = new DataTable();
                 DataTable dtDetails = new DataTable();
 
-                using (SqlConnection con =  new SqlConnection(connString))
+                using (SqlConnection con = new SqlConnection(connString))
                 {
                     con.Open();
 
@@ -33626,7 +34884,7 @@ FROM Filtered
 
                     using (SqlCommand cmd = new SqlCommand(masterQuery, con))
                     {
-                        cmd.Parameters.Add("@JobberOutwardID",SqlDbType.Int).Value = outwardId;
+                        cmd.Parameters.Add("@JobberOutwardID", SqlDbType.Int).Value = outwardId;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             da.Fill(dtMaster);
@@ -33666,9 +34924,9 @@ FROM Filtered
                                 WHERE JOD.JobberOutwardID = @JobberOutwardID
                                 ORDER BY  JOD.JobberOutwardDetailID";
 
-                    using (SqlCommand cmd =  new SqlCommand(detailQuery, con))
+                    using (SqlCommand cmd = new SqlCommand(detailQuery, con))
                     {
-                        cmd.Parameters.Add("@JobberOutwardID",SqlDbType.Int).Value = outwardId;
+                        cmd.Parameters.Add("@JobberOutwardID", SqlDbType.Int).Value = outwardId;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             da.Fill(dtDetails);
@@ -33703,7 +34961,7 @@ FROM Filtered
                 });
             }
         }
-        [WebMethod] 
+        [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public ServiceResponse insertJobberOutwardMaster(JobberOutwardMasterDTO masterData)
         {
@@ -34065,57 +35323,101 @@ FROM Filtered
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void GetPendingOrdersForProduction()
+        public object GetPendingOrdersForProduction()
         {
             var orderList = new List<object>();
-            string connString = System.Configuration.ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-            string query = @"
-        SELECT 
-            so.OrderNo,
-            CONVERT(varchar(10), so.OrderDate, 101) AS OrderDate,
-            pm.PartyName,
-            sod.DesignNo,
-            sods.ColourName,
-            sods.Qty AS Pcs,
-            sod.Rate,
-            sod.DetailID,
-            sods.SubDetailID
-        FROM saleOrder so
-        INNER JOIN partyMaster pm ON so.PartyId = pm.PartyId
-        INNER JOIN saleOrderDetails sod ON so.SaleOrderID = sod.SaleOrderID
-        INNER JOIN saleordersubdetails sods ON sod.DetailID = sods.DetailID
-        ORDER BY so.OrderNo, sods.SubDetailID";
-
-            using (SqlConnection conn = new SqlConnection(connString))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                string connString = System.Configuration.ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                string query = @"
+                        SELECT 
+                            so.SaleOrderID AS SalesOrderID,
+                            so.OrderNo,
+                            CONVERT(varchar(10), so.OrderDate, 101) AS OrderDate,
+                            so.PartyId AS PartyID,
+                            pm.PartyName,
+                            sod.DesignNo,
+                            ISNULL(sods.ColourID, sod.DesignColorMatchingID) AS ColourMatchingID,
+                            sods.ColourName,
+                            sods.Qty AS TotalOrderPcs,
+                            ISNULL(prodSum.AlreadyProducedPcs, 0) AS AlreadyProducedPcs,
+                            CASE WHEN (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) < 0 THEN 0 ELSE (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) END AS Pcs,
+                            CASE WHEN (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) < 0 THEN 0 ELSE (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) END AS PendingPcs,
+                            sod.Rate,
+                            sod.DetailID,
+                            sods.SubDetailID,
+                            ISNULL(defm.TotalCard, 0) AS TotalCard,
+                            ISNULL(defm.PickOnLoom, 0) AS Pick
+                        FROM SaleOrder so
+                        INNER JOIN PartyMaster pm ON so.PartyId = pm.PartyId
+                        INNER JOIN SaleOrderDetails sod ON so.SaleOrderID = sod.SaleOrderID
+                        INNER JOIN SaleOrderSubDetails sods ON sod.DetailID = sods.DetailID
+                        LEFT JOIN (
+                            SELECT 
+                                ISNULL(pod.SubDetailID, 0) AS SubDetailID,
+                                pod.SalesOrderDetailID,
+                                ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs
+                            FROM ProductionOrderDetail pod
+                            INNER JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
+                            WHERE ISNULL(pod.IsActive, 1) = 1 AND ISNULL(pom.IsActive, 1) = 1
+                            GROUP BY pod.SubDetailID, pod.SalesOrderDetailID
+                        ) prodSum ON (sods.SubDetailID > 0 AND prodSum.SubDetailID = sods.SubDetailID)
+                            OR (sods.SubDetailID = 0 AND prodSum.SalesOrderDetailID = sod.DetailID)
+                        LEFT JOIN (
+                            SELECT DesignerCode, DesignNo, 
+                                   MAX(CASE WHEN ISNUMERIC(TotalCard) = 1 THEN CONVERT(DECIMAL(18,2), TotalCard) ELSE 0 END) AS TotalCard, 
+                                   MAX(CASE WHEN ISNUMERIC(PickOnLoom) = 1 THEN CONVERT(DECIMAL(18,2), PickOnLoom) ELSE 0 END) AS PickOnLoom
+                            FROM DesignEntryFormMaster
+                            GROUP BY DesignerCode, DesignNo
+                        ) defm
+                        ON LTRIM(RTRIM(CASE WHEN CHARINDEX(' - ', sod.DesignNo) > 0 THEN SUBSTRING(sod.DesignNo, 1, CHARINDEX(' - ', sod.DesignNo) - 1) ELSE sod.DesignNo END)) = LTRIM(RTRIM(CONVERT(VARCHAR(100), defm.DesignerCode)))
+                        AND LTRIM(RTRIM(CASE WHEN CHARINDEX(' - ', sod.DesignNo) > 0 THEN SUBSTRING(sod.DesignNo, CHARINDEX(' - ', sod.DesignNo) + 3, LEN(sod.DesignNo)) ELSE sod.DesignNo END)) = LTRIM(RTRIM(CONVERT(VARCHAR(100), defm.DesignNo)))
+                        WHERE (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) > 0
+                        ORDER BY so.OrderNo, sods.SubDetailID;";
+
+                using (SqlConnection conn = new SqlConnection(connString))
                 {
-                    conn.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        while (reader.Read())
+                        conn.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            orderList.Add(new
+                            while (reader.Read())
                             {
-                                OrderNo = reader["OrderNo"].ToString(),
-                                OrderDate = reader["OrderDate"].ToString(),
-                                PartyName = reader["PartyName"].ToString(),
-                                DesignNo = reader["DesignNo"].ToString(),
-                                ColourName = reader["ColourName"].ToString(),
-                                Qty = reader["Pcs"] != DBNull.Value ? Convert.ToDecimal(reader["Pcs"]) : 0,
-                                Rate = reader["Rate"] != DBNull.Value ? Convert.ToDecimal(reader["Rate"]) : 0,
-                                DetailID = reader["DetailID"].ToString(),
-                                SubDetailID = reader["SubDetailID"].ToString()
-                            });
+                                orderList.Add(new
+                                {
+                                    SalesOrderID = reader["SalesOrderID"] != DBNull.Value ? reader["SalesOrderID"].ToString() : null,
+                                    SalesOrderDetailID = reader["DetailID"] != DBNull.Value ? reader["DetailID"].ToString() : "",
+                                    PartyID = reader["PartyID"] != DBNull.Value ? reader["PartyID"].ToString() : null,
+                                    ColourMatchingID = reader["ColourMatchingID"] != DBNull.Value ? reader["ColourMatchingID"].ToString() : null,
+                                    OrderNo = reader["OrderNo"] != DBNull.Value ? reader["OrderNo"].ToString() : "",
+                                    OrderDate = reader["OrderDate"] != DBNull.Value ? reader["OrderDate"].ToString() : "",
+                                    PartyName = reader["PartyName"] != DBNull.Value ? reader["PartyName"].ToString() : "",
+                                    DesignNo = reader["DesignNo"] != DBNull.Value ? reader["DesignNo"].ToString() : "",
+                                    ColourName = reader["ColourName"] != DBNull.Value ? reader["ColourName"].ToString() : "",
+                                    Qty = reader["Pcs"] != DBNull.Value ? Convert.ToDecimal(reader["Pcs"]) : 0,
+                                    Pcs = reader["Pcs"] != DBNull.Value ? Convert.ToDecimal(reader["Pcs"]) : 0,
+                                    TotalOrderPcs = reader["TotalOrderPcs"] != DBNull.Value ? Convert.ToDecimal(reader["TotalOrderPcs"]) : 0,
+                                    AlreadyProducedPcs = reader["AlreadyProducedPcs"] != DBNull.Value ? Convert.ToDecimal(reader["AlreadyProducedPcs"]) : 0,
+                                    PendingPcs = reader["PendingPcs"] != DBNull.Value ? Convert.ToDecimal(reader["PendingPcs"]) : 0,
+                                    Rate = reader["Rate"] != DBNull.Value ? Convert.ToDecimal(reader["Rate"]) : 0,
+                                    DetailID = reader["DetailID"] != DBNull.Value ? reader["DetailID"].ToString() : "",
+                                    SubDetailID = reader["SubDetailID"] != DBNull.Value ? reader["SubDetailID"].ToString() : "",
+                                    TotalCard = reader["TotalCard"] != DBNull.Value ? Convert.ToDecimal(reader["TotalCard"]) : 0,
+                                    Pick = reader["Pick"] != DBNull.Value ? Convert.ToDecimal(reader["Pick"]) : 0
+                                });
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("GetPendingOrdersForProduction Error: " + ex.ToString());
+            }
 
-            // Serialize to JSON and output directly to response stream
-            Context.Response.ContentType = "application/json";
-            Context.Response.Write(new JavaScriptSerializer().Serialize(orderList));
+            return orderList;
         }
 
 
@@ -34424,6 +35726,3079 @@ FROM Filtered
             }
         }
         #endregion
+
+        #region ProductionSleep
+        [WebMethod]
+        public List<JobberMasterClass> GetJobberMaster()
+        {
+            List<JobberMasterClass> list =
+                new List<JobberMasterClass>();
+
+            string connectionString =
+                ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+            using (SqlConnection con =
+                   new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd =
+                       new SqlCommand())
+                {
+                    cmd.Connection = con;
+
+                    cmd.CommandType =
+                        CommandType.Text;
+
+                    cmd.CommandText = @"
+             SELECT
+                Id AS JobberMasterID,
+                PartyName AS JobberName,
+                PanaRepeat
+            FROM JobberMaster
+            WHERE ISNULL(IsActiveParty, 1) = 1
+            ORDER BY PartyName
+            ";
+
+                    con.Open();
+
+                    using (SqlDataReader rdr =
+                           cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            JobberMasterClass item =
+                                new JobberMasterClass();
+
+                            item.JobberMasterID =
+                                rdr["JobberMasterID"] ==
+                                DBNull.Value
+                                    ? 0
+                                    : Convert.ToInt32(
+                                        rdr["JobberMasterID"]
+                                    );
+
+                            item.JobberName =
+                                rdr["JobberName"] ==
+                                DBNull.Value
+                                    ? ""
+                                    : rdr["JobberName"]
+                                        .ToString();
+
+                            item.PanaRepeat =
+                                rdr["PanaRepeat"] ==
+                                DBNull.Value
+                                    ? "0"
+                                    : rdr["PanaRepeat"]
+                                        .ToString();
+
+                            list.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+        /// <summary>
+        /// GetProductionOrderList
+        /// </summary>
+        /// <returns></returns>
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public List<ProductionOrderListItem> GetProductionOrderList()
+        {
+            var list = new List<ProductionOrderListItem>();
+
+            string connectionString =
+                ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+            using (SqlConnection con =
+                   new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                /*
+                 * IMPORTANT:
+                 * Do not filter the list by CompanyId here.
+                 *
+                 * Older ProductionOrderMaster rows can have CompanyId = NULL
+                 * (for example records saved before CompanyId was added).
+                 * Filtering those rows by the default company would make the
+                 * list show 0 records even though Production Orders exist.
+                 *
+                 * Company-wise filtering can be added later once every
+                 * ProductionOrderMaster row has a valid CompanyId.
+                 */
+                const string sql = @"
+SELECT
+    POM.ProductionOrderID,
+    POM.ProductionOrderNo,
+    POM.ProductionOrderDate,
+    POM.JobWorkerID,
+    POM.JobWorkerName,
+    POM.PanaRepeat,
+    POM.JobRate,
+    POM.Traders,
+    POM.TotalPcs,
+    POM.TotalProductionPcs,
+    POM.TotalPendingPcs,
+    POM.TotalAmount,
+    POM.Status,
+    POM.CompanyId,
+    POM.UserAccountId,
+    ISNULL(D.DetailCount, 0) AS DetailCount
+FROM ProductionOrderMaster POM
+OUTER APPLY
+(
+    SELECT COUNT(1) AS DetailCount
+    FROM ProductionOrderDetail POD
+    WHERE POD.ProductionOrderID = POM.ProductionOrderID
+      AND POD.IsActive = 1
+) D
+WHERE POM.IsActive = 1
+ORDER BY
+    POM.ProductionOrderID DESC;";
+
+                using (SqlCommand cmd =
+                       new SqlCommand(sql, con))
+                {
+                    using (SqlDataReader dr =
+                           cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var item =
+                                new ProductionOrderListItem();
+
+                            item.ProductionOrderID =
+                                ToLong(dr["ProductionOrderID"]);
+
+                            item.ProductionOrderNo =
+                                ToStringValue(
+                                    dr["ProductionOrderNo"]);
+
+                            item.ProductionOrderDate =
+                                ToDateValue(
+                                    dr["ProductionOrderDate"]);
+
+                            item.JobWorkerID =
+                                ToNullableLong(
+                                    dr["JobWorkerID"]);
+
+                            item.JobWorkerName =
+                                ToStringValue(
+                                    dr["JobWorkerName"]);
+
+                            item.PanaRepeat =
+                                ToDecimalValue(
+                                    dr["PanaRepeat"]);
+
+                            item.JobRate =
+                                ToDecimalValue(
+                                    dr["JobRate"]);
+
+                            item.Traders =
+                                ToStringValue(
+                                    dr["Traders"]);
+
+                            item.TotalPcs =
+                                ToDecimalValue(
+                                    dr["TotalPcs"]);
+
+                            item.TotalProductionPcs =
+                                ToDecimalValue(
+                                    dr["TotalProductionPcs"]);
+
+                            item.TotalPendingPcs =
+                                ToDecimalValue(
+                                    dr["TotalPendingPcs"]);
+
+                            item.TotalAmount =
+                                ToDecimalValue(
+                                    dr["TotalAmount"]);
+
+                            item.Status =
+                                ToIntValue(
+                                    dr["Status"]);
+
+                            item.CompanyId =
+                                ToNullableLong(
+                                    dr["CompanyId"]);
+
+                            item.UserAccountId =
+                                ToNullableLong(
+                                    dr["UserAccountId"]);
+
+                            item.DetailCount =
+                                ToIntValue(
+                                    dr["DetailCount"]);
+
+                            list.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+
+
+        /*
+         * ================================================================
+         * PRODUCTION ORDER BY ID
+         * ================================================================
+         *
+         * Used for:
+         * Edit / View Production Order
+         *
+         * URL:
+         * WebServiceNikunjTextile.asmx/GetProductionOrderByID
+         */
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ProductionOrderByIDResponse GetProductionOrderByID(
+            long ProductionOrderID)
+        {
+            var result =
+                new ProductionOrderByIDResponse
+                {
+                    Success = false,
+                    Message = "",
+                    Master = null,
+                    Details =
+                        new List<ProductionOrderDetailListItem>()
+                };
+
+            if (ProductionOrderID <= 0)
+            {
+                result.Message =
+                    "Invalid Production Order ID.";
+
+                return result;
+            }
+
+            string connectionString =
+                ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+            using (SqlConnection con =
+                   new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                const string masterSql = @"
+SELECT TOP 1
+    ProductionOrderID,
+    ProductionOrderNo,
+    ProductionOrderDate,
+    JobWorkerID,
+    JobWorkerName,
+    PanaRepeat,
+    JobRate,
+    Traders,
+    TotalPcs,
+    TotalProductionPcs,
+    TotalPendingPcs,
+    TotalAmount,
+    Status,
+    CompanyId,
+    UserAccountId,
+    (
+        SELECT COUNT(1)
+        FROM ProductionOrderDetail D
+        WHERE D.ProductionOrderID =
+              P.ProductionOrderID
+          AND D.IsActive = 1
+    ) AS DetailCount
+FROM ProductionOrderMaster P
+WHERE ProductionOrderID = @ProductionOrderID
+  AND IsActive = 1;";
+
+                using (SqlCommand cmd =
+                       new SqlCommand(
+                           masterSql,
+                           con))
+                {
+                    cmd.Parameters.Add(
+                        "@ProductionOrderID",
+                        SqlDbType.BigInt
+                    ).Value =
+                        ProductionOrderID;
+
+                    using (SqlDataReader dr =
+                           cmd.ExecuteReader())
+                    {
+                        if (!dr.Read())
+                        {
+                            result.Message =
+                                "Production Order not found.";
+
+                            return result;
+                        }
+
+                        result.Master =
+                            new ProductionOrderListItem
+                            {
+                                ProductionOrderID =
+                                    ToLong(
+                                        dr["ProductionOrderID"]),
+
+                                ProductionOrderNo =
+                                    ToStringValue(
+                                        dr["ProductionOrderNo"]),
+
+                                ProductionOrderDate =
+                                    ToDateValue(
+                                        dr["ProductionOrderDate"]),
+
+                                JobWorkerID =
+                                    ToNullableLong(
+                                        dr["JobWorkerID"]),
+
+                                JobWorkerName =
+                                    ToStringValue(
+                                        dr["JobWorkerName"]),
+
+                                PanaRepeat =
+                                    ToDecimalValue(
+                                        dr["PanaRepeat"]),
+
+                                JobRate =
+                                    ToDecimalValue(
+                                        dr["JobRate"]),
+
+                                Traders =
+                                    ToStringValue(
+                                        dr["Traders"]),
+
+                                TotalPcs =
+                                    ToDecimalValue(
+                                        dr["TotalPcs"]),
+
+                                TotalProductionPcs =
+                                    ToDecimalValue(
+                                        dr["TotalProductionPcs"]),
+
+                                TotalPendingPcs =
+                                    ToDecimalValue(
+                                        dr["TotalPendingPcs"]),
+
+                                TotalAmount =
+                                    ToDecimalValue(
+                                        dr["TotalAmount"]),
+
+                                Status =
+                                    ToIntValue(
+                                        dr["Status"]),
+
+                                CompanyId =
+                                    ToNullableLong(
+                                        dr["CompanyId"]),
+
+                                UserAccountId =
+                                    ToNullableLong(
+                                        dr["UserAccountId"]),
+
+                                DetailCount =
+                                    ToIntValue(
+                                        dr["DetailCount"])
+                            };
+                    }
+                }
+
+
+                const string detailSql = @"
+SELECT
+    ProductionOrderDetailID,
+    ProductionOrderID,
+    SalesOrderID,
+    SalesOrderDetailID,
+    SubDetailID,
+    SalesOrderNo,
+    SlipNo,
+    Barcode,
+    OrderDate,
+    PartyID,
+    PartyName,
+    DesignEntryFormID,
+    DesignNo,
+    ColourMatchingID,
+    ColourMatchingName,
+    WarpQuality,
+    WeftQuality,
+    PCS,
+    ProductionPCS,
+    PendingPCS,
+    SalesRate,
+    JobRate,
+    Amount,
+    CompanyId,
+    UserAccountId
+FROM ProductionOrderDetail
+WHERE ProductionOrderID = @ProductionOrderID
+  AND IsActive = 1
+ORDER BY ProductionOrderDetailID ASC;";
+
+                using (SqlCommand cmd =
+                       new SqlCommand(
+                           detailSql,
+                           con))
+                {
+                    cmd.Parameters.Add(
+                        "@ProductionOrderID",
+                        SqlDbType.BigInt
+                    ).Value =
+                        ProductionOrderID;
+
+                    using (SqlDataReader dr =
+                           cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result.Details.Add(
+                                new ProductionOrderDetailListItem
+                                {
+                                    ProductionOrderDetailID =
+                                        ToLong(
+                                            dr["ProductionOrderDetailID"]),
+
+                                    ProductionOrderID =
+                                        ToLong(
+                                            dr["ProductionOrderID"]),
+
+                                    SalesOrderID =
+                                        ToNullableLong(
+                                            dr["SalesOrderID"]),
+
+                                    SalesOrderDetailID =
+                                        ToNullableLong(
+                                            dr["SalesOrderDetailID"]),
+
+                                    SubDetailID =
+                                        ToNullableLong(
+                                            dr["SubDetailID"]),
+
+                                    SalesOrderNo =
+                                        ToStringValue(
+                                            dr["SalesOrderNo"]),
+
+                                    SlipNo =
+                                        ToStringValue(
+                                            dr["SlipNo"]),
+
+                                    Barcode =
+                                        ToStringValue(
+                                            dr["Barcode"]),
+
+                                    OrderDate =
+                                        ToDateString(
+                                            dr["OrderDate"]),
+
+                                    PartyID =
+                                        ToNullableLong(
+                                            dr["PartyID"]),
+
+                                    PartyName =
+                                        ToStringValue(
+                                            dr["PartyName"]),
+
+                                    DesignEntryFormID =
+                                        ToNullableLong(
+                                            dr["DesignEntryFormID"]),
+
+                                    DesignNo =
+                                        ToStringValue(
+                                            dr["DesignNo"]),
+
+                                    ColourMatchingID =
+                                        ToNullableLong(
+                                            dr["ColourMatchingID"]),
+
+                                    ColourMatchingName =
+                                        ToStringValue(
+                                            dr["ColourMatchingName"]),
+
+                                    WarpQuality =
+                                        ToStringValue(
+                                            dr["WarpQuality"]),
+
+                                    WeftQuality =
+                                        ToStringValue(
+                                            dr["WeftQuality"]),
+
+                                    PCS =
+                                        ToDecimalValue(
+                                            dr["PCS"]),
+
+                                    ProductionPCS =
+                                        ToDecimalValue(
+                                            dr["ProductionPCS"]),
+
+                                    PendingPCS =
+                                        ToDecimalValue(
+                                            dr["PendingPCS"]),
+
+                                    SalesRate =
+                                        ToDecimalValue(
+                                            dr["SalesRate"]),
+
+                                    JobRate =
+                                        ToDecimalValue(
+                                            dr["JobRate"]),
+
+                                    Amount =
+                                        ToDecimalValue(
+                                            dr["Amount"]),
+
+                                    CompanyId =
+                                        ToNullableLong(
+                                            dr["CompanyId"]),
+
+                                    UserAccountId =
+                                        ToNullableLong(
+                                            dr["UserAccountId"])
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            result.Success = true;
+            result.Message =
+                "Production Order loaded successfully.";
+
+            return result;
+        }
+
+
+        /*
+         * ================================================================
+         * PRODUCTION ORDER BY ENCRYPTED ID
+         * ================================================================
+         *
+         * Used by:
+         * ProductionSleep.cshtml
+         *
+         * URL:
+         * /ProductionSleep?ProductionOrderID=<ENCRYPTED>
+         *
+         * The existing getEncryptID WebMethod returns the encrypted ID.
+         * This method decrypts that value on the server and then uses the
+         * existing GetProductionOrderByID method.
+         *
+         * The browser therefore never needs to put the numeric ID in the
+         * URL or send the numeric ID directly for the edit/view page.
+         */
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ProductionOrderByIDResponse GetProductionOrderByEncryptedID(
+            string EncryptedID)
+        {
+            var result =
+                new ProductionOrderByIDResponse
+                {
+                    Success = false,
+                    Message = "",
+                    Master = null,
+                    Details =
+                        new List<ProductionOrderDetailListItem>()
+                };
+
+            if (string.IsNullOrWhiteSpace(EncryptedID))
+            {
+                result.Message =
+                    "Encrypted Production Order ID is required.";
+
+                return result;
+            }
+
+            try
+            {
+                /*
+                 * IMPORTANT:
+                 *
+                 * ProductionOrderList uses the existing project
+                 * getEncryptID WebMethod. That value is NOT plain Base64.
+                 *
+                 * Example URL:
+                 *
+                 * ProductionOrderID=
+                 * rq5q6i50XyKd...Vw%253d%253d
+                 *
+                 * Browser URLSearchParams may already decode one layer.
+                 * Still remove any remaining URL encoding here so both
+                 * %3D and %253D style values are supported.
+                 */
+                string encryptedValue =
+                    EncryptedID.Trim();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    string decoded =
+                        System.Web.HttpUtility.UrlDecode(
+                            encryptedValue
+                        );
+
+                    if (decoded == encryptedValue)
+                    {
+                        break;
+                    }
+
+                    encryptedValue = decoded;
+                }
+
+                if (string.IsNullOrWhiteSpace(encryptedValue))
+                {
+                    result.Message =
+                        "Encrypted Production Order ID is required.";
+
+                    return result;
+                }
+
+                long directID;
+                if (long.TryParse(encryptedValue, out directID) && directID > 0)
+                {
+                    return GetProductionOrderByID(directID);
+                }
+
+                string decryptedValue = Decrypt(encryptedValue);
+
+                if (string.IsNullOrWhiteSpace(decryptedValue))
+                {
+                    result.Message =
+                        "Invalid encrypted Production Order ID.";
+
+                    return result;
+                }
+
+                decryptedValue =
+                    decryptedValue.Trim();
+
+                /*
+                 * Some existing encrypted values may contain:
+                 *
+                 * 17|Edit
+                 * 17|View
+                 *
+                 * In that case the first part is the ProductionOrderID.
+                 */
+                if (decryptedValue.Contains("|"))
+                {
+                    decryptedValue =
+                        decryptedValue.Split('|')[0];
+                }
+
+                long productionOrderID;
+
+                if (!long.TryParse(
+                        decryptedValue,
+                        out productionOrderID) ||
+                    productionOrderID <= 0)
+                {
+                    result.Message =
+                        "Invalid encrypted Production Order ID.";
+
+                    return result;
+                }
+
+                /*
+                 * Reuse the existing DB binding method.
+                 */
+                return GetProductionOrderByID(
+                    productionOrderID
+                );
+            }
+            catch (Exception ex)
+            {
+                /*
+                 * Do not expose Base64/FormatException-specific errors.
+                 * Return one clean message to the frontend.
+                 */
+                result.Message =
+                    string.IsNullOrWhiteSpace(ex.Message)
+                        ? "Invalid encrypted Production Order ID."
+                        : ex.Message;
+
+                return result;
+            }
+        }
+
+        /*
+         * ================================================================
+         * DELETE PRODUCTION ORDER
+         * ================================================================
+         *
+         * Soft delete:
+         *
+         * Master IsActive = 0
+         * Details IsActive = 0
+         *
+         * Database records are NOT physically deleted.
+         */
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ProductionOrderDeleteResponse DeleteProductionOrder(
+            long ProductionOrderID)
+        {
+            var result =
+                new ProductionOrderDeleteResponse
+                {
+                    Success = false,
+                    Message = "",
+                    ProductionOrderID =
+                        ProductionOrderID
+                };
+
+            if (ProductionOrderID <= 0)
+            {
+                result.Message =
+                    "Invalid Production Order ID.";
+
+                return result;
+            }
+
+            string connectionString =
+                ConfigurationManager
+                    .ConnectionStrings["sqlconnstr"]
+                    .ConnectionString;
+
+            using (SqlConnection con =
+                   new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                using (SqlTransaction tran =
+                       con.BeginTransaction(
+                           IsolationLevel.ReadCommitted))
+                {
+                    try
+                    {
+                        /*
+                         * Check master.
+                         */
+                        const string checkSql = @"
+SELECT COUNT(1)
+FROM ProductionOrderMaster
+WHERE ProductionOrderID = @ProductionOrderID
+  AND IsActive = 1;";
+
+                        using (SqlCommand cmd =
+                               new SqlCommand(
+                                   checkSql,
+                                   con,
+                                   tran))
+                        {
+                            cmd.Parameters.Add(
+                                "@ProductionOrderID",
+                                SqlDbType.BigInt
+                            ).Value =
+                                ProductionOrderID;
+
+                            int exists =
+                                Convert.ToInt32(
+                                    cmd.ExecuteScalar());
+
+                            if (exists == 0)
+                            {
+                                tran.Rollback();
+
+                                result.Message =
+                                    "Production Order not found or already deleted.";
+
+                                return result;
+                            }
+                        }
+
+
+                        /*
+                         * Deactivate details first.
+                         */
+                        const string detailDeleteSql = @"
+UPDATE ProductionOrderDetail
+SET
+    IsActive = 0,
+    DateandTime = GETDATE()
+WHERE ProductionOrderID = @ProductionOrderID
+  AND IsActive = 1;";
+
+                        using (SqlCommand cmd =
+                               new SqlCommand(
+                                   detailDeleteSql,
+                                   con,
+                                   tran))
+                        {
+                            cmd.Parameters.Add(
+                                "@ProductionOrderID",
+                                SqlDbType.BigInt
+                            ).Value =
+                                ProductionOrderID;
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+
+                        /*
+                         * Deactivate master.
+                         */
+                        const string masterDeleteSql = @"
+UPDATE ProductionOrderMaster
+SET
+    IsActive = 0,
+    Status = 0,
+    DateandTime = GETDATE()
+WHERE ProductionOrderID = @ProductionOrderID
+  AND IsActive = 1;";
+
+                        using (SqlCommand cmd =
+                               new SqlCommand(
+                                   masterDeleteSql,
+                                   con,
+                                   tran))
+                        {
+                            cmd.Parameters.Add(
+                                "@ProductionOrderID",
+                                SqlDbType.BigInt
+                            ).Value =
+                                ProductionOrderID;
+
+                            int affected =
+                                cmd.ExecuteNonQuery();
+
+                            if (affected <= 0)
+                            {
+                                tran.Rollback();
+
+                                result.Message =
+                                    "Production Order could not be deleted.";
+
+                                return result;
+                            }
+                        }
+
+                        tran.Commit();
+
+                        result.Success = true;
+                        result.Message =
+                            "Production Order deleted successfully.";
+
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            tran.Rollback();
+                        }
+                        catch
+                        {
+                        }
+
+                        result.Success = false;
+                        result.Message = ex.Message;
+
+                        return result;
+                    }
+                }
+            }
+        }
+
+
+        /*
+         * ================================================================
+         * DEFAULT COMPANY - LIST
+         * ================================================================
+         */
+        private static long? GetDefaultCompanyIdForList(
+            SqlConnection con)
+        {
+            const string sql = @"
+SELECT TOP 1 CompanyId
+FROM CompanyMaster
+WHERE is_default = 1
+ORDER BY CompanyId;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(sql, con))
+            {
+                object value =
+                    cmd.ExecuteScalar();
+
+                if (value != null &&
+                    value != DBNull.Value)
+                {
+                    return Convert.ToInt64(value);
+                }
+            }
+
+            return null;
+        }
+
+
+        /*
+         * ================================================================
+         * SAFE CONVERSION HELPERS
+         * ================================================================
+         */
+        private static string ToStringValue(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return "";
+            }
+
+            return Convert.ToString(value).Trim();
+        }
+
+        private static long ToLong(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return 0;
+            }
+
+            return Convert.ToInt64(value);
+        }
+
+        private static long? ToNullableLong(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return null;
+            }
+
+            return Convert.ToInt64(value);
+        }
+
+        private static int ToIntValue(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return 0;
+            }
+
+            return Convert.ToInt32(value);
+        }
+
+        private static decimal ToDecimalValue(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return 0m;
+            }
+
+            return Convert.ToDecimal(value);
+        }
+
+        private static DateTime ToDateValue(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return DateTime.MinValue;
+            }
+
+            return Convert.ToDateTime(value);
+        }
+
+        private static string ToDateString(object value)
+        {
+            if (value == null ||
+                value == DBNull.Value)
+            {
+                return "";
+            }
+
+            return Convert
+                .ToDateTime(value)
+                .ToString("yyyy-MM-dd");
+        }
+
+
+
+        /// <summary>
+        /// SaveProductionOrder
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ProductionOrderSaveResponse SaveProductionOrder(ProductionOrderRequest request)
+        {
+            var result = new ProductionOrderSaveResponse
+            {
+                Success = false,
+                ProductionOrderID = 0,
+                InsertedDetails = 0,
+                UpdatedDetails = 0,
+                DeletedDetails = 0
+            };
+
+            if (request == null)
+            {
+                result.Message = "Production Order data is required.";
+                return result;
+            }
+
+            if (request.listProductionOrderDetail == null ||
+                request.listProductionOrderDetail.Count == 0)
+            {
+                result.Message = "Please select at least one Production Order detail.";
+                return result;
+            }
+
+            DateTime productionDate;
+
+            if (!TryParseDate(request.ProductionOrderDate, out productionDate))
+            {
+                result.Message = "Production Order Date is invalid.";
+                return result;
+            }
+
+            string connectionString = ConfigurationManager
+                .ConnectionStrings["sqlconnstr"]
+                .ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                using (SqlTransaction tran =
+                       con.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    try
+                    {
+                        /*
+                         * =====================================================
+                         * CURRENT USER + DEFAULT COMPANY
+                         * =====================================================
+                         *
+                         * UserAccountId:
+                         * Context.Request.Cookies["UserIDs"]
+                         *
+                         * CompanyId:
+                         * CompanyMaster where is_default = 1
+                         */
+                        long? currentUserAccountId =
+                            GetCurrentUserAccountId();
+
+                        long? currentCompanyId =
+                            GetDefaultCompanyId(con, tran);
+
+                        /*
+                         * If your application requires these values,
+                         * do not silently save NULL.
+                         */
+                        if (!currentUserAccountId.HasValue)
+                        {
+                            tran.Rollback();
+
+                            result.Message =
+                                "UserAccountId could not be found from UserIDs cookie.";
+
+                            return result;
+                        }
+
+                        if (!currentCompanyId.HasValue)
+                        {
+                            tran.Rollback();
+
+                            result.Message =
+                                "Default CompanyId could not be found from CompanyMaster.";
+
+                            return result;
+                        }
+
+                        long productionOrderID =
+                            request.ProductionOrderID;
+
+                        bool isInsert =
+                            productionOrderID <= 0;
+
+                        decimal totalPcs = 0m;
+                        decimal totalProductionPcs = 0m;
+                        decimal totalPendingPcs = 0m;
+                        decimal totalAmount = 0m;
+
+                        /*
+                         * =====================================================
+                         * NORMALIZE DETAILS + CALCULATE SERVER-SIDE TOTALS
+                         * =====================================================
+                         */
+                        foreach (ProductionOrderDetailRequest d
+                                 in request.listProductionOrderDetail)
+                        {
+                            if (d == null)
+                                continue;
+
+                            d.PCS =
+                                Math.Max(0m, d.PCS);
+
+                            d.ProductionPCS =
+                                Math.Max(
+                                    0m,
+                                    Math.Min(
+                                        d.ProductionPCS,
+                                        d.PCS
+                                    )
+                                );
+
+                            d.PendingPCS =
+                                Math.Max(
+                                    0m,
+                                    d.PCS - d.ProductionPCS
+                                );
+
+                            d.JobRate =
+                                request.JobRate;
+
+                            d.Amount =
+                                Math.Round(
+                                    d.ProductionPCS *
+                                    request.JobRate,
+                                    2,
+                                    MidpointRounding.AwayFromZero
+                                );
+
+                            totalPcs += d.PCS;
+                            totalProductionPcs += d.ProductionPCS;
+                            totalPendingPcs += d.PendingPCS;
+                            totalAmount += d.Amount;
+                        }
+
+                        if (totalProductionPcs <= 0m)
+                        {
+                            tran.Rollback();
+
+                            result.Message =
+                                "Production PCS must be greater than 0.";
+
+                            return result;
+                        }
+
+                        /*
+                         * =====================================================
+                         * PRODUCTION ORDER NO
+                         * =====================================================
+                         */
+                        string productionOrderNo =
+                            (request.ProductionOrderNo ?? "").Trim();
+
+                        if (productionOrderNo == "")
+                        {
+                            productionOrderNo =
+                                GetNextProductionOrderNo(
+                                    con,
+                                    tran
+                                );
+                        }
+
+                        /*
+                         * =====================================================
+                         * INSERT / UPDATE MASTER
+                         * =====================================================
+                         */
+                        if (isInsert)
+                        {
+                            const string insertMasterSql = @"
+INSERT INTO ProductionOrderMaster
+(
+    ProductionOrderNo,
+    ProductionOrderDate,
+    JobWorkerID,
+    JobWorkerName,
+    PanaRepeat,
+    JobRate,
+    Traders,
+    TotalPcs,
+    TotalProductionPcs,
+    TotalPendingPcs,
+    TotalAmount,
+    Status,
+    CompanyId,
+    UserAccountId,
+    DateandTime,
+    IsActive
+)
+VALUES
+(
+    @ProductionOrderNo,
+    @ProductionOrderDate,
+    @JobWorkerID,
+    @JobWorkerName,
+    @PanaRepeat,
+    @JobRate,
+    @Traders,
+    @TotalPcs,
+    @TotalProductionPcs,
+    @TotalPendingPcs,
+    @TotalAmount,
+    @Status,
+    @CompanyId,
+    @UserAccountId,
+    GETDATE(),
+    1
+);
+
+SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+
+                            using (SqlCommand cmd =
+                                   new SqlCommand(
+                                       insertMasterSql,
+                                       con,
+                                       tran))
+                            {
+                                AddMasterParameters(
+                                    cmd,
+                                    request,
+                                    productionOrderNo,
+                                    productionDate,
+                                    totalPcs,
+                                    totalProductionPcs,
+                                    totalPendingPcs,
+                                    totalAmount,
+                                    currentCompanyId,
+                                    currentUserAccountId
+                                );
+
+                                productionOrderID =
+                                    Convert.ToInt64(
+                                        cmd.ExecuteScalar()
+                                    );
+                            }
+                        }
+                        else
+                        {
+                            const string checkMasterSql = @"
+                                    SELECT COUNT(1)
+                                    FROM ProductionOrderMaster
+                                    WHERE ProductionOrderID = @ProductionOrderID
+                                      AND IsActive = 1;";
+
+                            using (SqlCommand check =
+                                   new SqlCommand(
+                                       checkMasterSql,
+                                       con,
+                                       tran))
+                            {
+                                check.Parameters.Add(
+                                    "@ProductionOrderID",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    productionOrderID;
+
+                                if (Convert.ToInt32(
+                                        check.ExecuteScalar()) == 0)
+                                {
+                                    tran.Rollback();
+
+                                    result.Message =
+                                        "Production Order not found or inactive.";
+
+                                    return result;
+                                }
+                            }
+
+                            const string updateMasterSql = @"
+                                    UPDATE ProductionOrderMaster
+                                    SET
+                                        ProductionOrderNo = @ProductionOrderNo,
+                                        ProductionOrderDate = @ProductionOrderDate,
+                                        JobWorkerID = @JobWorkerID,
+                                        JobWorkerName = @JobWorkerName,
+                                        PanaRepeat = @PanaRepeat,
+                                        JobRate = @JobRate,
+                                        Traders = @Traders,
+                                        TotalPcs = @TotalPcs,
+                                        TotalProductionPcs = @TotalProductionPcs,
+                                        TotalPendingPcs = @TotalPendingPcs,
+                                        TotalAmount = @TotalAmount,
+                                        Status = @Status,
+                                        CompanyId = @CompanyId,
+                                        UserAccountId = @UserAccountId,
+                                        DateandTime = GETDATE()
+                                    WHERE ProductionOrderID = @ProductionOrderID
+                                      AND IsActive = 1;";
+
+                            using (SqlCommand cmd =
+                                   new SqlCommand(
+                                       updateMasterSql,
+                                       con,
+                                       tran))
+                            {
+                                AddMasterParameters(
+                                    cmd,
+                                    request,
+                                    productionOrderNo,
+                                    productionDate,
+                                    totalPcs,
+                                    totalProductionPcs,
+                                    totalPendingPcs,
+                                    totalAmount,
+                                    currentCompanyId,
+                                    currentUserAccountId
+                                );
+
+                                cmd.Parameters.Add(
+                                    "@ProductionOrderID",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    productionOrderID;
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        /*
+                         * =====================================================
+                         * DETAILS INSERT / UPDATE
+                         * =====================================================
+                         */
+                        var incomingDetailIds =
+                            new HashSet<long>();
+
+                        foreach (ProductionOrderDetailRequest d
+                                 in request.listProductionOrderDetail)
+                        {
+                            if (d == null)
+                                continue;
+
+                            /*
+                             * =================================================
+                             * IMPORTANT DATABASE MAPPING
+                             *
+                             * SalesOrderDetailID -> SalesOrderDetails.DetailID
+                             *
+                             * Example from your DB:
+                             *
+                             * DetailID 13 -> SalesOrderID 5
+                             * DetailID 11 -> SalesOrderID 6
+                             *
+                             * PartyID is then taken from SaleOrder.
+                             * =================================================
+                             */
+                            ResolveSalesOrderValues(con, tran, d);
+
+                            /*
+                             * =================================================
+                             * BARCODE - FINAL SAFE RULE
+                             * =================================================
+                             * UPDATE existing detail:
+                             *   Always keep the barcode already stored in DB.
+                             *   Never trust a barcode coming from the browser.
+                             *
+                             * INSERT new detail:
+                             *   Always generate the barcode on the server.
+                             *   Ignore any browser-generated jQuery.now() value.
+                             *
+                             * This is required because the unique index is:
+                             * UX_ProductionOrderDetail_Company_Barcode
+                             */
+                            long detailID = d.ProductionOrderDetailID;
+
+                            /*
+                             * =================================================
+                             * RECOVER EXISTING DETAIL ID DURING EDIT
+                             * =================================================
+                             *
+                             * If the edit page did not send
+                             * ProductionOrderDetailID, use SalesOrderDetailID
+                             * to find the existing row inside the same
+                             * ProductionOrder.
+                             */
+                            if (detailID <= 0 &&
+                                !isInsert &&
+                                d.SalesOrderDetailID.HasValue &&
+                                d.SalesOrderDetailID.Value > 0)
+                            {
+                                detailID =
+                                    GetExistingProductionOrderDetailID(
+                                        con,
+                                        tran,
+                                        productionOrderID,
+                                        d.SalesOrderDetailID.Value,
+                                        d.SubDetailID,
+                                        d.ColourMatchingID
+                                    );
+
+                                if (detailID > 0)
+                                {
+                                    d.ProductionOrderDetailID =
+                                        detailID;
+                                }
+                            }
+
+                            if (detailID <= 0 && !string.IsNullOrWhiteSpace(d.SlipNo) && currentCompanyId.HasValue)
+                            {
+                                long slipDetailID = GetProductionOrderDetailIDByCompanyAndSlipNo(
+                                    con,
+                                    tran,
+                                    currentCompanyId.Value,
+                                    d.SlipNo
+                                );
+
+                                if (slipDetailID > 0)
+                                {
+                                    detailID = slipDetailID;
+                                    d.ProductionOrderDetailID = detailID;
+                                }
+                            }
+
+                            /*
+                             * =================================================
+                             * SLIP NO - UPDATE SAFE
+                             * =================================================
+                             *
+                             * Never replace an existing detail's SlipNo
+                             * during UPDATE. This prevents the unique
+                             * CompanyId + SlipNo index from being hit by
+                             * a regenerated SlipNo.
+                             */
+                            if (detailID > 0)
+                            {
+                                string existingSlipNo =
+                                    GetExistingSlipNo(
+                                        con,
+                                        tran,
+                                        detailID,
+                                        productionOrderID
+                                    );
+
+                                if (!string.IsNullOrWhiteSpace(existingSlipNo))
+                                {
+                                    d.SlipNo = existingSlipNo;
+                                }
+                            }
+
+                            /*
+                             * =================================================
+                             * BARCODE - FINAL SAFE RULE
+                             * =================================================
+                             *
+                             * UPDATE:
+                             *   Keep existing DB barcode.
+                             *
+                             * INSERT:
+                             *   Always generate server-side unique barcode.
+                             */
+                            if (detailID > 0)
+                            {
+                                string existingBarcode =
+                                    GetExistingBarcode(
+                                        con,
+                                        tran,
+                                        detailID,
+                                        productionOrderID
+                                    );
+
+                                if (!string.IsNullOrWhiteSpace(existingBarcode))
+                                {
+                                    d.Barcode = existingBarcode;
+                                }
+                                else
+                                {
+                                    d.Barcode =
+                                        GenerateUniqueBarcode(
+                                            con,
+                                            tran
+                                        );
+                                }
+                            }
+                            else
+                            {
+                                d.Barcode =
+                                    GenerateUniqueBarcode(
+                                        con,
+                                        tran
+                                    );
+                            }
+
+                            /*
+                             * =================================================
+                             * UPDATE EXISTING DETAIL
+                             * =================================================
+                             */
+                            if (detailID > 0)
+                            {
+                                const string checkDetailSql = @"
+                                                                SELECT COUNT(1)
+                                                                FROM ProductionOrderDetail
+                                                                WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
+
+                                using (SqlCommand check =
+                                       new SqlCommand(
+                                           checkDetailSql,
+                                           con,
+                                           tran))
+                                {
+                                    check.Parameters.Add(
+                                        "@ProductionOrderDetailID",
+                                        SqlDbType.BigInt
+                                    ).Value =
+                                        detailID;
+
+                                    if (Convert.ToInt32(
+                                            check.ExecuteScalar()) > 0)
+                                    {
+                                        const string updateDetailSql = @"
+                                                        UPDATE ProductionOrderDetail
+                                                        SET
+                                                            ProductionOrderID = @ProductionOrderID,
+                                                            SalesOrderID = @SalesOrderID,
+                                                            SalesOrderDetailID = @SalesOrderDetailID,
+                                                            SubDetailID = @SubDetailID,
+                                                            SalesOrderNo = @SalesOrderNo,
+                                                            OrderDate = @OrderDate,
+                                                            PartyID = @PartyID,
+                                                            PartyName = @PartyName,
+                                                            SlipNo = @SlipNo,
+                                                            Barcode = @Barcode,
+                                                            DesignEntryFormID = @DesignEntryFormID,
+                                                            DesignNo = @DesignNo,
+                                                            ColourMatchingID = @ColourMatchingID,
+                                                            ColourMatchingName = @ColourMatchingName,
+                                                            WarpQuality = @WarpQuality,
+                                                            WeftQuality = @WeftQuality,
+                                                            PCS = @PCS,
+                                                            ProductionPCS = @ProductionPCS,
+                                                            PendingPCS = @PendingPCS,
+                                                            SalesRate = @SalesRate,
+                                                            JobRate = @JobRate,
+                                                            Amount = @Amount,
+                                                            CompanyId = @CompanyId,
+                                                            UserAccountId = @UserAccountId,
+                                                            DateandTime = GETDATE(),
+                                                            IsActive = 1
+                                                        WHERE ProductionOrderDetailID = @ProductionOrderDetailID
+                                                          AND ProductionOrderID = @ProductionOrderID;";
+
+                                        using (SqlCommand cmd =
+                                               new SqlCommand(
+                                                   updateDetailSql,
+                                                   con,
+                                                   tran))
+                                        {
+                                            AddDetailParameters(
+                                                cmd,
+                                                d,
+                                                productionOrderID,
+                                                request,
+                                                currentCompanyId,
+                                                currentUserAccountId
+                                            );
+
+                                            cmd.Parameters.Add(
+                                                "@ProductionOrderDetailID",
+                                                SqlDbType.BigInt
+                                            ).Value =
+                                                detailID;
+
+                                            cmd.ExecuteNonQuery();
+                                        }
+
+                                        incomingDetailIds.Add(
+                                            detailID
+                                        );
+
+                                        result.UpdatedDetails++;
+
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            /*
+                             * =================================================
+                             * INSERT NEW DETAIL
+                             * =================================================
+                             *
+                             * Do not allow an active SlipNo belonging to
+                             * another Production Order to create a raw SQL
+                             * duplicate-key exception.
+                             */
+                            if (detailID <= 0)
+                            {
+                                if (string.IsNullOrWhiteSpace(d.SlipNo))
+                                {
+                                    tran.Rollback();
+
+                                    result.Message =
+                                        "Slip No is required for Production Order detail.";
+
+                                    return result;
+                                }
+
+                                decimal remainingPending =
+                                    GetRemainingPendingPcsForSlip(
+                                        con,
+                                        tran,
+                                        d.SubDetailID,
+                                        d.SalesOrderDetailID,
+                                        d.SlipNo,
+                                        currentCompanyId,
+                                        productionOrderID
+                                    );
+
+                                if (remainingPending <= 0)
+                                {
+                                    tran.Rollback();
+
+                                    result.Message =
+                                        "Slip No " +
+                                        d.SlipNo +
+                                        " has no pending pcs remaining (0 pending). Cannot create further production orders.";
+
+                                    return result;
+                                }
+                            }
+
+                            /*
+                             * =================================================
+                             * INSERT NEW DETAIL
+                             * =================================================
+                             */
+                            const string insertDetailSql = @"
+                                    INSERT INTO ProductionOrderDetail
+                                    (
+                                        ProductionOrderID,
+                                        SalesOrderID,
+                                        SalesOrderDetailID,
+                                        SubDetailID,
+                                        SalesOrderNo,
+                                        OrderDate,
+                                        PartyID,
+                                        PartyName,
+                                        SlipNo,
+                                        Barcode,
+                                        DesignEntryFormID,
+                                        DesignNo,
+                                        ColourMatchingID,
+                                        ColourMatchingName,
+                                        WarpQuality,
+                                        WeftQuality,
+                                        PCS,
+                                        ProductionPCS,
+                                        PendingPCS,
+                                        SalesRate,
+                                        JobRate,
+                                        Amount,
+                                        CompanyId,
+                                        UserAccountId,
+                                        DateandTime,
+                                        IsActive
+                                    )
+                                    VALUES
+                                    (
+                                        @ProductionOrderID,
+                                        @SalesOrderID,
+                                        @SalesOrderDetailID,
+                                        @SubDetailID,
+                                        @SalesOrderNo,
+                                        @OrderDate,
+                                        @PartyID,
+                                        @PartyName,
+                                        @SlipNo,
+                                        @Barcode,
+                                        @DesignEntryFormID,
+                                        @DesignNo,
+                                        @ColourMatchingID,
+                                        @ColourMatchingName,
+                                        @WarpQuality,
+                                        @WeftQuality,
+                                        @PCS,
+                                        @ProductionPCS,
+                                        @PendingPCS,
+                                        @SalesRate,
+                                        @JobRate,
+                                        @Amount,
+                                        @CompanyId,
+                                        @UserAccountId,
+                                        GETDATE(),
+                                        1
+                                    );
+
+                                    SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+
+                            using (SqlCommand cmd =
+                                   new SqlCommand(
+                                       insertDetailSql,
+                                       con,
+                                       tran))
+                            {
+                                AddDetailParameters(
+                                    cmd,
+                                    d,
+                                    productionOrderID,
+                                    request,
+                                    currentCompanyId,
+                                    currentUserAccountId
+                                );
+
+                                long newDetailID =
+                                    Convert.ToInt64(
+                                        cmd.ExecuteScalar()
+                                    );
+
+                                incomingDetailIds.Add(
+                                    newDetailID
+                                );
+
+                                result.InsertedDetails++;
+                            }
+                        }
+
+                        /*
+                         * =====================================================
+                         * EDIT MODE:
+                         * OLD ACTIVE DETAILS NOT SENT BY CLIENT = SOFT DELETE
+                         * =====================================================
+                         */
+                        if (!isInsert)
+                        {
+                            const string oldDetailsSql = @"
+                                                        SELECT ProductionOrderDetailID
+                                                        FROM ProductionOrderDetail
+                                                        WHERE ProductionOrderID = @ProductionOrderID
+                                                          AND IsActive = 1;";
+
+                            var oldDetailIds =
+                                new List<long>();
+
+                            using (SqlCommand cmd =
+                                   new SqlCommand(
+                                       oldDetailsSql,
+                                       con,
+                                       tran))
+                            {
+                                cmd.Parameters.Add(
+                                    "@ProductionOrderID",
+                                    SqlDbType.BigInt
+                                ).Value =
+                                    productionOrderID;
+
+                                using (SqlDataReader dr =
+                                       cmd.ExecuteReader())
+                                {
+                                    while (dr.Read())
+                                    {
+                                        oldDetailIds.Add(
+                                            Convert.ToInt64(
+                                                dr[0]
+                                            )
+                                        );
+                                    }
+                                }
+                            }
+
+                            foreach (long oldID
+                                     in oldDetailIds)
+                            {
+                                if (incomingDetailIds.Contains(oldID))
+                                    continue;
+
+                                const string deactivateSql = @"
+                                                UPDATE ProductionOrderDetail
+                                                SET
+                                                    IsActive = 0,
+                                                    DateandTime = GETDATE()
+                                                WHERE ProductionOrderDetailID = @ProductionOrderDetailID
+                                                  AND ProductionOrderID = @ProductionOrderID;";
+
+                                using (SqlCommand cmd =
+                                       new SqlCommand(
+                                           deactivateSql,
+                                           con,
+                                           tran))
+                                {
+                                    cmd.Parameters.Add(
+                                        "@ProductionOrderDetailID",
+                                        SqlDbType.BigInt
+                                    ).Value =
+                                        oldID;
+
+                                    cmd.Parameters.Add(
+                                        "@ProductionOrderID",
+                                        SqlDbType.BigInt
+                                    ).Value =
+                                        productionOrderID;
+
+                                    cmd.ExecuteNonQuery();
+
+                                    result.DeletedDetails++;
+                                }
+                            }
+                        }
+
+                        tran.Commit();
+
+                        result.Success = true;
+                        result.ProductionOrderID =
+                            productionOrderID;
+
+                        result.ProductionOrderNo =
+                            productionOrderNo;
+
+                        result.Message =
+                            isInsert
+                                ? "Production Order saved successfully."
+                                : "Production Order updated successfully.";
+
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            tran.Rollback();
+                        }
+                        catch
+                        {
+                        }
+
+                        result.Success = false;
+                        result.Message = ex.Message;
+
+                        return result;
+                    }
+                }
+            }
+        }
+        /*
+         * ================================================================
+         * RESOLVE SALES ORDER VALUES
+         * ================================================================
+         *
+         * Mapping:
+         *
+         * ProductionOrderDetail.SalesOrderDetailID
+         *          =
+         * SalesOrderDetails.DetailID
+         *
+         * SalesOrderDetails.DetailID 13 -> SalesOrderID 5
+         * SalesOrderDetails.DetailID 11 -> SalesOrderID 6
+         *
+         * Then:
+         *
+         * SaleOrder.SalesOrderID -> PartyID
+         *
+         * Also gets DesignColorMatchingID when ColourMatchingID
+         * was not supplied by the frontend.
+         */
+        private static void ResolveSalesOrderValues(SqlConnection con, SqlTransaction tran, ProductionOrderDetailRequest d)
+        {
+            if (!d.SalesOrderDetailID.HasValue || d.SalesOrderDetailID.Value <= 0)
+            {
+                return;
+            }
+
+            const string sql = @" SELECT TOP 1  SOD.SaleOrderID, SO.PartyID, SOD.DesignColorMatchingID  FROM SaleOrderDetails SOD
+                                        LEFT JOIN SaleOrder SO  ON SO.SaleOrderID = SOD.SaleOrderID WHERE SOD.DetailID = @DetailID;";
+
+            using (SqlCommand cmd = new SqlCommand(sql, con, tran))
+            {
+                cmd.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.SalesOrderDetailID.Value;
+
+                using (SqlDataReader dr =
+                       cmd.ExecuteReader())
+                {
+                    if (!dr.Read())
+                        return;
+
+                    /*
+                     * SalesOrderID
+                     */
+                    if (dr["SaleOrderID"] != DBNull.Value)
+                    {
+                        d.SalesOrderID =
+                            Convert.ToInt64(
+                                dr["SaleOrderID"]
+                            );
+                    }
+
+                    /*
+                     * PartyID
+                     */
+                    if (dr["PartyID"] != DBNull.Value)
+                    {
+                        d.PartyID =
+                            Convert.ToInt64(
+                                dr["PartyID"]
+                            );
+                    }
+
+                    /*
+                     * ColourMatchingID
+                     *
+                     * SalesOrderDetails screenshot shows:
+                     * DesignColorMatchingID
+                     *
+                     * Use it only if frontend has not supplied
+                     * ColourMatchingID.
+                     */
+                    if ((!d.ColourMatchingID.HasValue ||
+                         d.ColourMatchingID.Value <= 0) &&
+                        dr["DesignColorMatchingID"] != DBNull.Value)
+                    {
+                        d.ColourMatchingID =
+                            Convert.ToInt64(
+                                dr["DesignColorMatchingID"]
+                            );
+                    }
+                }
+            }
+        }
+        /*
+         * ================================================================
+         * CURRENT USER ID
+         * ================================================================
+         *
+         * Required source:
+         *
+         * Context.Request.Cookies["UserIDs"].Value.Split('=')[1]
+         *
+         * Handles both:
+         *
+         * UserIDs=17
+         * and
+         * 17
+         */
+        private long? GetCurrentUserAccountId()
+        {
+            try
+            {
+                if (Context == null ||
+                    Context.Request == null)
+                {
+                    return null;
+                }
+
+                HttpCookie cookie =
+                    Context.Request.Cookies["UserIDs"];
+
+                if (cookie == null)
+                    return null;
+
+                string cookieValue =
+                    cookie.Value;
+
+                if (string.IsNullOrWhiteSpace(cookieValue))
+                    return null;
+
+                string[] parts =
+                    cookieValue.Split('=');
+
+                string userIdText =
+                    parts.Length > 1
+                        ? parts[1]
+                        : parts[0];
+
+                long userId;
+
+                if (long.TryParse(
+                        userIdText,
+                        out userId))
+                {
+                    return userId;
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+        /*
+         * ================================================================
+         * DEFAULT COMPANY
+         * ================================================================
+         */
+        private static long? GetDefaultCompanyId(SqlConnection con, SqlTransaction tran)
+        {
+            const string sql = @"
+SELECT TOP 1 CompanyId
+FROM CompanyMaster
+WHERE is_default = 1
+ORDER BY CompanyId;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(
+                       sql,
+                       con,
+                       tran))
+            {
+                object value =
+                    cmd.ExecuteScalar();
+
+                if (value != null &&
+                    value != DBNull.Value)
+                {
+                    return Convert.ToInt64(value);
+                }
+            }
+
+            return null;
+        }
+        /*
+         * ================================================================
+         * BARCODE
+         * ================================================================
+         *
+         * Main value is milliseconds, equivalent to:
+         *
+         * var milliseconds = jQuery.now();
+         *
+         * A uniqueness check is added because two rows can otherwise
+         * receive the same millisecond value in very fast execution.
+         */
+        private static string GenerateUniqueBarcode(SqlConnection con, SqlTransaction tran)
+        {
+            long milliseconds =
+                DateTimeOffset.UtcNow
+                    .ToUnixTimeMilliseconds();
+
+            const string checkSql = @"
+SELECT COUNT(1)
+FROM ProductionOrderDetail
+WHERE CompanyId = @CompanyId
+  AND Barcode = @Barcode
+  AND IsActive = 1;";
+
+            long? companyId =
+                GetDefaultCompanyId(con, tran);
+
+            if (!companyId.HasValue)
+                throw new Exception(
+                    "Default CompanyId could not be found."
+                );
+
+            for (int i = 0; i < 1000; i++)
+            {
+                string barcode =
+                    milliseconds.ToString();
+
+                using (SqlCommand cmd =
+                       new SqlCommand(
+                           checkSql,
+                           con,
+                           tran))
+                {
+                    cmd.Parameters.Add(
+                        "@CompanyId",
+                        SqlDbType.BigInt
+                    ).Value = companyId.Value;
+
+                    cmd.Parameters.Add(
+                        "@Barcode",
+                        SqlDbType.NVarChar,
+                        100
+                    ).Value = barcode;
+
+                    int count =
+                        Convert.ToInt32(
+                            cmd.ExecuteScalar()
+                        );
+
+                    if (count == 0)
+                        return barcode;
+                }
+
+                milliseconds++;
+            }
+
+            throw new Exception(
+                "Unable to generate a unique Barcode."
+            );
+        }
+        /*
+         * ================================================================
+         * MASTER PARAMETERS
+         * ================================================================
+         */
+        private static void AddMasterParameters(SqlCommand cmd, ProductionOrderRequest request, string productionOrderNo, DateTime productionDate, decimal totalPcs, decimal totalProductionPcs, decimal totalPendingPcs, decimal totalAmount, long? currentCompanyId, long? currentUserAccountId)
+        {
+            cmd.Parameters.Add(
+                "@ProductionOrderNo",
+                SqlDbType.NVarChar,
+                50
+            ).Value =
+                DbString(productionOrderNo);
+
+            cmd.Parameters.Add(
+                "@ProductionOrderDate",
+                SqlDbType.Date
+            ).Value =
+                productionDate.Date;
+
+            cmd.Parameters.Add(
+                "@JobWorkerID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)request.JobWorkerID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@JobWorkerName",
+                SqlDbType.NVarChar,
+                200
+            ).Value =
+                DbString(request.JobWorkerName);
+
+            cmd.Parameters.Add(
+                "@PanaRepeat",
+                SqlDbType.Decimal
+            ).Value =
+                request.PanaRepeat;
+
+            cmd.Parameters.Add(
+                "@JobRate",
+                SqlDbType.Decimal
+            ).Value =
+                request.JobRate;
+
+            cmd.Parameters.Add(
+                "@Traders",
+                SqlDbType.NVarChar,
+                200
+            ).Value =
+                DbString(request.Traders);
+
+            cmd.Parameters.Add(
+                "@TotalPcs",
+                SqlDbType.Decimal
+            ).Value =
+                totalPcs;
+
+            cmd.Parameters.Add(
+                "@TotalProductionPcs",
+                SqlDbType.Decimal
+            ).Value =
+                totalProductionPcs;
+
+            cmd.Parameters.Add(
+                "@TotalPendingPcs",
+                SqlDbType.Decimal
+            ).Value =
+                totalPendingPcs;
+
+            cmd.Parameters.Add(
+                "@TotalAmount",
+                SqlDbType.Decimal
+            ).Value =
+                totalAmount;
+
+            cmd.Parameters.Add(
+                "@Status",
+                SqlDbType.TinyInt
+            ).Value =
+                totalPendingPcs <= 0m
+                    ? 2
+                    : 1;
+
+            /*
+             * IMPORTANT:
+             * Do NOT use request.CompanyId here.
+             */
+            cmd.Parameters.Add(
+                "@CompanyId",
+                SqlDbType.BigInt
+            ).Value =
+                (object)currentCompanyId ??
+                DBNull.Value;
+
+            /*
+             * IMPORTANT:
+             * Do NOT use request.UserAccountId here.
+             */
+            cmd.Parameters.Add(
+                "@UserAccountId",
+                SqlDbType.BigInt
+            ).Value =
+                (object)currentUserAccountId ??
+                DBNull.Value;
+        }
+        /*
+         * ================================================================
+         * DETAIL PARAMETERS
+         * ================================================================
+         */
+        private static void AddDetailParameters(SqlCommand cmd, ProductionOrderDetailRequest d, long productionOrderID, ProductionOrderRequest request, long? currentCompanyId, long? currentUserAccountId)
+        {
+            cmd.Parameters.Add(
+                "@ProductionOrderID",
+                SqlDbType.BigInt
+            ).Value =
+                productionOrderID;
+
+            /*
+             * This has already been resolved from
+             * SalesOrderDetails.DetailID before this method.
+             */
+            cmd.Parameters.Add(
+                "@SalesOrderID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.SalesOrderID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@SalesOrderDetailID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.SalesOrderDetailID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@SubDetailID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.SubDetailID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@SalesOrderNo",
+                SqlDbType.NVarChar,
+                50
+            ).Value =
+                DbString(d.SalesOrderNo);
+
+            cmd.Parameters.Add(
+                "@OrderDate",
+                SqlDbType.Date
+            ).Value =
+                ToDbDate(d.OrderDate);
+
+            /*
+             * PartyID has already been resolved from SaleOrder
+             * using SalesOrderID.
+             */
+            cmd.Parameters.Add(
+                "@PartyID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.PartyID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@PartyName",
+                SqlDbType.NVarChar,
+                300
+            ).Value =
+                DbString(d.PartyName);
+
+            cmd.Parameters.Add(
+                "@SlipNo",
+                SqlDbType.NVarChar,
+                50
+            ).Value =
+                DbString(d.SlipNo);
+
+            cmd.Parameters.Add(
+                "@Barcode",
+                SqlDbType.NVarChar,
+                100
+            ).Value =
+                DbString(d.Barcode);
+
+            /*
+             * DesignEntryFormID is retained from frontend/source data.
+             * It is NOT guessed from DesignID.
+             */
+            cmd.Parameters.Add(
+                "@DesignEntryFormID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.DesignEntryFormID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@DesignNo",
+                SqlDbType.NVarChar,
+                100
+            ).Value =
+                DbString(d.DesignNo);
+
+            /*
+             * ColourMatchingID is resolved from
+             * SalesOrderDetails.DesignColorMatchingID when missing.
+             */
+            cmd.Parameters.Add(
+                "@ColourMatchingID",
+                SqlDbType.BigInt
+            ).Value =
+                (object)d.ColourMatchingID ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@ColourMatchingName",
+                SqlDbType.NVarChar,
+                300
+            ).Value =
+                DbString(d.ColourMatchingName);
+
+            cmd.Parameters.Add(
+                "@WarpQuality",
+                SqlDbType.NVarChar,
+                1000
+            ).Value =
+                DbString(d.WarpQuality);
+
+            cmd.Parameters.Add(
+                "@WeftQuality",
+                SqlDbType.NVarChar,
+                1000
+            ).Value =
+                DbString(d.WeftQuality);
+
+            cmd.Parameters.Add(
+                "@PCS",
+                SqlDbType.Decimal
+            ).Value =
+                d.PCS;
+
+            cmd.Parameters.Add(
+                "@ProductionPCS",
+                SqlDbType.Decimal
+            ).Value =
+                d.ProductionPCS;
+
+            cmd.Parameters.Add(
+                "@PendingPCS",
+                SqlDbType.Decimal
+            ).Value =
+                d.PendingPCS;
+
+            cmd.Parameters.Add(
+                "@SalesRate",
+                SqlDbType.Decimal
+            ).Value =
+                d.SalesRate;
+
+            cmd.Parameters.Add(
+                "@JobRate",
+                SqlDbType.Decimal
+            ).Value =
+                request.JobRate;
+
+            cmd.Parameters.Add(
+                "@Amount",
+                SqlDbType.Decimal
+            ).Value =
+                d.Amount;
+
+            /*
+             * ALWAYS use current/default values.
+             */
+            cmd.Parameters.Add(
+                "@CompanyId",
+                SqlDbType.BigInt
+            ).Value =
+                (object)currentCompanyId ??
+                DBNull.Value;
+
+            cmd.Parameters.Add(
+                "@UserAccountId",
+                SqlDbType.BigInt
+            ).Value =
+                (object)currentUserAccountId ??
+                DBNull.Value;
+        }
+        /*
+         * ================================================================
+         * STRING / DATE HELPERS
+         * ================================================================
+         */
+        private static object DbString(string value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? (object)DBNull.Value
+                : value.Trim();
+        }
+        private static object ToDbDate(string value)
+        {
+            DateTime date;
+
+            return TryParseDate(
+                value,
+                out date
+            )
+                ? (object)date.Date
+                : DBNull.Value;
+        }
+        private static bool TryParseDate(string value, out DateTime date)
+        {
+            string[] formats =
+            {
+            "yyyy-MM-dd",
+            "dd/MM/yyyy",
+            "MM/dd/yyyy",
+            "dd-MM-yyyy",
+            "MM-dd-yyyy",
+            "yyyy/MM/dd"
+        };
+
+            return DateTime.TryParseExact(
+                       (value ?? "").Trim(),
+                       formats,
+                       CultureInfo.InvariantCulture,
+                       DateTimeStyles.None,
+                       out date
+                   )
+                   ||
+                   DateTime.TryParse(
+                       (value ?? "").Trim(),
+                       CultureInfo.InvariantCulture,
+                       DateTimeStyles.None,
+                       out date
+                   );
+        }
+        /*
+         * ================================================================
+         * NEXT PRODUCTION ORDER NO
+         * ================================================================
+         */
+        private static string GetNextProductionOrderNo(SqlConnection con, SqlTransaction tran)
+        {
+            const string sql = @"
+                    SELECT ISNULL(
+                        MAX(
+                            TRY_CONVERT(
+                                INT,
+                                CASE
+                                    WHEN ProductionOrderNo LIKE 'PO%'
+                                    THEN SUBSTRING(
+                                        ProductionOrderNo,
+                                        3,
+                                        20
+                                    )
+                                    ELSE NULL
+                                END
+                            )
+                        ),
+                        0
+                    ) + 1
+                    FROM ProductionOrderMaster;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(
+                       sql,
+                       con,
+                       tran))
+            {
+                int next =
+                    Convert.ToInt32(
+                        cmd.ExecuteScalar()
+                    );
+
+                return "PO" +
+                       next.ToString("0000");
+            }
+        }
+        /*
+         * ================================================================
+         * FIND EXISTING DETAIL IN SAME PRODUCTION ORDER
+         * ================================================================
+         */
+        private static long GetExistingProductionOrderDetailID(
+            SqlConnection con,
+            SqlTransaction tran,
+            long productionOrderID,
+            long salesOrderDetailID,
+            long? subDetailID = null,
+            long? colourMatchingID = null)
+        {
+            const string sql = @"
+SELECT TOP 1 ProductionOrderDetailID
+FROM ProductionOrderDetail
+WHERE ProductionOrderID = @ProductionOrderID
+  AND SalesOrderDetailID = @SalesOrderDetailID
+  AND (@SubDetailID IS NULL OR @SubDetailID <= 0 OR ISNULL(SubDetailID, 0) = @SubDetailID)
+  AND (@ColourMatchingID IS NULL OR @ColourMatchingID <= 0 OR ISNULL(ColourMatchingID, 0) = @ColourMatchingID)
+  AND IsActive = 1
+ORDER BY ProductionOrderDetailID ASC;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(sql, con, tran))
+            {
+                cmd.Parameters.Add(
+                    "@ProductionOrderID",
+                    SqlDbType.BigInt
+                ).Value = productionOrderID;
+
+                cmd.Parameters.Add(
+                    "@SalesOrderDetailID",
+                    SqlDbType.BigInt
+                ).Value = salesOrderDetailID;
+
+                cmd.Parameters.Add(
+                    "@SubDetailID",
+                    SqlDbType.BigInt
+                ).Value = (object)subDetailID ?? DBNull.Value;
+
+                cmd.Parameters.Add(
+                    "@ColourMatchingID",
+                    SqlDbType.BigInt
+                ).Value = (object)colourMatchingID ?? DBNull.Value;
+
+                object value =
+                    cmd.ExecuteScalar();
+
+                if (value != null &&
+                    value != DBNull.Value)
+                {
+                    return Convert.ToInt64(value);
+                }
+            }
+
+            return 0;
+        }
+
+        private static long GetProductionOrderDetailIDByCompanyAndSlipNo(
+            SqlConnection con,
+            SqlTransaction tran,
+            long companyId,
+            string slipNo)
+        {
+            if (string.IsNullOrWhiteSpace(slipNo)) return 0;
+
+            const string sql = @"
+SELECT TOP 1 ProductionOrderDetailID
+FROM ProductionOrderDetail
+WHERE CompanyId = @CompanyId
+  AND SlipNo = @SlipNo;";
+
+            using (SqlCommand cmd = new SqlCommand(sql, con, tran))
+            {
+                cmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = companyId;
+                cmd.Parameters.Add("@SlipNo", SqlDbType.VarChar).Value = slipNo.Trim();
+
+                object val = cmd.ExecuteScalar();
+                if (val != null && val != DBNull.Value)
+                {
+                    return Convert.ToInt64(val);
+                }
+            }
+
+            return 0;
+        }
+
+        /*
+         * ================================================================
+         * GET EXISTING SLIP NO
+         * ================================================================
+         */
+        private static string GetExistingSlipNo(
+            SqlConnection con,
+            SqlTransaction tran,
+            long productionOrderDetailID,
+            long productionOrderID)
+        {
+            const string sql = @"
+SELECT TOP 1 SlipNo
+FROM ProductionOrderDetail
+WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(sql, con, tran))
+            {
+                cmd.Parameters.Add(
+                    "@ProductionOrderDetailID",
+                    SqlDbType.BigInt
+                ).Value = productionOrderDetailID;
+
+                object value =
+                    cmd.ExecuteScalar();
+
+                if (value != null &&
+                    value != DBNull.Value)
+                {
+                    return value.ToString().Trim();
+                }
+            }
+
+            return null;
+        }
+
+        /*
+         * ================================================================
+         * GET REMAINING PENDING PCS FOR SLIP / SUBDETAIL
+         * ================================================================
+         */
+        private static decimal GetRemainingPendingPcsForSlip(
+            SqlConnection con,
+            SqlTransaction tran,
+            long? subDetailID,
+            long? salesOrderDetailID,
+            string slipNo,
+            long? companyId,
+            long productionOrderID = 0)
+        {
+            try
+            {
+                const string sql = @"
+SELECT 
+    CASE 
+        WHEN @SubDetailID IS NOT NULL AND @SubDetailID > 0 THEN
+            ISNULL(sods.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0)
+        ELSE
+            ISNULL(sod.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0)
+    END AS RemainingPendingPcs
+FROM SaleOrderDetails sod
+LEFT JOIN SaleOrderSubDetails sods ON (sods.SubDetailID = @SubDetailID)
+LEFT JOIN (
+    SELECT 
+        ISNULL(pod.SubDetailID, 0) AS SubDetailID,
+        pod.SalesOrderDetailID,
+        ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs
+    FROM ProductionOrderDetail pod
+    INNER JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
+    WHERE ISNULL(pod.IsActive, 1) = 1 AND ISNULL(pom.IsActive, 1) = 1
+      AND (@ProductionOrderID <= 0 OR pod.ProductionOrderID <> @ProductionOrderID)
+    GROUP BY pod.SubDetailID, pod.SalesOrderDetailID
+) prodSum ON (@SubDetailID IS NOT NULL AND @SubDetailID > 0 AND prodSum.SubDetailID = @SubDetailID)
+    OR ((@SubDetailID IS NULL OR @SubDetailID <= 0) AND prodSum.SalesOrderDetailID = sod.DetailID)
+WHERE (@SubDetailID IS NOT NULL AND @SubDetailID > 0 AND sods.SubDetailID = @SubDetailID)
+   OR ((@SubDetailID IS NULL OR @SubDetailID <= 0) AND sod.DetailID = @SalesOrderDetailID);";
+
+                using (SqlCommand cmd = new SqlCommand(sql, con, tran))
+                {
+                    cmd.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = (object)subDetailID ?? DBNull.Value;
+                    cmd.Parameters.Add("@SalesOrderDetailID", SqlDbType.BigInt).Value = (object)salesOrderDetailID ?? DBNull.Value;
+                    cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = productionOrderID;
+
+                    object value = cmd.ExecuteScalar();
+                    if (value != null && value != DBNull.Value)
+                    {
+                        return Convert.ToDecimal(value);
+                    }
+                }
+            }
+            catch
+            {
+                return 999999;
+            }
+
+            return 999999;
+        }
+
+        private static string GetExistingBarcode(SqlConnection con, SqlTransaction tran, long productionOrderDetailID, long productionOrderID)
+        {
+            const string sql = @"
+SELECT TOP 1 Barcode
+FROM ProductionOrderDetail
+WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
+
+            using (SqlCommand cmd =
+                   new SqlCommand(sql, con, tran))
+            {
+                cmd.Parameters.Add(
+                    "@ProductionOrderDetailID",
+                    SqlDbType.BigInt
+                ).Value = productionOrderDetailID;
+
+                object value = cmd.ExecuteScalar();
+
+                if (value != null &&
+                    value != DBNull.Value)
+                {
+                    return value.ToString().Trim();
+                }
+            }
+
+            return null;
+        }
+
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ProductionOrderNoResponse GetNextProductionOrderNo()
+        {
+            var result = new ProductionOrderNoResponse();
+
+            string connectionString =
+                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                const string sql = @"
+            SELECT ISNULL(MAX(ProductionOrderID), 0) + 1
+            FROM ProductionOrderMaster;";
+
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    long nextID = Convert.ToInt64(cmd.ExecuteScalar());
+
+                    result.Success = true;
+                    result.ProductionOrderID = nextID;
+                    result.ProductionOrderNo =
+                        "PO" + nextID.ToString("0000");
+                }
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public List<object> jobproductionorderList()
+        {
+            var list = new List<object>();
+            string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                string sql = @"
+                    SELECT 
+                        POD.ProductionOrderDetailID,
+                        POD.ProductionOrderID,
+                        ISNULL(POM.ProductionOrderNo, '') AS ProductionOrderNo,
+                        CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) AS OrderDate,
+                        ISNULL(POD.PartyName, ISNULL(POM.Traders, '')) AS PartyName,
+                        ISNULL(POD.SalesOrderNo, '') AS SalesOrderNo,
+                        ISNULL(POD.SlipNo, '') AS SlipNo,
+                        ISNULL(POD.DesignNo, '') AS DesignNo,
+                        ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
+                        ISNULL(POD.ProductionPCS, POD.PCS) AS PCS,
+                        ISNULL(POD.JobRate, ISNULL(POM.JobRate, 0)) AS JobRate,
+                        ISNULL(POM.PanaRepeat, 0) AS Repeat,
+                        ISNULL(POM.JobWorkerName, '') AS JobWorkerName,
+                        ISNULL(POD.Barcode, '') AS Barcode,
+                        ISNULL(POD.WarpQuality, '') AS WarpQuality,
+                        ISNULL(POD.WeftQuality, '') AS WeftQuality
+                    FROM ProductionOrderDetail POD
+                    LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                    WHERE ISNULL(POD.IsActive, 1) = 1
+                    ORDER BY POD.ProductionOrderDetailID DESC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            list.Add(new
+                            {
+                                ProductionOrderDetailID = Convert.ToInt64(dr["ProductionOrderDetailID"]),
+                                ProductionOrderID = Convert.ToInt64(dr["ProductionOrderID"]),
+                                ProductionOrderNo = dr["ProductionOrderNo"].ToString(),
+                                OrderDate = dr["OrderDate"].ToString(),
+                                PartyName = dr["PartyName"].ToString(),
+                                SalesOrderNo = dr["SalesOrderNo"].ToString(),
+                                SlipNo = dr["SlipNo"].ToString(),
+                                DesignNo = dr["DesignNo"].ToString(),
+                                ColourMatchingName = dr["ColourMatchingName"].ToString(),
+                                PCS = dr["PCS"] != DBNull.Value ? Convert.ToDecimal(dr["PCS"]) : 0,
+                                JobRate = dr["JobRate"] != DBNull.Value ? Convert.ToDecimal(dr["JobRate"]) : 0,
+                                Repeat = dr["Repeat"] != DBNull.Value ? Convert.ToDecimal(dr["Repeat"]) : 0,
+                                JobWorkerName = dr["JobWorkerName"].ToString(),
+                                Barcode = dr["Barcode"].ToString(),
+                                WarpQuality = dr["WarpQuality"].ToString(),
+                                WeftQuality = dr["WeftQuality"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public string GetPendingOrdersForProductionsleep()
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(connString))
+                {
+                    con.Open();
+
+                    string sql = @"
+;WITH OrderData AS
+(
+    /* =========================================================
+       SALE ORDER DETAIL + SUB DETAIL
+       ========================================================= */
+    SELECT
+        SOD.DesignNo,
+        SOD.DesignColorMatchingID,      
+        SOSD.ColourID,
+        SOSD.ColourName,
+        COALESCE(DCMFM.DesignColorMatchingFormID, SOD.DesignColorMatchingID) AS DesignColorMatchingFormID,
+        COALESCE(DCMFM.DesignEntryFormID, DEFM.DesignEntryFormID) AS DesignEntryFormID
+
+    FROM SaleOrderDetails SOD
+
+    INNER JOIN SaleOrderSubDetails SOSD
+        ON SOSD.DetailID = SOD.DetailID
+
+    LEFT JOIN DesignColorMatchingFormMaster DCMFM
+        ON DCMFM.DesignColorMatchingFormID =
+           SOD.DesignColorMatchingID
+
+    LEFT JOIN DesignEntryFormMaster DEFM
+        ON DEFM.DesignerCode = SOD.DesignNo
+),
+
+QualityData AS
+(
+    /* =========================================================
+       WARP QUALITY
+       ========================================================= */
+    SELECT
+        'WARP QUALITY' AS QualityType,   
+
+        OD.ColourID,
+        OD.ColourName,
+
+        OD.DesignColorMatchingID,
+
+        OD.DesignColorMatchingFormID,
+        OD.DesignEntryFormID,
+
+        COALESCE(DEFM.DesignerCode, OD.DesignNo) AS DesignerCode,
+
+        DCM.MatchingNo,
+
+        'WARP-1' AS Position,
+        0 AS PositionNo,
+
+        YCM.YarnColor,
+        YCM.YarnColorCode,
+
+        YQM.YarnMaterial,
+
+        WQM.WarpQuality,
+
+        CAST(NULL AS VARCHAR(200)) AS DesignSpecification
+
+    FROM OrderData OD
+
+    LEFT JOIN DesignEntryFormMaster DEFM
+        ON DEFM.DesignEntryFormID =
+           OD.DesignEntryFormID
+
+    LEFT JOIN DesignColorMatchingDetails DCM
+        ON DCM.DesignColorMatchingFormID =
+           OD.DesignColorMatchingFormID
+
+    LEFT JOIN WarpQualityMaster WQM
+        ON WQM.WarpQualityID =
+           DEFM.WarpQualityID
+
+    LEFT JOIN YarnColorMaster YCM
+        ON YCM.YarnColorID =
+           DCM.Warp1
+
+    LEFT JOIN DesignFormWarpData DFWD
+        ON DFWD.DesignEntryFormID =
+           DEFM.DesignEntryFormID
+
+    LEFT JOIN YarnMaterialMaster YQM
+        ON YQM.YarnMaterialID =
+           DFWD.YarnQualityMaterialID
+
+    WHERE ISNULL(DEFM.DesignEntryFormID, 0) <> 0 OR ISNULL(DCM.Warp1, 0) <> 0
+
+
+    UNION ALL
+
+
+    /* =========================================================
+       WEFT QUALITY
+       ========================================================= */
+    SELECT
+        'WEFT QUALITY' AS QualityType,
+
+        OD.ColourID,
+        OD.ColourName,
+
+        OD.DesignColorMatchingID,
+
+        OD.DesignColorMatchingFormID,
+        OD.DesignEntryFormID,
+
+        COALESCE(DEFM.DesignerCode, OD.DesignNo) AS DesignerCode,
+
+        DCM.MatchingNo,
+
+        'FEEDER-' + CAST(F.FeederNo AS VARCHAR(10)) AS Position,
+        F.FeederNo AS PositionNo,
+
+        YCM.YarnColor,
+        YCM.YarnColorCode,
+
+        YMM.YarnMaterial,
+
+        CAST(NULL AS VARCHAR(200)) AS WarpQuality,
+
+        DSM.DesignSpecification
+
+    FROM OrderData OD
+
+    LEFT JOIN DesignEntryFormMaster DEFM
+        ON DEFM.DesignEntryFormID =
+           OD.DesignEntryFormID
+
+    LEFT JOIN DesignColorMatchingDetails DCM
+        ON DCM.DesignColorMatchingFormID =
+           OD.DesignColorMatchingFormID
+
+    CROSS APPLY
+    (
+        VALUES
+            (1,  DCM.Feeder1),
+            (2,  DCM.Feeder2),
+            (3,  DCM.Feeder3),
+            (4,  DCM.Feeder4),
+            (5,  DCM.Feeder5),
+            (6,  DCM.Feeder6),
+            (7,  DCM.Feeder7),
+            (8,  DCM.Feeder8),
+            (9,  DCM.Feeder9),
+            (10, DCM.Feeder10),
+            (11, DCM.Feeder11),
+            (12, DCM.Feeder12),
+            (13, DCM.Feeder13),
+            (14, DCM.Feeder14),
+            (15, DCM.Feeder15),
+            (16, DCM.Feeder16),
+            (17, DCM.Feeder17),
+            (18, DCM.Feeder18),
+            (19, DCM.Feeder19),
+            (20, DCM.Feeder20),
+            (21, DCM.Feeder21),
+            (22, DCM.Feeder22),
+            (23, DCM.Feeder23),
+            (24, DCM.Feeder24),
+            (25, DCM.Feeder25),
+            (26, DCM.Feeder26),
+            (27, DCM.Feeder27),
+            (28, DCM.Feeder28),
+            (29, DCM.Feeder29),
+            (30, DCM.Feeder30)
+    ) F(FeederNo, YarnColorID)
+
+    LEFT JOIN YarnColorMaster YCM
+        ON YCM.YarnColorID =
+           F.YarnColorID
+
+    LEFT JOIN
+    (
+        SELECT
+            DEWD.*,
+
+            ROW_NUMBER() OVER
+            (
+                PARTITION BY DEWD.DesignEntryFormID
+                ORDER BY DEWD.DesignEntryWeftID
+            ) AS WeftNo
+
+        FROM DesignEntryWeftData DEWD
+    ) DEWD
+        ON DEWD.DesignEntryFormID =
+           DEFM.DesignEntryFormID
+
+       AND DEWD.WeftNo =
+           F.FeederNo
+
+    LEFT JOIN YarnMaterialMaster YMM
+        ON YMM.YarnMaterialID =
+           DEWD.YarnMaterialID
+
+    LEFT JOIN DesignSpecificationMaster DSM
+        ON DSM.DesignSpecificationID =
+           DEWD.DesignSpecificationID
+
+    WHERE ISNULL(DEFM.DesignEntryFormID, 0) <> 0 OR ISNULL(F.YarnColorID, 0) <> 0
+)
+
+
+/* =============================================================
+   FINAL RESULT
+   ============================================================= */
+
+SELECT
+    QualityType,
+
+    ColourID,
+    ColourName,
+
+    DesignColorMatchingID,
+    DesignColorMatchingFormID,
+    DesignEntryFormID,
+
+    DesignerCode,
+
+    MatchingNo,
+
+    Position,
+    PositionNo,
+
+    YarnColor,
+    YarnColorCode,
+
+    YarnMaterial,
+
+    WarpQuality,
+
+    DesignSpecification
+
+FROM QualityData
+
+ORDER BY
+    MatchingNo,
+    CASE
+        WHEN QualityType = 'WARP QUALITY' THEN 0
+        ELSE 1
+    END,
+    PositionNo;
+";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, con))
+                    {
+                        cmd.CommandTimeout = 120;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            da.Fill(dt);
+                        }
+                    }
+
+                    List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        Dictionary<string, object> row = new Dictionary<string, object>();
+                        foreach (DataColumn col in dt.Columns)
+                        {
+                            row[col.ColumnName] = dr[col] == DBNull.Value ? null : dr[col];
+                        }
+                        rows.Add(row);
+                    }
+
+                    return JsonConvert.SerializeObject(rows);
+                }
+            }
+            catch (Exception ex)
+            {
+                return JsonConvert.SerializeObject(new { Success = false, Message = ex.Message, Data = new List<object>() });
+            }
+        }
+        #endregion
     }
 
+
 }
+

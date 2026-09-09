@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -193,19 +193,19 @@
 
                             <!-- Items Details Table -->
                             <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
-                                <h6 class="fw-bold text-primary mb-3">Ordered Items</h6>
+                                <h6 class="fw-bold text-primary mb-3"><i class="fa fa-list-alt me-2"></i>Ordered Items Details</h6>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-sm align-middle" id="viewItemsTable">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>Sr No</th>
+                                                <th class="text-center" style="width: 50px;">Sr No</th>
                                                 <th>Design No</th>
-                                                <th>Type</th>
-                                                <th>Colours & Quantities</th>
-                                                <th>Total Qty</th>
-                                                <th>Unit</th>
-                                                <th>Rate</th>
-                                                <th>Amount</th>
+                                                <th style="width: 90px;">Type</th>
+                                                <th>Colours & Quantities (Hierarchical Breakup)</th>
+                                                <th class="text-end" style="width: 90px;">Total Qty</th>
+                                                <th class="text-center" style="width: 70px;">Unit</th>
+                                                <th class="text-end" style="width: 100px;">Rate</th>
+                                                <th class="text-end" style="width: 110px;">Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -551,7 +551,6 @@
                 } else {
                     addChargesTbody.html(`<tr><td colspan="4" class="text-center text-muted">No additional charges found.</td></tr>`);
                 }
-
                 // 4. Render Items Sub-table & Calculate Dynamic Line Totals
                 let itemTbody = $("#viewItemsTable tbody");
                 itemTbody.empty();
@@ -560,14 +559,23 @@
 
                 if (d.Details && d.Details.length > 0) {
                     d.Details.forEach((item, index) => {
+                        let designIndexStr = String(index + 1).padStart(2, '0');
+                        let designCode = `${d.OrderNo || 'SO'}-${designIndexStr}`;
+
                         let colorBreakdown = "";
                         if (item.SubDetails && item.SubDetails.length > 0) {
-                            colorBreakdown = item.SubDetails.map((sub, sIdx) =>
-                                `${sIdx + 1}. ${sub.ColourName} (${sub.Qty} ${sub.Unit})`
-                            ).join("<br/>");
+                            colorBreakdown = item.SubDetails.map((sub, sIdx) => {
+                                let subIndexStr = String(sIdx + 1).padStart(2, '0');
+                                let slipCode = `${designCode}-${subIndexStr}`;
+                                return `<div class="d-flex align-items-center justify-content-between py-1 border-bottom border-light">
+                                    <span class="badge bg-light text-dark border me-2" style="font-family: monospace;"><i class="fa fa-tag me-1 text-primary"></i>${slipCode}</span>
+                                    <span class="fw-semibold text-secondary me-2">${sub.ColourName}</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">${sub.Qty} ${sub.Unit || item.Unit || 'PCS'}</span>
+                                </div>`;
+                            }).join("");
                         }
 
-                        let saleRate = parseFloat(item.Rate || 0);
+                        let saleRate = parseFloat(item.BrokerRate || item.Rate || 0);
                         let chargeValue = parseFloat(item.ChargeValue || item.chargeValue || totalAdditionalChargeValue);
 
                         // Formula: SaleRate + ChargeValue = Rate
@@ -581,21 +589,22 @@
 
                         let row = `
                         <tr>
-                            <td>${index + 1}</td>
+                            <td class="text-center fw-bold">${index + 1}</td>
                             <td>
-                                <div class="fw-bold text-dark">${item.DesignName || item.DesignNo || '--'}</div>
+                                <div class="fw-bold text-dark fs-6">${item.DesignName || item.DesignNo || '--'}</div>
+                                <small class="text-muted" style="font-family: monospace;"><i class="fa fa-sitemap me-1 text-info"></i>${designCode}</small>
                             </td>
-                            <td>${item.Type || '--'}</td>
-                            <td><small>${colorBreakdown || 'No colors specified'}</small></td>
-                            <td>${qty}</td>
-                            <td>${item.Unit || 'PCS'}</td>
-                            <td>${calculatedRate.toFixed(2)}</td>
-                            <td>${calculatedAmount.toFixed(2)}</td>
+                            <td><span class="badge bg-light text-dark border">${item.Type || '--'}</span></td>
+                            <td>${colorBreakdown || '<span class="text-muted small">No colors specified</span>'}</td>
+                            <td class="text-end fw-bold">${qty}</td>
+                            <td class="text-center">${item.Unit || 'PCS'}</td>
+                            <td class="text-end fw-semibold">₹ ${calculatedRate.toFixed(2)}</td>
+                            <td class="text-end fw-bold text-success">₹ ${calculatedAmount.toFixed(2)}</td>
                         </tr>`;
                         itemTbody.append(row);
                     });
                 } else {
-                    itemTbody.html(`<tr><td colspan="8" class="text-center text-muted">No line items found.</td></tr>`);
+                    itemTbody.html(`<tr><td colspan="8" class="text-center text-muted py-3">No line items found.</td></tr>`);
                 }
                 // 2. Compute and Fill Totals Summary Fields using Percentage-based calculations
                 let finalTotalAmount = calculatedSubTotalAmount; // e.g., 9840.00

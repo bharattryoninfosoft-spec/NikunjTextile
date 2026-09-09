@@ -171,8 +171,7 @@
                 dataType: 'json',
 
                 success: function (response) {
-                    var menus = response.d;
-                    console.log("GetDynamicMenu", menus);
+                    var menus = response.d;                  
                     // CLEAR OLD STORAGE
                     deleteCookie("PagePermission");
                     $("#dynamicMenuTabs").find(".nav-link").remove();

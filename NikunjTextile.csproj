@@ -9165,6 +9165,7 @@
     <Compile Include="Class\GstSlabMasterResponse.cs" />
     <Compile Include="Class\ItemMasterModel.cs" />
     <Compile Include="Class\JobberInward.cs" />
+    <Compile Include="Class\JobberMasterClass.cs" />
     <Compile Include="Class\JobberViewModel.cs" />
     <Compile Include="Class\LocationMaster.cs" />
     <Compile Include="Class\LocationMasterResponse.cs" />
@@ -9176,6 +9177,7 @@
     <Compile Include="Class\PartyMaster.cs" />
     <Compile Include="Class\PartyMasterResponse.cs" />
     <Compile Include="Class\PermissionModel.cs" />
+    <Compile Include="Class\ProductionOrderRequest.cs" />
     <Compile Include="Class\SaleOrderEntry.cs" />
     <Compile Include="Class\SketcherMaster.cs" />
     <Compile Include="Class\SketcherMasterResponse.cs" />
@@ -9225,6 +9227,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>PurchaseOrderReport.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Reports\ProductionOrderReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ProductionOrderReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Reports\SaleBillImageWise.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -9259,6 +9267,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SaleorderReportNEW.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\WEAVELANE PRODUCTION SLIP.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WEAVELANE PRODUCTION SLIP.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SaleOrderAdditionalCharges.Designer.cs">
@@ -10704,6 +10718,7 @@
     <Content Include="SaleOrderMaster.xss">
       <DependentUpon>SaleOrderMaster.xsd</DependentUpon>
     </Content>
+    <Content Include="ProductionOrderList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -10736,6 +10751,7 @@
     <Folder Include="GeneratedPDF\" />
     <Folder Include="UploadedVideos\" />
     <Folder Include="UserProfile\" />
+    <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
@@ -10749,6 +10765,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\CrystalReport2.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\ProductionOrderReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>ProductionOrderReport.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\SaleBillImageWise.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
@@ -10777,6 +10797,10 @@
     <EmbeddedResource Include="Reports\SaleorderReportNEW.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>SaleorderReportNEW.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\WEAVELANE PRODUCTION SLIP.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>WEAVELANE PRODUCTION SLIP.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -642,6 +642,7 @@
                 success: function (response) {
                     if (response.listGodownMaster && response.listGodownMaster.length > 0) {
                         var master = response.listGodownMaster[0];
+                        console.log("getGodownMasterById", master);
                         $("#GodownTitle").val(master.GodownTitle);
                         $("#GodownAddress").val(master.GodownAddress);
                         $("#GSTNumber").val(master.GSTIN);

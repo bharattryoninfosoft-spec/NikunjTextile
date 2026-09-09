@@ -3071,8 +3071,9 @@
                 const unitId = $("#UnitRow").val();
                 const unit = $("#UnitRow option:selected").text().trim();
 
-                const colorGroupId = $("#ddlColourGroup").val();
-                const colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+                // 🔥 Modified: Color Group is now optional (fallback to empty string if not selected)
+                const colorGroupId = $("#ddlColourGroup").val() || "";
+                const colorGroupName = colorGroupId && colorGroupId !== "-1" ? $("#ddlColourGroup option:selected").text().trim() : "";
 
                 const markup = parseFloat($("#Markup").val()) || 0;
                 const designRemark = $("#DesignSelectionRemark").val() || "";
@@ -3087,8 +3088,9 @@
                 if (!designId || designId == "-1")
                     return Swal.fire("Error", "Select Design", "error");
 
-                if (!colorGroupId || colorGroupId == "-1")
-                    return Swal.fire("Error", "Select Color Group", "error");
+                // ❌ Removed mandatory check for Color Group here:
+                // if (!colorGroupId || colorGroupId == "-1")
+                //     return Swal.fire("Error", "Select Color Group", "error");
 
                 let uniqueMap = {};
 

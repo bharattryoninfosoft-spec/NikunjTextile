@@ -1,0 +1,894 @@
+@{ Layout = "/_LayoutPage1.cshtml"; }
+
+<style>
+    .production-list-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-list-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+    }
+
+    .production-list-filter {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 10px 12px;
+    }
+
+        .production-list-filter .form-group {
+            margin-bottom: 6px;
+        }
+
+        .production-list-filter label {
+            display: block;
+            color: #164f87;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .production-list-filter .form-control,
+        .production-list-filter select {
+            height: 31px !important;
+            min-height: 31px !important;
+            padding: 4px 8px !important;
+            font-size: 12px !important;
+            border: 1px solid #c7cdd4 !important;
+            border-radius: 2px !important;
+            box-shadow: none !important;
+        }
+
+        .production-list-filter .btn {
+            height: 31px;
+            min-width: 82px;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 2px;
+        }
+
+    .production-list-table-scroll {
+        width: 100%;
+        max-height: 570px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+    }
+
+    #tblProductionOrderList {
+        width: 100% !important;
+        min-width: 1180px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+        #tblProductionOrderList th,
+        #tblProductionOrderList td {
+            border: 1px solid #c9cfd6 !important;
+            padding: 4px 6px !important;
+            height: 30px !important;
+            line-height: 20px !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #tblProductionOrderList thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #e4eef9 !important;
+            color: #202020 !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            height: 34px !important;
+            border: 1px solid #aeb9c6 !important;
+        }
+
+        #tblProductionOrderList th:nth-child(1),
+        #tblProductionOrderList td:nth-child(1) {
+            width: 38px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList th:nth-child(2),
+        #tblProductionOrderList td:nth-child(2) {
+            width: 48px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList th:nth-child(3),
+        #tblProductionOrderList td:nth-child(3) {
+            width: 110px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList th:nth-child(4),
+        #tblProductionOrderList td:nth-child(4) {
+            width: 115px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList th:nth-child(5),
+        #tblProductionOrderList td:nth-child(5) {
+            width: 210px !important;
+            text-align: left !important;
+        }
+
+        #tblProductionOrderList th:nth-child(6),
+        #tblProductionOrderList td:nth-child(6) {
+            width: 90px !important;
+            text-align: right !important;
+        }
+
+        #tblProductionOrderList th:nth-child(7),
+        #tblProductionOrderList td:nth-child(7) {
+            width: 120px !important;
+            text-align: right !important;
+        }
+
+        #tblProductionOrderList th:nth-child(8),
+        #tblProductionOrderList td:nth-child(8) {
+            width: 115px !important;
+            text-align: right !important;
+        }
+
+        #tblProductionOrderList th:nth-child(9),
+        #tblProductionOrderList td:nth-child(9) {
+            width: 115px !important;
+            text-align: right !important;
+        }
+
+        #tblProductionOrderList th:nth-child(10),
+        #tblProductionOrderList td:nth-child(10) {
+            width: 115px !important;
+            text-align: right !important;
+        }
+
+        #tblProductionOrderList th:nth-child(11),
+        #tblProductionOrderList td:nth-child(11) {
+            width: 105px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList th:nth-child(12),
+        #tblProductionOrderList td:nth-child(12) {
+            width: 145px !important;
+            text-align: center !important;
+        }
+
+        #tblProductionOrderList tbody tr:hover td {
+            background: #f7f9fb !important;
+        }
+
+        #tblProductionOrderList tbody td {
+            color: #30343b;
+            background: #fff;
+        }
+
+    .po-number {
+        font-weight: 700;
+        color: #164f87;
+    }
+
+    .po-pending {
+        color: #d93025 !important;
+        font-weight: 700;
+    }
+
+    .po-complete {
+        color: #198754 !important;
+        font-weight: 700;
+    }
+
+    .po-status {
+        display: inline-block;
+        min-width: 78px;
+        padding: 3px 7px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .po-status.pending {
+            background: #fff1f0;
+            color: #d93025;
+            border: 1px solid #f3b7b2;
+        }
+
+        .po-status.complete {
+            background: #eef9f1;
+            color: #198754;
+            border: 1px solid #b8dfc2;
+        }
+
+        .po-status.cancelled {
+            background: #f2f2f2;
+            color: #666;
+            border: 1px solid #d2d2d2;
+        }
+
+    .po-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 27px;
+        margin: 0 2px;
+        border: 1px solid #b9c2cc;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: 12px;
+        text-decoration: none !important;
+    }
+
+        .po-action:hover {
+            background: #eef5fb;
+            color: #164f87;
+        }
+
+        .po-action.delete:hover {
+            background: #fff1f0;
+            color: #d93025;
+        }
+
+    .production-list-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .production-list-total {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .production-list-pagination {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+        .production-list-pagination button {
+            min-width: 30px;
+            height: 28px;
+            padding: 2px 7px;
+            border: 1px solid #c4cbd3;
+            background: #fff;
+            color: #333;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+
+            .production-list-pagination button.active {
+                background: #e4eef9;
+                border-color: #9eb8d2;
+                font-weight: 700;
+            }
+
+            .production-list-pagination button:disabled {
+                opacity: .45;
+                cursor: not-allowed;
+            }
+
+    .production-list-empty {
+        text-align: center !important;
+        color: #777 !important;
+        padding: 22px !important;
+        font-weight: 600;
+    }
+
+    .production-list-loading {
+        text-align: center !important;
+        padding: 25px !important;
+        color: #666 !important;
+    }
+
+    .production-list-error {
+        display: none;
+        margin: 8px 0 0;
+        padding: 8px 10px;
+        border: 1px solid #f1b7b3;
+        background: #fff4f3;
+        color: #b42318;
+        font-size: 12px;
+        border-radius: 2px;
+    }
+
+    @@media (max-width: 768px) {
+        .production-list-filter .row > div {
+            margin-bottom: 5px;
+        }
+
+        .production-list-footer {
+            flex-direction: column;
+            gap: 7px;
+            align-items: stretch;
+        }
+
+        .production-list-pagination {
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="production-page production-list-page">
+
+    <div class="production-list-header">
+        Production Order List
+    </div>
+
+    <div class="production-list-filter">
+        <div class="row">
+            <div class="col-md-2 col-sm-4 col-xs-12">
+                <div class="form-group">
+                    <label>Production Order No</label>
+                    <input type="text"
+                           id="filterProductionOrderNo"
+                           class="form-control"
+                           placeholder="Order No" />
+                </div>
+            </div>
+
+            <div class="col-md-2 col-sm-4 col-xs-12">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date"
+                           id="filterFromDate"
+                           class="form-control" />
+                </div>
+            </div>
+
+            <div class="col-md-2 col-sm-4 col-xs-12">
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date"
+                           id="filterToDate"
+                           class="form-control" />
+                </div>
+            </div>
+
+            <div class="col-md-2 col-sm-4 col-xs-12">
+                <div class="form-group">
+                    <label>Job Worker</label>
+                    <select id="filterJobWorker" class="form-control">
+                        <option value="">-- ALL --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-1 col-sm-4 col-xs-12">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">-- ALL --</option>
+                        <option value="1">Pending</option>
+                        <option value="2">Completed</option>
+                        <option value="0">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-8 col-xs-12">
+                <div class="form-group" style="padding-top:20px; display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
+                    <button type="button"
+                            id="btnSearchProductionOrder"
+                            class="btn btn-primary"
+                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600;">
+                        <i class="fa fa-search me-1"></i> Search
+                    </button>
+
+                    <button type="button"
+                            id="btnResetProductionOrder"
+                            class="btn btn-default"
+                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600; background:#f1f5f9; border:1px solid #cbd5e1;">
+                        <i class="fa fa-refresh me-1"></i> Reset
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            id="btnGeneratePDF"
+                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600;">
+                        <span id="btnText">
+                            <i class="fa fa-print me-1"></i> Print / PDF
+                        </span>
+                        <span id="btnLoader" style="display:none;">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="productionListError" class="production-list-error"></div>
+    </div>
+
+    <div style="margin-top:10px;">
+        <div class="production-list-table-scroll">
+            <table id="tblProductionOrderList">
+                <thead>
+                    <tr>
+                        <th><input id="selectAllPO" type="checkbox" /></th>
+                        <th>SR NO</th>
+                        <th>PRODUCTION ORDER NO</th>
+                        <th>ORDER DATE</th>
+                        <th>JOB WORKER</th>
+                        <th>JOB RATE</th>
+                        <th>TOTAL PCS</th>
+                        <th>PRODUCTION PCS</th>
+                        <th>PENDING PCS</th>
+                        <th>TOTAL AMOUNT</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tblProductionOrderListBody">
+                    <tr>
+                        <td colspan="12" class="production-list-loading">
+                            Loading...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="production-list-footer">
+            <div class="production-list-total">
+                Total Records:
+                <span id="lblProductionOrderCount">0</span>
+            </div>
+
+            <div class="production-list-pagination">
+                <button type="button" id="btnFirstPage" title="First">&laquo;</button>
+                <button type="button" id="btnPrevPage" title="Previous">&lsaquo;</button>
+                <span id="productionPageButtons"></span>
+                <button type="button" id="btnNextPage" title="Next">&rsaquo;</button>
+                <button type="button" id="btnLastPage" title="Last">&raquo;</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $('body').addClass('fullscreen');
+        var productionOrderListData = [];
+        var productionOrderFilteredData = [];
+        var productionOrderCurrentPage = 1;
+        var productionOrderPageSize = 20;
+
+        var productionOrderEditUrl = '/ProductionSleep';
+        var productionOrderViewUrl = '/ProductionSleep';
+
+        function safeText(value) {
+            if (value === null || value === undefined) {
+                return '';
+            }
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function normalize(value) {
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+        }
+
+        function numberValue(value) {
+            var n = parseFloat(value);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function formatNumber(value) {
+            var n = numberValue(value);
+            return n.toLocaleString('en-IN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatAmount(value) {
+            var n = numberValue(value);
+            return n.toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatDate(value) {
+            if (!value) return '';
+            var text = String(value);
+            var match = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(text);
+            if (match) {
+                var d1 = new Date(parseInt(match[1], 10));
+                if (!isNaN(d1.getTime())) {
+                    return ('0' + d1.getDate()).slice(-2) + '/' +
+                        ('0' + (d1.getMonth() + 1)).slice(-2) + '/' +
+                        d1.getFullYear();
+                }
+            }
+            if (/^\d{4}-\d{2}-\d{2}/.test(text)) {
+                var isoPart = text.substring(0, 10).split('-');
+                return isoPart[2] + '/' + isoPart[1] + '/' + isoPart[0];
+            }
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text;
+            if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
+                var p = text.split('-');
+                return p[0] + '/' + p[1] + '/' + p[2];
+            }
+            var d = new Date(text);
+            if (!isNaN(d.getTime())) {
+                return ('0' + d.getDate()).slice(-2) + '/' +
+                    ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
+                    d.getFullYear();
+            }
+            return text;
+        }
+
+        function dateOnly(value) {
+            if (!value) return '';
+            var text = String(value);
+            var match = /\/Date\((\d+)(?:[+-]\d+)?\)\//.exec(text);
+            if (match) {
+                var d = new Date(parseInt(match[1], 10));
+                return d.getFullYear() + '-' +
+                    ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+                    ('0' + d.getDate()).slice(-2);
+            }
+            if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.substring(0, 10);
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+                var p1 = text.split('/');
+                return p1[2] + '-' + p1[1] + '-' + p1[0];
+            }
+            if (/^\d{2}-\d{2}-\d{4}$/.test(text)) {
+                var p2 = text.split('-');
+                return p2[2] + '-' + p2[1] + '-' + p2[0];
+            }
+            return '';
+        }
+
+        function getField(obj, names) {
+            if (!obj) return '';
+            for (var i = 0; i < names.length; i++) {
+                var name = names[i];
+                if (obj[name] !== undefined && obj[name] !== null && String(obj[name]).trim() !== '') {
+                    return obj[name];
+                }
+            }
+            return '';
+        }
+
+        function showError(message) {
+            var $err = $('#productionListError');
+            if (!message) {
+                $err.hide().text('');
+                return;
+            }
+            $err.text(message).show();
+        }
+
+        function loadJobWorkerDropdown(data) {
+            var $select = $('#filterJobWorker');
+            var currentVal = $select.val();
+            $select.find('option:not(:first)').remove();
+
+            var map = {};
+            $.each(data, function (i, item) {
+                var name = $.trim(getField(item, ['JobWorkerName', 'jobWorkerName', 'PartyName', 'partyName']));
+                if (name && !map[name]) {
+                    map[name] = true;
+                    $select.append($('<option>', { value: name, text: name }));
+                }
+            });
+
+            if (currentVal) {
+                $select.val(currentVal);
+            }
+        }
+
+        function loadProductionOrderList() {
+            showError('');
+            $('#tblProductionOrderListBody').html(
+                '<tr><td colspan="11" class="production-list-loading"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>'
+            );
+
+            $.ajax({
+                type: 'POST',
+                url: 'WebServiceNikunjTextile.asmx/GetProductionOrderList',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: '{}',
+                success: function (res) {
+                    var data = res && res.d !== undefined ? res.d : res;
+                    if (typeof data === 'string') {
+                        try { data = JSON.parse(data); } catch (e) { console.error(e); }
+                    }
+
+                    if (!Array.isArray(data)) {
+                        productionOrderListData = [];
+                    } else {
+                        productionOrderListData = data;
+                    }
+
+                    loadJobWorkerDropdown(productionOrderListData);
+                    applyProductionFilters();
+                },
+                error: function (xhr) {
+                    console.error('GetProductionOrderList Error:', xhr.responseText);
+                    productionOrderListData = [];
+                    showError('Failed to load production orders.');
+                    applyProductionFilters();
+                }
+            });
+        }
+
+        function applyProductionFilters() {
+            var orderNo = normalize($('#filterProductionOrderNo').val());
+            var fromDate = $('#filterFromDate').val();
+            var toDate = $('#filterToDate').val();
+            var jobWorker = normalize($('#filterJobWorker').val());
+            var status = $('#filterStatus').val();
+
+            productionOrderFilteredData = $.grep(productionOrderListData, function (item) {
+                var itemOrderNo = normalize(getField(item, ['ProductionOrderNo', 'productionOrderNo', 'OrderNo']));
+                if (orderNo && itemOrderNo.indexOf(orderNo) === -1) return false;
+
+                var itemDateRaw = getField(item, ['ProductionOrderDate', 'productionOrderDate', 'OrderDate']);
+                var itemDateIso = dateOnly(itemDateRaw);
+
+                if (fromDate && itemDateIso && itemDateIso < fromDate) return false;
+                if (toDate && itemDateIso && itemDateIso > toDate) return false;
+
+                var itemJobWorker = normalize(getField(item, ['JobWorkerName', 'jobWorkerName']));
+                if (jobWorker && itemJobWorker !== jobWorker) return false;
+
+                var itemStatus = String(getField(item, ['Status', 'status']) || '');
+                if (status !== '' && itemStatus !== status) return false;
+
+                return true;
+            });
+
+            productionOrderCurrentPage = 1;
+            renderProductionOrderTable();
+        }
+
+        function getSelectedProductionOrderIDs() {
+            var selectedIds = [];
+            $("#tblProductionOrderListBody .chk-select-po:checked").each(function () {
+                var val = parseInt($(this).val(), 10);
+                if (val) selectedIds.push(val);
+            });
+            return selectedIds;
+        }
+
+        function renderProductionOrderTable() {
+            var totalCount = productionOrderFilteredData.length;
+            $('#lblProductionOrderCount').text(totalCount);
+
+            var $tbody = $('#tblProductionOrderListBody');
+            $tbody.empty();
+            $("#selectAllPO").prop("checked", false);
+
+            if (totalCount === 0) {
+                $tbody.html('<tr><td colspan="12" class="production-list-empty">No production orders found.</td></tr>');
+                renderProductionPagination(0);
+                return;
+            }
+
+            var totalPages = Math.ceil(totalCount / productionOrderPageSize) || 1;
+            if (productionOrderCurrentPage > totalPages) productionOrderCurrentPage = totalPages;
+            if (productionOrderCurrentPage < 1) productionOrderCurrentPage = 1;
+
+            var startIndex = (productionOrderCurrentPage - 1) * productionOrderPageSize;
+            var endIndex = Math.min(startIndex + productionOrderPageSize, totalCount);
+            var pagedData = productionOrderFilteredData.slice(startIndex, endIndex);
+
+            var html = '';
+            $.each(pagedData, function (index, item) {
+                var srNo = startIndex + index + 1;
+                var id = getField(item, ['ProductionOrderID', 'productionOrderID', 'Id', 'id']);
+                var orderNo = safeText(getField(item, ['ProductionOrderNo', 'productionOrderNo', 'OrderNo']));
+                var orderDate = formatDate(getField(item, ['ProductionOrderDate', 'productionOrderDate', 'OrderDate']));
+                var jobWorker = safeText(getField(item, ['JobWorkerName', 'jobWorkerName']));
+
+                var jobRate = numberValue(getField(item, ['JobRate', 'jobRate']));
+                var totalPcs = numberValue(getField(item, ['TotalPcs', 'totalPcs']));
+                var prodPcs = numberValue(getField(item, ['TotalProductionPcs', 'totalProductionPcs', 'ProductionPCS']));
+                var pendingPcs = numberValue(getField(item, ['TotalPendingPcs', 'totalPendingPcs', 'PendingPCS']));
+                var totalAmt = numberValue(getField(item, ['TotalAmount', 'totalAmount']));
+                var statusCode = String(getField(item, ['Status', 'status']) || '1');
+
+                var statusHtml = '<span class="po-status pending">Pending</span>';
+                if (statusCode === '2') statusHtml = '<span class="po-status complete">Completed</span>';
+                else if (statusCode === '0') statusHtml = '<span class="po-status cancelled">Cancelled</span>';
+
+                var viewHref = productionOrderViewUrl + '?id=' + encodeURIComponent(id) + '&mode=view';
+                var editHref = productionOrderEditUrl + '?id=' + encodeURIComponent(id) + '&mode=edit';
+
+                html += '<tr>' +
+                    '<td><input type="checkbox" class="chk-select-po" value="' + id + '" /></td>' +
+                    '<td>' + srNo + '</td>' +
+                    '<td class="po-number">' + (orderNo || ('PO' + id)) + '</td>' +
+                    '<td>' + safeText(orderDate) + '</td>' +
+                    '<td title="' + jobWorker + '">' + (jobWorker || '-') + '</td>' +
+                    '<td>' + formatAmount(jobRate) + '</td>' +
+                    '<td>' + formatNumber(totalPcs) + '</td>' +
+                    '<td>' + formatNumber(prodPcs) + '</td>' +
+                    '<td class="po-pending">' + formatNumber(pendingPcs) + '</td>' +
+                    '<td>' + formatAmount(totalAmt) + '</td>' +
+                    '<td>' + statusHtml + '</td>' +
+                    '<td>' +
+                        '<a class="po-action" href="' + viewHref + '" title="View"><i class="fa fa-eye"></i></a>' +
+                        '<a class="po-action" href="' + editHref + '" title="Edit"><i class="fa fa-pencil"></i></a>' +
+                        '<button type="button" class="po-action delete" data-id="' + id + '" title="Delete"><i class="fa fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+            });
+
+            $tbody.html(html);
+            renderProductionPagination(totalPages);
+        }
+
+        function renderProductionPagination(totalPages) {
+            $('#btnFirstPage').prop('disabled', productionOrderCurrentPage <= 1);
+            $('#btnPrevPage').prop('disabled', productionOrderCurrentPage <= 1);
+            $('#btnNextPage').prop('disabled', productionOrderCurrentPage >= totalPages || totalPages === 0);
+            $('#btnLastPage').prop('disabled', productionOrderCurrentPage >= totalPages || totalPages === 0);
+
+            var $container = $('#productionPageButtons');
+            $container.empty();
+
+            if (totalPages <= 1) return;
+
+            var maxButtons = 5;
+            var startPage = Math.max(1, productionOrderCurrentPage - Math.floor(maxButtons / 2));
+            var endPage = startPage + maxButtons - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (var p = startPage; p <= endPage; p++) {
+                var $btn = $('<button type="button">' + p + '</button>');
+                if (p === productionOrderCurrentPage) $btn.addClass('active');
+                $btn.attr('data-page', p);
+                $container.append($btn);
+            }
+        }
+
+        function ExportProductionPDF(ids) {
+            if (!ids || ids.length === 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'warning', title: 'Warning', text: 'Please select at least one production order.' });
+                } else {
+                    alert('Please select at least one production order.');
+                }
+                return;
+            }
+
+            $("#btnText").hide();
+            $("#btnLoader").show();
+            $("#btnGeneratePDF").prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/ProductionOrderReport",
+                data: JSON.stringify({ productionOrderID: ids }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var result = response.d !== undefined ? response.d : response;
+                    if (typeof result === 'string') {
+                        try { result = JSON.parse(result); } catch (e) { }
+                    }
+
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    if (result && result.Status && result.FilePath) {
+                        window.open(result.FilePath, "_blank");
+                    } else {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({ icon: 'warning', title: 'Notice', text: (result ? result.Message : '') || 'PDF not generated' });
+                        } else {
+                            alert((result ? result.Message : '') || 'PDF not generated');
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    console.error("ProductionOrderReport AJAX Error:", xhr);
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: 'An error occurred while generating the PDF.' });
+                    } else {
+                        alert('An error occurred while generating the PDF.');
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            loadProductionOrderList();
+
+            $('#btnSearchProductionOrder').on('click', function () { applyProductionFilters(); });
+            $('#btnResetProductionOrder').on('click', function () {
+                $('#filterProductionOrderNo').val('');
+                $('#filterFromDate').val('');
+                $('#filterToDate').val('');
+                $('#filterJobWorker').val('');
+                $('#filterStatus').val('');
+                applyProductionFilters();
+            });
+
+            $('#filterProductionOrderNo, #filterJobWorker, #filterStatus, #filterFromDate, #filterToDate').on('change keyup', function () {
+                applyProductionFilters();
+            });
+
+            $(document).on("change", "#selectAllPO", function () {
+                $("#tblProductionOrderListBody .chk-select-po").prop("checked", $(this).is(":checked"));
+            });
+
+            $(document).on("change", "#tblProductionOrderListBody .chk-select-po", function () {
+                var total = $("#tblProductionOrderListBody .chk-select-po").length;
+                var checked = $("#tblProductionOrderListBody .chk-select-po:checked").length;
+                $("#selectAllPO").prop("checked", total > 0 && total === checked);
+            });
+
+            $(document).on("click", "#btnGeneratePDF", function () {
+                var ids = getSelectedProductionOrderIDs();
+                if (ids.length === 0) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'warning', title: 'Warning', text: 'Please select at least one record.' });
+                    } else {
+                        alert('Please select at least one record.');
+                    }
+                    return;
+                }
+                ExportProductionPDF(ids);
+            });
+
+            $('#btnFirstPage').on('click', function () { productionOrderCurrentPage = 1; renderProductionOrderTable(); });
+            $('#btnPrevPage').on('click', function () { if (productionOrderCurrentPage > 1) { productionOrderCurrentPage--; renderProductionOrderTable(); } });
+            $('#btnNextPage').on('click', function () { var totalPages = Math.ceil(productionOrderFilteredData.length / productionOrderPageSize); if (productionOrderCurrentPage < totalPages) { productionOrderCurrentPage++; renderProductionOrderTable(); } });
+            $('#btnLastPage').on('click', function () { var totalPages = Math.ceil(productionOrderFilteredData.length / productionOrderPageSize); productionOrderCurrentPage = totalPages; renderProductionOrderTable(); });
+
+            $(document).on('click', '#productionPageButtons button', function () {
+                var page = parseInt($(this).attr('data-page'), 10);
+                if (page) {
+                    productionOrderCurrentPage = page;
+                    renderProductionOrderTable();
+                }
+            });
+        });
+    </script>
+}
