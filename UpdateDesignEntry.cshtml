@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -470,9 +470,9 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+                                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
                                         <div class="row gutters">
-                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper" style=" margin-top: 0;">
                                                     <input type="tel" id="Card1" name="Card1" title="Card 1" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="7" onkeyup="CardPickCalculation()">
@@ -483,7 +483,7 @@
                                                 <!-- Field wrapper end -->
                                             </div>
 
-                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper" style=" margin-top: 0;">
                                                     <input type="tel" id="Pick1" name="Pick1" title="Pick 1" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return validateFloatKeyPress(this,event);" maxlength="7" onkeyup="CardPickCalculation()">
@@ -494,7 +494,7 @@
                                                 <!-- Field wrapper end -->
                                             </div>
 
-                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper" style=" margin-top: 0;">
                                                     @*<select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control"  onfocusout="validate(this)">*@
@@ -503,6 +503,18 @@
                                                     <div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>
                                                     <div class="yarnMaterial1-valid-feedback valid-feedback">Looks good!</div>
                                                     <div class="yarnMaterial1-invalid-feedback invalid-feedback">Select Yarn Material</div>
+                                                </div>
+                                                <!-- Field wrapper end -->
+                                            </div>
+
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                                <!-- Field wrapper start -->
+                                                <div class="field-wrapper" style=" margin-top: 0;">
+                                                    <select id="DesignSpecification1" name="DesignSpecification1" title="Design Specification 1" class="form-control" onfocusout="validate(this)">
+                                                    </select>
+                                                    <div class="field-placeholder">Design Specification<sup style="color:red;">*</sup></div>
+                                                    <div class="DesignSpecification1-valid-feedback valid-feedback">Looks good!</div>
+                                                    <div class="DesignSpecification1-invalid-feedback invalid-feedback">Mention Design Specification</div>
                                                 </div>
                                                 <!-- Field wrapper end -->
                                             </div>
@@ -1391,7 +1403,7 @@
                     //tempWeftData += "<input type='text' id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control clear-field' onfocusout='validate(this)' >";
 
                     tempWeftData += "<select id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control' onfocusout='validate(this)'>";
-                    tempWeftData += "<option value=' '> Select Design Specification </option>";
+                    tempWeftData += "<option value=''> Select Design Specification </option>";
                     for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
                         tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";
                     }
@@ -1521,8 +1533,8 @@
                         tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
                         //tempWeftData += "<input type='text' id='DesignSpecification" + no + "' name='DesignSpecification" + no + "' title='Design Specification " + no + "' class='form-control clear-field' onfocusout='validate(this)' >";
 
-                        tempWeftData += "<select id='DesignSpecification" + no + "' name='DesignSpecification2' title='Design Specification " + no + "' class='form-control' onfocusout='validate(this)'>";
-                        tempWeftData += "<option value=' '> Select Design Specification </option>";
+                        tempWeftData += "<select id='DesignSpecification" + no + "' name='DesignSpecification" + no + "' title='Design Specification " + no + "' class='form-control' onfocusout='validate(this)'>";
+                        tempWeftData += "<option value=''> Select Design Specification </option>";
                         for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
                             tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";
                         }
@@ -1968,7 +1980,7 @@
                                 //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
 
                                 tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
-                                tempWeftData += '<option value=""> Select Yarn Material </option>';
+                                tempWeftData += '<option value=""> Select Design Specification </option>';
                                 //alert(ArrayDesignSpecification[0].length);
                                 for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
 
@@ -2057,7 +2069,7 @@
                                 //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
 
                                 tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
-                                tempWeftData += '<option value=""> Select Yarn Material </option>';
+                                tempWeftData += '<option value=""> Select Design Specification </option>';
                                 //alert(ArrayDesignSpecification[0].length);
                                 for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
 
@@ -2150,26 +2162,26 @@
 
                 var TotalWeftCard = 0;
                 var TotalWeftPick = 0;
-                var WeftTruOrFalse = '0';
+                var WeftTruOrFalse = '1';
                 var txtWeftData = $("#txtWeftData").val();
                 var arrWeftData = txtWeftData.slice(0, -1).split('|');
 
                 for (var i = 0; i < arrWeftData.length; i++) {
-                    var no = parseInt(i) + 1;
+                    var no = parseInt(arrWeftData[i]);
                     var WCard = document.getElementById("Card" + no);
                     var WPick = document.getElementById("Pick" + no);
                     var YMaterial = document.getElementById("yarnMaterial" + no);
+                    var DSpecification = document.getElementById("DesignSpecification" + no);
 
-                    TotalWeftCard = (parseFloat(TotalWeftCard) + parseFloat(WCard.value)).toFixed(2);
-                    TotalWeftPick = (parseFloat(TotalWeftPick) + parseFloat(WPick.value)).toFixed(2);
+                    if (WCard && WCard.value) TotalWeftCard = (parseFloat(TotalWeftCard) + parseFloat(WCard.value)).toFixed(2);
+                    if (WPick && WPick.value) TotalWeftPick = (parseFloat(TotalWeftPick) + parseFloat(WPick.value)).toFixed(2);
 
-                    if (validate(WCard) == false || validate(WPick) == false || validate(YMaterial) == false) {
+                    if (validate(WCard) == false || validate(WPick) == false || validate(YMaterial) == false || (DSpecification && validate(DSpecification) == false)) {
                         validate(WCard);
                         validate(WPick);
                         validate(YMaterial);
+                        if (DSpecification) validate(DSpecification);
                         WeftTruOrFalse = '0';
-                    } else {
-                        WeftTruOrFalse = '1';
                     }
                 }
 
@@ -2257,15 +2269,18 @@
                         var listWeftData = "";
                         var txtWeftDataArr = $("#txtWeftData").val().slice(0, -1).split('|');
                         for (var i = 0; i < txtWeftDataArr.length; i++) {
-                            var no = parseInt(i) + 1;
+                            var no = parseInt(txtWeftDataArr[i]);
                             var VCard = $("#Card" + no).val();
                             var VPick = $("#Pick" + no).val();
                             var VYarnMaterial = $("#yarnMaterial" + no).val();
+                            var VDesignSpecification = $("#DesignSpecification" + no).val();
 
                             listWeftData += "{";
                             listWeftData += '"Card":"' + VCard + '",';
                             listWeftData += '"Pick":"' + VPick + '",';
-                            listWeftData += '"YarnMaterialID":"' + VYarnMaterial + '"';
+                            listWeftData += '"YarnMaterialID":"' + VYarnMaterial + '",';
+                            listWeftData += '"DesignSpecificationID":"' + VDesignSpecification + '",';
+                            listWeftData += '"DesignSpecification":"' + VDesignSpecification + '"';
                             listWeftData += "},";
                         }
 

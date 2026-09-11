@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,7 +13,10 @@ namespace NikunjTextile.Class
 
         public long? JobWorkerID { get; set; }
         public string JobWorkerName { get; set; }
+        public decimal Rpm { get; set; }
         public decimal PanaRepeat { get; set; }
+        public decimal PanaWidth { get; set; }
+        public decimal NoOfMachines { get; set; }
         public decimal JobRate { get; set; }
         public string Traders { get; set; }
 
@@ -63,6 +66,16 @@ namespace NikunjTextile.Class
         public decimal SalesRate { get; set; }
         public decimal JobRate { get; set; }
         public decimal Amount { get; set; }
+
+        public decimal Rpm { get; set; }
+        public decimal PanaRepeat { get; set; }
+        public decimal PanaWidth { get; set; }
+        public decimal NoOfMachines { get; set; }
+
+        public decimal RepPCS { get; set; }
+        public decimal RepRate { get; set; }
+        public decimal RepAmt { get; set; }
+        public int JobberAccept { get; set; }
     }
 
     public class ProductionOrderSaveResponse
@@ -90,7 +103,10 @@ namespace NikunjTextile.Class
         public long? JobWorkerID { get; set; }
         public string JobWorkerName { get; set; }
 
+        public decimal Rpm { get; set; }
         public decimal PanaRepeat { get; set; }
+        public decimal PanaWidth { get; set; }
+        public decimal NoOfMachines { get; set; }
         public decimal JobRate { get; set; }
         public string Traders { get; set; }
 
@@ -140,6 +156,16 @@ namespace NikunjTextile.Class
         public decimal SalesRate { get; set; }
         public decimal JobRate { get; set; }
         public decimal Amount { get; set; }
+
+        public decimal Rpm { get; set; }
+        public decimal PanaRepeat { get; set; }
+        public decimal PanaWidth { get; set; }
+        public decimal NoOfMachines { get; set; }
+
+        public decimal RepPCS { get; set; }
+        public decimal RepRate { get; set; }
+        public decimal RepAmt { get; set; }
+        public int JobberAccept { get; set; }
 
         public long? CompanyId { get; set; }
         public long? UserAccountId { get; set; }

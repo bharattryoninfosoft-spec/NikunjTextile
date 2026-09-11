@@ -33,6 +33,27 @@
     .production-left-panel {
         border-right: 1px solid #c9cfd6;
         padding-right: 12px;
+        max-height: calc(100vh - 130px);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .production-left-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .production-left-panel::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .production-left-panel::-webkit-scrollbar-thumb {
+        background: #bbb;
+        border-radius: 3px;
+    }
+
+    .production-left-panel::-webkit-scrollbar-thumb:hover {
+        background: #888;
     }
 
         .production-left-panel .wl-input-sm,
@@ -861,7 +882,7 @@
 
                                         <div class="form-section-header">
 
-                                            WEAVELANE FOR PRODUCTION SLEEP
+                                            WEAVELANE FOR PRODUCTION SLIP
 
                                         </div>
 
@@ -1037,10 +1058,16 @@
                                                     WARP QUALITY
                                                 </div>
 
-                                                <input type="text"
-                                                       id="txtWarpQuality"
-                                                       class="wl-input-sm w-100"
-                                                       readonly />
+                                                <select id="filterWarpQuality"
+                                                        class="select-single detail w-100"
+                                                        title="WARP QUALITY"
+                                                        data-live-search="true">
+
+                                                    <option value="">
+                                                        -- ALL --
+                                                    </option>
+
+                                                </select>
 
                                             </div>
 
@@ -1053,10 +1080,16 @@
                                                     WEFT QUALITY
                                                 </div>
 
-                                                <input type="text"
-                                                       id="txtWeftQuality"
-                                                       class="wl-input-sm w-100"
-                                                       readonly />
+                                                <select id="filterWeftQuality"
+                                                        class="select-single detail w-100"
+                                                        title="WEFT QUALITY"
+                                                        data-live-search="true">
+
+                                                    <option value="">
+                                                        -- ALL --
+                                                    </option>
+
+                                                </select>
 
                                             </div>
 
@@ -1661,30 +1694,57 @@
                                         var master = result.Master;
                                         var details = result.Details || [];
 
-                                        if (viewMode) {
-                                            bindExistingProductionOrder(
-                                                master,
-                                                details,
-                                                viewMode
-                                            );
-                                        } else {
-                                            $.ajax({
-                                                type: "POST",
-                                                url: "WebServiceNikunjTextile.asmx/GetPendingOrdersForProduction",
-                                                contentType: "application/json; charset=utf-8",
-                                                dataType: "json",
-                                                data: "{}",
-                                                success: function (pendingResponse) {
-                                                    var pendingData = pendingResponse && pendingResponse.d !== undefined ? pendingResponse.d : pendingResponse;
-                                                    if (typeof pendingData === "string") {
-                                                        try { pendingData = JSON.parse(pendingData); } catch (e) { pendingData = []; }
-                                                    }
-                                                    if (pendingData && Array.isArray(pendingData.data)) pendingData = pendingData.data;
-                                                    if (pendingData && Array.isArray(pendingData.list)) pendingData = pendingData.list;
-                                                    if (!Array.isArray(pendingData)) pendingData = [];
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "WebServiceNikunjTextile.asmx/GetPendingOrdersForProduction",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            data: "{}",
+                                            success: function (pendingResponse) {
+                                                var pendingData = pendingResponse && pendingResponse.d !== undefined ? pendingResponse.d : pendingResponse;
+                                                if (typeof pendingData === "string") {
+                                                    try { pendingData = JSON.parse(pendingData); } catch (e) { pendingData = []; }
+                                                }
+                                                if (pendingData && Array.isArray(pendingData.data)) pendingData = pendingData.data;
+                                                if (pendingData && Array.isArray(pendingData.list)) pendingData = pendingData.list;
+                                                if (!Array.isArray(pendingData)) pendingData = [];
 
+                                                var savedSubIdMap = {};
+                                                $.each(pendingData, function (index, pItem) {
+                                                    var pSubId = getSubId(pItem);
+                                                    if (pSubId) {
+                                                        savedSubIdMap[pSubId] = pItem;
+                                                    }
+                                                });
+
+                                                if (viewMode) {
+                                                    selectedItemsMap = {};
+                                                    $.each(details, function (index, sItem) {
+                                                        sItem.GeneratedSlipNo = textValue(sItem.SlipNo);
+                                                        var subId = getSubId(sItem);
+                                                        var production = numberValue(sItem.ProductionPCS);
+
+                                                        if (subId) {
+                                                            if (production > 0) {
+                                                                selectedItemsMap[subId] = { prodPcs: production };
+                                                            }
+                                                            if (savedSubIdMap[subId]) {
+                                                                var pItem = savedSubIdMap[subId];
+                                                                if (!sItem.TotalCard && pItem.TotalCard) sItem.TotalCard = pItem.TotalCard;
+                                                                if (!sItem.WarpQuality && pItem.WarpQuality) sItem.WarpQuality = pItem.WarpQuality;
+                                                                if (!sItem.WeftQuality && pItem.WeftQuality) sItem.WeftQuality = pItem.WeftQuality;
+                                                            }
+                                                        }
+                                                    });
+
+                                                    bindExistingProductionOrder(
+                                                        master,
+                                                        details,
+                                                        viewMode
+                                                    );
+                                                } else {
                                                     var mergedList = [];
-                                                    var savedSubIdMap = {};
+                                                    var savedSubIdMapEdit = {};
                                                     selectedItemsMap = {};
 
                                                     $.each(details, function (index, sItem) {
@@ -1693,7 +1753,7 @@
                                                         var production = numberValue(sItem.ProductionPCS);
 
                                                         if (subId) {
-                                                            savedSubIdMap[subId] = sItem;
+                                                            savedSubIdMapEdit[subId] = sItem;
                                                             if (production > 0) {
                                                                 selectedItemsMap[subId] = { prodPcs: production };
                                                             }
@@ -1703,8 +1763,8 @@
 
                                                     $.each(pendingData, function (index, pItem) {
                                                         var pSubId = getSubId(pItem);
-                                                        if (pSubId && savedSubIdMap[pSubId]) {
-                                                            var sItem = savedSubIdMap[pSubId];
+                                                        if (pSubId && savedSubIdMapEdit[pSubId]) {
+                                                            var sItem = savedSubIdMapEdit[pSubId];
                                                             var pendingAvail = numberValue(pItem.PendingPcs ?? pItem.PendingPCS ?? pItem.Pcs ?? pItem.PCS);
                                                             var savedProd = numberValue(sItem.ProductionPCS);
                                                             var totalMax = pendingAvail + savedProd;
@@ -1733,17 +1793,17 @@
                                                         mergedList,
                                                         viewMode
                                                     );
-                                                },
-                                                error: function (xhr) {
-                                                    console.error("GetPendingOrdersForProduction edit merge error:", xhr);
-                                                    bindExistingProductionOrder(
-                                                        master,
-                                                        details,
-                                                        viewMode
-                                                    );
                                                 }
-                                            });
-                                        }
+                                            },
+                                            error: function (xhr) {
+                                                console.error("GetPendingOrdersForProduction edit merge error:", xhr);
+                                                bindExistingProductionOrder(
+                                                    master,
+                                                    details,
+                                                    viewMode
+                                                );
+                                            }
+                                        });
 
                                     },
 
@@ -2093,7 +2153,7 @@
                                  */
                                 $(".erp-page-header .form-section-header")
                                     .text(
-                                        "WEAVELANE FOR PRODUCTION SLEEP - VIEW"
+                                        "WEAVELANE FOR PRODUCTION SLIP - VIEW"
                                     );
 
 
@@ -2133,7 +2193,7 @@
 
                                 $(".erp-page-header .form-section-header")
                                     .text(
-                                        "WEAVELANE FOR PRODUCTION SLEEP - EDIT"
+                                        "WEAVELANE FOR PRODUCTION SLIP - EDIT"
                                     );
 
 
@@ -2163,7 +2223,7 @@
 
                                 $(".erp-page-header .form-section-header")
                                     .text(
-                                        "WEAVELANE FOR PRODUCTION SLEEP"
+                                        "WEAVELANE FOR PRODUCTION SLIP"
                                     );
 
 
@@ -3264,8 +3324,21 @@
                             );
                         }
                         function calculateJobRateForItem(item) {
+                            if (item) {
+                                var repRate = numberValue(item.RepRate ?? item.repRate);
+                                if (repRate > 0) {
+                                    return parseFloat(repRate.toFixed(2));
+                                }
+
+                                var repAmt = numberValue(item.RepAmt ?? item.repAmt);
+                                var repPcs = numberValue(item.RepPCS ?? item.repPCS ?? item.ProductionPCS ?? item.productionPCS ?? item.PCS ?? item.pcs);
+                                if (repAmt > 0 && repPcs > 0) {
+                                    return parseFloat((repAmt / repPcs).toFixed(2));
+                                }
+                            }
+
                             var baseJobRate = numberValue($("#txtJobRate").val());
-                            var totalCard = numberValue(item ? (item.TotalCard ?? item.totalCard ?? item.DesignTotalCard) : 0);
+                            var totalCard = numberValue(item ? (item.TotalCard ?? item.totalCard ?? item.DesignTotalCard ?? item.total_card) : 0);
                             if (totalCard > 0 && baseJobRate > 0) {
                                 var calculated = (totalCard * baseJobRate) * 0.0254 / 100;
                                 return parseFloat(calculated.toFixed(2));
@@ -4095,141 +4168,173 @@
 
                             return false;
                         }
+                        function isQualitySummaryMatch(summaryText, selectedKey) {
+                            if (!summaryText || !selectedKey) return false;
+                            var parts = selectedKey.split("|");
+                            var pColor = normalizeText(parts[0] || "");
+                            var pMat = normalizeText(parts[1] || "");
+                            var pSpec = normalizeText(parts[2] || "");
+
+                            var normSummary = normalizeText(summaryText);
+                            var matchC = !pColor || normSummary.indexOf(pColor) >= 0;
+                            var matchM = !pMat || normSummary.indexOf(pMat) >= 0;
+                            var matchS = !pSpec || normSummary.indexOf(pSpec) >= 0;
+                            return matchC && matchM && matchS;
+                        }
+
                         function applyFilters() {
 
-                            var fOrder =
-                                normalizeText(
-                                    $("#filterOrderNo").val()
-                                );
-
-
-                            var fDate =
-                                normalizeDate(
-                                    $("#filterOrderDate").val()
-                                );
-
-
-                            var fDesign =
-                                normalizeText(
-                                    $("#filterDesignNo").val()
-                                );
-
-
-                            var fParty =
-                                normalizeText(
-                                    $("#filterPartyName").val()
-                                );
-
-
-                            var fColor =
-                                normalizeText(
-                                    $("#filterColor").val()
-                                );
-
-
-                            var fWarp =
-                                $("#filterWarpQuality").val();
-
-
-                            var fWeft =
-                                $("#filterWeftQuality").val();
-
-
-                            var filtered =
-                                globalOrderData.filter(
-                                    function (item) {
-
-                                        var order =
-                                            normalizeText(
-                                                getOrderNo(item)
-                                            );
-
-
-                                        var date =
-                                            normalizeDate(
-                                                getOrderDate(item)
-                                            );
-
-
-                                        var design =
-                                            normalizeText(
-                                                getDesignNo(item)
-                                            );
-
-
-                                        var party =
-                                            normalizeText(
-                                                getPartyName(item)
-                                            );
-
-
-                                        var colour =
-                                            normalizeText(
-                                                getColour(item)
-                                            );
-
-
-                                        var matchesWarp =
-                                            matchWarpQualityFilter(item, fWarp);
-
-
-                                        var matchesWeft =
-                                            matchWeftQualityFilter(item, fWeft);
-
-
-                                        return (
-
-                                            (!fOrder ||
-                                                order === fOrder)
-
-                                            &&
-
-                                            (!fDate ||
-                                                date === fDate)
-
-                                            &&
-
-                                            (!fDesign ||
-                                                design === fDesign)
-
-                                            &&
-
-                                            (!fParty ||
-                                                party === fParty)
-
-                                            &&
-
-                                            (!fColor ||
-                                                colour === fColor)
-
-                                            &&
-
-                                            matchesWarp
-
-                                            &&
-
-                                            matchesWeft
-
-                                        );
-
-                                    }
-                                );
-
-
-                            /*
-                             * DO NOT regenerate slip numbers.
-                             */
-
-                            renderTable(
-                                filtered
+                            $("#tblOrderListBody").html(
+                                '<tr><td colspan="10" class="text-center py-4 text-primary fw-semibold"><i class="fa fa-spinner fa-spin fa-2x me-2"></i> Filtering data...</td></tr>'
                             );
 
+                            setTimeout(function () {
 
-                            /*
-                             * Report from global state.
-                             */
+                                var fOrder =
+                                    normalizeText(
+                                        $("#filterOrderNo").val()
+                                    );
 
-                            rebuildProductionReport();
+
+                                var fDate =
+                                    normalizeDate(
+                                        $("#filterOrderDate").val()
+                                    );
+
+
+                                var fDesign =
+                                    normalizeText(
+                                        $("#filterDesignNo").val()
+                                    );
+
+
+                                var fParty =
+                                    normalizeText(
+                                        $("#filterPartyName").val()
+                                    );
+
+
+                                var fColor =
+                                    normalizeText(
+                                        $("#filterColor").val()
+                                    );
+
+
+                                var fWarp =
+                                    $("#filterWarpQuality").val();
+
+
+                                var fWeft =
+                                    $("#filterWeftQuality").val();
+
+
+                                var totalBefore = Array.isArray(globalOrderData) ? globalOrderData.length : 0;
+
+                                var filtered =
+                                    (globalOrderData || []).filter(
+                                        function (item) {
+
+                                            var order =
+                                                normalizeText(
+                                                    getOrderNo(item)
+                                                );
+
+
+                                            var date =
+                                                normalizeDate(
+                                                    getOrderDate(item)
+                                                );
+
+
+                                            var design =
+                                                normalizeText(
+                                                    getDesignNo(item)
+                                                );
+
+
+                                            var party =
+                                                normalizeText(
+                                                    getPartyName(item)
+                                                );
+
+
+                                            var colour =
+                                                normalizeText(
+                                                    getColour(item)
+                                                );
+
+
+                                            var matchesWarp =
+                                                matchWarpQualityFilter(item, fWarp);
+
+
+                                            var matchesWeft =
+                                                matchWeftQualityFilter(item, fWeft);
+
+
+                                            return (
+
+                                                (!fOrder ||
+                                                    order === fOrder)
+
+                                                &&
+
+                                                (!fDate ||
+                                                    date === fDate)
+
+                                                &&
+
+                                                (!fDesign ||
+                                                    design === fDesign)
+
+                                                &&
+
+                                                (!fParty ||
+                                                    party === fParty)
+
+                                                &&
+
+                                                (!fColor ||
+                                                    colour === fColor)
+
+                                                &&
+
+                                                matchesWarp
+
+                                                &&
+
+                                                matchesWeft
+
+                                            );
+
+                                        }
+                                    );
+
+
+                                console.log("==========================================");
+                                console.log("PRODUCTION SLEEP FILTER LOG");
+                                console.log("Selected Filters:", {
+                                    OrderNo: fOrder || "ALL",
+                                    OrderDate: fDate || "ALL",
+                                    DesignNo: fDesign || "ALL",
+                                    PartyName: fParty || "ALL",
+                                    Color: fColor || "ALL",
+                                    WarpQuality: fWarp || "ALL",
+                                    WeftQuality: fWeft || "ALL"
+                                });
+                                console.log("Total records BEFORE filter:", totalBefore);
+                                console.log("Total records AFTER filter:", filtered.length);
+                                console.log("==========================================");
+
+
+                                renderTable(
+                                    filtered
+                                );
+
+
+                                rebuildProductionReport();
+
+                            }, 50);
 
                         }
                         function findGlobalItemBySubId(subId) {
@@ -4262,6 +4367,9 @@
 
                         }
                         function renderTable(data) {
+
+                            var selectedWarp = $("#filterWarpQuality").val() || "";
+                            var selectedWeft = $("#filterWeftQuality").val() || "";
 
                             var rows = "";
 
@@ -4532,139 +4640,158 @@
                                             ? "table-active"
                                             : "";
 
-                                    rows +=
+                                        var warpSummary = getItemWarpQualitySummary(item);
+                                        var weftSummary = getItemWeftQualitySummary(item);
 
-                                        "<tr " +
+                                        var warpHtml = "";
+                                        if (warpSummary) {
+                                            var isWarpMatched = selectedWarp && isQualitySummaryMatch(warpSummary, selectedWarp);
+                                            if (isWarpMatched) {
+                                                warpHtml = "<div style='font-size:11px; line-height:1.3; margin-top:2px; background-color:#fff3cd; color:#664d03; padding:2px 5px; border-radius:3px; border:1px solid #ffe69c; font-weight:600;'><span class='badge bg-warning text-dark border me-1' style='font-weight:700;'>Warp</span>" + escapeHtml(warpSummary) + "</div>";
+                                            } else {
+                                                warpHtml = "<div style='font-size:11px; line-height:1.3; margin-top:2px; color:#333;'><span class='badge bg-light text-dark border me-1'>Warp</span>" + escapeHtml(warpSummary) + "</div>";
+                                            }
+                                        }
 
-                                        "class='" +
-                                        activeClass +
-                                        "' " +
+                                        var weftHtml = "";
+                                        if (weftSummary) {
+                                            var isWeftMatched = selectedWeft && isQualitySummaryMatch(weftSummary, selectedWeft);
+                                            if (isWeftMatched) {
+                                                weftHtml = "<div style='font-size:11px; line-height:1.3; margin-top:1px; background-color:#fff3cd; color:#664d03; padding:2px 5px; border-radius:3px; border:1px solid #ffe69c; font-weight:600;'><span class='badge bg-warning text-dark border me-1' style='font-weight:700;'>Weft</span>" + escapeHtml(weftSummary) + "</div>";
+                                            } else {
+                                                weftHtml = "<div style='font-size:11px; line-height:1.3; margin-top:1px; color:#333;'><span class='badge bg-light text-dark border me-1'>Weft</span>" + escapeHtml(weftSummary) + "</div>";
+                                            }
+                                        }
 
-                                        "data-subid='" +
-                                        escapeHtml(subId) +
-                                        "' " +
+                                        rows +=
 
-                                        "data-orderno='" +
-                                        escapeHtml(orderNo) +
-                                        "' " +
+                                            "<tr " +
 
-                                        "data-designkey='" +
-                                        escapeHtml(designKey) +
-                                        "' " +
+                                            "class='" +
+                                            activeClass +
+                                            "' " +
 
-                                        "data-pendingpcs='" +
-                                        pcs +
-                                        "'>" +
+                                            "data-subid='" +
+                                            escapeHtml(subId) +
+                                            "' " +
 
+                                            "data-orderno='" +
+                                            escapeHtml(orderNo) +
+                                            "' " +
 
-                                        "<td class='text-center'>" +
+                                            "data-designkey='" +
+                                            escapeHtml(designKey) +
+                                            "' " +
 
-                                        "<input " +
-
-                                        "type='checkbox' " +
-
-                                        "class='chk-subitem' " +
-
-                                        (selected
-                                            ? " checked "
-                                            : "") +
-
-                                        (isProductionViewMode
-                                            ? " disabled "
-                                            : "") +
-
-                                        "data-orderno='" +
-                                        escapeHtml(orderNo) +
-                                        "' " +
-
-                                        "data-designkey='" +
-                                        escapeHtml(designKey) +
-                                        "' " +
-
-                                        "data-date='" +
-                                        escapeHtml(
-                                            getOrderDate(item)
-                                        ) +
-                                        "' " +
-
-                                        "data-party='" +
-                                        escapeHtml(
-                                            getPartyName(item)
-                                        ) +
-                                        "' " +
-
-                                        "data-design='" +
-                                        escapeHtml(
-                                            getDesignNo(item)
-                                        ) +
-                                        "' " +
-
-                                        "data-color='" +
-                                        escapeHtml(
-                                            getColour(item)
-                                        ) +
-                                        "' " +
-
-                                        "data-maxpcs='" +
-                                        pcs +
-                                        "' " +
-
-                                        "data-rate='" +
-                                        rate +
-                                        "' " +
-
-                                        "data-slipno='" +
-                                        escapeHtml(slipNo) +
-                                        "' />" +
-
-                                        "</td>" +
+                                            "data-pendingpcs='" +
+                                            pcs +
+                                            "'>" +
 
 
-                                        "<td class='text-center fw-semibold' style='padding-left:22px;'>" +
+                                            "<td class='text-center'>" +
 
-                                        escapeHtml(
-                                            slipNo
-                                        ) +
+                                            "<input " +
 
-                                        "</td>" +
+                                            "type='checkbox' " +
+
+                                            "class='chk-subitem' " +
+
+                                            (selected
+                                                ? " checked "
+                                                : "") +
+
+                                            (isProductionViewMode
+                                                ? " disabled "
+                                                : "") +
+
+                                            "data-orderno='" +
+                                            escapeHtml(orderNo) +
+                                            "' " +
+
+                                            "data-designkey='" +
+                                            escapeHtml(designKey) +
+                                            "' " +
+
+                                            "data-date='" +
+                                            escapeHtml(
+                                                getOrderDate(item)
+                                            ) +
+                                            "' " +
+
+                                            "data-party='" +
+                                            escapeHtml(
+                                                getPartyName(item)
+                                            ) +
+                                            "' " +
+
+                                            "data-design='" +
+                                            escapeHtml(
+                                                getDesignNo(item)
+                                            ) +
+                                            "' " +
+
+                                            "data-color='" +
+                                            escapeHtml(
+                                                getColour(item)
+                                            ) +
+                                            "' " +
+
+                                            "data-maxpcs='" +
+                                            pcs +
+                                            "' " +
+
+                                            "data-rate='" +
+                                            rate +
+                                            "' " +
+
+                                            "data-slipno='" +
+                                            escapeHtml(slipNo) +
+                                            "' />" +
+
+                                            "</td>" +
 
 
-                                        "<td class='text-center'>" +
+                                            "<td class='text-center fw-semibold' style='padding-left:22px;'>" +
 
-                                        escapeHtml(
-                                            getOrderDate(item)
-                                        ) +
+                                            escapeHtml(
+                                                slipNo
+                                            ) +
 
-                                        "</td>" +
-
-
-                                        "<td class='text-start'>" +
-
-                                        escapeHtml(
-                                            getPartyName(item)
-                                        ) +
-
-                                        "</td>" +
+                                            "</td>" +
 
 
-                                        "<td class='text-center fw-semibold'>" +
+                                            "<td class='text-center'>" +
 
-                                        escapeHtml(
-                                            getDesignNo(item)
-                                        ) +
+                                            escapeHtml(
+                                                getOrderDate(item)
+                                            ) +
 
-                                        "</td>" +
+                                            "</td>" +
 
 
-                                        "<td class='text-start'>" +
+                                            "<td class='text-start'>" +
 
-                                        "<div>" + escapeHtml(getColour(item)) + "</div>" +
+                                            escapeHtml(
+                                                getPartyName(item)
+                                            ) +
 
-                                        (getItemWarpQualitySummary(item) ? "<div class='text-muted' style='font-size:10px; line-height:1.2; margin-top:2px;'><span class='badge bg-light text-dark border me-1'>Warp</span>" + escapeHtml(getItemWarpQualitySummary(item)) + "</div>" : "") +
+                                            "</td>" +
 
-                                        (getItemWeftQualitySummary(item) ? "<div class='text-muted' style='font-size:10px; line-height:1.2; margin-top:1px;'><span class='badge bg-light text-dark border me-1'>Weft</span>" + escapeHtml(getItemWeftQualitySummary(item)) + "</div>" : "") +
 
-                                        "</td>" +
+                                            "<td class='text-center fw-semibold'>" +
+
+                                            escapeHtml(
+                                                getDesignNo(item)
+                                            ) +
+
+                                            "</td>" +
+
+
+                                            "<td class='text-start'>" +
+
+                                            "<div>" + escapeHtml(getColour(item)) + "</div>" +
+
+                                            "</td>" +
 
 
                                         "<td class='text-center td-pcs fw-bold'>" +
@@ -5140,8 +5267,23 @@
 
 
                                                 $option.attr(
+                                                    "data-rpm",
+                                                    item.Rpm ?? item.rpm ?? "0"
+                                                );
+
+                                                $option.attr(
                                                     "data-panarepeat",
                                                     panaRepeat
+                                                );
+
+                                                $option.attr(
+                                                    "data-panawidth",
+                                                    item.PanaWidth ?? item.panaWidth ?? "0"
+                                                );
+
+                                                $option.attr(
+                                                    "data-noofmachines",
+                                                    item.NoOfMachines ?? item.noOfMachines ?? "0"
                                                 );
 
 
@@ -6121,6 +6263,11 @@
                                 );
 
 
+                            var selectedJobberOpt = $("#txtJobWorker option:selected");
+                            var rpm = numberValue(selectedJobberOpt.attr("data-rpm"));
+                            var panaWidth = numberValue(selectedJobberOpt.attr("data-panawidth"));
+                            var noOfMachines = numberValue(selectedJobberOpt.attr("data-noofmachines"));
+
                             var jobRate =
                                 numberValue(
                                     $("#txtJobRate").val()
@@ -6317,7 +6464,31 @@
                                             itemJobRate,
 
                                         Amount:
-                                            amount
+                                            amount,
+
+                                        Rpm:
+                                            rpm,
+
+                                        PanaRepeat:
+                                            panaRepeat,
+
+                                        PanaWidth:
+                                            panaWidth,
+
+                                        NoOfMachines:
+                                            noOfMachines,
+
+                                        RepPCS:
+                                            production,
+
+                                        RepRate:
+                                            itemJobRate,
+
+                                        RepAmt:
+                                            amount,
+
+                                        JobberAccept:
+                                            0
 
                                     });
 
@@ -6418,8 +6589,17 @@
                                 JobWorkerName:
                                     jobWorkerName,
 
+                                Rpm:
+                                    rpm,
+
                                 PanaRepeat:
                                     panaRepeat,
+
+                                PanaWidth:
+                                    panaWidth,
+
+                                NoOfMachines:
+                                    noOfMachines,
 
                                 JobRate:
                                     jobRate,

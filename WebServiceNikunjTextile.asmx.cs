@@ -35754,7 +35754,10 @@ FROM Filtered
              SELECT
                 Id AS JobberMasterID,
                 PartyName AS JobberName,
-                PanaRepeat
+                Rpm,
+                PanaRepeat,
+                PanaWidth,
+                NoOfMachines
             FROM JobberMaster
             WHERE ISNULL(IsActiveParty, 1) = 1
             ORDER BY PartyName
@@ -35785,11 +35788,32 @@ FROM Filtered
                                     : rdr["JobberName"]
                                         .ToString();
 
+                            item.Rpm =
+                                rdr["Rpm"] ==
+                                DBNull.Value
+                                    ? "0"
+                                    : rdr["Rpm"]
+                                        .ToString();
+
                             item.PanaRepeat =
                                 rdr["PanaRepeat"] ==
                                 DBNull.Value
                                     ? "0"
                                     : rdr["PanaRepeat"]
+                                        .ToString();
+
+                            item.PanaWidth =
+                                rdr["PanaWidth"] ==
+                                DBNull.Value
+                                    ? "0"
+                                    : rdr["PanaWidth"]
+                                        .ToString();
+
+                            item.NoOfMachines =
+                                rdr["NoOfMachines"] ==
+                                DBNull.Value
+                                    ? "0"
+                                    : rdr["NoOfMachines"]
                                         .ToString();
 
                             list.Add(item);
@@ -36112,32 +36136,7 @@ WHERE ProductionOrderID = @ProductionOrderID
 
 
                 const string detailSql = @"
-SELECT
-    ProductionOrderDetailID,
-    ProductionOrderID,
-    SalesOrderID,
-    SalesOrderDetailID,
-    SubDetailID,
-    SalesOrderNo,
-    SlipNo,
-    Barcode,
-    OrderDate,
-    PartyID,
-    PartyName,
-    DesignEntryFormID,
-    DesignNo,
-    ColourMatchingID,
-    ColourMatchingName,
-    WarpQuality,
-    WeftQuality,
-    PCS,
-    ProductionPCS,
-    PendingPCS,
-    SalesRate,
-    JobRate,
-    Amount,
-    CompanyId,
-    UserAccountId
+SELECT *
 FROM ProductionOrderDetail
 WHERE ProductionOrderID = @ProductionOrderID
   AND IsActive = 1
@@ -36253,6 +36252,30 @@ ORDER BY ProductionOrderDetailID ASC;";
                                     Amount =
                                         ToDecimalValue(
                                             dr["Amount"]),
+
+                                    Rpm =
+                                        HasColumn(dr, "Rpm") ? ToDecimalValue(dr["Rpm"]) : 0m,
+
+                                    PanaRepeat =
+                                        HasColumn(dr, "PanaRepeat") ? ToDecimalValue(dr["PanaRepeat"]) : 0m,
+
+                                    PanaWidth =
+                                        HasColumn(dr, "PanaWidth") ? ToDecimalValue(dr["PanaWidth"]) : 0m,
+
+                                    NoOfMachines =
+                                        HasColumn(dr, "NoOfMachines") ? ToDecimalValue(dr["NoOfMachines"]) : 0m,
+
+                                    RepPCS =
+                                        HasColumn(dr, "RepPCS") ? ToDecimalValue(dr["RepPCS"]) : 0m,
+
+                                    RepRate =
+                                        HasColumn(dr, "RepRate") ? ToDecimalValue(dr["RepRate"]) : 0m,
+
+                                    RepAmt =
+                                        HasColumn(dr, "RepAmt") ? ToDecimalValue(dr["RepAmt"]) : 0m,
+
+                                    JobberAccept =
+                                        HasColumn(dr, "JobberAccept") ? ToIntValue(dr["JobberAccept"]) : 0,
 
                                     CompanyId =
                                         ToNullableLong(
@@ -36433,12 +36456,9 @@ ORDER BY ProductionOrderDetailID ASC;";
          * DELETE PRODUCTION ORDER
          * ================================================================
          *
-         * Soft delete:
+         * Hard delete:
          *
-         * Master IsActive = 0
-         * Details IsActive = 0
-         *
-         * Database records are NOT physically deleted.
+         * Delete details and master records physically from DB.
          */
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -36484,8 +36504,7 @@ ORDER BY ProductionOrderDetailID ASC;";
                         const string checkSql = @"
 SELECT COUNT(1)
 FROM ProductionOrderMaster
-WHERE ProductionOrderID = @ProductionOrderID
-  AND IsActive = 1;";
+WHERE ProductionOrderID = @ProductionOrderID;";
 
                         using (SqlCommand cmd =
                                new SqlCommand(
@@ -36516,15 +36535,11 @@ WHERE ProductionOrderID = @ProductionOrderID
 
 
                         /*
-                         * Deactivate details first.
+                         * Delete details first.
                          */
                         const string detailDeleteSql = @"
-UPDATE ProductionOrderDetail
-SET
-    IsActive = 0,
-    DateandTime = GETDATE()
-WHERE ProductionOrderID = @ProductionOrderID
-  AND IsActive = 1;";
+DELETE FROM ProductionOrderDetail
+WHERE ProductionOrderID = @ProductionOrderID;";
 
                         using (SqlCommand cmd =
                                new SqlCommand(
@@ -36543,16 +36558,11 @@ WHERE ProductionOrderID = @ProductionOrderID
 
 
                         /*
-                         * Deactivate master.
+                         * Delete master.
                          */
                         const string masterDeleteSql = @"
-UPDATE ProductionOrderMaster
-SET
-    IsActive = 0,
-    Status = 0,
-    DateandTime = GETDATE()
-WHERE ProductionOrderID = @ProductionOrderID
-  AND IsActive = 1;";
+DELETE FROM ProductionOrderMaster
+WHERE ProductionOrderID = @ProductionOrderID;";
 
                         using (SqlCommand cmd =
                                new SqlCommand(
@@ -36902,6 +36912,20 @@ ORDER BY CompanyId;";
                                 );
                         }
 
+                        bool hasRpmM = DoesColumnExist(con, tran, "ProductionOrderMaster", "Rpm");
+                        bool hasPanaWidthM = DoesColumnExist(con, tran, "ProductionOrderMaster", "PanaWidth");
+                        bool hasNoOfMachinesM = DoesColumnExist(con, tran, "ProductionOrderMaster", "NoOfMachines");
+
+                        bool hasRpmD = DoesColumnExist(con, tran, "ProductionOrderDetail", "Rpm");
+                        bool hasPanaRepeatD = DoesColumnExist(con, tran, "ProductionOrderDetail", "PanaRepeat");
+                        bool hasPanaWidthD = DoesColumnExist(con, tran, "ProductionOrderDetail", "PanaWidth");
+                        bool hasNoOfMachinesD = DoesColumnExist(con, tran, "ProductionOrderDetail", "NoOfMachines");
+
+                        bool hasRepPcsD = DoesColumnExist(con, tran, "ProductionOrderDetail", "RepPCS");
+                        bool hasRepRateD = DoesColumnExist(con, tran, "ProductionOrderDetail", "RepRate");
+                        bool hasRepAmtD = DoesColumnExist(con, tran, "ProductionOrderDetail", "RepAmt");
+                        bool hasJobberAcceptD = DoesColumnExist(con, tran, "ProductionOrderDetail", "JobberAccept");
+
                         /*
                          * =====================================================
                          * INSERT / UPDATE MASTER
@@ -36909,7 +36933,7 @@ ORDER BY CompanyId;";
                          */
                         if (isInsert)
                         {
-                            const string insertMasterSql = @"
+                            string insertMasterSql = @"
 INSERT INTO ProductionOrderMaster
 (
     ProductionOrderNo,
@@ -36917,6 +36941,9 @@ INSERT INTO ProductionOrderMaster
     JobWorkerID,
     JobWorkerName,
     PanaRepeat,
+    " + (hasRpmM ? "Rpm, " : "") + @"
+    " + (hasPanaWidthM ? "PanaWidth, " : "") + @"
+    " + (hasNoOfMachinesM ? "NoOfMachines, " : "") + @"
     JobRate,
     Traders,
     TotalPcs,
@@ -36936,6 +36963,9 @@ VALUES
     @JobWorkerID,
     @JobWorkerName,
     @PanaRepeat,
+    " + (hasRpmM ? "@Rpm, " : "") + @"
+    " + (hasPanaWidthM ? "@PanaWidth, " : "") + @"
+    " + (hasNoOfMachinesM ? "@NoOfMachines, " : "") + @"
     @JobRate,
     @Traders,
     @TotalPcs,
@@ -37008,7 +37038,7 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                 }
                             }
 
-                            const string updateMasterSql = @"
+                            string updateMasterSql = @"
                                     UPDATE ProductionOrderMaster
                                     SET
                                         ProductionOrderNo = @ProductionOrderNo,
@@ -37016,6 +37046,9 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                         JobWorkerID = @JobWorkerID,
                                         JobWorkerName = @JobWorkerName,
                                         PanaRepeat = @PanaRepeat,
+                                        " + (hasRpmM ? "Rpm = @Rpm, " : "") + @"
+                                        " + (hasPanaWidthM ? "PanaWidth = @PanaWidth, " : "") + @"
+                                        " + (hasNoOfMachinesM ? "NoOfMachines = @NoOfMachines, " : "") + @"
                                         JobRate = @JobRate,
                                         Traders = @Traders,
                                         TotalPcs = @TotalPcs,
@@ -37249,7 +37282,7 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                     if (Convert.ToInt32(
                                             check.ExecuteScalar()) > 0)
                                     {
-                                        const string updateDetailSql = @"
+                                        string updateDetailSql = @"
                                                         UPDATE ProductionOrderDetail
                                                         SET
                                                             ProductionOrderID = @ProductionOrderID,
@@ -37274,6 +37307,14 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                                             SalesRate = @SalesRate,
                                                             JobRate = @JobRate,
                                                             Amount = @Amount,
+                                                            " + (hasRpmD ? "Rpm = @Rpm, " : "") + @"
+                                                            " + (hasPanaRepeatD ? "PanaRepeat = @PanaRepeat, " : "") + @"
+                                                            " + (hasPanaWidthD ? "PanaWidth = @PanaWidth, " : "") + @"
+                                                            " + (hasNoOfMachinesD ? "NoOfMachines = @NoOfMachines, " : "") + @"
+                                                            " + (hasRepPcsD ? "RepPCS = @RepPCS, " : "") + @"
+                                                            " + (hasRepRateD ? "RepRate = @RepRate, " : "") + @"
+                                                            " + (hasRepAmtD ? "RepAmt = @RepAmt, " : "") + @"
+                                                            " + (hasJobberAcceptD ? "JobberAccept = @JobberAccept, " : "") + @"
                                                             CompanyId = @CompanyId,
                                                             UserAccountId = @UserAccountId,
                                                             DateandTime = GETDATE(),
@@ -37366,7 +37407,7 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                              * INSERT NEW DETAIL
                              * =================================================
                              */
-                            const string insertDetailSql = @"
+                            string insertDetailSql = @"
                                     INSERT INTO ProductionOrderDetail
                                     (
                                         ProductionOrderID,
@@ -37391,6 +37432,14 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                         SalesRate,
                                         JobRate,
                                         Amount,
+                                        " + (hasRpmD ? "Rpm, " : "") + @"
+                                        " + (hasPanaRepeatD ? "PanaRepeat, " : "") + @"
+                                        " + (hasPanaWidthD ? "PanaWidth, " : "") + @"
+                                        " + (hasNoOfMachinesD ? "NoOfMachines, " : "") + @"
+                                        " + (hasRepPcsD ? "RepPCS, " : "") + @"
+                                        " + (hasRepRateD ? "RepRate, " : "") + @"
+                                        " + (hasRepAmtD ? "RepAmt, " : "") + @"
+                                        " + (hasJobberAcceptD ? "JobberAccept, " : "") + @"
                                         CompanyId,
                                         UserAccountId,
                                         DateandTime,
@@ -37420,6 +37469,14 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                                         @SalesRate,
                                         @JobRate,
                                         @Amount,
+                                        " + (hasRpmD ? "@Rpm, " : "") + @"
+                                        " + (hasPanaRepeatD ? "@PanaRepeat, " : "") + @"
+                                        " + (hasPanaWidthD ? "@PanaWidth, " : "") + @"
+                                        " + (hasNoOfMachinesD ? "@NoOfMachines, " : "") + @"
+                                        " + (hasRepPcsD ? "@RepPCS, " : "") + @"
+                                        " + (hasRepRateD ? "@RepRate, " : "") + @"
+                                        " + (hasRepAmtD ? "@RepAmt, " : "") + @"
+                                        " + (hasJobberAcceptD ? "@JobberAccept, " : "") + @"
                                         @CompanyId,
                                         @UserAccountId,
                                         GETDATE(),
@@ -37859,6 +37916,24 @@ WHERE CompanyId = @CompanyId
                 request.PanaRepeat;
 
             cmd.Parameters.Add(
+                "@Rpm",
+                SqlDbType.Decimal
+            ).Value =
+                request.Rpm;
+
+            cmd.Parameters.Add(
+                "@PanaWidth",
+                SqlDbType.Decimal
+            ).Value =
+                request.PanaWidth;
+
+            cmd.Parameters.Add(
+                "@NoOfMachines",
+                SqlDbType.Decimal
+            ).Value =
+                request.NoOfMachines;
+
+            cmd.Parameters.Add(
                 "@JobRate",
                 SqlDbType.Decimal
             ).Value =
@@ -38094,6 +38169,59 @@ WHERE CompanyId = @CompanyId
             ).Value =
                 d.Amount;
 
+            decimal rpm = d.Rpm > 0 ? d.Rpm : request.Rpm;
+            decimal panaRepeat = d.PanaRepeat > 0 ? d.PanaRepeat : request.PanaRepeat;
+            decimal panaWidth = d.PanaWidth > 0 ? d.PanaWidth : request.PanaWidth;
+            decimal noOfMachines = d.NoOfMachines > 0 ? d.NoOfMachines : request.NoOfMachines;
+
+            cmd.Parameters.Add(
+                "@Rpm",
+                SqlDbType.Decimal
+            ).Value =
+                rpm;
+
+            cmd.Parameters.Add(
+                "@PanaRepeat",
+                SqlDbType.Decimal
+            ).Value =
+                panaRepeat;
+
+            cmd.Parameters.Add(
+                "@PanaWidth",
+                SqlDbType.Decimal
+            ).Value =
+                panaWidth;
+
+            cmd.Parameters.Add(
+                "@NoOfMachines",
+                SqlDbType.Decimal
+            ).Value =
+                noOfMachines;
+
+            cmd.Parameters.Add(
+                "@RepPCS",
+                SqlDbType.Decimal
+            ).Value =
+                d.RepPCS > 0 ? d.RepPCS : d.ProductionPCS;
+
+            cmd.Parameters.Add(
+                "@RepRate",
+                SqlDbType.Decimal
+            ).Value =
+                d.RepRate > 0 ? d.RepRate : d.JobRate;
+
+            cmd.Parameters.Add(
+                "@RepAmt",
+                SqlDbType.Decimal
+            ).Value =
+                d.RepAmt > 0 ? d.RepAmt : d.Amount;
+
+            cmd.Parameters.Add(
+                "@JobberAccept",
+                SqlDbType.Int
+            ).Value =
+                d.JobberAccept;
+
             /*
              * ALWAYS use current/default values.
              */
@@ -38110,6 +38238,34 @@ WHERE CompanyId = @CompanyId
             ).Value =
                 (object)currentUserAccountId ??
                 DBNull.Value;
+        }
+
+        private static bool DoesColumnExist(SqlConnection con, SqlTransaction tran, string tableName, string columnName)
+        {
+            try
+            {
+                const string sql = "SELECT COUNT(1) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @TableName AND COLUMN_NAME = @ColumnName;";
+                using (SqlCommand cmd = new SqlCommand(sql, con, tran))
+                {
+                    cmd.Parameters.AddWithValue("@TableName", tableName);
+                    cmd.Parameters.AddWithValue("@ColumnName", columnName);
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool HasColumn(SqlDataReader dr, string columnName)
+        {
+            for (int i = 0; i < dr.FieldCount; i++)
+            {
+                if (dr.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
         /*
          * ================================================================

@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
@@ -249,6 +249,7 @@
                     <div id="notess"></div>
                     <div class="modal-footer">
                         <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary">Print</button>
+                        <button id="btnDownloadImage" type="button" onclick="downloadModalAsImage();" class="btn btn-success"><i class="fa fa-download me-1"></i> Download Image</button>
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -1689,6 +1690,127 @@
 
             URL.revokeObjectURL(url);
 
+        }
+
+        function downloadModalAsImage() {
+            var element = document.getElementById("printArea") || document.querySelector(".modal-body");
+            if (!element) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Modal content not found!' });
+                } else {
+                    alert('Modal content not found!');
+                }
+                return;
+            }
+
+            var $btn = $("#btnDownloadImage");
+            var originalBtnHtml = $btn.html();
+            $btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Generating Image...');
+
+            var cloneWrapper = document.createElement("div");
+            cloneWrapper.style.position = "fixed";
+            cloneWrapper.style.left = "-9999px";
+            cloneWrapper.style.top = "0px";
+            cloneWrapper.style.width = Math.max(element.scrollWidth, 1200) + "px";
+            cloneWrapper.style.height = "auto";
+            cloneWrapper.style.zIndex = "-9999";
+            cloneWrapper.style.backgroundColor = "#ffffff";
+            cloneWrapper.style.overflow = "visible";
+
+            var clone = element.cloneNode(true);
+            clone.id = "printArea_clone_download";
+            clone.style.height = "auto";
+            clone.style.maxHeight = "none";
+            clone.style.overflow = "visible";
+            clone.style.padding = "20px";
+            clone.style.backgroundColor = "#ffffff";
+
+            var origInputs = element.querySelectorAll('input, select, textarea');
+            var cloneInputs = clone.querySelectorAll('input, select, textarea');
+            for (var i = 0; i < origInputs.length; i++) {
+                if (origInputs[i].tagName === 'INPUT' || origInputs[i].tagName === 'TEXTAREA') {
+                    cloneInputs[i].value = origInputs[i].value;
+                    if (origInputs[i].type === 'checkbox' || origInputs[i].type === 'radio') {
+                        cloneInputs[i].checked = origInputs[i].checked;
+                    }
+                } else if (origInputs[i].tagName === 'SELECT') {
+                    cloneInputs[i].selectedIndex = origInputs[i].selectedIndex;
+                }
+            }
+
+            var children = clone.querySelectorAll('*');
+            children.forEach(function (child) {
+                child.style.maxHeight = "none";
+                child.style.overflow = "visible";
+                if (child.classList.contains('table-responsive')) {
+                    child.style.overflow = "visible";
+                }
+            });
+
+            cloneWrapper.appendChild(clone);
+            document.body.appendChild(cloneWrapper);
+
+            function triggerCapture() {
+                setTimeout(function () {
+                    var fullHeight = Math.max(cloneWrapper.scrollHeight, cloneWrapper.offsetHeight, clone.scrollHeight);
+                    var fullWidth = Math.max(cloneWrapper.scrollWidth, cloneWrapper.offsetWidth, clone.scrollWidth);
+
+                    html2canvas(cloneWrapper, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: "#ffffff",
+                        width: fullWidth,
+                        height: fullHeight,
+                        windowWidth: fullWidth,
+                        windowHeight: fullHeight,
+                        scrollX: 0,
+                        scrollY: 0
+                    }).then(function (canvas) {
+                        if (document.body.contains(cloneWrapper)) {
+                            document.body.removeChild(cloneWrapper);
+                        }
+
+                        $btn.prop("disabled", false).html(originalBtnHtml);
+
+                        var image = canvas.toDataURL("image/png");
+                        var link = document.createElement("a");
+                        var designNo = ($("#DesignNo").text() || "").trim() || "DesignColorMatching";
+                        link.download = designNo + "_ColorMatching.png";
+                        link.href = image;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }).catch(function (err) {
+                        if (document.body.contains(cloneWrapper)) {
+                            document.body.removeChild(cloneWrapper);
+                        }
+
+                        $btn.prop("disabled", false).html(originalBtnHtml);
+
+                        console.error("html2canvas error:", err);
+                        alert("Error generating image.");
+                    });
+                }, 150);
+            }
+
+            if (typeof html2canvas === 'undefined') {
+                var script = document.createElement('script');
+                script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+                script.onload = function () {
+                    triggerCapture();
+                };
+                script.onerror = function () {
+                    if (document.body.contains(cloneWrapper)) {
+                        document.body.removeChild(cloneWrapper);
+                    }
+                    $btn.prop("disabled", false).html(originalBtnHtml);
+                    alert("Failed to load html2canvas library.");
+                };
+                document.head.appendChild(script);
+            } else {
+                triggerCapture();
+            }
         }
     </script>
 

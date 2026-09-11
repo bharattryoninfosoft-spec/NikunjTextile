@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -1159,6 +1159,7 @@
             $(".valid-feedback").hide();
         }
         function validate(code) {
+            if (!code) return false;
             //alert(code);
             //alert(code.id + "  " + code.value);
             //console.log(code.id + " Hello");
@@ -1604,7 +1605,7 @@
                                             var SelectDDLYarnColor = '';
                                             var SpanDivYarnColorCode = '';
 
-                                            SelectDDLYarnColor += '<select id="MatchingWarp' + SrNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'' + SrNo + '_' + no + '\')">';
+                                            SelectDDLYarnColor += '<select id="MatchingWarp' + SrNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'' + SrNo + '_' + no + '\')">';
                                             SelectDDLYarnColor += '<option value="" selected> Select Color </option>';
 
                                             for (var i = 0; i < ArrayYarnColor[0].length; i++) {
@@ -1660,7 +1661,7 @@
                                                     var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
                                                     var YarnColor = ArrayYarnColor[0][i].YarnColor;
 
-                                                    SpanDivYarnColorCode += '<div id="tdMatchingWarp' + SrNo + no + '" style="background-color: ' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
+                                                    SpanDivYarnColorCode += '<div id="tdMatchingWarp' + SrNo + '_' + no + '" style="background-color: ' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
 
                                                     SelectDDLYarnColor += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
 
@@ -1691,7 +1692,7 @@
                                             var SelectDDLYarnColor = '';
                                             var SpanDivYarnColorCode = '';
 
-                                            SelectDDLYarnColor += '<select id="MatchingWarp' + SrNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'' + SrNo + '_' + no + '\')">';
+                                            SelectDDLYarnColor += '<select id="MatchingWarp' + SrNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'' + SrNo + '_' + no + '\')">';
                                             SelectDDLYarnColor += '<option value="" selected> Select Color </option>';
 
 
@@ -1747,7 +1748,7 @@
                                                     var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
                                                     var YarnColor = ArrayYarnColor[0][i].YarnColor;
 
-                                                    SpanDivYarnColorCode += '<div id="tdMatchingWarp' + SrNo + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
+                                                    SpanDivYarnColorCode += '<div id="tdMatchingWarp' + SrNo + '_' + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
                                                     //tempColorMatching += '<span style="font-size: medium;">' + YarnColor + '</span>';
                                                     SelectDDLYarnColor += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
 
@@ -1793,7 +1794,7 @@
                                             var SelectDDLYarnColor = '';
                                             var SpanDivYarnColorCode = '';
 
-                                            SelectDDLYarnColor += '<select id="MatchingWeft' + SrNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'' + SrNo + '_' + no + '\')" >';
+                                            SelectDDLYarnColor += '<select id="MatchingWeft' + SrNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'' + SrNo + '_' + no + '\')" >';
                                             SelectDDLYarnColor += '<option value="" selected> Select Color </option>';
 
 
@@ -1941,7 +1942,7 @@
                                                     //tempColorMatching += '<div id="tdMatchingWeft' + SrNo + '' + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
                                                     //tempColorMatching += '<span style="font-size: medium;" id="MatchingWeft' + SrNo + '' + no + '">' + YarnColor + '</span>';
 
-                                                    SpanDivYarnColorCode += '<div id="tdMatchingWeft' + SrNo + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
+                                                    SpanDivYarnColorCode += '<div id="tdMatchingWeft' + SrNo + '_' + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
                                                     //tempColorMatching += '<span style="font-size: medium;">' + YarnColor + '</span>';
                                                     SelectDDLYarnColor += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
 
@@ -1971,7 +1972,7 @@
                                             var SelectDDLYarnColor = '';
                                             var SpanDivYarnColorCode = '';
 
-                                            SelectDDLYarnColor += '<select id="MatchingWeft' + SrNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'' + SrNo + '_' + no + '\')" >';
+                                            SelectDDLYarnColor += '<select id="MatchingWeft' + SrNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'' + SrNo + '_' + no + '\')" >';
                                             SelectDDLYarnColor += '<option value="" selected> Select Color </option>';
 
 
@@ -2114,7 +2115,7 @@
                                                     //tempColorMatching += '<div id="tdMatchingWeft' + SrNo + '' + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
                                                     //tempColorMatching += '<span style="font-size: medium;" id="MatchingWeft' + SrNo + '' + no + '">' + YarnColor + '</span>';
 
-                                                    SpanDivYarnColorCode += '<div id="tdMatchingWeft' + SrNo + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
+                                                    SpanDivYarnColorCode += '<div id="tdMatchingWeft' + SrNo + '_' + no + '" style="background-color:' + YarnColorCode + '; width: 35px;height: 35px; border-radius:3px;"></div>';
                                                     //tempColorMatching += '<span style="font-size: medium;">' + YarnColor + '</span>';
                                                     SelectDDLYarnColor += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "' selected> " + ArrayYarnColor[0][i].YarnColor + " </option>";
 
@@ -2435,8 +2436,8 @@
                                         tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; background-color: white; border-radius: 10px; padding: 0px 5px 1.5px 5px;">Matching 1</span>';
                                         tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matching1ID"></span>';
                                         tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                        tempColorMatching += '<div id="tdMatchingWarp1' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                                        tempColorMatching += '<select id="MatchingWarp1' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'1_' + no + '\')">';
+                                        tempColorMatching += '<div id="tdMatchingWarp1_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                                        tempColorMatching += '<select id="MatchingWarp1_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onfocusout="validate(this)" onchange="WarpMatchingChange(\'1_' + no + '\')">';
                                         tempColorMatching += '<option value="" selected> Select Color </option>';
                                         for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                             tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -2452,8 +2453,8 @@
                                         tempColorMatching += '<td>';
                                         tempColorMatching += '<br />';
                                         tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                        tempColorMatching += '<div id="tdMatchingWarp1' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                                        tempColorMatching += '<select id="MatchingWarp1' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WarpMatchingChange(\'1_' + no + '\')">';
+                                        tempColorMatching += '<div id="tdMatchingWarp1_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                                        tempColorMatching += '<select id="MatchingWarp1_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WarpMatchingChange(\'1_' + no + '\')">';
                                         tempColorMatching += '<option value="" selected> Select Color </option>';
                                         for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                             tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -2477,8 +2478,8 @@
                                     tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matchingWeft1ID"></span>';
                                     tempColorMatching += '<br />';
                                     tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<div  id="tdMatchingWeft1' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                                    tempColorMatching += '<select id="MatchingWeft1' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'1_' + no + '\')" >';
+                                    tempColorMatching += '<div  id="tdMatchingWeft1_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                                    tempColorMatching += '<select id="MatchingWeft1_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="WeftMatchingChange(\'1_' + no + '\')" >';
                                     tempColorMatching += '<option value="" selected> Select Color </option>';
                                     for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                         tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -3572,7 +3573,7 @@
 
                     for (var i = 0; i < warpLength; i++) {
                         var Sno = parseInt(i) + parseInt(1);
-                        var Matching = "MatchingWarp" + no + Sno;
+                        var Matching = "MatchingWarp" + no + "_" + Sno;
 
                         var MG = document.getElementById(Matching);
 
@@ -3590,7 +3591,7 @@
 
                     for (var j = 0; j < weftLength; j++) {
                         var Sno = parseInt(j) + parseInt(1);
-                        var Matching = "MatchingWeft" + no + Sno;
+                        var Matching = "MatchingWeft" + no + "_" + Sno;
 
                         var MG = document.getElementById(Matching);
 
@@ -3626,8 +3627,8 @@
                                 tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; background-color: white; border-radius: 10px; padding: 0px 5px 1.5px 5px;">Matching ' + ArrayNo + '</span>';
                                 tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matching' + ArrayNo + 'ID"></span>';
                                 tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
+                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
                                 tempColorMatching += '<option value="" selected> Select Color </option>';
                                 for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                     tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -3643,8 +3644,8 @@
                                 tempColorMatching += '<td>';
                                 tempColorMatching += '<br />';
                                 tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')" >';
+                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + '_' + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')" >';
                                 tempColorMatching += '<option value="" selected> Select Color </option>';
                                 for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                     tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -3671,8 +3672,8 @@
                             tempColorMatching += '<br />';
                             tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matchingWeft' + ArrayNo + 'ID"></span>';
                             tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                            tempColorMatching += '<div id="tdMatchingWeft' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
-                            tempColorMatching += '<select id="MatchingWeft' + ArrayNo + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WeftMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
+                            tempColorMatching += '<div id="tdMatchingWeft' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px;"></div>';
+                            tempColorMatching += '<select id="MatchingWeft' + ArrayNo + '_' + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WeftMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
                             tempColorMatching += '<option value="" selected> Select Color </option>';
                             for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                 tempColorMatching += "<option value='" + ArrayYarnColor[0][i].YarnColorID + "'> " + ArrayYarnColor[0][i].YarnColor + " </option>";
@@ -3741,7 +3742,7 @@
 
                     for (var i = 0; i < warpLength; i++) {
                         var Sno = parseInt(i) + parseInt(1);
-                        var Matching = "MatchingWarp" + no + Sno;
+                        var Matching = "MatchingWarp" + no + "_" + Sno;
 
                         var MG = document.getElementById(Matching);
 
@@ -3758,7 +3759,7 @@
 
                     for (var j = 0; j < weftLength; j++) {
                         var Sno = parseInt(j) + parseInt(1);
-                        var Matching = "MatchingWeft" + no + Sno;
+                        var Matching = "MatchingWeft" + no + "_" + Sno;
 
                         var MG = document.getElementById(Matching);
 
@@ -3793,14 +3794,14 @@
                                 tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; background-color: white; border-radius: 10px; padding: 0px 5px 1.5px 5px;">Matching ' + ArrayNo + '</span>';
                                 tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matching' + ArrayNo + 'ID">' + $(spanmatchingID).html() + '</span>';
                                 tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                var tdMatWarp = "#tdMatchingWarp" + PreviosMatchingID + no + "";
+                                var tdMatWarp = "#tdMatchingWarp" + PreviosMatchingID + "_" + no;
                                 var bgColor = $(tdMatWarp).css("background-color");
 
-                                var SelectMatWarp = "#MatchingWarp" + PreviosMatchingID + no + "";
+                                var SelectMatWarp = "#MatchingWarp" + PreviosMatchingID + "_" + no;
                                 var SelectMatchingWarp = $(SelectMatWarp).val();
 
-                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px; background-color:' + bgColor + '"></div>';
-                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
+                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px; background-color:' + bgColor + '"></div>';
+                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + '_' + no + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;"  onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
                                 tempColorMatching += '<option value="" selected> Select Color </option>';
                                 for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                     if (SelectMatchingWarp == ArrayYarnColor[0][i].YarnColorID) {
@@ -3822,15 +3823,15 @@
                                 tempColorMatching += '<td>';
                                 tempColorMatching += '<br />';
                                 tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                var tdMatWarp = "#tdMatchingWarp" + PreviosMatchingID + no + "";
+                                var tdMatWarp = "#tdMatchingWarp" + PreviosMatchingID + "_" + no;
                                 var bgColor = $(tdMatWarp).css("background-color");
 
-                                var SelectMatWarp = "#MatchingWarp" + PreviosMatchingID + no + "";
+                                var SelectMatWarp = "#MatchingWarp" + PreviosMatchingID + "_" + no;
                                 var SelectMatchingWarp = $(SelectMatWarp).val();
                                 //alert(SelectMatchingWarp);
 
-                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px;  background-color:' + bgColor + '"></div>';
-                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')" >';
+                                tempColorMatching += '<div id="tdMatchingWarp' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px;  background-color:' + bgColor + '"></div>';
+                                tempColorMatching += '<select id="MatchingWarp' + ArrayNo + '_' + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WarpMatchingChange(\'' + ArrayNo + '_' + no + '\')" >';
                                 tempColorMatching += '<option value="" selected> Select Color </option>';
                                 for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                     if (SelectMatchingWarp == ArrayYarnColor[0][i].YarnColorID) {
@@ -3865,15 +3866,15 @@
                             tempColorMatching += '<br />';
                             tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matchingWeft' + ArrayNo + 'ID">' + $(spanmatchingID).html() + '</span>';
                             tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                            var tdMatWarp = "#tdMatchingWeft" + PreviosMatchingID + no + "";
+                            var tdMatWarp = "#tdMatchingWeft" + PreviosMatchingID + "_" + no;
                             var bgColor = $(tdMatWarp).css("background-color");
 
-                            var SelectMatWeft = "#MatchingWeft" + PreviosMatchingID + no + "";
+                            var SelectMatWeft = "#MatchingWeft" + PreviosMatchingID + "_" + no;
                             var SelectMatchingWeft = $(SelectMatWeft).val();
 
 
-                            tempColorMatching += '<div id="tdMatchingWeft' + ArrayNo + no + '" style="width: 35px;height: 35px; border-radius:3px; background-color:' + bgColor + '"></div>';
-                            tempColorMatching += '<select id="MatchingWeft' + ArrayNo + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WeftMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
+                            tempColorMatching += '<div id="tdMatchingWeft' + ArrayNo + '_' + no + '" style="width: 35px;height: 35px; border-radius:3px; background-color:' + bgColor + '"></div>';
+                            tempColorMatching += '<select id="MatchingWeft' + ArrayNo + '_' + no + '" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;" onchange="WeftMatchingChange(\'' + ArrayNo + '_' + no + '\')">';
                             tempColorMatching += '<option value="" selected> Select Color </option>';
                             for (var i = 0; i < ArrayYarnColor[0].length; i++) {
                                 if (SelectMatchingWeft == ArrayYarnColor[0][i].YarnColorID) {
@@ -3917,8 +3918,8 @@
         function WarpMatchingChange(abc) {
             const warpLength = +$("#warpLength").val();
             const [rowNo, DDlNo] = abc.split('_');
-            const Mat = `#MatchingWarp${rowNo}${DDlNo}`;
-            const TableData = `#tdMatchingWarp${rowNo}${DDlNo}`;
+            const Mat = `#MatchingWarp${rowNo}_${DDlNo}`;
+            const TableData = `#tdMatchingWarp${rowNo}_${DDlNo}`;
             //alert(TableData);
             const getSelectedText = id => $.trim($(id + " option:selected").text());
             const cleanValue = val => val.replace(/\/+$/, ""); // remove trailing "/"
@@ -3941,9 +3942,9 @@
             const buildMatching = (Did) => {
                 if (!$(Mat).val()) return "";
                 const chkArray = getChkArray().split('|').filter(Boolean);
-                let ids = getSelectedText(`#MatchingWarp${Did}1`) + "/";
+                let ids = getSelectedText(`#MatchingWarp${Did}_1`) + "/";
                 chkArray.forEach(no => {
-                    ids += getSelectedText(`#MatchingWarp${Did}${no}`) + "/";
+                    ids += getSelectedText(`#MatchingWarp${Did}_${no}`) + "/";
                 });
                 return cleanValue(ids);
             };
@@ -3978,19 +3979,19 @@
 
                 let chkArray = [];
                 for (let wa = 1; wa <= warpLength; wa++) {
-                    const Mat = "#MatchingWarp" + Did + wa;
+                    const Mat = "#MatchingWarp" + Did + "_" + wa;
                     if (!$(Mat).val()) {
-                        validate(document.getElementById("MatchingWarp" + Did + wa));
+                        validate(document.getElementById("MatchingWarp" + Did + "_" + wa));
                     } else if ($("#chkwarp" + wa).prop("checked")) {
                         chkArray.push(wa);
                     }
                 }
 
                 // Build MatchingWarpID
-                let MatchingWarpID = getSelectedText("#MatchingWarp" + Did + "1") + "/";
+                let MatchingWarpID = getSelectedText("#MatchingWarp" + Did + "_1") + "/";
                 chkArray.forEach((wa, i) => {
                     if (!(i === 0 && wa === 1)) {
-                        MatchingWarpID += getSelectedText("#MatchingWarp" + Did + wa) + "/";
+                        MatchingWarpID += getSelectedText("#MatchingWarp" + Did + "_" + wa) + "/";
                     }
                 });
 
@@ -4037,8 +4038,8 @@
         function WeftMatchingChange(abc) {
             const [rowNo, DDlNo] = abc.split('_');
             const weftLength = +$("#weftLength").val();
-            const Mat = `#MatchingWeft${rowNo}${DDlNo}`;
-            const TableData = `#tdMatchingWeft${rowNo}${DDlNo}`;
+            const Mat = `#MatchingWeft${rowNo}_${DDlNo}`;
+            const TableData = `#tdMatchingWeft${rowNo}_${DDlNo}`;
 
             // ✅ Set Background Color
             const selectedVal = $(Mat).val();
@@ -4058,7 +4059,7 @@
             }
 
             // ✅ Build Marching DDL Values
-            const getDDLText = i => $.trim($(`#MatchingWeft${rowNo}${i} option:selected`).text());
+            const getDDLText = i => $.trim($(`#MatchingWeft${rowNo}_${i} option:selected`).text());
             const allSelected = [...missing, ...checked].map(getDDLText).filter(Boolean).join('/');
             $(`#matchingWeft${rowNo}ID`).html(allSelected);
 
@@ -4085,7 +4086,7 @@
             }
 
             const getDDLText = (row, i) =>
-                $.trim($(`#MatchingWeft${row}${i} option:selected`).text());
+                $.trim($(`#MatchingWeft${row}_${i} option:selected`).text());
 
 
 
@@ -4265,7 +4266,7 @@
             // Validate fields and build checkbox values
             for (let i = 0; i < warpLength; i++) {
                 const Sno = i + 1;
-                const el = document.getElementById("MatchingWarp" + lastColorNo + Sno);
+                const el = document.getElementById("MatchingWarp" + lastColorNo + "_" + Sno);
                 if (!validate(el)) hasValidationError = true;
 
                 WarpCheckBox += $("#chkwarp" + Sno).is(':checked') ? "1|" : "0|";
@@ -4273,7 +4274,7 @@
 
             for (let i = 0; i < weftLength; i++) {
                 const Sno = i + 1;
-                const el = document.getElementById("MatchingWeft" + lastColorNo + Sno);
+                const el = document.getElementById("MatchingWeft" + lastColorNo + "_" + Sno);
                 if (!validate(el)) hasValidationError = true;
 
                 WeftCheckBox += $("#chkweft" + Sno).is(':checked') ? "1|" : "0|";
@@ -4316,11 +4317,11 @@
                 };
 
                 for (let i = 0; i < warpLength; i++) {
-                    obj["Warp" + (i + 1)] = $("#MatchingWarp" + MatchingNo + (i + 1)).val();
+                    obj["Warp" + (i + 1)] = $("#MatchingWarp" + MatchingNo + "_" + (i + 1)).val();
                 }
 
                 for (let i = 0; i < weftLength; i++) {
-                    obj["Feeder" + (i + 1)] = $("#MatchingWeft" + MatchingNo + (i + 1)).val();
+                    obj["Feeder" + (i + 1)] = $("#MatchingWeft" + MatchingNo + "_" + (i + 1)).val();
                 }
 
                 return obj;
@@ -4402,7 +4403,7 @@
                 // Validate fields and build checkbox values
                 for (let i = 0; i < warpLength; i++) {
                     const Sno = i + 1;
-                    const el = document.getElementById("MatchingWarp" + lastColorNo + Sno);
+                    const el = document.getElementById("MatchingWarp" + lastColorNo + "_" + Sno);
                     if (!validate(el)) hasValidationError = true;
 
                     WarpCheckBox += $("#chkwarp" + Sno).is(':checked') ? "1|" : "0|";
@@ -4410,7 +4411,7 @@
 
                 for (let i = 0; i < weftLength; i++) {
                     const Sno = i + 1;
-                    const el = document.getElementById("MatchingWeft" + lastColorNo + Sno);
+                    const el = document.getElementById("MatchingWeft" + lastColorNo + "_" + Sno);
                     if (!validate(el)) hasValidationError = true;
 
                     WeftCheckBox += $("#chkweft" + Sno).is(':checked') ? "1|" : "0|";
@@ -4454,11 +4455,11 @@
                     };
 
                     for (let i = 0; i < warpLength; i++) {
-                        obj["Warp" + (i + 1)] = $("#MatchingWarp" + MatchingNo + (i + 1)).val();
+                        obj["Warp" + (i + 1)] = $("#MatchingWarp" + MatchingNo + "_" + (i + 1)).val();
                     }
 
                     for (let i = 0; i < weftLength; i++) {
-                        obj["Feeder" + (i + 1)] = $("#MatchingWeft" + MatchingNo + (i + 1)).val();
+                        obj["Feeder" + (i + 1)] = $("#MatchingWeft" + MatchingNo + "_" + (i + 1)).val();
                     }
 
                     return obj;
