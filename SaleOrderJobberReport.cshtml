@@ -1,0 +1,1224 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .report-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        margin-bottom: 1.5rem;
+    }
+
+    .form-section-header {
+        border-radius: 8px 8px 0 0;
+        background: linear-gradient(135deg, #1273eb 0%, #0d5ed7 100%) !important;
+        margin: 0 0 1rem 0;
+        padding: 0.85rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .kpi-card {
+        border-radius: 8px;
+        padding: 1rem;
+        color: #fff;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .kpi-card .kpi-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .kpi-card .kpi-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .kpi-card .kpi-sub {
+        font-size: 0.75rem;
+        opacity: 0.85;
+        margin-top: 0.25rem;
+    }
+
+    .bg-gradient-primary { background: linear-gradient(135deg, #1273eb 0%, #084298 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #198754 0%, #0f5132 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #fd7e14 0%, #d35400 100%); }
+
+    .filter-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-label {
+        font-size: 0.775rem;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 0.35rem;
+        text-transform: uppercase;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #dcdfe6;
+        border-radius: 6px 6px 0 0;
+        background: #fff;
+    }
+
+    #tblSaleOrderJobberReport {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0;
+        font-size: 0.8rem;
+    }
+
+    #tblSaleOrderJobberReport th {
+        background: #1273eb !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.775rem;
+        padding: 10px;
+        text-align: center;
+        vertical-align: middle;
+        border-bottom: 2px solid #0b5ed7;
+    }
+
+    #tblSaleOrderJobberReport td {
+        padding: 8px 10px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    #tblSaleOrderJobberReport tbody tr.order-group-row td {
+        background: #c5dced !important;
+        color: #111 !important;
+        font-weight: 700 !important;
+        height: 28px !important;
+        padding: 4px 8px !important;
+        border-top: 1px solid #8faec5 !important;
+        border-bottom: 1px solid #8faec5 !important;
+    }
+
+    #tblSaleOrderJobberReport tbody tr.design-group-row td {
+        background: #e6f0fa !important;
+        color: #164f87 !important;
+        font-weight: 700 !important;
+        height: 27px !important;
+        padding: 4px 8px !important;
+        border-top: 1px solid #b6d0e6 !important;
+        border-bottom: 1px solid #b6d0e6 !important;
+    }
+
+    #tblSaleOrderJobberReport .group-slip {
+        text-align: center !important;
+        font-weight: 700 !important;
+    }
+
+    #tblSaleOrderJobberReport .group-date {
+        text-align: center !important;
+    }
+
+    #tblSaleOrderJobberReport tbody tr:not(.order-group-row):not(.design-group-row):hover {
+        background-color: #eef5ff !important;
+    }
+
+    .badge-assigned {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        border: 1px solid #badbcc;
+        padding: 3px 7px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .badge-unassigned {
+        background-color: #fff3cd;
+        color: #664d03;
+        border: 1px solid #ffecb5;
+        padding: 3px 7px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .jobber-name-text {
+        font-weight: 700;
+        color: #0d6efd;
+    }
+
+    .btn-export {
+        height: 36px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 14px;
+    }
+
+    /* Summary Bar & Pagination Styling */
+    .production-summary-bar {
+        background: #f8fafc;
+        border: 1px solid #dcdfe6;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pagination-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid #dcdfe6;
+        background: #ffffff;
+        color: #334155;
+        font-size: 0.775rem;
+        font-weight: 600;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        user-select: none;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+        background: #1273eb;
+        color: #ffffff;
+        border-color: #1273eb;
+    }
+
+    .pagination-btn.active {
+        background: #1273eb;
+        color: #ffffff;
+        border-color: #1273eb;
+        box-shadow: 0 2px 4px rgba(18, 115, 235, 0.25);
+    }
+
+    .pagination-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        background: #f1f5f9;
+    }
+
+    #printContainer {
+        display: none;
+    }
+
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        #printContainer, #printContainer * {
+            visibility: visible;
+        }
+        #printContainer {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+        }
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+        .print-table th, .print-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            vertical-align: middle;
+        }
+        .print-table th {
+            background-color: #f2f2f2 !important;
+            font-weight: bold;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        
+        <!-- Header & Action Row -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-1" style="color: #1e293b;">
+                    <i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>Sale Order Jobber Assignment Report
+                </h4>
+                <p class="text-muted mb-0 font-size-xs" style="font-size: 0.85rem;">
+                    Track Sale Order Details with 3-level Slip Hierarchy (Order, Design, Colour Sub-details) and Jobber Assignment status.
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-export" onclick="loadReportData()">
+                    <i class="fa fa-refresh"></i> Refresh
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-export" onclick="exportPDF()">
+                    <i class="fa fa-file-pdf-o"></i> PDF
+                </button>
+                <button type="button" class="btn btn-outline-success btn-export" onclick="exportExcel()">
+                    <i class="fa fa-file-excel-o"></i> Excel
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-export" onclick="printReport()">
+                    <i class="fa fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="row g-3 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
+                <div class="kpi-card bg-gradient-primary">
+                    <div class="kpi-title">Total Sale Orders</div>
+                    <div class="kpi-value" id="lblTotalOrders">0</div>
+                    <div class="kpi-sub" id="lblTotalOrdersSub">Filtered count</div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
+                <div class="kpi-card bg-gradient-success">
+                    <div class="kpi-title">ALLOTTED Orders</div>
+                    <div class="kpi-value" id="lblAssignedOrders">0</div>
+                    <div class="kpi-sub" id="lblAssignedPercent">0% of total</div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
+                <div class="kpi-card bg-gradient-warning">
+                    <div class="kpi-title">PENDING Orders</div>
+                    <div class="kpi-value" id="lblUnassignedOrders">0</div>
+                    <div class="kpi-sub" id="lblUnassignedSub">Pending jobber assignment</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel">
+            <div class="row g-2 align-items-end">
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="filter-label">From Date</div>
+                    <input type="date" id="txtDateFrom" class="form-control form-control-sm" />
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="filter-label">To Date</div>
+                    <input type="date" id="txtDateTo" class="form-control form-control-sm" />
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="filter-label">Jobber Filter</div>
+                    <select id="ddlJobber" class="form-control form-control-sm">
+                        <option value="ALL">All Jobbers</option>
+                        <option value="PENDING">PENDING Only (Newly Created)</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="filter-label">Assignment Status</div>
+                    <select id="ddlStatus" class="form-control form-control-sm">
+                        <option value="ALL">All Status</option>
+                        <option value="ALLOTTED">ALLOTTED Only</option>
+                        <option value="PENDING">PENDING Only</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="filter-label">Party Name</div>
+                    <select id="ddlParty" class="form-control form-control-sm">
+                        <option value="ALL">All Parties</option>
+                    </select>
+                </div>
+                <div class="col-xl-1 col-lg-3 col-md-4 col-sm-6 col-12 text-end">
+                    <button type="button" class="btn btn-secondary btn-sm w-100" onclick="resetFilters()">
+                        <i class="fa fa-undo me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Data Table Card -->
+        <div class="card report-card">
+            <div class="card-body p-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="field-wrapper" style="width: 280px;">
+                        <input type="text" id="txtSearchText" class="form-control form-control-sm" placeholder="Search Slip, Order, Party, Jobber, Design..." />
+                    </div>
+                </div>
+
+                <div class="table-responsive table-container">
+                    <table class="table table-bordered align-middle text-nowrap mb-0" id="tblSaleOrderJobberReport">
+                        <thead>
+                            <tr>
+                                <th style="width: 45px;">#</th>
+                                <th>Slip No</th>
+                                <th>Order Date</th>
+                                <th>Party / Customer Name</th>
+                                <th>Design No</th>
+                                <th>Colour / Shade</th>
+                                <th>Order Pcs</th>
+                                <th>Allotted Pcs</th>
+                                <th>Pending Pcs</th>
+                                <th>Assigned Jobber / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically loaded rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer Bar -->
+                <div class="production-summary-bar">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fw-semibold text-secondary fs-7" id="lblShowingInfo">
+                            Showing 0 to 0 of 0 orders
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="fs-7 text-muted">Per page:</span>
+                            <select id="ddlPageSize" class="form-select form-select-sm" style="width: 70px; height: 28px; padding: 2px 6px; font-size: 0.775rem;">
+                                <option value="10">10</option>
+                                <option value="15" selected="selected">15</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="pagination-container">
+                        <button type="button" id="btnFirstPage" class="pagination-btn" title="First Page">&laquo;</button>
+                        <button type="button" id="btnPrevPage" class="pagination-btn" title="Previous Page">&lsaquo;</button>
+                        <span id="paginationNumbers" class="d-inline-flex gap-1"></span>
+                        <button type="button" id="btnNextPage" class="pagination-btn" title="Next Page">&rsaquo;</button>
+                        <button type="button" id="btnLastPage" class="pagination-btn" title="Last Page">&raquo;</button>
+                    </div>
+
+                    <!-- Summary Counters -->
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="fs-7 fw-bold text-dark">
+                            Total Orders: <span class="badge bg-primary fs-7 ms-1" id="lblTotalCountSummary">0</span>
+                        </div>
+                        <div class="fs-7 fw-bold text-dark">
+                            Total Qty: <span class="badge bg-success fs-7 ms-1" id="lblFooterQty">0</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Print Container -->
+<div id="printContainer"></div>
+
+@section Scripts {
+    <script>
+        var rawReportData = [];
+        var filteredReportData = [];
+        var currentPage = 1;
+        var pageSize = 15;
+
+        function formatSONumber(val) {
+            if (val === null || val === undefined) return '--';
+            var str = $.trim(String(val));
+            if (!str) return '--';
+            if (str.toUpperCase().indexOf("SO") === 0) {
+                var digitsPart = str.substring(2).replace(/\D/g, "");
+                if (digitsPart) {
+                    return "SO" + digitsPart.padStart(2, "0");
+                }
+                return str.toUpperCase();
+            }
+            var digits = str.replace(/\D/g, "");
+            if (digits) {
+                return "SO" + digits.padStart(2, "0");
+            }
+            return str;
+        }
+
+        $(document).ready(function () {
+            $('body').addClass('fullscreen');
+            
+            // Event listeners for filters
+            $('#txtDateFrom, #txtDateTo, #ddlJobber, #ddlStatus, #ddlParty').on('change', function () {
+                loadReportData();
+            });
+
+            $('#txtSearchText').on('keyup change', function () {
+                applyClientFilters();
+            });
+
+            // Pagination Controls Event Listeners
+            $(document).on("click", "#paginationNumbers button", function () {
+                var p = parseInt($(this).attr("data-page"), 10);
+                if (p && p !== currentPage) {
+                    currentPage = p;
+                    bindTableData(filteredReportData);
+                }
+            });
+
+            $("#btnFirstPage").on("click", function () {
+                if (currentPage > 1) {
+                    currentPage = 1;
+                    bindTableData(filteredReportData);
+                }
+            });
+
+            $("#btnPrevPage").on("click", function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    bindTableData(filteredReportData);
+                }
+            });
+
+            $("#btnNextPage").on("click", function () {
+                var totalPages = Math.ceil((filteredReportData ? filteredReportData.length : 0) / pageSize) || 1;
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    bindTableData(filteredReportData);
+                }
+            });
+
+            $("#btnLastPage").on("click", function () {
+                var totalPages = Math.ceil((filteredReportData ? filteredReportData.length : 0) / pageSize) || 1;
+                if (currentPage < totalPages) {
+                    currentPage = totalPages;
+                    bindTableData(filteredReportData);
+                }
+            });
+
+            $("#ddlPageSize").on("change", function () {
+                pageSize = parseInt($(this).val(), 10) || 15;
+                currentPage = 1;
+                bindTableData(filteredReportData);
+            });
+
+            // Initial Data Load
+            loadReportData();
+        });
+
+        function getUniqueOrders(data) {
+            var orderList = [];
+            var orderMap = {};
+            $.each(data || [], function(i, item) {
+                var oNo = item.SaleOrderID ? String(item.SaleOrderID) : String(item.OrderNo || '');
+                if (oNo && !orderMap[oNo]) {
+                    orderMap[oNo] = true;
+                    orderList.push(oNo);
+                }
+            });
+            return orderList;
+        }
+
+        function generateSlipNumbers(items) {
+            var orderSequence = 0;
+            var orderMap = {};
+            var designMap = {};
+            var colourMap = {};
+
+            $.each(items || [], function (index, item) {
+                var order = $.trim(item.OrderNo || '');
+                var design = $.trim(item.DesignNo || '');
+                var colour = $.trim(item.ColourName || item.ColourMatchingID || '');
+
+                if (orderMap[order] === undefined) {
+                    orderSequence++;
+                    orderMap[order] = orderSequence;
+                    designMap[order] = {};
+                }
+
+                var orderNoSeq = orderMap[order];
+
+                var designNoSeq = 0;
+                if (item.DesignSeq && parseInt(item.DesignSeq, 10) > 0) {
+                    designNoSeq = parseInt(item.DesignSeq, 10);
+                    if (designMap[order][design] === undefined) {
+                        designMap[order][design] = designNoSeq;
+                    }
+                } else {
+                    if (designMap[order][design] === undefined) {
+                        designMap[order][design] = Object.keys(designMap[order]).length + 1;
+                    }
+                    designNoSeq = designMap[order][design];
+                }
+
+                var colourKey = order + "||" + design;
+                if (colourMap[colourKey] === undefined) {
+                    colourMap[colourKey] = {};
+                }
+
+                var colourNoSeq = 0;
+                if (item.ColourSeq && parseInt(item.ColourSeq, 10) > 0) {
+                    colourNoSeq = parseInt(item.ColourSeq, 10);
+                    if (colourMap[colourKey][colour] === undefined) {
+                        colourMap[colourKey][colour] = colourNoSeq;
+                    }
+                } else {
+                    if (colourMap[colourKey][colour] === undefined) {
+                        colourMap[colourKey][colour] = Object.keys(colourMap[colourKey]).length + 1;
+                    }
+                    colourNoSeq = colourMap[colourKey][colour];
+                }
+
+                var rawOrderDigits = String(order || '').replace(/\D/g, '');
+                var orderStr = rawOrderDigits ? rawOrderDigits.padStart(2, '0') : String(orderNoSeq).padStart(2, '0');
+                var designStr = String(designNoSeq).padStart(2, '0');
+                var colourStr = String(colourNoSeq).padStart(2, '0');
+
+                item.OrderGroupSlip = "SO" + orderStr;
+                item.DesignGroupSlip = "SO" + orderStr + "-" + designStr;
+                item.GeneratedSlipNo = "SO" + orderStr + "-" + designStr + "-" + colourStr;
+            });
+        }
+
+        function loadReportData() {
+            var dateFrom = $('#txtDateFrom').val() || '';
+            var dateTo = $('#txtDateTo').val() || '';
+            var jobberId = $('#ddlJobber').val() || 'ALL';
+            var statusFilter = $('#ddlStatus').val() || 'ALL';
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetSaleOrderJobberReport",
+                data: JSON.stringify({
+                    dateFrom: dateFrom,
+                    dateTo: dateTo,
+                    jobberId: jobberId,
+                    statusFilter: statusFilter
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var result = response.d !== undefined ? response.d : response;
+                    if (typeof result === 'string') {
+                        try { result = JSON.parse(result); } catch (e) { }
+                    }
+
+                    if (result && result.Status) {
+                        rawReportData = result.Data || [];
+                        populateDropdowns(result.Jobbers || [], result.Parties || [], result.IsJobWork);
+                        applyClientFilters();
+                    } else {
+                        rawReportData = [];
+                        filteredReportData = [];
+                        currentPage = 1;
+                        bindTableData([]);
+                        updateKpis([]);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error loading Sale Order Jobber Report:", error);
+                    rawReportData = [];
+                    filteredReportData = [];
+                    currentPage = 1;
+                    bindTableData([]);
+                    updateKpis([]);
+                }
+            });
+        }
+
+        function populateDropdowns(jobbersList, partiesList, isJobWork) {
+            var currentJobber = $('#ddlJobber').val() || 'ALL';
+            var $ddlJ = $('#ddlJobber');
+
+            if ($ddlJ.children('option').length <= 2) {
+                $ddlJ.empty();
+
+                if (!isJobWork) {
+                    $ddlJ.append('<option value="ALL">All Jobbers</option>');
+                    $ddlJ.append('<option value="PENDING">PENDING Only (Newly Created)</option>');
+                }
+
+                $.each(jobbersList, function (i, item) {
+                    $ddlJ.append('<option value="' + item.JobberID + '">' + escapeHtml(item.JobberName) + '</option>');
+                });
+
+                if (isJobWork && jobbersList && jobbersList.length > 0) {
+                    $ddlJ.val(jobbersList[0].JobberID);
+                } else if ($ddlJ.find('option[value="' + currentJobber + '"]').length > 0) {
+                    $ddlJ.val(currentJobber);
+                } else {
+                    $ddlJ.val('ALL');
+                }
+            }
+
+            var currentParty = $('#ddlParty').val() || 'ALL';
+            var $ddlP = $('#ddlParty');
+
+            if ($ddlP.children('option').length <= 1) {
+                $ddlP.empty();
+                $ddlP.append('<option value="ALL">All Parties</option>');
+
+                $.each(partiesList, function (i, item) {
+                    $ddlP.append('<option value="' + item.PartyID + '">' + escapeHtml(item.PartyName) + '</option>');
+                });
+                if ($ddlP.find('option[value="' + currentParty + '"]').length > 0) {
+                    $ddlP.val(currentParty);
+                } else {
+                    $ddlP.val('ALL');
+                }
+            }
+        }
+
+        function applyClientFilters() {
+            var selectedJobber = $('#ddlJobber').val() || 'ALL';
+            var selectedStatus = $('#ddlStatus').val() || 'ALL';
+            var selectedParty = $('#ddlParty').val() || 'ALL';
+            var searchText = $.trim($('#txtSearchText').val()).toLowerCase();
+
+            filteredReportData = rawReportData.filter(function (item) {
+                var statusUpper = (item.AssignmentStatus || '').toUpperCase();
+                var isAllotted = (statusUpper === 'ALLOTTED' || statusUpper === 'ASSIGNED');
+                var isPending = !isAllotted;
+
+                // Jobber filter
+                if (selectedJobber === 'PENDING' || selectedJobber === 'UNASSIGNED') {
+                    if (!isPending) return false;
+                } else if (selectedJobber !== 'ALL') {
+                    if (String(item.JobWorkerID) !== String(selectedJobber)) return false;
+                }
+
+                // Status filter
+                if (selectedStatus === 'ALLOTTED' || selectedStatus === 'ASSIGNED') {
+                    if (!isAllotted) return false;
+                } else if (selectedStatus === 'PENDING' || selectedStatus === 'UNASSIGNED') {
+                    if (!isPending) return false;
+                }
+
+                // Party filter
+                if (selectedParty !== 'ALL') {
+                    if (String(item.PartyID) !== String(selectedParty)) return false;
+                }
+
+                // Search text filter
+                if (searchText) {
+                    var formattedSO = formatSONumber(item.OrderNo).toLowerCase();
+                    var rawOrderNo = String(item.OrderNo || '').toLowerCase();
+                    var slipNo = String(item.GeneratedSlipNo || '').toLowerCase();
+                    var mOrder = rawOrderNo.indexOf(searchText) >= 0 || formattedSO.indexOf(searchText) >= 0 || slipNo.indexOf(searchText) >= 0;
+                    var mParty = String(item.PartyName || '').toLowerCase().indexOf(searchText) >= 0;
+                    var mJobber = String(item.JobWorkerName || '').toLowerCase().indexOf(searchText) >= 0;
+                    var mDesign = String(item.DesignNo || '').toLowerCase().indexOf(searchText) >= 0;
+                    var mColour = String(item.ColourName || '').toLowerCase().indexOf(searchText) >= 0;
+                    var mProdNo = String(item.ProductionOrderNo || '').toLowerCase().indexOf(searchText) >= 0;
+                    if (!mOrder && !mParty && !mJobber && !mDesign && !mColour && !mProdNo) return false;
+                }
+
+                return true;
+            });
+
+            generateSlipNumbers(filteredReportData);
+            currentPage = 1;
+            bindTableData(filteredReportData);
+            updateKpis(filteredReportData);
+        }
+
+        function bindTableData(data) {
+            var tbody = $('#tblSaleOrderJobberReport tbody');
+            tbody.empty();
+
+            var totalRecords = data ? data.length : 0;
+            var sumQty = 0;
+
+            $.each(data || [], function (i, item) {
+                sumQty += (parseFloat(item.TotalOrderPcs) || 0);
+            });
+
+            if (totalRecords === 0) {
+                tbody.append('<tr><td colspan="10" class="text-center text-muted py-4">No Sale Orders found for selected filters.</td></tr>');
+                $('#lblShowingInfo').text('Showing 0 to 0 of 0 items');
+                $('#lblTotalCountSummary').text('0');
+                $('#lblFooterQty').text('0');
+                renderPagination(0);
+                return;
+            }
+
+            var totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            var startIndex = (currentPage - 1) * pageSize;
+            var endIndex = Math.min(startIndex + pageSize, totalRecords);
+            var pageData = data.slice(startIndex, endIndex);
+
+            var currentOrderNo = "";
+            var currentDesignKey = "";
+
+            $.each(pageData, function (index, item) {
+                var actualIndex = startIndex + index;
+                var orderNo = item.OrderNo;
+                var designNo = item.DesignNo;
+                var designKey = orderNo + "_" + designNo;
+
+                /* LEVEL 1: ORDER GROUP ROW */
+                if (currentOrderNo !== orderNo) {
+                    currentOrderNo = orderNo;
+                    currentDesignKey = "";
+
+                    var orderItems = data.filter(function(x) { return x.OrderNo === orderNo; });
+                    var oOrderPcs = 0, oAllottedPcs = 0, oPendingPcs = 0;
+                    var jobberPcsMap = {};
+
+                    $.each(orderItems, function(oIdx, oItem) {
+                        var ordPcs = (parseFloat(oItem.TotalOrderPcs) || 0);
+                        var allotPcs = (parseFloat(oItem.AlreadyProducedPcs) || 0);
+                        var pendPcs = (parseFloat(oItem.PendingPcs) || 0);
+                        oOrderPcs += ordPcs;
+                        oAllottedPcs += allotPcs;
+                        oPendingPcs += pendPcs;
+
+                        var isItemAllotted = (oItem.AssignmentStatus === 'ALLOTTED' || oItem.AssignmentStatus === 'Assigned');
+                        if (isItemAllotted && oItem.JobWorkerName && oItem.JobWorkerName !== 'Not Assigned') {
+                            var jName = oItem.JobWorkerName;
+                            if (!jobberPcsMap[jName]) {
+                                jobberPcsMap[jName] = 0;
+                            }
+                            jobberPcsMap[jName] += (allotPcs > 0 ? allotPcs : ordPcs);
+                        }
+                    });
+
+                    var orderGroupSlip = item.OrderGroupSlip || formatSONumber(orderNo);
+
+                    var orderJobberDisplay = '';
+                    var jNames = Object.keys(jobberPcsMap);
+                    if (jNames.length > 0) {
+                        var jParts = [];
+                        $.each(jNames, function(jIdx, jName) {
+                            var jPcs = jobberPcsMap[jName];
+                            jParts.push('<span class="badge bg-primary text-white me-1 mb-1" style="font-size: 0.725rem; font-weight:700;"><i class="fa fa-user me-1"></i>' + escapeHtml(jName) + ' (' + jPcs.toFixed(0) + ' Pcs)</span>');
+                        });
+                        orderJobberDisplay = '<div class="d-flex flex-wrap align-items-center me-1">' + jParts.join('') + '</div>';
+                    } else {
+                        orderJobberDisplay = '<span class="badge bg-secondary text-white" style="font-size: 0.725rem;"><i class="fa fa-clock-o me-1"></i>PENDING</span>';
+                    }
+
+                    tbody.append('<tr class="order-group-row" data-orderno="' + escapeHtml(orderNo) + '">' +
+                        '<td class="text-center font-weight-bold">#</td>' +
+                        '<td class="group-slip fw-bold">' + escapeHtml(orderGroupSlip) + '</td>' +
+                        '<td class="group-date text-center">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td class="fw-bold" colspan="3">' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td class="text-center fw-bold">' + oOrderPcs.toFixed(0) + '</td>' +
+                        '<td class="text-center fw-bold text-success">' + oAllottedPcs.toFixed(0) + '</td>' +
+                        '<td class="text-center fw-bold text-warning">' + oPendingPcs.toFixed(0) + '</td>' +
+                        '<td>' + orderJobberDisplay + '</td>' +
+                        '</tr>');
+                }
+
+                /* LEVEL 2: DESIGN GROUP ROW */
+                if (currentDesignKey !== designKey) {
+                    currentDesignKey = designKey;
+
+                    tbody.append('<tr class="design-group-row" data-orderno="' + escapeHtml(orderNo) + '" data-designkey="' + escapeHtml(designKey) + '">' +
+                        '<td></td>' +
+                        '<td class="design-group-slip fw-bold text-primary" style="padding-left:12px;">' + escapeHtml(item.DesignGroupSlip || '') + '</td>' +
+                        '<td class="group-date text-center">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td class="fw-semibold">' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td class="fw-bold text-secondary text-center">' + escapeHtml(designNo) + '</td>' +
+                        '<td colspan="5"></td>' +
+                        '</tr>');
+                }
+
+                /* LEVEL 3: ITEM SLIP ROW */
+                var totalQty = parseFloat(item.TotalOrderPcs) || 0;
+                var allotted = parseFloat(item.AlreadyProducedPcs) || 0;
+                var pending = parseFloat(item.PendingPcs) || 0;
+
+                var isAllotted = (item.AssignmentStatus === 'ALLOTTED' || item.AssignmentStatus === 'Assigned');
+                var statusDisplay = isAllotted
+                    ? '<span class="badge-assigned"><i class="fa fa-check me-1"></i>ALLOTTED</span> <span class="jobber-name-text ms-1">' + escapeHtml(item.JobWorkerName) + '</span>' + (item.ProductionOrderNo ? (' <small class="text-muted">(' + escapeHtml(item.ProductionOrderNo) + ')</small>') : '')
+                    : '<span class="badge-unassigned"><i class="fa fa-clock-o me-1"></i>PENDING</span>';
+
+                var rowHtml = '<tr>' +
+                    '<td class="text-center font-weight-bold">' + (actualIndex + 1) + '</td>' +
+                    '<td class="text-center fw-semibold text-primary" style="padding-left:22px;">' + escapeHtml(item.GeneratedSlipNo || '--') + '</td>' +
+                    '<td class="text-center">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                    '<td class="text-start">' + escapeHtml(item.PartyName || '--') + '</td>' +
+                    '<td class="text-center fw-semibold">' + escapeHtml(designNo) + '</td>' +
+                    '<td class="text-start">' + escapeHtml(item.ColourName || '--') + '</td>' +
+                    '<td class="text-center fw-bold">' + totalQty.toFixed(0) + '</td>' +
+                    '<td class="text-center fw-bold text-success">' + allotted.toFixed(0) + '</td>' +
+                    '<td class="text-center fw-bold text-warning">' + pending.toFixed(0) + '</td>' +
+                    '<td>' + statusDisplay + '</td>' +
+                    '</tr>';
+
+                tbody.append(rowHtml);
+            });
+
+            var uniqueOrders = getUniqueOrders(data);
+            $('#lblShowingInfo').text('Showing ' + (startIndex + 1) + ' to ' + endIndex + ' of ' + totalRecords + ' items (' + uniqueOrders.length + ' orders)');
+            $('#lblTotalCountSummary').text(uniqueOrders.length);
+            $('#lblFooterQty').text(sumQty.toFixed(0));
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            $("#btnFirstPage").prop("disabled", currentPage <= 1);
+            $("#btnPrevPage").prop("disabled", currentPage <= 1);
+            $("#btnNextPage").prop("disabled", currentPage >= totalPages || totalPages === 0);
+            $("#btnLastPage").prop("disabled", currentPage >= totalPages || totalPages === 0);
+
+            var $container = $("#paginationNumbers");
+            $container.empty();
+
+            if (totalPages < 1) return;
+
+            var maxButtons = 5;
+            var startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            var endPage = startPage + maxButtons - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (var p = startPage; p <= endPage; p++) {
+                var activeClass = (p === currentPage) ? " active" : "";
+                $container.append('<button type="button" class="pagination-btn' + activeClass + '" data-page="' + p + '">' + p + '</button>');
+            }
+        }
+
+        function updateKpis(data) {
+            var orderMap = {};
+            var assignedOrderMap = {};
+            var unassignedOrderMap = {};
+
+            $.each(data || [], function (i, item) {
+                var oNo = item.OrderNo;
+                orderMap[oNo] = true;
+
+                var isAllotted = (item.AssignmentStatus === 'ALLOTTED' || item.AssignmentStatus === 'Assigned');
+                if (isAllotted) {
+                    assignedOrderMap[oNo] = true;
+                } else {
+                    unassignedOrderMap[oNo] = true;
+                }
+            });
+
+            var totalOrders = Object.keys(orderMap).length;
+            var assignedCount = Object.keys(assignedOrderMap).length;
+            var unassignedCount = Object.keys(unassignedOrderMap).length;
+
+            var assignedPct = totalOrders > 0 ? Math.round((assignedCount / totalOrders) * 100) : 0;
+
+            $('#lblTotalOrders').text(totalOrders);
+            $('#lblAssignedOrders').text(assignedCount);
+            $('#lblAssignedPercent').text(assignedPct + '% of total orders');
+            $('#lblUnassignedOrders').text(unassignedCount);
+        }
+
+        function resetFilters() {
+            $('#txtDateFrom').val('');
+            $('#txtDateTo').val('');
+            $('#ddlJobber').val('ALL');
+            $('#ddlStatus').val('ALL');
+            $('#ddlParty').val('ALL');
+            $('#txtSearchText').val('');
+            loadReportData();
+        }
+
+        function buildPrintHTML() {
+            var sumQty = 0;
+            var rowsHtml = '';
+            var currentOrderNo = "";
+            var currentDesignKey = "";
+            var globalIdx = 0;
+
+            $.each(filteredReportData || [], function (idx, item) {
+                var orderNo = item.OrderNo;
+                var designNo = item.DesignNo;
+                var designKey = orderNo + "_" + designNo;
+
+                if (currentOrderNo !== orderNo) {
+                    currentOrderNo = orderNo;
+                    currentDesignKey = "";
+
+                    var orderItems = (filteredReportData || []).filter(function(x) { return x.OrderNo === orderNo; });
+                    var oOrderPcs = 0, oAllottedPcs = 0, oPendingPcs = 0;
+                    var jobberPcsMap = {};
+
+                    $.each(orderItems, function(oIdx, oItem) {
+                        var ordPcs = (parseFloat(oItem.TotalOrderPcs) || 0);
+                        var allotPcs = (parseFloat(oItem.AlreadyProducedPcs) || 0);
+                        var pendPcs = (parseFloat(oItem.PendingPcs) || 0);
+                        oOrderPcs += ordPcs;
+                        oAllottedPcs += allotPcs;
+                        oPendingPcs += pendPcs;
+
+                        var isItemAllotted = (oItem.AssignmentStatus === 'ALLOTTED' || oItem.AssignmentStatus === 'Assigned');
+                        if (isItemAllotted && oItem.JobWorkerName && oItem.JobWorkerName !== 'Not Assigned') {
+                            var jName = oItem.JobWorkerName;
+                            if (!jobberPcsMap[jName]) jobberPcsMap[jName] = 0;
+                            jobberPcsMap[jName] += (allotPcs > 0 ? allotPcs : ordPcs);
+                        }
+                    });
+
+                    var jNames = Object.keys(jobberPcsMap);
+                    var orderJobberText = jNames.length > 0
+                        ? jNames.map(function(jn) { return jn + ' (' + jobberPcsMap[jn].toFixed(0) + ' Pcs)'; }).join(', ')
+                        : 'PENDING';
+
+                    rowsHtml += '<tr style="background-color: #c5dced; font-weight: bold;">' +
+                        '<td style="text-align: center;">#</td>' +
+                        '<td style="text-align: center;">' + escapeHtml(item.OrderGroupSlip || formatSONumber(orderNo)) + '</td>' +
+                        '<td style="text-align: center;">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td colspan="3">' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td style="text-align: center;">' + oOrderPcs.toFixed(0) + '</td>' +
+                        '<td style="text-align: center;">' + oAllottedPcs.toFixed(0) + '</td>' +
+                        '<td style="text-align: center;">' + oPendingPcs.toFixed(0) + '</td>' +
+                        '<td>' + escapeHtml(orderJobberText) + '</td>' +
+                        '</tr>';
+                }
+
+                if (currentDesignKey !== designKey) {
+                    currentDesignKey = designKey;
+                    rowsHtml += '<tr style="background-color: #e6f0fa; font-weight: bold;">' +
+                        '<td></td>' +
+                        '<td style="padding-left:12px;">' + escapeHtml(item.DesignGroupSlip || '') + '</td>' +
+                        '<td style="text-align: center;">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td>' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td style="text-align: center;">' + escapeHtml(designNo) + '</td>' +
+                        '<td colspan="5"></td>' +
+                        '</tr>';
+                }
+
+                globalIdx++;
+                var totalQty = parseFloat(item.TotalOrderPcs) || 0;
+                var allotted = parseFloat(item.AlreadyProducedPcs) || 0;
+                var pending = parseFloat(item.PendingPcs) || 0;
+                sumQty += totalQty;
+
+                var isAllotted = (item.AssignmentStatus === 'ALLOTTED' || item.AssignmentStatus === 'Assigned');
+                var jobberName = isAllotted
+                    ? ('ALLOTTED - ' + escapeHtml(item.JobWorkerName) + (item.ProductionOrderNo ? (' (' + escapeHtml(item.ProductionOrderNo) + ')') : ''))
+                    : 'PENDING';
+
+                rowsHtml += '<tr>' +
+                    '<td style="text-align: center;">' + globalIdx + '</td>' +
+                    '<td style="text-align: center; font-weight: bold; padding-left:22px;">' + escapeHtml(item.GeneratedSlipNo || '--') + '</td>' +
+                    '<td style="text-align: center;">' + escapeHtml(item.OrderDate || '') + '</td>' +
+                    '<td>' + escapeHtml(item.PartyName || '--') + '</td>' +
+                    '<td style="text-align: center;">' + escapeHtml(designNo) + '</td>' +
+                    '<td>' + escapeHtml(item.ColourName || '--') + '</td>' +
+                    '<td style="text-align: center; font-weight: bold;">' + totalQty.toFixed(0) + '</td>' +
+                    '<td style="text-align: center; color: green; font-weight: bold;">' + allotted.toFixed(0) + '</td>' +
+                    '<td style="text-align: center; color: orange; font-weight: bold;">' + pending.toFixed(0) + '</td>' +
+                    '<td>' + jobberName + '</td>' +
+                    '</tr>';
+            });
+
+            var printHtml = '<div style="font-family: Arial, sans-serif; padding: 10px;">' +
+                '<h3 style="text-align: center; margin-bottom: 5px; color: #1273eb;">Sale Order Jobber Assignment Report</h3>' +
+                '<p style="text-align: center; font-size: 11px; color: #555; margin-bottom: 15px;">Generated on: ' + new Date().toLocaleString() + ' | Total Records: ' + (filteredReportData ? filteredReportData.length : 0) + '</p>' +
+                '<table class="print-table">' +
+                '<thead>' +
+                '<tr>' +
+                '<th>#</th>' +
+                '<th>Slip No</th>' +
+                '<th>Order Date</th>' +
+                '<th>Party / Customer Name</th>' +
+                '<th>Design No</th>' +
+                '<th>Colour / Shade</th>' +
+                '<th>Order Pcs</th>' +
+                '<th>Allotted Pcs</th>' +
+                '<th>Pending Pcs</th>' +
+                '<th>Assigned Jobber / Status</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                (rowsHtml || '<tr><td colspan="10" style="text-align: center;">No records found.</td></tr>') +
+                '</tbody>' +
+                '<tfoot>' +
+                '<tr style="font-weight: bold; background-color: #f9f9f9;">' +
+                '<td colspan="6" style="text-align: right;">TOTAL:</td>' +
+                '<td style="text-align: center;">' + sumQty.toFixed(0) + '</td>' +
+                '<td colspan="3"></td>' +
+                '</tr>' +
+                '</tfoot>' +
+                '</table>' +
+                '</div>';
+
+            return printHtml;
+        }
+
+        function exportPDF() {
+            var html = buildPrintHTML();
+            $('#printContainer').html(html);
+            window.print();
+        }
+
+        function exportExcel() {
+            var sumQty = 0;
+            var tableHtml = '<table border="1">' +
+                '<thead>' +
+                '<tr style="background-color: #1273eb; color: #ffffff;">' +
+                '<th>#</th>' +
+                '<th>Slip No</th>' +
+                '<th>Order Date</th>' +
+                '<th>Party / Customer Name</th>' +
+                '<th>Design No</th>' +
+                '<th>Colour / Shade</th>' +
+                '<th>Order Pcs</th>' +
+                '<th>Allotted Pcs</th>' +
+                '<th>Pending Pcs</th>' +
+                '<th>Assigned Jobber / Status</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>';
+
+            var currentOrderNo = "";
+            var currentDesignKey = "";
+            var globalIdx = 0;
+
+            $.each(filteredReportData || [], function (idx, item) {
+                var orderNo = item.OrderNo;
+                var designNo = item.DesignNo;
+                var designKey = orderNo + "_" + designNo;
+
+                if (currentOrderNo !== orderNo) {
+                    currentOrderNo = orderNo;
+                    currentDesignKey = "";
+
+                    var orderItems = (filteredReportData || []).filter(function(x) { return x.OrderNo === orderNo; });
+                    var oOrderPcs = 0, oAllottedPcs = 0, oPendingPcs = 0;
+                    var jobberPcsMap = {};
+
+                    $.each(orderItems, function(oIdx, oItem) {
+                        var ordPcs = (parseFloat(oItem.TotalOrderPcs) || 0);
+                        var allotPcs = (parseFloat(oItem.AlreadyProducedPcs) || 0);
+                        var pendPcs = (parseFloat(oItem.PendingPcs) || 0);
+                        oOrderPcs += ordPcs;
+                        oAllottedPcs += allotPcs;
+                        oPendingPcs += pendPcs;
+
+                        var isItemAllotted = (oItem.AssignmentStatus === 'ALLOTTED' || oItem.AssignmentStatus === 'Assigned');
+                        if (isItemAllotted && oItem.JobWorkerName && oItem.JobWorkerName !== 'Not Assigned') {
+                            var jName = oItem.JobWorkerName;
+                            if (!jobberPcsMap[jName]) jobberPcsMap[jName] = 0;
+                            jobberPcsMap[jName] += (allotPcs > 0 ? allotPcs : ordPcs);
+                        }
+                    });
+
+                    var jNames = Object.keys(jobberPcsMap);
+                    var orderJobberText = jNames.length > 0
+                        ? jNames.map(function(jn) { return jn + ' (' + jobberPcsMap[jn].toFixed(0) + ' Pcs)'; }).join(', ')
+                        : 'PENDING';
+
+                    tableHtml += '<tr style="background-color: #c5dced; font-weight: bold;">' +
+                        '<td>#</td>' +
+                        '<td>' + escapeHtml(item.OrderGroupSlip || formatSONumber(orderNo)) + '</td>' +
+                        '<td>' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td colspan="3">' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td>' + oOrderPcs.toFixed(0) + '</td>' +
+                        '<td>' + oAllottedPcs.toFixed(0) + '</td>' +
+                        '<td>' + oPendingPcs.toFixed(0) + '</td>' +
+                        '<td>' + escapeHtml(orderJobberText) + '</td>' +
+                        '</tr>';
+                }
+
+                if (currentDesignKey !== designKey) {
+                    currentDesignKey = designKey;
+                    tableHtml += '<tr style="background-color: #e6f0fa; font-weight: bold;">' +
+                        '<td></td>' +
+                        '<td>' + escapeHtml(item.DesignGroupSlip || '') + '</td>' +
+                        '<td>' + escapeHtml(item.OrderDate || '') + '</td>' +
+                        '<td>' + escapeHtml(item.PartyName || '') + '</td>' +
+                        '<td>' + escapeHtml(designNo) + '</td>' +
+                        '<td colspan="5"></td>' +
+                        '</tr>';
+                }
+
+                globalIdx++;
+                var totalQty = parseFloat(item.TotalOrderPcs) || 0;
+                var allotted = parseFloat(item.AlreadyProducedPcs) || 0;
+                var pending = parseFloat(item.PendingPcs) || 0;
+                sumQty += totalQty;
+
+                var isAllotted = (item.AssignmentStatus === 'ALLOTTED' || item.AssignmentStatus === 'Assigned');
+                var jobberName = isAllotted
+                    ? ('ALLOTTED - ' + escapeHtml(item.JobWorkerName) + (item.ProductionOrderNo ? (' (' + escapeHtml(item.ProductionOrderNo) + ')') : ''))
+                    : 'PENDING';
+
+                tableHtml += '<tr>' +
+                    '<td>' + globalIdx + '</td>' +
+                    '<td>' + escapeHtml(item.GeneratedSlipNo || '--') + '</td>' +
+                    '<td>' + escapeHtml(item.OrderDate || '') + '</td>' +
+                    '<td>' + escapeHtml(item.PartyName || '--') + '</td>' +
+                    '<td>' + escapeHtml(designNo) + '</td>' +
+                    '<td>' + escapeHtml(item.ColourName || '--') + '</td>' +
+                    '<td>' + totalQty.toFixed(0) + '</td>' +
+                    '<td>' + allotted.toFixed(0) + '</td>' +
+                    '<td>' + pending.toFixed(0) + '</td>' +
+                    '<td>' + jobberName + '</td>' +
+                    '</tr>';
+            });
+
+            tableHtml += '</tbody>' +
+                '<tfoot>' +
+                '<tr style="font-weight: bold;">' +
+                '<td colspan="6" style="text-align: right;">TOTAL:</td>' +
+                '<td>' + sumQty.toFixed(0) + '</td>' +
+                '<td colspan="3"></td>' +
+                '</tr>' +
+                '</tfoot>' +
+                '</table>';
+
+            var blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Sale_Order_Jobber_Report_' + new Date().toISOString().slice(0, 10) + '.xls';
+            a.click();
+        }
+
+        function printReport() {
+            var html = buildPrintHTML();
+            $('#printContainer').html(html);
+            window.print();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+}

@@ -2,1054 +2,407 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<!-- =========================================================
+   CREATE DESIGN COLOR MATCHING - UI ONLY
+   DO NOT MODIFY FUNCTIONALITY
+   ========================================================= -->
+<style>
+    /* Scoped Design System for Color Matching Page */
+    .cdm-page {
+        font-family: inherit;
+        color: #2c3e50;
+    }
+
+    .cdm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: #ffffff;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .cdm-header-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #1a252f;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .cdm-header-title i {
+        color: #3b82f6;
+        font-size: 1.25rem;
+    }
+
+    .cdm-header-subtitle {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 0.2rem;
+        margin-bottom: 0;
+    }
+
+    .cdm-card {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .cdm-card-header {
+        padding: 0.9rem 1.25rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .cdm-card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #334155;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cdm-card-body {
+        padding: 1.25rem;
+    }
+
+    .cdm-upload-card {
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        text-align: center;
+        padding: 1.25rem;
+        min-height: 240px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cdm-upload-card:hover {
+        border-color: #3b82f6;
+        background: #f0f0ff;
+    }
+
+    .cdm-upload-card .dropzone {
+        border: none !important;
+        background: transparent !important;
+        min-height: auto !important;
+        padding: 0 !important;
+        width: 100%;
+    }
+
+    .cdm-upload-card label#upload-PhotoOfDesign-default-preview {
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .cdm-form-group {
+        margin-bottom: 1rem;
+    }
+
+    .cdm-form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .cdm-label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+
+    .cdm-control-readonly {
+        background-color: #f1f5f9 !important;
+        color: #334155 !important;
+        border-color: #cbd5e1 !important;
+        font-weight: 500;
+    }
+
+    /* Scoped Styling for Dynamically Generated Table inside #divColorMatchingTable */
+    #divColorMatchingTable {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow-x: auto;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    #divColorMatchingTable table {
+        width: 100%;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        font-size: 0.825rem;
+        margin-bottom: 0 !important;
+    }
+
+    #divColorMatchingTable table th,
+    #divColorMatchingTable table td {
+        padding: 0.5rem 0.6rem !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        border-right: 1px solid #f1f5f9 !important;
+        text-align: center;
+    }
+
+    #divColorMatchingTable table th:last-child,
+    #divColorMatchingTable table td:last-child {
+        border-right: none !important;
+    }
+
+    #divColorMatchingTable table thead tr:first-child th {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.775rem;
+        letter-spacing: 0.04em;
+        border-bottom: 2px solid #0f172a !important;
+    }
+
+    #divColorMatchingTable table thead tr:nth-child(2) th {
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+    }
+
+    #divColorMatchingTable table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    #divColorMatchingTable select,
+    #divColorMatchingTable input[type="text"],
+    #divColorMatchingTable input[type="number"] {
+        height: 34px !important;
+        min-height: 34px !important;
+        font-size: 0.8rem !important;
+        border-radius: 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 0.25rem 0.5rem !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #divColorMatchingTable select:focus,
+    #divColorMatchingTable input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        outline: none !important;
+    }
+
+    #divColorMatchingTable .form-check-input {
+        width: 1.15rem;
+        height: 1.15rem;
+        margin-top: 0;
+        cursor: pointer;
+        accent-color: #2563eb;
+    }
+
+    .cdm-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1.25rem 0 0 0;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 1.5rem;
+    }
+
+    .cdm-actions .btn {
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.15s ease;
+    }
+
+    .cdm-actions .btn-primary {
+        background-color: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+    }
+
+    .cdm-actions .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .cdm-actions .btn-light {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+
+    .cdm-actions .btn-light:hover {
+        background-color: #e2e8f0;
+        color: #1e293b;
+    }
+
+    @@media (max-width: 991.98px) {
+        .cdm-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .cdm-actions {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+</style>
 
 <!-- Content wrapper start -->
-<div class="content-wrapper">
+<div class="content-wrapper cdm-page">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
-
-
-
-    <!-- Row start -->
-    <div class="row gutters">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-section-header">Create Design Color Matching Form</div>
-                    <br />
-                    <!--Images-->
-                    <div class="row gutters">
-
-                        <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
-                        </div>
-
-
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <!-- Field wrapper start -->
-                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-
-                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                    <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;"><label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default">Photo Of Design.</label></div>
-                                </div>
-
-                            </div>
-                            <!-- Field wrapper end -->
-                        </div>
-                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                        </div>
-
-
-                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                            <!-- Field wrapper start -->
-                            <div id="dropzone-sm">
-
-                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
-
-                                <div class="row gutters">
-                                    <div class="col-6" style=" text-align: center;">
-                                        <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Design No</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <select class="select-single detail form-control"  style="min-height: 35px;" id="DesignNo" onchange="getDesignNo(this)">
-                                            <option value="">Select Design No</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-
-                                <div class="row gutters">
-                                    <div class="col-6" style=" text-align: center;">
-                                        <span>Pick On Loom</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="text" id="PickOnLoom" name="PickOnLoom" class="form-control" title="Pick On Loom" placeholder="Pick On Loom" style="min-height: 35px;" readonly />
-                                    </div>
-                                </div>
-
-
-                                <div class="row gutters">
-                                    <div class="col-6" style=" text-align: center;">
-                                        <span>Total Card</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="text" id="TotalCard" name="TotalCard" class="form-control" title="Total Card" placeholder="Total Card" style="min-height: 35px;" readonly />
-                                    </div>
-                                </div>
-
-                                <div class="row gutters">
-                                    <div class="col-6" style=" text-align: center;">
-                                        <span>Design Category</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="text" id="DesignCategory" name="DesignCategory" class="form-control" title="Design No" placeholder="Design No" style="min-height: 35px;" readonly />
-                                    </div>
-                                </div>
-
-
-
-
-                            </div>
-
-                            <!-- Field wrapper end -->
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <input type="hidden" id="txtWarpData" value="1|" />
-                    <input type="hidden" id="txtWeftData" value="1|" />
-
-
-
-
-
-
-
-
-
-                    <hr />
-
-
-                    <!--Weft Data -->
-                    <div class="row gutters">
-
-                        <style>
-                            table {
-                                border: none; /* Removes all borders */
-                            }
-
-                            table, th, td {
-                                border: none; /* Removes all borders */
-                            }
-
-                            table {
-                                border-collapse: collapse; /* Collapses borders */
-                            }
-                        </style>
-
-
-
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                        </div>
-
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-
-                            <div id="divExistingDesignNo" style="display:none;">
-
-                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
-
-                                <div class="row gutters">
-                                    <div class="col-6" style=" text-align: center;">
-                                        <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Import Existing Design No</div>
-                                    </div>
-                                    <div class="col-6">
-                                        <select class="select-single detail form-control"  style="min-height: 35px;" id="ExistingDesignNo" onchange="getExistingDesignNo(this)">
-                                            <option value="">Select Design No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
-
-
-
-
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                            <br />
-                            <br />
-                            <div class="table-responsive" id="divColorMatchingTable">
-
-                                <!--
-                                <table id="copy-print-csvs" class="table table-hover table-bordered m-0">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                <br />
-                                            </th>
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top:0;">
-                                                    <span class="field-placeholder" style="  border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">WARP-1</span>
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style="  border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">WARP-2</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style="  border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">WARP-3</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th style="background-color: #c8d3df;">
-                                                <br />
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-1</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-2</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-3</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-4</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-5</span>
-
-                                                </div>
-                                            </th>
-
-                                            <th>
-                                                <div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">
-                                                    <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-6</span>
-                                                </div>
-                                            </th>
-
-                                        </tr>
-
-                                        <tr>
-
-                                            <th>
-                                                <br />
-                                            </th>
-                                            <th>
-
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk2" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk3" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th style="background-color: #c8d3df;">
-                                                <br />
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk4" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk5" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk6" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk7" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk8" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input class="form-check-input" type="checkbox" id="chk9" style="transform: scale(1.3);">
-                                                </center>
-
-                                            </th>
-
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <br />
-                                            </th>
-                                            <th>
-
-                                                <center>
-                                                    <input type="text" id="warp1" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="warpid1" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input type="text" id="warp2" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="warpid2" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <input type="text" id="warp3" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="warp3" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th style="background-color: #c8d3df;">
-                                                <br />
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder1" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid1" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder2" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid2" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder3" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid3" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder4" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid4" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder5" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid5" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                            <th>
-
-                                                <center>
-                                                    <span style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">Design Specification</span>
-                                                    <input type="text" id="feeder6" class="form-control feeder" onfocusout="validate(this)" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>
-                                                    <input type="hidden" id="feederid6" class="form-control feeder" value="0">
-                                                </center>
-
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody id="tblColorMatching">
-
-                                        <tr id="trMatching1">
-                                            <td>
-                                            </td>
-                                            <td>
-                                                <span style="margin-left: 5px;">Matching 1</span>
-                                                <center>
-                                                    <select id="Matching11" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching12" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching13" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td style="background-color: #c8d3df;">
-                                                <br />
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching14" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching15" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching16" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching17" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching18" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching19" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-                                        </tr>
-
-                                        <tr id="trMatching2">
-                                            <td>
-                                                <div class="col-xl-2" style=" padding: 0;"><i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteColorMatchingData(2)"></i></div>
-                                            </td>
-                                            <td>
-                                                <span style="margin-left: 5px;">Matching 2</span>
-                                                <center>
-                                                    <select id="Matching21" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching22" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching23" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td style="background-color: #c8d3df;">
-                                                <br />
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching24" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching25" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching26" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching27" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching28" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-
-                                            <td>
-                                                <br />
-                                                <center>
-                                                    <select id="Matching29" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-
-                                </table>
-                                -->
-
-                            </div>
-
-
-                            <br />
-                            <br />
-                        </div>
-
-                        <!--
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-
-                                <div class="row gutters">
-                                    <div class="col-xl-2">
-
-                                    </div>
-                                    <div class="col-xl-5">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px;text-align: center;">WARP <br />COLOR</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-5">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; text-align: center;">WEFT MAC-<br />HING ID</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
-
-                                <div class="row gutters">
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-1</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-2</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-3</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-4</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-5</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-6</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-7</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-8</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-9</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-10</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-11</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-12</span>
-                                            <br />
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        -->
-                    </div>
-
-
-
-
-                    <!--
-                    <div class="row gutters">
-                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-
-                            <div class="row gutters">
-                                <div class="col-xl-2">
-
-                                </div>
-                                <div class="col-xl-10">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <div class="field-wrapper" style=" margin-top: 0;">
-                                            <center>
-                                                <input type="text" id="WarpAllColor" class="form-control" title="Warp All Color" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            </center>
-                                        </div>
-                                        <br />
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
-
-                            <div class="row gutters">
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <div class="field-wrapper" style=" margin-top: 0;">
-                                            <center>
-                                                <input type="text" id="feeder1" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                                <input type="hidden" id="feederid1" class="form-control feeder" value="0">
-                                            </center>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder2" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid2" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder3" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid3" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder4" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid4" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder5" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid5" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder6" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid6" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder7" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid7" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder8" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid8" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder9" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid9" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder10" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid10" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder11" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid11" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                                <div class="col-xl-1">
-                                    <div class="field-wrapper" style="margin-bottom: 0;">
-                                        <center>
-                                            <input type="text" id="feeder12" class="form-control feeder" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;">
-                                            <input type="hidden" id="feederid12" class="form-control feeder" value="0">
-                                        </center>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    -->
-
-                    <input type="hidden" id="txtColorArray" title="txtColorArray" />
-                    <input type="hidden" id="warpLength" title="warpLength" />
-                    <input type="hidden" id="weftLength" title="weftLength" />
-                    <input type="hidden" id="txtDeleteColorArray" title="DeleteColorArray" />
-
-
-                    <div id="divMatchingColor">
-                        <!--
-                        <div class="row gutters" id="divSpanMatching1">
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-
-                                <div class="row gutters">
-                                    <div class="col-xl-2" style=" padding: 0;">
-
-                                    </div>
-                                    <div class="col-xl-10">
-                                        <span style="margin-left: 5px;">Matching 1</span>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
-
-
-
-                            </div>
-                        </div>
-
-
-                        <div class="row gutters" id="divMatching1">
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-
-                                <div class="row gutters">
-                                    <div class="col-xl-2" style=" padding: 0;">
-                                        <i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteColorMatchingData(2)"></i>
-                                    </div>
-                                    <div class="col-xl-5">
-
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-
-                                            <select id="WarpMaching1" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                            </select>
-                                            <br />
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-5">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <select id="WeftMaching1" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                            </select>
-                                            <br />
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
-
-                                <div class="row gutters">
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <div class="field-wrapper" style=" margin-top: 0;">
-                                                <center>
-                                                    <select id="Metching11" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                    </select>
-                                                </center>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching12" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching13" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching14" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching15" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching16" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching17" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching18" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching19" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching110" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching111" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-1">
-                                        <div class="field-wrapper" style="margin-bottom: 0;">
-                                            <center>
-                                                <select id="Metching112" class="form-control" onfocusout="validate(this)" style=" min-height: 30px; width: 90%; font-size: x-small;">
-                                                </select>
-                                            </center>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        -->
-                    </div>
-
-
-
-                    <div class="row gutters" id="divAddColorMatching" style="display:none;">
-
-
-
-                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divWarpData">
-                            <div class="row gutters">
-                                <div class="row gutters">
-                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <button type="button" class="btn btn-secondary" style=" width: 100%;" onclick="AddColorMatchingData()"><i class="fa fa-plus"></i> ADD COLOR MATCHING DATA</button>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                        <button type="button" class="btn btn-success" style=" width: 100%;" onclick="AddDuplicateColorMatchingData()"><i class="fa fa-plus"></i> ADD DUPLICATE COLOR MATCHING</button>
-                                    </div>
-                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
-
-
-
-                    </div>
-
-
-
-
-                    <br />
-
-                    <div class="modal-footer">
-                        <a href="ColorMatching" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
-                        <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Color Matching</button>
-                        <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update Color Matching</button>
-                    </div>
-
-
-
-
-                </div>
-            </div>
-
+    <input type="hidden" id="txtWarpData" value="1|" />
+    <input type="hidden" id="txtWeftData" value="1|" />
+    <input type="hidden" id="txtColorArray" title="txtColorArray" />
+    <input type="hidden" id="warpLength" title="warpLength" />
+    <input type="hidden" id="weftLength" title="weftLength" />
+    <input type="hidden" id="txtDeleteColorArray" title="DeleteColorArray" />
+
+    <!-- Professional Page Header -->
+    <div class="cdm-header">
+        <div>
+            <h4 class="cdm-header-title">
+                <i class="icon-palette"></i> Create Design Color Matching
+            </h4>
+            <p class="cdm-header-subtitle">Configure warp, weft and yarn colour matching</p>
         </div>
     </div>
 
+    <!-- Top Two-Column Information Area -->
+    <div class="row gutters">
+        <!-- LEFT: Design Photo / Upload Card -->
+        <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12">
+            <div class="card cdm-card">
+                <div class="card-header cdm-card-header">
+                    <h5 class="cdm-card-title"><i class="icon-image"></i> Photo of Design</h5>
+                </div>
+                <div class="card-body cdm-card-body">
+                    <div id="dropzone-sm" class="cdm-upload-card image-upload-clear-image">
+                        <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                            <div class="dz-message needsclick" style="text-align: center;">
+                                <i class="icon-upload-cloud" style="font-size: 2.2rem; color: #94a3b8; display: block; margin-bottom: 0.4rem;"></i>
+                                <label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default">Photo Of Design.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- RIGHT: Design Information Card -->
+        <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12">
+            <div class="card cdm-card">
+                <div class="card-header cdm-card-header">
+                    <h5 class="cdm-card-title"><i class="icon-sliders"></i> Design Information</h5>
+                </div>
+                <div class="card-body cdm-card-body">
+                    <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+
+                    <div class="cdm-form-group">
+                        <label class="cdm-label" for="DesignNo">Design No</label>
+                        <select class="select-single detail form-control" id="DesignNo" onchange="getDesignNo(this)">
+                            <option value="">Select Design No</option>
+                        </select>
+                    </div>
+
+                    <div class="row gutters">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="cdm-form-group">
+                                <label class="cdm-label" for="PickOnLoom">Pick On Loom</label>
+                                <input type="text" id="PickOnLoom" name="PickOnLoom" class="form-control cdm-control-readonly" title="Pick On Loom" placeholder="Pick On Loom" readonly />
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+                            <div class="cdm-form-group">
+                                <label class="cdm-label" for="TotalCard">Total Card</label>
+                                <input type="text" id="TotalCard" name="TotalCard" class="form-control cdm-control-readonly" title="Total Card" placeholder="Total Card" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cdm-form-group">
+                        <label class="cdm-label" for="DesignCategory">Design Category</label>
+                        <input type="text" id="DesignCategory" name="DesignCategory" class="form-control cdm-control-readonly" title="Design No" placeholder="Design No" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Existing Design Card (shown dynamically via JS) -->
+    <div id="divExistingDesignNo" style="display:none;" class="card cdm-card mb-4">
+        <div class="card-header cdm-card-header bg-light">
+            <h5 class="cdm-card-title"><i class="icon-download"></i> Import Existing Design</h5>
+        </div>
+        <div class="card-body cdm-card-body">
+            <div class="row align-items-center">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+                    <label class="cdm-label mb-0" for="ExistingDesignNo">Import Existing Design No</label>
+                </div>
+                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                    <select class="select-single detail form-control" id="ExistingDesignNo" onchange="getExistingDesignNo(this)">
+                        <option value="">Select Design No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Matching Table Card -->
+    <div class="card cdm-card">
+        <div class="card-header cdm-card-header">
+            <h5 class="cdm-card-title"><i class="icon-grid"></i> Color Matching Specifications</h5>
+        </div>
+        <div class="card-body cdm-card-body p-3">
+            <div class="table-responsive" id="divColorMatchingTable">
+            </div>
+
+            <div id="divMatchingColor"></div>
+
+            <div class="row gutters my-3" id="divAddColorMatching" style="display:none;">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divWarpData">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <button type="button" class="btn btn-secondary" onclick="AddColorMatchingData()"><i class="fa fa-plus"></i> ADD COLOR MATCHING DATA</button>
+                        <button type="button" class="btn btn-success" onclick="AddDuplicateColorMatchingData()"><i class="fa fa-plus"></i> ADD DUPLICATE COLOR MATCHING</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area / Buttons -->
+            <div class="cdm-actions">
+                <a href="ColorMatching" class="btn btn-light"><i class="icon-arrow-left"></i> Back</a>
+                <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()"><i class="icon-check"></i> Save Color Matching</button>
+                <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="display:none;"><i class="icon-save"></i> Update Color Matching</button>
+            </div>
+        </div>
+    </div>
 </div>
 @section Scripts{
     <script>

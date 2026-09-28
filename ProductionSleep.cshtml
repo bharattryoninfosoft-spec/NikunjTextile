@@ -1871,12 +1871,14 @@
                                 );
 
 
-                            $("#txtJobRate")
-                                .val(
-                                    numberValue(
-                                        master.JobRate
-                                    )
+                            var masterJobRate =
+                                numberValue(
+                                    master.JobRate
                                 );
+
+                            $("#txtJobRate")
+                                .val(masterJobRate)
+                                .attr("data-initial-rate", masterJobRate);
 
 
                             $("#txtPanaRepeat")
@@ -1923,6 +1925,14 @@
                                             textValue(
                                                 detail.SlipNo
                                             );
+                                    }
+
+                                    var repRate = numberValue(detail.RepRate ?? detail.repRate ?? detail.JobRate ?? detail.jobRate);
+                                    if (repRate > 0) {
+                                        detail.OriginalRepRate = repRate;
+                                        if ((!detail.TotalCard || numberValue(detail.TotalCard) <= 0) && masterJobRate > 0) {
+                                            detail.TotalCard = Math.round((repRate * 100 / 0.0254) / masterJobRate);
+                                        }
                                     }
 
                                     var subId =
@@ -2538,6 +2548,16 @@
 
                             }
 
+                            // Filter to pick DesignEntryWarpID == 1
+                            var filteredWarpList = $.grep(warpList, function (w) {
+                                var wId = parseInt(w.DesignEntryWarpID || w.designEntryWarpID || w.WarpID || w.warpID || 0, 10);
+                                return wId === 1;
+                            });
+
+                            if (filteredWarpList.length > 0) {
+                                warpList = filteredWarpList;
+                            }
+
 
                             var result = [];
 
@@ -2546,9 +2566,10 @@
                                 warpList,
                                 function (index, warp) {
 
+                                    var warpId = parseInt(warp.DesignEntryWarpID || warp.designEntryWarpID || 0, 10);
                                     var warpNo =
                                         "Warp" +
-                                        (index + 1);
+                                        (warpId > 0 ? warpId : (index + 1));
 
 
                                     /*
@@ -3237,13 +3258,27 @@
                         }
                         function getSubId(item) {
 
-                            return textValue(
-                                item.SubDetailID ??
-                                item.SalesOrderDetailID ??
-                                item.SalesOrderDetailsID ??
-                                item.DetailID ??
-                                item.ID
-                            );
+                            if (!item) return "";
+                            var subId = item.SubDetailID ?? item.subDetailID ?? item.SubDetailId;
+                            if (subId !== null && subId !== undefined && String(subId).trim() !== "" && String(subId).trim() !== "0") {
+                                return textValue(subId);
+                            }
+
+                            var detailId = item.SalesOrderDetailID ?? item.SalesOrderDetailsID ?? item.SODetailID ?? item.DetailID ?? item.ID;
+                            var colourId = item.ColourMatchingID ?? item.ColourMatchingId ?? item.ColorMatchingID ?? item.ColorMatchingId ?? item.ColourID ?? item.ColorID;
+                            var slipNo = item.GeneratedSlipNo || item.SlipNo;
+
+                            if (detailId && colourId) {
+                                return textValue(detailId) + "_" + textValue(colourId);
+                            }
+                            if (detailId && slipNo) {
+                                return textValue(detailId) + "_" + textValue(slipNo);
+                            }
+                            if (slipNo) {
+                                return textValue(slipNo);
+                            }
+
+                            return textValue(subId ?? detailId ?? item.ID);
 
                         }
                         function getNullableID(item) {
@@ -3324,10 +3359,30 @@
                             );
                         }
                         function calculateJobRateForItem(item) {
+                            var baseJobRate = numberValue($("#txtJobRate").val());
+                            var totalCard = numberValue(item ? (item.TotalCard ?? item.totalCard ?? item.DesignTotalCard ?? item.total_card) : 0);
+
+                            if (totalCard <= 0 && item) {
+                                var origRate = numberValue(item.OriginalRepRate ?? item.RepRate ?? item.repRate ?? item.JobRate ?? item.jobRate);
+                                var initialJobRate = numberValue($("#txtJobRate").attr("data-initial-rate")) || baseJobRate;
+                                if (origRate > 0 && initialJobRate > 0) {
+                                    totalCard = Math.round((origRate * 100 / 0.0254) / initialJobRate);
+                                    item.TotalCard = totalCard;
+                                }
+                            }
+
+                            if (baseJobRate > 0) {
+                                if (totalCard > 0) {
+                                    var calculated = (totalCard * baseJobRate) * 0.0254 / 100;
+                                    return parseFloat(calculated.toFixed(2));
+                                }
+                                return parseFloat(baseJobRate.toFixed(2));
+                            }
+
                             if (item) {
-                                var repRate = numberValue(item.RepRate ?? item.repRate);
-                                if (repRate > 0) {
-                                    return parseFloat(repRate.toFixed(2));
+                                var origRate = numberValue(item.OriginalRepRate ?? item.RepRate ?? item.repRate ?? item.JobRate ?? item.jobRate);
+                                if (origRate > 0) {
+                                    return parseFloat(origRate.toFixed(2));
                                 }
 
                                 var repAmt = numberValue(item.RepAmt ?? item.repAmt);
@@ -3337,14 +3392,7 @@
                                 }
                             }
 
-                            var baseJobRate = numberValue($("#txtJobRate").val());
-                            var totalCard = numberValue(item ? (item.TotalCard ?? item.totalCard ?? item.DesignTotalCard ?? item.total_card) : 0);
-                            if (totalCard > 0 && baseJobRate > 0) {
-                                var calculated = (totalCard * baseJobRate) * 0.0254 / 100;
-                                return parseFloat(calculated.toFixed(2));
-                            }
-
-                            return parseFloat(baseJobRate.toFixed(2));
+                            return 0;
                         }
                         function cacheDesignQuality(item, designData) {
 
@@ -3644,6 +3692,11 @@
                                 globalOrderData,
                                 function (index, item) {
 
+                                    var existingSlip = textValue(item.SlipNo);
+                                    if (existingSlip !== "") {
+                                        item.GeneratedSlipNo = existingSlip;
+                                    }
+
                                     var order =
                                         normalizeText(
                                             getOrderNo(item)
@@ -3689,21 +3742,28 @@
                                      * DESIGN SEQUENCE
                                      */
 
-                                    if (
-                                        designMap[order][design]
-                                        === undefined
-                                    ) {
+                                    var designNo = 0;
+                                    if (item.DesignSeq && numberValue(item.DesignSeq) > 0) {
+                                        designNo = numberValue(item.DesignSeq);
+                                        if (designMap[order][design] === undefined) {
+                                            designMap[order][design] = designNo;
+                                        }
+                                    } else {
+                                        if (
+                                            designMap[order][design]
+                                            === undefined
+                                        ) {
 
-                                        designMap[order][design] =
-                                            Object.keys(
-                                                designMap[order]
-                                            ).length + 1;
+                                            designMap[order][design] =
+                                                Object.keys(
+                                                    designMap[order]
+                                                ).length + 1;
 
+                                        }
+
+                                        designNo =
+                                            designMap[order][design];
                                     }
-
-
-                                    var designNo =
-                                        designMap[order][design];
 
 
                                     /*
@@ -3727,41 +3787,51 @@
                                     }
 
 
-                                    if (
-                                        colourMap[colourKey][colour]
-                                        === undefined
-                                    ) {
+                                    var colourNo = 0;
+                                    if (item.ColourSeq && numberValue(item.ColourSeq) > 0) {
+                                        colourNo = numberValue(item.ColourSeq);
+                                        if (colourMap[colourKey][colour] === undefined) {
+                                            colourMap[colourKey][colour] = colourNo;
+                                        }
+                                    } else {
+                                        if (
+                                            colourMap[colourKey][colour]
+                                            === undefined
+                                        ) {
 
-                                        colourMap[colourKey][colour] =
-                                            Object.keys(
-                                                colourMap[colourKey]
-                                            ).length + 1;
+                                            colourMap[colourKey][colour] =
+                                                Object.keys(
+                                                    colourMap[colourKey]
+                                                ).length + 1;
 
+                                        }
+
+                                        colourNo =
+                                            colourMap[colourKey][colour];
                                     }
 
+                                    if (!item.GeneratedSlipNo) {
+                                        var rawOrderDigits = String(order || "").replace(/\D/g, "");
+                                        var orderStr = rawOrderDigits ? rawOrderDigits.padStart(2, "0") : String(orderNo).padStart(2, "0");
 
-                                    var colourNo =
-                                        colourMap[colourKey][colour];
+                                        /*
+                                         * FINAL
+                                         */
 
+                                        item.GeneratedSlipNo =
+                                            "SO" +
+                                            orderStr +
 
-                                    /*
-                                     * FINAL
-                                     */
+                                            "-" +
 
-                                    item.GeneratedSlipNo =
-                                        "SO" +
-                                        String(orderNo)
-                                            .padStart(2, "0") +
+                                            String(designNo)
+                                                .padStart(2, "0") +
 
-                                        "-" +
+                                            "-" +
 
-                                        String(designNo)
-                                            .padStart(2, "0") +
-
-                                        "-" +
-
-                                        String(colourNo)
-                                            .padStart(2, "0");
+                                            String(colourNo)
+                                                .padStart(2, "0");
+                                    }
 
                                 }
                             );
@@ -4396,6 +4466,23 @@
                                 return;
                             }
 
+                            // Sort data hierarchy-wise: OrderNo, DesignNo, SlipNo
+                            data.sort(function (a, b) {
+                                var orderA = textValue(a.OrderNo || getOrderNo(a));
+                                var orderB = textValue(b.OrderNo || getOrderNo(b));
+
+                                var numA = parseInt(String(orderA).replace(/\D/g, "") || "0", 10);
+                                var numB = parseInt(String(orderB).replace(/\D/g, "") || "0", 10);
+
+                                if (numA !== numB) {
+                                    return numA - numB;
+                                }
+
+                                var slipA = a.GeneratedSlipNo || a.SlipNo || "";
+                                var slipB = b.GeneratedSlipNo || b.SlipNo || "";
+
+                                return slipA.localeCompare(slipB, undefined, { numeric: true, sensitivity: 'base' });
+                            });
 
                             $.each(
                                 data,
@@ -4441,6 +4528,12 @@
                                             "0"
                                         );
 
+                                    var itemSlip = item.GeneratedSlipNo || item.SlipNo || "";
+                                    var orderGroupSlip = "SO" + orderNumber;
+                                    if (itemSlip && itemSlip.indexOf("-") !== -1) {
+                                        orderGroupSlip = itemSlip.split("-")[0];
+                                    }
+
                                     /* =====================================================
                                        LEVEL 1: ORDER GROUP ROW (e.g. SO01, SO02)
                                        ===================================================== */
@@ -4482,8 +4575,7 @@
 
                                             "<td class='group-slip'>" +
 
-                                            "SO" +
-                                            orderNumber +
+                                            escapeHtml(orderGroupSlip) +
 
                                             "</td>" +
 
@@ -5422,6 +5514,10 @@
                                             if (
                                                 item.QualityType === "WARP QUALITY"
                                             ) {
+                                                var wId = parseInt(item.DesignEntryWarpID || item.designEntryWarpID || item.WarpNo || item.warpNo || 0, 10);
+                                                if (wId > 1) {
+                                                    return;
+                                                }
 
                                                 var color =
                                                     $.trim(item.YarnColor || "");
@@ -6033,14 +6129,6 @@
 
                         });
                         $(document).on("input.productionOrder change.productionOrder", "#txtJobRate, #txtPanaRepeat", function () {
-
-                            /*
-                             * IMPORTANT:
-                             *
-                             * Manual Production value is NOT overwritten.
-                             *
-                             * Only report amount recalculates.
-                             */
 
                             rebuildProductionReport();
 

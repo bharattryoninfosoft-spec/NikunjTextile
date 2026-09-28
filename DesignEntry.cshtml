@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
@@ -418,6 +418,13 @@
             });
         }
 
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+
         function displayPagginationData() {
             var searchdesignNo = $("#search-design-no").val();
             var formData = new FormData();
@@ -431,28 +438,101 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (response.listPagginationMaster[0].Paggination == "0") {
+                    if (!response.listPagginationMaster || response.listPagginationMaster.length === 0 || response.listPagginationMaster[0].Paggination == "0") {
                         $('#divPaggination').hide();
                     } else {
-                        var temp = "";
-                        var totalPages = parseInt(response.listPagginationMaster[0].Paggination);
-                        for (var i = 1; i <= Math.min(totalPages, 10); i++) {
-                            temp += "<li class='page-item " + (i == 1 ? "active" : "") + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                        }
-                        if (totalPages > 10) {
+                        total = response.listPagginationMaster[0].Total;
+                        Paggination = parseInt(response.listPagginationMaster[0].Paggination);
+                        prevNo = 0;
+                        nextNo = 10;
+                        PageNo = 0;
+
+                        if (Paggination <= 10) {
+                            var temp = "";
+                            for (var i = 1; i <= Paggination; i++) {
+                                temp += "<li class='page-item " + (i == 1 ? "active" : "") + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
+                            $('#divPaggination').html(temp).show();
+                        } else {
+                            var temp = "";
+                            for (var i = 1; i <= 10; i++) {
+                                temp += "<li class='page-item " + (i == 1 ? "active" : "") + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                            }
                             temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+                            $('#divPaggination').html(temp).show();
                         }
-                        $('#divPaggination').html(temp).show();
                     }
                 }
             });
         }
 
         function funcationPaggination(abc) {
-            $('li').removeClass('active');
-            $("#a" + abc).addClass('active');
-            $("#rowStartCount").val(((abc - 1) * 10));
-            displayData(((abc - 1) * 10));
+            var a = "#a" + abc;
+            SelectNo = abc;
+            $('#divPaggination li').removeClass('active');
+            $(a).addClass('active');
+
+            var rowStart = (abc - 1) * 30;
+            $("#rowStartCount").val(rowStart);
+            displayData(rowStart);
+        }
+
+        function funcationPagginationNext() {
+            var n = nextNo + 1;
+            var nnext = nextNo + 10;
+
+            if (nextNo >= Paggination - 10) {
+                nnext = Paggination;
+                prevNo = nextNo;
+                nextNo = nnext;
+                var temp = "";
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
+                for (var i = prevNo + 1; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                $('#divPaggination').html(temp).show();
+            } else {
+                prevNo = nextNo;
+                nextNo = nnext;
+                var temp = "";
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
+                for (var i = n; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
+                $('#divPaggination').html(temp).show();
+            }
+            PageNo += 1;
+        }
+
+        function funcationPagginationPrev() {
+            PageNo -= 1;
+            var n = 1;
+            if (PageNo > 0) {
+                n = (PageNo * 10) + 1;
+            }
+            var nnext = n + 9;
+
+            if (n === 1) {
+                prevNo = 0;
+                nextNo = 10;
+                var temp = "";
+                for (var i = 1; i <= 10; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
+                $('#divPaggination').html(temp).show();
+            } else {
+                prevNo = n - 10;
+                nextNo = nnext;
+                var temp = "";
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
+                for (var i = n; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
+                $('#divPaggination').html(temp).show();
+            }
         }
 
         function showRecords(id) {

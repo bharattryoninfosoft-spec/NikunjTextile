@@ -342,7 +342,7 @@
                 class="btn btn-primary"
                 style="height: 28px; padding: 0 10px; font-size: 12px; font-weight: 600;"
                 onclick="window.location.href='/ProductionSleep'">
-            <i class="fa fa-plus me-1"></i> Add new Production Slip
+            <i class="fa fa-plus me-1"></i>  Add Jobber Allotted
         </button>
     </div>
 
@@ -746,7 +746,7 @@
                     '<td class="po-number">' + (orderNo || ('PO' + id)) + '</td>' +
                     '<td>' + safeText(orderDate) + '</td>' +
                     '<td title="' + jobWorker + '">' + (jobWorker || '-') + '</td>' +
-                    '<td>' + formatAmount(jobRate) + '</td>' +
+                    '<td>' + formatAmount(jobRate / 100) + '</td>' +
                     '<td>' + formatNumber(totalPcs) + '</td>' +
                     '<td>' + formatNumber(prodPcs) + '</td>' +
                     '<td class="po-pending">' + formatNumber(pendingPcs) + '</td>' +

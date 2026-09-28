@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -331,7 +331,7 @@
                                             <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
                                         </div>
                                         <div class="input-group input-group-sm me-2" style="width: 100px;">
-                                            <span class="input-group-text">₹</span>
+                                            <span class="input-group-text">&#8377;</span>
                                             <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
                                         </div>
                                         <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
@@ -351,7 +351,7 @@
                                     <span class="fw-semibold text-secondary">Discount</span>
                                     <div class="d-flex gap-2 align-items-center">
                                         <div class="input-group input-group-sm" style="width: 110px;">
-                                            <span class="input-group-text">₹</span>
+                                            <span class="input-group-text">&#8377;</span>
                                             <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0" readonly>
                                         </div>
                                         <div class="input-group input-group-sm" style="width: 90px;">
@@ -650,7 +650,7 @@
                                     <h5 class="modal-title fw-bold fs-5">
                                         <i class="fa fa-th-large me-2"></i> Design Selection & Color Matching
                                     </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white text-white close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close" style="background: transparent; border: none; font-size: 1.5rem; color: #fff; opacity: 0.9; cursor: pointer; line-height: 1;"><span aria-hidden="true">&times;</span></button>
                                 </div>
 
                                 <!-- BODY -->
@@ -1075,7 +1075,7 @@
             if ($(this).val() === "Percentage") {
                 $("#discountValue").attr("placeholder", "Enter %");
             } else {
-                $("#discountValue").attr("placeholder", "Enter ₹");
+                $("#discountValue").attr("placeholder", "Enter \u20B9");
             }
         });
         $("#discountValue").on("input", updateSummary);
@@ -1657,7 +1657,7 @@
                 <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
             </div>
             <div class="input-group input-group-sm me-2" style="width: 100px;">
-                <span class="input-group-text">₹</span>
+                <span class="input-group-text">&#8377;</span>
                 <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
             </div>          
             <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
@@ -1727,13 +1727,13 @@
         });
 
 
-        function afterPartySave() {
+        function afterPartySave(partyId) {
             $("#addNewContact").modal("hide");
 
-            // reload GST dropdown
-            bindPartyGST();
+            // reload GST dropdown & select newly created party
+            bindPartyGST(partyId || true);
         }
-        function bindPartyGST() {
+        function bindPartyGST(selectedPartyId) {
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/GetPartyList',
                 type: 'POST',
@@ -1741,27 +1741,40 @@
                 dataType: 'json',
                 success: function (res) {
 
-                    let data = JSON.parse(res.d); // 🔥 FIX
+                    let data = (typeof res.d === "string") ? JSON.parse(res.d) : res.d;
 
                     console.log("Parsed Data:", data);
 
                     $("#ddlPartyGST").empty();
                     $("#ddlPartyGST").append('<option value="-1">Select</option>');
 
-                    $.each(data, function (i, item) {
+                    if (Array.isArray(data)) {
+                        $.each(data, function (i, item) {
+                            let displayText = (item.GSTIN ? (item.GSTIN + " - ") : "") + (item.PartyName || '');
+                            $("#ddlPartyGST").append(`
+                                            <option value="${item.PartyId}"
+                                                    data-name="${item.PartyName || ''}"
+                                                    data-gstin="${item.GSTIN || ''}"
+                                                    data-address="${item.BillingAddress || ''}"
+                                                    data-state="${item.State || ''}"
+                                                    data-brokercode="${item.BrokerCode || 0}"
+                                                    data-brokername="${item.BrokerName || ''}">
+                                                ${displayText}
+                                            </option>
+                                        `);
+                        });
 
-                        $("#ddlPartyGST").append(`
-                                        <option value="${item.PartyId}"
-                                                data-name="${item.PartyName || ''}"
-                                                data-gstin="${item.GSTIN || ''}"
-                                                data-address="${item.BillingAddress || ''}"
-                                                data-brokercode="${item.BrokerCode || 0}"
-                                                data-brokername="${item.BrokerName || ''}">
-                                            ${item.GSTIN || ''} - ${item.PartyName || ''}
-                                        </option>
-                                    `);
-
-                    });
+                        if (selectedPartyId) {
+                            let matchId = selectedPartyId;
+                            if (selectedPartyId === true && data.length > 0) {
+                                let maxParty = data.reduce((prev, current) => (parseInt(prev.PartyId) > parseInt(current.PartyId)) ? prev : current, data[0]);
+                                matchId = maxParty ? maxParty.PartyId : null;
+                            }
+                            if (matchId) {
+                                $("#ddlPartyGST").val(String(matchId)).trigger("change");
+                            }
+                        }
+                    }
                 },
                 error: function (err) {
                     console.log(err);
@@ -1834,7 +1847,7 @@
             displayPagginationData();
             displayData(0);
         }
-        function bindBrokerDropdown() {
+        function bindBrokerDropdown(selectedCode) {
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/GetBrokerList',
                 type: 'POST',
@@ -1859,6 +1872,15 @@
                                     </option>
                                 `);
                     });
+
+                    if (selectedCode && selectedCode !== true) {
+                        $("#ddlBroker").val(selectedCode).trigger("change");
+                    } else if (selectedCode === true && data && data.length > 0) {
+                        var newBroker = data[0];
+                        if (newBroker && newBroker.BrokerCode) {
+                            $("#ddlBroker").val(newBroker.BrokerCode).trigger("change");
+                        }
+                    }
                 },
                 error: function (err) {
                     console.log(err);
@@ -2076,13 +2098,27 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (response.Code == 201 || response.Code == 200) {
-                        Toast.fire({ icon: 'success', title: response.Message || 'Saved Successfully!' });
-                        clearAll();
-                        displayData(0);
-                        if (closeModalAfterSave) $("#cancelbtn").click();
+                    var resObj = (typeof response === "string") ? JSON.parse(response) : response;
+                    if (resObj && typeof resObj.d === "string") {
+                        try { resObj = JSON.parse(resObj.d); } catch(e) {}
+                    }
+
+                    if (resObj && (resObj.Code == 201 || resObj.Code == 200)) {
+                        Toast.fire({ icon: 'success', title: resObj.Message || 'Saved Successfully!' });
+                        
+                        // Clear modal fields safely
+                        $('#addNewContact input[type="text"], #addNewContact input[type="tel"], #addNewContact textarea').val('');
+                        
+                        // Hide modal immediately
+                        if (closeModalAfterSave) {
+                            $("#addNewContact").modal("hide");
+                        }
+
+                        // Auto fill and select newly saved party
+                        var newPartyId = resObj.id || resObj.PartyId || true;
+                        bindPartyGST(newPartyId);
                     } else {
-                        Toast.fire({ icon: 'error', title: response.Message });
+                        Toast.fire({ icon: 'error', title: (resObj ? resObj.Message : 'Error') });
                     }
                 },
                 error: function () {
@@ -2590,7 +2626,7 @@
                 }
             }
         }
-        function bindTransport() {
+        function bindTransport(selectedCode) {
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/GetTransportList',
                 type: 'POST',
@@ -2612,6 +2648,15 @@
                                 </option>
                             `);
                     });
+
+                    if (selectedCode && selectedCode !== true) {
+                        $("#ddlTransport").val(selectedCode).trigger("change");
+                    } else if (selectedCode === true && data && data.length > 0) {
+                        var newTransport = data[0];
+                        if (newTransport && newTransport.TransportCode) {
+                            $("#ddlTransport").val(newTransport.TransportCode).trigger("change");
+                        }
+                    }
                 },
                 error: function (err) {
                     console.log(err);
@@ -2689,7 +2734,8 @@
 
                     if (res.d === "success") {
                         showToast('success', 'Saved Successfully');
-                        $('#TransportModal').modal('hide');                        
+                        $('#TransportModal').modal('hide');
+                        bindTransport(true);
                     }
                 }
             });
@@ -4176,7 +4222,8 @@
                     if (res.d === "success") {
                         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Broker saved successfully.', showConfirmButton: false, timer: 2000 });
                         $('#brokerModal').modal('hide');
-                        bindBrokerDropdown();
+                        let savedBrokerCode = $('#BrokerCode').val();
+                        bindBrokerDropdown(savedBrokerCode || true);
                     } else {
                         Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: res.d, showConfirmButton: false, timer: 2000 });
                     }
