@@ -32,10 +32,7 @@ namespace NikunjTextile.Class
         public decimal AdditionalValue { get; set; }
 
         public List<SaleOrderDetailModel> Details { get; set; }
-<<<<<<< HEAD
-=======
         public List<SaleOrderAdditionalChargeModel> AdditionalCharges { get; set; }
->>>>>>> origin/master
     }
     public class SaleOrderDetailModel
     {
@@ -109,10 +106,7 @@ namespace NikunjTextile.Class
         public string AdditionalRemark { get; set; }
         public decimal AdditionalValue { get; set; }
         public List<SaleOrderDetailVM> Details { get; set; } = new List<SaleOrderDetailVM>();
-<<<<<<< HEAD
-=======
         public List<SaleOrderAdditionalChargeModel> AdditionalCharges { get; set; }
->>>>>>> origin/master
     }
 
     public class SaleOrderDetailVM
@@ -143,20 +137,14 @@ namespace NikunjTextile.Class
         public int SubDetailID { get; set; }
         public int ColourID { get; set; }
         public string ColourName { get; set; }
-<<<<<<< HEAD
-=======
         public string ImageUrl { get; set; }
->>>>>>> origin/master
         public decimal SaleRate { get; set; }
         public decimal MarkupPercent { get; set; }
         public int ColorDetailsID { get; set; }
         public int UnitId { get; set; }
         public int TypeID { get; set; }
         public List<SaleOrderSubVM> SubDetails { get; set; } = new List<SaleOrderSubVM>();
-<<<<<<< HEAD
-=======
       
->>>>>>> origin/master
     }
 
     public class SaleOrderSubVM
@@ -197,9 +185,6 @@ namespace NikunjTextile.Class
         public int pageSize { get; set; }
     }
 
-<<<<<<< HEAD
-
-=======
     public class SaleOrderReport
     {
         public int SaleOrderID { get; set; }
@@ -290,5 +275,4 @@ namespace NikunjTextile.Class
         public decimal ChargeValue { get; set; }
         public decimal TotalCalculatedAmount { get; set; }
     }
->>>>>>> origin/master
 }

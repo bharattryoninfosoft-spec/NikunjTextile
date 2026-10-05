@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-﻿using iText.Forms.Xfdf;
-using iText.Kernel.Geom;
-using iText.Layout.Element;
-=======
 using iText.Forms.Xfdf;
 using iText.Kernel.Geom;
 using iText.Layout.Element;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
->>>>>>> origin/master
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -20,10 +14,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
-<<<<<<< HEAD
-=======
 using System.IO;
->>>>>>> origin/master
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
@@ -626,11 +617,6 @@ namespace NikunjTextile
             Context.Response.SuppressContent = true;
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
-<<<<<<< HEAD
-        #region Sale Order Entry API
-        [WebMethod]
-        public void GetSaleOrderListAPI(int page = 1, int pageSize = 10)
-=======
 
 
 
@@ -638,7 +624,6 @@ namespace NikunjTextile
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void GetSaleOrderListAPI(int page = 1, int pageSize = 10, string SearchRequirementNo = "")
->>>>>>> origin/master
         {
             try
             {
@@ -649,8 +634,6 @@ namespace NikunjTextile
                     con.Open();
 
                     int offset = (page - 1) * pageSize;
-<<<<<<< HEAD
-=======
                     if (offset < 0) offset = 0;
                     if (pageSize <= 0) pageSize = 10;
 
@@ -659,19 +642,11 @@ namespace NikunjTextile
                     {
                         searchQuery = " WHERE (SO.OrderNo LIKE '%' + @Search + '%' OR PM.PartyName LIKE '%' + @Search + '%' OR BM.BrokerName LIKE '%' + @Search + '%' OR TMST.TransportName LIKE '%' + @Search + '%') ";
                     }
->>>>>>> origin/master
 
                     string query = @"
                 SELECT 
                     SO.SaleOrderID,
                     SO.OrderNo,
-<<<<<<< HEAD
-                    SO.OrderDate,
-                    PM.PartyName,
-                    BM.BrokerName,
-                    TM.TransportName,
-                    SO.TotalQty,
-=======
                     CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,
                     ISNULL(PM.PartyName, '') AS PartyName,
                     ISNULL(BM.BrokerName, CAST(ISNULL(SO.BrokerID, '') AS VARCHAR(50))) AS BrokerName,
@@ -688,15 +663,10 @@ namespace NikunjTextile
                     CALC.GSTAmount,
                     CALC.RoundOff,
                     CALC.InvoiceAmount AS FinalInvoiceAmount,
->>>>>>> origin/master
                     SO.InvoiceAmount
                 FROM SaleOrder SO
                 LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
                 LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
-<<<<<<< HEAD
-                LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-                ORDER BY CAST(SO.OrderNo AS INT) DESC, SO.OrderDate DESC
-=======
                 LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode
                 OUTER APPLY (
                     SELECT MAX(ISNULL(SOA1.ChargeRemark, '')) AS ChargeRemark, SUM(ISNULL(SOA1.ChargeValue, 0)) AS ChargeValue
@@ -726,7 +696,6 @@ namespace NikunjTextile
                 ) CALC
                 " + searchQuery + @"
                 ORDER BY TRY_CAST(SO.OrderNo AS INT) DESC, SO.OrderDate DESC
->>>>>>> origin/master
                 OFFSET @Offset ROWS
                 FETCH NEXT @PageSize ROWS ONLY";
 
@@ -734,13 +703,10 @@ namespace NikunjTextile
                     {
                         cmd.Parameters.AddWithValue("@Offset", offset);
                         cmd.Parameters.AddWithValue("@PageSize", pageSize);
-<<<<<<< HEAD
-=======
                         if (!string.IsNullOrEmpty(SearchRequirementNo))
                         {
                             cmd.Parameters.AddWithValue("@Search", SearchRequirementNo);
                         }
->>>>>>> origin/master
 
                         List<SaleOrderVM> list = new List<SaleOrderVM>();
 
@@ -751,15 +717,6 @@ namespace NikunjTextile
                                 list.Add(new SaleOrderVM
                                 {
                                     SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
-<<<<<<< HEAD
-                                    OrderNo = rdr["OrderNo"].ToString(),
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
-                                    PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
-                                    BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
-                                    TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
-                                    TotalQty = rdr["TotalQty"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["TotalQty"]),
-                                    InvoiceAmount = rdr["InvoiceAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["InvoiceAmount"])
-=======
                                     OrderNo = rdr["OrderNo"]?.ToString() ?? "",
                                     OrderDate = rdr["OrderDate"]?.ToString() ?? "",
                                     PartyName = rdr["PartyName"]?.ToString() ?? "",
@@ -772,16 +729,10 @@ namespace NikunjTextile
                                     GSTAmount = SafeDecimal(rdr["GSTAmount"]),
                                     RoundOff = SafeDecimal(rdr["RoundOff"]),
                                     InvoiceAmount = SafeDecimal(rdr["FinalInvoiceAmount"])
->>>>>>> origin/master
                                 });
                             }
                         }
 
-<<<<<<< HEAD
-                        int totalRecords;
-                        using (SqlCommand countCmd = new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con))
-                        {
-=======
                         string countQuery = "SELECT COUNT(*) FROM SaleOrder SO LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode " + searchQuery;
                         int totalRecords;
                         using (SqlCommand countCmd = new SqlCommand(countQuery, con))
@@ -790,7 +741,6 @@ namespace NikunjTextile
                             {
                                 countCmd.Parameters.AddWithValue("@Search", SearchRequirementNo);
                             }
->>>>>>> origin/master
                             totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
                         }
 
@@ -1230,11 +1180,7 @@ namespace NikunjTextile
                     }
 
                     // ✅ Next Order No
-<<<<<<< HEAD
-                    using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(OrderNo),0) + 1 FROM SaleOrder", con))
-=======
                     using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(CAST(OrderNo AS INT)), 0) + 1 FROM SaleOrder", con))
->>>>>>> origin/master
                     {
                         nextOrderNo = Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -1305,10 +1251,6 @@ namespace NikunjTextile
 
                 JavaScriptSerializer js = new JavaScriptSerializer();
                 js.MaxJsonLength = Int32.MaxValue;
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 Context.Response.Write(js.Serialize(errorResponse));
                 Context.Response.Flush();
                 Context.Response.SuppressContent = true;
@@ -1468,10 +1410,7 @@ namespace NikunjTextile
         }
 
         [WebMethod]
-<<<<<<< HEAD
-=======
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
->>>>>>> origin/master
         public ApiResponse<int> SaveSaleOrderAPI(SaleOrderModel model)
         {
             if (model == null)
@@ -1726,19 +1665,13 @@ namespace NikunjTextile
 
                             trans.Commit();
 
-<<<<<<< HEAD
-                            return new ApiResponse<int>
-=======
                           var response = new ApiResponse<int>
->>>>>>> origin/master
                             {
                                 Code = 200,
                                 success = true,
                                 Data = saleOrderId,
                                 Message = "Saved Successfully"
                             };
-<<<<<<< HEAD
-=======
                             JavaScriptSerializer js = new JavaScriptSerializer();
                             js.MaxJsonLength = Int32.MaxValue;
                             Context.Response.Write(js.Serialize(response));
@@ -1746,24 +1679,17 @@ namespace NikunjTextile
                             Context.Response.SuppressContent = true;
                             HttpContext.Current.ApplicationInstance.CompleteRequest();
                             return new ApiResponse<int>();
->>>>>>> origin/master
                         }
                         catch (Exception ex)
                         {
                             trans.Rollback();
 
-<<<<<<< HEAD
-                            return new ApiResponse<int>
-=======
                             var response = new ApiResponse<int>
->>>>>>> origin/master
                             {
                                 Code = 400,
                                 success = false,
                                 Message = ex.Message
                             };
-<<<<<<< HEAD
-=======
                             JavaScriptSerializer js = new JavaScriptSerializer();
                             js.MaxJsonLength = Int32.MaxValue;
                             Context.Response.Write(js.Serialize(response));
@@ -1771,7 +1697,6 @@ namespace NikunjTextile
                             Context.Response.SuppressContent = true;
                             HttpContext.Current.ApplicationInstance.CompleteRequest();
                             return new ApiResponse<int>();
->>>>>>> origin/master
                         }
                     }
                 }
@@ -1811,10 +1736,7 @@ namespace NikunjTextile
             cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = model.RoundOff;
         }
         [WebMethod]
-<<<<<<< HEAD
-=======
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
->>>>>>> origin/master
         public ApiResponse<SaleOrderVM> GetSaleOrderByIdAPI(int SaleOrderID)
         {
             Context.Response.Clear();
@@ -1824,29 +1746,10 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             try
             {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
                 using (SqlConnection con = new SqlConnection(conStr))
                 using (SqlCommand cmd = new SqlCommand(@"
-<<<<<<< HEAD
-                    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
-                        SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
-                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,D.DesignColorMatchingID,
-                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,D.BrokerRate,SO.RoundOff,    
-                        ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-                        ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
-                        ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    ISNULL(DEFM.SaleRate, 0) AS SaleRate 
-                    FROM SaleOrder SO
-                    LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
-=======
                     -- 1st Query: Get Master, Details, and SubDetails
                     SELECT SO.SaleOrderID, SO.OrderNo, CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate, SO.PartyId, PM.PartyName, SO.BrokerID, SO.TransportID,
                            ISNULL(BM.BrokerName, SO.BrokerID) AS BrokerName,
@@ -1868,21 +1771,12 @@ namespace NikunjTextile
                     LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
                     LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
                     LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode
->>>>>>> origin/master
                     LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
                     LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
                     LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
                     LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
                     LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
                     LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
-<<<<<<< HEAD
-                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
-                    LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
-                    WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
-                    ", con))
-                {
-                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID; // ✅ FIXED (no AddWithValue)
-=======
                     LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
                     LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
                     WHERE SO.SaleOrderID = @ID 
@@ -1894,7 +1788,6 @@ namespace NikunjTextile
                     WHERE SaleOrderID = @ID", con))
                 {
                     cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
->>>>>>> origin/master
 
                     con.Open();
 
@@ -1904,23 +1797,12 @@ namespace NikunjTextile
 
                         while (rdr.Read())
                         {
-<<<<<<< HEAD
-                            // ✅ MASTER
-=======
->>>>>>> origin/master
                             if (order == null)
                             {
                                 order = new SaleOrderVM
                                 {
                                     SaleOrderID = SafeInt(rdr["SaleOrderID"]),
                                     OrderNo = rdr["OrderNo"]?.ToString(),
-<<<<<<< HEAD
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
-                                    PartyID = SafeInt(rdr["PartyId"]),
-                                    PartyName = rdr["PartyName"]?.ToString(),
-                                    BrokerID = (rdr["BrokerID"].ToString()),
-                                    TransportID = rdr["TransportID"]?.ToString(),
-=======
                                     OrderDate = rdr["OrderDate"]?.ToString(),
                                     PartyID = SafeInt(rdr["PartyId"]),
                                     PartyName = rdr["PartyName"]?.ToString(),
@@ -1928,7 +1810,6 @@ namespace NikunjTextile
                                     BrokerName = rdr["BrokerName"]?.ToString(),
                                     TransportID = rdr["TransportID"]?.ToString(),
                                     TransportName = rdr["TransportName"]?.ToString(),
->>>>>>> origin/master
                                     MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                     TotalQty = SafeDecimal(rdr["TotalQty"]),
                                     TotalAmount = SafeDecimal(rdr["TotalAmount"]),
@@ -1938,35 +1819,6 @@ namespace NikunjTextile
                                     GSTAmount = SafeDecimal(rdr["GSTAmount"]),
                                     InvoiceAmount = SafeDecimal(rdr["InvoiceAmount"]),
                                     Remark = rdr["Remark"]?.ToString(),
-<<<<<<< HEAD
-                                    ColourID = SafeInt(rdr["ColourID"]),
-                                    ColourName = rdr["ColourName"]?.ToString(),
-                                    Qty = SafeDecimal(rdr["SubQty"]),
-                                    Unit = rdr["SubUnit"]?.ToString(),
-                                    SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                    DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                    DesignName = rdr["DesignNo"]?.ToString(),
-                                    ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                    ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                    ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                    UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-                                    AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
-                                    AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
-                                    DiscountType = (rdr["AdditionalValue"].ToString()),
-                                    RoundOff = SafeDecimal(rdr["RoundOff"]),
-                                    Details = new List<SaleOrderDetailVM>()
-                                };
-                            }
-
-                            // ✅ DETAIL
-                            if (rdr["DetailID"] != DBNull.Value)
-                            {
-                                int detailId = SafeInt(rdr["DetailID"]);
-
-                                var detail = order.Details
-                                    .FirstOrDefault(x => x.DetailID == detailId);
-=======
                                     AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
                                     AdditionalRemark = rdr["AdditionalRemark"]?.ToString(),
                                     DiscountType = rdr["DiscountType"]?.ToString(),
@@ -1980,53 +1832,21 @@ namespace NikunjTextile
                             {
                                 int detailId = SafeInt(rdr["DetailID"]);
                                 var detail = order.Details.FirstOrDefault(x => x.DetailID == detailId);
->>>>>>> origin/master
 
                                 if (detail == null)
                                 {
                                     detail = new SaleOrderDetailVM
                                     {
                                         DetailID = detailId,
-<<<<<<< HEAD
-                                        colorId = SafeInt(rdr["ColourID"]?.ToString()),
-                                        ColorGroupId = SafeInt(rdr["ColorGroupId"]),
-                                        ColorGroup = (rdr["ColorGroup"].ToString()),
-                                        colorName = (rdr["ColourName"].ToString()),
-=======
                                         colorId = SafeInt(rdr["ColourID"]),
                                         ColorGroupId = SafeInt(rdr["ColorGroupId"]),
                                         ColorGroup = rdr["ColorGroup"]?.ToString(),
                                         colorName = rdr["ColourName"]?.ToString(),
->>>>>>> origin/master
                                         ItemType = SafeInt(rdr["ItemType"]),
                                         Type = rdr["Type"]?.ToString(),
                                         NoOfColours = SafeInt(rdr["NoOfColours"]),
                                         Qty = SafeDecimal(rdr["DetailQty"]),
                                         Unit = rdr["Unit"]?.ToString(),
-<<<<<<< HEAD
-                                        TotalQty = SafeDecimal(rdr["TotalQty"]),
-                                        Rate = SafeDecimal(rdr["Rate"]),
-                                        Amount = SafeDecimal(rdr["Amount"]),
-                                        SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                        DesignId = (rdr["DesignID"]?.ToString()),
-                                        DesignNo = (rdr["DesignNo"]?.ToString()),
-                                        DesignColorMatchingID = SafeInt (rdr["DesignColorMatchingID"]),
-                                        DesignName = rdr["DesignNo"]?.ToString(),
-                                        ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                        UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                        TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-                                        MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
-                                        ColourID = SafeInt(rdr["ColourID"]),
-                                        ColourName = rdr["ColourName"]?.ToString(),
-                                        BrokerRate = SafeDecimal(rdr["BrokerRate"]),
-                                        SubDetails = new List<SaleOrderSubVM>()
-                                    };
-
-                                    order.Details.Add(detail);
-                                }
-
-                                // ✅ SUB DETAIL
-=======
                                         TotalQty = SafeDecimal(rdr["DetailQty"]),
                                         Rate = SafeDecimal(rdr["Rate"]),
                                         Amount = SafeDecimal(rdr["Amount"]),
@@ -2047,16 +1867,11 @@ namespace NikunjTextile
                                     order.Details.Add(detail);
                                 }
 
->>>>>>> origin/master
                                 if (rdr["SubDetailID"] != DBNull.Value)
                                 {
                                     int subId = SafeInt(rdr["SubDetailID"]);
 
-<<<<<<< HEAD
-                                    if (!detail.SubDetails.Any(x => x.SubDetailID == subId)) // ✅ prevent duplicate
-=======
                                     if (!detail.SubDetails.Any(x => x.SubDetailID == subId))
->>>>>>> origin/master
                                     {
                                         detail.SubDetails.Add(new SaleOrderSubVM
                                         {
@@ -2066,16 +1881,6 @@ namespace NikunjTextile
                                             Qty = SafeDecimal(rdr["SubQty"]),
                                             Unit = rdr["SubUnit"]?.ToString(),
                                             SaleRate = SafeDecimal(rdr["SaleRate"]),
-<<<<<<< HEAD
-                                            DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                            DesignName = rdr["DesignNo"]?.ToString(),
-                                            ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                            ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                            Remark = rdr["SubRemark"]?.ToString(),
-                                            ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                            UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                            TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-=======
                                             DesignNo = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
                                             DesignName = rdr["SavedDesignNo"]?.ToString(),
                                             ColorGroupId = SafeInt(rdr["ColorGroupID"]),
@@ -2084,16 +1889,12 @@ namespace NikunjTextile
                                             ColorDetailsID = SafeInt(rdr["ColorDetailsID"]),
                                             UnitId = SafeInt(rdr["UnitId"]),
                                             TypeID = SafeInt(rdr["ItemType"]),
->>>>>>> origin/master
                                             MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                         });
                                     }
                                 }
                             }
                         }
-<<<<<<< HEAD
-                        if(order != null)
-=======
 
                         if (order != null && rdr.NextResult())
                         {
@@ -2110,19 +1911,13 @@ namespace NikunjTextile
                         }
 
                         if (order != null)
->>>>>>> origin/master
                         {
                             var response = new ApiResponse<SaleOrderVM>
                             {
                                 Code = 200,
                                 success = true,
-<<<<<<< HEAD
-                                Message = "",
-                                Data = order ?? new SaleOrderVM { Details = new List<SaleOrderDetailVM>() }
-=======
                                 Message = "Success",
                                 Data = order
->>>>>>> origin/master
                             };
                             Context.Response.Write(js.Serialize(response));
                             Context.Response.Flush();
@@ -2136,38 +1931,20 @@ namespace NikunjTextile
                             {
                                 Code = 400,
                                 success = false,
-<<<<<<< HEAD
-                                Data=null,
-                                Message="No Data Found"
-=======
                                 Data = null,
                                 Message = "No Data Found"
->>>>>>> origin/master
                             };
                             Context.Response.Write(js.Serialize(response));
                             Context.Response.Flush();
                             Context.Response.SuppressContent = true;
                             HttpContext.Current.ApplicationInstance.CompleteRequest();
-<<<<<<< HEAD
-                            return new ApiResponse<SaleOrderVM>();                         
-                        }
-                     
-=======
                             return new ApiResponse<SaleOrderVM>();
                         }
->>>>>>> origin/master
                     }
                 }
             }
             catch (Exception ex)
             {
-<<<<<<< HEAD
-                return new ApiResponse<SaleOrderVM>
-                {
-                    success = false,
-                    Message = ex.Message
-                };
-=======
                 var errResp = new ApiResponse<SaleOrderVM>
                 {
                     Code = 400,
@@ -2417,7 +2194,6 @@ namespace NikunjTextile
                 Context.Response.SuppressContent = true;
                 HttpContext.Current.ApplicationInstance.CompleteRequest();
                 return new ApiResponse<List<string>>();
->>>>>>> origin/master
             }
         }
         public decimal SafeDecimal(object val)
@@ -2575,9 +2351,6 @@ namespace NikunjTextile
         
             }
         }
-<<<<<<< HEAD
-        #endregion 
-=======
         [WebMethod]
         public ApiResponse<object> SaleOrderReport(List<int> saleOrderID)
         {
@@ -2770,6 +2543,5 @@ namespace NikunjTextile
             }
         }
         #endregion
->>>>>>> origin/master
     }
 }

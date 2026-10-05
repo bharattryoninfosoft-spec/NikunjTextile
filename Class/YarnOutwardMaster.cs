@@ -13,11 +13,7 @@ namespace NikunjTextile.Class
         public DateTime DateAndTime { get; set; }
         public DateTime ChallanDate { get; set; }
         public string DateAndTimes { get; set; }
-<<<<<<< HEAD
-        public int OutwardListNo { get; set; }
-=======
         public string OutwardListNo { get; set; }
->>>>>>> origin/master
         public DateTime OutwardListDate { get; set; }
         public string OutwardListDates { get; set; }
         public string siftYarnInwardDetailID { get; set; }
@@ -66,13 +62,8 @@ namespace NikunjTextile.Class
         public string siftGodownInputBox { get; set; }
         public string Address { get; set; }
         public int ChallanNo { get; set; }
-<<<<<<< HEAD
-
-
-=======
          
         public string GeneratedLink { get; set; }
->>>>>>> origin/master
 
         public string updatesiftGodownInputBox { get; set; }
         //public string strBillToPartyID { get; set; }
@@ -113,13 +104,9 @@ namespace NikunjTextile.Class
         public int UserAccountId { get; set; }
         public int YarnRequirementDetailID { get; set; }
         public DateTime YarnRequirementDateTime { get; set; }
-<<<<<<< HEAD
-       
-=======
         public int YarnCompanyID { get; set; }
 
 
->>>>>>> origin/master
     }
     public class YarnOutwardEditResponse
     {
@@ -154,10 +141,6 @@ namespace NikunjTextile.Class
         public int YarnRequirementDetailID { get; set; }
         public DateTime YarnRequirementDateTime { get; set; }
     }
-<<<<<<< HEAD
-
-   
-=======
     public class JobberOutwardMasterDTO
     {
         public int PartyId { get; set; }
@@ -228,5 +211,4 @@ namespace NikunjTextile.Class
         public string BoxNo { get; set; }
         public int YarnPOID { get; set; }
     }
->>>>>>> origin/master
 }

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿@{
-=======
 @{
->>>>>>> origin/master
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -47,11 +43,6 @@
     .fa {
         font-size: 14px;
     }
-<<<<<<< HEAD
-    .mt-3 {
-        margin-top: 2rem !important;
-    }
-=======
 
     .mt-3 {
         margin-top: 2rem !important;
@@ -81,7 +72,6 @@
         padding: 0 5px;
         font-weight: bold;
     }
->>>>>>> origin/master
 </style>
 
 <!-- Content wrapper start -->
@@ -102,17 +92,6 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">SaleOrder Master</div>
-<<<<<<< HEAD
-                    <br />
-                    <div class="table-responsive">
-                        <table id="saleOrderTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>                                
-                                    <th>Order No</th>
-                                    <th>Date</th>
-                                    <th>Party</th>
-                                    <th>Broker</th>                                                                  
-=======
 
                     <br />
                     <div class="row gutters">
@@ -149,7 +128,6 @@
                                     <th>Date</th>
                                     <th>Party</th>
                                     <th>Broker</th>
->>>>>>> origin/master
                                     <th>Transport</th>
                                     <th>Total Qty</th>
                                     <th>Invoice Amount</th>
@@ -159,12 +137,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-<<<<<<< HEAD
-
-                </div>
-            </div>
-
-=======
                     <div class="d-flex justify-content-center align-items-center mt-3">
                         <button id="prevPage" class="btn btn-secondary btn-sm me-2">
                             Previous
@@ -303,235 +275,11 @@
                     </div>
                 </div>
             </div>
->>>>>>> origin/master
         </div>
     </div>
     <!-- Row end -->
 
 </div>
-<<<<<<< HEAD
-
-<script>
-    var currentPagePermission = {};
-    $(document).ready(function () {
-        var permission = sessionStorage.getItem("PagePermission");
-        if (permission != null) {
-            currentPagePermission = JSON.parse(permission);
-            console.log("currentPagePermission", currentPagePermission);
-            if (currentPagePermission.Add == false) {
-                $("#AddsaleOrderEntry").hide();
-            }
-        }
-        FunctionIsLogin();
-        loadSaleOrders();
-    });
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    function getDefaultCompany() {
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
-                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
-                }
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-                notes.show(request.statusText, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-
-            }
-        });
-    }
-    function FunctionIsLogin() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-            data: "{ 'userName':'0' }",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                console.log(data);
-                if (data.d == "false") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    function logout() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/Logout',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                if (data.d == "done") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-    let SaleOrderList = [];
-
-    function loadSaleOrders() {
-
-        $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/GetSaleOrderList",
-            type: "POST",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-
-            success: function (res) {
-
-                let data = res.d;
-
-                if (data.success) {
-                    SaleOrderList = data.Data;
-
-                    bindDataTable(SaleOrderList);
-                } else {
-                    alert(data.message);
-                }
-            }
-        });
-    }
-    function bindDataTable(data) {
-        console.log("data", data);
-        let table = $('#saleOrderTable').DataTable({
-            destroy: true,
-            data: data,
-            ordering: false,
-            
-            columns: [            
-                { data: 'OrderNo' },
-                { data: 'OrderDate'},
-                { data: 'PartyName', defaultContent: '-' },
-                { data: 'BrokerName', defaultContent: '-' },
-                { data: 'TransportName', defaultContent: '-' },
-                { data: 'TotalQty' },
-                { data: 'InvoiceAmount' },
-
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        let encodedId = btoa(row.SaleOrderID);
-
-                        let actionHtml = '';                        
-                        if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
-                            actionHtml += `<i class="fa fa-edit text-primary edit me-2" data-id="${encodedId}" title="Edit" style="cursor:pointer;"> </i>`;}                                                
-                        if (currentPagePermission.View == true || currentPagePermission.View == "true") {
-                            actionHtml += `<i class="fa fa-eye text-dark view me-2" data-id="${encodedId}" title="View" style="cursor:pointer;"> </i>`;}
-                        if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
-                            actionHtml += `<i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}"title="Delete" style="cursor:pointer;"> </i>`;}
-                        return actionHtml;
-                    }
-                }
-            ],
-            info: false,
-            lengthChange: false
-
-        });
-
-        // ✅ FIX CLICK EVENT
-        $('#saleOrderTable tbody').off('click');
-        $('#saleOrderTable tbody').on('click', 'td.dt-control', function () {
-            let tr = $(this).closest('tr');
-            let row = table.row(tr);
-            if (row.child.isShown()) {
-                row.child.hide();
-                tr.removeClass('shown');
-                $(this).html('<i class="fa fa-plus"></i>');
-            } else {
-                row.child(formatDetails(row.data())).show();
-                tr.addClass('shown');
-                $(this).html('<i class="fa fa-minus"></i>');
-            }
-        });
-    }    
-    // EDIT
-    $(document).on('click', '.edit', function () {
-        let id = $(this).attr('data-id');
-        window.location.href = "/UpdateSaleOrderEntry?id=" + encodeURIComponent(id);
-    });
-
-    // VIEW
-    $(document).on('click', '.view', function () {
-
-        let id = $(this).attr('data-id');
-
-        GetSaleOrderById
-    });
-
-    // DELETE
-    $(document).on('click', '.delete', function () {
-        let id = $(this).data('id');
-        console.log("Delete Click:", id);
-
-        Swal.fire({
-            title: 'Are you sure?',
-            icon: 'warning',
-            showCancelButton: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteSaleOrder(id);
-            }
-        });
-    });
-    function deleteSaleOrder(id) {
-
-        $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/DeleteSaleOrder",
-            type: "POST",
-            data: JSON.stringify({ SaleOrderID: id }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-
-            success: function (res) {
-
-                let data = res.d;
-
-                if (data.success) {
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Sale Order deleted successfully'
-                    });
-
-                    loadSaleOrders(); // 🔄 reload table
-                }
-                else {
-                    Swal.fire('Error', data.message, 'error');
-                }
-            }
-        });
-    }
-</script>
-
-
-=======
 @section Scripts{
     <script>
         var currentPagePermission = {};
@@ -1088,5 +836,4 @@
         }
     </script>
 }
->>>>>>> origin/master
 

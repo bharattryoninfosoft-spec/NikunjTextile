@@ -47,13 +47,8 @@
                                             <div class="field-wrapper">
                                                 <input type="hidden" id="hYarnOutwardID" class="form-control" value="">
                                                 <p id="POutwardListNo"> </p>
-<<<<<<< HEAD
-                                                
-                                                  
-=======
 
 
->>>>>>> origin/master
                                             </div>
                                         </div>
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -83,11 +78,7 @@
                                             <!-- Field wrapper end -->
                                         </div>
 
-<<<<<<< HEAD
-                                        
-=======
 
->>>>>>> origin/master
                                     </div>
 
                                 </div>
@@ -114,11 +105,7 @@
                                             <!-- Field wrapper end -->
                                         </div>
 
-<<<<<<< HEAD
-                                        
-=======
 
->>>>>>> origin/master
                                     </div>
 
                                 </div>
@@ -159,11 +146,7 @@
                                                     <tfoot>
                                                         <tr>
                                                             <th colspan="6" style="text-align:end;">Total Boxes</th>
-<<<<<<< HEAD
-                                                            <th style="text-align:center;"><span id="spanTotalWeight" ></span></th>
-=======
                                                             <th style="text-align:center;"><span id="spanTotalWeight"></span></th>
->>>>>>> origin/master
                                                         </tr>
                                                     </tfoot>
 
@@ -229,21 +212,13 @@
                         </div>
 
                         <!-- Search -->
-<<<<<<< HEAD
-                   
-=======
 
->>>>>>> origin/master
                         <div class="col-md-6 text-end">
                             <div class="field-wrapper">
                                 <input id="SearchRequirementNo" placeholder="Search Outward List No. / Party / Mobile No." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
                                 <div class="field-placeholder">Search Outward List No. / Party / Mobile No. </div>
                             </div>
-<<<<<<< HEAD
-                          
-=======
 
->>>>>>> origin/master
                         </div>
 
                     </div>
@@ -298,563 +273,6 @@
 </div>
 <!-- Content wrapper end -->
 
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
-<script src="https://tryoninfosoft.web.app/sr/moment.js"></script>
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
-<!-- Megamenu JS -->
-<script src="vendor/megamenu/js/megamenu.js"></script>
-<script src="vendor/megamenu/js/custom.js"></script>
-
-<!-- Slimscroll JS -->
-<script src="vendor/slimscroll/slimscroll.min.js"></script>
-<script src="vendor/slimscroll/custom-scrollbar.js"></script>
-
-<!-- Search Filter JS -->
-<script src="vendor/search-filter/search-filter.js"></script>
-<script src="vendor/search-filter/custom-search-filter.js"></script>
-
-<!-- Notify js -->
-<script src="https://tryoninfosoft.web.app/sr/jquery.easing.1.3.js"></script>
-<script src="vendor/notify/notify.js"></script>
-<script src="vendor/notify/notify-custom.js"></script>
-
-<!-- Rating JS -->
-<script src="vendor/rating/raty.js"></script>
-<script src="vendor/rating/raty-custom.js"></script>
-
-<!-- Data Tables -->
-<script src="vendor/datatables/dataTables.min.js"></script>
-<script src="vendor/datatables/dataTables.bootstrap.min.js"></script>
-
-<!-- Custom Data tables -->
-@*<script src="vendor/datatables/custom/custom-datatables.js"></script>*@
-
-<!-- Download / CSV / Copy / Print -->
-<script src="vendor/datatables/buttons.min.js"></script>
-<script src="vendor/datatables/jszip.min.js"></script>
-<script src="vendor/datatables/pdfmake.min.js"></script>
-<script src="vendor/datatables/vfs_fonts.js"></script>
-<script src="vendor/datatables/html5.min.js"></script>
-<script src="vendor/datatables/buttons.print.min.js"></script>
-
-<!-- Date Range JS -->
-<script src="vendor/daterange/daterange.js"></script>
-<script src="vendor/daterange/custom-daterange.js"></script>
-
-<!-- Dropzone JS -->
-<script src="vendor/dropzone/dropzone.min.js"></script>
-<!-- Main Js Required -->
-<script src="https://tryoninfosoft.web.app/sr/main.js"></script>
-
-
-
-<script>
-    document.title = "Yarn Outward Form - Nikunj Textile";
-</script>
-
-
-
-<script>
-    var currentTab = "Pending";
-
-    $(document).ready(function () {
-        $('.active, .show, .current-page').removeClass('active show current-page');
-        $("#YarnForm-tab").addClass("active");
-        $("#tab-YarnForm").addClass("show active");
-        $("#aYarnOutWardScanDetails").addClass("current-page");
-        FunctionIsLogin();
-        displayPagginationData();        
-        getYarnColor();
-        document.querySelector("button[onclick=\"openTab(event,'Pending')\"]").click();
-        //getDefaultCompany();
-
-    });
-    var ArrayYarnColor = [];
-    var total = 0;
-    var Paggination = 0;
-    var prevNo = 0;
-    var nextNo = 0;
-    var SelectNo = 1;
-    var PageNo = 0;
-
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    function getDefaultCompany() {
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
-                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
-                }
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-                notes.show(request.statusText, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-
-            }
-        });
-    }
-    function FunctionIsLogin() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-            data: "{ 'userName':'0' }",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                console.log(data);
-                if (data.d == "false") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    function logout() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/Logout',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                if (data.d == "done") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-    function functionSearch() {
-        displayPagginationData();
-        displayData(0);
-    }
-    function displayData(rowStartCheck) {
-        debugger;
-        var rowStart = rowStartCheck;
-        var searchdesignNo = $("#SearchRequirementNo").val();
-        var formData = new FormData();
-        formData.append('SearchRequirementNo', searchdesignNo);
-        formData.append('startFrom', rowStart);
-        formData.append('Status', currentTab); // Completed / Pending
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/GetDisplayYarnoutwardScanMaster',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                var tableId = currentTab == "Pending" ? "#pendingTable tbody" : "#completedTable tbody" ;
-                console.log((tableId + currentTab))
-                console.log("response",response)
-                $(tableId).empty();
-                var temp = "";
-                var srno = parseInt(rowStart) + 1;
-                for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
-                    temp += "<tr>";
-                    temp += "<td>" + srno++ + "</td>";
-                    temp += "<td>" + response.listYarnOutwardMaster[i].OutwardListNo + "</td>";
-                    temp += "<td>" + response.listYarnOutwardMaster[i].DateAndTimes + "</td>";
-                    temp += "<td>" + response.listYarnOutwardMaster[i].PartyName + "</td>";
-                    temp += "<td>" + response.listYarnOutwardMaster[i].MobileNo + "</td>";
-                    temp += "<td>" + response.listYarnOutwardMaster[i].BoxNo + "</td>";
-                    if (currentTab == "Pending") {
-                        temp += "<td style='text-align:center'>";
-                        temp += "<a href='javascript:void(0);' onclick='showScanRecords(" + response.listYarnOutwardMaster[i].YarnOutwardID + ")'>";
-                        temp += "<i class='fa fa-barcode' style='font-size:x-large;color:#1844ab'></i>";
-                        temp += "</a>";
-                        temp += "</td>";
-                    }
-                    else {
-                        temp += "<td style='text-align:center'>";
-                        temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listYarnOutwardMaster[i].YarnOutwardID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
-                        temp += "</td>";
-                    }
-                 
-                    temp += "</tr>";
-                }
-                $(tableId).html(temp);
-            }
-        });
-    }
-    //Display Paggination
-    function displayPagginationData() {
-
-        var searchdesignNo = $("#SearchRequirementNo").val();
-
-        var formData = new FormData();
-        formData.append('SearchString', searchdesignNo);
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/GetYarnOutwardMasterScanPaggination',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                //console.log(response);
-
-                //var userTable = $('#DDLDistrict');
-                //listPagginationMaster
-                total = response.listPagginationMaster[0].Total;
-                Paggination = response.listPagginationMaster[0].Paggination + 1;
-                prevNo = 0;
-                nextNo = 10;
-                //alert(response.listPagginationMaster[0].Paggination);
-                if (response.listPagginationMaster[0].Paggination == "0") {
-                    $('#divPaggination').hide();
-                }
-                else {
-
-
-                    if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
-                        var temp = "";
-                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
-
-                        for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
-                            if (i == 1) {
-                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
-                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-                            else {
-                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
-                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-                        }
-                        $('#divPaggination').html(temp).show();
-                    }
-                    else {
-                        var temp = "";
-                        //temp += "<a href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>&laquo;</a>";
-
-                        for (var i = 1; i <= 10; i++) {
-                            if (i == 1) {
-                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")' class='active'>" + i + "</a>";*/
-                                temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-                            else {
-                                /*temp += "<a href='javascript:void(0);' id='a" + i + "' onclick='funcationPaggination(" + i + ")'>" + i + "</a>";*/
-                                temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-
-                        }
-                        //temp += "<a href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>&raquo;</a>";
-                        temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
-
-                        $('#divPaggination').html(temp).show();
-                    }
-
-                }
-
-
-            },
-            error: function (request, status, error) {
-                //console.log(error);
-                //console.log("error" + request.statusText);
-                //alert(request.statusText);
-            }
-        });
-    }
-    //Select Paggination
-    function funcationPaggination(abc) {
-        //alert(abc);
-        $("#trLoading").show();
-        var a = "#a" + abc;
-        SelectNo = abc;
-        //alert(a);
-        $('li').removeClass('active');
-        //$("#a3").addClass("active");
-        $(a).addClass('active');
-
-        $("#rowStartCount").val(((abc - 1) * 30));
-        displayData(((abc - 1) * 30));
-
-        //$("#rowStartCount").val(((abc - 1) * 2));
-        //displayData(((abc - 1) * 2));
-
-    }
-    function clearAll() {
-        getDefaultCompany();
-        $("#savebtn").show();
-        $("#editbtn").hide();
-        $("#addNewContactLabel").html("Add Color Matching Form");
-        $("#add-alert").hide();
-
-        $("#YarnColor").val('');
-
-        $(".company-invalid-feedback").hide();
-
-        $(".clear-field").removeClass("is-valid is-invalid");
-        $(".invalid-feedback").hide();
-        $(".valid-feedback").hide();
-    }
-    function showRecords(id) {
-
-        clearAll();
-        $("#edit-id").val(id);
-        $("#saveViewbtn").hide();
-        $("#savebtn").hide();
-        $("#editbtn").show();
-        $("#addNewContactLabel").html("Yarn Outward Form");
-
-
-        var DecryptID = "";
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                //window.location.href = 'UpdatePurchaseInvoice?id=' + response.listEncryptDecrypt[0].DecryptID;
-                ViewRecordQueryString(DecryptID);
-            },
-            error: function (request, status, error) {
-
-            }
-        });
-
-
-
-
-
-    }
-    function showScanRecords(id) {
-
-        var DecryptID = "";
-
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                window.location.href = '/YarnOutWardScan?id=' + response.listEncryptDecrypt[0].DecryptID;
-            },
-            error: function (request, status, error) {
-
-            }
-        });
-    }
-    function showEditRecords(id) {
-
-        var DecryptID = "";
-
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                window.location.href = '/UpdateYarnOutWardScan?id=' + response.listEncryptDecrypt[0].DecryptID;
-            },
-            error: function (request, status, error) {
-
-            }
-        });
-    }
-    function getYarnColor() {
-
-        var formData = new FormData();
-        //formData.append('SaleInvoiceID', SaleInvoiceID);
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                //console.log(response);
-                //alert(response.Code);
-                ArrayYarnColor.push(response.listYarnColorMaster);
-
-                if (response.Code == "200") {
-
-                    //Design No
-                    if (response.listYarnColorMaster.length > 0) {
-                        var tempDesignNo = "";
-
-                    }
-                }
-            },
-            error: function (request, status, error) {
-
-                //window.location.href = 'SaleInvoice';
-
-            }
-        });
-
-
-    }
-    function ViewRecordQueryString(DecryptID) {
-
-        //alert(DecryptID);
-        var formData = new FormData();
-        formData.append('YarnOutwardID', DecryptID);
-
-        var PartyId = 0;
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-
-                //alert(response.listYarnOutwardMaster.length);
-                var userTable = $('#TblUser');
-
-
-                for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
-
-
-                    /* ---------- View Party Details ---------- */
-
-
-                    $("#hYarnOutwardID").val(response.listYarnOutwardMaster[i].YarnOutwardID);
-                    $("#hGodownManagerUserAccountId").val(response.listYarnOutwardMaster[i].hGodownManagerUserAccountId);
-                    $("#POutwardListNo").html("<b>Outward List No: </b>" + response.listYarnOutwardMaster[i].OutwardListNo);
-                    $("#POutwardListDate").html("<b>Outward List Date: </b>" + response.listYarnOutwardMaster[i].OutwardListDates);
-
-
-                    var SpanSundryParty = "";
-                    if (response.listYarnOutwardMaster[i].SundryParty == "1") {
-                        SpanSundryParty = "<span class='badge bg-success' style='margin-top: 5px;'><i class='fa fa-arrow-down'></i> Sundry Creditors</span>";
-                    }
-                    else
-                        if (response.listYarnOutwardMaster[i].SundryParty == "2") {
-                            SpanSundryParty = "<span class='badge bg-danger' style='margin-top: 5px;'><i class='fa fa-arrow-up'></i> Sundry Debtors</span>";
-                        }
-
-                        else
-                            if (response.listYarnOutwardMaster[i].SundryParty == "3") {
-                                SpanSundryParty = "<span class='badge bg-warning' style='margin-top: 5px;'><i class='fa fa-user'></i> Job Work</span>";
-                            }
-
-                    $("#PPartyName").html("<b>Sundry Party Name: </b>" + response.listYarnOutwardMaster[i].PartyName + "  " + SpanSundryParty);
-                    $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnOutwardMaster[i].MobileNo);
-
-                    
-                    $("#PUserAccountName").html("<b>Godown Manager: </b>" + response.listYarnOutwardMaster[i].UserAccountName);
-                    $("#PUserAccountMobileNo").html("<b>Manager Mobile No: </b>" + response.listYarnOutwardMaster[i].UserAccountMobileNo);
-
-
-                    /* ---------- Yarn Requirement Detail  ---------- */
-
-                    $("#tblYarnOutward tbody").empty();
-
-                    var dataTable = $('#tblYarnOutward tbody');
-                    var temp = "";
-
-                    var spanTotalWeight = "0";
-
-                    var srno = parseInt(0) + parseInt(1);
-                    for (var j = 0; j < response.listYarnOutwardMaster[i].listYarnOutwardDetail.length; j++) {
-
-
-                        //alert(response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].CompanyName);
-                        temp += "<tr><td>" + srno++ + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].CompanyName + " <br />" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].CompanyMobileNo + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnMaterial + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColor + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColorCode + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].LocationTitle + "<br />" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].GodownTitle + "</td>";
-                        temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox + "</td>";
-                        //var barcode = "";
-                        //if (response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].BarcodeNo != "" && response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].BarcodeNo != null) {
-                        //    barcode = '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="" data-original-title="Details" onclick="showBarcodeRecords(' + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnInwardDetailID + ')"><i class="fa fa-barcode text-secondary fa-2x" style="font-weight:50;" title="Print Stickers"></i></a>';
-                        //}
-                        //temp += "<td style='text-align: center;'>" + barcode + " <br />" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].BarcodeNo + "</td>";
-                        temp += "</tr>";
-
-                        spanTotalWeight = parseFloat(spanTotalWeight) + parseFloat(response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox);
-                    }
-                    $("#tblYarnOutward tbody").empty();
-                    dataTable.html(temp);
-
-
-
-                    $("#spanTotalWeight").html(parseFloat(spanTotalWeight).toFixed(2));
-                }
-
-
-            },
-            error: function (request, status, error) {
-
-                //window.location.href = 'PurchaseInvoice';
-
-            }
-        });
-
-    }
-    function functionUserDelete(id) {
-
-        if (confirm('Are you sure you want to delete this record?')) {
-            var formData = new FormData();
-            formData.append('YarnOutwardID', id);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/DeleteYarnOutwardMaster',
-=======
 @section Scripts{
 
     <script>
@@ -953,46 +371,11 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/GetDisplayYarnoutwardScanMaster',
->>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
-<<<<<<< HEAD
-                    if (response.Code == 200) {
-
-                        notes.show("Yarn Outward deleted successfully.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                        displayData(0);
-                    }
-                    else {
-                        //alert("Problem has been occurred while submitting your data.");
-
-                        notes.show("Problem has been occurred while deleting Design Entry Form .", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    // alert("Problem has been occurred while submitting your data.");
-
-                    notes.show("Problem has been occurred while deleting Design Entry Form.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-=======
                     var tableId = currentTab == "Pending" ? "#pendingTable tbody" : "#completedTable tbody";
                     $(tableId).empty();
                     var temp = "";
@@ -1023,86 +406,10 @@
                         temp += "</tr>";
                     }
                     $(tableId).html(temp);
->>>>>>> origin/master
                 }
             });
         }
 
-<<<<<<< HEAD
-    }
-    function showYarnBarcodeRecords(YarnInwardID)
-    {
-        //alert(YarnInwardID);
-
-
-        var DecryptID = "";
-
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardID,
-            data: "{ 'id':'" + YarnInwardID + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                //window.location.href = '/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID;
-                window.open('/YarnBoxMultiBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
-            },
-            error: function (request, status, error) {
-
-            }
-        });
-
-
-    }
-    function showBarcodeRecords(YarnInwardDetailID)
-    {
-        //alert(YarnInwardDetailID);
-
-
-        var DecryptID = "";
-
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardDetailID,
-            data: "{ 'id':'" + YarnInwardDetailID + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                //window.location.href = '/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID;
-                window.open('/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
-            },
-            error: function (request, status, error) {
-
-            }
-        });
-
-
-    }
-    function openTab(evt, tabName) {
-        debugger;
-        var i, tabcontent, tablinks;
-        currentTab = tabName;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active");
-        }
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.classList.add("active");
-        displayData(0); 
-    }
-</script>
-
-=======
         // Display Pagination
         function displayPagginationData() {
             var searchdesignNo = $("#SearchRequirementNo").val();
@@ -1450,6 +757,5 @@
         }
     </script>
 }
->>>>>>> origin/master
 
 

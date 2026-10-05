@@ -1,26 +1,14 @@
-<<<<<<< HEAD
-﻿using iText.Commons.Json;
-using iText.IO.Font.Constants;
-using iText.Kernel.Colors;
-using iText.Kernel.Font;
-using iText.Kernel.Geom;
-=======
 using ClosedXML.Excel;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
 using iText.Kernel.Font;
->>>>>>> origin/master
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-<<<<<<< HEAD
-using Microsoft.Reporting.WebForms;
-=======
->>>>>>> origin/master
 using Newtonsoft.Json;
 using NikunjTextile.Class;
 using NikunjTextile.Class.API;
@@ -31,42 +19,24 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-<<<<<<< HEAD
-using System.Globalization;
-using System.IO;
-using System.Linq;
-=======
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
->>>>>>> origin/master
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-<<<<<<< HEAD
-using System.Web.Http;
-=======
->>>>>>> origin/master
 using System.Web.Script.Serialization;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
 
-<<<<<<< HEAD
-namespace NikunjTextile
-{
-    /// <summary>
-    /// Summary description for WebServiceNikunjTextile
-    /// </summary>
-=======
 
 
 namespace NikunjTextile
 {
->>>>>>> origin/master
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
@@ -76,14 +46,10 @@ namespace NikunjTextile
     {
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         //UserLogin Web Service 
-<<<<<<< HEAD
-
-=======
         string connString = System.Configuration.ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
         /// <summary>
         /// Summary description for WebServiceNikunjTextile
         /// </summary>
->>>>>>> origin/master
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         private string Encrypt(string clearText)
@@ -107,18 +73,12 @@ namespace NikunjTextile
             }
             return clearText;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         private string Decrypt(string cipherText)
         {
             string EncryptionKey = "MAKV2SPBNI99212";
             cipherText = cipherText.Replace(" ", "+");
-<<<<<<< HEAD
-=======
 
             // Fix missing padding for Base-64 string
             int mod4 = cipherText.Length % 4;
@@ -127,7 +87,6 @@ namespace NikunjTextile
                 cipherText = cipherText.PadRight(cipherText.Length + (4 - mod4), '=');
             }
 
->>>>>>> origin/master
             byte[] cipherBytes = Convert.FromBase64String(cipherText);
             using (Aes encryptor = Aes.Create())
             {
@@ -146,10 +105,6 @@ namespace NikunjTextile
             }
             return cipherText;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDecryptID(string id)
@@ -222,24 +177,6 @@ namespace NikunjTextile
         // ***** Image Compress ********
         private void GenerateThumbnails(double scaleFactor, Stream sourcePath, string targetPath)
         {
-<<<<<<< HEAD
-            using (var image = System.Drawing.Image.FromStream(sourcePath))
-            {
-                // ✅ Compress width and height using scaleFactor
-                var newWidth = (int)(image.Width * scaleFactor);
-                var newHeight = (int)(image.Height * scaleFactor);
-
-
-                var thumbnailImg = new Bitmap(newWidth, newHeight);
-                var thumbGraph = Graphics.FromImage(thumbnailImg);
-                thumbGraph.CompositingQuality = CompositingQuality.HighQuality;
-                thumbGraph.SmoothingMode = SmoothingMode.HighQuality;
-                thumbGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                var imageRectangle = new System.Drawing.Rectangle(0, 0, newWidth, newHeight);
-                thumbGraph.DrawImage(image, imageRectangle);
-                thumbnailImg.Save(targetPath, image.RawFormat);
-
-=======
             // 1. Ensure the target directory exists
             var directory = Path.GetDirectoryName(targetPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -293,7 +230,6 @@ namespace NikunjTextile
                         }
                     }
                 }
->>>>>>> origin/master
             }
         }
         private void GenerateThumbnailsV2(double scaleFactor, Stream sourceStream, string targetPath)
@@ -359,10 +295,6 @@ namespace NikunjTextile
                     string AllowLogin = rdr["AllowLogin"].ToString().ToUpper();
                     string UserAccountMobileNo = rdr["UserAccountMobileNo"].ToString().ToUpper();
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     if (AllowLogin == "1")
                     {
                         msg = "true";
@@ -477,10 +409,6 @@ namespace NikunjTextile
                 }
             }
         }
-<<<<<<< HEAD
-
-
-=======
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string GetGstDetails(string gstin)
@@ -507,7 +435,6 @@ namespace NikunjTextile
                 return JsonConvert.SerializeObject(errObj);
             }
         }
->>>>>>> origin/master
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod]
         public string Logout()
@@ -720,137 +647,6 @@ namespace NikunjTextile
             con.Close();
             return jsSerializer.Serialize(parentRow);
         }
-<<<<<<< HEAD
-        [WebMethod]
-        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public void insertCompanyMaster()
-        {
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
-            CommanResponse comman = new CommanResponse();
-            CompanyMaster ilist = new CompanyMaster();
-
-            ilist.CompanyName = HttpContext.Current.Request.Params["CompanyNames"];
-            ilist.Email = HttpContext.Current.Request.Params["Email"];
-            ilist.AlterMobileNo = HttpContext.Current.Request.Params["AlterMobileNo"];
-            ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
-            ilist.is_default = HttpContext.Current.Request.Params["is_default"];
-            ilist.State = HttpContext.Current.Request.Params["State"];
-            ilist.BusinessAddress = HttpContext.Current.Request.Params["BusinessAddress"];
-            ilist.BusinessType = HttpContext.Current.Request.Params["BusinessType"];
-            ilist.BusinessCategory = HttpContext.Current.Request.Params["BusinessCategory"];
-            ilist.BusinessDescription = HttpContext.Current.Request.Params["BusinessDescription"];
-
-            ilist.BankName = HttpContext.Current.Request.Params["BankName"];
-            ilist.IFSC = HttpContext.Current.Request.Params["IFSC"];
-            ilist.ACNo = HttpContext.Current.Request.Params["ACNo"];
-            ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
-            ilist.Sign = HttpContext.Current.Request.Params["Sign"];
-            ilist.CompanyLogo = HttpContext.Current.Request.Params["CompanyLogo"];
-
-            String imagePath = "";
-            String Signature = "";
-            if (request.Files.Count > 0)
-            {
-                var photo = request.Files["CompanyLogo"];
-                if (photo != null && photo.ContentLength != 0)
-                {
-                    imagePath = "CompanyPictures/" + RandomString(6, true) + photo.FileName;
-                    //photo.SaveAs(HttpContext.Current.Server.MapPath(imagePath));
-
-                    var path = (HttpContext.Current.Server.MapPath(imagePath));
-
-                    Stream strm = photo.InputStream;
-                    var targetFile = path;
-                    //Based on scalefactor image size will vary
-                    GenerateThumbnails(0.2, strm, targetFile);
-
-                }
-
-                var photoS = request.Files["Sign"];
-                if (photoS != null && photoS.ContentLength != 0)
-                {
-                    Signature = "CompanyPictures/" + RandomString(6, true) + photoS.FileName;
-                    //photoS.SaveAs(HttpContext.Current.Server.MapPath(Signature));
-                    var path = (HttpContext.Current.Server.MapPath(imagePath));
-
-                    Stream strm = photoS.InputStream;
-                    var targetFile = path;
-                    //Based on scalefactor image size will vary
-                    GenerateThumbnails(0.2, strm, targetFile);
-
-
-                }
-            }
-
-
-            try
-            {
-
-                int i = 0;
-                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = con;
-
-                    if (ilist.is_default == "1")
-                    {
-                        cmd.CommandText = "update CompanyMaster set is_default = '0' where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " ";
-                        con.Open();
-                        i = cmd.ExecuteNonQuery();
-                        cmd.Dispose();
-                        con.Close();
-                    }
-
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    cmd.CommandText = "Insert Into CompanyMaster  (CompanyName, MobileNo, AlterMobileNo, Email, BusinessAddress, GSTIN, State, BusinessType, BusinessCategory, BusinessDescription, BankName, ACNo, IFSC, CompanyLogo, Sign, is_default, UserAccountId) Values " +
-                                    " ('" + ilist.CompanyName + "', '" + ilist.MobileNo + "' , '" + ilist.AlterMobileNo + "' , '" + ilist.Email + "', '" + ilist.BusinessAddress + "', '" + ilist.GSTIN + "', '" + ilist.State + "', '" + ilist.BusinessType + "', '" + ilist.BusinessCategory + "', '" + ilist.BusinessDescription + "', '" + ilist.BankName + "', '" + ilist.ACNo + "', '" + ilist.IFSC + "', '" + imagePath + "', '" + Signature + "', '" + ilist.is_default + "', " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " )";
-                    con.Open();
-                    i = cmd.ExecuteNonQuery();
-                    cmd.Dispose();
-                    con.Close();
-
-                    if (i > 0)
-                    {
-                        comman.Code = 201;
-                        comman.Message = "Record has been saved successfully.";
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-                    }
-                }
-
-
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 2601 || ex.Number == 2627)
-                {
-                    comman.Code = 405;
-                    comman.Message = "Cannot insert duplicate values..";
-
-                }
-                else
-                {
-                    comman.Code = 410;
-                    comman.Message = "Problem has been occurred while submitting your data.";
-                }
-
-            }
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(comman));
-        }
-=======
->>>>>>> origin/master
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -927,11 +723,6 @@ namespace NikunjTextile
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
             var request = HttpContext.Current.Request;
-<<<<<<< HEAD
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
-=======
->>>>>>> origin/master
             CommanResponse comman = new CommanResponse();
             CompanyMaster ilist = new CompanyMaster();
 
@@ -946,23 +737,12 @@ namespace NikunjTextile
             ilist.BusinessType = HttpContext.Current.Request.Params["BusinessType"];
             ilist.BusinessCategory = HttpContext.Current.Request.Params["BusinessCategory"];
             ilist.BusinessDescription = HttpContext.Current.Request.Params["BusinessDescription"];
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             ilist.BankName = HttpContext.Current.Request.Params["BankName"];
             ilist.IFSC = HttpContext.Current.Request.Params["IFSC"];
             ilist.ACNo = HttpContext.Current.Request.Params["ACNo"];
             ilist.GSTIN = HttpContext.Current.Request.Params["GSTIN"];
             ilist.BarcodeTitle = HttpContext.Current.Request.Params["BarcodeTitle"];
             ilist.SetCreditPercentage = HttpContext.Current.Request.Params["SetCreditPercentage"];
-<<<<<<< HEAD
-            ilist.Sign = HttpContext.Current.Request.Params["Sign"];
-            ilist.CompanyLogo = HttpContext.Current.Request.Params["CompanyLogo"];
-            ilist.SupportNumber = HttpContext.Current.Request.Params["SupportNumber"];
-            String pictureStr = "";
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-=======
             ilist.SupportNumber = HttpContext.Current.Request.Params["SupportNumber"];
 
             String pictureStr = "";
@@ -971,154 +751,17 @@ namespace NikunjTextile
             String oldLogo = "";
             String oldSign = "";
 
->>>>>>> origin/master
             using (SqlConnection con1 = new SqlConnection(cs))
             {
                 SqlCommand cmd1 = new SqlCommand();
                 cmd1.Connection = con1;
                 cmd1.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-                cmd1.CommandText = " select * " +
-                    " from CompanyMaster where CompanyId = " + Convert.ToInt32(ilist.CompanyId) + " " +
-                    " ";
-=======
                 cmd1.CommandText = "select * from CompanyMaster where CompanyId = " + ilist.CompanyId;
->>>>>>> origin/master
                 con1.Open();
                 SqlDataReader rdr = cmd1.ExecuteReader();
 
                 if (rdr.HasRows)
                 {
-<<<<<<< HEAD
-                    String photo = "";
-
-                    String sign = "";
-                    String imagePath = "";
-                    String Signature = "";
-                    while (rdr.Read())
-                    {
-                        photo = rdr["CompanyLogo"].ToString();
-                        sign = rdr["Sign"].ToString();
-                    }
-
-
-
-                    if (request.Files.Count > 0)
-                    {
-                        var photoT = request.Files["CompanyLogo"];
-                        if (photoT != null && photoT.ContentLength != 0)
-                        {
-                            string path = Server.MapPath(@"" + photo);
-                            FileInfo filess = new FileInfo(path);
-                            if (filess.Exists)
-                            {
-                                filess.Delete();
-                            }
-                            imagePath = "CompanyPictures/" + RandomString(6, true) + photoT.FileName;
-                            //photoT.SaveAs(HttpContext.Current.Server.MapPath(imagePath));
-
-                            var pathC = (HttpContext.Current.Server.MapPath(imagePath));
-
-                            Stream strm = photoT.InputStream;
-                            var targetFile = pathC;
-                            //Based on scalefactor image size will vary
-                            GenerateThumbnails(0.2, strm, targetFile);
-
-                            pictureStr += ", CompanyLogo='" + imagePath + "'";
-                        }
-
-                        var photoS = request.Files["Sign"];
-                        if (photoS != null && photoS.ContentLength != 0)
-                        {
-                            string path1 = Server.MapPath(@"" + sign);
-                            FileInfo filess1 = new FileInfo(path1);
-                            if (filess1.Exists)
-                            {
-                                filess1.Delete();
-                            }
-                            Signature = "CompanyPictures/" + RandomString(6, true) + photoS.FileName;
-                            //photoS.SaveAs(HttpContext.Current.Server.MapPath(Signature));
-
-                            var pathS = (HttpContext.Current.Server.MapPath(imagePath));
-
-                            Stream strm = photoS.InputStream;
-                            var targetFile = pathS;
-                            //Based on scalefactor image size will vary
-                            GenerateThumbnails(0.2, strm, targetFile);
-
-                            pictureStr += ", Sign='" + Signature + "'";
-                        }
-
-                        //pictureStr = ", CompanyLogo='" + imagePath + "', Sign='" + Signature + "'";
-                    }
-
-                }
-                con1.Close();
-
-
-
-                try
-                {
-
-                    int i = 0;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-
-
-                        string temp = "";
-                        if (ilist.Email != "")
-                        {
-                            temp += ", Email='" + ilist.Email + "'";
-                        }
-                        if (ilist.MobileNo != "")
-                        {
-                            temp += ", MobileNo='" + ilist.MobileNo + "'";
-                        }
-                        if (ilist.is_default != "")
-                        {
-                            temp += ", is_default='" + ilist.is_default + "'";
-                        }
-
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-                        if (ilist.is_default == "1")
-                        {
-                            cmd.CommandText = "update CompanyMaster set is_default = '0'  ";
-                            con.Open();
-                            i = cmd.ExecuteNonQuery();
-                            cmd.Dispose();
-                            con.Close();
-                        }
-
-                        cmd.CommandText = "Update CompanyMaster set CompanyName='" + ilist.CompanyName + "'" + temp + ", AlterMobileNo='" + ilist.AlterMobileNo + "' , BusinessAddress='" + ilist.BusinessAddress + "', GSTIN='" + ilist.GSTIN + "', State='" + ilist.State + "', BankName='" + ilist.BankName + "', ACNo='" + ilist.ACNo + "', IFSC='" + ilist.IFSC + "' " + pictureStr + " where CompanyId= '" + ilist.CompanyId + "'";
-                        con.Open();
-                        i = cmd.ExecuteNonQuery();
-                        cmd.Dispose();
-                        con.Close();
-
-                        if (i > 0)
-                        {
-                            comman.Code = 201;
-                            comman.Message = "Record has been updated successfully.";
-                        }
-                        else
-                        {
-                            comman.Code = 410;
-                            comman.Message = "Problem has been occurred while submitting your data.";
-                        }
-                    }
-
-
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "Cannot insert duplicate values..";
-=======
                     while (rdr.Read())
                     {
                         oldLogo = rdr["CompanyLogo"]?.ToString() ?? "";
@@ -1231,23 +874,12 @@ namespace NikunjTextile
                     {
                         comman.Code = 201;
                         comman.Message = "Record has been updated successfully.";
->>>>>>> origin/master
                     }
                     else
                     {
                         comman.Code = 410;
                         comman.Message = "Problem has been occurred while submitting your data.";
                     }
-<<<<<<< HEAD
-
-                }
-
-
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                js.MaxJsonLength = Int32.MaxValue;
-                Context.Response.Write(js.Serialize(comman));
-            }
-=======
                 }
             }
             catch (SqlException ex)
@@ -1375,7 +1007,6 @@ namespace NikunjTextile
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -2505,10 +2136,6 @@ namespace NikunjTextile
         }
 
         // ******************************************    Yarn Quality Master *******************************
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void insertYarnQualityMaster()
@@ -2593,10 +2220,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnQualityMaster()
@@ -2648,12 +2271,6 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             return;
         }
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> origin/master
         // Get Edit Party Category Master 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -3009,10 +2626,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         //[WebMethod]
         //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         //public void getYarnColorMaster(string startFrom)
@@ -3863,57 +3476,6 @@ namespace NikunjTextile
             }
             else
                 if (ilist.DesignerName == "")
-<<<<<<< HEAD
-            {
-                comman.Code = 410;
-                comman.Message = "Please Mention Designer Name.";
-            }
-            else
-            {
-
-                try
-                {
-
-                    int i = 0;
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-
-                        cmd.CommandType = System.Data.CommandType.Text;
-                        cmd.CommandText = "Select TOP 1 (ISNULL(Position,0) + 1) as Position from DesignerMaster order by Position desc ";
-                        con.Open();
-                        SqlDataReader rdr = cmd.ExecuteReader();
-                        int Position = 1;
-                        if (rdr.Read())
-                        {
-                            Position = Convert.ToInt32(rdr["Position"].ToString());
-                            //cmd.Dispose();
-                            //con.Close();
-                        }
-
-                        rdr.Close();
-                        cmd.CommandType = System.Data.CommandType.Text;
-                        string sql = String.Format("Insert Into DesignerMaster  (DateAndTime,DesignerCode, DesignerName, Address, BankName, BankAcNo, IFSCCode, AadharUpload, IsActive, Position, CompanyId, UserAccountId) Values " +
-                                        " ('" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', @DesignerCode, @DesignerName, @Address, @BankName, '" + ilist.BankAcNo + "', '" + ilist.IFSCCode + "', '" + AadharUpload + "', '" + ilist.IsActive + "', '" + Position + "', '" + ilist.CompanyId + "', '" + ilist.UserAccountId + "')");
-
-                        cmd.CommandText = sql;
-                        cmd.Parameters.Add("@DesignerCode", SqlDbType.NVarChar).Value = ilist.DesignerCode.ToUpper();
-                        cmd.Parameters.Add("@DesignerName", SqlDbType.NVarChar).Value = ilist.DesignerName.ToUpper();
-                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = ilist.Address.ToUpper();
-                        cmd.Parameters.Add("@BankName", SqlDbType.NVarChar).Value = ilist.BankName.ToUpper();
-
-                        i = cmd.ExecuteNonQuery();
-
-                        cmd.Dispose();
-                        con.Close();
-
-                        if (i > 0)
-                        {
-                            comman.Code = 201;
-                            comman.Message = "Designer has been saved successfully.";
-=======
                 {
                     comman.Code = 410;
                     comman.Message = "Please Mention Designer Name.";
@@ -3980,41 +3542,15 @@ namespace NikunjTextile
                             comman.Code = 405;
                             comman.Message = "Cannot insert duplicate values..";
 
->>>>>>> origin/master
                         }
                         else
                         {
                             comman.Code = 410;
-<<<<<<< HEAD
-                            comman.Message = "This Designer is already Exists.";
-                        }
-                    }
-
-
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "Cannot insert duplicate values..";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-                    }
-                }
-
-            }
-=======
                             comman.Message = "Problem has been occurred while submitting your data.";
                         }
                     }
 
                 }
->>>>>>> origin/master
 
 
 
@@ -5690,14 +5226,6 @@ namespace NikunjTextile
                 {
                     while (rdr.Read())
                     {
-<<<<<<< HEAD
-                        TypeMaster condition = new TypeMaster();
-                        condition.TypeID = Convert.ToInt32(rdr["TypeID"].ToString());
-                        condition.Type = rdr["Type"].ToString().ToUpper();
-                        condition.IsActive = Convert.ToInt32(rdr["IsActive"].ToString());
-                        condition.UnitId = Convert.ToInt32(rdr["UnitId"].ToString());
-                        listUser.Add(condition);
-=======
                         TypeMaster typeMaster = new TypeMaster
                         {
                             TypeID = rdr["TypeID"] != DBNull.Value
@@ -5718,7 +5246,6 @@ namespace NikunjTextile
                         };
 
                         listUser.Add(typeMaster);
->>>>>>> origin/master
                     }
                 }
 
@@ -5999,12 +5526,6 @@ namespace NikunjTextile
                         SqlCommand cmd = new SqlCommand();
                         cmd.Connection = con;
                         cmd.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> origin/master
                         cmd.CommandText = " select * from GodownMaster where GodownTitle = '" + myDetails.GodownTitle.ToUpper() + "' AND CompanyId = " + CompanyId + "";
                         con.Open();
                         SqlDataReader rdr = cmd.ExecuteReader();
@@ -6025,13 +5546,8 @@ namespace NikunjTextile
                                 //con.Close();
                             }
                             Int64 id = 0;
-<<<<<<< HEAD
-                            string sql = @"INSERT INTO GodownMaster(DateAndTime,GodownTitle,GodownAddress,IsActive,IsDefault,CompanyId,UserAccountId,GSTIN)
-                                    OUTPUT INSERTED.GodownID VALUES(@DateAndTime,@GodownTitle,@GodownAddress,@IsActive,@IsDefault,@CompanyId,@UserAccountId,@GSTIN)";
-=======
                             string sql = @"INSERT INTO GodownMaster(DateAndTime,GodownTitle,GodownAddress,IsActive,IsDefault,CompanyId,UserAccountId,GSTIN,PartyId)
                                     OUTPUT INSERTED.GodownID VALUES(@DateAndTime,@GodownTitle,@GodownAddress,@IsActive,@IsDefault,@CompanyId,@UserAccountId,@GSTIN,@PartyId)";
->>>>>>> origin/master
 
                             using (SqlCommand sqlCommand = new SqlCommand(sql, con))
                             {
@@ -6057,11 +5573,8 @@ namespace NikunjTextile
 
                                 sqlCommand.Parameters.AddWithValue("@GSTIN",
                                     myDetails.GSTIN);
-<<<<<<< HEAD
-=======
                                 sqlCommand.Parameters.AddWithValue("@PartyId",
                                     myDetails.PartyId);
->>>>>>> origin/master
 
                                 id = Convert.ToInt64(sqlCommand.ExecuteScalar());
                             }
@@ -6188,73 +5701,6 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownMaster()
         {
-<<<<<<< HEAD
-
-            JavaScriptSerializer js;
-            List<GodownMaster> listUser = new List<GodownMaster>();
-            GodownMasterResponse response = new GodownMasterResponse();
-
-            var request = HttpContext.Current.Request;
-            GodownMaster ilist = new GodownMaster();
-
-            ilist.searchGodown = HttpContext.Current.Request.Params["searchGodown"];
-            ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
-
-
-
-            if (ilist.searchGodown != "")
-            {
-                ilist.searchGodown = " where  " +
-                    " GodownTitle LIKE '%" + ilist.searchGodown + "%' OR  GodownAddress LIKE '%" + ilist.searchGodown + "%' ";
-            }
-
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = "select * " +
-                    "from GodownMaster " + ilist.searchGodown + "" +
-                    "order by GodownID desc" +
-                " OFFSET " + ilist.startFrom + " ROWS FETCH NEXT 10 ROWS ONLY ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        GodownMaster condition = new GodownMaster();
-                        condition.GodownID = Convert.ToInt32(rdr["GodownID"].ToString());
-                        condition.IsDefault = Convert.ToInt32(rdr["IsDefault"].ToString());
-                        condition.IsActive = Convert.ToInt32(rdr["IsActive"].ToString());
-                        condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
-                        condition.DateAndTimes = Convert.ToDateTime(rdr["DateAndTime"].ToString()).ToString("dd-MM-yyyy");
-                        condition.GodownTitle = rdr["GodownTitle"].ToString();
-                        condition.GodownAddress = rdr["GodownAddress"].ToString();
-                        //condition.Location = rdr["Location"].ToString();
-                        //condition.Storage = rdr["Storage"].ToString();
-                        listUser.Add(condition);
-                    }
-                }
-
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-            }
-
-            response.Code = 1;
-            response.Message = "Success";
-            response.listGodownMaster = listUser;
-
-            js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(response));
-            return;
-
-=======
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
@@ -6374,7 +5820,6 @@ namespace NikunjTextile
             Context.Response.Clear();
             Context.Response.ContentType = "application/json";
             Context.Response.Write(js.Serialize(response));
->>>>>>> origin/master
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -6484,143 +5929,15 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void EditGodownMaster()
         {
-<<<<<<< HEAD
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            //Int64 EmployeeId, CourierDetailId;
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-=======
             DateTime dateTime_Indian =
                 TimeZoneInfo.ConvertTimeFromUtc(
                     DateTime.UtcNow,
                     India_Standard_Time
                 );
->>>>>>> origin/master
 
             CommanResponse comman = new CommanResponse();
             GodownMaster ilist = new GodownMaster();
 
-<<<<<<< HEAD
-            ilist.DateAndTime = Convert.ToDateTime(dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss"));
-
-            string UserAccountId = Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
-            string CompanyId = Context.Request.Cookies["CompanyID"].Value.Split('=')[1];
-            string FinancialYearID = Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1];
-            ilist.GodownArray = HttpContext.Current.Request.Params["GodownArray"];
-
-            if (UserAccountId == "" && CompanyId == "" && FinancialYearID == "")
-            {
-                comman.Code = 500;
-                comman.Message = "Please Re-Login your Account.";
-            }
-            else
-            {
-                var myDetails = JsonConvert.DeserializeObject<GodownMaster>(ilist.GodownArray);
-                string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
-
-
-                try
-                {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-
-
-
-                        cmd.CommandText = " select * from GodownMaster where GodownTitle = '" + myDetails.GodownTitle.ToUpper() + "' AND GodownTitle != (select GodownTitle from GodownMaster where GodownID = '" + myDetails.GodownID + "') AND CompanyId = " + CompanyId + "";
-                        con.Open();
-                        SqlDataReader rdr = cmd.ExecuteReader();
-
-                        if (rdr.HasRows)
-                        {
-                            comman.Code = 500;
-                            comman.Message = "This Godown Title ALready Exists.";
-                        }
-                        else
-                        {
-                            rdr.Close();
-
-
-                            string sql = @"UPDATE GodownMaster SET GodownTitle = @GodownTitle, GodownAddress = @GodownAddress, IsActive = @IsActive,
-                                        UserAccountId = @UserAccountId, CompanyId = @CompanyId , GSTIN=@GSTIN WHERE GodownID = @GodownID";
-
-                            cmd.Parameters.Clear();
-                            cmd.CommandText = sql;
-                            cmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar).Value = myDetails.GodownTitle.ToUpper();
-                            cmd.Parameters.Add("@GodownAddress", SqlDbType.NVarChar).Value = myDetails.GodownAddress.ToUpper();
-                            cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = myDetails.IsActive;
-                            cmd.Parameters.Add("@UserAccountId", SqlDbType.BigInt).Value = UserAccountId;
-                            cmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = CompanyId;
-                            cmd.Parameters.Add("@GodownID", SqlDbType.BigInt).Value = myDetails.GodownID;
-                            cmd.Parameters.AddWithValue("@GSTIN", myDetails.GSTIN);
-                            Int64 id = cmd.ExecuteNonQuery();
-
-
-                            //con.Close();
-                            if (id > 0)
-                            {
-                                if (myDetails.listGodownLocationMaster.Count > 0)
-                                {
-
-                                    if (myDetails.IsManual == 0)
-                                    {
-                                        foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
-                                        {
-
-
-
-                                            string sqls = String.Format("Insert Into GodownLocationMaster  (DateandTime, SrNo, LocationTitle, GodownID ) Values  " +
-                                                   " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.SrNo + "', '" + each.LocationTitle.ToUpper() + "',   " +
-                                                   "  '" + myDetails.GodownID + "' )");
-
-                                            cmd.CommandText = sqls;
-                                            cmd.ExecuteNonQuery();
-
-                                        }
-                                    }
-                                    else
-                                    {
-
-
-                                        if (myDetails.DeleteGodownArray != "")
-                                        {
-                                            string sqld = String.Format("delete from GodownLocationMaster where GodownLocationID in (" + myDetails.DeleteGodownArray + ") ");
-
-                                            cmd.CommandText = sqld;
-                                            cmd.ExecuteNonQuery();
-
-                                        }
-
-                                        foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
-                                        {
-
-
-                                            if (each.GodownLocationID == 0)
-                                            {
-                                                string sqls = String.Format("Insert Into GodownLocationMaster  (DateandTime, SrNo, LocationTitle, GodownID ) Values  " +
-                                                 " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + each.SrNo + "', '" + each.LocationTitle + "',   " +
-                                                 "  '" + myDetails.GodownID + "' )");
-
-                                                cmd.CommandText = sqls;
-                                                cmd.ExecuteNonQuery();
-                                            }
-                                            else
-                                            {
-
-                                                string sqls = @"UPDATE GodownLocationMaster SET DateandTime = @DateandTime, LocationTitle = @LocationTitle
-                                                                WHERE  GodownLocationID = @GodownLocationID";
-
-                                                cmd.Parameters.Clear();
-                                                cmd.CommandText = sqls;
-                                                cmd.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTime_Indian;
-                                                cmd.Parameters.Add("@LocationTitle", SqlDbType.NVarChar).Value = each.LocationTitle.ToUpper();
-                                                cmd.Parameters.Add("@GodownLocationID", SqlDbType.BigInt).Value = each.GodownLocationID;
-                                                cmd.ExecuteNonQuery();
-=======
             try
             {
                 // =========================================================
@@ -7280,57 +6597,10 @@ namespace NikunjTextile
                                                     myDetails.GodownID;
 
                                                 insertLocationCmd.ExecuteNonQuery();
->>>>>>> origin/master
                                             }
                                         }
                                     }
 
-<<<<<<< HEAD
-                                }
-                                con.Close();
-                                comman.id = Convert.ToInt32(id);
-                                comman.Code = 200;
-                                comman.Message = "Record has been Update successfully";
-                            }
-                            else
-                            {
-                                comman.Code = 500;
-                                comman.Message = "Problem has been occurred while submitting your data.";
-
-                            }
-                        }
-
-
-                        cmd.Dispose();
-                        con.Close();
-
-                    }
-                }
-                catch (SqlException ex)
-                {
-
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "This Invoice No is already exists.";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-
-                    }
-
-                }
-            }
-
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(comman));
-=======
                                     srNo++;
                                 }
                             }
@@ -7411,7 +6681,6 @@ namespace NikunjTextile
             Context.Response.Write(
                 js.Serialize(comman)
             );
->>>>>>> origin/master
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -10849,171 +10118,6 @@ namespace NikunjTextile
                 comman.Message = "Please Re-Login your Account.";
             }
             else
-<<<<<<< HEAD
-            if (ilist.DesignEntryFormArray == "")
-            {
-                comman.Code = 500;
-                comman.Message = "Something is missing, while submitting your data.";
-
-            }
-            else
-                if (request.Files["PhotoOfDesign"].ContentLength == 0)
-            {
-
-                comman.Code = 500;
-                comman.Message = "Please Upload Photo Of Design.";
-            }
-            else
-            {
-                var myDetails = JsonConvert.DeserializeObject<DesignEntryForm>(ilist.DesignEntryFormArray);
-                string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
-
-                try
-                {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-
-
-                        cmd.CommandText = "select * from DesignEntryFormMaster where DesignerCode = '" + myDetails.DesignerCode.ToUpper() + "' and DesignNo = '" + myDetails.DesignNo.ToUpper() + "' and FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1) and CompanyId = (select CompanyId from CompanyMaster where is_default = 1) ";
-                        con.Open();
-                        SqlDataReader rdr = cmd.ExecuteReader();
-                        if (rdr.HasRows)
-                        {
-                            comman.Code = 500;
-                            comman.Message = "This Design No is already Exists.";
-
-                        }
-                        else
-                        {
-
-                            rdr.Close();
-
-                            if (request.Files.Count > 0)
-                            {
-                                var photo1 = request.Files["PhotoOfDesign"];
-                                if (photo1 != null && photo1.ContentLength != 0)
-                                {
-                                    DesignImage = "PhotoOfDesign/" + RandomString(6, true) + photo1.FileName;
-                                    photo1.SaveAs(HttpContext.Current.Server.MapPath(DesignImage));
-
-                                    //var path = (HttpContext.Current.Server.MapPath(DesignImage));
-
-                                    //Stream strm = photo1.InputStream;
-                                    //var targetFile = path;
-                                    ////Based on scalefactor image size will vary
-                                    //GenerateThumbnails(0.2, strm, targetFile);
-
-                                }
-
-                                var photo2 = request.Files["PhotoOfSketch"];
-                                if (photo2 != null && photo2.ContentLength != 0)
-                                {
-                                    SketchImage = "PhotoOfSketch/" + RandomString(6, true) + photo2.FileName;
-                                    photo2.SaveAs(HttpContext.Current.Server.MapPath(SketchImage));
-
-                                    //var path = (HttpContext.Current.Server.MapPath(SketchImage));
-
-                                    //Stream strm = photo2.InputStream;
-                                    //var targetFile = path;
-                                    ////Based on scalefactor image size will vary
-                                    //GenerateThumbnails(0.2, strm, targetFile);
-
-                                }
-
-
-                            }
-
-
-                            string sql = @"
-                                                INSERT INTO DesignEntryFormMaster
-                                                (
-                                                    DateandTime, UserAccountId, CompanyId, FinancialYearID,
-                                                    PhotoOfDesign, PhotoOfSketch, WarpQualityID, DesignDate,
-                                                    DesignerID, SketcherID, DesignerCode, DesignNo,
-                                                    Remark, PickOnLoom, TotalCard, AveragePic, ReedOnLoom,
-                                                    TypeID, DesignCategoryID, DesignCut, SaleRate, BarcodeNo
-                                                )
-                                                OUTPUT INSERTED.DesignEntryFormID
-                                                VALUES
-                                                (
-                                                    @DateandTime, @UserAccountId, @CompanyId, @FinancialYearID,
-                                                    @PhotoOfDesign, @PhotoOfSketch, @WarpQualityID, @DesignDate,
-                                                    @DesignerID, @SketcherID, @DesignerCode, @DesignNo,
-                                                    @Remark, @PickOnLoom, @TotalCard, @AveragePic, @ReedOnLoom,
-                                                    @TypeID, @DesignCategoryID, @DesignCut, @SaleRate, @BarcodeNo
-                                                )";
-                            cmd.CommandText = sql;
-                            cmd.Parameters.AddWithValue("@DateandTime", dateTime_Indian);
-                            cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
-                            cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
-                            cmd.Parameters.AddWithValue("@FinancialYearID", FinancialYearID);
-                            cmd.Parameters.AddWithValue("@PhotoOfDesign", DesignImage);
-                            cmd.Parameters.AddWithValue("@PhotoOfSketch", SketchImage);
-                            cmd.Parameters.AddWithValue("@WarpQualityID", myDetails.WarpQualityID);
-                            cmd.Parameters.AddWithValue("@DesignDate", DateTime.ParseExact(myDetails.DesignDates, "dd/MM/yyyy", CultureInfo.InvariantCulture));
-                            cmd.Parameters.AddWithValue("@DesignerID", myDetails.DesignerID);
-                            cmd.Parameters.AddWithValue("@SketcherID", myDetails.SketcherID);
-                            cmd.Parameters.AddWithValue("@DesignerCode", myDetails.DesignerCode.ToUpper());
-                            cmd.Parameters.AddWithValue("@DesignNo", myDetails.DesignNo.ToUpper());
-                            cmd.Parameters.AddWithValue("@Remark", SqlDbType.NVarChar).Value = myDetails.Remark.ToUpper();
-                            cmd.Parameters.AddWithValue("@PickOnLoom", myDetails.PickOnLoom);
-                            cmd.Parameters.AddWithValue("@TotalCard", myDetails.TotalCard);
-                            cmd.Parameters.AddWithValue("@AveragePic", myDetails.AveragePic);
-                            cmd.Parameters.AddWithValue("@ReedOnLoom", SqlDbType.NVarChar).Value = myDetails.ReedOnLoom.ToUpper();
-                            cmd.Parameters.AddWithValue("@TypeID", myDetails.TypeID);
-                            cmd.Parameters.AddWithValue("@DesignCategoryID", myDetails.DesignCategoryID);
-                            cmd.Parameters.AddWithValue("@DesignCut", myDetails.DesignCut);
-                            cmd.Parameters.AddWithValue("@SaleRate", myDetails.SaleRate);
-                            cmd.Parameters.AddWithValue("@BarcodeNo", myDetails.BarcodeNo);
-                            //con.Open();
-                            Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
-
-                            //con.Close();
-                            if (id > 0)
-                            {
-                                if (myDetails.listDesignEntryWeftData.Count > 0)
-                                {
-                                    foreach (DesignEntryWeftData each in myDetails.listDesignEntryWeftData)
-                                    {
-                                        string sqls = String.Format("Insert Into DesignEntryWeftData  (DesignEntryFormID, Card, Pick, YarnMaterialID, DesignSpecificationID) Values " +
-                                               " ( '" + id + "' , '" + each.Card + "', '" + each.Pick + "' , '" + each.YarnMaterialID + "', '" + each.DesignSpecification + "')");
-
-                                        cmd.CommandText = sqls;
-                                        cmd.ExecuteNonQuery();
-
-                                    }
-                                }
-
-
-
-                                if (myDetails.listDesignFormWarpData.Count > 0)
-                                {
-                                    foreach (DesignFormWarpData each in myDetails.listDesignFormWarpData)
-                                    {
-
-                                        string sqls = String.Format("Insert Into DesignFormWarpData (DesignEntryFormID, YarnQualityMaterialID, Tar) Values " +
-                                               " ( '" + id + "', '" + each.YarnQualityID + "', '" + each.Tar + "')");
-
-                                        cmd.CommandText = sqls;
-                                        //cmd.Parameters.Add("@AdditionalCharges", SqlDbType.NVarChar).Value = each.AdditionalCharges;
-
-
-                                        cmd.ExecuteNonQuery();
-                                        //con.Close();
-                                    }
-                                }
-
-                                con.Close();
-
-                                comman.id = Convert.ToInt32(id);
-                                comman.Code = 200;
-                                comman.Message = "Record has been saved successfully";
-=======
                 if (ilist.DesignEntryFormArray == "")
                 {
                     comman.Code = 500;
@@ -11213,58 +10317,17 @@ namespace NikunjTextile
                             {
                                 comman.Code = 405;
                                 comman.Message = "This Invoice No is already exists.";
->>>>>>> origin/master
 
                             }
                             else
                             {
-<<<<<<< HEAD
-
-                                comman.Code = 500;
-=======
                                 comman.Code = 410;
->>>>>>> origin/master
                                 comman.Message = "Problem has been occurred while submitting your data.";
 
                             }
 
-<<<<<<< HEAD
-
-                        }
-
-
-
-                        cmd.Dispose();
-                        con.Close();
-
-                    }
-                }
-                catch (SqlException ex)
-                {
-                    //comman.Code = 0;
-                    //comman.Message = ex.ToString();
-                    //insertUserMaster
-                    //var sqlException = ex.InnerException as System.Data.SqlClient.SqlException;
-
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "This Invoice No is already exists.";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-
-                    }
-
-                }
-            }
-=======
                         }
                     }
->>>>>>> origin/master
 
 
             JavaScriptSerializer js = new JavaScriptSerializer();
@@ -11338,11 +10401,7 @@ namespace NikunjTextile
                         condition.SketcherID = Convert.ToInt32(rdr["SketcherID"].ToString());
                         condition.Sketcher = rdr["Sketcher"].ToString().ToUpper();
                         condition.Remark = rdr["Remark"].ToString().ToUpper();
-<<<<<<< HEAD
-                        condition.PickOnLoom = Convert.ToInt32(rdr["PickOnLoom"].ToString());
-=======
                         condition.PickOnLoom = (rdr["PickOnLoom"].ToString());
->>>>>>> origin/master
                         condition.TotalCard = Convert.ToDecimal(rdr["TotalCard"].ToString());
                         condition.AveragePic = Convert.ToDecimal(rdr["AveragePic"].ToString());
                         condition.ReedOnLoom = rdr["ReedOnLoom"].ToString().ToUpper();
@@ -11492,11 +10551,7 @@ namespace NikunjTextile
                         DEntryForm.DesignerCode = rdr["DesignerCode"].ToString().ToUpper();
                         DEntryForm.DesignNo = rdr["DesignNo"].ToString().ToUpper();
                         DEntryForm.Remark = rdr["Remark"].ToString().ToUpper();
-<<<<<<< HEAD
-                        DEntryForm.PickOnLoom = Convert.ToInt32(rdr["PickOnLoom"].ToString());
-=======
                         DEntryForm.PickOnLoom = rdr["PickOnLoom"].ToString();
->>>>>>> origin/master
                         DEntryForm.TotalCard = Convert.ToDecimal(rdr["TotalCard"].ToString());
                         DEntryForm.AveragePic = Convert.ToDecimal(rdr["AveragePic"].ToString());
                         DEntryForm.ReedOnLoom = rdr["ReedOnLoom"].ToString().ToUpper();
@@ -11508,10 +10563,7 @@ namespace NikunjTextile
                         DEntryForm.Sketcher = rdr["Sketcher"].ToString().ToUpper();
                         DEntryForm.DesignCut = rdr["DesignCut"].ToString().ToUpper();
                         DEntryForm.SaleRate = Convert.ToDecimal(rdr["SaleRate"]);
-<<<<<<< HEAD
-=======
                         DEntryForm.HSNCode = (rdr["HSNCode"].ToString());
->>>>>>> origin/master
                         DEntryForm.BarcodeNo = rdr["BarcodeNo"].ToString().ToUpper();
 
 
@@ -11660,11 +10712,7 @@ namespace NikunjTextile
                         DEntryForm.DesignerCode = rdr["DesignerCode"].ToString().ToUpper();
                         DEntryForm.DesignNo = rdr["DesignNo"].ToString().ToUpper();
                         DEntryForm.Remark = rdr["Remark"].ToString().ToUpper();
-<<<<<<< HEAD
-                        DEntryForm.PickOnLoom = Convert.ToInt32(rdr["PickOnLoom"].ToString());
-=======
                         DEntryForm.PickOnLoom = (rdr["PickOnLoom"].ToString());
->>>>>>> origin/master
                         DEntryForm.TotalCard = Convert.ToDecimal(rdr["TotalCard"].ToString());
                         DEntryForm.AveragePic = Convert.ToDecimal(rdr["AveragePic"].ToString());
                         DEntryForm.ReedOnLoom = rdr["ReedOnLoom"].ToString().ToUpper();
@@ -11942,10 +10990,6 @@ namespace NikunjTextile
         public void UpdateDesignEntryFormMaster()
         {
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-<<<<<<< HEAD
-            //Int64 EmployeeId, CourierDetailId;
-=======
->>>>>>> origin/master
             var request = HttpContext.Current.Request;
             string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
 
@@ -11969,43 +11013,16 @@ namespace NikunjTextile
                 comman.Code = 500;
                 comman.Message = "Please Re-Login your Account.";
             }
-<<<<<<< HEAD
-            else
-            if (ilist.DesignEntryFormArray == "")
-            {
-                comman.Code = 500;
-                comman.Message = "Something is missing, while submitting your data.";
-
-            }
-
-=======
             else if (ilist.DesignEntryFormArray == "")
             {
                 comman.Code = 500;
                 comman.Message = "Something is missing, while submitting your data.";
             }
->>>>>>> origin/master
             else
             {
                 var myDetails = JsonConvert.DeserializeObject<DesignEntryForm>(ilist.DesignEntryFormArray);
                 string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
 
-<<<<<<< HEAD
-
-
-                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-
-                    SqlCommand cmde = new SqlCommand();
-                    cmde.Connection = con;
-
-
-
-
-                    cmde.CommandType = System.Data.CommandType.Text;
-                    cmde.CommandText = "select * from DesignEntryFormMaster where  DesignerCode = '" + myDetails.spanExstingDesignerCode + "' and DesignNo = '" + myDetails.ExstingDesignNo + "' " +
-=======
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
                 using (SqlConnection con = new SqlConnection(cs))
                 {
@@ -12013,56 +11030,34 @@ namespace NikunjTextile
                     cmde.Connection = con;
                     cmde.CommandType = System.Data.CommandType.Text;
                     cmde.CommandText = "select * from DesignEntryFormMaster where DesignerCode = '" + myDetails.spanExstingDesignerCode + "' and DesignNo = '" + myDetails.ExstingDesignNo + "' " +
->>>>>>> origin/master
                         " AND NOT EXISTS (" +
                         " SELECT 1 FROM DesignEntryFormMaster " +
                         " WHERE DesignerCode = '" + myDetails.DesignerCode + "' AND DesignNo = '" + myDetails.DesignNo + "') " +
                         " and FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
                         " and CompanyId = (select CompanyId from CompanyMaster where is_default = 1) ";
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                     con.Open();
                     SqlDataReader rdre = cmde.ExecuteReader();
 
                     if (rdre.Read())
                     {
-<<<<<<< HEAD
-                        //Position = Convert.ToInt32(rdr["Position"].ToString());
-=======
->>>>>>> origin/master
                         comman.Code = 500;
                         comman.Message = "This Designer No is Already Exists.";
                     }
                     else
                     {
-<<<<<<< HEAD
-
-=======
                         rdre.Close(); // Ensure reader is closed before executing next query
->>>>>>> origin/master
 
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
                         cmd1.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-                        cmd1.CommandText = " select * " +
-                            " from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
-                        //con.Open();
-=======
                         cmd1.CommandText = "select * from DesignEntryFormMaster where DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
->>>>>>> origin/master
                         SqlDataReader rdr = cmd1.ExecuteReader();
 
                         if (rdr.HasRows)
                         {
                             String PhotoDesign = "";
                             String PhotoSketch = "";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                             String imagePath = "";
                             String Signature = "";
 
@@ -12071,12 +11066,7 @@ namespace NikunjTextile
                                 PhotoDesign = rdr["PhotoOfDesign"].ToString();
                                 PhotoSketch = rdr["PhotoOfSketch"].ToString();
                             }
-<<<<<<< HEAD
-
-
-=======
                             rdr.Close(); // Close reader after reading
->>>>>>> origin/master
 
                             if (request.Files.Count > 0)
                             {
@@ -12093,25 +11083,10 @@ namespace NikunjTextile
                                         }
                                         imagePath = "PhotoOfDesign/" + RandomString(6, true) + photoT.FileName;
                                         photoT.SaveAs(HttpContext.Current.Server.MapPath(imagePath));
-<<<<<<< HEAD
-
-                                        //var pathT = (HttpContext.Current.Server.MapPath(imagePath));
-
-                                        //Stream strm = photoT.InputStream;
-                                        //var targetFile = pathT;
-                                        ////Based on scalefactor image size will vary
-                                        //GenerateThumbnails(0.2, strm, targetFile);
-
-=======
->>>>>>> origin/master
                                         DesignImage = ", PhotoOfDesign='" + imagePath + "'";
                                     }
                                 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                                 if (myDetails.tempPhotoOfSketch == "")
                                 {
                                     var photoS = request.Files["PhotoOfSketch"];
@@ -12125,17 +11100,6 @@ namespace NikunjTextile
                                         }
                                         Signature = "PhotoOfSketch/" + RandomString(6, true) + photoS.FileName;
                                         photoS.SaveAs(HttpContext.Current.Server.MapPath(Signature));
-<<<<<<< HEAD
-
-                                        //var pathTS = (HttpContext.Current.Server.MapPath(Signature));
-
-                                        //Stream strm = photoS.InputStream;
-                                        //var targetFile = pathTS;
-                                        ////Based on scalefactor image size will vary
-                                        //GenerateThumbnails(0.2, strm, targetFile);
-
-=======
->>>>>>> origin/master
                                         SketchImage = ", PhotoOfSketch='" + Signature + "'";
                                     }
                                     else
@@ -12143,167 +11107,12 @@ namespace NikunjTextile
                                         SketchImage = ", PhotoOfSketch=''";
                                     }
                                 }
-<<<<<<< HEAD
-
-
-
-                                //pictureStr = ", CompanyLogo='" + imagePath + "', Sign='" + Signature + "'";
-=======
->>>>>>> origin/master
                             }
                             else
                             {
                                 DesignImage = ", PhotoOfDesign='" + myDetails.tempPhotoOfDesign + "'";
                                 SketchImage = ", PhotoOfSketch='" + myDetails.tempPhotoOfSketch + "'";
                             }
-<<<<<<< HEAD
-                        }
-                        con.Close();
-
-
-
-
-
-                        try
-                        {
-
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.Connection = con;
-                            cmd.CommandType = System.Data.CommandType.Text;
-
-
-
-                            string sql = String.Format("update DesignEntryFormMaster set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', UserAccountId = '" + UserAccountId + "', CompanyId = '" + CompanyId + "' " + DesignImage + " " + SketchImage + ", " +
-                                " WarpQualityID = '" + myDetails.WarpQualityID + "', DesignDate = '" + DateTime.ParseExact(myDetails.DesignDates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "', DesignerID = '" + myDetails.DesignerID + "', SketcherID = '" + myDetails.SketcherID + "', DesignerCode = '" + myDetails.DesignerCode + "', " +
-                                " DesignNo = '" + myDetails.DesignNo + "', Remark = @Remark, PickOnLoom = '" + myDetails.PickOnLoom + "', TotalCard = '" + myDetails.TotalCard + "', AveragePic = '" + myDetails.AveragePic + "', ReedOnLoom = @ReedOnLoom, TypeID = '" + myDetails.TypeID + "', DesignCategoryID = '" + myDetails.DesignCategoryID + "', DesignCut = '" + myDetails.DesignCut + "' " +
-                                " ,SaleRate = " + myDetails.SaleRate + " ,BarcodeNo = '" + myDetails.BarcodeNo + "' where DesignEntryFormID = '" + myDetails.DesignEntryFormID + "' ");
-
-                            cmd.CommandText = sql;
-                            cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = myDetails.Remark;
-                            cmd.Parameters.Add("@ReedOnLoom", SqlDbType.NVarChar).Value = myDetails.ReedOnLoom;
-                            con.Open();
-                            //Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
-                            Int64 id = cmd.ExecuteNonQuery();
-
-                            //con.Close();
-                            if (id > 0)
-                            {
-
-
-                                if (myDetails.listDesignEntryWeftData.Count > 0)
-                                {
-
-
-                                    cmd.Connection = con;
-                                    cmd.CommandText = "DELETE FROM DesignEntryWeftData WHERE DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
-                                    int i = cmd.ExecuteNonQuery();
-
-                                    foreach (DesignEntryWeftData each in myDetails.listDesignEntryWeftData)
-                                    {
-                                        //string sqls = String.Format("Insert Into DesignEntryWeftData  (DesignEntryFormID, Card, Pick, YarnMaterialID) Values " +
-                                        //       " ( '" + myDetails.DesignEntryFormID + "' , '" + each.Card + "', '" + each.Pick + "' , '" + each.YarnMaterialID + "')");
-
-                                        string sqls = String.Format("Insert Into DesignEntryWeftData  (DesignEntryFormID, Card, Pick, YarnMaterialID, DesignSpecificationID) Values " +
-                                              " ( '" + myDetails.DesignEntryFormID + "' , '" + each.Card + "', '" + each.Pick + "' , '" + each.YarnMaterialID + "', '" + each.DesignSpecification + "')");
-
-
-                                        cmd.CommandText = sqls;
-                                        cmd.ExecuteNonQuery();
-
-                                    }
-                                }
-
-
-                                if (myDetails.listDesignFormWarpData.Count > 0)
-                                {
-
-                                    cmd.Connection = con;
-                                    cmd.CommandText = "DELETE FROM DesignFormWarpData WHERE DesignEntryFormID = " + myDetails.DesignEntryFormID + " ";
-                                    int i = cmd.ExecuteNonQuery();
-
-                                    foreach (DesignFormWarpData each in myDetails.listDesignFormWarpData)
-                                    {
-                                        //string sqls = String.Format("Insert Into DesignFormWarpData (DesignEntryFormID, YarnQualityID, YarnColorID, Tar) Values " +
-                                        //       " ( '" + myDetails.DesignEntryFormID + "', '" + each.YarnQualityID + "', '" + each.YarnColorID + "', '" + each.Tar + "')");
-
-                                        string sqls = String.Format("Insert Into DesignFormWarpData (DesignEntryFormID, YarnQualityMaterialID, Tar) Values " +
-                                               " ( '" + myDetails.DesignEntryFormID + "', '" + each.YarnQualityID + "', '" + each.Tar + "')");
-
-                                        cmd.CommandText = sqls;
-                                        //cmd.Parameters.Add("@AdditionalCharges", SqlDbType.NVarChar).Value = each.AdditionalCharges;
-
-
-                                        cmd.ExecuteNonQuery();
-                                        //con.Close();
-                                    }
-                                }
-
-                                con.Close();
-
-                                comman.id = Convert.ToInt32(myDetails.DesignEntryFormID);
-                                comman.Code = 200;
-                                comman.Message = "Record has been saved successfully";
-
-                            }
-                            else
-                            {
-
-                                comman.Code = 500;
-                                comman.Message = "Problem has been occurred while submitting your data.";
-
-                            }
-                            cmd.Dispose();
-                            con.Close();
-
-                            // }
-                        }
-                        catch (SqlException ex)
-                        {
-                            //comman.Code = 0;
-                            //comman.Message = ex.ToString();
-                            //insertUserMaster
-                            //var sqlException = ex.InnerException as System.Data.SqlClient.SqlException;
-
-                            if (ex.Number == 2601 || ex.Number == 2627)
-                            {
-                                comman.Code = 405;
-                                comman.Message = "This Invoice No is already exists.";
-
-                            }
-                            else
-                            {
-                                comman.Code = 410;
-                                comman.Message = "Problem has been occurred while submitting your data.";
-
-                            }
-
-                        }
-
-
-
-
-
-
-                    }
-
-
-
-
-
-
-
-
-
-                }
-
-
-            }
-
-
-
-
-
-=======
 
                             try
                             {
@@ -12388,7 +11197,6 @@ namespace NikunjTextile
                 }
             }
 
->>>>>>> origin/master
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
@@ -12704,11 +11512,7 @@ namespace NikunjTextile
                         Designer.SketcherID = Convert.ToInt32(rdr["SketcherID"].ToString());
                         //Designer.Sketcher = rdr["Sketcher"].ToString().ToUpper();
                         Designer.Remark = rdr["Remark"].ToString().ToUpper();
-<<<<<<< HEAD
-                        Designer.PickOnLoom = Convert.ToInt32(rdr["PickOnLoom"].ToString());
-=======
                         Designer.PickOnLoom = rdr["PickOnLoom"].ToString();
->>>>>>> origin/master
                         Designer.TotalCard = Convert.ToDecimal(rdr["TotalCard"].ToString());
                         Designer.AveragePic = Convert.ToDecimal(rdr["AveragePic"].ToString());
                         Designer.ReedOnLoom = rdr["ReedOnLoom"].ToString().ToUpper();
@@ -12948,15 +11752,9 @@ namespace NikunjTextile
             ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
 
 
-<<<<<<< HEAD
-            if (ilist.SearchDesignNo != "")
-            {
-                ilist.SearchDesignNo = " and (DEFM.DesignNo LIKE '%" + HttpContext.Current.Request.Params["SearchDesignNo"] + "%') OR  ((CAST(DEFM.DesignerCode as nvarchar(50)) + CAST(DEFM.DesignNo as nvarchar(50))) LIKE '%" + HttpContext.Current.Request.Params["SearchDesignNo"] + "%') ";
-=======
             if (!string.IsNullOrEmpty(ilist.SearchDesignNo))
             {
                 ilist.SearchDesignNo = " and ( (DEFM.DesignNo LIKE '%" + HttpContext.Current.Request.Params["SearchDesignNo"] + "%') OR ((CAST(DEFM.DesignerCode as nvarchar(50)) + CAST(DEFM.DesignNo as nvarchar(50))) LIKE '%" + HttpContext.Current.Request.Params["SearchDesignNo"] + "%') ) ";
->>>>>>> origin/master
             }
 
 
@@ -13044,15 +11842,9 @@ namespace NikunjTextile
 
 
             string SearchString = "";
-<<<<<<< HEAD
-            if (ilist.SearchString != "")
-            {
-                SearchString = "  and (DEFM.DesignNo LIKE '%" + ilist.SearchString + "%') OR  ((CAST(DEFM.DesignerCode as nvarchar(50)) + CAST(DEFM.DesignNo as nvarchar(50))) LIKE '%" + ilist.SearchString + "%') ";
-=======
             if (!string.IsNullOrEmpty(ilist.SearchString))
             {
                 SearchString = "  and ( (DEFM.DesignNo LIKE '%" + ilist.SearchString + "%') OR ((CAST(DEFM.DesignerCode as nvarchar(50)) + CAST(DEFM.DesignNo as nvarchar(50))) LIKE '%" + ilist.SearchString + "%') ) ";
->>>>>>> origin/master
             }
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
@@ -13628,12 +12420,6 @@ namespace NikunjTextile
                             {
                                 foreach (DesignColorMatchingDetails each in myDetails.listDesignColorMatchingDetails)
                                 {
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> origin/master
                                     if (each.DesignColorMatchingDetailsID == 0)
                                     {
                                         string MatchingID = each.WarpMatchingID + "/" + each.FeederMatchingID;
@@ -13898,29 +12684,14 @@ namespace NikunjTextile
             Int64 customer_id = 0;
 
             string DesignColorMatchingFormIDs = "0";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             if (Context.Request.Cookies["DesignColorMatchingFormIDs"] != null)
             {
                 DesignColorMatchingFormIDs = DesignColorMatchingFormIDs = Context.Request.Cookies["DesignColorMatchingFormIDs"].Value.Split('=')[1];
             }
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> origin/master
             if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
             {
                 customer_id = Convert.ToInt64(request.Form["CustomerId"]);
             }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
             string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<DesignEntryForm> listDesignerMaster = new List<DesignEntryForm>();
@@ -13958,23 +12729,12 @@ namespace NikunjTextile
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             }
             DesignEntryForm.Code = 200;
             DesignEntryForm.Message = "Success";
             DesignEntryForm.listDesignEntryForm = listDesignerMaster;
-<<<<<<< HEAD
-
             JavaScriptSerializer js = new JavaScriptSerializer();
             Context.Response.Write(js.Serialize(DesignEntryForm));
-
-=======
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
->>>>>>> origin/master
             return;
         }
         [WebMethod]
@@ -14153,35 +12913,8 @@ namespace NikunjTextile
 
                     }
 
-<<<<<<< HEAD
-
-
-                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-
-
-
-
-
-=======
                 }
             }
->>>>>>> origin/master
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(comman));
@@ -14313,18 +13046,6 @@ namespace NikunjTextile
         // ******************************************   Party Master *******************************
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-<<<<<<< HEAD
-        public void insertPartyMaster()
-        {
-
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            //Int64 EmployeeId, CourierDetailId;
-            var request = HttpContext.Current.Request;
-
-            //List<CustomerClass> listCustomer = new List<CustomerClass>();
-            CommanResponse comman = new CommanResponse();
-            PartyMaster ilist = new PartyMaster();
-=======
         //public void insertPartyMaster()
         //{
         //    // Fix: Defined India Standard Time timezone mapping safely
@@ -14532,7 +13253,6 @@ namespace NikunjTextile
             PartyMaster ilist = new PartyMaster();
 
             // Core parameters mapping
->>>>>>> origin/master
             ilist.PartyName = HttpContext.Current.Request.Params["PartyName"];
             ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
             ilist.AlterMobileNo = HttpContext.Current.Request.Params["AlterMobileNo"];
@@ -14545,16 +13265,11 @@ namespace NikunjTextile
             ilist.Pincode = HttpContext.Current.Request.Params["Pincode"];
             ilist.Email = HttpContext.Current.Request.Params["Email"];
             ilist.IsSameAddress = Convert.ToInt32(HttpContext.Current.Request.Params["IsSameAddress"]);
-<<<<<<< HEAD
-            ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-            ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
-=======
 
             // Cookie safety assignment validations
             ilist.UserAccountId = Context.Request.Cookies["UserIDs"] != null ? Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]) : 0;
             ilist.CompanyId = Context.Request.Cookies["CompanyID"] != null ? Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]) : 0;
 
->>>>>>> origin/master
             ilist.BankHolderName = HttpContext.Current.Request.Params["BankHolderName"];
             ilist.BankAccountNo = HttpContext.Current.Request.Params["BankAccountNo"];
             ilist.BankIFSCCode = HttpContext.Current.Request.Params["BankIFSCCode"];
@@ -14562,14 +13277,6 @@ namespace NikunjTextile
             ilist.BankBranch = HttpContext.Current.Request.Params["BankBranch"];
             ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
             ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
-<<<<<<< HEAD
-            // ilist.BrokerCode = (HttpContext.Current.Request.Params["BrokerCode"]);
-            try
-            {
-
-                int i = 0;
-                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-=======
 
             // Map text input from your front-end field parameter key name mapping
             ilist.prefixInput = HttpContext.Current.Request.Params["prefixInput"];
@@ -14579,24 +13286,10 @@ namespace NikunjTextile
                 int UserRole = Convert.ToInt32(ilist.SundryParty);
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
->>>>>>> origin/master
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
-<<<<<<< HEAD
-
-
-
-                    cmd.Connection = con;
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    con.Open();
-
-                    // Check GSTIN
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and SundryParty=@SundryParty ";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN);
-=======
                     cmd.CommandType = System.Data.CommandType.Text;
                     con.Open();
 
@@ -14604,7 +13297,6 @@ namespace NikunjTextile
                     cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and SundryParty=@SundryParty ";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN ?? (object)DBNull.Value);
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
@@ -14612,19 +13304,6 @@ namespace NikunjTextile
                         {
                             comman.Code = 410;
                             comman.Message = $"This GSTIN {ilist.GSTIN} already exists.";
-<<<<<<< HEAD
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(comman));
-                            return;  // stop here if GSTIN exists
-                        }
-                    }
-
-                    // Check PAN
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and SundryParty=@SundryParty";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@PAN", ilist.PanNo);
-=======
                             WriteJsonResponse(comman);
                             return;
                         }
@@ -14634,7 +13313,6 @@ namespace NikunjTextile
                     cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and SundryParty=@SundryParty";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@PAN", ilist.PanNo ?? (object)DBNull.Value);
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
@@ -14642,19 +13320,6 @@ namespace NikunjTextile
                         {
                             comman.Code = 410;
                             comman.Message = $"This PAN no {ilist.PanNo} already exists.";
-<<<<<<< HEAD
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(comman));
-                            return;  // stop here if PAN exists
-                        }
-                    }
-
-                    // Check MobileNo
-                    cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and SundryParty=@SundryParty";
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
-=======
                             WriteJsonResponse(comman);
                             return;
                         }
@@ -14664,7 +13329,6 @@ namespace NikunjTextile
                     cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and SundryParty=@SundryParty";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo ?? (object)DBNull.Value);
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
@@ -14672,81 +13336,6 @@ namespace NikunjTextile
                         {
                             comman.Code = 410;
                             comman.Message = $"This Mobile No {ilist.MobileNo} already exists.";
-<<<<<<< HEAD
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(comman));
-                            return;  // stop here if Mobile exists
-                        }
-                    }
-
-
-
-
-                    cmd.CommandType = System.Data.CommandType.Text;
-
-                    string sql = String.Format(@"
-                                                INSERT INTO PartyMaster 
-                                                (
-                                                    CompanyId, UserAccountId, DateAndTime, SundryParty, PartyName, MobileNo, AlterMobileNo, Email,
-                                                    BillingAddress, ShippingAddress, IsSameAddress, GSTIN, PAN, State, City, Pincode,
-                                                    BankHolderName, BankAccountNo, BankIFSCCode, BankName, BankBranch, IsActiveParty
-                                                )
-                                                OUTPUT INSERTED.PartyId
-                                                VALUES
-                                                (
-                                                    (SELECT CompanyId FROM companymaster WHERE is_default = 1),
-                                                    '" + ilist.UserAccountId + @"',
-                                                    '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + @"',
-                                                    '" + ilist.SundryParty + @"',
-                                                    @PartyName,
-                                                    '" + ilist.MobileNo + @"',
-                                                    '" + ilist.AlterMobileNo + @"',
-                                                    '" + ilist.Email + @"',
-                                                    @BillingAddress,
-                                                    @ShippingAddress,
-                                                    '" + ilist.IsSameAddress + @"',
-                                                    '" + ilist.GSTIN + @"',
-                                                    '" + ilist.PanNo + @"',
-                                                    '" + ilist.State + @"',
-                                                    '" + ilist.City + @"',
-                                                    '" + ilist.Pincode + @"',
-                                                    @BankHolderName,
-                                                    '" + ilist.BankAccountNo + @"',
-                                                    '" + ilist.BankIFSCCode + @"',
-                                                    @BankName,
-                                                    @BankBranch,
-                                                    '" + ilist.IsActiveParty + @"'
-                                                )");
-                    cmd.CommandText = sql;
-
-
-                    cmd.Parameters.AddWithValue("@PartyName", ilist.PartyName);
-                    cmd.Parameters.AddWithValue("@BillingAddress", ilist.BillingAddress);
-                    cmd.Parameters.AddWithValue("@ShippingAddress", ilist.ShippingAddress);
-                    cmd.Parameters.AddWithValue("@BankHolderName", ilist.BankHolderName);
-                    cmd.Parameters.AddWithValue("@BankName", ilist.BankName);
-                    cmd.Parameters.AddWithValue("@BankBranch", ilist.BankBranch);
-
-
-                    Int64 PartyId = Convert.ToInt64(cmd.ExecuteScalar());
-
-                    cmd.Dispose();
-                    con.Close();
-
-                    if (PartyId > 0)
-                    {
-                        comman.Code = 201;
-                        comman.Message = "Record has been saved successfully.";
-                        comman.id = Convert.ToInt32(PartyId);
-                        JavaScriptSerializer js = new JavaScriptSerializer();
-                        js.MaxJsonLength = Int32.MaxValue;
-                        Context.Response.Write(js.Serialize(comman));
-                        return;
-
-
-
-=======
                             WriteJsonResponse(comman);
                             return;
                         }
@@ -14847,34 +13436,10 @@ namespace NikunjTextile
                         comman.id = Convert.ToInt32(PartyId);
                         WriteJsonResponse(comman);
                         return;
->>>>>>> origin/master
                     }
                     else
                     {
                         comman.Code = 410;
-<<<<<<< HEAD
-                        comman.Message = "Problem has been occurred while submitting your data.";
-                        JavaScriptSerializer js = new JavaScriptSerializer();
-                        js.MaxJsonLength = Int32.MaxValue;
-                        Context.Response.Write(js.Serialize(comman));
-                        return;
-                    }
-
-                }
-
-
-            }
-            catch (SqlException ex)
-            {
-
-                if (ex.Number == 2601 || ex.Number == 2627)
-                {
-                    comman.Code = 405;
-                    comman.Message = "Cannot insert duplicate values..";
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    js.MaxJsonLength = Int32.MaxValue;
-                    Context.Response.Write(js.Serialize(comman));
-=======
                         comman.Message = "Problem has occurred while submitting your data.";
                         WriteJsonResponse(comman);
                         return;
@@ -14887,23 +13452,10 @@ namespace NikunjTextile
                 {
                     comman.Code = 405;
                     comman.Message = "Cannot insert duplicate values.";
->>>>>>> origin/master
                 }
                 else
                 {
                     comman.Code = 410;
-<<<<<<< HEAD
-                    comman.Message = "Problem has been occurred while submitting your data.";
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    js.MaxJsonLength = Int32.MaxValue;
-                    Context.Response.Write(js.Serialize(comman));
-                }
-
-            }
-
-
-
-=======
                     comman.Message = "Problem has occurred while submitting your data: " + ex.Message;
                 }
                 WriteJsonResponse(comman);
@@ -14914,7 +13466,6 @@ namespace NikunjTextile
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(responseObj));
->>>>>>> origin/master
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -14924,45 +13475,6 @@ namespace NikunjTextile
             List<PagginationMaster> listUser = new List<PagginationMaster>();
             PagginationMasterResponce response = new PagginationMasterResponce();
 
-<<<<<<< HEAD
-            var request = HttpContext.Current.Request;
-            PagginationMaster ilist = new PagginationMaster();
-
-
-            ilist.SearchString = HttpContext.Current.Request.Params["PartyName"];
-
-
-            if (ilist.SearchString != "")
-            {
-                ilist.SearchString = " and (PartyName LIKE '%" + ilist.SearchString + "%'  or GSTIN LIKE '%" + ilist.SearchString + "%' or MobileNo LIKE '%" + ilist.SearchString + "%' )";
-            }
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination  from PartyMaster " +
-                    " where CompanyId =  (select CompanyId from CompanyMaster where is_default = 1) and UserAccountId =  " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + "  " + ilist.SearchString + " ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        PagginationMaster condition = new PagginationMaster();
-                        condition.Total = Convert.ToInt32(rdr["Total"].ToString());
-                        condition.Paggination = Convert.ToInt32(rdr["Paggination"].ToString());
-                        listUser.Add(condition);
-                    }
-                }
-
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-=======
             string SearchString = HttpContext.Current.Request.Params["PartyName"] ?? "";
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
@@ -15035,7 +13547,6 @@ namespace NikunjTextile
                 }
 
                 rdr.Close();
->>>>>>> origin/master
             }
 
             response.Code = 1;
@@ -15045,10 +13556,6 @@ namespace NikunjTextile
             js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
-<<<<<<< HEAD
-            return;
-=======
->>>>>>> origin/master
         }
         // View Party Master
         [WebMethod]
@@ -15059,81 +13566,6 @@ namespace NikunjTextile
             List<PartyMaster> listUser = new List<PartyMaster>();
             PartyMasterResponse response = new PartyMasterResponse();
 
-<<<<<<< HEAD
-            var request = HttpContext.Current.Request;
-            PartyMaster ilist = new PartyMaster();
-
-            ilist.PartyName = HttpContext.Current.Request.Params["searchpartyname"];
-            ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
-
-
-            if (ilist.PartyName != "")
-            {
-                ilist.PartyName = " and (PartyName LIKE '%" + HttpContext.Current.Request.Params["searchpartyname"] + "%'  OR MobileNo LIKE '%" + HttpContext.Current.Request.Params["searchpartyname"] + "%'  OR GSTIN LIKE '%" + HttpContext.Current.Request.Params["searchpartyname"] + "%' )";
-            }
-
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                //cmd.CommandText = "select PM.* from PartyMaster PM LEFT JOIN CompanyMaster CM ON PM.CompanyId = CM.CompanyId where CM.is_default = '1' and PM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and PM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) order by PM.PartyId desc OFFSET " + ilist.startFrom.ToString() + " ROWS FETCH NEXT 10 ROWS ONLY";
-                cmd.CommandText = "SELECT * FROM  ( " +
-                    " select ROW_NUMBER() OVER (ORDER BY PartyId desc ) row_num, * " +
-                    " from PartyMaster " +
-                    " where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and CompanyId = (select CompanyId from CompanyMaster where is_default = 1) " +
-                    " " + ilist.PartyName + "  " +
-                    " ) as t1  WHERE t1.row_num between " + (Convert.ToInt32(ilist.startFrom) + 1) + " and " + (Convert.ToInt32(ilist.startFrom) + 30) + "  order by PartyId desc   ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        PartyMaster condition = new PartyMaster();
-                        condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
-                        condition.DateandTime = Convert.ToDateTime(rdr["DateandTime"].ToString());
-                        condition.DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                        condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
-                        condition.AlterMobileNo = rdr["AlterMobileNo"].ToString().ToUpper();
-                        condition.BillingAddress = rdr["BillingAddress"].ToString().ToUpper();
-                        condition.ShippingAddress = rdr["ShippingAddress"].ToString().ToUpper();
-                        condition.IsSameAddress = Convert.ToInt32(rdr["IsSameAddress"].ToString());
-                        condition.GSTIN = rdr["GSTIN"].ToString().ToUpper();
-                        condition.PanNo = rdr["PAN"].ToString().ToUpper();
-                        condition.State = rdr["State"].ToString().ToUpper();
-                        condition.City = rdr["City"].ToString().ToUpper();
-                        condition.Pincode = rdr["Pincode"].ToString().ToUpper();
-                        condition.BankHolderName = rdr["BankHolderName"].ToString().ToUpper();
-                        condition.BankAccountNo = rdr["BankAccountNo"].ToString().ToUpper();
-                        condition.BankIFSCCode = rdr["BankIFSCCode"].ToString().ToUpper();
-                        condition.BankName = rdr["BankName"].ToString().ToUpper();
-                        condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
-                        condition.SundryParty = rdr["SundryParty"].ToString().ToUpper();
-                        condition.IsActiveParty = Convert.ToInt32(rdr["IsActiveParty"].ToString());
-                        listUser.Add(condition);
-                    }
-                }
-
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-            }
-
-            response.Code = 200;
-            response.Message = "Success";
-            response.listPartyMaster = listUser;
-
-            js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(response));
-            return;
-=======
             try
             {
                 var request = HttpContext.Current.Request;
@@ -15316,7 +13748,6 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
 
             Context.Response.Write(js.Serialize(response));
->>>>>>> origin/master
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -15326,8 +13757,6 @@ namespace NikunjTextile
             List<PartyMaster> listUser = new List<PartyMaster>();
             PartyMasterResponse response = new PartyMasterResponse();
 
-<<<<<<< HEAD
-=======
             // Safety guard to check cookie presence before processing substring operations
             int CompanyId = 0;
             if (Context.Request.Cookies["CompanyID"] != null && !string.IsNullOrEmpty(Context.Request.Cookies["CompanyID"].Value))
@@ -15336,18 +13765,12 @@ namespace NikunjTextile
                 CompanyId = Convert.ToInt32(cookieVal.Contains("=") ? cookieVal.Split('=')[1] : cookieVal);
             }
 
->>>>>>> origin/master
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-                //cmd.CommandText = "select * from PartyMaster where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and PartyId = " + id;
-                cmd.CommandText = "select * from PartyMaster  " +
-                    "  where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and PartyId = " + id + " ";
-=======
 
                 // FIX: Secure Parameterized SQL string pattern instead of string concatenations
                 cmd.CommandText = "SELECT * FROM PartyMaster WHERE CompanyId = @CompanyId AND PartyId = @PartyId";
@@ -15355,7 +13778,6 @@ namespace NikunjTextile
                 cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
                 cmd.Parameters.AddWithValue("@PartyId", Convert.ToInt64(id));
 
->>>>>>> origin/master
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -15365,11 +13787,6 @@ namespace NikunjTextile
                     {
                         PartyMaster condition = new PartyMaster();
                         condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
-<<<<<<< HEAD
-                        //condition.CompanyId = Convert.ToInt32(rdr["CompanyId"].ToString());
-                        //condition.CompanyName = rdr["CompanyName"].ToString().ToUpper();
-=======
->>>>>>> origin/master
                         condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                         condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
                         condition.AlterMobileNo = rdr["AlterMobileNo"].ToString().ToUpper();
@@ -15390,14 +13807,6 @@ namespace NikunjTextile
                         condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
                         condition.SundryParty = rdr["SundryParty"].ToString().ToUpper();
                         condition.IsActiveParty = Convert.ToInt32(rdr["IsActiveParty"].ToString());
-<<<<<<< HEAD
-                        //condition.BrokerCode = (rdr["BrokerCode"].ToString());
-                        listUser.Add(condition);
-                    }
-                }
-
-
-=======
 
                         // FIX: Extract and map the PartyPrefix field value safely
                         condition.prefixInput = rdr["PartyPrefix"] != DBNull.Value ? rdr["PartyPrefix"].ToString().ToUpper() : "";
@@ -15405,7 +13814,6 @@ namespace NikunjTextile
                         listUser.Add(condition);
                     }
                 }
->>>>>>> origin/master
                 cmd.Dispose();
                 con.Close();
             }
@@ -15423,16 +13831,6 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void editPartyMaster()
         {
-<<<<<<< HEAD
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-
-            var request = HttpContext.Current.Request;
-
-            CommanResponse comman = new CommanResponse();
-            PartyMaster ilist = new PartyMaster();
-            ilist.PartyId = Convert.ToInt32(HttpContext.Current.Request.Params["PartyId"]);
-
-=======
             TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
@@ -15441,7 +13839,6 @@ namespace NikunjTextile
 
             // Core parameters mapping
             ilist.PartyId = Convert.ToInt32(HttpContext.Current.Request.Params["PartyId"]);
->>>>>>> origin/master
             ilist.PartyName = HttpContext.Current.Request.Params["PartyName"];
             ilist.MobileNo = HttpContext.Current.Request.Params["MobileNo"];
             ilist.tempMobileNo = HttpContext.Current.Request.Params["MobileNotemp"];
@@ -15457,16 +13854,11 @@ namespace NikunjTextile
             ilist.Pincode = HttpContext.Current.Request.Params["Pincode"];
             ilist.Email = HttpContext.Current.Request.Params["Email"];
             ilist.IsSameAddress = Convert.ToInt32(HttpContext.Current.Request.Params["IsSameAddress"]);
-<<<<<<< HEAD
-            ilist.UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
-            ilist.CompanyId = Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]);
-=======
 
             // Cookie safety assignment validations
             ilist.UserAccountId = Context.Request.Cookies["UserIDs"] != null ? Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]) : 0;
             ilist.CompanyId = Context.Request.Cookies["CompanyID"] != null ? Convert.ToInt32(Context.Request.Cookies["CompanyID"].Value.Split('=')[1]) : 0;
 
->>>>>>> origin/master
             ilist.BankHolderName = HttpContext.Current.Request.Params["BankHolderName"];
             ilist.BankAccountNo = HttpContext.Current.Request.Params["BankAccountNo"];
             ilist.BankIFSCCode = HttpContext.Current.Request.Params["BankIFSCCode"];
@@ -15474,131 +13866,6 @@ namespace NikunjTextile
             ilist.BankBranch = HttpContext.Current.Request.Params["BankBranch"];
             ilist.SundryParty = HttpContext.Current.Request.Params["SundryParty"];
             ilist.IsActiveParty = Convert.ToInt32(HttpContext.Current.Request.Params["IsActiveParty"]);
-<<<<<<< HEAD
-            //ilist.BrokerCode = (HttpContext.Current.Request.Params["BrokerCode"]);
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con1 = new SqlConnection(cs))
-            {
-                try
-                {
-
-                    int i = 0;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-
-                        cmd.CommandType = System.Data.CommandType.Text;
-                        con.Open();
-
-                        // Check GSTIN
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE GSTIN = @GSTIN and GSTIN != @tempGSTIN and SundryParty=@SundryParty";
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@GSTIN", ilist.GSTIN);
-                        cmd.Parameters.AddWithValue("@tempGSTIN", ilist.tempGSTIN);
-                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
-                        using (SqlDataReader rdr = cmd.ExecuteReader())
-                        {
-                            if (rdr.Read())
-                            {
-                                comman.Code = 410;
-                                comman.Message = $"This GSTIN {ilist.GSTIN} already exists.";
-                                JavaScriptSerializer js = new JavaScriptSerializer();
-                                js.MaxJsonLength = Int32.MaxValue;
-                                Context.Response.Write(js.Serialize(comman));
-                                return;  // stop here if GSTIN exists
-                            }
-                        }
-
-                        // Check PAN
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE PAN = @PAN and PAN != @tempPAN and SundryParty=@SundryParty";
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@PAN", ilist.PanNo);
-                        cmd.Parameters.AddWithValue("@tempPAN", ilist.tempPanNo);
-                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
-                        using (SqlDataReader rdr = cmd.ExecuteReader())
-                        {
-                            if (rdr.Read())
-                            {
-                                comman.Code = 410;
-                                comman.Message = $"This PAN no {ilist.PanNo} already exists.";
-                                JavaScriptSerializer js = new JavaScriptSerializer();
-                                js.MaxJsonLength = Int32.MaxValue;
-                                Context.Response.Write(js.Serialize(comman));
-                                return;  // stop here if PAN exists
-                            }
-                        }
-
-                        // Check MobileNo
-                        cmd.CommandText = "SELECT 1 FROM PartyMaster WHERE MobileNo = @MobileNo and MobileNo != @MobileNo and SundryParty=@SundryParty";
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@MobileNo", ilist.MobileNo);
-                        cmd.Parameters.AddWithValue("@SundryParty", ilist.SundryParty);
-                        using (SqlDataReader rdr = cmd.ExecuteReader())
-                        {
-                            if (rdr.Read())
-                            {
-                                comman.Code = 410;
-                                comman.Message = $"This Mobile No {ilist.MobileNo} already exists.";
-                                JavaScriptSerializer js = new JavaScriptSerializer();
-                                js.MaxJsonLength = Int32.MaxValue;
-                                Context.Response.Write(js.Serialize(comman));
-                                return;  // stop here if Mobile exists
-                            }
-                        }
-
-
-
-                        string sql = String.Format("Update PartyMaster set UserAccountId = '" + ilist.UserAccountId + "', DateAndTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', SundryParty ='" + ilist.SundryParty + "', PartyName = @PartyName , MobileNo = '" + ilist.MobileNo + "', AlterMobileNo = '" + ilist.AlterMobileNo + "'," +
-                            "  Email = '" + ilist.Email + "', BillingAddress =  @BillingAddress, ShippingAddress = @ShippingAddress, IsSameAddress = '" + ilist.IsSameAddress + "', GSTIN = '" + ilist.GSTIN + "', PAN= '" + ilist.PanNo + "', State = '" + ilist.State + "', " +
-                            " City= '" + ilist.City + "', Pincode = '" + ilist.Pincode + "', BankHolderName = @BankHolderName, BankAccountNo = '" + ilist.BankAccountNo + "', BankIFSCCode = '" + ilist.BankIFSCCode + "', BankName = @BankName, BankBranch = @BankBranch, IsActiveParty = '" + ilist.IsActiveParty + "' where PartyId = '" + ilist.PartyId + "' ");
-
-                        cmd.CommandText = sql;
-                        cmd.Parameters.Add("@PartyName", SqlDbType.NVarChar).Value = ilist.PartyName;
-                        cmd.Parameters.Add("@BillingAddress", SqlDbType.NVarChar).Value = ilist.BillingAddress;
-                        cmd.Parameters.Add("@ShippingAddress", SqlDbType.NVarChar).Value = ilist.ShippingAddress;
-                        cmd.Parameters.Add("@BankHolderName", SqlDbType.NVarChar).Value = ilist.BankHolderName;
-                        cmd.Parameters.Add("@BankName", SqlDbType.NVarChar).Value = ilist.BankName;
-                        cmd.Parameters.Add("@BankBranch", SqlDbType.NVarChar).Value = ilist.BankBranch;
-
-                        i = cmd.ExecuteNonQuery();
-                        cmd.Dispose();
-                        //con.Close();
-
-                        if (i > 0)
-                        {
-                            comman.Code = 201;
-                            comman.Message = "Record has been updated successfully.";
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(comman));
-                        }
-                        else
-                        {
-                            comman.Code = 410;
-                            comman.Message = "Problem has been occurred while submitting your data.";
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            js.MaxJsonLength = Int32.MaxValue;
-                            Context.Response.Write(js.Serialize(comman));
-
-                        }
-                    }
-
-
-
-
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "Cannot insert duplicate values..";
-                        JavaScriptSerializer js = new JavaScriptSerializer();
-                        js.MaxJsonLength = Int32.MaxValue;
-                        Context.Response.Write(js.Serialize(comman));
-=======
 
             // --- ADDED: Extract text input parameter mapping ---
             ilist.prefixInput = HttpContext.Current.Request.Params["prefixInput"];
@@ -15732,22 +13999,10 @@ namespace NikunjTextile
                     {
                         comman.Code = 201;
                         comman.Message = "Record has been updated successfully.";
->>>>>>> origin/master
                     }
                     else
                     {
                         comman.Code = 410;
-<<<<<<< HEAD
-                        comman.Message = "Problem has been occurred while submitting your data.";
-                        JavaScriptSerializer js = new JavaScriptSerializer();
-                        js.MaxJsonLength = Int32.MaxValue;
-                        Context.Response.Write(js.Serialize(comman));
-                    }
-
-                }
-
-
-=======
                         comman.Message = "Problem has occurred while submitting your data.";
                     }
                     WriteJsonResponse(comman);
@@ -15766,7 +14021,6 @@ namespace NikunjTextile
                     comman.Message = "Problem has occurred while submitting your data: " + ex.Message;
                 }
                 WriteJsonResponse(comman);
->>>>>>> origin/master
             }
         }
         // Delete Party Master
@@ -16432,10 +14686,7 @@ namespace NikunjTextile
         public void getAllDesignEntryYarnReqForm()
         {
             var request = HttpContext.Current.Request;
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
             Int64 customer_id = 0;
 
             if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
@@ -16450,100 +14701,6 @@ namespace NikunjTextile
             DesignEntryFormResponse DesignEntryForm = new DesignEntryFormResponse();
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-<<<<<<< HEAD
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-
-
-
-
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select * from YarnColorMaster where IsActive = 1 order by YarnColor ";
-                con.Open();
-                rdr = cmd.ExecuteReader();
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnColorMaster YarnColorM = new YarnColorMaster();
-                        YarnColorM.YarnColorID = Convert.ToInt32(rdr["YarnColorID"]);
-                        YarnColorM.YarnColor = rdr["YarnColor"].ToString().ToUpper();
-                        YarnColorM.YarnColorCode = rdr["YarnColorCode"].ToString().ToUpper();
-                        listYarnColorMaster.Add(YarnColorM);
-                    }
-                }
-                rdr.Close();
-                cmd.Dispose();
-                //con.Close();
-
-
-
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select * from YarnMaterialMaster where IsActive = 1 order by YarnMaterial ";
-                //con.Open();
-                rdr = cmd.ExecuteReader();
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnMaterialMaster YarnMaterialM = new YarnMaterialMaster();
-                        YarnMaterialM.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"]);
-                        YarnMaterialM.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
-                        listYarnMaterialMaster.Add(YarnMaterialM);
-                    }
-                }
-                rdr.Close();
-                cmd.Dispose();
-                //con.Close();
-
-
-
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = "select TOP 1 (COALESCE(MAX(RequirementNo), 0) + 1)  AS RequirementNo " +
-                    " from YarnRequirementMaster " +
-                    " where FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
-                    " AND CompanyId = (select CompanyId from CompanyMaster where is_default = 1) ";
-                //con.Open();
-                rdr = cmd.ExecuteReader();
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnRequirementMaster YarnRequirementM = new YarnRequirementMaster();
-                        YarnRequirementM.RequirementNo = Convert.ToInt32(rdr["RequirementNo"]);
-                        listYarnRequirementMaster.Add(YarnRequirementM);
-                    }
-                }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-
-
-
-
-            }
-            DesignEntryForm.Code = 200;
-            DesignEntryForm.Message = "Success";
-            DesignEntryForm.listYarnColorMaster = listYarnColorMaster;
-            DesignEntryForm.listYarnMaterialMaster = listYarnMaterialMaster;
-            DesignEntryForm.listYarnRequirementMaster = listYarnRequirementMaster;
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
-
-            return;
-=======
             int IsJobWork = 0;
 
             using (SqlConnection con = new SqlConnection(cs))
@@ -16777,7 +14934,6 @@ namespace NikunjTextile
             DesignEntryForm.listYarnRequirementMaster = listYarnRequirementMaster;
             JavaScriptSerializer js = new JavaScriptSerializer();
             Context.Response.Write(js.Serialize(DesignEntryForm));
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -16955,86 +15111,10 @@ namespace NikunjTextile
 
 
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getPartyDetails()
         {
-<<<<<<< HEAD
-            var request = HttpContext.Current.Request;
-            Int64 customer_id = 0;
-
-
-
-            if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
-            {
-                customer_id = Convert.ToInt64(request.Form["CustomerId"]);
-            }
-
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
-            List<PartyMaster> listPartyMaster = new List<PartyMaster>();
-            PartyMasterResponse PartyMasterForm = new PartyMasterResponse();
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select * from PartyMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and IsActiveParty = 1 order by PartyName ";
-                con.Open();
-                rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        PartyMaster condition = new PartyMaster();
-                        condition.PartyId = Convert.ToInt32(rdr["PartyId"]);
-                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                        condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
-                        condition.AlterMobileNo = rdr["AlterMobileNo"].ToString().ToUpper();
-                        condition.Email = rdr["Email"].ToString().ToUpper();
-                        condition.State = rdr["State"].ToString().ToUpper();
-                        condition.City = rdr["City"].ToString().ToUpper();
-                        condition.Pincode = rdr["Pincode"].ToString().ToUpper();
-                        condition.BillingAddress = rdr["BillingAddress"].ToString().ToUpper();
-                        condition.ShippingAddress = rdr["ShippingAddress"].ToString().ToUpper();
-                        condition.IsSameAddress = Convert.ToInt32(rdr["IsSameAddress"].ToString());
-                        condition.GSTIN = rdr["GSTIN"].ToString().ToUpper();
-                        condition.PanNo = rdr["PAN"].ToString().ToUpper();
-                        condition.CompanyId = Convert.ToInt32(rdr["CompanyId"].ToString());
-                        condition.BankHolderName = rdr["BankHolderName"].ToString().ToUpper();
-                        condition.BankAccountNo = rdr["BankAccountNo"].ToString().ToUpper();
-                        condition.BankIFSCCode = rdr["BankIFSCCode"].ToString().ToUpper();
-                        condition.BankName = rdr["BankName"].ToString().ToUpper();
-                        condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
-                        condition.IsActiveParty = Convert.ToInt32(rdr["IsActiveParty"].ToString());
-                        listPartyMaster.Add(condition);
-                    }
-                }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-
-            }
-            PartyMasterForm.Code = 200;
-            PartyMasterForm.Message = "Success";
-            PartyMasterForm.listPartyMaster = listPartyMaster;
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(PartyMasterForm));
-
-            return;
-        }
-
-=======
             try
             {
                 List<PartyMaster> listPartyMaster = new List<PartyMaster>();
@@ -17218,7 +15298,6 @@ namespace NikunjTextile
         }
 
 
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getGodownDetails()
@@ -17241,22 +15320,15 @@ namespace NikunjTextile
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
-<<<<<<< HEAD
-=======
                 var UserAccountId = Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
 
 
->>>>>>> origin/master
                 SqlCommand cmd;
                 SqlDataReader rdr;
                 cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-                cmd.CommandText = " select * from GodownMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and IsActive = 1 order by GodownTitle ";
-=======
                 cmd.CommandText = " select * from GodownMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1) and UserAccountId = " + UserAccountId + " and IsActive = 1 order by GodownTitle ";
->>>>>>> origin/master
                 con.Open();
                 rdr = cmd.ExecuteReader();
 
@@ -17401,14 +15473,9 @@ namespace NikunjTextile
 
             ilist.YarnMaterialID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnMaterialID"]);
             ilist.YarnColorID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
-<<<<<<< HEAD
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-=======
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
 
->>>>>>> origin/master
             using (SqlConnection con = new SqlConnection(cs))
             {
                 SqlCommand cmd = new SqlCommand();
@@ -17422,31 +15489,6 @@ namespace NikunjTextile
                 //    " where YarnMaterialID = '" + ilist.YarnMaterialID + "' and YarnColorID = '" + ilist.YarnColorID + "'" +
                 //    "order by YPM.PartyName Desc";
 
-<<<<<<< HEAD
-                cmd.CommandText = @"
-                                    SELECT 
-                                        PM.*,
-                                        CASE PM.SundryParty 
-                                            WHEN 1 THEN 'Creditors'
-                                            WHEN 2 THEN 'Debtors'
-                                            WHEN 3 THEN 'Job Work'
-                                            ELSE 'Unknown' 
-                                        END AS SundryPartyName
-                                    FROM PartyMaster PM
-                                    WHERE PM.PartyID IN (
-                                        SELECT DISTINCT YPM.BilltoPartyID
-                                        FROM YarnPODetails YPD
-                                        LEFT JOIN YarnPOMaster YPM 
-                                            ON YPM.YarnPOID = YPD.YarnPOID
-                                        WHERE YPD.YarnMaterialID = @YarnMaterialID
-                                          AND YPD.YarnColorID = @YarnColorID
-                                    )";
-
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@YarnMaterialID", ilist.YarnMaterialID);
-                cmd.Parameters.AddWithValue("@YarnColorID", ilist.YarnColorID);
-
-=======
                 cmd.CommandText = @"SELECT PM.*, CASE PM.SundryParty WHEN 1 THEN 'Creditors' WHEN 2 THEN 'Debtors' WHEN 3 THEN 'Job Work'
                                             ELSE 'Unknown' END AS SundryPartyName
                                     FROM PartyMaster PM  WHERE PM.PartyID IN (SELECT DISTINCT YPM.CompanyPartyID FROM YarnPODetails YPD
@@ -17455,7 +15497,6 @@ namespace NikunjTextile
                 cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("@YarnMaterialID", ilist.YarnMaterialID);
                 cmd.Parameters.AddWithValue("@YarnColorID", ilist.YarnColorID);
->>>>>>> origin/master
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
                 if (rdr.HasRows)
@@ -17470,25 +15511,13 @@ namespace NikunjTextile
                         listUser.Add(condition);
                     }
                 }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
             }
-<<<<<<< HEAD
-
             response.Code = 1;
             response.Message = "Success";
             response.listPartyMaster = listUser;
-
-=======
-            response.Code = 1;
-            response.Message = "Success";
-            response.listPartyMaster = listUser;
->>>>>>> origin/master
             js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
@@ -17502,34 +15531,10 @@ namespace NikunjTextile
             JavaScriptSerializer js;
             List<YarnRequirementMaster> listUser = new List<YarnRequirementMaster>();
             YarnRequirementMasterResponse response = new YarnRequirementMasterResponse();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             int materialId = Convert.ToInt32(HttpContext.Current.Request.Params["YarnMaterialID"]);
             int colorId = Convert.ToInt32(HttpContext.Current.Request.Params["YarnColorID"]);
             int companyId = Convert.ToInt32(HttpContext.Current.Request.Params["CompanyCode"]);
             int supplierId = Convert.ToInt32(HttpContext.Current.Request.Params["supplier"]);
-<<<<<<< HEAD
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                con.Open();
-
-                YarnRequirementMaster data = new YarnRequirementMaster();
-
-                // ✅ 1. Get Company Color Code
-                string colorQuery = @"
-            SELECT TOP 1 YPD.CompanyCode 
-            FROM YarnPOMaster YPO
-            LEFT JOIN YarnPODetails YPD ON YPD.YarnPOID = YPO.YarnPOID
-            WHERE YPD.YarnMaterialID = @MaterialID
-              AND YPD.YarnColorID = @ColorID
-              AND YPO.BilltoPartyID = @CompanyID
-            ORDER BY YPD.YarnPODetailID DESC";
-=======
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
@@ -17540,42 +15545,23 @@ namespace NikunjTextile
                                         LEFT JOIN YarnPODetails YPD ON YPD.YarnPOID = YPO.YarnPOID
                                         WHERE YPD.YarnMaterialID = @MaterialID AND YPD.YarnColorID = @ColorID
                                         AND YPO.CompanyPartyID = @CompanyID ORDER BY YPD.YarnPODetailID DESC";
->>>>>>> origin/master
 
                 using (SqlCommand cmd = new SqlCommand(colorQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@MaterialID", materialId);
                     cmd.Parameters.AddWithValue("@ColorID", colorId);
                     cmd.Parameters.AddWithValue("@CompanyID", companyId);
-<<<<<<< HEAD
-
                     object result = cmd.ExecuteScalar();
-
-=======
-                    object result = cmd.ExecuteScalar();
->>>>>>> origin/master
                     if (result != null)
                         data.CompanyColourCode = result.ToString().ToUpper();
                 }
 
                 // ✅ 2. Get Rate (Supplier wise)
-<<<<<<< HEAD
-                string rateQuery = @"
-            SELECT TOP 1 YPD.Rate 
-            FROM YarnPOMaster YPO
-            INNER JOIN YarnPODetails YPD ON YPD.YarnPOID = YPO.YarnPOID
-            WHERE YPD.YarnMaterialID = @MaterialID
-              AND YPD.YarnColorID = @ColorID
-              AND YPO.BilltoPartyID = @CompanyID
-              AND YPO.SupplierPartyID = @SupplierID
-            ORDER BY YPD.YarnPODetailID DESC";
-=======
                 string rateQuery = @" SELECT TOP 1 YPD.Rate FROM YarnPOMaster YPO
                                 INNER JOIN YarnPODetails YPD ON YPD.YarnPOID = YPO.YarnPOID
                                 WHERE YPD.YarnMaterialID = @MaterialID AND YPD.YarnColorID = @ColorID
                                   AND YPO.BilltoPartyID = @CompanyID AND YPO.SupplierPartyID = @SupplierID
                                 ORDER BY YPD.YarnPODetailID DESC";
->>>>>>> origin/master
 
                 using (SqlCommand cmdRate = new SqlCommand(rateQuery, con))
                 {
@@ -17730,55 +15716,14 @@ namespace NikunjTextile
             JavaScriptSerializer js;
             List<YarnRequirementMaster> listUser = new List<YarnRequirementMaster>();
             YarnRequirementMasterResponse response = new YarnRequirementMasterResponse();
-<<<<<<< HEAD
-
-            var request = HttpContext.Current.Request;
-            YarnRequirementMaster ilist = new YarnRequirementMaster();
-
-            ilist.SearchRequirementNo = HttpContext.Current.Request.Params["SearchRequirementNo"];
-            ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
-
-
-=======
             var request = HttpContext.Current.Request;
             YarnRequirementMaster ilist = new YarnRequirementMaster();
             ilist.SearchRequirementNo = HttpContext.Current.Request.Params["SearchRequirementNo"];
             ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
->>>>>>> origin/master
             if (ilist.SearchRequirementNo != "")
             {
                 ilist.SearchRequirementNo = " and (YRM.RequirementNo LIKE '%" + HttpContext.Current.Request.Params["SearchRequirementNo"] + "%' or PM.PartyName LIKE '%" + HttpContext.Current.Request.Params["SearchRequirementNo"] + "%') ";
             }
-<<<<<<< HEAD
-
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                //cmd.CommandText = "select PM.* from PartyMaster PM LEFT JOIN CompanyMaster CM ON PM.CompanyId = CM.CompanyId where CM.is_default = '1' and PM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and PM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) order by PM.PartyId desc OFFSET " + ilist.startFrom.ToString() + " ROWS FETCH NEXT 10 ROWS ONLY";
-                cmd.CommandText = "SELECT * FROM  ( " +
-                    " select ROW_NUMBER() OVER (ORDER BY YRM.YarnRequirementID desc ) row_num, YRM.*, " +
-                    " PM.PartyName, PM.MobileNo, PM.AlterMobileNo, PM.Email, " +
-                    " PM.BillingAddress, PM.ShippingAddress, PM.GSTIN, PM.PAN, " +
-                    " PM.State, PM.City, PM.Pincode," +
-                    " PM.BankHolderName, BankAccountNo, PM.BankIFSCCode, PM.BankName, PM.BankBranch" +
-                    " from YarnRequirementMaster YRM" +
-                    " LEFT JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId" +
-                    " where YRM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)" +
-                    " and YRM.FinancialYearID	 = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)  " +
-                    " " + ilist.SearchRequirementNo + " " +
-                    " ) as t1  WHERE t1.row_num between " + (Convert.ToInt32(ilist.startFrom) + 1) + " and " + (Convert.ToInt32(ilist.startFrom) + 30) + "  " +
-                    " order by t1.YarnRequirementID desc   ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-
-                if (rdr.HasRows)
-=======
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
@@ -17838,42 +15783,10 @@ namespace NikunjTextile
                 cmd.Parameters.AddWithValue("@EndRow", Convert.ToInt32(ilist.startFrom) + 30);
 
                 using (SqlDataReader rdr = cmd.ExecuteReader())
->>>>>>> origin/master
                 {
                     while (rdr.Read())
                     {
                         YarnRequirementMaster condition = new YarnRequirementMaster();
-<<<<<<< HEAD
-                        condition.YarnRequirementID = Convert.ToInt32(rdr["YarnRequirementID"].ToString());
-                        condition.DateandTime = Convert.ToDateTime(rdr["DateandTime"].ToString());
-                        condition.RequirementDate = Convert.ToDateTime(rdr["RequirementDate"].ToString());
-                        condition.DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-                        condition.RequirementDates = Convert.ToDateTime(rdr["RequirementDate"].ToString()).ToString("dd-MM-yyyy");
-                        condition.RequirementNo = Convert.ToInt32(rdr["RequirementNo"].ToString());
-                        condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
-                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                        condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
-                        condition.AlterMobileNo = rdr["AlterMobileNo"].ToString().ToUpper();
-                        condition.BillingAddress = rdr["BillingAddress"].ToString().ToUpper();
-                        condition.ShippingAddress = rdr["ShippingAddress"].ToString().ToUpper();
-                        condition.GSTIN = rdr["GSTIN"].ToString().ToUpper();
-                        condition.PanNo = rdr["PAN"].ToString().ToUpper();
-                        condition.State = rdr["State"].ToString().ToUpper();
-                        condition.City = rdr["City"].ToString().ToUpper();
-                        condition.Pincode = rdr["Pincode"].ToString().ToUpper();
-                        condition.BankHolderName = rdr["BankHolderName"].ToString().ToUpper();
-                        condition.BankAccountNo = rdr["BankAccountNo"].ToString().ToUpper();
-                        condition.BankIFSCCode = rdr["BankIFSCCode"].ToString().ToUpper();
-                        condition.BankName = rdr["BankName"].ToString().ToUpper();
-                        condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
-                        listUser.Add(condition);
-                    }
-                }
-
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-=======
 
                         condition.YarnRequirementID = Convert.ToInt32(rdr["YarnRequirementID"]);
 
@@ -17915,7 +15828,6 @@ namespace NikunjTextile
                         listUser.Add(condition);
                     }
                 }
->>>>>>> origin/master
             }
 
 
@@ -17941,56 +15853,6 @@ namespace NikunjTextile
             List<PagginationMaster> listUser = new List<PagginationMaster>();
             PagginationMasterResponse response = new PagginationMasterResponse();
 
-<<<<<<< HEAD
-            var request = HttpContext.Current.Request;
-            PagginationMaster ilist = new PagginationMaster();
-
-            ilist.SearchString = HttpContext.Current.Request.Params["SearchRequirementNo"];
-
-
-            string SearchString = "";
-            if (ilist.SearchString != "")
-            {
-                SearchString = " and (YRM.RequirementNo LIKE '%" + HttpContext.Current.Request.Params["SearchRequirementNo"] + "%' or PM.PartyName LIKE '%" + HttpContext.Current.Request.Params["SearchRequirementNo"] + "%') ";
-            }
-
-
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination  " +
-                    " from ( select YRM.*, PM.PartyName from YarnRequirementMaster YRM" +
-                    " LEFT JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId" +
-                    " where YRM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)" +
-                    " and YRM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1) " + SearchString + "" +
-                    " ) as t1 ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        PagginationMaster condition = new PagginationMaster();
-                        condition.Total = Convert.ToInt32(rdr["Total"].ToString());
-                        condition.Paggination = Convert.ToInt32(rdr["Paggination"].ToString());
-                        listUser.Add(condition);
-                    }
-                }
-
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
-            }
-
-            response.Code = 1;
-            response.Message = "Success";
-            response.listPagginationMaster = listUser;
-=======
             try
             {
                 string searchText = HttpContext.Current.Request.Params["SearchRequirementNo"] ?? "";
@@ -18062,15 +15924,10 @@ namespace NikunjTextile
                 response.Message = ex.Message;
                 response.listPagginationMaster = new List<PagginationMaster>();
             }
->>>>>>> origin/master
 
             js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
-<<<<<<< HEAD
-            return;
-=======
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -18165,186 +16022,6 @@ namespace NikunjTextile
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-<<<<<<< HEAD
-        public void getYarnRequirementDetails()
-        {
-
-            var request = HttpContext.Current.Request;
-            YarnRequirementMasterResponse ilistColorMatchingForm = new YarnRequirementMasterResponse();
-
-            List<YarnRequirementMaster> listDesignEntryForm = new List<YarnRequirementMaster>();
-            //SalesOrderResponseClass salesOrderResponseData = new SalesOrderResponseClass();
-
-            YarnRequirementMaster ilist = new YarnRequirementMaster();
-            string abc = HttpContext.Current.Request.Params["YarnRequirementID"];
-            //ilist.DesignEntryFormID = Convert.ToInt32(HttpContext.Current.Request.Params["DesignEntryFormID"]);
-            string lastCharacter = abc.Substring(abc.Length - 6);
-
-            if (lastCharacter != "%3d%3d")
-            {
-                string InvoiceId = HttpContext.Current.Request.Params["YarnRequirementID"].Replace("==", "") + "%3d%3d";
-                ilist.YarnRequirementID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
-            }
-            else
-            {
-                ilist.YarnRequirementID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnRequirementID"])));
-            }
-
-            //Upload Cate Master
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select ROW_NUMBER() OVER (ORDER BY YRM.YarnRequirementID desc ) row_num, YRM.*, " +
-                    " PM.PartyName, PM.MobileNo, PM.AlterMobileNo, PM.Email, " +
-                    " PM.BillingAddress, PM.ShippingAddress, PM.GSTIN, PM.PAN, " +
-                    " PM.State, PM.City, PM.Pincode," +
-                    " PM.BankHolderName, BankAccountNo, PM.BankIFSCCode, PM.BankName, PM.BankBranch" +
-                    " from YarnRequirementMaster YRM" +
-                    " LEFT JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId" +
-                    " where YRM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)" +
-                    " and YRM.FinancialYearID	 = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)  " +
-                    " and YRM.YarnRequirementID = " + ilist.YarnRequirementID + " ";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnRequirementMaster condition = new YarnRequirementMaster();
-                        condition.YarnRequirementID = Convert.ToInt32(rdr["YarnRequirementID"].ToString());
-                        condition.DateandTime = Convert.ToDateTime(rdr["DateandTime"].ToString());
-                        condition.RequirementDate = Convert.ToDateTime(rdr["RequirementDate"].ToString());
-                        condition.DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-                        condition.RequirementDates = Convert.ToDateTime(rdr["RequirementDate"].ToString()).ToString("dd/MM/yyyy");
-                        condition.RequirementNo = Convert.ToInt32(rdr["RequirementNo"].ToString());
-                        condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
-                        condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                        condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
-                        condition.Email = rdr["Email"].ToString().ToUpper();
-                        condition.AlterMobileNo = rdr["AlterMobileNo"].ToString().ToUpper();
-                        condition.BillingAddress = rdr["BillingAddress"].ToString().ToUpper();
-                        condition.ShippingAddress = rdr["ShippingAddress"].ToString().ToUpper();
-                        condition.GSTIN = rdr["GSTIN"].ToString().ToUpper();
-                        condition.PanNo = rdr["PAN"].ToString().ToUpper();
-                        condition.State = rdr["State"].ToString().ToUpper();
-                        condition.City = rdr["City"].ToString().ToUpper();
-                        condition.Pincode = rdr["Pincode"].ToString().ToUpper();
-                        condition.BankHolderName = rdr["BankHolderName"].ToString().ToUpper();
-                        condition.BankAccountNo = rdr["BankAccountNo"].ToString().ToUpper();
-                        condition.BankIFSCCode = rdr["BankIFSCCode"].ToString().ToUpper();
-                        condition.BankName = rdr["BankName"].ToString().ToUpper();
-                        condition.BankBranch = rdr["BankBranch"].ToString().ToUpper();
-
-
-
-
-                        SqlCommand cmd1 = new SqlCommand();
-                        cmd1.Connection = con;
-                        cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = " select YRD.*, YMM.YarnMaterial, YCM.YarnColor, YCM.YarnColorCode, PM.PartyName " +
-                            " from YarnRequirementDetail YRD" +
-                            " LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID " +
-                            " LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID " +
-                            " LEFT JOIN PartyMaster PM ON  YRD.CompanyName = PM.PartyId" +
-                            " where YRD.YarnRequirementID = " + rdr["YarnRequirementID"].ToString() + "";
-                        SqlDataReader rdr1 = cmd1.ExecuteReader();
-
-                        if (rdr1.HasRows)
-                        {
-                            List<YarnRequirementDetail> YarnRequirementD = new List<YarnRequirementDetail>();
-                            while (rdr1.Read())
-                            {
-                                YarnRequirementDetail Material = new YarnRequirementDetail();
-                                Material.YarnRequirementDetailID = Convert.ToInt32(rdr1["YarnRequirementDetailID"]);
-                                Material.YarnRequirementID = Convert.ToInt32(rdr1["YarnRequirementID"]);
-                                Material.YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"]);
-                                Material.YarnMaterial = rdr1["YarnMaterial"].ToString().ToUpper();
-                                Material.YarnColorID = Convert.ToInt32(rdr1["YarnColorID"]);
-                                Material.YarnColor = rdr1["YarnColor"].ToString().ToUpper();
-                                Material.YarnColorCode = rdr1["YarnColorCode"].ToString().ToUpper();
-                                Material.PartyID = Convert.ToInt32(rdr1["CompanyName"].ToString());
-                                Material.CompanyName = rdr1["PartyName"].ToString().ToUpper();
-                                Material.CompanyColourCode = rdr1["CompanyColourCode"].ToString().ToUpper();
-                                Material.NoofBoxes = Convert.ToInt32(rdr1["NoofBoxes"].ToString());
-
-                                YarnRequirementD.Add(Material);
-
-
-
-
-
-
-
-
-                                SqlCommand cmd2 = new SqlCommand();
-                                cmd2.Connection = con;
-                                cmd2.CommandType = System.Data.CommandType.Text;
-                                cmd2.CommandText = "select YPM.PartyId, YPM.PartyName from YarnPODetails YPD " +
-                                                    "LEFT JOIN (" +
-                                                    " select YPM.YarnPOID, PM.PartyId, PM.PartyName from YarnPOMaster YPM" +
-                                                    " LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID" +
-                                                    " ) YPM ON YPM.YarnPOID = YPD.YarnPOID " +
-                                                    " where YarnMaterialID = '" + Material.YarnMaterialID + "' and YarnColorID = '" + Material.YarnColorID + "'" +
-                                                    "order by YPM.PartyName ";
-                                SqlDataReader rdr2 = cmd2.ExecuteReader();
-
-                                if (rdr2.HasRows)
-                                {
-                                    List<PartyMaster> PartyMasterP = new List<PartyMaster>();
-                                    while (rdr2.Read())
-                                    {
-                                        PartyMaster PM = new PartyMaster();
-                                        PM.PartyId = Convert.ToInt32(rdr2["PartyId"]);
-                                        PM.PartyName = rdr2["PartyName"].ToString().ToUpper();
-
-
-                                        PartyMasterP.Add(PM);
-                                    }
-                                    Material.listPartyMaster = PartyMasterP;
-                                }
-
-                                rdr2.Close();
-                                cmd2.Dispose();
-
-                                //listDesignEntryForm.Add(condition);
-
-                            }
-                            condition.listYarnRequirementDetail = YarnRequirementD;
-                        }
-
-                        rdr1.Close();
-                        cmd1.Dispose();
-
-                        listDesignEntryForm.Add(condition);
-
-                    }
-
-                    ilistColorMatchingForm.Code = 200;
-                    ilistColorMatchingForm.Message = "Success";
-                    ilistColorMatchingForm.listYarnRequirementMaster = listDesignEntryForm;
-                }
-                else
-                {
-                    ilistColorMatchingForm.Code = 105;
-                    ilistColorMatchingForm.Message = "Opps! Purchase Order Not Exist.";
-                    ilistColorMatchingForm.listYarnRequirementMaster = listDesignEntryForm;
-                }
-                con.Close();
-            }
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(ilistColorMatchingForm));
-            return;
-
-
-=======
 
         public void getYarnRequirementDetails()
         {
@@ -18960,7 +16637,6 @@ namespace NikunjTextile
 
             Context.Response.Write(
                 js.Serialize(response));
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -19366,20 +17042,12 @@ namespace NikunjTextile
                     string insertMaster = @"
             INSERT INTO YarnPOMaster
             (DateandTime, UserAccountId, CompanyId, FinancialYearID, PODate, PONo,
-<<<<<<< HEAD
-            SupplierPartyID, BillToPartyID, CompanyPartyID, ShippedToPartyID,
-=======
             SupplierPartyID,IsSameAsSupplier, BillToPartyID, CompanyPartyID,IsSameAsCompany, ShippedToPartyID,
->>>>>>> origin/master
             GodownID, TotalQty, TotalRate, TotalAmount, DeliveryTime, PaymentCondition, NotesRemarks)
             OUTPUT INSERTED.YarnPOID
             VALUES
             (@DateandTime,@UserAccountId,@CompanyId,@FinancialYearID,@PODate,@PONo,
-<<<<<<< HEAD
-            @SupplierPartyID,@BillToPartyID,@CompanyPartyID,@ShippedToPartyID,
-=======
             @SupplierPartyID,@IsSameAsSupplier,@BillToPartyID,@CompanyPartyID,@IsSameAsCompany,@ShippedToPartyID,
->>>>>>> origin/master
             @GodownID,@TotalQty,@TotalRate,@TotalAmount,@DeliveryTime,@PaymentCondition,@NotesRemarks)";
 
                     SqlCommand cmd = new SqlCommand(insertMaster, con);
@@ -19393,17 +17061,11 @@ namespace NikunjTextile
                     cmd.Parameters.AddWithValue("@PODate", poDate);
                     cmd.Parameters.AddWithValue("@PONo", myDetails.PONo);
                     cmd.Parameters.AddWithValue("@SupplierPartyID", myDetails.SupplierPartyID);
-<<<<<<< HEAD
-                    cmd.Parameters.AddWithValue("@BillToPartyID", myDetails.BillToPartyID);
-                    cmd.Parameters.AddWithValue("@CompanyPartyID", myDetails.CompanyPartyID);
-                    cmd.Parameters.AddWithValue("@ShippedToPartyID", myDetails.ShippedToPartyID);
-=======
                     cmd.Parameters.AddWithValue("@IsSameAsSupplier", myDetails.IsSameAsSupplier);
                     cmd.Parameters.AddWithValue("@BillToPartyID", myDetails.BillToPartyID);
                     cmd.Parameters.AddWithValue("@CompanyPartyID", myDetails.CompanyPartyID);
                     cmd.Parameters.AddWithValue("@ShippedToPartyID", myDetails.ShippedToPartyID);
                     cmd.Parameters.AddWithValue("@IsSameAsCompany", myDetails.IsSameAsCompany);
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@GodownID", myDetails.GodownID);
                     cmd.Parameters.AddWithValue("@TotalQty", myDetails.TotalQty);
                     cmd.Parameters.AddWithValue("@TotalRate", myDetails.TotalRate);
@@ -19522,17 +17184,6 @@ namespace NikunjTextile
                     " SPM.State as SupplierState,  SPM.City as SupplierCity, SPM.Pincode as SupplierPincode, " +
                     " SPM.BankHolderName as SupplierBankHolderName, SPM.BankAccountNo as SupplierBankAccountNo, SPM.BankIFSCCode as SupplierBankIFSCCode, SPM.BankName as SupplierBankName, SPM.BankBranch as SupplierBankBranch," +
 
-<<<<<<< HEAD
-                    " CPM.PartyName as BillToPartyName, CPM.MobileNo as BillToMobileNo, CPM.AlterMobileNo as BillToAlterMobileNo, CPM.Email as BillToEmail," +
-                    " CPM.BillingAddress as BillToBillingAddress, CPM.ShippingAddress as BillToShippingAddress, CPM.GSTIN as BillToGSTIN, CPM.PAN as BillToPAN," +
-                    " CPM.State as BillToState,  CPM.City as BillToCity, CPM.Pincode as BillToPincode, CPM.BankHolderName as BillToBankHolderName," +
-                    " CPM.BankAccountNo as BillToBankAccountNo, CPM.BankIFSCCode as BillToBankIFSCCode, CPM.BankName as BillToBankName, CPM.BankBranch as BillToBankBranch," +
-
-                    " BPM.PartyName as CompanyPartyName, BPM.MobileNo as CompanyMobileNo, BPM.AlterMobileNo as CompanyAlterMobileNo, BPM.Email as CompanyEmail, " +
-                    " BPM.BillingAddress as CompanyBillingAddress, BPM.ShippingAddress as CompanyShippingAddress, BPM.GSTIN as CompanyGSTIN, BPM.PAN as CompanyPAN," +
-                    " BPM.State as CompanyState,  BPM.City as CompanyCity, BPM.Pincode as CompanyPincode, CPM.BankHolderName as CompanyBankHolderName, BPM.BankAccountNo as CompanyBankAccountNo," +
-                    " BPM.BankIFSCCode as CompanyBankIFSCCode, BPM.BankName as CompanyBankName, BPM.BankBranch as CompanyBankBranch," +
-=======
                    " CPM.PartyName as CompanyPartyName, CPM.MobileNo as CompanyMobileNo, CPM.AlterMobileNo as CompanyAlterMobileNo, CPM.Email as CompanyEmail," +
                    " CPM.BillingAddress as CompanyBillingAddress, CPM.ShippingAddress as CompanyShippingAddress, CPM.GSTIN as CompanyGSTIN, CPM.PAN as CompanyPAN," +
                    " CPM.State as CompanyState, CPM.City as CompanyCity, CPM.Pincode as CompanyPincode, CPM.BankHolderName as CompanyBankHolderName," +
@@ -19543,7 +17194,6 @@ namespace NikunjTextile
                    " BPM.State as BillToState, BPM.City as BillToCity, BPM.Pincode as BillToPincode, BPM.BankHolderName as BillToBankHolderName," +
                    " BPM.BankAccountNo as BillToBankAccountNo, BPM.BankIFSCCode as BillToBankIFSCCode, BPM.BankName as BillToBankName, BPM.BankBranch as BillToBankBranch," +
 
->>>>>>> origin/master
                     " SPPM.PartyName as ShippedToPartyName, SPPM.MobileNo as ShippedToMobileNo, SPPM.AlterMobileNo as ShippedToAlterMobileNo, SPPM.Email as ShippedToEmail, " +
                     " SPPM.BillingAddress as ShippedToBillingAddress, SPPM.ShippingAddress as ShippedToShippingAddress, SPPM.GSTIN as ShippedToGSTIN, SPPM.PAN as ShippedToPAN, " +
                     " SPPM.State as ShippedToState,  SPPM.City as ShippedToCity, SPPM.Pincode as ShippedToPincode," +
@@ -19558,11 +17208,7 @@ namespace NikunjTextile
                     " LEFT JOIN " +
                     " (" +
                     " 	select DISTINCT(YarnPOID) from  YarnInwardMaster" +
-<<<<<<< HEAD
-                    " 	where UserAccountId = 17  " +
-=======
                     " 	where UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " " +
->>>>>>> origin/master
                     " 	AND CompanyId = (select CompanyId from CompanyMaster where is_default = 1) " +
                     " 	and FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
                     " ) as YPDM ON YPDM.YarnPOID = YPM.YarnPOID" +
@@ -19927,40 +17573,6 @@ namespace NikunjTextile
 
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
-<<<<<<< HEAD
-                        cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = " select YPD.*, YMM.YarnMaterial, YCM.YarnColor, YCM.YarnColorCode, GSM.GSTSLABName  " +
-                            " from YarnPODetails YPD" +
-                            " LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YPD.YarnMaterialID  " +
-                            " LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YPD.YarnColorID " +
-                            " LEFT JOIN GSTSLABMaster GSM ON YPD.GSTSLABId = GSM.GSTSLABId" +
-                            " where YPD.YarnPOID = " + rdr["YarnPOID"].ToString() + "";
-                        SqlDataReader rdr1 = cmd1.ExecuteReader();
-
-                        if (rdr1.HasRows)
-                        {
-                            List<YarnPODetails> YarnPODetailsD = new List<YarnPODetails>();
-                            while (rdr1.Read())
-                            {
-                                YarnPODetails YarnPOD = new YarnPODetails();
-                                YarnPOD.YarnPODetailID = Convert.ToInt32(rdr1["YarnPODetailID"]);
-                                YarnPOD.YarnPOID = Convert.ToInt32(rdr1["YarnPOID"]);
-                                YarnPOD.YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"]);
-                                YarnPOD.YarnMaterial = rdr1["YarnMaterial"].ToString().ToUpper();
-                                YarnPOD.YarnColorID = Convert.ToInt32(rdr1["YarnColorID"]);
-                                YarnPOD.YarnColor = rdr1["YarnColor"].ToString().ToUpper();
-                                YarnPOD.YarnColorCode = rdr1["YarnColorCode"].ToString().ToUpper();
-                                YarnPOD.CompanyCode = rdr1["CompanyCode"].ToString().ToUpper();
-                                YarnPOD.Qty = Convert.ToDecimal(rdr1["Qty"].ToString());
-                                YarnPOD.Rate = Convert.ToDecimal(rdr1["Rate"].ToString());
-                                YarnPOD.GSTSLABId = Convert.ToInt32(rdr1["GSTSLABId"].ToString());
-                                YarnPOD.GSTSLABName = rdr1["GSTSLABName"].ToString().ToUpper();
-                                YarnPOD.Amount = Convert.ToDecimal(rdr1["Amount"].ToString());
-
-                                YarnPODetailsD.Add(YarnPOD);
-                            }
-                            condition.listYarnPODetails = YarnPODetailsD;
-=======
                         cmd1.CommandType = CommandType.Text;
                         cmd1.CommandText = @"
             SELECT
@@ -20030,18 +17642,11 @@ namespace NikunjTextile
                                 Convert.ToDecimal(rdr1["Amount"]);
 
                             YarnPODetailsD.Add(YarnPOD);
->>>>>>> origin/master
                         }
 
                         rdr1.Close();
                         cmd1.Dispose();
 
-<<<<<<< HEAD
-                        listDesignEntryForm.Add(condition);
-
-                    }
-
-=======
                         condition.listYarnPODetails = YarnPODetailsD;
 
                         listDesignEntryForm.Add(condition);
@@ -20049,7 +17654,6 @@ namespace NikunjTextile
 
 
 
->>>>>>> origin/master
                     ilistColorMatchingForm.Code = 200;
                     ilistColorMatchingForm.Message = "Success";
                     ilistColorMatchingForm.listYarnPOMaster = listDesignEntryForm;
@@ -20167,16 +17771,6 @@ namespace NikunjTextile
         public void UpdateYarnPOMasterMaster()
         {
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-<<<<<<< HEAD
-            //Int64 EmployeeId, CourierDetailId;
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
-            CommanResponse comman = new CommanResponse();
-            YarnPOMaster ilist = new YarnPOMaster();
-
-            ilist.DateandTime = Convert.ToDateTime(dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss"));
-=======
             CommanResponse comman = new CommanResponse();
 
             // Validate cookies exist before reading
@@ -20187,102 +17781,10 @@ namespace NikunjTextile
                 SendJsonResponse(comman);
                 return;
             }
->>>>>>> origin/master
 
             string UserAccountId = Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
             string CompanyId = Context.Request.Cookies["CompanyID"].Value.Split('=')[1];
             string FinancialYearID = Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1];
-<<<<<<< HEAD
-            ilist.YarnPOArray = HttpContext.Current.Request.Params["YarnPOArray"];
-
-            if (UserAccountId == "" && CompanyId == "" && FinancialYearID == "")
-            {
-                comman.Code = 500;
-                comman.Message = "Please Re-Login your Account.";
-            }
-            else
-            {
-                var myDetails = JsonConvert.DeserializeObject<YarnPOMaster>(ilist.YarnPOArray);
-                string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
-
-
-                try
-                {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-                        cmd.CommandType = System.Data.CommandType.Text;
-
-
-                        string sql = String.Format("Update YarnPOMaster set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', UserAccountId = '" + UserAccountId + "', CompanyId = '" + CompanyId + "', FinancialYearID= '" + FinancialYearID + "', PODate = '" + DateTime.ParseExact(myDetails.PODates, "dd/MM/yyyy", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd") + "'," +
-                            "  PONo= '" + Convert.ToInt32(myDetails.PONo) + "', SupplierPartyID = '" + myDetails.SupplierPartyID + "', IsSameAsSupplier = '" + myDetails.IsSameAsSupplier + "', BillToPartyID = '" + myDetails.BillToPartyID + "', CompanyPartyID = '" + myDetails.CompanyPartyID + "', IsSameAsCompany = '" + myDetails.IsSameAsCompany + "', ShippedToPartyID = '" + myDetails.ShippedToPartyID + "', " +
-                            " GodownID = '" + myDetails.GodownID + "', TotalQty = '" + myDetails.TotalQty + "', TotalRate = '" + myDetails.TotalRate + "', TotalAmount = '" + myDetails.TotalAmount + "', DeliveryTime = '" + myDetails.DeliveryTime + "', PaymentCondition = '" + myDetails.PaymentCondition + "', NotesRemarks = '" + myDetails.NotesRemarks + "'   " +
-                                         " where YarnPOID = '" + myDetails.YarnPOID + "'");
-
-
-
-                        cmd.CommandText = sql;
-
-                        con.Open();
-                        //Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
-
-                        Int64 id = Convert.ToInt64(cmd.ExecuteNonQuery());
-
-                        //con.Close();
-                        if (id > 0)
-                        {
-
-
-
-                            if (myDetails.DeleteYarnDetailsArray != "")
-                            {
-                                string sqld = String.Format("delete from YarnPODetails where YarnPODetailID in (" + myDetails.DeleteYarnDetailsArray + ") ");
-                                cmd.CommandText = sqld;
-                                cmd.ExecuteNonQuery();
-                            }
-
-
-
-                            if (myDetails.listYarnPODetails.Count > 0)
-                            {
-                                foreach (YarnPODetails each in myDetails.listYarnPODetails)
-                                {
-
-                                    if (each.YarnPODetailID == 0)
-                                    {
-                                        string sqls = String.Format("Insert Into YarnPODetails  (DateandTime, UserAccountId, YarnPOID, YarnMaterialID, YarnColorID, CompanyCode, Qty, Rate, GSTSLABId, Amount) Values  " +
-                                           " ( '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + UserAccountId + "', '" + myDetails.YarnPOID + "' , '" + each.YarnMaterialID + "', '" + each.YarnColorID + "', '" + each.CompanyCode + "', " +
-                                           " '" + each.Qty + "', '" + each.Rate + "', '" + each.GSTSLABId + "' , " +
-                                           "  '" + each.Amount + "' )");
-
-                                        cmd.CommandText = sqls;
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                    else
-                                    {
-
-                                        string sqls = String.Format("Update YarnPODetails set DateandTime = '" + dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss") + "', UserAccountId = '" + UserAccountId + "', YarnPOID = '" + myDetails.YarnPOID + "', YarnMaterialID = '" + each.YarnMaterialID + "', " +
-                                            " YarnColorID = '" + each.YarnColorID + "', CompanyCode = '" + each.CompanyCode + "', Qty = '" + each.Qty + "', Rate = '" + each.Rate + "', GSTSLABId = '" + each.GSTSLABId + "', Amount = '" + each.Amount + "' where YarnPODetailID = '" + each.YarnPODetailID + "'");
-
-                                        cmd.CommandText = sqls;
-                                        cmd.ExecuteNonQuery();
-                                    }
-
-
-
-                                }
-                            }
-
-
-                            con.Close();
-
-                            comman.id = Convert.ToInt32(id);
-                            comman.Code = 200;
-                            comman.Message = "Record has been Update successfully";
-
-=======
             string yarnPOArrayJson = HttpContext.Current.Request.Params["YarnPOArray"];
 
             if (string.IsNullOrEmpty(UserAccountId) || string.IsNullOrEmpty(CompanyId) || string.IsNullOrEmpty(FinancialYearID))
@@ -20427,50 +17929,10 @@ namespace NikunjTextile
                             comman.id = Convert.ToInt32(myDetails.YarnPOID);
                             comman.Code = 200;
                             comman.Message = "Record has been updated successfully";
->>>>>>> origin/master
                         }
                         else
                         {
                             comman.Code = 500;
-<<<<<<< HEAD
-                            comman.Message = "Problem has been occurred while submitting your data.";
-
-                        }
-                        cmd.Dispose();
-                        con.Close();
-
-                    }
-                }
-                catch (SqlException ex)
-                {
-                    //comman.Code = 0;
-                    //comman.Message = ex.ToString().ToUpper();
-                    //insertUserMaster
-                    //var sqlException = ex.InnerException as System.Data.SqlClient.SqlException;
-
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "This Invoice No is already exists.";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-
-                    }
-
-                }
-            }
-
-
-
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-=======
                             comman.Message = "Problem occurred while submitting your data.";
                         }
                     }
@@ -20499,7 +17961,6 @@ namespace NikunjTextile
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.ContentType = "application/json";
->>>>>>> origin/master
             Context.Response.Write(js.Serialize(comman));
         }
 
@@ -20658,154 +18119,6 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnPOinward()
         {
-<<<<<<< HEAD
-
-            var request = HttpContext.Current.Request;
-            YarnPOMasterResponse ilistColorMatchingForm = new YarnPOMasterResponse();
-
-            List<YarnPOMaster> listDesignEntryForm = new List<YarnPOMaster>();
-            //SalesOrderResponseClass salesOrderResponseData = new SalesOrderResponseClass();
-
-            YarnPOMaster ilist = new YarnPOMaster();
-            ilist.YarnPOID = Convert.ToInt32(HttpContext.Current.Request.Params["YarnPOID"]);
-
-            //Upload Cate Master
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select YPM.*, SPPM.PartyName as 'ShippedToPartyName', SPM.PartyName as 'SupplierPartyName', BPM.PartyName as 'BillToPartyName'," +
-                    " CPM.PartyName as 'CompanyPartyName', SPM.MobileNo as 'SupplierMobileNo'," +
-                    " CASE WHEN SPPM.ShippingAddress IS NULL THEN SPPM.BillingAddress ELSE SPPM.ShippingAddress END as 'ShippedToBillingAddress', " +
-                    " GM.GodownTitle, GM.GodownAddress" +
-                    " from YarnPOMaster YPM" +
-                    " LEFT JOIN PartyMaster SPM ON YPM.SupplierPartyID = SPM.PartyId" +
-                    " LEFT JOIN PartyMaster BPM ON YPM.BillToPartyID = BPM.PartyId" +
-                    " LEFT JOIN PartyMaster CPM ON YPM.CompanyPartyID = CPM.PartyId" +
-                    " LEFT JOIN PartyMaster SPPM ON YPM.ShippedToPartyID = SPPM.PartyId" +
-                    " LEFT JOIN GodownMaster GM ON YPM.GodownID = GM.GodownID" +
-                    " where YPM.YarnPOID = '" + ilist.YarnPOID + "'";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        YarnPOMaster condition = new YarnPOMaster();
-                        condition.YarnPOID = Convert.ToInt32(rdr["YarnPOID"].ToString());
-                        condition.DateandTime = Convert.ToDateTime(rdr["DateandTime"].ToString());
-                        condition.PODate = Convert.ToDateTime(rdr["PODate"].ToString());
-                        condition.DateandTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-                        condition.PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd/MM/yyyy");
-                        condition.PONo = Convert.ToInt32(rdr["PONo"].ToString());
-
-                        condition.BillToPartyName = rdr["BillToPartyName"].ToString().ToUpper();
-                        condition.ShippedToPartyName = rdr["ShippedToPartyName"].ToString().ToUpper();
-                        condition.SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper();
-                        condition.CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper();
-                        condition.SupplierMobileNo = rdr["SupplierMobileNo"].ToString().ToUpper();
-                        condition.ShippedToBillingAddress = rdr["ShippedToBillingAddress"].ToString().ToUpper();
-
-                        condition.GodownID = Convert.ToInt32(rdr["GodownID"].ToString());
-                        condition.GodownTitle = rdr["GodownTitle"].ToString().ToUpper();
-                        condition.GodownAddress = rdr["GodownAddress"].ToString().ToUpper();
-
-                        condition.TotalQty = Convert.ToDecimal(rdr["TotalQty"].ToString());
-                        condition.TotalRate = Convert.ToDecimal(rdr["TotalRate"].ToString());
-                        condition.TotalAmount = Convert.ToDecimal(rdr["TotalAmount"].ToString());
-
-                        condition.DeliveryTime = rdr["DeliveryTime"].ToString().ToUpper();
-                        condition.PaymentCondition = rdr["PaymentCondition"].ToString().ToUpper();
-                        condition.NotesRemarks = rdr["NotesRemarks"].ToString().ToUpper();
-
-
-
-                        SqlCommand cmd1 = new SqlCommand();
-                        cmd1.Connection = con;
-                        cmd1.CommandType = System.Data.CommandType.Text;
-                        //cmd1.CommandText = " SELECT * FROM YarnMaterialMaster WHERE YarnMaterialID IN  " +
-                        //    "  (SELECT YarnMaterialID FROM YarnPODetails  where YarnPOID = " + rdr["YarnPOID"].ToString() + "" +
-                        //    " AND YarnPODetailID NOT IN (select YarnPODetailIDCompanyCode from YarnInwardMaster where YarnPOID = " + rdr["YarnPOID"].ToString() + ")) ";
-
-                        //cmd1.CommandText = "SELECT * FROM YarnMaterialMaster WHERE YarnMaterialID IN     " +
-                        //    " (" +
-                        //    " 	SELECT YPD.YarnMaterialID" +
-                        //    //" YPD.Qty, ISNULL(YIM.TotalWeight,0) as TotalWeight, ISNULL(YIM.IsComplete,0) as IsComplete" +
-                        //    " FROM YarnPODetails  YPD" +
-                        //    " 	LEFT JOIN (select * from YarnInwardMaster where YarnPOID = " + rdr["YarnPOID"].ToString() + ") YIM ON YPD.YarnMaterialID = YIM.YarnMaterialID" +
-                        //    " 	where YPD.YarnPOID = " + rdr["YarnPOID"].ToString() + " " +
-                        //    " 	AND (YPD.Qty != ISNULL(YIM.TotalWeight,0) OR YIM.IsComplete = 0)" +
-                        //    " ) ";
-
-
-
-                        cmd1.CommandText = " SELECT * FROM YarnMaterialMaster WHERE YarnMaterialID IN  " +
-                            " ( " +
-                            " SELECT temp.YarnMaterialID FROM (" +
-                            " SELECT ypd.*, ISNULL(yim.Received,0) as Received, " +
-                            " ISNULL(yim.IsComplete,0) as IsComplete, ypd.Qty - ISNULL(yim.Received,0) as PendingQty" +
-                            " FROM YarnPODetails ypd" +
-                            " LEFT JOIN (" +
-                            "   SELECT SUM(TotalWeight) as Received, YarnMaterialID , YarnPODetailIDCompanyCode, IsComplete" +
-                            "   FROM YarnInwardMaster WHERE YarnPOID = " + rdr["YarnPOID"].ToString() + "" +
-                            "   AND CompanyId = (select CompanyId from CompanyMaster where is_default = 1) " +
-                            "   and FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)" +
-                            "   and UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " " +
-                            "   GROUP BY YarnMaterialID, YarnPODetailIDCompanyCode, IsComplete) as yim ON ypd.YarnPODetailID = yim.YarnPODetailIDCompanyCode" +
-                            " WHERE ypd.YarnPOID = " + rdr["YarnPOID"].ToString() + ") as temp" +
-                            " WHERE temp.IsComplete = 0 AND temp.PendingQty > 0" +
-                            " ) ";
-
-                        SqlDataReader rdr1 = cmd1.ExecuteReader();
-
-                        if (rdr1.HasRows)
-                        {
-                            List<YarnPODetails> YarnPODetailsD = new List<YarnPODetails>();
-                            while (rdr1.Read())
-                            {
-                                YarnPODetails YarnPOD = new YarnPODetails();
-                                YarnPOD.YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"]);
-                                YarnPOD.YarnMaterial = rdr1["YarnMaterial"].ToString().ToUpper();
-
-                                YarnPODetailsD.Add(YarnPOD);
-                            }
-                            condition.listYarnPODetails = YarnPODetailsD;
-                        }
-
-                        rdr1.Close();
-                        cmd1.Dispose();
-
-                        listDesignEntryForm.Add(condition);
-
-                    }
-
-                    ilistColorMatchingForm.Code = 200;
-                    ilistColorMatchingForm.Message = "Success";
-                    ilistColorMatchingForm.listYarnPOMaster = listDesignEntryForm;
-                }
-                else
-                {
-                    ilistColorMatchingForm.Code = 105;
-                    ilistColorMatchingForm.Message = "Opps! Purchase Order Not Exist.";
-                    ilistColorMatchingForm.listYarnPOMaster = listDesignEntryForm;
-                }
-                con.Close();
-            }
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(ilistColorMatchingForm));
-            return;
-
-
-        }
-
-=======
             var request = HttpContext.Current.Request;
             YarnPOMasterResponse response = new YarnPOMasterResponse();
             List<YarnPOMaster> listYarnPO = new List<YarnPOMaster>();
@@ -21848,7 +19161,6 @@ namespace NikunjTextile
                 }
             }
         }
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarnPendingPODetails()
@@ -21878,16 +19190,8 @@ namespace NikunjTextile
                     " LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YPD.YarnMaterialID" +
                     " LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YPD.YarnColorID" +
                     " where YPD.YarnPODetailID = " + ilist.YarnPODetailID + "";
-<<<<<<< HEAD
-
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
-
-
-=======
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
->>>>>>> origin/master
                 if (rdr.HasRows)
                 {
                     while (rdr.Read())
@@ -22212,10 +19516,7 @@ namespace NikunjTextile
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
         public void getYarninwardGodown()
         {
 
@@ -22281,80 +19582,10 @@ namespace NikunjTextile
 
 
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getYarninwardGodownBox()
         {
-<<<<<<< HEAD
-
-            var request = HttpContext.Current.Request;
-            GodownMasterResponse ilistGodownMasterResponse = new GodownMasterResponse();
-
-            List<GodownMaster> listGodownMaster = new List<GodownMaster>();
-            //SalesOrderResponseClass salesOrderResponseData = new SalesOrderResponseClass();
-
-            GodownMaster ilist = new GodownMaster();
-            ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
-
-            //Upload Cate Master
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " Select DISTINCT(t1.LocationTitle) as LocationTitle, Count(t1.BoxNo) as BoxNo, SUM(t1.NetWeight) as NetWeight from(" +
-                    " select YID.*, GLM.LocationTitle from YarnInwardDetail YID " +
-                    " LEFT JOIN GodownLocationMaster GLM ON YID.GodownLocationID = GLM.GodownLocationID " +
-                    " where YID.GodownLocationID In ( " +
-                    " select GodownLocationID from GodownLocationMaster where GodownID in (select GodownID from GodownMaster where GodownID = " + ilist.GodownID + ")" +
-                    " )   ) as t1 Group By t1.LocationTitle";
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-                if (rdr.HasRows)
-                {
-                    while (rdr.Read())
-                    {
-                        GodownMaster condition = new GodownMaster();
-                        //condition.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"].ToString());
-                        condition.BoxNo = rdr["BoxNo"].ToString().ToUpper();
-                        condition.NetWeight = rdr["NetWeight"].ToString().ToUpper();
-                        condition.LocationTitle = rdr["LocationTitle"].ToString().ToUpper();
-                        listGodownMaster.Add(condition);
-
-                    }
-
-
-                    rdr.Close();
-                    cmd.Dispose();
-
-                    ilistGodownMasterResponse.Code = 200;
-                    ilistGodownMasterResponse.Message = "Success";
-                    ilistGodownMasterResponse.listGodownMaster = listGodownMaster;
-                }
-                else
-                {
-                    ilistGodownMasterResponse.Code = 105;
-                    ilistGodownMasterResponse.Message = "Opps! Not Exist.";
-                    ilistGodownMasterResponse.listGodownMaster = listGodownMaster;
-                }
-                con.Close();
-            }
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(listGodownMaster));
-            return;
-
-
-=======
             HttpContext.Current.Response.ContentType = "application/json";
 
             List<GodownMaster> listGodownMaster = new List<GodownMaster>();
@@ -22542,7 +19773,6 @@ ORDER BY
                     message = ex.Message
                 }));
             }
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -22673,26 +19903,11 @@ ORDER BY
                                     idDone = 1;
                                 }
                             }
-<<<<<<< HEAD
-
-
-
-
-
-
-                            if (idDone == 0)
-                            {
-
-
-
-
-=======
                             rdr.Close();
                             rdr.Dispose();
                             if (idDone == 0)
                             {
                                 long id = 0;
->>>>>>> origin/master
                                 if (request.Files.Count > 0)
                                 {
 
@@ -22775,9 +19990,6 @@ ORDER BY
                                 cmd.Parameters.AddWithValue("@UserId", UserAccountId);
                                 cmd.Parameters.AddWithValue("@FinYear", FinancialYearID);
 
-<<<<<<< HEAD
-                                Int64 id = Convert.ToInt64(cmd.ExecuteScalar());
-=======
                                 try
                                 {
                                     object result = cmd.ExecuteScalar();
@@ -22796,7 +20008,6 @@ ORDER BY
                                     throw new Exception("SQL Error : " + ex.Message + Environment.NewLine +
                                                         "Inner Error : " + (ex.InnerException != null ? ex.InnerException.Message : ""));
                                 }
->>>>>>> origin/master
 
                                 //con.Close();
                                 if (id > 0)
@@ -23121,10 +20332,6 @@ ORDER BY
             System.Web.HttpCookie nameCookie = new System.Web.HttpCookie("DesignColorMatchingFormIDs");
             nameCookie.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(nameCookie);
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             response.Code = 200;
             response.Message = "Success";
             response.listYarnPOMaster = listUser;
@@ -23836,15 +21043,10 @@ ORDER BY
 
             //Upload Cate Master
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-<<<<<<< HEAD
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-=======
 
             using (SqlConnection con = new SqlConnection(cs))
             {
                 con.Open();
->>>>>>> origin/master
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -23870,15 +21072,8 @@ ORDER BY
                     " AND YIM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)" +
                     " AND YIM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " " +
                     " AND YIM.YarnInwardID = '" + ilist.YarnInwardID + "'  ";
-<<<<<<< HEAD
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-
-=======
 
                 SqlDataReader rdr = cmd.ExecuteReader();
->>>>>>> origin/master
                 if (rdr.HasRows)
                 {
                     while (rdr.Read())
@@ -23916,22 +21111,6 @@ ORDER BY
                         condition.ShippedtoAddress = rdr["ShippedToBillingAddress"].ToString().ToUpper();
                         condition.PhotoOfInward = rdr["PhotoOfInward"].ToString().ToUpper();
 
-<<<<<<< HEAD
-
-
-
-                        SqlCommand cmd1 = new SqlCommand();
-                        cmd1.Connection = con;
-                        cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = " select YID.*, GLM.LocationTitle from YarnInwardDetail YID  " +
-                            " LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID " +
-                            " where YID.YarnInwardID = '" + ilist.YarnInwardID + "' ";
-                        SqlDataReader rdr1 = cmd1.ExecuteReader();
-
-                        if (rdr1.HasRows)
-                        {
-                            List<YarnInwardDetail> YarnInwardDetail = new List<YarnInwardDetail>();
-=======
                         SqlCommand cmd1 = new SqlCommand(@"select YID.*,GLM.LocationTitle from YarnInwardDetail YID
                                     LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID  where YID.YarnInwardID=@YarnInwardID", con);
                         cmd1.Parameters.AddWithValue("@YarnInwardID", condition.YarnInwardID);
@@ -23940,18 +21119,12 @@ ORDER BY
                         List<YarnInwardDetail> YarnInwardDetail = new List<YarnInwardDetail>();
                         if (rdr1.HasRows)
                         {
->>>>>>> origin/master
                             while (rdr1.Read())
                             {
                                 YarnInwardDetail YarnPOD = new YarnInwardDetail();
                                 YarnPOD.YarnInwardDetailID = Convert.ToInt32(rdr1["YarnInwardDetailID"]);
-<<<<<<< HEAD
-                                condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
-                                condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-=======
                                 //YarnPOD.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
                                 //YarnPOD.DateAndTimes = Convert.ToDateTime(rdr["DateAndTime"].ToString()).ToString("dd-MM-yyyy");
->>>>>>> origin/master
                                 YarnPOD.BoxNo = rdr1["BoxNo"].ToString().ToUpper();
                                 YarnPOD.BarcodeNo = rdr1["BarcodeNo"].ToString().ToUpper();
                                 YarnPOD.NetWeight = Convert.ToDecimal(rdr1["NetWeight"]);
@@ -23983,10 +21156,6 @@ ORDER BY
                 con.Close();
             }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(listYarnInwardMasterR));
@@ -24108,11 +21277,7 @@ ORDER BY
             if (lastCharacter != "%3d%3d")
             {
                 string InvoiceId = HttpContext.Current.Request.Params["YarnInwardID"].Replace("==", "") + "%3d%3d";
-<<<<<<< HEAD
-                ilist.YarnInwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
-=======
                 //ilist.YarnInwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
->>>>>>> origin/master
             }
             else
             {
@@ -24852,11 +22017,6 @@ ORDER BY
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(listYarnInterChangeResponce));
             return;
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/master
         }
 
         [WebMethod]
@@ -25205,60 +22365,6 @@ ORDER BY
                 //                ";
 
 
-<<<<<<< HEAD
-                cmd.CommandText = @"SELECT t1.*,CASE WHEN ISNULL(YTCM.YarnInwardDetailID,0) = 0 THEN 'NO' ELSE 'YES' END AS MOVEBOXORNOT FROM
-                                (SELECT YID.YarnInwardDetailID, YID.DateAndTime, YID.BoxNo, YID.NetWeight, YID.GodownLocationID,
-                                        YID.YarnInwardID, YID.UserAccountId, GLM.LocationTitle, YIM.YarnMaterialID,
-                                        YIM.YarnColorID, YCM.YarnColor, YIM.GodownID, YIM.YarnPOID, YIM.TotalWeight, 
-		                                YMM.YarnMaterial, GM.GodownTitle, YPM.PONo, PM.PartyName, YPD.YarnPODetailID,
-                                        YPD.CompanyCode
-                                    FROM YarnInwardDetail YID
-                                    LEFT JOIN GodownLocationMaster GLM ON YID.GodownLocationID = GLM.GodownLocationID
-                                    LEFT JOIN YarnInwardMaster YIM ON YID.YarnInwardID = YIM.YarnInwardID
-                                    LEFT JOIN YarnMaterialMaster YMM ON YIM.YarnMaterialID = YMM.YarnMaterialID
-                                    LEFT JOIN YarnColorMaster YCM ON YIM.YarnColorID = YCM.YarnColorID
-                                    LEFT JOIN GodownMaster GM ON YIM.GodownID = GM.GodownID
-                                    LEFT JOIN YarnPOMaster YPM ON YIM.YarnPOID = YPM.YarnPOID
-                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-                                    LEFT JOIN YarnPODetails YPD ON YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
-                                    WHERE YID.YarnInwardDetailID NOT IN
-                                          (SELECT DISTINCT YarnInwardDetailID FROM YarnInterchangeMaster)
-
-                                    UNION ALL 
-
-                                    SELECT
-                                        T.YarnInwardDetailID, T.DateAndTime, YID.BoxNo, YID.NetWeight, T.GodownLocationID,
-                                        YID.YarnInwardID, T.UserAccountId, GLM.LocationTitle, T.YarnMaterialID,
-                                        T.YarnColorID, YCM.YarnColor, T.GodownID, T.YarnPOID, YIM.TotalWeight,
-                                        YMM.YarnMaterial, GM.GodownTitle, YPM.PONo, PM.PartyName, YPD.YarnPODetailID,
-                                        YPD.CompanyCode
-                                    FROM
-                                    (
-                                        SELECT *,
-                                               ROW_NUMBER() OVER (
-                                                   PARTITION BY YarnInwardDetailID
-                                                   ORDER BY YarnInterchangeID DESC
-                                               ) AS rn
-                                        FROM YarnInterchangeMaster
-                                    ) T
-                                    LEFT JOIN YarnInwardDetail YID ON T.YarnInwardDetailID = YID.YarnInwardDetailID
-                                    LEFT JOIN GodownLocationMaster GLM ON T.GodownLocationID = GLM.GodownLocationID
-                                    LEFT JOIN YarnInwardMaster YIM ON YID.YarnInwardID = YIM.YarnInwardID
-                                    LEFT JOIN YarnMaterialMaster YMM ON T.YarnMaterialID = YMM.YarnMaterialID
-                                    LEFT JOIN YarnColorMaster YCM ON T.YarnColorID = YCM.YarnColorID
-                                    LEFT JOIN GodownMaster GM ON T.GodownID = GM.GodownID
-                                    LEFT JOIN YarnPOMaster YPM ON T.YarnPOID = YPM.YarnPOID
-                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-                                    LEFT JOIN YarnPODetails YPD ON YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
-                                    WHERE T.rn = 1
-                                ) AS T1
-                                LEFT JOIN (select Distinct(YarnInwardDetailID) from YarnInterchangeMaster) YTCM ON t1.YarnInwardDetailID = YTCM.YarnInwardDetailID
-                                WHERE T1.GodownID = " + ilist.GodownID + @"
-                                    " + strGodownLocationID + @"
-                                    " + strYarnInwardDetail + @" " + strYarnMaterialID + @" " + strYarnColorID + @" " + strYarnPOID + @" " + strYarnPODetailID + @"
-                                    " + SIFTYarnInwardDetail + @" 
-                                    ";
-=======
                 cmd.CommandText = @"
 SELECT
     T1.*,
@@ -25408,7 +22514,6 @@ WHERE
 ORDER BY
     T1.YarnInwardDetailID DESC
 ";
->>>>>>> origin/master
 
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -25681,11 +22786,7 @@ ORDER BY
                                     LEFT JOIN YarnPOMaster YPM ON YIM.YarnPOID = YPM.YarnPOID
                                     LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
                                     LEFT JOIN YarnPODetails YPD ON  YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
-<<<<<<< HEAD
-                                    WHERE YID.YarnInwardDetailID in (" + ilist.YarnInwardDetailIDs.Remove(ilist.YarnInwardDetailIDs.Length - 1) + @")
-=======
                                     WHERE YID.YarnInwardDetailID in (" + ilist.YarnInwardDetailIDs + @")
->>>>>>> origin/master
                                    ";
 
                     con.Open();
@@ -25862,10 +22963,6 @@ ORDER BY
 
             var request = HttpContext.Current.Request;
             YarnOutwardMasterResponce listYarnOutwardMasterResponce = new YarnOutwardMasterResponce();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             List<PartyMaster> listPartyMaster = new List<PartyMaster>();
             List<PartyMaster> listCompanyMaster = new List<PartyMaster>();
             List<YarnMaterialMaster> listYarnMaterialMaster = new List<YarnMaterialMaster>();
@@ -26016,11 +23113,7 @@ ORDER BY
                 cmd.CommandText = @"
                                     select PartyId, PartyName from PartyMaster where PartyId in
                                     (
-<<<<<<< HEAD
-	                                    select DISTINCT(BillToPartyID) from YarnPOMaster 
-=======
 	                                    select DISTINCT(CompanyPartyID) from YarnPOMaster 
->>>>>>> origin/master
 	                                    where YarnPOID in
 	                                    (
 		                                    select DISTINCT(YarnPOID) from YarnInwardMaster where CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
@@ -26101,11 +23194,7 @@ ORDER BY
                     while (rdr7.Read())
                     {
                         YarnOutwardMaster condition = new YarnOutwardMaster();
-<<<<<<< HEAD
-                        condition.OutwardListNo = Convert.ToInt32(rdr7["OutwardListNo"].ToString());
-=======
                         condition.OutwardListNo = rdr7["OutwardListNo"].ToString();
->>>>>>> origin/master
                         listYarnOutwardMaster.Add(condition);
                     }
                 }
@@ -26330,27 +23419,13 @@ ORDER BY
                         listUser.Add(condition);
                     }
                 }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
             }
-<<<<<<< HEAD
-
-
-
             response.Code = 200;
             response.Message = "Success";
             response.listYarnOutwardMaster = listUser;
-
-=======
-            response.Code = 200;
-            response.Message = "Success";
-            response.listYarnOutwardMaster = listUser;
->>>>>>> origin/master
             js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
@@ -26481,19 +23556,11 @@ ORDER BY
                 else
                 {
 
-<<<<<<< HEAD
-                    cmd.CommandText = @"SELECT (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock,t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
-                                            t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
-                                        FROM (SELECT 
-                                                ISNULL(SUM(t1.Stock), 0) as Stock, 
-                                                t1.BillToPartyID, 
-=======
                     cmd.CommandText = @"SELECT (t1.Stock - ISNULL(YOD.Stock, 0)) AS Stock,t1.CompanyPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
                                             t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
                                         FROM (SELECT 
                                                 ISNULL(SUM(t1.Stock), 0) as Stock, 
                                                 t1.CompanyPartyID, 
->>>>>>> origin/master
                                                 t1.CompanyName, 
                                                 t1.YarnMaterialID, 
                                                 t1.YarnMaterial, 
@@ -26506,11 +23573,7 @@ ORDER BY
                                                 SELECT  
                                                     YIM.YarnInwardID, 
                                                     YIM.YarnPOID, 
-<<<<<<< HEAD
-                                                    YPM.BillToPartyID, 
-=======
                                                     YPM.CompanyPartyID, 
->>>>>>> origin/master
                                                     YPM.PartyName AS CompanyName,
                                                     YIM.YarnMaterialID, 
                                                     YMM.YarnMaterial, 
@@ -26522,15 +23585,9 @@ ORDER BY
                                                     YIDD.Stock
                                                 FROM YarnInwardMaster YIM
                                                 LEFT JOIN (
-<<<<<<< HEAD
-                                                    SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
-                                                    FROM YarnPOMaster YPM
-                                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-=======
                                                     SELECT YPM.YarnPOID, YPM.CompanyPartyID, PM.PartyName 
                                                     FROM YarnPOMaster YPM
                                                     LEFT JOIN PartyMaster PM ON YPM.CompanyPartyID = PM.PartyId
->>>>>>> origin/master
                                                 ) YPM ON YIM.YarnPOID = YPM.YarnPOID
                                                 LEFT JOIN YarnPODetails YPD ON YIM.YarnPOID = YPD.YarnPOID 
                                                     AND YIM.YarnMaterialID = YPD.YarnMaterialID 
@@ -26550,11 +23607,7 @@ ORDER BY
                                                 LEFT JOIN GodownLocationMaster GL ON YIDD.YarnInterchangeID = GL.GodownLocationID
                                             ) AS t1
                                             WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-<<<<<<< HEAD
-                                            GROUP BY t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
-=======
                                             GROUP BY t1.CompanyPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
->>>>>>> origin/master
                                                 t1.YarnColorID, 
                                                 t1.YarnColor, 
                                                 t1.CompanyCode, 
@@ -26564,48 +23617,28 @@ ORDER BY
                                         LEFT JOIN (
                                             SELECT 
                                                 SUM(YOD.NoOfBox) as Stock, 
-<<<<<<< HEAD
-                                                YOD.BillToPartyID, 
-=======
                                                 YOD.BillToPartyID,
->>>>>>> origin/master
                                                 YOD.YarnMaterialID, 
                                                 YOD.YarnColorID, 
                                                 YOD.GodownLocationID 
                                             FROM YarnOutwardDetail YOD
                                             LEFT JOIN YarnOutwardMaster YOM ON YOD.YarnOutwardID = YOM.YarnOutwardID
                                             WHERE YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-<<<<<<< HEAD
-                                            GROUP BY YOD.BillToPartyID, YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
-=======
                                             GROUP BY  YOD.BillToPartyID,YOD.YarnMaterialID, YOD.YarnColorID, YOD.GodownLocationID
->>>>>>> origin/master
                                         ) YOD ON t1.YarnMaterialID = YOD.YarnMaterialID
                                             AND t1.YarnColorID = YOD.YarnColorID
                                             AND t1.YarnInterchangeID = YOD.GodownLocationID
                                         WHERE (t1.Stock - ISNULL(YOD.Stock, 0)) > 0";
                 }
-<<<<<<< HEAD
-
-
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
-
-=======
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
->>>>>>> origin/master
                 if (rdr.HasRows)
                 {
                     while (rdr.Read())
                     {
                         YarnOutwardMaster condition = new YarnOutwardMaster();
                         // Check for NULL before converting to Int32
-<<<<<<< HEAD
-                        condition.BillToPartyID = rdr["BillToPartyID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["BillToPartyID"]);
-=======
                         condition.BillToPartyID = rdr["CompanyPartyID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["CompanyPartyID"]);
->>>>>>> origin/master
                         condition.YarnMaterialID = rdr["YarnMaterialID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnMaterialID"]);
                         condition.YarnColorID = rdr["YarnColorID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnColorID"]);
                         condition.Stock = rdr["Stock"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["Stock"]);
@@ -26761,19 +23794,11 @@ ORDER BY
                 else
                 {
 
-<<<<<<< HEAD
-                    cmd.CommandText = @"SELECT (t1.Stock) AS Stock,t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
-                                            t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
-                                        FROM (SELECT 
-                                                ISNULL(SUM(t1.Stock), 0) as Stock, 
-                                                t1.BillToPartyID, 
-=======
                     cmd.CommandText = @"SELECT (t1.Stock) AS Stock,t1.CompanyPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
                                             t1.YarnColorID,t1.YarnColor,t1.CompanyCode AS YarnColorCode,t1.YarnInterchangeID AS GodownLocationID,t1.LocationTitle    
                                         FROM (SELECT 
                                                 ISNULL(SUM(t1.Stock), 0) as Stock, 
                                                 t1.CompanyPartyID, 
->>>>>>> origin/master
                                                 t1.CompanyName, 
                                                 t1.YarnMaterialID, 
                                                 t1.YarnMaterial, 
@@ -26786,11 +23811,7 @@ ORDER BY
                                                 SELECT  
                                                     YIM.YarnInwardID, 
                                                     YIM.YarnPOID, 
-<<<<<<< HEAD
-                                                    YPM.BillToPartyID, 
-=======
                                                     YPM.CompanyPartyID, 
->>>>>>> origin/master
                                                     YPM.PartyName AS CompanyName,
                                                     YIM.YarnMaterialID, 
                                                     YMM.YarnMaterial, 
@@ -26802,15 +23823,9 @@ ORDER BY
                                                     YIDD.Stock
                                                 FROM YarnInwardMaster YIM
                                                 LEFT JOIN (
-<<<<<<< HEAD
-                                                    SELECT YPM.YarnPOID, YPM.BillToPartyID, PM.PartyName 
-                                                    FROM YarnPOMaster YPM
-                                                    LEFT JOIN PartyMaster PM ON YPM.BillToPartyID = PM.PartyId
-=======
                                                     SELECT YPM.YarnPOID, YPM.CompanyPartyID, PM.PartyName 
                                                     FROM YarnPOMaster YPM
                                                     LEFT JOIN PartyMaster PM ON YPM.CompanyPartyID = PM.PartyId
->>>>>>> origin/master
                                                 ) YPM ON YIM.YarnPOID = YPM.YarnPOID
                                                 LEFT JOIN YarnPODetails YPD ON YIM.YarnPOID = YPD.YarnPOID 
                                                     AND YIM.YarnMaterialID = YPD.YarnMaterialID 
@@ -26830,11 +23845,7 @@ ORDER BY
                                                 LEFT JOIN GodownLocationMaster GL ON YIDD.YarnInterchangeID = GL.GodownLocationID
                                             ) AS t1
                                             WHERE (1=1) " + CompanyName + @" " + YarnMaterial + @" " + YarnColor + @"
-<<<<<<< HEAD
-                                            GROUP BY t1.BillToPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
-=======
                                             GROUP BY t1.CompanyPartyID,t1.CompanyName,t1.YarnMaterialID,t1.YarnMaterial, 
->>>>>>> origin/master
                                                 t1.YarnColorID, 
                                                 t1.YarnColor, 
                                                 t1.CompanyCode, 
@@ -26866,11 +23877,7 @@ ORDER BY
                     while (rdr.Read())
                     {
                         YarnOutwardMaster condition = new YarnOutwardMaster();
-<<<<<<< HEAD
-                        condition.BillToPartyID = Convert.ToInt32(rdr["BillToPartyID"].ToString());
-=======
                         condition.BillToPartyID = Convert.ToInt32(rdr["CompanyPartyID"].ToString());
->>>>>>> origin/master
                         condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
                         condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
                         condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
@@ -27288,11 +24295,7 @@ ORDER BY
                     yarnOutward.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
                     yarnOutward.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
                     yarnOutward.PartyId = Convert.ToInt32(rdr["PartyId"]);
-<<<<<<< HEAD
-                    yarnOutward.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
-=======
                     yarnOutward.OutwardListNo = rdr["OutwardListNo"].ToString();
->>>>>>> origin/master
                     yarnOutward.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"]);
                     yarnOutward.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"]);
                     yarnOutward.UserAccountId = Convert.ToInt32(rdr["UserAccountId"]);
@@ -27500,27 +24503,6 @@ ORDER BY
                 // 🔥 Decode + Decrypt
                 string decoded = HttpUtility.UrlDecode(YarnOutwardID);
 
-<<<<<<< HEAD
-                if (!decoded.EndsWith("=="))
-                    decoded += "==";
-
-                int id = Convert.ToInt32(Decrypt(decoded));
-
-                using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
-                {
-                    con.Open();
-
-                    // ============================
-                    // ✅ MASTER
-                    // ============================
-                    SqlCommand cmd = new SqlCommand(@"
-                SELECT * FROM YarnOutwardMaster WHERE YarnOutwardID = @ID", con);
-
-                    cmd.Parameters.AddWithValue("@ID", id);
-
-                    SqlDataReader dr = cmd.ExecuteReader();
-
-=======
                 if (!decoded.EndsWith("==")) decoded += "==";
 
                 int id = Convert.ToInt32(Decrypt(decoded));
@@ -27533,7 +24515,6 @@ ORDER BY
                     SqlCommand cmd = new SqlCommand(@"SELECT * FROM YarnOutwardMaster WHERE YarnOutwardID = @ID", con);
                     cmd.Parameters.AddWithValue("@ID", id);
                     SqlDataReader dr = cmd.ExecuteReader();
->>>>>>> origin/master
                     if (dr.Read())
                     {
                         result.Master = new YarnOutwardMasterModel
@@ -27553,11 +24534,7 @@ ORDER BY
                     // ✅ DETAIL
                     // ============================
                     cmd = new SqlCommand(@"SELECT YOD.YarnMaterialID,YRD.YarnColorID,YRD.CompanyColourCode YarnColorCode,GodownLocationID, 
-<<<<<<< HEAD
-                                            NoOfBox,YOD.YarnRequirementDetailID FROM YarnOutwardDetail YOD 
-=======
                                             NoOfBox,YOD.YarnRequirementDetailID,YarnCompanyID FROM YarnOutwardDetail YOD 
->>>>>>> origin/master
                                             Join YarnRequirementDetail YRD On YRD.YarnColorID=YOd.YarnColorID 
                                             WHERE YOD.YarnOutwardID = @ID", con);
 
@@ -27569,10 +24546,7 @@ ORDER BY
                     {
                         result.Detail.Add(new YarnOutwardDetailModel
                         {
-<<<<<<< HEAD
-=======
                             YarnCompanyID = Convert.ToInt32(dr["YarnCompanyID"]),
->>>>>>> origin/master
                             YarnMaterialID = Convert.ToInt32(dr["YarnMaterialID"]),
                             YarnColorID = Convert.ToInt32(dr["YarnColorID"]),
                             YarnColorCode = (dr["YarnColorCode"].ToString().ToUpper()),
@@ -27583,23 +24557,11 @@ ORDER BY
                     }
                     dr.Close();
                     List<int> requirementIds = new List<int>();
-<<<<<<< HEAD
-                    cmd = new SqlCommand(@"
-                SELECT DISTINCT YRD.YarnRequirementID  FROM YarnOutwardDetail YOD
-                JOIN YarnRequirementDetail YRD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
-                WHERE YOD.YarnOutwardID = @ID", con);
-
-                    cmd.Parameters.AddWithValue("@ID", id);
-
-                    dr = cmd.ExecuteReader();
-
-=======
                     cmd = new SqlCommand(@" SELECT DISTINCT YRD.YarnRequirementID  FROM YarnOutwardDetail YOD
                 JOIN YarnRequirementDetail YRD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementDetailID
                 WHERE YOD.YarnOutwardID = @ID", con);
                     cmd.Parameters.AddWithValue("@ID", id);
                     dr = cmd.ExecuteReader();
->>>>>>> origin/master
                     while (dr.Read())
                     {
                         requirementIds.Add(Convert.ToInt32(dr["YarnRequirementID"]));
@@ -28710,11 +25672,7 @@ ORDER BY
 
             //ilist.GodownID = Convert.ToInt32(HttpContext.Current.Request.Params["GodownID"]);
             ilist.PartyId = Convert.ToInt32(HttpContext.Current.Request.Params["PartyId"]);
-<<<<<<< HEAD
-            ilist.OutwardListNo = Convert.ToInt32(HttpContext.Current.Request.Params["OutwardListNo"]);
-=======
             ilist.OutwardListNo = HttpContext.Current.Request.Params["OutwardListNo"];
->>>>>>> origin/master
             ilist.GodownManagerUserAccountId = Convert.ToInt32(HttpContext.Current.Request.Params["GodownManagerUserAccountId"]);
             ilist.OutwardListDates = HttpContext.Current.Request.Params["OutwardListDate"];
             //ilist.siftYarnInwardDetailID = HttpContext.Current.Request.Params["siftYarnInwardDetailID"];
@@ -28875,11 +25833,7 @@ ORDER BY
 
                 // ===== Assign Parameters =====
                 ilist.PartyId = Convert.ToInt32(request.Params["PartyId"]);
-<<<<<<< HEAD
-                ilist.OutwardListNo = Convert.ToInt32(request.Params["OutwardListNo"]);
-=======
                 ilist.OutwardListNo = request.Params["OutwardListNo"];
->>>>>>> origin/master
                 ilist.GodownManagerUserAccountId = Convert.ToInt32(request.Params["GodownManagerUserAccountId"]);
                 ilist.OutwardListDates = request.Params["OutwardListDate"];
                 ilist.siftGodownInputBox = request.Params["siftGodownInputBox"];
@@ -29078,11 +26032,7 @@ ORDER BY
                         condition.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"].ToString());
                         condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
                         condition.OutwardListDates = Convert.ToDateTime(rdr["OutwardListDate"].ToString()).ToString("dd-MM-yyyy");
-<<<<<<< HEAD
-                        condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"].ToString());
-=======
                         condition.OutwardListNo = rdr["OutwardListNo"].ToString();
->>>>>>> origin/master
                         condition.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"].ToString());
                         condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                         condition.MobileNo = rdr["MobileNo"].ToString().ToUpper();
@@ -29234,11 +26184,7 @@ ORDER BY
                         condition.OutwardListDate = Convert.ToDateTime(rdr["OutwardListDate"].ToString());
                         condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd/MM/yyyy");
                         condition.OutwardListDates = Convert.ToDateTime(rdr["OutwardListDate"].ToString()).ToString("dd/MM/yyyy");
-<<<<<<< HEAD
-                        condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"].ToString());
-=======
                         condition.OutwardListNo = rdr["OutwardListNo"].ToString();
->>>>>>> origin/master
                         condition.GodownManagerUserAccountId = Convert.ToInt32(rdr["GodownManagerUserAccountId"].ToString());
                         condition.PartyId = Convert.ToInt32(rdr["PartyId"].ToString());
                         condition.PartyName = rdr["PartyName"].ToString().ToUpper();
@@ -29253,17 +26199,6 @@ ORDER BY
                         SqlCommand cmd1 = new SqlCommand();
                         cmd1.Connection = con;
                         cmd1.CommandType = System.Data.CommandType.Text;
-<<<<<<< HEAD
-                        cmd1.CommandText = @"SELECT YOD.*, PM.PartyName as CompanyName, PM.MobileNo as CompanyMobileNo,YMM.YarnMaterial, YCM.YarnColor, YPD.CompanyCode YarnColorCode , 
-                                            GL.GodownID, GM.GodownTitle, GM.GodownAddress, GL.LocationTitle
-                                                    FROM YarnOutwardDetail YOD
-                                                    LEFT JOIN YarnPODetails YPD ON YOD.YarnColorID = YPD.YarnColorID
-                                                    LEFT JOIN PartyMaster PM ON YOD.BillToPartyID = PM.PartyId
-                                                    LEFT JOIN YarnMaterialMaster YMM  ON YOD.YarnMaterialID = YMM.YarnMaterialID
-                                                    LEFT JOIN YarnColorMaster YCM ON YOD.YarnColorID = YCM.YarnColorID
-                                                    LEFT JOIN GodownLocationMaster GL ON YOD.GodownLocationID = GL.GodownLocationID
-                                                    LEFT JOIN GodownMaster GM ON GL.GodownID = GM.GodownID
-=======
                         cmd1.CommandText = @"SELECT
                                                 YOD.*,
                                                 PM.PartyName AS CompanyName,
@@ -29294,7 +26229,6 @@ ORDER BY
                                             LEFT JOIN GodownMaster GM
                                                 ON GL.GodownID = GM.GodownID
 
->>>>>>> origin/master
                                             where YOD.YarnOutwardID = '" + ilist.YarnOutwardID + @"'
                                             ";
                         SqlDataReader rdr1 = cmd1.ExecuteReader();
@@ -29308,11 +26242,7 @@ ORDER BY
                                 YarnPOD.YarnOutwardDetailID = Convert.ToInt32(rdr1["YarnOutwardDetailID"]);
                                 YarnPOD.DateAndTime = Convert.ToDateTime(rdr1["DateAndTime"].ToString());
                                 YarnPOD.DateAndTimes = Convert.ToDateTime(rdr1["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-<<<<<<< HEAD
-                                YarnPOD.BillToPartyID = Convert.ToInt32(rdr1["BillToPartyID"].ToString());
-=======
                                 YarnPOD.BillToPartyID = Convert.ToInt32(rdr1["YarnCompanyID"].ToString());
->>>>>>> origin/master
                                 YarnPOD.GodownLocationID = Convert.ToInt32(rdr1["GodownLocationID"].ToString());
                                 YarnPOD.YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"].ToString());
                                 YarnPOD.YarnColorID = Convert.ToInt32(rdr1["YarnColorID"].ToString());
@@ -29456,70 +26386,13 @@ ORDER BY
         {
             DataTable dt = new DataTable();
             List<int> yarnColorList = yarnColorID ?? new List<int>();
-<<<<<<< HEAD
-            string query = @"
-                        SELECT 
-                            YRD.YarnRequirementID,
-                            YMM.YarnMaterialID,
-                            YMM.YarnMaterial,
-                            YCM.YarnColorID,
-                            YCM.YarnColor,
-                            PM.PartyName,
-                            PM.PartyId,
-                            YRD.CompanyColourCode,
-                            (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,
-                            YRD.YarnRequirementDetailID 
-                        FROM YarnRequirementDetail YRD
-=======
             string query = @"SELECT YRD.YarnRequirementID,YMM.YarnMaterialID,YMM.YarnMaterial,YCM.YarnColorID,
                             YCM.YarnColor,PM.PartyName,PM.PartyId,YRD.CompanyColourCode,(YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) AS NoofBoxes,
                             YRD.YarnRequirementDetailID FROM YarnRequirementDetail YRD
->>>>>>> origin/master
                             JOIN YarnRequirementMaster YRM ON YRD.YarnRequirementID = YRM.YarnRequirementID
                             JOIN YarnColorMaster YCM ON YCM.YarnColorID = YRD.YarnColorID
                             JOIN PartyMaster PM ON PM.PartyId = YRM.PartyId
                             JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YRD.YarnMaterialID
-<<<<<<< HEAD
-                            LEFT JOIN YarnPODetails YPD 
-                                ON YPD.YarnMaterialID = YRD.YarnMaterialID 
-                                AND YPD.YarnColorID = YRD.YarnColorID  
-                            LEFT JOIN YarnPOMaster YPO 
-                                ON YPO.YarnPOID = YPD.YarnPOID 
-                                AND YPO.BilltoPartyID = YRM.PartyId 
-                            LEFT JOIN YarnOutwardDetail YOD 
-                                ON YOD.YarnRequirementDetailID = YRD.YarnRequirementID   
-                                AND YOD.YarnMaterialID = YRD.YarnMaterialID 
-                                AND YOD.YarnColorID = YRD.YarnColorID 
-                        WHERE 
-                            YRM.PartyId = @PartyId
-                            AND (@YarnMaterialID IS NULL OR @YarnMaterialID = 0 OR YRD.YarnMaterialID = @YarnMaterialID)
-                        ";
-            if (yarnColorList.Any())
-            {
-                var paramNames = yarnColorList
-                    .Select((x, i) => "@color" + i)
-                    .ToList();
-
-                query += $" AND YRD.YarnColorID IN ({string.Join(",", paramNames)}) ";
-            }
-            query += @"
-    GROUP BY 
-        YRD.YarnRequirementID,
-        PM.PartyName,
-        YRM.RequirementNo,
-        YRM.RequirementDate,
-        YMM.YarnMaterialID,
-        YMM.YarnMaterial,
-        YCM.YarnColorID,
-        YCM.YarnColor,
-        PM.PartyId,
-        YRD.CompanyColourCode,
-        YRD.NoofBoxes,
-        YRD.YarnRequirementDetailID 
-    HAVING 
-        (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0
-    ";
-=======
                             LEFT JOIN YarnPODetails YPD ON YPD.YarnMaterialID = YRD.YarnMaterialID AND YPD.YarnColorID = YRD.YarnColorID  
                             LEFT JOIN YarnPOMaster YPO ON YPO.YarnPOID = YPD.YarnPOID AND YPO.BilltoPartyID = YRM.PartyId 
                             LEFT JOIN YarnOutwardDetail YOD ON YOD.YarnRequirementDetailID = YRD.YarnRequirementID AND YOD.YarnMaterialID = YRD.YarnMaterialID 
@@ -29533,7 +26406,6 @@ ORDER BY
             query += @" GROUP BY YRD.YarnRequirementID,PM.PartyName,YRM.RequirementNo,YRM.RequirementDate,YMM.YarnMaterialID,YMM.YarnMaterial,
         YCM.YarnColorID,YCM.YarnColor,PM.PartyId,YRD.CompanyColourCode,YRD.NoofBoxes,YRD.YarnRequirementDetailID 
     HAVING (YRD.NoofBoxes - ISNULL(SUM(YOD.NoOfBox), 0)) > 0";
->>>>>>> origin/master
             using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             using (SqlCommand cmd = new SqlCommand(query, con))
             {
@@ -29663,47 +26535,24 @@ ORDER BY
                 DataTable dt = new DataTable();
                 using (SqlConnection con = new SqlConnection(cs))
                 {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     int UserAccountId = GetCookieValue();
                     var (FinancialYearID, CompanyId) = GetDefaultIds();
                     SqlCommand cmd = new SqlCommand("sp_SaveYarnOutward_JSON", con);
                     cmd.CommandType = CommandType.StoredProcedure;
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@GodownID", master.GodownID);
                     cmd.Parameters.AddWithValue("@PartyId", master.PartyId);
                     cmd.Parameters.AddWithValue("@SundryPartyID", master.SundryPartyId);
                     // This line now works safely because master.OutwardListDate is a string
                     cmd.Parameters.Add("@OutwardListDate", SqlDbType.Date).Value = Convert.ToDateTime(master.OutwardListDate);
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", master.GodownManagerUserAccountId);
                     cmd.Parameters.AddWithValue("@UserAccountId", UserAccountId);
                     cmd.Parameters.AddWithValue("@FinancialYearID", FinancialYearID);
                     cmd.Parameters.AddWithValue("@CompanyId", CompanyId);
-<<<<<<< HEAD
-
-                    string jsonData = new JavaScriptSerializer().Serialize(detail);
-                    cmd.Parameters.AddWithValue("@DetailJSON", jsonData);
-
-                    con.Open();
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    da.Fill(dt);
-
-=======
                     string jsonData = new JavaScriptSerializer().Serialize(detail);
                     cmd.Parameters.AddWithValue("@DetailJSON", jsonData);
                     con.Open();
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
->>>>>>> origin/master
                     var data = DataTableToList(dt);
                     return new JavaScriptSerializer().Serialize(data);
                 }
@@ -29721,18 +26570,10 @@ ORDER BY
             {
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
                 DataTable dt = new DataTable();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     int UserAccountId = GetCookieValue();
                     var (FinancialYearID, CompanyId) = GetDefaultIds();
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     SqlCommand cmd = new SqlCommand("sp_UpdateYarnOutward_JSON", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -29806,10 +26647,6 @@ ORDER BY
                     cmd.CommandText = @"
                         SELECT * FROM (
                                 select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num,
-<<<<<<< HEAD
-                                Yom.YarnOutwardID,Yom.OutwardListNo,YOM.DateAndTime,PM.PartyName,PM.MobileNo, ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox  FROM YarnOutwardMaster YOM
-                                LEFT JOIN PartyMaster PM  ON YOM.PartyId = PM.PartyId
-=======
                                 Yom.YarnOutwardID,Yom.OutwardListNo,YOM.DateAndTime,UM.UserAccountId,PM.PartyId,PM.PartyName,PM.MobileNo, ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox,
                                 CAST(ISNULL(UM.UserAccountId,0) AS VARCHAR(20))
                                 + '|' +
@@ -29819,7 +26656,6 @@ ORDER BY
                                 FROM YarnOutwardMaster YOM
                                 LEFT JOIN PartyMaster PM  ON YOM.PartyId = PM.PartyId
 	                            LEFT JOIN UserAccountMaster UM  ON UM.PartyId = PM.PartyId
->>>>>>> origin/master
                                 LEFT JOIN GodownMaster GM ON YOM.GodownID = GM.GodownID 
                                 LEFT JOIN (SELECT YarnOutwardID, SUM(NoOfBox) AS TotalNoOfBox FROM YarnOutwardDetail  GROUP BY YarnOutwardID ) YD 
                                     ON YOM.YarnOutwardID = YD.YarnOutwardID
@@ -29841,18 +26677,11 @@ ORDER BY
                             condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"].ToString());
                             condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
                             condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-<<<<<<< HEAD
-                            condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"].ToString());
-                            condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                            condition.MobileNo = rdr["MobileNo"].ToString();
-                            condition.BoxNo = rdr["TotalNoOfBox"].ToString();
-=======
                             condition.OutwardListNo = rdr["OutwardListNo"].ToString();
                             condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                             condition.MobileNo = rdr["MobileNo"].ToString();
                             condition.BoxNo = rdr["TotalNoOfBox"].ToString();
                             condition.GeneratedLink = GetEncryptedLink(rdr["GeneratedLink"].ToString());
->>>>>>> origin/master
                             listUser.Add(condition);
                         }
                     }
@@ -29873,10 +26702,6 @@ ORDER BY
                     cmd.CommandText = @"
                         SELECT * FROM (
                                 select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num,
-<<<<<<< HEAD
-                                Yom.YarnOutwardID,Yom.OutwardListNo,YOM.DateAndTime,PM.PartyName,PM.MobileNo, ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox  FROM YarnOutwardMaster YOM
-                                LEFT JOIN PartyMaster PM  ON YOM.PartyId = PM.PartyId
-=======
                                 Yom.YarnOutwardID,Yom.OutwardListNo,YOM.DateAndTime,PM.PartyName,PM.MobileNo, ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox,
                                 CAST(ISNULL(UM.UserAccountId,0) AS VARCHAR(20))
                                 + '|' +
@@ -29886,7 +26711,6 @@ ORDER BY
                                     FROM YarnOutwardMaster YOM
                                 LEFT JOIN PartyMaster PM  ON YOM.PartyId = PM.PartyId
                                 LEFT JOIN UserAccountMaster UM  ON UM.PartyId = PM.PartyId
->>>>>>> origin/master
                                 LEFT JOIN GodownMaster GM ON YOM.GodownID = GM.GodownID 
                                 LEFT JOIN (SELECT YarnOutwardID, SUM(NoOfBox) AS TotalNoOfBox FROM YarnOutwardDetail  GROUP BY YarnOutwardID ) YD 
                                     ON YOM.YarnOutwardID = YD.YarnOutwardID
@@ -29908,18 +26732,11 @@ ORDER BY
                             condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"].ToString());
                             condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
                             condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
-<<<<<<< HEAD
-                            condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"].ToString());
-                            condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                            condition.MobileNo = rdr["MobileNo"].ToString();
-                            condition.BoxNo = rdr["TotalNoOfBox"].ToString();
-=======
                             condition.OutwardListNo = rdr["OutwardListNo"].ToString();
                             condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                             condition.MobileNo = rdr["MobileNo"].ToString();
                             condition.BoxNo = rdr["TotalNoOfBox"].ToString();
                             condition.GeneratedLink = GetEncryptedLink(rdr["GeneratedLink"].ToString());
->>>>>>> origin/master
                             listUser.Add(condition);
                         }
                     }
@@ -30057,41 +26874,6 @@ ORDER BY
                 cmd.Connection = con;
                 cmd.CommandType = CommandType.Text;
 
-<<<<<<< HEAD
-                cmd.CommandText = @"SELECT                            
-                            Pm.PartyId,
-                            PM.PartyName,
-							PM1.PartyId AS YarnCompanyId,
-                            PM1.PartyName AS YarnCompany,
-                            Pm.BillingAddress AS Address,
-                            YMM.YarnMaterialID AS YarnMaterialID,
-                            YMM.YarnMaterial AS YarnMaterial,
-                            YCM.YarnColorID AS YarnColorID,
-                            YCM.YarnColor AS YarnColour,
-                            YCM.YarnColorCode AS Code,
-		                    GLM.GodownLocationID,
-                            GLM.LocationTitle AS Location,
-                            N.BoxNo
-                            FROM YarnOutwardDetail YOD
-                            INNER JOIN YarnOutwardMaster YM 
-                                ON YM.YarnOutwardID = YOD.YarnOutwardID
-                            LEFT JOIN PartyMaster PM 
-                                ON YM.PartyId = PM.PartyId
-                            LEFT JOIN PartyMaster PM1 ON YOD.BillToPartyID = PM1.PartyId
-                            LEFT JOIN YarnMaterialMaster YMM  
-                                ON YMM.YarnMaterialID = YOD.YarnMaterialID
-                            LEFT JOIN YarnColorMaster YCM  
-                                ON YCM.YarnColorID = YOD.YarnColorID
-                            LEFT JOIN GodownLocationMaster GLM  
-                                ON GLM.GodownLocationID = YOD.GodownLocationID
-                            CROSS APPLY
-                            (
-                                SELECT TOP (YOD.NoOfBox)
-                                ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
-                                FROM master..spt_values
-                            ) N
-                            WHERE YOD.YarnOutwardID = @YarnOutwardID";
-=======
                 cmd.CommandText = @"SELECT
     PM.PartyId,
     PM.PartyName,
@@ -30147,7 +26929,6 @@ WHERE YOD.YarnOutwardID = @YarnOutwardID
 ORDER BY
     YOD.YarnOutwardDetailID,
     N.BoxNo;";
->>>>>>> origin/master
 
                 cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
 
@@ -30344,12 +27125,8 @@ END
 
     YCM.YarnColorID,
     YCM.YarnColor AS YarnColour,
-<<<<<<< HEAD
-    YCM.YarnColorCode AS Code,
-=======
     YPM.CompanyCode AS Code,
 
->>>>>>> origin/master
 
     GLM.GodownLocationID,
     GLM.LocationTitle AS Location,
@@ -30366,11 +27143,7 @@ INNER JOIN YARNOUTWARDScanMaster M
 
 INNER JOIN PartyMaster PM
     ON D.PartyId = PM.PartyId
-<<<<<<< HEAD
-
-=======
 LEFT JOIN YarnPODetails YPM ON YPM.YarnColorID = D.YarnColour
->>>>>>> origin/master
 INNER JOIN YarnMaterialMaster YMM
     ON YMM.YarnMaterialID = D.YarnMaterial
 
@@ -30729,17 +27502,10 @@ INNER JOIN PartyMaster PM1
                         Inner Join YarnInwardMaster YIM On YIM.YarnInwardID=YID.YarnInwardID 
                         LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
                         LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-<<<<<<< HEAD
-                        WHERE YID.GodownLocationID = @GodownLocationID
-                        And YIM.YarnMaterialID=@YarnMaterial
-                        ANd YIM.YarnColorID=@YarnColour
-                        And YPM.BillToPartyID=@YarnCompany
-=======
                         WHERE YID.YarnInterchangeID = @GodownLocationID
                         And YIM.YarnMaterialID=@YarnMaterial
                         ANd YIM.YarnColorID=@YarnColour
                         And YPM.CompanyPartyID=@YarnCompany
->>>>>>> origin/master
                         AND NOT EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails YOSD WHERE YOSD.BarcodeNo = YID.BarcodeNo)", con);
 
                 cmd.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
@@ -30820,18 +27586,6 @@ INNER JOIN PartyMaster PM1
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     // ✅ Updated parameters
-<<<<<<< HEAD
-                    cmd.Parameters.AddWithValue("@DateFrom", string.IsNullOrEmpty(DateFrom) ? (object)DBNull.Value : DateFrom);
-                    cmd.Parameters.AddWithValue("@MaterialID", MaterialID == 0 ? (object)DBNull.Value : MaterialID);
-                    cmd.Parameters.AddWithValue("@ColorID", ColorID == 0 ? (object)DBNull.Value : ColorID);
-                    cmd.Parameters.AddWithValue("@GodownID", GodownID == 0 ? (object)DBNull.Value : GodownID);
-                    cmd.Parameters.AddWithValue("@LocationID", LocationID == 0 ? (object)DBNull.Value : LocationID);
-                    cmd.Parameters.AddWithValue("@BillToID", CompanyID == 0 ? (object)DBNull.Value : CompanyID);
-                    cmd.Parameters.AddWithValue("@ShippedToID", PartyID == 0 ? (object)DBNull.Value : PartyID);
-                    cmd.Parameters.AddWithValue("@YarnColorCode", string.IsNullOrEmpty(YarnColorCode) ? (object)DBNull.Value : YarnColorCode);
-                    cmd.Parameters.AddWithValue("@BoxNo", string.IsNullOrEmpty(BoxNo) ? (object)DBNull.Value : BoxNo);
-                    cmd.Parameters.AddWithValue("@BarcodeNo", string.IsNullOrEmpty(BarcodeNo) ? (object)DBNull.Value : BarcodeNo);
-=======
                     cmd.Parameters.Add("@DateFrom", SqlDbType.Date).Value =
               string.IsNullOrWhiteSpace(DateFrom) ? (object)DBNull.Value : Convert.ToDateTime(DateFrom);
 
@@ -30861,7 +27615,6 @@ INNER JOIN PartyMaster PM1
 
                     cmd.Parameters.Add("@BarcodeNo", SqlDbType.NVarChar, 200).Value =
                         string.IsNullOrWhiteSpace(BarcodeNo) ? (object)DBNull.Value : BarcodeNo;
->>>>>>> origin/master
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
@@ -31157,10 +27910,7 @@ INNER JOIN PartyMaster PM1
             return JsonConvert.SerializeObject(list);
         }
         #endregion
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
         #region Broker Master
         [WebMethod]
         public string GetBrokerList()
@@ -31168,20 +27918,12 @@ INNER JOIN PartyMaster PM1
             try
             {
                 string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 DataTable dt = new DataTable();
 
                 using (SqlConnection con = new SqlConnection(cs))
                 {
-<<<<<<< HEAD
-                    string query = @"SELECT  BrokerId,BrokerCode,BrokerName,MobileNo,Address,CityName,CommissionRate,IsActive FROM BrokerMaster ORDER BY BrokerId DESC";
-=======
                     // ✅ Added GSTNo and PANCard to selection list
                     string query = @"SELECT BrokerId, BrokerCode, BrokerName, MobileNo, Address, CityName, GSTNo, PANCard, CommissionRate, IsActive FROM BrokerMaster ORDER BY BrokerId DESC";
->>>>>>> origin/master
                     SqlDataAdapter da = new SqlDataAdapter(query, con);
                     da.Fill(dt);
                 }
@@ -31194,45 +27936,14 @@ INNER JOIN PartyMaster PM1
             }
         }
         [WebMethod]
-<<<<<<< HEAD
-        public string GetNextBrokerCode()
-        {
-            string result = "";
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                string query = @"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode, 3, LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                con.Open();
-
-                int maxCode = Convert.ToInt32(cmd.ExecuteScalar());
-                int nextCode = maxCode + 1;
-
-                result = "BR" + nextCode.ToString("D3"); // BR001
-            }
-
-            return result;
-        }
-        [WebMethod]
         public BrokerMaster GetBrokerById(int BrokerId)
         {
             BrokerMaster obj = new BrokerMaster();
-
-=======
-        public BrokerMaster GetBrokerById(int BrokerId)
-        {
-            BrokerMaster obj = new BrokerMaster();
->>>>>>> origin/master
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             using (SqlConnection con = new SqlConnection(cs))
             {
                 string query = "SELECT * FROM BrokerMaster WHERE BrokerId = @BrokerId";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
 
@@ -31249,37 +27960,6 @@ INNER JOIN PartyMaster PM1
                     obj.CityName = dr["CityName"].ToString();
                     obj.CommissionRate = Convert.ToDecimal(dr["CommissionRate"]);
                     obj.IsActive = Convert.ToBoolean(dr["IsActive"]);
-<<<<<<< HEAD
-                }
-            }
-
-            return obj;
-        }
-        [WebMethod]
-        public string DeleteBroker(int BrokerId)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
-            try
-            {
-                using (SqlConnection con = new SqlConnection(cs))
-                {
-                    string query = "DELETE FROM BrokerMaster WHERE BrokerId = @BrokerId";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@BrokerId", BrokerId);
-
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                }
-
-                return "success";
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
-=======
 
                     // ✅ Map GST and PAN properties
                     obj.GSTNo = dr["GSTNo"] != DBNull.Value ? dr["GSTNo"].ToString() : "";
@@ -31321,7 +28001,6 @@ INNER JOIN PartyMaster PM1
 
             return result;
 
->>>>>>> origin/master
         }
         [WebMethod]
         public string SaveBroker(BrokerMaster obj)
@@ -31330,29 +28009,14 @@ INNER JOIN PartyMaster PM1
 
             try
             {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     con.Open();
 
-<<<<<<< HEAD
-                    // ✅ Safe UserId from Cookie
-                    int userId = GetCookieValue();
-
-                    // ✅ Get Default FY & Company (one time)
-                    int financialYearId = 0, companyId = 0;
-
-                    SqlCommand cmdDefault = new SqlCommand(@"SELECT (SELECT TOP 1 FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),(SELECT TOP 1 CompanyId FROM CompanyMaster WHERE is_default = 1)", con);
-
-=======
                     int userId = GetCookieValue();
                     int financialYearId = 0, companyId = 0;
 
                     SqlCommand cmdDefault = new SqlCommand(@"SELECT (SELECT TOP 1 FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),(SELECT TOP 1 CompanyId FROM CompanyMaster WHERE is_default = 1)", con);
->>>>>>> origin/master
                     SqlDataReader dr = cmdDefault.ExecuteReader();
 
                     if (dr.Read())
@@ -31362,53 +28026,21 @@ INNER JOIN PartyMaster PM1
                     }
                     dr.Close();
 
-<<<<<<< HEAD
-                    // ✅ Duplicate Mobile Check
-                    SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM BrokerMaster WHERE MobileNo=@MobileNo And BrokerId<>@BrokerId", con);
-                    checkCmd.Parameters.Add("@MobileNo", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                    if (obj.BrokerId <= 0 || obj.BrokerId == null)
-                    {
-                        obj.BrokerId = 0;
-                    }
-=======
                     // Duplicate Mobile Check
                     SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM BrokerMaster WHERE MobileNo=@MobileNo And BrokerId<>@BrokerId", con);
                     checkCmd.Parameters.Add("@MobileNo", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
                     if (obj.BrokerId <= 0) obj.BrokerId = 0;
->>>>>>> origin/master
                     checkCmd.Parameters.Add("@BrokerId", SqlDbType.Int).Value = obj.BrokerId;
 
                     if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
                         return "Mobile number already exists";
 
-<<<<<<< HEAD
-                    // ✅ Generate Broker Code
                     SqlCommand cmdCode = new SqlCommand(@"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode,3,LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster", con);
-
-=======
-                    SqlCommand cmdCode = new SqlCommand(@"SELECT ISNULL(MAX(CAST(SUBSTRING(BrokerCode,3,LEN(BrokerCode)) AS INT)),0) FROM BrokerMaster", con);
->>>>>>> origin/master
                     int max = Convert.ToInt32(cmdCode.ExecuteScalar());
                     string newCode = "BR" + (max + 1).ToString("D3");
 
                     if (obj.BrokerId == 0)
                     {
-<<<<<<< HEAD
-                        // 🔥 INSERT
-                        SqlCommand cmd = new SqlCommand(@"
-                    INSERT INTO BrokerMaster
-                    (BrokerCode,BrokerName,FirmName,Email,MobileNo,Address,CityName,PANCard,GSTNo,CommissionRate,IsActive,UserAccountId,FinancialYearID,CompanyId,DateAndTime)
-                    VALUES
-                    (@Code,@Name,@Firm,@Email,@Mobile,@Address,@City,@PAN,@GST,@Commission,@Active,@UserId,@FY,@Company,GETDATE())", con);
-
-                        cmd.Parameters.Add("@Code", SqlDbType.VarChar).Value = newCode;
-                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
-                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
-                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
-                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
-                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
-=======
                         // 🔥 INSERT QUERY WITH GSTNo & PANCard
                         SqlCommand cmd = new SqlCommand(@"
                     INSERT INTO BrokerMaster
@@ -31423,7 +28055,6 @@ INNER JOIN PartyMaster PM1
                         cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
                         cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
                         cmd.Parameters.Add("@City", SqlDbType.NVarChar).Value = obj.CityName ?? "";
->>>>>>> origin/master
                         cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
                         cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
                         cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;
@@ -31437,30 +28068,6 @@ INNER JOIN PartyMaster PM1
                     }
                     else
                     {
-<<<<<<< HEAD
-                        // 🔥 UPDATE
-                        SqlCommand cmd = new SqlCommand(@"
-                    UPDATE BrokerMaster SET
-                    BrokerName=@Name,
-                    FirmName=@Firm,
-                    Email=@Email,
-                    MobileNo=@Mobile,
-                    Address=@Address,
-                    CityName=@City,
-                    PANCard=@PAN,
-                    GSTNo=@GST,
-                    CommissionRate=@Commission,
-                    IsActive=@Active
-                    WHERE BrokerId=@Id", con);
-
-                        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = obj.BrokerId;
-                        cmd.Parameters.Add("@Name", SqlDbType.VarChar).Value = obj.BrokerName ?? "";
-                        cmd.Parameters.Add("@Firm", SqlDbType.VarChar).Value = obj.FirmName ?? "";
-                        cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = obj.Email ?? "";
-                        cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
-                        cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = obj.Address ?? "";
-                        cmd.Parameters.Add("@City", SqlDbType.VarChar).Value = obj.CityName ?? "";
-=======
                         // 🔥 UPDATE QUERY WITH GSTNo & PANCard
                         SqlCommand cmd = new SqlCommand(@"
                     UPDATE BrokerMaster SET
@@ -31483,7 +28090,6 @@ INNER JOIN PartyMaster PM1
                         cmd.Parameters.Add("@Mobile", SqlDbType.VarChar).Value = obj.MobileNo ?? "";
                         cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = obj.Address ?? "";
                         cmd.Parameters.Add("@City", SqlDbType.NVarChar).Value = obj.CityName ?? "";
->>>>>>> origin/master
                         cmd.Parameters.Add("@PAN", SqlDbType.VarChar).Value = obj.PANCard ?? "";
                         cmd.Parameters.Add("@GST", SqlDbType.VarChar).Value = obj.GSTNo ?? "";
                         cmd.Parameters.Add("@Commission", SqlDbType.Decimal).Value = obj.CommissionRate;
@@ -31499,9 +28105,6 @@ INNER JOIN PartyMaster PM1
                 return ex.Message;
             }
         }
-<<<<<<< HEAD
-        #endregion
-=======
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public string DeleteBroker(int BrokerId)
@@ -31538,7 +28141,6 @@ INNER JOIN PartyMaster PM1
         }
         #endregion
 
->>>>>>> origin/master
         #region  Transport Master
         [WebMethod]
         public List<TransportMaster> GetTransportList()
@@ -32035,48 +28637,6 @@ INNER JOIN PartyMaster PM1
                     con.Open();
 
                     string query = @"
-<<<<<<< HEAD
-            SELECT
-                SO.SaleOrderID,
-                SO.OrderNo,
-                SO.OrderDate,
-                PM.PartyName,
-                BM.BrokerName,
-                TM.TransportName,
-                SO.TotalQty,
-                SO.InvoiceAmount
-            FROM SaleOrder SO
-            LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
-            LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
-            LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-            ORDER BY TRY_CAST(SO.OrderNo AS INT) DESC,SO.OrderDate DESC";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    SqlDataReader rdr = cmd.ExecuteReader();
-
-                    List<SaleOrderVM> list = new List<SaleOrderVM>();
-
-                    while (rdr.Read())
-                    {
-                        list.Add(new SaleOrderVM
-                        {
-                            SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
-                            OrderNo = rdr["OrderNo"].ToString(),
-                            OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
-                            PartyName = rdr["PartyName"]?.ToString() ?? "",
-                            BrokerName = rdr["BrokerName"]?.ToString() ?? "",
-                            TransportName = rdr["TransportName"]?.ToString() ?? "",
-                            TotalQty = Convert.ToDecimal(rdr["TotalQty"]),
-                            InvoiceAmount = Convert.ToDecimal(rdr["InvoiceAmount"])
-                        });
-                    }
-
-                    return new
-                    {
-                        success = true,
-                        Data = list
-                    };
-=======
                                   SELECT
     SO.SaleOrderID,
     SO.OrderNo,
@@ -32354,7 +28914,6 @@ ORDER BY
                             };
                         }
                     }
->>>>>>> origin/master
                 }
             }
             catch (Exception ex)
@@ -32549,11 +29108,7 @@ ORDER BY
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
-<<<<<<< HEAD
-                string query = @"SELECT PM.PartyId,PM.PartyName,PM.GSTIN,PM.BillingAddress FROM PartyMaster PM";
-=======
                 string query = @"SELECT PM.PartyId,PM.PartyName,PM.GSTIN,PM.BillingAddress,PM.State FROM PartyMaster PM";
->>>>>>> origin/master
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -32567,12 +29122,8 @@ ORDER BY
                             PartyId = dr["PartyId"],
                             PartyName = dr["PartyName"].ToString(),
                             GSTIN = dr["GSTIN"].ToString(),
-<<<<<<< HEAD
-                            BillingAddress = dr["BillingAddress"].ToString()
-=======
                             BillingAddress = dr["BillingAddress"].ToString(),
                             State = dr["State"] != DBNull.Value ? dr["State"].ToString() : ""
->>>>>>> origin/master
                         });
                     }
                 }
@@ -32627,32 +29178,16 @@ ORDER BY
                     {
                         try
                         {
-<<<<<<< HEAD
-                            int saleOrderId;           
-=======
                             int saleOrderId;
->>>>>>> origin/master
                             using (SqlCommand cmd = new SqlCommand())
                             {
                                 cmd.Connection = con;
                                 cmd.Transaction = trans;
-<<<<<<< HEAD
-                        
-=======
 
->>>>>>> origin/master
                                 if (model.SaleOrderID == 0)
                                 {
                                     string nextOrderNo = GetNextOrderNo(con, trans);
                                     model.OrderNo = nextOrderNo;
-<<<<<<< HEAD
-                                    cmd.CommandText = @" INSERT INTO SaleOrder (DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent,TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                                         GSTPercent, GSTAmount, InvoiceAmount, Remark,UserAccountId, FinancialYearID, CompanyId,DiscountType,AdditionalRemark,AdditionalValue,RoundOff)
-                                        VALUES (GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                                         @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark,@UserAccountId, @FinancialYearID, @CompanyId,@DiscountType,@AdditionalRemark,@AdditionalValue,@RoundOff);
-                                        SELECT SCOPE_IDENTITY();";
-                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);
-=======
 
                                     cmd.CommandText = @"INSERT INTO SaleOrder (
                                                                         DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent, 
@@ -32669,31 +29204,11 @@ ORDER BY
                                                                     SELECT SCOPE_IDENTITY();";
                                     AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     cmd.Parameters.Add("@CreatedByUserID", SqlDbType.Int).Value = userAccountId;
->>>>>>> origin/master
                                     saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                                 }
                                 else
                                 {
                                     saleOrderId = model.SaleOrderID;
-<<<<<<< HEAD
-
-                                    cmd.CommandText = @"UPDATE SaleOrder SET OrderNo=@OrderNo, OrderDate=@OrderDate,PartyID=@PartyID,BrokerID=@BrokerID,
-                                            MarkupPercent=@MarkupPercent,
-                                            TransportID=@TransportID,
-                                            TotalQty=@TotalQty,
-                                            TotalAmount=@TotalAmount,
-                                            DiscountPercent=@DiscountPercent,
-                                            DiscountAmount=@DiscountAmount,
-                                            GSTPercent=@GSTPercent,
-                                            GSTAmount=@GSTAmount,
-                                            InvoiceAmount=@InvoiceAmount,
-                                            Remark=@Remark,
-                                            DiscountType=@DiscountType,
-                                            AdditionalRemark=@AdditionalRemark,
-                                            AdditionalValue=@AdditionalValue
-                                            WHERE SaleOrderID=@SaleOrderID";
-
-=======
                                     cmd.CommandText = @"UPDATE SaleOrder SET OrderNo=@OrderNo, OrderDate=@OrderDate, PartyID=@PartyID, BrokerID=@BrokerID,
                                  MarkupPercent=@MarkupPercent,
                                  TransportID=@TransportID,
@@ -32707,35 +29222,17 @@ ORDER BY
                                  Remark=@Remark,                              
                                  RoundOff=@RoundOff
                                  WHERE SaleOrderID=@SaleOrderID";
->>>>>>> origin/master
                                     AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
 
                                     cmd.ExecuteNonQuery();
 
-<<<<<<< HEAD
-                                    // 🔥 DELETE OLD DETAILS
-                                    new SqlCommand(@"
-                                            DELETE FROM SaleOrderSubDetails 
-                                            WHERE DetailID IN (
-                                                SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
-                                            )", con, trans)
-=======
                                     // 🔥 DELETE OLD ADDITIONAL CHARGES
                                     new SqlCommand("DELETE FROM SaleOrderAdditionalCharges WHERE SaleOrderID=@id", con, trans)
->>>>>>> origin/master
                                     {
                                         Parameters = { new SqlParameter("@id", saleOrderId) }
                                     }.ExecuteNonQuery();
 
-<<<<<<< HEAD
-                                    new SqlCommand(@"
-                                            DELETE FROM SaleOrderDetails WHERE SaleOrderID=@id",
-                                        con, trans)
-                                    {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
-=======
                                     // 🔥 DELETE OLD SUB DETAILS
                                     new SqlCommand(@"
                                  DELETE FROM SaleOrderSubDetails 
@@ -32774,7 +29271,6 @@ ORDER BY
                                         cmdAdd.Parameters.AddWithValue("@CreatedByUserID", userAccountId);
                                         cmdAdd.ExecuteNonQuery();
                                     }
->>>>>>> origin/master
                                 }
                             }
 
@@ -32799,19 +29295,11 @@ ORDER BY
                                     }
 
                                     using (SqlCommand cmdDetail = new SqlCommand(@"
-<<<<<<< HEAD
-                                            INSERT INTO SaleOrderDetails
-                                            (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount,DesignColorMatchingID,BrokerRate)
-                                            VALUES
-                                            (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount,@DesignColorMatchingID,@BrokerRate);
-                                            SELECT SCOPE_IDENTITY();", con, trans))
-=======
                                  INSERT INTO SaleOrderDetails
                                  (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount, DesignColorMatchingID, BrokerRate)
                                  VALUES
                                  (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount, @DesignColorMatchingID, @BrokerRate);
                                  SELECT SCOPE_IDENTITY();", con, trans))
->>>>>>> origin/master
                                     {
                                         cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
                                         cmdDetail.Parameters.AddWithValue("@DesignID", designId);
@@ -32822,13 +29310,8 @@ ORDER BY
                                         cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
                                         cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
                                         cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount));
-<<<<<<< HEAD
-                                        cmdDetail.Parameters.AddWithValue("@DesignColorMatchingID", SafeDecimal(designColorMatchingId));
-                                        cmdDetail.Parameters.AddWithValue("@BrokerRate", d.BrokerRate);
-=======
                                         cmdDetail.Parameters.AddWithValue("@DesignColorMatchingID", designColorMatchingId);
                                         cmdDetail.Parameters.AddWithValue("@BrokerRate", SafeDecimal(d.BrokerRate));
->>>>>>> origin/master
                                         detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
                                     }
 
@@ -32837,13 +29320,8 @@ ORDER BY
                                     {
                                         foreach (var s in d.SubDetails)
                                         {
-<<<<<<< HEAD
-                                            using (SqlCommand cmdSub = new SqlCommand(@" INSERT INTO SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit,Remark)
-                                                    VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit,@Remark)", con, trans))
-=======
                                             using (SqlCommand cmdSub = new SqlCommand(@" INSERT INTO SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
                                          VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark)", con, trans))
->>>>>>> origin/master
                                             {
                                                 cmdSub.Parameters.AddWithValue("@DetailID", detailId);
                                                 cmdSub.Parameters.AddWithValue("@ColourID", SafeInt(s.ColourID));
@@ -33019,21 +29497,6 @@ ORDER BY
 
                 using (SqlConnection con = new SqlConnection(conStr))
                 using (SqlCommand cmd = new SqlCommand(@"
-<<<<<<< HEAD
-                    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
-                        SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
-                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,
-                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark ,D.BrokerRate,    
-                        ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-                        ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
-                        ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    ISNULL(DEFM.SaleRate, 0) AS SaleRate 
-                    FROM SaleOrder SO
-                    LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
-=======
             -- 1st Query: Get Master, Details, and SubDetails
            SELECT SO.SaleOrderID, SO.OrderNo, CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate, SO.PartyId, PM.PartyName, SO.BrokerID, SO.TransportID,
                             SO.BrokerID, ISNULL(BM.BrokerName, SO.BrokerID) AS BrokerName,
@@ -33058,28 +29521,12 @@ ORDER BY
                     LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
                     LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode -- 🔥 Added Broker Join
                     LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode --
->>>>>>> origin/master
                     LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
                     LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
                     LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
                     LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
                     LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
                     LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
-<<<<<<< HEAD
-                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
-                    LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
-                    WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
-                    ", con))
-                {
-                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID; // ✅ FIXED (no AddWithValue)
-
-                    con.Open();
-
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
-                    {
-                        SaleOrderVM order = null;
-
-=======
                     LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
                     LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
                     WHERE SO.SaleOrderID = @ID 
@@ -33098,7 +29545,6 @@ ORDER BY
                         // ============================================
                         // 1. READ MASTER, DETAILS, AND SUB-DETAILS
                         // ============================================
->>>>>>> origin/master
                         while (rdr.Read())
                         {
                             // ✅ MASTER
@@ -33108,18 +29554,6 @@ ORDER BY
                                 {
                                     SaleOrderID = SafeInt(rdr["SaleOrderID"]),
                                     OrderNo = rdr["OrderNo"]?.ToString(),
-<<<<<<< HEAD
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("yyy-MM-dd"),
-                                    PartyID = SafeInt(rdr["PartyId"]),
-                                    PartyName = rdr["PartyName"]?.ToString(),
-                                    BrokerID = (rdr["BrokerID"].ToString()),
-                                    TransportID = rdr["TransportID"]?.ToString(),
-                                    MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
-                                    TotalQty = SafeDecimal(rdr["TotalQty"]),
-                                    TotalAmount = SafeDecimal(rdr["TotalAmount"]),
-                                    DiscountPercent = SafeDecimal(rdr["DiscountPercent"]),
-                                    DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),
-=======
                                     OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("yyyy-MM-dd"),
                                     PartyID = SafeInt(rdr["PartyId"]),
                                     PartyName = rdr["PartyName"]?.ToString(),
@@ -33134,33 +29568,13 @@ ORDER BY
                                     DiscountPercent = SafeDecimal(rdr["DiscountPercent"]),
                                     DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),
                                     RoundOff = SafeDecimal(rdr["RoundOff"]),
->>>>>>> origin/master
                                     GSTPercent = SafeDecimal(rdr["GSTPercent"]),
                                     GSTAmount = SafeDecimal(rdr["GSTAmount"]),
                                     InvoiceAmount = SafeDecimal(rdr["InvoiceAmount"]),
                                     Remark = rdr["Remark"]?.ToString(),
-<<<<<<< HEAD
-                                    ColourID = SafeInt(rdr["ColourID"]),
-                                    ColourName = rdr["ColourName"]?.ToString(),
-                                    Qty = SafeDecimal(rdr["SubQty"]),
-                                    Unit = rdr["SubUnit"]?.ToString(),
-                                    SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                    DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                    DesignName = rdr["DesignNo"]?.ToString(),
-                                    ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                    ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                    ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                    UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-                                    AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
-                                    AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
-                                    DiscountType = (rdr["AdditionalValue"].ToString()),
-                                    Details = new List<SaleOrderDetailVM>()
-=======
 
                                     Details = new List<SaleOrderDetailVM>(),
                                     AdditionalCharges = new List<SaleOrderAdditionalChargeModel>()
->>>>>>> origin/master
                                 };
                             }
 
@@ -33168,58 +29582,27 @@ ORDER BY
                             if (rdr["DetailID"] != DBNull.Value)
                             {
                                 int detailId = SafeInt(rdr["DetailID"]);
-<<<<<<< HEAD
-
-                                var detail = order.Details
-                                    .FirstOrDefault(x => x.DetailID == detailId);
-=======
                                 var detail = order.Details.FirstOrDefault(x => x.DetailID == detailId);
->>>>>>> origin/master
 
                                 if (detail == null)
                                 {
                                     detail = new SaleOrderDetailVM
                                     {
                                         DetailID = detailId,
-<<<<<<< HEAD
-                                        colorId = SafeInt(rdr["ColourID"]?.ToString()),
-                                        ColorGroupId = SafeInt(rdr["ColorGroupId"]),
-                                        ColorGroup = (rdr["ColorGroup"].ToString()),
-                                        colorName = (rdr["ColourName"].ToString()),
-=======
                                         colorId = SafeInt(rdr["ColourID"]),
                                         ColorGroupId = SafeInt(rdr["ColorGroupId"]),
                                         ColorGroup = rdr["ColorGroup"].ToString(),
                                         colorName = rdr["ColourName"].ToString(),
->>>>>>> origin/master
                                         ItemType = SafeInt(rdr["ItemType"]),
                                         Type = rdr["Type"]?.ToString(),
                                         NoOfColours = SafeInt(rdr["NoOfColours"]),
                                         Qty = SafeDecimal(rdr["DetailQty"]),
                                         Unit = rdr["Unit"]?.ToString(),
-<<<<<<< HEAD
-                                        TotalQty = SafeDecimal(rdr["TotalQty"]),
-=======
                                         TotalQty = SafeDecimal(rdr["DetailQty"]), // Mapping fix
->>>>>>> origin/master
                                         Rate = SafeDecimal(rdr["Rate"]),
                                         Amount = SafeDecimal(rdr["Amount"]),
                                         BrokerRate = SafeDecimal(rdr["BrokerRate"]),
                                         SaleRate = SafeDecimal(rdr["SaleRate"]),
-<<<<<<< HEAD
-                                        DesignId = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                        DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                        DesignName = rdr["DesignNo"]?.ToString(),
-                                        ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                        UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                        TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-                                        MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
-                                        ColourID = SafeInt(rdr["ColourID"]),
-                                        ColourName = rdr["ColourName"]?.ToString(),
-                                        SubDetails = new List<SaleOrderSubVM>()
-                                    };
-
-=======
                                         DesignId = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
                                         DesignNo = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
                                         DesignName = rdr["SavedDesignNo"]?.ToString(), // 🔥 Alias applied here
@@ -33233,7 +29616,6 @@ ORDER BY
 
                                         SubDetails = new List<SaleOrderSubVM>()
                                     };
->>>>>>> origin/master
                                     order.Details.Add(detail);
                                 }
 
@@ -33242,11 +29624,7 @@ ORDER BY
                                 {
                                     int subId = SafeInt(rdr["SubDetailID"]);
 
-<<<<<<< HEAD
-                                    if (!detail.SubDetails.Any(x => x.SubDetailID == subId)) // ✅ prevent duplicate
-=======
                                     if (!detail.SubDetails.Any(x => x.SubDetailID == subId))
->>>>>>> origin/master
                                     {
                                         detail.SubDetails.Add(new SaleOrderSubVM
                                         {
@@ -33256,16 +29634,6 @@ ORDER BY
                                             Qty = SafeDecimal(rdr["SubQty"]),
                                             Unit = rdr["SubUnit"]?.ToString(),
                                             SaleRate = SafeDecimal(rdr["SaleRate"]),
-<<<<<<< HEAD
-                                            DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                            DesignName = rdr["DesignNo"]?.ToString(),
-                                            ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                            ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                            Remark = rdr["SubRemark"]?.ToString(),
-                                            ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                            UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                            TypeID = SafeInt(rdr["TypeID"]?.ToString()),
-=======
                                             DesignNo = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
                                             DesignName = rdr["SavedDesignNo"]?.ToString(),
                                             ColorGroupId = SafeInt(rdr["ColorGroupID"]),
@@ -33274,7 +29642,6 @@ ORDER BY
                                             ColorDetailsID = SafeInt(rdr["ColorDetailsID"]),
                                             UnitId = SafeInt(rdr["UnitId"]),
                                             TypeID = SafeInt(rdr["ItemType"]),
->>>>>>> origin/master
                                             MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                         });
                                     }
@@ -33282,12 +29649,6 @@ ORDER BY
                             }
                         }
 
-<<<<<<< HEAD
-                        return new ApiResponse<SaleOrderVM>
-                        {
-                            success = true,
-                            Data = order ?? new SaleOrderVM { Details = new List<SaleOrderDetailVM>() } // ✅ prevent null
-=======
                         // ============================================
                         // 2. READ ADDITIONAL CHARGES
                         // ============================================
@@ -33309,7 +29670,6 @@ ORDER BY
                         {
                             success = true,
                             Data = order ?? new SaleOrderVM { Details = new List<SaleOrderDetailVM>(), AdditionalCharges = new List<SaleOrderAdditionalChargeModel>() }
->>>>>>> origin/master
                         };
                     }
                 }
@@ -33331,11 +29691,7 @@ ORDER BY
 
             using (SqlConnection con = new SqlConnection(conString))
             {
-<<<<<<< HEAD
-                SqlDataAdapter da = new SqlDataAdapter(@"SELECT DISTINCT AdditionalRemark  FROM SaleOrder  WHERE ISNULL(AdditionalRemark,'') <> ''  ORDER BY AdditionalRemark", con);
-=======
                 SqlDataAdapter da = new SqlDataAdapter(@"SELECT DISTINCT ChargeRemark  FROM SaleOrderAdditionalCharges  WHERE ISNULL(ChargeRemark,'') <> ''  ORDER BY ChargeRemark", con);
->>>>>>> origin/master
                 da.Fill(dt);
             }
             List<object> remarks = new List<object>();
@@ -33343,11 +29699,7 @@ ORDER BY
             {
                 remarks.Add(new
                 {
-<<<<<<< HEAD
-                    AdditionalRemark = dr["AdditionalRemark"].ToString()
-=======
                     AdditionalRemark = dr["ChargeRemark"].ToString()
->>>>>>> origin/master
                 });
             }
             JavaScriptSerializer js = new JavaScriptSerializer();
@@ -33451,13 +29803,6 @@ ORDER BY
 
             HttpCookie cookie = HttpContext.Current.Request.Cookies["UserIDs"];
 
-<<<<<<< HEAD
-            if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
-            {
-                userId = cookie.Value.Split('=')[1];
-            }
-
-=======
             if (cookie != null && !string.IsNullOrWhiteSpace(cookie.Value))
             {
                 string cookieValue = HttpUtility.UrlDecode(cookie.Value).Trim();
@@ -33483,27 +29828,11 @@ ORDER BY
                     Data = new object[0]
                 };
             }
->>>>>>> origin/master
             DataTable dt = new DataTable();
 
             using (SqlConnection con = new SqlConnection(
                 ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
             {
-<<<<<<< HEAD
-                SqlDataAdapter da = new SqlDataAdapter(@"SELECT MM.Menu_Id,MM.Menu_Name,MM.Menu_Icon,MM.Menu_OrderNo,SM.SubMenu_Id,SM.SubMenu_Name,SM.SubMenu_Icon,SM.SubMenu_OrderNo,SM.Controller,SM.Action,
-                                    CASE WHEN UAM.UserRole = 'Admin' AND SM.SubMenu_Name = 'User Permission' THEN 1 ELSE ISNULL(UMP.[View],0) END AS [View],
-                                    ISNULL(UMP.[Add],0) AS [Add],ISNULL(UMP.[Edit],0) AS [Edit],ISNULL(UMP.[Delete],0) AS [Delete]
-                                FROM MenuMaster MM
-                                INNER JOIN SubMenuMaster SM ON MM.Menu_Id = SM.Menu_Id
-                                LEFT JOIN UserMenuPermission UMP ON MM.Menu_Id = UMP.Menu_Id AND SM.SubMenu_Id = UMP.SubMenu_Id AND UMP.User_Id = @UserId
-                                INNER JOIN UserAccountMaster UAM ON UAM.UserAccountId = @UserId
-                                WHERE ( ISNULL(UMP.[View],0) = 1 OR (UAM.UserRole = 'Admin'  AND SM.SubMenu_Name = 'User Permission' ))
-                                ORDER BY MM.Menu_OrderNo, SM.SubMenu_OrderNo", con);
-                da.SelectCommand.Parameters.AddWithValue("@UserId", userId);
-                da.Fill(dt);
-            }
-            var result = dt.AsEnumerable().GroupBy(x => new { Menu_Id = x["Menu_Id"].ToString(), Menu_Name = x["Menu_Name"].ToString(), Menu_Icon = x["Menu_Icon"].ToString() })
-=======
                 con.Open();
                 //EnsureProcessManagementModuleSetup(con);
 
@@ -33568,16 +29897,12 @@ ORDER BY
                     Menu_Name = x["Menu_Name"].ToString(),
                     Menu_Icon = x["Menu_Icon"].ToString()
                 })
->>>>>>> origin/master
                 .Select(menu => new
                 {
                     Menu_Id = menu.Key.Menu_Id,
                     Menu_Name = menu.Key.Menu_Name,
                     Menu_Icon = menu.Key.Menu_Icon,
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                     SubMenus = menu.Select(sub => new
                     {
                         SubMenu_Id = sub["SubMenu_Id"].ToString(),
@@ -33585,24 +29910,16 @@ ORDER BY
                         SubMenu_Icon = sub["SubMenu_Icon"].ToString(),
                         Controller = sub["Controller"].ToString(),
                         Action = sub["Action"].ToString(),
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                         View = Convert.ToBoolean(sub["View"]),
                         Add = Convert.ToBoolean(sub["Add"]),
                         Edit = Convert.ToBoolean(sub["Edit"]),
                         Delete = Convert.ToBoolean(sub["Delete"])
-<<<<<<< HEAD
-                    }).ToList()
-                }).ToList();
-=======
 
                     }).ToList()
 
                 }).ToList();
 
->>>>>>> origin/master
             return result;
         }
         [WebMethod]
@@ -33757,19 +30074,11 @@ ORDER BY
         {
             List<YarnPOMaster> list = new List<YarnPOMaster>();
 
-<<<<<<< HEAD
-            string cs =ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                con.Open();                
-                using (SqlCommand cmd =new SqlCommand("SPR_GetYarnPOByIDs", con))
-=======
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
                 con.Open();
                 using (SqlCommand cmd = new SqlCommand("SPR_GetYarnPOByIDs", con))
->>>>>>> origin/master
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@IDs", ids);
@@ -34138,10 +30447,6 @@ ORDER BY
                 .SetBorderBottom(iText.Layout.Borders.Border.NO_BORDER)
                 .SetBorderTop(iText.Layout.Borders.Border.NO_BORDER);
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         public string CreatePDF(List<YarnPOMaster> data)
         {
             string dir =
@@ -34155,11 +30460,7 @@ ORDER BY
 
             string filePath =
                 System.IO.Path.Combine(dir, fileName);
-<<<<<<< HEAD
-              iText.Kernel.Pdf.PdfWriter writer = new iText.Kernel.Pdf.PdfWriter(filePath);
-=======
             iText.Kernel.Pdf.PdfWriter writer = new iText.Kernel.Pdf.PdfWriter(filePath);
->>>>>>> origin/master
 
             iText.Kernel.Pdf.PdfDocument pdf =
                 new iText.Kernel.Pdf.PdfDocument(writer);
@@ -34171,11 +30472,7 @@ ORDER BY
 
             document.SetMargins(10, 10, 10, 10);
 
-<<<<<<< HEAD
-       iText.Kernel.Font.PdfFont normalFont;
-=======
             iText.Kernel.Font.PdfFont normalFont;
->>>>>>> origin/master
             iText.Kernel.Font.PdfFont boldFont;
 
             // =====================================================
@@ -34197,11 +30494,7 @@ ORDER BY
                 if (File.Exists(f1) && File.Exists(f2))
                 {
                     normalFont = PdfFontFactory.CreateFont(f1, iText.IO.Font.PdfEncodings.IDENTITY_H);
-<<<<<<< HEAD
-                    boldFont = PdfFontFactory.CreateFont(f2,iText.IO.Font.PdfEncodings.IDENTITY_H);
-=======
                     boldFont = PdfFontFactory.CreateFont(f2, iText.IO.Font.PdfEncodings.IDENTITY_H);
->>>>>>> origin/master
                 }
                 else
                 {
@@ -34333,11 +30626,7 @@ ORDER BY
                         .Add(new Text("ORDER DATE : ").SetFont(boldFont))
                         .Add(Safe(item.PODates))
                     )
-<<<<<<< HEAD
-                    .SetBorder(Border.NO_BORDER)
-=======
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 order.AddCell(
@@ -34347,11 +30636,7 @@ ORDER BY
                         .Add(new Text("ORDER NUMBER : ").SetFont(boldFont))
                         .Add(item.PONo.ToString())
                     )
-<<<<<<< HEAD
-                    .SetBorder(Border.NO_BORDER)
-=======
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 ship.AddCell(new Cell().Add(order));
@@ -34578,19 +30863,11 @@ ORDER BY
                             .SetPadding(0)
                             .SetBorderLeft(new SolidBorder(1))
                             .SetBorderRight(new SolidBorder(1))
-<<<<<<< HEAD
-                            .SetBorderTop(Border.NO_BORDER)
-                            .SetBorderBottom(
-                                isLastRow
-                                ? new SolidBorder(1)
-                                : Border.NO_BORDER
-=======
                             .SetBorderTop(iText.Layout.Borders.Border.NO_BORDER)
                             .SetBorderBottom(
                                 isLastRow
                                 ? new SolidBorder(1)
                                 : iText.Layout.Borders.Border.NO_BORDER
->>>>>>> origin/master
                             )
                         );
                     }
@@ -34617,16 +30894,6 @@ ORDER BY
                         )
                     ).UseAllAvailableWidth();
 
-<<<<<<< HEAD
-                right.AddCell(new Cell() .Add(new iText.Layout.Element.Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(Border.NO_BORDER));
-                right.AddCell(new Cell().Add(new iText.Layout.Element.Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-
-                right.AddCell(new Cell()    .Add(
-                        new iText.Layout.Element.Paragraph("GST Amount :")
-                        .SetFont(boldFont)
-                    )
-                    .SetBorder(Border.NO_BORDER)
-=======
                 right.AddCell(new Cell().Add(new iText.Layout.Element.Paragraph("Total Taxable Amount :").SetFont(boldFont)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
                 right.AddCell(new Cell().Add(new iText.Layout.Element.Paragraph(total.ToString("N2")).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
 
@@ -34635,7 +30902,6 @@ ORDER BY
                         .SetFont(boldFont)
                     )
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 right.AddCell(
@@ -34644,11 +30910,7 @@ ORDER BY
                         new iText.Layout.Element.Paragraph(gstAmount.ToString("N2"))
                         .SetTextAlignment(TextAlignment.RIGHT)
                     )
-<<<<<<< HEAD
-                    .SetBorder(Border.NO_BORDER)
-=======
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 right.AddCell(
@@ -34657,11 +30919,7 @@ ORDER BY
                         new iText.Layout.Element.Paragraph("Grand Total :")
                         .SetFont(boldFont)
                     )
-<<<<<<< HEAD
-                    .SetBorder(Border.NO_BORDER)
-=======
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 right.AddCell(
@@ -34671,11 +30929,7 @@ ORDER BY
                         .SetFont(boldFont)
                         .SetTextAlignment(TextAlignment.RIGHT)
                     )
-<<<<<<< HEAD
-                    .SetBorder(Border.NO_BORDER)
-=======
                     .SetBorder(iText.Layout.Borders.Border.NO_BORDER)
->>>>>>> origin/master
                 );
 
                 totalOuter.AddCell(
@@ -34768,35 +31022,6 @@ ORDER BY
                     while (rdr.Read())
                     {
                         YarnPOMaster condition = new YarnPOMaster();
-<<<<<<< HEAD
-                        condition.YarnPOID = Convert.ToInt32(rdr["YarnPOID"].ToString());
-                        condition.YarnPODetailID = Convert.ToInt32(rdr["YarnPODetailID"].ToString());
-                        condition.PODate = Convert.ToDateTime(rdr["PODate"].ToString());
-                        condition.PODates = Convert.ToDateTime(rdr["PODate"].ToString()).ToString("dd-MM-yyyy");
-                        condition.PONo = Convert.ToInt32(rdr["PONo"].ToString());
-                        condition.SupplierPartyName = rdr["SupplierPartyName"].ToString().ToUpper();
-                        condition.SupplierMobileNo = rdr["SupplierMobileNo"].ToString().ToUpper();
-                        condition.SupplierAlterMobileNo = rdr["SupplierAlterMobileNo"].ToString().ToUpper();
-                        condition.BillToPartyName = rdr["BillToPartyName"].ToString().ToUpper();
-                        condition.BillToMobileNo = rdr["BillToMobileNo"].ToString().ToUpper();
-                        condition.BillToAlterMobileNo = rdr["BillToAlterMobileNo"].ToString().ToUpper();
-                        condition.CompanyPartyName = rdr["CompanyPartyName"].ToString().ToUpper();
-                        condition.CompanyMobileNo = rdr["CompanyMobileNo"].ToString().ToUpper();
-                        condition.CompanyAlterMobileNo = rdr["CompanyAlterMobileNo"].ToString().ToUpper();
-                        condition.ShippedToPartyName = rdr["ShippedToPartyName"].ToString().ToUpper();
-                        condition.ShippedToMobileNo = rdr["ShippedToMobileNo"].ToString().ToUpper();
-                        condition.ShippedToAlterMobileNo = rdr["ShippedToAlterMobileNo"].ToString().ToUpper();
-                        condition.GodownTitle = rdr["GodownTitle"].ToString().ToUpper();
-                        condition.GodownAddress = rdr["GodownAddress"].ToString().ToUpper();
-                        condition.YarnMaterialID = Convert.ToInt32(rdr["YarnMaterialID"].ToString());
-                        condition.YarnMaterial = rdr["YarnMaterial"].ToString().ToUpper();
-                        condition.YarnColorID = Convert.ToInt32(rdr["YarnColorID"].ToString());
-                        condition.YarnColor = rdr["YarnColor"].ToString().ToUpper();
-                        condition.CompanyCode = rdr["CompanyCode"].ToString().ToUpper();
-                        condition.Qty = Convert.ToDecimal(rdr["Qty"].ToString().ToUpper());
-                        condition.PendingQty = Convert.ToDecimal(rdr["PendingQty"].ToString().ToUpper());
-                        condition.IsComplete = Convert.ToBoolean(rdr["IsClose"]);
-=======
 
                         condition.YarnPOID = rdr["YarnPOID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnPOID"]);
                         condition.YarnPODetailID = rdr["YarnPODetailID"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["YarnPODetailID"]);
@@ -34879,7 +31104,6 @@ ORDER BY
                         condition.IsComplete = rdr["IsClose"] == DBNull.Value
                             ? false : Convert.ToBoolean(rdr["IsClose"]);
 
->>>>>>> origin/master
                         listUser.Add(condition);
                     }
                 }
@@ -35035,10 +31259,6 @@ ORDER BY T.BoxNo,T.DateAndTime,T.YarnInterchangeID;";
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
         public object GetColorMatchingReport(int pageNumber, int pageSize, string validationStatus = "", string searchText = "")
         {
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
@@ -35231,19 +31451,11 @@ FROM Filtered
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = con;
                     cmd.Transaction = trans;
-<<<<<<< HEAD
-                    //// ✅ 1. Update Inward Master
-                    //cmd.CommandText = @"UPDATE YarnInwardMaster SET IsComplete = 1 WHERE YarnPODetailIDCompanyCode = @Code";
-                    //cmd.Parameters.Clear();
-                    //cmd.Parameters.AddWithValue("@Code", id);
-                    //cmd.ExecuteNonQuery();
-=======
                     // ✅ 1. Update Inward Master
                     cmd.CommandText = @"UPDATE YarnInwardMaster SET IsComplete = 1 WHERE YarnPODetailIDCompanyCode = @Code";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@Code", id);
                     cmd.ExecuteNonQuery();
->>>>>>> origin/master
 
                     // ✅ 2. Update PO Details (Close)
                     cmd.CommandText = @"UPDATE YarnPODetails SET IsClose = 1,IsCloseDateTime = GETDATE(),IsCloseUserID = @UserID  WHERE YarnPODetailID = @Code";
@@ -35265,23 +31477,6 @@ FROM Filtered
         public void ReopenPO(int id)
         {
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-<<<<<<< HEAD
-
-            using (SqlConnection con = new SqlConnection(cs))
-            {
-                SqlCommand cmd = new SqlCommand(
-                    @"UPDATE YarnPODetails SET IsClose = 0,IsCloseDateTime = NULL,IsCloseUserID = NULL WHERE YarnPODetailID = @id",
-                    con);
-
-                cmd.Parameters.AddWithValue("@id", id);
-
-                con.Open();
-                cmd.ExecuteNonQuery();
-                con.Close();
-            }
-        }
-
-=======
             using (SqlConnection con = new SqlConnection(cs))
             {
                 con.Open();
@@ -35316,7 +31511,6 @@ FROM Filtered
                 }
             }
         }
->>>>>>> origin/master
         [WebMethod]
         public object ExportPDF(List<int> yarnPOIds)
         {
@@ -35330,12 +31524,7 @@ FROM Filtered
                 }
 
                 // Final Merge PDF Name
-<<<<<<< HEAD
-                string fileName = "PurchaseOrder_" +
-                                  DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
-=======
                 string fileName = "PurchaseOrder_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
->>>>>>> origin/master
 
                 string fullPath = System.IO.Path.Combine(folderPath, fileName);
 
@@ -35345,42 +31534,10 @@ FROM Filtered
                 foreach (int poId in yarnPOIds)
                 {
                     var data = GetYarnPODataForPDF_DB(poId);
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                     if (data == null || data.Count == 0)
                     {
                         continue;
                     }
-<<<<<<< HEAD
-
-                    Microsoft.Reporting.WebForms.LocalReport report =
-                        new Microsoft.Reporting.WebForms.LocalReport();
-
-                    report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
-
-                    report.EnableExternalImages = true;
-
-                    report.DataSources.Clear();
-
-                    // Master Dataset
-                    Microsoft.Reporting.WebForms.ReportDataSource dsMaster =
-                        new Microsoft.Reporting.WebForms.ReportDataSource("Master", data);
-
-                    report.DataSources.Add(dsMaster);
-
-                    // Detail Dataset
-                    var detailData = data.SelectMany(x => x.listYarnPODetails).ToList();
-
-                    Microsoft.Reporting.WebForms.ReportDataSource dsDetail =
-                        new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails", detailData);
-
-                    report.DataSources.Add(dsDetail);
-
-                    report.Refresh();
-
-=======
                     Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
                     report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder.rdlc");
                     report.EnableExternalImages = true;
@@ -35393,27 +31550,12 @@ FROM Filtered
                     Microsoft.Reporting.WebForms.ReportDataSource dsDetail = new Microsoft.Reporting.WebForms.ReportDataSource("OrderDetails", detailData);
                     report.DataSources.Add(dsDetail);
                     report.Refresh();
->>>>>>> origin/master
                     string mimeType;
                     string encoding;
                     string extension;
                     string[] streamids;
                     Microsoft.Reporting.WebForms.Warning[] warnings;
-<<<<<<< HEAD
-
-                    byte[] bytes = report.Render(
-                        "PDF",
-                        null,
-                        out mimeType,
-                        out encoding,
-                        out extension,
-                        out streamids,
-                        out warnings
-                    );
-
-=======
                     byte[] bytes = report.Render("PDF", null, out mimeType, out encoding, out extension, out streamids, out warnings);
->>>>>>> origin/master
                     // Add PDF bytes to list
                     pdfBytesList.Add(bytes);
                 }
@@ -35448,14 +31590,7 @@ FROM Filtered
                     }
                 }
 
-<<<<<<< HEAD
-                string filePath =
-                    HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority)
-                    + "/GeneratedPDF/" + fileName;
-
-=======
                 string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/GeneratedPDF/" + fileName;
->>>>>>> origin/master
                 return new
                 {
                     Status = true,
@@ -35473,186 +31608,6 @@ FROM Filtered
                 };
             }
         }
-<<<<<<< HEAD
-
-        [WebMethod]
-        public object ExportPDF1(List<int> yarnPOIds)
-        {
-            try
-            {
-                string connStr =
-                    ConfigurationManager
-                    .ConnectionStrings["sqlconnstr"]
-                    .ConnectionString;
-
-                // STORE ALL PDF BYTES
-                List<byte[]> pdfBytesList =  new List<byte[]>();
-
-                using (SqlConnection con = new SqlConnection(connStr))
-                {
-                    con.Open();
-                    // LOOP ALL PO IDS
-                    foreach (int poId in yarnPOIds)
-                    {
-                        DataSet ds = new DataSet();
-
-                        // =========================================
-                        // MASTER QUERY
-                        // =========================================
-
-                        string masterQuery = @"
-
-                    SELECT
-                        YPM.*,
-
-                        SPM.PartyName AS SupplierPartyName,
-                        CPM.PartyName AS BillToPartyName,
-                        BPM.PartyName AS CompanyPartyName,
-                        SPPM.PartyName AS ShippedToPartyName,
-
-                        GM.GodownTitle,
-                        GM.GodownAddress,
-
-                        ISNULL(X.TaxableAmount,0) AS TaxableAmount,
-                        ISNULL(X.GSTAmount,0) AS GSTAmount,
-                        ISNULL(X.GrandTotal,0) AS GrandTotal
-
-                    FROM YarnPOMaster YPM
-
-                    LEFT JOIN PartyMaster SPM
-                        ON YPM.SupplierPartyID = SPM.PartyId
-
-                    LEFT JOIN PartyMaster BPM
-                        ON YPM.BillToPartyID = BPM.PartyId
-
-                    LEFT JOIN PartyMaster CPM
-                        ON YPM.CompanyPartyID = CPM.PartyId
-
-                    LEFT JOIN PartyMaster SPPM
-                        ON YPM.ShippedToPartyID = SPPM.PartyId
-
-                    LEFT JOIN GodownMaster GM
-                        ON GM.GodownID = YPM.GodownID
-
-                    OUTER APPLY
-                    (
-                        SELECT
-
-                            SUM(ISNULL(YPD.Amount,0))
-                            AS TaxableAmount,
-
-                            SUM
-                            (
-                                ISNULL
-                                (
-                                    (YPD.Amount * GSM.IGST) / 100,
-                                    0
-                                )
-                            )
-                            AS GSTAmount,
-
-                            SUM(ISNULL(YPD.Amount,0))
-                            +
-                            SUM
-                            (
-                                ISNULL
-                                (
-                                    (YPD.Amount * GSM.IGST) / 100,
-                                    0
-                                )
-                            )
-                            AS GrandTotal
-
-                        FROM YarnPODetails YPD
-
-                        LEFT JOIN GSTSLABMaster GSM
-                            ON YPD.GSTSLABId =
-                               GSM.GSTSLABId
-
-                        WHERE YPD.YarnPOID =
-                              YPM.YarnPOID
-
-                    ) X
-
-                    WHERE YPM.YarnPOID = @YarnPOID";
-
-                        using (SqlCommand cmd = new SqlCommand(masterQuery, con))
-                        {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@YarnPOID",poId);
-                            SqlDataAdapter da =new SqlDataAdapter(cmd);
-                            da.Fill(ds, "DSMaster");
-                        }
-
-                        // =========================================
-                        // DETAIL QUERY
-                        // =========================================
-
-                        string detailQuery = @"
-
-                    SELECT
-
-                        YPD.YarnPODetailID,
-                        YPD.YarnPOID,
-                        YPD.YarnMaterialID,
-
-                        YMM.YarnMaterial,
-
-                        YPD.YarnColorID,
-
-                        YCM.YarnColor,
-                        YCM.YarnColorCode,
-
-                        YPD.CompanyCode,
-                        YPD.Qty,
-                        YPD.Rate,
-
-                        YPD.GSTSLABId,
-
-                        GSM.GSTSLABName,
-
-                        YPD.Amount
-
-                    FROM YarnPODetails YPD
-
-                    LEFT JOIN YarnMaterialMaster YMM
-                        ON YMM.YarnMaterialID =
-                           YPD.YarnMaterialID
-
-                    LEFT JOIN YarnColorMaster YCM
-                        ON YCM.YarnColorID =
-                           YPD.YarnColorID
-
-                    LEFT JOIN GSTSLABMaster GSM
-                        ON YPD.GSTSLABId =
-                           GSM.GSTSLABId
-
-                    WHERE YPD.YarnPOID =
-                          @YarnPOID";
-
-                        using (SqlCommand cmd =
-                            new SqlCommand(detailQuery, con))
-                        {
-                            cmd.CommandType =
-                                CommandType.Text;
-
-                            cmd.Parameters.AddWithValue(
-                                "@YarnPOID",
-                                poId);
-
-                            SqlDataAdapter da =
-                                new SqlDataAdapter(cmd);
-
-                            da.Fill(ds, "DSDetail");
-                        }
-
-                        // =========================================
-                        // CHECK DATA
-                        // =========================================
-
-                        if (ds.Tables["DSMaster"]
-                            .Rows.Count == 0)
-=======
         [WebMethod]
         public object SaleOrderReport(List<int> saleOrderID)
         {
@@ -35840,93 +31795,10 @@ FROM Filtered
                         if (!ds.Tables.Contains(
                                 "SaleOrderMaster") ||
                             ds.Tables["SaleOrderMaster"].Rows.Count == 0)
->>>>>>> origin/master
                         {
                             continue;
                         }
 
-<<<<<<< HEAD
-                        // =========================================
-                        // RDLC REPORT
-                        // =========================================
-
-                        LocalReport report = new LocalReport();
-                        report.ReportPath = HttpContext.Current.Server.MapPath("~/Reports/PurchaseOrder1.rdlc");
-                        report.DataSources.Clear();
-                        // MASTER DATASET
-                        report.DataSources.Add(new ReportDataSource("DSMaster",ds.Tables["DSMaster"]));
-                        // DETAIL DATASET
-                        report.DataSources.Add(new ReportDataSource("DSDetail",ds.Tables["DSDetail"]));
-                        // =========================================
-                        // PDF SETTINGS
-                        // =========================================
-                        string deviceInfo =
-                            "<DeviceInfo>" +
-                            "<OutputFormat>PDF</OutputFormat>" +
-                            "<PageWidth>8.27in</PageWidth>" +
-                            "<PageHeight>11.69in</PageHeight>" +
-                            "<MarginTop>0.25in</MarginTop>" +
-                            "<MarginLeft>0.25in</MarginLeft>" +
-                            "<MarginRight>0.25in</MarginRight>" +
-                            "<MarginBottom>0.25in</MarginBottom>" +
-                            "</DeviceInfo>";
-                        Warning[] warnings;
-                        string[] streams;
-                        string mimeType;
-                        string encoding;
-                        string extension;
-                        // =========================================
-                        // RENDER PDF
-                        // =========================================
-
-                        byte[] pdfBytes =
-                            report.Render(
-                                "PDF",
-                                deviceInfo,
-                                out mimeType,
-                                out encoding,
-                                out extension,
-                                out streams,
-                                out warnings);
-
-                        // STORE PDF
-                        pdfBytesList.Add(pdfBytes);
-                    }
-                }
-                string folderPath = HttpContext.Current.Server.MapPath("~/PDFReports/");
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
-                string fileName = "PurchaseOrder_" + DateTime.Now.ToString("ddMMyyyyHHmmss") +".pdf";
-                string fullPath = System.IO.Path.Combine(folderPath,fileName);
-                using (FileStream stream = new FileStream(fullPath,FileMode.Create))
-                {
-                    using ( Document document = new Document())
-                    {
-                        PdfCopy pdfCopy = new PdfCopy(document,stream);
-                        document.Open();
-                        foreach (byte[] pdfBytes in pdfBytesList)
-                        {
-                            PdfReader reader = new PdfReader(pdfBytes);
-                            for (int i = 1; i <= reader.NumberOfPages;i++)
-                            {
-                                PdfImportedPage page = pdfCopy.GetImportedPage(reader,i);
-                                pdfCopy.AddPage(page);
-                            }
-                            reader.Close();
-                        }
-                        document.Close();
-                    }
-                }                
-                string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/PDFReports/"+ fileName;
-                return JsonConvert.SerializeObject( new
-                {
-                        Status = true,
-                        Message =
-                            "PDF Generated Successfully",
-                        FilePath = filePath
-=======
 
                         if (!ds.Tables.Contains(
                                 "SaleOrderDetails") ||
@@ -38803,21 +34675,10 @@ FROM Filtered
                     OutwardListNo = arr.Length > 1 ? arr[1] : "",
                     PartyId = arr.Length > 2 ? arr[2] : "",
                     OriginalValue = decryptValue
->>>>>>> origin/master
                 });
             }
             catch (Exception ex)
             {
-<<<<<<< HEAD
-                return JsonConvert.SerializeObject(
-                    new
-                    {
-                        Status = false,
-                        Message = ex.Message
-                    });
-            }
-        }
-=======
                 return js.Serialize(new
                 {
                     Code = 500,
@@ -52073,6 +47934,5 @@ ORDER BY
         public string productionDate { get; set; }
         public int machineNumber { get; set; }
         public decimal pcs { get; set; }
->>>>>>> origin/master
     }
 }

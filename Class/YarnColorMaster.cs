@@ -21,11 +21,8 @@ namespace NikunjTextile.Class
         public string ProductSrNo { get; set; }
         public string SearchYarnColor { get; set; }
         public string startFrom { get; set; }
-<<<<<<< HEAD
-=======
         public int YarnMaterialID { get; set; }
         public string CompanyCode { get; set; }
->>>>>>> origin/master
 
     }
 }

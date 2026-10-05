@@ -2,23 +2,13 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
-<<<<<<< HEAD
-
-
-
-<!-- Content wrapper start -->
-=======
->>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
     <div class="card-header-lg">
         <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Color Group</button>
-<<<<<<< HEAD
-=======
 
         <!-- Modal Start -->
->>>>>>> origin/master
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -29,16 +19,9 @@
                         </button>
                     </div>
                     <div class="modal-body">
-<<<<<<< HEAD
-                        <div id="add-alert" class="alert alert-success" role="alert">
-                            Record has been saved Successfully.
-                        </div>
-                        <br />
-=======
                         <div id="add-alert" class="alert alert-success d-none" role="alert">
                             Record has been saved Successfully.
                         </div>
->>>>>>> origin/master
 
                         <div class="row gutters">
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
@@ -54,36 +37,17 @@
                                         <!-- Field wrapper end -->
                                     </div>
 
-<<<<<<< HEAD
-
-
                                     <div class="col-6">
-
-=======
-                                    <div class="col-6">
->>>>>>> origin/master
                                         <!-- Field wrapper start -->
                                         <div class="field-wrapper">
                                             <div class="form-check form-check-inline">
                                                 <br />
                                                 <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
-<<<<<<< HEAD
-                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
-
-=======
                                                 <label class="form-check-label" for="IsActive">Is Active</label>
->>>>>>> origin/master
                                             </div>
                                         </div>
                                         <!-- Field wrapper end -->
                                     </div>
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> origin/master
                                 </div>
                             </div>
                         </div>
@@ -99,22 +63,14 @@
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
-    </div>
-=======
         <!-- Modal End -->
     </div>
 
->>>>>>> origin/master
     <div style="float:none;clear:both;">
         <br />
     </div>
 
-<<<<<<< HEAD
-    <!-- Row start -->
-=======
     <!-- Table Row start -->
->>>>>>> origin/master
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
@@ -122,20 +78,10 @@
                 <div class="card-body">
                     <div class="form-section-header">Color Group</div>
                     <br />
-<<<<<<< HEAD
-                    <div class="row gutters">
-
-
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                        </div>
-
-
-=======
                     <div class="row gutters mb-3">
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
                         </div>
 
->>>>>>> origin/master
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <div class="field-wrapper">
@@ -144,22 +90,6 @@
                             </div>
                             <!-- Field wrapper end -->
                         </div>
-<<<<<<< HEAD
-
-                    </div>
-                    <div class="table-responsive">
-                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
-                            <thead>
-                                <tr style="background-color: #1273eb;">
-                                    <th style="color:white;">Sr No</th>
-                                    <th style="color:white;">Color Group</th>
-                                    <th style="color:white;">Is Active</th>
-                                    <!--<th>Position</th>-->
-                                    <th style="color:white;">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-=======
                     </div>
 
                     <!-- PURE HTML BOOTSTRAP TABLE (NO DATATABLES) -->
@@ -175,7 +105,6 @@
                             </thead>
                             <tbody>
                                 <!-- Rows dynamic bind via jQuery AJAX -->
->>>>>>> origin/master
                             </tbody>
                         </table>
                     </div>
@@ -185,217 +114,13 @@
 
         </div>
     </div>
-<<<<<<< HEAD
-    <div class="view-more-styl-class">
-=======
 
     <div class="view-more-styl-class text-center mt-3">
->>>>>>> origin/master
         <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
     </div>
     <!-- Row end -->
 
 </div>
-<<<<<<< HEAD
-<script>
-    var currentPagePermission = {};
-    $(document).ready(function () {        
-        var permission = sessionStorage.getItem("PagePermission");
-        if (permission != null) {
-            currentPagePermission = JSON.parse(permission);
-            console.log("currentPagePermission", currentPagePermission);
-            if (currentPagePermission.Add == false) {
-                $("#AddFinacialYearModel").hide();
-            }
-        }
-        FunctionIsLogin();
-        displayData(0);
-    });
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    function getDefaultCompany() {
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
-                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
-                }
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-                notes.show(request.statusText, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-
-            }
-        });
-    }
-    function FunctionIsLogin() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-            data: "{ 'userName':'0' }",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                console.log(data);
-                if (data.d == "false") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    function logout() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/Logout',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                if (data.d == "done") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-    function functionSearch() {
-        //displayPagginationData();
-        displayData(0);
-    }
-    function displayData(rowStartCheck) {
-        var rowStart = 0;
-        if (rowStartCheck != 0) {
-            rowStart = parseInt($("#rowStartCount").val()) + 10;
-            $("#rowStartCount").val(rowStart);
-        }
-        else {
-            rowStart = 0;
-            $("#rowStartCount").val("0");
-        }
-
-        var searchColorGroup = $("#search-Color-Group").val();
-
-        var formData = new FormData();
-        formData.append('SearchColorGroup', searchColorGroup);
-        formData.append('startFrom', rowStart);
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/getColorGroupMaster',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                //$.ajax({
-                //    type: "GET",
-                //    url: '/WebServiceNikunjTextile.asmx/getColorGroupMaster?startFrom=' + rowStart,
-                //    //getItemCat
-                //    data: "{ 'startFrom':'" + rowStart + "' }",
-                //    dataType: 'json',
-                //    contentType: false,
-                //    processData: false,
-                //    success: function (response) {
-
-                console.log(response);
-
-                if (rowStart == 0) {
-                    $("#copy-print-csv tbody").empty();
-                }
-                var dataTable = $('#copy-print-csv');
-                var temp = "";
-                var operation = "";
-                if (response.listColorGroupMaster.length < 10) {
-                    $("#view-more-btn").hide();
-                }
-                else {
-                    $("#view-more-btn").show();
-                }
-
-                var SrNo = rowStart + 1;
-                for (var i = 0; i < response.listColorGroupMaster.length; i++) {
-
-                    var Top = i - 1;
-                    var Previous = i + 1;
-
-                    //console.log(response.listColorGroupMaster[Previous].ColorGroupID);
-
-                    var ActionPosition = "";
-                    if (response.listColorGroupMaster.length != 1) {
-                        if (i == 0) {
-
-                            var PostDown = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Previous].ColorGroupID + "," + response.listColorGroupMaster[Previous].Position;
-
-                            ActionPosition += "<input type='hidden' id='PostDown_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostDown + "' /> ";
-                            ActionPosition += "<span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
-                            //ActionPosition += "<button type='button' class='btn btn-primary' style='font-size: 6px;' onclick='functionCakeCategoryUp(" + response.listColorGroupMaster[i].ColorGroupID + ")'><i class='fa fa-arrow-up fa-2x'></i></button>  &nbsp;";
-                        }
-                        else
-                            if (i == parseInt(response.listColorGroupMaster.length - 1)) {
-
-                                var PostUp = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Top].ColorGroupID + "," + response.listColorGroupMaster[Top].Position;
-
-                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostUp + "' /> </span>";
-                                ActionPosition += "<span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
-                            }
-                            else {
-
-                                var PostUp = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Top].ColorGroupID + "," + response.listColorGroupMaster[Top].Position;
-                                var PostDown = response.listColorGroupMaster[i].ColorGroupID + "," + response.listColorGroupMaster[i].Position + "|" + response.listColorGroupMaster[Previous].ColorGroupID + "," + response.listColorGroupMaster[Previous].Position;
-
-                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostUp + "' /><span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
-                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listColorGroupMaster[i].ColorGroupID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listColorGroupMaster[i].ColorGroupID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
-                            }
-
-                    }
-
-                    temp += "<tr>";
-                    temp += "<td>" + SrNo++ + "</td>";
-                    temp += "<td>" + response.listColorGroupMaster[i].ColorGroup + "</td>";
-
-                    if (response.listColorGroupMaster[i].IsActive == "1") {
-                        temp += "<td><span class='badge bg-success'>Active</span></td>";
-                    }
-                    else {
-                        temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
-                    }
-
-                    //temp += "<td>" + ActionPosition + "</td>";
-                    temp += "<td><div class='actions'>";
-
-                    // EDIT
-                    if (currentPagePermission.Edit == true) {
-
-                        temp += "<a href='javascript:void(0);' " +
-                            "data-toggle='tooltip' " +
-                            "data-placement='top' " +
-                            "title='' " +
-                            "data-original-title='Edit' " +
-=======
 
 @section Scripts{
     <!-- SweetAlert2 CDN -->
@@ -531,70 +256,10 @@
 
                         temp += "<a href='javascript:void(0);' " +
                             "class='EditBtn me-2' " +
->>>>>>> origin/master
                             "data-bs-toggle='modal' " +
                             "data-bs-target='#addNewContact' " +
                             "onclick='showRecords(" + response.listColorGroupMaster[i].ColorGroupID + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
-<<<<<<< HEAD
-                            "</a>&nbsp;&nbsp;";
-                    }
-
-                    // DELETE
-                    if (currentPagePermission.Delete == true) {
-
-                        temp += "<a href='javascript:void(0);' " +
-                            "data-toggle='tooltip' " +
-                            "data-placement='top' " +
-                            "title='' " +
-                            "data-original-title='Delete' " +
-                            "onclick='functionYarnDelete(" + response.listColorGroupMaster[i].ColorGroupID + ")'>" +
-                            "<i class='icon-x-circle text-danger'></i>" +
-                            "</a>";
-                    }
-
-                    temp += "</div></td>";
-                    temp += "</tr>";
-                }
-
-                dataTable.append(temp);
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-    function clearAll() {
-        getDefaultCompany();
-        $("#savebtn").show();
-        $("#editbtn").hide();
-        $("#addNewContactLabel").html("Add Color Group");
-        $("#add-alert").hide();
-
-        $("#ColorGroup").val('');
-
-        $(".company-invalid-feedback").hide();
-
-        $(".clear-field").removeClass("is-valid is-invalid");
-        $(".invalid-feedback").hide();
-        $(".valid-feedback").hide();
-    }
-    function checkSaveView() {
-
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-            //$("#isDefault").attr('value', 'true');
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-=======
                             "</a>";
 
                         temp += "<a href='javascript:void(0);' " +
@@ -643,16 +308,11 @@
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
             }
->>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroup', ColorGroup);
             formData.append('IsActive', IsActive);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
@@ -663,56 +323,11 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
-<<<<<<< HEAD
-
-                        notes.show(response.Message, {
-                            type: 'success',
-
-                        });
-=======
                         showToast('success', response.Message || 'Color Group added successfully.');
->>>>>>> origin/master
                         displayData(0);
                         $("#cancelbtn").click();
                     }
                     else {
-<<<<<<< HEAD
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-                }
-            });
-        }
-    }
-    function checkSave() {
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-=======
                         Swal.fire('Error', response.Message, 'error');
                     }
                 },
@@ -729,16 +344,11 @@
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
             }
->>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroup', ColorGroup);
             formData.append('IsActive', IsActive);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
@@ -749,33 +359,6 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
-<<<<<<< HEAD
-
-                        notess.show(response.Message, {
-                            type: 'success',
-
-                        });
-                        displayData(0);
-
-                    }
-                    else {
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-=======
                         showToast('success', response.Message || 'Color Group added successfully.');
                         displayData(0);
                     }
@@ -785,35 +368,10 @@
                 },
                 error: function (error) {
                     Swal.fire('Error', 'An error occurred while saving Color Group.', 'error');
->>>>>>> origin/master
                 }
             });
         }
 
-<<<<<<< HEAD
-
-
-
-
-
-    }
-    function checkEdit() {
-        var id = $("#edit-id").val();
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var ColorGroup = $('#ColorGroup').val();
-
-
-        if (validate(document.getElementById('ColorGroup')) == false) {
-            validate(document.getElementById('ColorGroup'));
-        }
-        else {
-=======
         function checkEdit() {
             var id = $("#edit-id").val();
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
@@ -822,7 +380,6 @@
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
             }
->>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroupID', id);
@@ -838,125 +395,6 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
-<<<<<<< HEAD
-
-                        clearAll();
-
-                        $('#ColorGroup').val('');
-                        notes.show(response.Message, {
-                            type: 'success',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                        displayData(0);
-
-                        $("#cancelbtn").click();
-                    }
-                    else {
-                        //$("#add-alert").removeClass("alert-success");
-                        //$("#add-alert").addClass("alert-danger");
-                        //$("#add-alert").html(response.Message);
-                        //$("#add-alert").show();
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-                }
-            });
-        }
-    }
-    function showRecords(id) {
-
-        clearAll();
-        $("#edit-id").val(id);
-        $("#saveViewbtn").hide();
-        $("#savebtn").hide();
-        $("#editbtn").show();
-        $("#addNewContactLabel").html("Edit Color Group");
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getColorGroupMasterById?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    //console.log(response.listColorGroupMaster[0].ItemCategoryTitle);
-
-
-                    $("#ColorGroup").val(response.listColorGroupMaster[0].ColorGroup);
-
-                    if (response.listColorGroupMaster[0].IsActive == "1") {
-                        $("#IsActive").prop('checked', true);
-                    }
-                    else {
-                        $("#IsActive").prop('checked', false);
-                    }
-
-                }
-                else {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-                }
-
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-
-                notess.show(response.Message, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-            }
-        });
-
-    }
-    function functionYarnDelete(id) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            var formData = new FormData();
-            formData.append('ColorGroupID', id);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
-                data: formData,
-=======
                         clearAll();
                         showToast('success', response.Message || 'Color Group updated successfully.');
                         displayData(0);
@@ -984,45 +422,10 @@
                 type: "GET",
                 url: '/WebServiceNikunjTextile.asmx/getColorGroupMasterById?id=' + id,
                 data: "{ 'id':'" + id + "' }",
->>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
-<<<<<<< HEAD
-                    if (response.Code == 200) {
-
-                        notes.show("Color Group deleted successfully.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                        displayData(0);
-                    }
-                    else {
-                        //alert("Problem has been occurred while submitting your data.");
-
-                        notes.show("Problem has been occurred while deleting Color Group .", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    // alert("Problem has been occurred while submitting your data.");
-
-                    notes.show("Problem has been occurred while deleting Color Group.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-=======
                     if (response.Code == 200 || response.Code == "200") {
                         $("#ColorGroup").val(response.listColorGroupMaster[0].ColorGroup);
                         if (response.listColorGroupMaster[0].IsActive == "1") {
@@ -1038,136 +441,10 @@
                 },
                 error: function (request, status, error) {
                     Swal.fire('Error', 'Failed to fetch details.', 'error');
->>>>>>> origin/master
                 }
             });
         }
 
-<<<<<<< HEAD
-    }
-    function onPostUp(QueueNo) {
-
-        var down = $("#PostUp_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ColorGroupQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-            }
-        });
-
-
-
-    }
-    function onPostDown(QueueNo) {
-
-        var down = $("#PostDown_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ColorGroupQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-            }
-        });
-
-
-
-    }
-    function validate(code) {
-        code.value = code.value.replace(/\s+/g, ' ').trim();
-        var errorMessageValid = "." + code.id + "-valid-feedback";
-        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
-        $(".invalid-feedback .valid-feedback").hide();
-        if (code.value == "") {
-            //if (code.id == "name") {
-            //    $(".company-invalid-feedback").show();
-            //}
-            document.getElementById(code.id).classList.remove("is-valid");
-            document.getElementById(code.id).classList.add("is-invalid");
-            $(errorMessageInvalid).show();
-            return false;
-        }
-        
-        else {
-            document.getElementById(code.id).classList.add("is-valid");
-            document.getElementById(code.id).classList.remove("is-invalid");
-            $(errorMessageValid).show();
-            $(errorMessageInvalid).hide();
-            $(".company-invalid-feedback").show();
-            return true;
-        }
-    }
-
-</script>
-
-
-
-=======
         function functionYarnDelete(id) {
             Swal.fire({
                 title: "Are you sure?",
@@ -1229,4 +506,3 @@
         }
     </script>
 }
->>>>>>> origin/master

@@ -2,9 +2,6 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
-<<<<<<< HEAD
-
-=======
 <style>
     /* Hide Action column during print */
     @@media print {
@@ -38,7 +35,6 @@
         display: none !important;
     }
 </style>
->>>>>>> origin/master
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
@@ -55,11 +51,7 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
-<<<<<<< HEAD
-                    <div class="modal-body">
-=======
                     <div class="modal-body" style="overflow:auto">
->>>>>>> origin/master
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
@@ -88,32 +80,16 @@
                                     </div>
 
                                     <div class="col-4">
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
                                         <!-- Field wrapper start -->
                                         <div class="field-wrapper">
                                             <div class="form-check form-check-inline">
                                                 <br />
                                                 <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
-<<<<<<< HEAD
-                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
-
-=======
                                                 <label class="form-check-label" for="IsActive">Is Active</label>
->>>>>>> origin/master
                                             </div>
                                         </div>
                                         <!-- Field wrapper end -->
                                     </div>
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> origin/master
                                 </div>
                             </div>
                         </div>
@@ -121,13 +97,8 @@
                     <input id="edit-id" type="hidden" />
                     <div id="notess"></div>
                     <div class="modal-footer">
-<<<<<<< HEAD
-                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
-                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
-=======
                         <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="submitForm('view')">Save</button>
                         <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="submitForm('new')">Save & New</button>
->>>>>>> origin/master
                         <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -150,27 +121,6 @@
                     <div class="row gutters">
 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-<<<<<<< HEAD
-
-                            <button class="btn btn-success btn-sm"
-                                    onclick="exportTableToExcel('copy-print-csv', 'TypeMaster')">
-
-                                <i class="bi bi-file-earmark-excel-fill"></i> Excel
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="generatePDF()">
-
-                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
-                            </button>
-
-                            <button class="btn btn-primary btn-sm"
-                                    onclick="printTable()">
-
-                                <i class="bi bi-printer-fill"></i> Print
-                            </button>
-
-=======
                             <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv', 'TypeMaster')">
                                 <i class="bi bi-file-earmark-excel-fill"></i> Excel
                             </button>
@@ -180,7 +130,6 @@
                             <button class="btn btn-primary btn-sm" onclick="printTable()">
                                 <i class="bi bi-printer-fill"></i> Print
                             </button>
->>>>>>> origin/master
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
@@ -192,11 +141,6 @@
                         </div>
                     </div>
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/master
                     <div class="table-responsive">
                         <table id="copy-print-csv" class="table table-hover table-bordered m-0">
                             <thead>
@@ -204,11 +148,7 @@
                                     <th>Sr No</th>
                                     <th>Type</th>
                                     <th>Status</th>
-<<<<<<< HEAD
-                                    <th>Action</th>
-=======
                                     <th class="actions-th">Action</th>
->>>>>>> origin/master
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -225,357 +165,6 @@
         <br /><br /><br />
     </div>
     <!-- Row end -->
-<<<<<<< HEAD
-
-</div>
-<!-- Content wrapper end -->
-
-<script>
-    var currentPagePermission = {};
-    $(document).ready(function () {
-        var permission = sessionStorage.getItem("PagePermission");
-        if (permission != null) {
-            currentPagePermission = JSON.parse(permission);
-            console.log("currentPagePermission", currentPagePermission);
-            if (currentPagePermission.Add == false) {
-                $("#AddFinacialYearModel").hide();
-            }
-        }
-        $('#Unit').select2({
-            dropdownParent: $('#addNewContact'),
-            width: '100%',
-            placeholder: 'Select Unit'
-        });   
-        FunctionIsLogin();
-        displayData(0);
-    });
-    var notes = $('#notes').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    var notess = $('#notess').notify({
-        removeIcon: '<i class="icon-close"></i>'
-    });
-    function getItemUnit() {
-
-        $.ajax({
-            url: "/WebServiceNikunjTextile.asmx/GetUnitMaster",
-            type: "POST",
-            data: "{}",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-
-            success: function (res) {
-
-                var data = res.d;
-
-                if (typeof data === "string") {
-                    data = JSON.parse(data);
-                }
-                $("#Unit").empty();
-                $("#Unit").append('<option value="">All Unit</option>');
-                $.each(data, function (i, item) {
-                    $("#Unit").append(
-                        '<option value="' + item.UnitId + '">' +
-                        item.Unit +
-                        '</option>'
-                    );
-
-                });
-
-            }
-        });
-    }
-    function getDefaultCompany() {
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    $("#company-id").val(response.listCompanyMaster[0].CompanyId);
-                    $("#company-default").html(response.listCompanyMaster[0].CompanyName);
-                }
-            },
-            error: function (request, status, error) {
-                notes.show(request.statusText, {
-                    type: 'danger',                    
-                });
-
-
-            }
-        });
-    }
-    function FunctionIsLogin() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
-            data: "{ 'userName':'0' }",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                if (data.d == "false") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    function logout() {
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/Logout',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status) {
-                if (data.d == "done") {
-                    window.location.replace("/Index");
-                }
-            },
-            error: function (request, status, error) {
-            }
-        });
-    }
-    function functionSearch() {
-        //displayPagginationData();
-        displayData(0);
-    }
-    function displayData(rowStartCheck) {
-
-        var rowStart = 0;
-
-        if (rowStartCheck != 0) {
-            rowStart = parseInt($("#rowStartCount").val()) + 10;
-            $("#rowStartCount").val(rowStart);
-        }
-        else {
-            rowStart = 0;
-            $("#rowStartCount").val("0");
-        }
-
-        var searchTyre = $("#search-Type").val();
-
-        var formData = new FormData();
-        formData.append('searchTyre', searchTyre);
-        formData.append('startFrom', rowStart);
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/getTypeMaster',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-
-            success: function (response) {
-                if (rowStart == 0) {
-                    $("#copy-print-csv tbody").empty();
-                }
-                var temp = "";
-                if (response.listTypeMaster.length < 10) {
-                    $("#view-more-btn").hide();
-                }
-                else {
-                    $("#view-more-btn").show();
-                }
-                var SrNo = rowStart + 1;
-                for (var i = 0; i < response.listTypeMaster.length; i++) {
-                    temp += "<tr>";
-                    temp += "<td>" + SrNo++ + "</td>";
-                    temp += "<td>" + response.listTypeMaster[i].Type + "</td>";
-                    if (response.listTypeMaster[i].IsActive == "1") {
-                        temp += "<td><span class='badge bg-success'>Active</span></td>";
-                    }
-                    else {
-                        temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
-                    }
-
-                    temp += "<td><div class='actions'>";
-
-                    // EDIT
-                    if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
-
-                        temp += "<a href='javascript:void(0);' " +
-                            "data-bs-toggle='modal' " +
-                            "data-bs-target='#addNewContact' " +
-                            "onclick='showRecords(" + response.listTypeMaster[i].TypeID + ")'>" +
-                            "<i class='icon-edit1 text-info'></i>" +
-                            "</a>&nbsp;&nbsp;";
-                    }
-
-                    // DELETE
-                    if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
-
-                        temp += "<a href='javascript:void(0);' " +
-                            "onclick='functionYarnDelete(" + response.listTypeMaster[i].TypeID + ")'>" +
-                            "<i class='icon-x-circle text-danger'></i>" +
-                            "</a>";
-                    }
-
-                    temp += "</div></td>";
-                    temp += "</tr>";
-                }
-
-                $("#copy-print-csv tbody").append(temp);
-            },
-
-            error: function (request, status, error) {
-
-            }
-        });
-    }    
-    function functionFYDelete(abc) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            // Save it!
-            //alert(abc)
-            var formData = new FormData();
-            formData.append('FinancialYearIDs', abc);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-
-                    if (response.Code == 1) {
-                        displayData(0);
-
-                        notes.show("Financial Year deleted successfully.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                    }
-
-                    else {
-                        //document.getElementById("divSuccess").style.display = "none";
-                        //document.getElementById("divError").style.display = "block";
-                        //$("#spanError").html(response.Message);
-
-                        notes.show("Problem has been occurred while deleting Financial Year.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                    }
-                },
-                error: function (error) {
-                    notes.show("Problem has been occurred while deleting Financial Year.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            });
-
-
-        } else {
-            // Do nothing!
-            console.log('Problem has been occurred while submitting your data.');
-        }
-        //alert(abc);
-    }
-    function clearAll() {
-        getDefaultCompany();
-        $("#savebtn").show();
-        $("#editbtn").hide();
-        $("#addNewContactLabel").html("Add Type");
-        $("#add-alert").hide();
-        $("#Type").val('');
-        $(".company-invalid-feedback").hide();
-        $(".clear-field").removeClass("is-valid is-invalid");
-        $(".invalid-feedback").hide();
-        $(".valid-feedback").hide();
-        getItemUnit();
-    }
-    function checkSaveView() {
-
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-            //$("#isDefault").attr('value', 'true');
-            IsActive = "1";
-        }
-
-
-        var Type = $('#Type').val();
-        var UnitId = $('#Unit').val();
-
-        if (validate(document.getElementById('Type')) == false) {
-            validate(document.getElementById('Type'));
-        }
-        else {
-
-            var formData = new FormData();
-            formData.append('Type', Type);
-            formData.append('IsActive', IsActive);
-            formData.append('UnitId', UnitId);
-
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/insertTypeMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 201) {
-                        clearAll();
-
-                        notes.show(response.Message, {
-                            type: 'success',
-
-                        });
-                        displayData(0);
-                        $("#cancelbtn").click();
-                    }
-                    else {
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-                }
-            });
-        }
-    }
-    function checkSave() {
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var Type = $('#Type').val();
-        var UnitId = $('#Unit').val();
-
-        if (validate(document.getElementById('Type')) == false) {
-            validate(document.getElementById('Type'));
-        }
-        else {
-=======
 </div>
 <!-- Content wrapper end -->
 
@@ -726,7 +315,6 @@
             if (!validate(document.getElementById('Type'))) {
                 return;
             }
->>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('Type', Type);
@@ -743,60 +331,6 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
-<<<<<<< HEAD
-
-                        notess.show(response.Message, {
-                            type: 'success',
-
-                        });
-                        displayData(0);
-
-                    }
-                    else {
-
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-
-                        });
-                    }
-                },
-                error: function (error) {
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-
-                    });
-
-                }
-            });
-        }
-
-
-
-
-
-
-    }
-    function checkEdit() {
-        debugger;
-        var id = $("#edit-id").val();
-        var IsActive = "0";
-        if ($("#IsActive").is(':checked')) {
-
-            IsActive = "1";
-        }
-
-
-        var Type = $('#Type').val();
-        var UnitId = $('#Unit').val();
-
-        if (validate(document.getElementById('Type')) == false) {
-            validate(document.getElementById('Type'));
-        }
-        else {
-=======
                         Swal.fire({ icon: 'success', title: 'Success!', text: response.Message, timer: 2000, showConfirmButton: false });
                         displayData(0);
                         if (actionType === 'view') {
@@ -820,7 +354,6 @@
             if (!validate(document.getElementById('Type'))) {
                 return;
             }
->>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('TypeID', id);
@@ -837,389 +370,6 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
-<<<<<<< HEAD
-
-                        clearAll();
-
-                        $('#Type').val('');
-                        notes.show(response.Message, {
-                            type: 'success',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                        displayData(0);
-
-                        $("#cancelbtn").click();
-                    }
-                    else {
-                        //$("#add-alert").removeClass("alert-success");
-                        //$("#add-alert").addClass("alert-danger");
-                        //$("#add-alert").html(response.Message);
-                        //$("#add-alert").show();
-
-                        notess.show(response.Message, {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-                }
-            });
-        }
-    }
-    function showRecords(id) {
-
-        clearAll();
-        $("#edit-id").val(id);
-        $("#saveViewbtn").hide();
-        $("#savebtn").hide();
-        $("#editbtn").show();
-        $("#addNewContactLabel").html("Edit Type");
-        $.ajax({
-            type: "GET",
-            url: '/WebServiceNikunjTextile.asmx/getTypeMasterById?id=' + id,
-            data: "{ 'id':'" + id + "' }",
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.Code == 200 || response.Code == "200") {
-                    console.log(response.listTypeMaster);
-
-
-                    $("#Type").val(response.listTypeMaster[0].Type);                          
-                    $('#Unit').val(response.listTypeMaster[0].UnitId).trigger('change');
-                    if (response.listTypeMaster[0].IsActive == "1") {
-                        $("#IsActive").prop('checked', true);
-                    }
-                    else {
-                        $("#IsActive").prop('checked', false);
-                    }
-
-                }
-                else {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-
-                    notess.show(response.Message, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-                }
-
-            },
-            error: function (request, status, error) {
-                //$("#add-alert").removeClass("alert-success");
-                //$("#add-alert").addClass("alert-danger");
-                //$("#add-alert").html(response.Message);
-                //$("#add-alert").show();
-
-
-                notess.show(response.Message, {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-
-            }
-        });
-
-    }
-    function functionYarnDelete(id) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            var formData = new FormData();
-            formData.append('TypeID', id);
-
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/DeleteTypeMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 200) {
-
-                        notes.show("Type deleted successfully.", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-
-                        displayData(0);
-                    }
-                    else {
-                        //alert("Problem has been occurred while submitting your data.");
-
-                        notes.show("Problem has been occurred while deleting Type .", {
-                            type: 'danger',
-                            //title: 'Opps.!',
-                            //icon: '<i class="icon-alert-triangle"></i>'
-                        });
-
-                    }
-                },
-                error: function (error) {
-                    // alert("Problem has been occurred while submitting your data.");
-
-                    notes.show("Problem has been occurred while deleting Type.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
-                }
-            });
-        }
-
-    }
-    function onPostUp(QueueNo) {
-
-        var down = $("#PostUp_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_TypeQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-            }
-        });
-
-
-
-    }
-    function onPostDown(QueueNo) {
-
-        var down = $("#PostDown_" + QueueNo + "").val();
-        //alert(down);
-
-        var formData = new FormData();
-        formData.append('PostQueue', down);
-
-
-        $.ajax({
-            type: "POST",
-            url: '/WebServiceNikunjTextile.asmx/UpdateTbl_TypeQueue',
-            data: formData,
-            dataType: 'json',
-            contentType: false,
-            processData: false,
-            success: function (response) {
-
-
-
-                if (response.Code == 1) {
-
-                    displayData($("#rowStartCount").val());
-
-                }
-
-                else {
-                    notess.show("Problem has been occurred while retrieving your data.", {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-                }
-            },
-            error: function (error) {
-
-                notess.show("Problem has been occurred while retrieving your data.", {
-                    type: 'danger',
-                    //title: 'Opps.!',
-                    //icon: '<i class="icon-alert-triangle"></i>'
-                });
-            }
-        });
-
-
-
-    }
-    function validate(code) {
-        code.value = code.value.replace(/\s+/g, ' ').trim();
-        var errorMessageValid = "." + code.id + "-valid-feedback";
-        var errorMessageInvalid = "." + code.id + "-invalid-feedback";
-        $(".invalid-feedback .valid-feedback").hide();
-        if (code.value == "") {
-            if (code.id == "name") {
-                $(".company-invalid-feedback").show();
-            }
-            document.getElementById(code.id).classList.remove("is-valid");
-            document.getElementById(code.id).classList.add("is-invalid");
-            $(errorMessageInvalid).show();
-            return false;
-        }
-        else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
-            document.getElementById(code.id).classList.remove("is-valid");
-            document.getElementById(code.id).classList.add("is-invalid");
-            $(errorMessageInvalid).show();
-            return false;
-        }
-        else {
-            document.getElementById(code.id).classList.add("is-valid");
-            document.getElementById(code.id).classList.remove("is-invalid");
-            $(errorMessageValid).show();
-            $(errorMessageInvalid).hide();
-            $(".company-invalid-feedback").show();
-            return true;
-        }
-    }
-    function exportTableToExcel(tableID, filename = '') {
-
-        var downloadLink;
-        var dataType = 'application/vnd.ms-excel';
-
-        var tableSelect = document.getElementById(tableID);
-
-        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
-
-        filename = filename ? filename + '.xls' : 'excel_data.xls';
-
-        downloadLink = document.createElement("a");
-
-        document.body.appendChild(downloadLink);
-
-        if (navigator.msSaveOrOpenBlob) {
-
-            var blob = new Blob(['\ufeff', tableHTML], {
-                type: dataType
-            });
-
-            navigator.msSaveOrOpenBlob(blob, filename);
-        }
-        else {
-
-            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
-
-            downloadLink.download = filename;
-
-            downloadLink.click();
-        }
-    }
-    function printTable() {
-
-        var table = document.getElementById("copy-print-csv").outerHTML;
-
-        var style = `
-        <style>
-            body{
-                font-family: Arial;
-                padding:20px;
-            }
-
-            table{
-                width:100%;
-                border-collapse: collapse;
-            }
-
-            table, th, td{
-                border:1px solid #000;
-            }
-
-            th, td{
-                padding:8px;
-                text-align:left;
-            }
-
-            .actions{
-                display:none;
-            }
-        </style>
-    `;
-
-        var win = window.open('', '', 'height=700,width=900');
-
-        win.document.write(`
-        <html>
-            <head>
-                <title>Print Table</title>
-                ${style}
-            </head>
-            <body>
-                <h3>Type Master Report</h3>
-                ${table}
-            </body>
-        </html>
-    `);
-
-        win.document.close();
-
-        win.focus();
-
-        setTimeout(function () {
-            win.print();
-            win.close();
-        }, 500);
-    }
-    function generatePDF() {
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.autoTable({
-            html: '#copy-print-csv'
-        });
-
-        doc.save('TypeMaster.pdf');
-    }
-</script>
-
-
-
-=======
                         clearAll();
                         Swal.fire({ icon: 'success', title: 'Updated!', text: response.Message, timer: 2000, showConfirmButton: false });
                         displayData(0);
@@ -1370,4 +520,3 @@
         }
     </script>
 }
->>>>>>> origin/master

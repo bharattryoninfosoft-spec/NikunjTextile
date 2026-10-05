@@ -36,10 +36,7 @@ namespace NikunjTextile.Class
         public string startFrom { get; set; }
         public int IsSameAddress { get; set; }
         public int IsActiveParty { get; set; }
-<<<<<<< HEAD
-=======
         public string prefixInput { get; set; }
->>>>>>> origin/master
 
         public int YarnMaterialID { get; set; }
         public int YarnColorID { get; set; }
