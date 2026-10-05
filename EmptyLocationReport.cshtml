@@ -109,6 +109,7 @@
     </div>
 </div>
 
+<<<<<<< HEAD
 
 
 <script>
@@ -247,12 +248,151 @@
             if (location.includes(value) || godown.includes(value)) {
 
                 $(this).show();
+=======
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- ✅ Added SheetJS Library for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        $('body').addClass('fullscreen');
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#Report-tab").addClass("active");
+            $("#tab-Report").addClass("show active");
+            $("#aEmptyLocationReport").addClass("current-page");
+            $(".nav-tabs .nav-link").removeClass("active");
+            $(".nav-tabs .nav-link").attr("aria-selected", "false");
+            $(".nav-tabs .nav-link[data-report='1']").addClass("active");
+            $(".nav-tabs .nav-link[data-report='1']").attr("aria-selected", "true");
+            FunctionIsLogin();
+            LoadReport();
+        });
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                }
+            });
+        }
+        let groupedData = {}; // ✅ GLOBAL (important)
+
+        function LoadReport() {
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/EmptyLocationReport',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+
+                success: function (response) {
+
+                    let res = JSON.parse(response.d);
+                    let data = res.data;
+
+                    groupedData = {}; // reset
+
+                    // 👉 Group data
+                    data.forEach(item => {
+                        if (!groupedData[item.GodownTitle]) {
+                            groupedData[item.GodownTitle] = [];
+                        }
+                        groupedData[item.GodownTitle].push(item);
+                    });
+
+                    let html = '';
+                    let index = 1;
+
+                    // 👉 Render
+                    $.each(groupedData, function (godown, items) {
+
+                        let safeGroup = godown.replace(/[^a-zA-Z0-9]/g, '_');
+
+                        html += `
+                                <tr class="group-header" data-group="${safeGroup}">
+                                    <td colspan="4">
+                                        <span class="toggle-btn">➕</span>
+                                        <strong>${godown} (${items.length})</strong>
+                                    </td>
+                                </tr>
+                            `;
+
+                        items.forEach(item => {
+                            html += `
+                                    <tr class="group-row group-${safeGroup}">
+                                        <td>${index++}</td>
+                                        <td>${item.LocationTitle}</td>
+                                        <td>${item.GodownTitle}</td>
+                                        <td>${item.GodownAddress}</td>
+                                    </tr>
+                                `;
+                        });
+                    });
+
+                    $('#tblPendingGodown tbody').html(html);
+
+                    // 👉 Default collapse
+                    $('.group-row').hide();
+
+                    // 👉 Toggle
+                    $('.toggle-btn').off().on('click', function () {
+
+                        let header = $(this).closest('tr');
+                        let group = header.data('group');
+                        let rows = $(`.group-${group}`);
+
+                        if (rows.is(':visible')) {
+                            rows.hide();
+                            $(this).text('➕');
+                        } else {
+                            rows.show();
+                            $(this).text('➖');
+                        }
+                    });
+
+                    // 👉 Fill dropdown HERE (✅ FIXED)
+                    let options = '<option value="">All Godown</option>';
+
+                    Object.keys(groupedData).forEach(g => {
+                        let safe = g.replace(/[^a-zA-Z0-9]/g, '_');
+                        options += `<option value="${safe}">${g}</option>`;
+                    });
+
+                    $('#filterGodown').html(options);
+                }
+            });
+        }
+
+        function applyFilters() {
+
+            let searchValue = $('#searchGodown').val().toLowerCase().trim();
+            let selectedGodown = $('#filterGodown').val();
+
+            $('.group-header').hide();
+            $('.group-row').hide();
+
+            $('.group-row').each(function () {
+
+                let location = $(this).find('td:eq(1)').text().toLowerCase();
+                let godown = $(this).find('td:eq(2)').text().toLowerCase();
+>>>>>>> origin/master
 
                 let groupClass = $(this).attr('class').split(' ')
                     .find(c => c.startsWith('group-') && c !== 'group-row');
 
                 let groupName = groupClass.replace('group-', '');
 
+<<<<<<< HEAD
                 let header = $(`.group-header[data-group="${groupName}"]`);
                 header.show().find('.toggle-btn').text('➖');
             }
@@ -497,3 +637,174 @@
         win.print();
     });
 </script>
+=======
+                let matchSearch = (
+                    searchValue === '' ||
+                    location.includes(searchValue) ||
+                    godown.includes(searchValue)
+                );
+
+                let matchGodown = (
+                    selectedGodown === '' ||
+                    groupName === selectedGodown
+                );
+
+                if (matchSearch && matchGodown) {
+                    $(this).show();
+
+                    let header = $(`.group-header[data-group="${groupName}"]`);
+                    header.show();
+                    header.find('.toggle-btn').text('➖');
+                }
+            });
+
+            if (searchValue === '' && selectedGodown === '') {
+                $('.group-header').show();
+                $('.group-row').hide();
+                $('.toggle-btn').text('➕');
+            }
+        }
+
+        $('#searchGodown').on('keyup', applyFilters);
+        $('#filterGodown').on('change', applyFilters);
+
+        // ✅ PDF Export (Supports Groups)
+        $('#btnPdf').click(function () {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            let body = [];
+
+            $('#tblPendingGodown tbody tr:visible').each(function () {
+                if ($(this).hasClass('group-header')) {
+                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
+                    body.push([
+                        {
+                            content: cleanText,
+                            colSpan: 4,
+                            styles: { fillColor: [231, 241, 255], fontStyle: 'bold', textColor: [13, 110, 253], halign: 'left' }
+                        }
+                    ]);
+                } else {
+                    let tds = $(this).children('td');
+                    if (tds.length >= 4) {
+                        body.push([
+                            $(tds[0]).text().trim(),
+                            $(tds[1]).text().trim(),
+                            $(tds[2]).text().trim(),
+                            $(tds[3]).text().trim()
+                        ]);
+                    }
+                }
+            });
+
+            doc.setFontSize(14);
+            doc.text("Godown Report", 14, 12);
+
+            doc.autoTable({
+                head: [['#', 'Location', 'Godown', 'Address']],
+                body: body,
+                startY: 16,
+                styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
+                headStyles: { fillColor: [13, 110, 253], textColor: 255, halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 15 },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 45 },
+                    3: { cellWidth: 60 }
+                },
+                theme: 'grid'
+            });
+
+            doc.save('Godown_Report.pdf');
+        });
+
+        // ✅ Excel Export (Includes Group Headers)
+        $('#btnExcel').click(function () {
+            let data = [];
+            data.push(['#', 'Location', 'Godown', 'Address']);
+
+            $('#tblPendingGodown tbody tr:visible').each(function () {
+                if ($(this).hasClass('group-header')) {
+                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
+                    data.push([cleanText, '', '', '']); // Span across row for Excel
+                } else {
+                    let tds = $(this).children('td');
+                    if (tds.length >= 4) {
+                        data.push([
+                            $(tds[0]).text().trim(),
+                            $(tds[1]).text().trim(),
+                            $(tds[2]).text().trim(),
+                            $(tds[3]).text().trim()
+                        ]);
+                    }
+                }
+            });
+
+            let ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{ wch: 8 }, { wch: 25 }, { wch: 25 }, { wch: 35 }];
+
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Godown Report");
+            XLSX.writeFile(wb, "Godown_Report.xlsx");
+        });
+
+        // ✅ Print Function (Supports Groups)
+        $('#btnPrint').click(function () {
+            let printContent = `
+                    <html>
+                    <head>
+                        <title>Godown Report</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            h2 { text-align: center; color: #333; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                            th, td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; font-size: 13px; }
+                            th { background-color: #0d6efd; color: white; text-align: center; }
+                            .group-header { background-color: #e7f1ff; font-weight: bold; color: #0d6efd; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Godown Report</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">#</th>
+                                    <th>Location</th>
+                                    <th>Godown</th>
+                                    <th>Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+            $('#tblPendingGodown tbody tr:visible').each(function () {
+                if ($(this).hasClass('group-header')) {
+                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
+                    printContent += `<tr class="group-header"><td colspan="4">${cleanText}</td></tr>`;
+                } else {
+                    let tds = $(this).children('td');
+                    if (tds.length >= 4) {
+                        printContent += `<tr>
+                                <td>${$(tds[0]).text()}</td>
+                                <td>${$(tds[1]).text()}</td>
+                                <td>${$(tds[2]).text()}</td>
+                                <td>${$(tds[3]).text()}</td>
+                            </tr>`;
+                    }
+                }
+            });
+
+            printContent += `</tbody></table></body></html>`;
+
+            let win = window.open('', '', 'width=900,height=700');
+            win.document.write(printContent);
+            win.document.close();
+            win.focus();
+            setTimeout(() => {
+                win.print();
+                win.close();
+            }, 250);
+        });
+    </script>
+}
+>>>>>>> origin/master

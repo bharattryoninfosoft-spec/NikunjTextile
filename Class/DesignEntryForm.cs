@@ -38,7 +38,12 @@ namespace NikunjTextile.Class
 
         public string DesignerName { get; set; }
         public string Remark { get; set; }
+<<<<<<< HEAD
         public int PickOnLoom { get; set; }
+=======
+        public string PickOnLoom { get; set; }
+        public string HSNCode { get; set; }
+>>>>>>> origin/master
         public decimal TotalCard { get; set; }
         public decimal AveragePic { get; set; }
         public string ReedOnLoom { get; set; }
@@ -58,8 +63,11 @@ namespace NikunjTextile.Class
         public List<DesignFormWarpData> listDesignFormWarpData { get; set; }
         public string UnitCode { get; set; }
         public int UnitId { get; set; }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/master
     }
     public class DesignSelectionModel
     {

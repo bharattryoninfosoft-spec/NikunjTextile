@@ -1,0 +1,614 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .production-entry-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-card-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .production-form-section {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 12px 14px;
+    }
+
+    .production-form-section label {
+        display: block;
+        color: #164f87;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .production-form-section .form-control,
+    .production-form-section select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+    }
+
+    .production-table-scroll {
+        width: 100%;
+        max-height: 480px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+        margin-top: 8px;
+    }
+
+    #tblStockIssueBackDetail {
+        width: 100% !important;
+        min-width: 1450px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblStockIssueBackDetail th,
+    #tblStockIssueBackDetail td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 4px 6px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblStockIssueBackDetail thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* Table Column Widths */
+    #tblStockIssueBackDetail th:nth-child(1), #tblStockIssueBackDetail td:nth-child(1) { width: 38px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(2), #tblStockIssueBackDetail td:nth-child(2) { width: 45px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(3), #tblStockIssueBackDetail td:nth-child(3) { width: 110px !important; text-align: center !important; font-weight: 700; color: #164f87; }
+    #tblStockIssueBackDetail th:nth-child(4), #tblStockIssueBackDetail td:nth-child(4) { width: 110px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(5), #tblStockIssueBackDetail td:nth-child(5) { width: 85px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(6), #tblStockIssueBackDetail td:nth-child(6) { width: 130px !important; text-align: left !important; }
+    #tblStockIssueBackDetail th:nth-child(7), #tblStockIssueBackDetail td:nth-child(7) { width: 120px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(8), #tblStockIssueBackDetail td:nth-child(8) { width: 95px !important; text-align: right !important; }
+    #tblStockIssueBackDetail th:nth-child(9), #tblStockIssueBackDetail td:nth-child(9) { width: 95px !important; text-align: right !important; }
+    #tblStockIssueBackDetail th:nth-child(10), #tblStockIssueBackDetail td:nth-child(10) { width: 120px !important; text-align: right !important; font-weight: 700; color: #198754; background: #e8f5e9; }
+    #tblStockIssueBackDetail th:nth-child(11), #tblStockIssueBackDetail td:nth-child(11) { width: 120px !important; text-align: center !important; }
+    #tblStockIssueBackDetail th:nth-child(12), #tblStockIssueBackDetail td:nth-child(12) { width: 140px !important; text-align: left !important; }
+
+    .input-qty {
+        width: 100% !important;
+        height: 26px !important;
+        padding: 2px 4px !important;
+        font-size: 12px !important;
+        text-align: right !important;
+        border: 1px solid #0d6efd !important;
+        border-radius: 2px !important;
+        font-weight: 700;
+    }
+    .input-qty.invalid {
+        border-color: #dc3545 !important;
+        background-color: #f8d7da !important;
+        color: #842029 !important;
+    }
+
+    .production-summary-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #f8fafc;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 3px;
+        background: #e9ecef;
+        font-size: 12px;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+    .stat-badge span { font-weight: 700; color: #0d6efd; }
+    .stat-badge.available span { color: #198754; }
+    .stat-badge.issueback span { color: #0d6efd; }
+</style>
+
+<div class="content-wrapper production-entry-page">
+    <div id="notes"></div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+
+            <!-- PAGE HEADER -->
+            <div class="production-card-header">
+                <span>PROCESS TO JOBBER ISSUE BACK ENTRY</span>
+                <div>
+                    <a href="~/ProcessIssueBackList.cshtml" class="btn btn-outline-secondary btn-sm px-3 me-2">
+                        <i class="fa fa-arrow-left me-1"></i> Back to List
+                    </a>
+                    <button type="button" id="btnSaveIssueBack" class="btn btn-success btn-sm px-4">
+                        <i class="fa fa-save me-1"></i> Save Issue Back
+                    </button>
+                </div>
+            </div>
+
+            <!-- FORM HEADER FIELDS -->
+            <div class="production-form-section">
+                <div class="row g-2">
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Process <span class="text-danger">*</span></label>
+                        <select id="ddlProcess" class="form-control">
+                            <option value="">-- SELECT PROCESS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Processor (From) <span class="text-danger">*</span></label>
+                        <select id="ddlProcessor" class="form-control">
+                            <option value="">-- SELECT PROCESSOR --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Jobber (To Original Jobber) <span class="text-danger">*</span></label>
+                        <select id="ddlJobber" class="form-control">
+                            <option value="">-- SELECT JOBBER --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Issue Back Date</label>
+                        <input type="date" id="txtIssueBackDate" class="form-control" />
+                    </div>
+
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Slip / Barcode Scan</label>
+                        <input type="text" id="txtScanBarcode" class="form-control" placeholder="Scan Barcode / Enter Slip..." />
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>SO Number</label>
+                        <input type="text" id="txtSearchSO" class="form-control" placeholder="SO Number..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
+                        <label>Design No</label>
+                        <input type="text" id="txtSearchDesign" class="form-control" placeholder="Design No..." />
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-8 col-sm-12">
+                        <label>Remark</label>
+                        <input type="text" id="txtRemark" class="form-control" placeholder="Optional remark..." />
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL TABLE -->
+            <div class="production-table-scroll">
+                <table id="tblStockIssueBackDetail" class="table table-bordered table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="chkSelectAllDetail" checked /></th>
+                            <th>SR</th>
+                            <th>SLIP NO</th>
+                            <th>DESIGN NO</th>
+                            <th>MACHINE NO</th>
+                            <th>COLOUR MATCHING</th>
+                            <th>JOB TYPE</th>
+                            <th>RECEIVED PCS</th>
+                            <th>ISSUED BACK PCS</th>
+                            <th>AVAILABLE STOCK</th>
+                            <th>ISSUE BACK PCS</th>
+                            <th>REMARK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblStockIssueBackBody">
+                        <tr>
+                            <td colspan="12" class="text-center text-muted py-4">
+                                Select Process, Processor & Jobber to load available Process Stock.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SUMMARY FOOTER -->
+            <div class="production-summary-footer">
+                <div>
+                    <span class="stat-badge">Total Selected Slips: <span id="lblTotalSelectedSlips">0</span></span>
+                    <span class="stat-badge available">Total Available Stock: <span id="lblTotalAvailableStock">0</span></span>
+                    <span class="stat-badge issueback">Total Issue Back PCS: <span id="lblTotalIssueBackPCS">0</span></span>
+                </div>
+                <div>
+                    <button type="button" id="btnSaveIssueBackBottom" class="btn btn-success btn-sm px-4">
+                        <i class="fa fa-save me-1"></i> Save Issue Back
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    var globalStockItems = [];
+
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+        var today = new Date().toISOString().split('T')[0];
+        $('#txtIssueBackDate').val(today);
+
+        loadDropdowns();
+
+        $('#ddlProcess, #ddlProcessor, #ddlJobber').change(function () {
+            loadAvailableStock();
+        });
+
+        $('#txtScanBarcode, #txtSearchSO, #txtSearchDesign').on('keyup change', function () {
+            filterLocalTable();
+        });
+
+        $('#chkSelectAllDetail').change(function () {
+            var checked = $(this).is(':checked');
+            $('.chk-row-item').prop('checked', checked);
+            calculateTotals();
+        });
+
+        $('#btnSaveIssueBack, #btnSaveIssueBackBottom').click(function () {
+            saveIssueBack();
+        });
+    });
+
+    function getQueryString(name) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    function loadDropdowns() {
+        var qProcess = getQueryString("process") || getQueryString("processID") || "";
+        var qProcessorID = parseInt(getQueryString("processorID")) || 0;
+        var qJobberID = parseInt(getQueryString("jobberID")) || 0;
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetGenericProcessFilterDropdowns",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                var selectedPid = 0;
+                if (d.Processes) {
+                    var html = '<option value="">-- SELECT PROCESS --</option>';
+                    $.each(d.Processes, function (i, item) {
+                        var isMatch = false;
+                        if (qProcess) {
+                            var pUpper = qProcess.toUpperCase().replace('_', ' ').replace('-', ' ');
+                            var nameUpper = item.ProcessName.toUpperCase();
+                            if (nameUpper.indexOf("BUTTA") !== -1 && pUpper.indexOf("BUTTA") !== -1) isMatch = true;
+                            else if (item.ProcessID.toString() === qProcess) isMatch = true;
+                        }
+                        if (isMatch) selectedPid = item.ProcessID;
+                        html += '<option value="' + item.ProcessID + '" ' + (isMatch ? 'selected' : '') + '>' + item.ProcessName + '</option>';
+                    });
+                    $('#ddlProcess').html(html);
+                    if (selectedPid > 0) {
+                        $('#ddlProcess').val(selectedPid);
+                    }
+                }
+                if (d.Processors) {
+                    var htmlP = '<option value="">-- SELECT PROCESSOR --</option>';
+                    $.each(d.Processors, function (i, item) {
+                        var pId = parseInt(item.ProcessorID || item.JobberID || item.Id) || 0;
+                        var isSel = (qProcessorID > 0 && pId === qProcessorID);
+                        htmlP += '<option value="' + pId + '" ' + (isSel ? 'selected="selected"' : '') + '>' + (item.ProcessorName || item.JobberName) + '</option>';
+                    });
+                    $('#ddlProcessor').html(htmlP);
+                    if (qProcessorID > 0) {
+                        $('#ddlProcessor').val(String(qProcessorID));
+                    }
+                }
+                if (d.Jobbers) {
+                    var htmlJ = '<option value="">-- SELECT JOBBER --</option>';
+                    $.each(d.Jobbers, function (i, item) {
+                        var jId = parseInt(item.JobberID || item.Id || item.PartyID) || 0;
+                        var isSel = (qJobberID > 0 && jId === qJobberID);
+                        htmlJ += '<option value="' + jId + '" ' + (isSel ? 'selected="selected"' : '') + '>' + (item.JobberName || item.PartyName) + '</option>';
+                    });
+                    $('#ddlJobber').html(htmlJ);
+                    if (qJobberID > 0) {
+                        $('#ddlJobber').val(String(qJobberID));
+                    }
+                }
+                if (selectedPid > 0 || qProcessorID > 0 || qJobberID > 0 || getQueryString("slipNo")) {
+                    loadAvailableStock();
+                }
+            }
+        });
+    }
+
+    function loadAvailableStock() {
+        var procID = parseInt($('#ddlProcess').val()) || 0;
+        var processorID = parseInt($('#ddlProcessor').val()) || 0;
+        var jobberID = parseInt($('#ddlJobber').val()) || 0;
+        var qSlipNo = getQueryString("slipNo") || '';
+
+        if (procID <= 0 || (processorID <= 0 && !qSlipNo)) {
+            $('#tblStockIssueBackBody').html('<tr><td colspan="12" class="text-center text-muted py-4">Select Process & Processor to view available stock.</td></tr>');
+            globalStockItems = [];
+            calculateTotals();
+            return;
+        }
+
+        $('#tblStockIssueBackBody').html('<tr><td colspan="12" class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin me-1"></i> Loading available process stock...</td></tr>');
+
+        var req = {
+            processID: procID,
+            processorID: processorID,
+            jobberID: jobberID,
+            soNumber: '',
+            slipNo: qSlipNo,
+            designNo: '',
+            machineNumber: 0,
+            searchBarcode: '',
+            fromDate: '',
+            toDate: ''
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetProcessStockForIssueBack",
+            data: JSON.stringify(req),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var list = res.d || res;
+                if (list && list.length !== undefined) {
+                    globalStockItems = list;
+                    renderDetailTable();
+                } else {
+                    globalStockItems = [];
+                    renderDetailTable();
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                $('#tblStockIssueBackBody').html('<tr><td colspan="12" class="text-center text-danger py-4">Error loading available Process Stock.</td></tr>');
+            }
+        });
+    }
+
+    function renderDetailTable() {
+        if (!globalStockItems || globalStockItems.length === 0) {
+            $('#tblStockIssueBackBody').html('<tr><td colspan="12" class="text-center text-muted py-4">No available Process Stock found for the selected criteria.</td></tr>');
+            calculateTotals();
+            return;
+        }
+
+        var firstItem = globalStockItems[0];
+        if (firstItem.ProcessorID > 0) {
+            var pVal = String(firstItem.ProcessorID);
+            if ($('#ddlProcessor option[value="' + pVal + '"]').length > 0) {
+                $('#ddlProcessor').val(pVal);
+            } else if (firstItem.ProcessorName) {
+                $('#ddlProcessor').append('<option value="' + pVal + '">' + firstItem.ProcessorName + '</option>').val(pVal);
+            }
+        }
+        if (firstItem.JobberID > 0) {
+            var jVal = String(firstItem.JobberID);
+            if ($('#ddlJobber option[value="' + jVal + '"]').length > 0) {
+                $('#ddlJobber').val(jVal);
+            } else if (firstItem.JobberName) {
+                $('#ddlJobber').append('<option value="' + jVal + '">' + firstItem.JobberName + '</option>').val(jVal);
+            }
+        }
+
+        var html = '';
+        $.each(globalStockItems, function (i, item) {
+            html += '<tr data-idx="' + i + '" class="tr-stock-row">';
+            html += '<td class="text-center"><input type="checkbox" class="chk-row-item" checked data-idx="' + i + '" onchange="calculateTotals()" /></td>';
+            html += '<td class="text-center">' + (i + 1) + '</td>';
+            html += '<td class="text-center font-weight-bold text-primary cell-slip">' + item.SlipNo + '</td>';
+            html += '<td class="text-center cell-design">' + item.DesignNo + '</td>';
+            html += '<td class="text-center">' + item.MachineNumber + '</td>';
+            html += '<td>' + (item.ColourMatchingName || '-') + '</td>';
+            html += '<td class="text-center">' + (item.JobType || '-') + '</td>';
+            html += '<td class="text-end">' + item.ReceivedPCS + '</td>';
+            html += '<td class="text-end">' + item.IssuedBackPCS + '</td>';
+            html += '<td class="text-end font-weight-bold text-success cell-available" style="background:#e8f5e9;">' + item.AvailablePCS + '</td>';
+            html += '<td class="text-center"><input type="number" class="input-qty input-issueback-pcs" value="' + item.AvailablePCS + '" min="1" max="' + item.AvailablePCS + '" data-idx="' + i + '" oninput="validateRowQty(' + i + ')" /></td>';
+            html += '<td><input type="text" class="form-control form-control-sm input-row-remark" data-idx="' + i + '" style="height:26px !important; font-size:11px;" placeholder="Remark..." /></td>';
+            html += '</tr>';
+        });
+
+        $('#tblStockIssueBackBody').html(html);
+        calculateTotals();
+    }
+
+    function filterLocalTable() {
+        var barcode = $('#txtScanBarcode').val().toLowerCase().trim();
+        var so = $('#txtSearchSO').val().toLowerCase().trim();
+        var design = $('#txtSearchDesign').val().toLowerCase().trim();
+
+        $('#tblStockIssueBackBody tr.tr-stock-row').each(function () {
+            var slipText = $(this).find('.cell-slip').text().toLowerCase();
+            var designText = $(this).find('.cell-design').text().toLowerCase();
+
+            var show = true;
+            if (barcode && slipText.indexOf(barcode) === -1) show = false;
+            if (design && designText.indexOf(design) === -1) show = false;
+
+            if (show) $(this).show(); else $(this).hide();
+        });
+        calculateTotals();
+    }
+
+    function validateRowQty(idx) {
+        var tr = $('#tblStockIssueBackBody tr[data-idx="' + idx + '"]');
+        var input = tr.find('.input-issueback-pcs');
+        var item = globalStockItems[idx];
+
+        var val = parseFloat(input.val()) || 0;
+        if (val <= 0 || val > item.AvailablePCS) {
+            input.addClass('invalid');
+        } else {
+            input.removeClass('invalid');
+        }
+
+        calculateTotals();
+    }
+
+    function calculateTotals() {
+        var totalSlips = 0;
+        var totalAvailable = 0;
+        var totalIssueBack = 0;
+
+        $('#tblStockIssueBackBody tr.tr-stock-row').each(function () {
+            if ($(this).is(':visible')) {
+                var chk = $(this).find('.chk-row-item');
+                if (chk.length > 0 && chk.is(':checked')) {
+                    var idx = parseInt(chk.attr('data-idx'));
+                    var item = globalStockItems[idx];
+                    var val = parseFloat($(this).find('.input-issueback-pcs').val()) || 0;
+
+                    totalSlips++;
+                    totalAvailable += item.AvailablePCS;
+                    totalIssueBack += val;
+                }
+            }
+        });
+
+        $('#lblTotalSelectedSlips').text(totalSlips);
+        $('#lblTotalAvailableStock').text(totalAvailable);
+        $('#lblTotalIssueBackPCS').text(totalIssueBack);
+    }
+
+    function saveIssueBack() {
+        var processID = parseInt($('#ddlProcess').val()) || 0;
+        var processorID = parseInt($('#ddlProcessor').val()) || 0;
+        var selectedJobberID = $('#ddlJobber').val();
+        var jobberID = parseInt(selectedJobberID) || 0;
+        var issueBackDate = $('#txtIssueBackDate').val() || '';
+        var remark = $('#txtRemark').val() || '';
+
+        if (processID <= 0) { alert('Please select Process.'); return; }
+        if (processorID <= 0) { alert('Please select Processor.'); return; }
+        if (!selectedJobberID || jobberID <= 0) { alert('Please select Jobber.'); return; }
+
+        var items = [];
+        var isValid = true;
+        var validationMsg = '';
+
+        $('#tblStockIssueBackBody tr.tr-stock-row').each(function () {
+            var chk = $(this).find('.chk-row-item');
+            if (chk.length > 0 && chk.is(':checked')) {
+                var idx = parseInt(chk.attr('data-idx'));
+                var item = globalStockItems[idx];
+                var input = $(this).find('.input-issueback-pcs');
+                var remInput = $(this).find('.input-row-remark');
+
+                var val = parseFloat(input.val()) || 0;
+                var rowRemark = remInput.val() || '';
+
+                if (val <= 0) {
+                    isValid = false;
+                    validationMsg = 'Issue Back PCS must be greater than 0 for Slip ' + item.SlipNo + '.';
+                    return false;
+                }
+
+                if (val > item.AvailablePCS) {
+                    isValid = false;
+                    validationMsg = 'Issue Back PCS (' + val + ') cannot exceed Available Stock (' + item.AvailablePCS + ') for Slip ' + item.SlipNo + '.';
+                    return false;
+                }
+
+                items.push({
+                    ReceiveDetailID: item.ReceiveDetailID,
+                    ProductionOrderID: item.ProductionOrderID,
+                    ProductionOrderDetailID: item.ProductionOrderDetailID,
+                    ProductionOrderSubDetailID: item.ProductionOrderSubDetailID,
+                    SlipNo: item.SlipNo,
+                    IssueBackPCS: val,
+                    OriginalReceiveTransactionID: item.OriginalReceiveTransactionID,
+                    Remark: rowRemark
+                });
+            }
+        });
+
+        if (!isValid) {
+            alert(validationMsg);
+            return;
+        }
+
+        if (items.length === 0) {
+            alert('Please select at least one stock slip for issue back.');
+            return;
+        }
+
+        var payload = {
+            processorID: processorID,
+            processID: processID,
+            jobberID: jobberID,
+            issueBackDate: issueBackDate,
+            remark: remark,
+            items: items
+        };
+
+        $('#btnSaveIssueBack, #btnSaveIssueBackBottom').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/SaveProcessIssueBack",
+            data: JSON.stringify(payload),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                $('#btnSaveIssueBack, #btnSaveIssueBackBottom').prop('disabled', false).html('<i class="fa fa-save me-1"></i> Save Issue Back');
+                if (d.Status) {
+                    alert(d.Message || 'Process Issue Back Saved Successfully!');
+                    var procName = $('#ddlProcess option:selected').text().toUpperCase();
+                    if (procName.indexOf('BUTTA') !== -1 || getQueryString('process')) {
+                        window.location.href = 'ButtaCuttingToJobberList.cshtml';
+                    } else {
+                        window.location.href = 'ProcessIssueBackList.cshtml';
+                    }
+                } else {
+                    alert(d.Message || 'Failed to save issue back.');
+                }
+            },
+            error: function (xhr) {
+                $('#btnSaveIssueBack, #btnSaveIssueBackBottom').prop('disabled', false).html('<i class="fa fa-save me-1"></i> Save Issue Back');
+                console.error(xhr);
+                alert('Error connecting to server.');
+            }
+        });
+    }
+</script>
+}

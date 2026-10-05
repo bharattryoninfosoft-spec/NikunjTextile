@@ -9,6 +9,10 @@ namespace NikunjTextile.Class
     {
         public int Code { get; set; }
         public string Message { get; set; }
+<<<<<<< HEAD
+=======
+        public int IsJobWork { get; set; }
+>>>>>>> origin/master
         public List<DesignEntryForm> listDesignEntryForm { get; set; }
         public List<DesignerMaster> listDesignerMaster { get; set; }
         public List<DesignSelectionModel> DesignSelectionModel { get; set; }
@@ -28,5 +32,9 @@ namespace NikunjTextile.Class
         public List<GodownMaster> listGodownMaster { get; set; }
         public List<YarnInwardMaster> listYarnInwardMaster { get; set; }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
     }
 }

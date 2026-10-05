@@ -1,6 +1,36 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< HEAD
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 <div class="content-wrapper">
     <div class="container-fluid">
 
@@ -18,6 +48,7 @@
                         <input type="date" id="dateFrom" class="form-control">
                         <div class="field-placeholder">Start Date</div>
                     </div>
+<<<<<<< HEAD
                         <div class="field-wrapper">
                             <div class="field-placeholder">PO Number</div>
                             <select id="filterPONo" class="form-control mb-2"></select>
@@ -50,6 +81,40 @@
                             <div class="field-placeholder">Company Code</div>
                             <select id="filterCompanyCode" class="form-control mb-2"></select>
                         </div>
+=======
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">PO Number</div>
+                        <select id="filterPONo" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Supplier</div>
+                        <select id="filterSupplier" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">BillTo</div>
+                        <select id="filterBillTo" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Company</div>
+                        <select id="filterCompany" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Godown</div>
+                        <select id="filterGodown" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Material</div>
+                        <select id="filterMaterial" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Color</div>
+                        <select id="filterColor" class="form-control mb-2"></select>
+                    </div>
+                    <div class="field-wrapper">
+                        <div class="field-placeholder">Company Code</div>
+                        <select id="filterCompanyCode" class="form-control mb-2"></select>
+                    </div>
+>>>>>>> origin/master
                 </div>
 
             </div>
@@ -65,6 +130,7 @@
                             </li>
                         </ul>
                         <div class="table-responsive">
+<<<<<<< HEAD
                             <table id="tblPendingPO" class="table table-bordered" style="overflow: hidden; text-align: center;">
                                 <thead>
                                     <tr style=" background-color: #1273eb;">
@@ -81,6 +147,24 @@
                                         <th style="color: white !important;">Qty</th>
                                         <th style="color: white !important;">Pending <br> Qty</th>
                                         <th style="color: white !important;">Action</th>
+=======
+                            <table id="tblPendingPO" class="table">
+                                <thead>
+                                    <tr style=" background-color: #1273eb;">
+                                        <th style="color: white !important;">Sr No</th>
+                                        <th>PO No</th>
+                                        <th>PO Date</th>
+                                        <th>Supplier Name</th>
+                                        <th>Bill To Name</th>
+                                        <th>Company Name</th>
+                                        <th>Godown Details</th>
+                                        <th>Yarn Material</th>
+                                        <th>Yarn Color</th>
+                                        <th>Company Code</th>
+                                        <th>Qty</th>
+                                        <th>Pending Qty</th>
+                                        <th>Action</th>
+>>>>>>> origin/master
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -88,11 +172,16 @@
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
             </div>          
+=======
+            </div>
+>>>>>>> origin/master
         </div>
     </div>
     <!-- Content wrapper end -->
 </div>
+<<<<<<< HEAD
 
 <script>
     $('body').addClass('fullscreen');
@@ -538,5 +627,495 @@
     });
 </script>
 
+=======
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var table = null;
+        var fullData = [];
+        var currentTab = "pending";
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+
+            LoadReport();
+
+            currentTab = "pending";
+
+            // highlight Pending tab
+            $('#poTabs .nav-link').removeClass('active');
+            $('#poTabs .nav-link').eq(0).addClass('active');
+        });
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notes.show(request.statusText, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    //console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    //console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function ValidateDates() {
+
+            let date = $('#dateFrom').val();
+
+            if (!date) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please select Date',
+                    confirmButtonText: 'OK'
+                });
+
+                $('#dateFrom').focus();
+                return false;
+            }
+
+            return true;
+        }
+        function LoadReport() {
+
+            var formData = new FormData();
+            formData.append('DateFrom', $("#dateFrom").val() || "");
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/YarnPendingPOReport",
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: "json",
+
+                success: function (response) {
+
+                    console.log(response);
+
+                    let result = response;
+
+                    if (response.d) {
+                        result = typeof response.d === "string"
+                            ? JSON.parse(response.d)
+                            : response.d;
+                    }
+
+                    console.log(result);
+
+                    // Find the array
+                    if (Array.isArray(result)) {
+                        fullData = result;
+                    }
+                    else if (Array.isArray(result.listYarnPOMaster)) {
+                        fullData = result.listYarnPOMaster;
+                    }
+                    else if (Array.isArray(result.Data)) {
+                        fullData = result.Data;
+                    }
+                    else {
+                        fullData = [];
+                    }
+
+                    console.log(fullData);
+                    console.log(Array.isArray(fullData));
+
+                    populateFilters(fullData);
+                    applyFilters();
+                },
+
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        function filterTab(type, el) {
+
+            currentTab = type;
+
+            $('.nav-link').removeClass('active');
+            $(el).addClass('active');
+
+            applyFilters();
+        }
+        function applyFilters() {
+
+            let filtered = fullData.filter(function (x) {
+
+                if (currentTab === "pending") {
+                    return x.IsComplete === false && Number(x.PendingQty) > 0;
+                }
+
+                if (currentTab === "complete") {
+                    return x.IsComplete === true;
+                }
+
+                return true;
+            });
+
+            bindTable(filtered);
+        }
+        function bindTable(data) {
+            let html = "";
+            let srno = 1;
+
+            $.each(data, function (i, item) {
+
+                let actionBtn = currentTab === "pending" ?
+                    `<button class="btn btn-success btn-sm"  onclick="closePO('${item.YarnPODetailID}')">
+                        Close </button>`  :
+                    `<button
+                        class="btn ${Number(item.PendingQty) <= 0 ? 'btn-success' : 'btn-warning'} btn-sm"
+                        onclick="reopenPO('${item.YarnPODetailID}')"
+                        ${Number(item.PendingQty) <= 0 ? 'disabled' : ''}>
+                        ${Number(item.PendingQty) <= 0 ? 'Complete' : 'Pending'}
+                    </button>`;
+                html += `
+            <tr>
+                <td>${srno++}</td>
+                <td>${item.PONo || ''}</td>
+                <td>${item.PODates || ''}</td>
+                <td>${item.SupplierPartyName || ''}</td>
+                <td>${item.BillToPartyName || ''}</td>
+                <td>${item.CompanyPartyName || ''}</td>
+                <td>${item.GodownTitle || ''}</td>
+                <td>${item.YarnMaterial || ''}</td>
+                <td>${item.YarnColor || ''}</td>
+                <td>${item.CompanyCode || ''}</td>
+                <td>${item.Qty || 0}</td>
+                <td>${item.PendingQty || 0}</td>
+                <td>${actionBtn}</td>
+            </tr>`;
+            });
+
+            // Destroy old datatable
+            if ($.fn.DataTable.isDataTable('#tblPendingPO')) {
+                $('#tblPendingPO').DataTable().destroy();
+            }
+
+            $("#tblPendingPO tbody").html(html);
+
+            table = $('#tblPendingPO').DataTable({
+                destroy: true,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 25,
+                ordering: true,
+                searching: true,
+                scrollX: true,
+                fixedHeader: true,
+
+                dom: 'Bfrtip',
+
+                buttons: [
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa fa-file-pdf-o"></i> PDF',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        title: 'Yarn Pending PO',
+                        className: 'btn btn-danger',
+                        exportOptions: {
+                            columns: ':not(:last-child)'
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa fa-file-excel-o"></i> Excel',
+                        className: 'btn btn-success'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+
+                order: [[1, "desc"]],
+
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
+        }
+        $("#filterPONo,#filterSupplier,#filterBillTo,#filterCompany,#filterGodown,#filterMaterial,#filterColor,#filterCompanyCode")
+            .on("change", function () {
+                applyFilters();
+            });
+        function reopenPO(id) {
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Move this PO back to Pending?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/ReopenPO',
+                        data: JSON.stringify({ id: id }),
+                        contentType: "application/json",
+                        success: function () {
+
+                            Swal.fire('Updated!', 'PO moved to Pending.', 'success');
+                            LoadReport();
+                        }
+                    });
+                }
+            });
+        }
+        function closePO(id) {
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to close this PO?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Close it!'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/ClosePO',
+                        data: JSON.stringify({ id: id }),
+                        contentType: "application/json",
+                        success: function (res) {
+                            Swal.fire('Closed!', 'PO closed successfully.', 'success');
+                            LoadReport(); // reload data
+                        }
+                    });
+
+                }
+            });
+        }
+        table = $('#tblPendingPO').DataTable({
+            dom: 'Bfrtip',
+            scrollX: true,        // 🔥 horizontal scroll
+            autoWidth: false,
+            responsive: false,    // ❗ MUST disable
+            buttons: [
+                {
+                    extend: 'pdf',
+                    text: '<i class="fa fa-file-pdf-o"></i> PDF',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    title: 'Yarn Pending PO',
+                    className: 'btn btn-danger',
+
+                    exportOptions: {
+                        columns: ':not(:last-child)' // 👈 remove button column
+                    },
+
+                    customize: function (doc) {
+
+                        doc.content[0].alignment = 'center';
+                        doc.content[0].fontSize = 14;
+                        doc.content[0].bold = true;
+
+                        var table = doc.content[1].table;
+
+                        // 🔥 AUTO WIDTH FIX
+                        var colCount = table.body[0].length;
+                        table.widths = Array(colCount).fill('*');
+
+                        doc.defaultStyle.fontSize = 7;
+                        doc.pageMargins = [10, 30, 10, 10];
+
+                        doc.styles.tableHeader = {
+                            fillColor: '#2d4154',
+                            color: 'white',
+                            alignment: 'center',
+                            bold: true,
+                            fontSize: 8
+                        };
+                    }
+                },
+                {
+                    extend: 'excel',
+                    text: '<i class="fa fa-file-excel-o"></i> Excel',
+                    className: 'btn btn-success'
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fa fa-print"></i> Print',
+                    className: 'btn btn-primary'
+                }
+            ],
+
+            order: [[1, "desc"]], // 👈 PO column DESC
+
+            columnDefs: [
+                {
+                    targets: -1,
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+        function populateFilters(data) {
+            //console.log("populateFilters", data);
+            fillDropdown("#filterPONo", data.map(x => x.PONo), "All PO No");
+            fillDropdown("#filterSupplier", data.map(x => x.SupplierPartyName), "All Supplier");
+            fillDropdown("#filterBillTo", data.map(x => x.BillToPartyName), "All BillTo");
+            fillDropdown("#filterCompany", data.map(x => x.CompanyPartyName), "All Company");
+            fillDropdown("#filterGodown", data.map(x => x.GodownTitle), "All Godown");
+            fillDropdown("#filterMaterial", data.map(x => x.YarnMaterial), "All Material");
+            fillDropdown("#filterColor", data.map(x => x.YarnColor), "All Color");
+            fillDropdown("#filterCompanyCode", data.map(x => x.CompanyCode), "All Company Code");
+        }
+        function fillDropdown(selector, list, placeholder) {
+            let unique = [...new Set(list.filter(x => x && x !== "0"))];
+            let ddl = $(selector);
+            ddl.empty();
+            ddl.append(`<option value="">${placeholder}</option>`);
+            unique.sort().forEach(val => {
+                ddl.append(`<option value="${val}">${val}</option>`);
+            });
+            ddl.trigger('change'); // for select2 / refresh
+        }
+        $('#filterPONo').on('change', function () {
+            table.column(1).search(this.value).draw();
+        });
+        $('#filterSupplier').on('change', function () {
+            let val = $(this).val();
+            table.column(3).search(val || '').draw();
+        });
+        $('#filterBillTo').on('change', function () {
+            table.column(4).search(this.value).draw();
+        });
+        $('#filterCompany').on('change', function () {
+            table.column(5).search(this.value).draw();
+        });
+        $('#filterGodown').on('change', function () {
+            table.column(6).search(this.value).draw();
+        });
+        $('#filterMaterial').on('change', function () {
+            let val = $(this).val();
+            table.column(7).search(val || '').draw();
+        });
+        $('#filterColor').on('change', function () {
+            let val = $(this).val();
+            table.column(8).search(val || '').draw();
+        });
+        $('#filterCompanyCode').on('change', function () {
+            table.column(9).search(this.value).draw();
+        });
+        $('#dateFrom').on('change', function () {
+            LoadReport(); // reload from server with date filter
+        });
+        function ResetFilters() {
+
+            $('#dateFrom').val("");
+
+            // ✅ Reset ALL dropdowns
+            $('#filterPONo').val("").trigger('change');
+            $('#filterSupplier').val(null).trigger('change');
+            $('#filterBillTo').val("").trigger('change');
+            $('#filterCompany').val("").trigger('change');
+            $('#filterGodown').val("").trigger('change');
+            $('#filterMaterial').val(null).trigger('change');
+            $('#filterColor').val(null).trigger('change');
+            $('#filterCompanyCode').val("").trigger('change');
+
+
+            // ✅ OPTIONAL: reload original data from server
+            LoadReport();
+        }
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+
+            let selectedDate = $('#dateFrom').val(); // yyyy-MM-dd
+            let tableDate = data[2]; // PO Date column (dd-MM-yyyy)
+
+            if (!selectedDate) return true;
+
+            // convert input → dd-MM-yyyy
+            let parts = selectedDate.split("-");
+            let formattedInput = parts[2] + "-" + parts[1] + "-" + parts[0];
+
+            return tableDate === formattedInput;
+        });
+    </script>
+    }
+>>>>>>> origin/master
 
 

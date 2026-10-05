@@ -4,6 +4,36 @@
 }
 
 
+<<<<<<< HEAD
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
@@ -115,6 +145,7 @@
                         <!-- BUTTONS -->
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
 
+<<<<<<< HEAD
                             <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv','UserAccount')">
                                 <i class="bi bi-file-earmark-excel-fill"></i> Excel
                             </button>
@@ -125,6 +156,24 @@
 
                             <button class="btn btn-primary btn-sm" onclick="printTable()">
                                 <i class="bi bi-printer-fill"></i> Print
+=======
+                            <button class="btn btn-success btn-sm"
+                                    onclick="exportTableToExcel('copy-print-csv','GST_Slab')">
+                                <i class="bi bi-file-earmark-excel-fill"></i>
+                                Excel
+                            </button>
+
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="generatePDF()">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                PDF
+                            </button>
+
+                            <button class="btn btn-primary btn-sm"
+                                    onclick="printTable()">
+                                <i class="bi bi-printer-fill"></i>
+                                Print
+>>>>>>> origin/master
                             </button>
                         </div>
                         <!-- SEARCH -->
@@ -169,6 +218,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 
 
 
@@ -564,10 +614,80 @@
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertGstSlabMaster',
                 data: formData,
+=======
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = { Add: true, Edit: true, Delete: true }; // Default fallback
+
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                try {
+                    currentPagePermission = JSON.parse(permission);
+                } catch (e) {
+                    console.error("Error parsing PagePermission cookie", e);
+                }
+            }
+
+            // Hide Add Button if permission is false
+            if (currentPagePermission.Add === false || currentPagePermission.Add === "false") {
+                $("#AddGstModel").hide();
+            }
+
+            FunctionIsLogin();
+            displayData(0);
+
+            // Shortcut Key
+            $(document).keydown(function (key) {
+                switch (parseInt(key.which, 10)) {
+                    case 27:
+                        //Esc Key
+                        $("#cancelbtn").click();
+                        break;
+                    case 18 && 79:
+                        // Alt + O
+                        $("#AddGstModel").click();
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+
+        // Helper function to read cookies
+        function getCookie(name) {
+            var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+>>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -653,10 +773,73 @@
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/editGstMaster',
                 data: formData,
+=======
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                        $("#company").val(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getGstSlab?startFrom=' + rowStart,
+                data: "{ 'startFrom':'" + rowStart + "' }",
+>>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
 
                         clearAll();
@@ -696,10 +879,95 @@
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteGstMaster',
                 data: formData,
+=======
+
+                    // CLEAR TABLE
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+
+                    // HTML TABLE BODY
+                    var tableBody = $("#copy-print-csv tbody");
+                    var temp = "";
+
+                    // VIEW MORE BUTTON
+                    if (response.listGstSlabMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    // LOOP
+                    for (var i = 0; i < response.listGstSlabMaster.length; i++) {
+                        temp += "<tr>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GSTSLABName + "</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].GST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].IGST + "%</td>";
+                        temp += "<td>" + response.listGstSlabMaster[i].dates + "</td>";
+
+                        // ==========================================
+                        // ACTIONS COLUMN WITH PERMISSION CONTROLS
+                        // ==========================================
+                        temp += "<td><div class='actions'>";
+
+                        var canEdit = currentPagePermission.Edit === true || currentPagePermission.Edit === "true";
+                        var canDelete = currentPagePermission.Delete === true || currentPagePermission.Delete === "true";
+
+                        if (!canEdit && !canDelete) {
+                            temp += "-";
+                        } else {
+                            // EDIT
+                            if (canEdit) {
+                                temp += "<a href='javascript:void(0);' " +
+                                    "title='Edit' " +
+                                    "data-bs-toggle='modal' " +
+                                    "data-bs-target='#addNewContact' " +
+                                    "onclick='showRecords(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                    "<i class='icon-edit1 text-info'></i>" +
+                                    "</a>&nbsp;&nbsp;";
+                            }
+
+                            // DELETE
+                            if (canDelete) {
+                                temp += "<a href='javascript:void(0);' " +
+                                    "title='Delete' " +
+                                    "onclick='functionUserDelete(" + response.listGstSlabMaster[i].GSTSLABId + ")'>" +
+                                    "<i class='icon-x-circle text-danger'></i>" +
+                                    "</a>";
+                            }
+                        }
+
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    // APPEND HTML
+                    tableBody.append(temp);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Gst Slab");
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getGstSlabById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+>>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("GST slab deleted successfully.", {
@@ -732,10 +1000,27 @@
                     });
 
 
+=======
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#name").val(response.listGstSlabMaster[0].GSTSLABName);
+                        $('#igst').val(response.listGstSlabMaster[0].IGST);
+                        $('#cess').val(response.listGstSlabMaster[0].CESS);
+                        $('#gst').val(response.listGstSlabMaster[0].GST);
+                        $('#company').val(response.listGstSlabMaster[0].CompanyName);
+                        $('#company-id').val(response.listGstSlabMaster[0].CompanyId);
+                    }
+                    else {
+                        showToast('error', response.Message);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to retrieve record details.');
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
 
     //function validateAmount(amt) {
@@ -1006,3 +1291,461 @@
     }
 </script>
 
+=======
+        function clearAll() {
+            getDefaultCompany();
+            $("#saveViewbtn").show();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add GST Slab");
+            $("#add-alert").hide();
+            $("#name").val('');
+            $(".company-invalid-feedback").hide();
+            $('#igst').val('');
+            $('#cess').val('');
+            $('#gst').val('');
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(companyId) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGstSlabMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(companyId) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGstSlabMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var name = document.getElementById('name');
+            var gst = document.getElementById('gst');
+            var igst = document.getElementById('igst');
+            var cess = document.getElementById('cess');
+            var companyId = document.getElementById('company-id');
+
+            if (validate(name) == false || validate(company) == false || validate(igst) == false || validate(gst) == false) {
+                validate(name);
+                validate(company);
+                validate(igst);
+                validate(cess);
+                validate(gst);
+            }
+            else {
+                var CessValue = 0;
+                if (cess.value != "") {
+                    CessValue = cess.value;
+                }
+
+                var formData = new FormData();
+                formData.append('GSTSLABName', name.value);
+                formData.append('GST', gst.value);
+                formData.append('IGST', igst.value);
+                formData.append('CESS', CessValue);
+                formData.append('GSTSLABId', id);
+                formData.append('CompanyIds', companyId.value);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/editGstMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while updating your data.');
+                    }
+                });
+            }
+        }
+
+        function functionUserDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this GST Slab record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('GSTSLABId', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteGstMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'GST slab deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting GST Slab.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting GST Slab.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validateFloatKeyPress(el, evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            var number = el.value.split('.');
+            if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            if (number.length > 1 && charCode == 46) {
+                return false;
+            }
+            var caratPos = getSelectionStart(el);
+            var dotPos = el.value.indexOf(".");
+            if (caratPos > dotPos && dotPos > -1 && (number[1].length > 1)) {
+                return false;
+            }
+            return true;
+        }
+
+        function getSelectionStart(o) {
+            if (o.createTextRange) {
+                var r = document.selection.createRange().duplicate()
+                r.moveEnd('character', o.value.length)
+                if (r.text == '') return o.value.length
+                return o.value.lastIndexOf(r.text)
+            } else return o.selectionStart
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+
+        function exportTableToExcel(tableID, filename) {
+            var table = document.getElementById(tableID);
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
+            }
+            var clonedTable = table.cloneNode(true);
+            var rows = clonedTable.querySelectorAll('tr');
+            rows.forEach(function (row) {
+                if (row.cells.length >= 6) {
+                    row.deleteCell(5);
+                }
+            });
+            clonedTable.removeAttribute('id');
+            clonedTable.removeAttribute('class');
+            var html = `<html><head><meta charset="UTF-8"></head><body>${clonedTable.outerHTML}</body></html>`;
+            var blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = (filename || 'GST_Slab') + '_' + getExportDateTime() + '.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function generatePDF() {
+            if (typeof window.jspdf === "undefined") {
+                showToast('error', 'jsPDF library is not loaded.');
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            var doc = new jsPDF('l', 'pt', 'a4');
+            if (typeof doc.autoTable !== "function") {
+                showToast('error', 'PDF AutoTable plugin is not loaded.');
+                return;
+            }
+            var table = document.getElementById('copy-print-csv');
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
+            }
+            doc.setFontSize(16);
+            doc.text('GST Tax Slab', 40, 40);
+            var headers = ['GST Slab Name', 'SGST', 'CGST', 'IGST', 'Date'];
+            var data = [];
+            var rows = table.querySelectorAll('tbody tr');
+            rows.forEach(function (row) {
+                if (row.style.display === 'none') { return; }
+                var cells = row.querySelectorAll('td');
+                if (cells.length < 5) { return; }
+                data.push([
+                    cells[0].textContent.trim(),
+                    cells[1].textContent.trim(),
+                    cells[2].textContent.trim(),
+                    cells[3].textContent.trim(),
+                    cells[4].textContent.trim()
+                ]);
+            });
+            if (data.length === 0) {
+                showToast('warning', 'No data available to export.');
+                return;
+            }
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 60,
+                theme: 'grid',
+                margin: { top: 60, left: 30, right: 30 },
+                styles: { fontSize: 9, cellPadding: 6, valign: 'middle' },
+                headStyles: { fontSize: 9, fontStyle: 'bold', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 200 },
+                    1: { cellWidth: 80, halign: 'right' },
+                    2: { cellWidth: 80, halign: 'right' },
+                    3: { cellWidth: 80, halign: 'right' },
+                    4: { cellWidth: 130 }
+                },
+                didDrawPage: function () {
+                    doc.setFontSize(8);
+                    doc.text('GST Tax Slab Report', 30, 20);
+                    doc.text('Page ' + doc.internal.getNumberOfPages(), doc.internal.pageSize.width - 70, doc.internal.pageSize.height - 20);
+                }
+            });
+            doc.save('GST_Slab_' + getExportDateTime() + '.pdf');
+        }
+
+        function printTable() {
+            var table = document.getElementById('copy-print-csv');
+            if (!table) {
+                showToast('error', 'Table not found.');
+                return;
+            }
+            var clonedTable = table.cloneNode(true);
+            var rows = clonedTable.querySelectorAll('tr');
+            rows.forEach(function (row) {
+                if (row.cells.length >= 6) {
+                    row.deleteCell(5);
+                }
+                var actions = row.querySelectorAll('.actions');
+                actions.forEach(function (element) {
+                    element.remove();
+                });
+            });
+            var style = `
+                    <style>
+                        @@page { size: landscape; margin: 10mm; }
+                        * { box-sizing: border-box; }
+                        body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 10px; color: #000; }
+                        .print-header { text-align: center; margin-bottom: 15px; }
+                        .print-header h2 { margin: 0; font-size: 20px; }
+                        .print-header p { margin: 5px 0 0; font-size: 11px; }
+                        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                        table, th, td { border: 1px solid #000; }
+                        th { font-weight: bold; text-align: center; padding: 8px; font-size: 11px; }
+                        td { padding: 7px; font-size: 10px; vertical-align: middle; word-break: break-word; }
+                        th:nth-child(1), td:nth-child(1) { width: 35%; }
+                        th:nth-child(2), td:nth-child(2) { width: 15%; text-align: right; }
+                        th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+                        th:nth-child(4), td:nth-child(4) { width: 15%; text-align: right; }
+                        th:nth-child(5), td:nth-child(5) { width: 20%; }
+                        .actions { display: none !important; }
+                        @@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+                    </style>
+                `;
+            var win = window.open('', '_blank', 'height=900,width=1200');
+            if (!win) {
+                showToast('warning', 'Please allow pop-ups for printing.');
+                return;
+            }
+            win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>GST Tax Slab</title>${style}</head><body><div class="print-header"><h2>GST Tax Slab</h2><p>Generated On: ${new Date().toLocaleString()}</p></div>${clonedTable.outerHTML}</body></html>`);
+            win.document.close();
+            win.focus();
+            setTimeout(function () {
+                win.print();
+                setTimeout(function () { win.close(); }, 500);
+            }, 700);
+        }
+
+        function getExportDateTime() {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            return year + month + day + '_' + hours + minutes + seconds;
+        }
+
+        function searchTable() {
+            var input, filter, table, tr, td, i, j, txtValue, found;
+            input = document.getElementById("searchBox");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("copy-print-csv");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                found = false;
+
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = found ? "" : "none";
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master

@@ -3,7 +3,10 @@
 }
 
 
+<<<<<<< HEAD
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+=======
+>>>>>>> origin/master
 
 
 <div class="content-wrapper">
@@ -214,6 +217,7 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/bootstrap.bundle.min.js"></script>
 <script src="https://tryoninfosoft.web.app/sr/modernizr.js"></script>
@@ -595,12 +599,288 @@
         }
         else
             if (code.value == "") {
+=======
+@section Scripts{
+    <script>
+
+        $('body').addClass('fullscreen');
+        $(document).ready(function () {
+            var today = new Date().toISOString().split('T')[0];
+            $("#ChallanDate").val(today);
+            var liSelected;
+            $(document).keydown(function (key) {
+                var li = $('li');
+                switch (parseInt(key.which, 10)) {
+                    case 27:
+                        $("#DivDDLItemDetail").hide();
+                        $("#DivAddItem").show();
+                        //Esc Key
+                        $("#CloseItemModel").click();
+                        $("#cancelbtn").click();
+                        $("#cancelItembtn").click();
+                        break;
+
+                    case 40:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.next();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.eq(0).addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.eq(0).addClass('selected');
+                        }
+                        break;
+
+                    case 38:
+                        if (liSelected) {
+                            liSelected.removeClass('selected');
+                            next = liSelected.prev();
+                            if (next.length > 0) {
+                                liSelected = next.addClass('selected');
+                            } else {
+                                liSelected = li.last().addClass('selected');
+                            }
+                        } else {
+                            liSelected = li.last().addClass('selected');
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+            FunctionIsLogin();
+            $("#select2-ddlGodownMaster-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlGodownMaster-container").css("color", "white");
+
+            $('#ddlGodownMaster')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+
+            $("#select2-ddlParty-container").css("background-color", "lightslategrey");
+            $("#select2-ddlParty-container").css("color", "white");
+
+            $('#ddlParty')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+
+
+
+            $("#select2-ddlYarnGodownManager-container").css("background-color", "cornflowerblue");
+            $("#select2-ddlYarnGodownManager-container").css("color", "white");
+
+            $('#ddlYarnGodownManager')
+                .next('.select2-container')
+                .find('.select2-selection__arrow b')
+                .css({
+                    'border-color': '#fff transparent transparent transparent'
+                });
+
+
+
+            GetAllDropDownData();
+
+        });
+        var isColorLoaded = false;
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        let pendingDetailMap = {};
+        let pendingItemWise = {};
+        let isPendingAvailable = false;
+        function normalize(val) {
+            return (val || "").toString().trim();
+        }
+        $("#ddlGodownMaster, #ddlYarnCompany, #ddlYarnMaterial").on("change", function () {
+            isColorLoaded = false;   // reset flag
+            GridBindData();
+        });
+        $("#ddlParty, #ddlYarnMaterial, #ddlYarnColor").on("change", function () {
+            var PartyId = $("#ddlParty").val();
+            var YarnMaterialID = $("#ddlYarnMaterial").val() || 0;
+            var YarnColorID = $("#ddlYarnColor").val() || 0;
+            loadAllYarnData(PartyId, YarnMaterialID, YarnColorID);
+        });
+        $(document).on("focus", ".txtStockInput", function () {
+            $(this).data("old", parseInt($(this).val()) || 0);
+        });
+        $(document).on("input", ".txtStockInput", function () {
+
+            let input = $(this);
+
+            let stock = parseInt(input.data("stock")) || 0;
+            let newVal = parseInt(input.val()) || 0;
+            let oldVal = input.data("old") || 0;
+
+            let key = normalize(input.data("key"));
+
+            // ❌ NO PENDING → STOCK RULE
+            if (!isPendingAvailable) {
+
+                if (newVal > stock) {
+                    input.val(stock);
+                    Swal.fire({ icon: 'error', title: 'Limit Exceeded', text: "Cannot exceed stock (" + stock + ")" });
+                    return;
+                }
+
+                input.data("old", newVal);
+                return;
+            }
+
+            // ✅ PENDING MODE
+
+            let maxAllowed = parseInt(pendingItemWise[key]) || 0;
+
+            let total = 0;
+
+            $(".txtStockInput").each(function () {
+
+                let loopKey = normalize($(this).data("key"));
+
+                if (loopKey === key) {
+
+                    let val = parseInt($(this).val()) || 0;
+
+                    if (this === input[0]) {
+                        val = newVal;
+                    }
+
+                    total += val;
+                }
+            });
+
+            // ❌ EXCEED PENDING
+            if (total > maxAllowed) {
+
+                input.val(oldVal);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Limit Exceeded',
+                    text: "Max allowed for this item: " + maxAllowed
+                });
+
+            } else {
+
+                // ✅ OPTIONAL: also check stock per row
+                if (newVal > stock) {
+                    input.val(stock);
+                    Swal.fire({ icon: 'error', title: 'Limit Exceeded', text: "Cannot exceed stock (" + stock + ")" });
+                    return;
+                }
+
+                input.data("old", newVal);
+            }
+        });
+        function formatJsonDate(jsonDate) {
+
+            if (!jsonDate) return "";
+
+            let timestamp = parseInt(jsonDate.replace(/[^0-9]/g, ''));
+            let date = new Date(timestamp);
+
+            let day = ("0" + date.getDate()).slice(-2);
+            let month = ("0" + (date.getMonth() + 1)).slice(-2);
+            let year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText
+                    });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function validate(code) {
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "0") {
+>>>>>>> origin/master
 
                 document.getElementById(code.id).classList.remove("is-valid");
                 document.getElementById(code.id).classList.add("is-invalid");
                 $(errorMessageInvalid).show();
                 return false;
             }
+<<<<<<< HEAD
             else {
                 document.getElementById(code.id).classList.add("is-valid");
                 document.getElementById(code.id).classList.remove("is-invalid");
@@ -629,6 +909,206 @@
                 if (response.Code == "200") {
 
                     //Party Name
+=======
+            else
+                if (code.value == "") {
+
+                    document.getElementById(code.id).classList.remove("is-valid");
+                    document.getElementById(code.id).classList.add("is-invalid");
+                    $(errorMessageInvalid).show();
+                    return false;
+                }
+                else {
+                    document.getElementById(code.id).classList.add("is-valid");
+                    document.getElementById(code.id).classList.remove("is-invalid");
+                    $(errorMessageValid).show();
+                    $(errorMessageInvalid).hide();
+                    $(".company-invalid-feedback").show();
+                    return true;
+                }
+        }
+        function GetAllDropDownData() {
+
+            var formData = new FormData();
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnOutWardDropDownData',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+
+                        //Party Name
+                        if (response.listPartyMaster.length > 0) {
+                            $('#ddlParty').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Party </option>";
+                            $('#ddlParty').append(tempPartyName);
+
+                            for (var i = 0; i < response.listPartyMaster.length; i++) {
+
+                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlParty').append(tempPartyName);
+                            }
+
+                        }
+                        else {
+                            $('#ddlParty').empty();
+                            $("#ddlParty").prop('disabled', true)
+                        }
+
+
+
+
+                        //Company Name
+                        if (response.listCompanyMaster.length > 0) {
+                            $('#ddlYarnCompany').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Company </option>";
+                            $('#ddlYarnCompany').append(tempPartyName);
+
+                            for (var i = 0; i < response.listCompanyMaster.length; i++) {
+
+                                tempPartyName = "<option value='" + response.listCompanyMaster[i].PartyId + "'> " + response.listCompanyMaster[i].PartyName + " </option>";
+                                $('#ddlYarnCompany').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnCompany').empty();
+                            $("#ddlYarnCompany").prop('disabled', true)
+                        }
+                        //Yarn Material
+                        if (response.listYarnMaterialMaster.length > 0) {
+                            $('#ddlYarnMaterial').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Yarn Material </option>";
+                            $('#ddlYarnMaterial').append(tempPartyName);
+
+                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+
+                                tempPartyName = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
+                                $('#ddlYarnMaterial').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnMaterial').empty();
+                            $("#ddlYarnMaterial").prop('disabled', true)
+                        }
+                        //Yarn Color
+                        if (response.listYarnColorMaster.length > 0) {
+                            $('#ddlYarnColor').empty();
+                            $('#ddlYarnColorCode').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Yarn Color </option>";
+                            $('#ddlYarnColor').append(tempPartyName);
+                            $('#ddlYarnColorCode').append("<option value='0'> Yarn Color Code</option>");
+
+                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+
+                                tempPartyName = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
+                                $('#ddlYarnColor').append(tempPartyName);
+                                $('#ddlYarnColorCode').append("<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColorCode + " </option>");
+                            }
+                        }
+                        else {
+                            $('#ddlYarnColor').empty();
+                            $('#ddlYarnColorCode').empty();
+                            $("#ddlYarnColor").prop('disabled', true)
+                            $("#ddlYarnColorCode").prop('disabled', true)
+                        }
+                        //Godown Manager
+                        if (response.listUserAccountMaster.length > 0) {
+                            $('#ddlYarnGodownManager').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Godown Manager </option>";
+                            $('#ddlYarnGodownManager').append(tempPartyName);
+
+                            for (var i = 0; i < response.listUserAccountMaster.length; i++) {
+
+                                tempPartyName = "<option value='" + response.listUserAccountMaster[i].UserAccountId + "'> " + response.listUserAccountMaster[i].UserAccountName + " </option>";
+                                $('#ddlYarnGodownManager').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlYarnGodownManager').empty();
+                            $("#ddlYarnGodownManager").prop('disabled', true)
+                        }
+                        //Godown Master
+                        if (response.listGodownMaster.length > 0) {
+                            $('#ddlGodownMaster').empty();
+
+                            var tempPartyName = "";
+
+                            tempPartyName = "<option value='0'> Select Godown </option>";
+                            $('#ddlGodownMaster').append(tempPartyName);
+
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+
+                                if (response.listGodownMaster[i].IsDefault == "1") {
+                                    tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "' selected> " + response.listGodownMaster[i].GodownTitle + " </option>";
+                                }
+                                else {
+                                    tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>";
+                                }
+
+                                $('#ddlGodownMaster').append(tempPartyName);
+                            }
+                        }
+                        else {
+                            $('#ddlGodownMaster').empty();
+                            $("#ddlGodownMaster").prop('disabled', true)
+                        }
+                        //Yarn Outward List No
+                        if (response.listYarnOutwardMaster.length > 0) {
+                            $("#ListNo").val(response.listYarnOutwardMaster[0].OutwardListNo);
+                        }
+                        else {
+                            $("#ListNo").val('0')
+                        }
+                        GridBindData();
+                        setTimeout(function () {
+                            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                            editYarnOutward(hashes[0].split('=')[1]);
+                        }, 1000);
+                    }
+
+                },
+                error: function (request, status, error) {
+                }
+            });
+
+        }
+        function changeSundryParty(abc) {
+
+            var SundryParty = $("#SundryParty").val();
+            var formData = new FormData();
+            formData.append('SundryParty', SundryParty);
+            var isColorLoaded = false;
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getSundryPartyMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+
+
+>>>>>>> origin/master
                     if (response.listPartyMaster.length > 0) {
                         $('#ddlParty').empty();
 
@@ -641,6 +1121,10 @@
 
                             tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
                             $('#ddlParty').append(tempPartyName);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                         }
 
                     }
@@ -648,6 +1132,7 @@
                         $('#ddlParty').empty();
                         $("#ddlParty").prop('disabled', true)
                     }
+<<<<<<< HEAD
 
 
 
@@ -950,10 +1435,217 @@
 
                     if (!data || data.length === 0) {
                         tbody.html('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+=======
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function ChangeYarnColor(YarnColorID) {
+            $("#ddlYarnColorCode").val(YarnColorID);
+            var ColorCode = $("#ddlYarnColorCode option:selected").text();
+            $("#select2-ddlYarnColorCode-container").html(ColorCode);
+            GridBindData();
+            $("#tableSiftYarnData").empty();
+        }
+        function ChangeYarnCompany() {
+            GridBindData();
+
+        }
+        function Yrancolor(list) {
+            var selectedColor = $("#ddlYarnColor").val();  // store selected
+            $('#ddlYarnColor').empty();
+            $('#ddlYarnColorCode').empty();
+            $('#ddlYarnColor').append("<option value='0'>Select Yarn Color</option>");
+            $('#ddlYarnColorCode').append("<option value='0'>Yarn Color Code</option>");
+
+            var uniqueColors = {};
+
+            for (var i = 0; i < list.length; i++) {
+
+                var colorID = list[i].YarnColorID;
+
+                if (!uniqueColors[colorID]) {
+
+                    $('#ddlYarnColor').append(
+                        "<option value='" + colorID + "'>" + list[i].YarnColor + "</option>"
+                    );
+
+                    $('#ddlYarnColorCode').append(
+                        "<option value='" + colorID + "'>" + list[i].YarnColorCode + "</option>"
+                    );
+
+                    uniqueColors[colorID] = true;
+                }
+            }
+
+            // ✅ restore selected value
+            $("#ddlYarnColor").val(selectedColor);
+            $("#ddlYarnColorCode").val(selectedColor);
+        }
+        function YarnMaterial(list) {
+            var selectedColor = $("#ddlYarnMaterial").val();
+            $('#ddlYarnMaterial').empty();
+            var tempPartyName = "";
+            $('#ddlYarnMaterial').append("<option value='0'>Select Yarn Material</option>");
+            var uniqueColors = {};
+
+            for (var i = 0; i < list.length; i++) {
+
+                var YarnMaterialID = list[i].YarnMaterialID;
+
+                if (!uniqueColors[YarnMaterialID]) {
+
+                    $('#ddlYarnMaterial').append(
+                        "<option value='" + YarnMaterialID + "'>" + list[i].YarnMaterial + "</option>"
+                    );
+                    uniqueColors[YarnMaterialID] = true;
+                }
+            }
+
+            // ✅ restore selected value
+            $("#ddlYarnMaterial").val(selectedColor);
+        }
+        function ChangeGodownMaster() {
+            GridBindData();
+        }
+        function ChangeYarnColorCode(YarnColorID) {
+            $("#ddlYarnColor").val(YarnColorID);
+            var Color = $("#ddlYarnColor option:selected").text();
+            $("#select2-ddlYarnColor-container").html(Color);
+            GridBindData();
+            $("#tableSiftYarnData").empty();
+        }
+        function createKey(materialId, colorId, locationId) {
+            return `${materialId}|${colorId}|${normalize(locationId)}`;
+        }
+        function GridBindData(callback) {
+            var GodownID = $("#ddlGodownMaster").val() || 0;
+            var BillToPartyID = $("#ddlYarnCompany").val() || 0;
+            var YarnMaterialID = $("#ddlYarnMaterial").val() || 0;
+            var YarnColorID = $("#ddlYarnColor").val() || 0;
+            var siftYarnInwardDetailID = $("#siftYarnInwardDetailID").val() || 0;
+            var siftSiftGodownLocationId = $("#siftGodownInputBox").val();
+            if (GodownID != "0") {
+                var formData = new FormData();
+                formData.append('GodownID', GodownID);
+                formData.append('BillToPartyID', BillToPartyID);
+                formData.append('YarnMaterialID', YarnMaterialID);
+                formData.append('YarnColorID', YarnColorID);
+                formData.append('SiftGodownLocationId', siftSiftGodownLocationId.slice(0, -1).replace(/\|/g, ','));
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getUpdateYarnOutwardMasterNew',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+
+                    success: function (response) {
+
+                        let data = response.listYarnOutwardMaster;
+                        let tbody = $("#tableYarnOutward tbody");
+                        console.log("getYarnOutwardMasterNew", data);
+                        tbody.empty();
+
+                        if (!data || data.length === 0) {
+                            tbody.html('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                            if (callback) callback();
+                            return;
+                        }
+
+                        $.each(data, function (index, row) {
+
+                            let key =
+                                row.YarnMaterialID + "|" +
+                                row.YarnColorID + "|" +
+                                normalize(row.YarnColorCode);
+
+                            let tr = `
+                                    <tr>
+                                        <td class="rowIndex">${index + 1}</td>
+                                        <td id="CompanyId" hidden>${row.BillToPartyID}</td>
+                                        <td>${row.CompanyName}</td>
+                                        <td>${row.YarnMaterial}</td>
+                                        <td>${row.YarnColor}</td>
+                                        <td>${row.YarnColorCode}</td>
+                                        <td>${row.Stock}</td>
+                                        <td>${row.LocationTitle}</td>
+                                        <td><input type="text" class="txtStockInput" value="0" data-key="${key}"  data-stock="${row.Stock}"
+                                                data-locationid="${row.GodownLocationID}" maxlength="2" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />
+                                        </td>
+                                    </tr>
+                                `;
+
+                            tbody.append(tr);
+                        });
+                        if (callback) callback(); // ✅ VERY IMPORTANT
+                    },
+                    error: function () {
+                        tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
+                        if (callback) callback();
+                    }
+                });
+            }
+        }
+        function loadAllYarnData(PartyId, YarnMaterialID, YarnColorID) {
+
+            // ✅ Step 1: Bind outward grid FIRST
+            GridBindData(function () {
+
+                // ✅ Step 2: Then load pending yarn
+                getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID, function () {
+
+                    // ✅ Step 3: Apply logic AFTER everything is ready
+                    highlightMatchedYarnRows();
+                    applyCheckboxVisibility();
+
+                });
+
+            });
+        }
+        function getPendingYarnForm(PartyId, YarnMaterialID, YarnColorID, callback) {
+
+            let tbody = $("#pendingYarnTable tbody");
+
+            tbody.html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
+
+            // ✅ RESET
+            pendingDetailMap = {};
+            pendingItemWise = {};
+            isPendingAvailable = false;
+
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetUpdatePendingYarnDetails",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+
+                data: JSON.stringify({
+                    partyId: PartyId,
+                    yarnMaterialID: YarnMaterialID,
+                    yarnColorID: YarnColorID
+                }),
+
+                success: function (res) {
+
+                    let data = res.d;
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+
+                    tbody.empty();
+
+                    if (!data || data.length === 0) {
+
+                        isPendingAvailable = false;
+                        tbody.html('<tr><td colspan="7">No Data Found</td></tr>');
+                        $("#tableYarnOutward tbody tr").show();
+>>>>>>> origin/master
                         if (callback) callback();
                         return;
                     }
 
+<<<<<<< HEAD
                     $.each(data, function (index, row) {
 
                         let key =
@@ -986,6 +1678,37 @@
                         tbody.append(tr);
                     });
                     if (callback) callback(); // ✅ VERY IMPORTANT
+=======
+                    isPendingAvailable = true;
+
+                    $.each(data, function (i, item) {
+
+                        let key =
+                            item.YarnMaterialID + "|" +
+                            item.YarnColorID + "|" +
+                            normalize(item.CompanyColourCode);
+
+                        tbody.append(`
+                               <tr><td><input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.YarnRequirementID}">REQ - ${item.YarnRequirementID}</td>
+                                    <td>${item.PartyName}</td>
+                                    <td>${item.YarnMaterial}</td>
+                                    <td>${item.YarnColor}</td>
+                                    <td>${item.CompanyColourCode}</td>
+                                    <td>${item.NoofBoxes}</td>
+                               </tr>
+                            `);
+
+                        pendingDetailMap[key] = item.YarnRequirementDetailID;
+
+                        if (!pendingItemWise[key]) {
+                            pendingItemWise[key] = 0;
+                        }
+
+                        pendingItemWise[key] += (parseInt(item.NoofBoxes) || 0);
+                    });
+
+                    if (callback) callback(); // ✅ no setTimeout
+>>>>>>> origin/master
                 },
                 error: function () {
                     tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
@@ -993,6 +1716,7 @@
                 }
             });
         }
+<<<<<<< HEAD
     }
     function loadAllYarnData(PartyId, YarnMaterialID, YarnColorID) {
 
@@ -1540,10 +2264,416 @@
 
             if (duplicateMap[key]) {
                 notes.show("Duplicate entry found at row " + (j + 1), { type: 'danger' });
+=======
+        function getPendingYarnDetails(PartyId, YarnMaterialID, YarnColorID) {
+
+            let tbody = $("#pendingYarnTable tbody");
+
+            tbody.html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
+
+            // 🔥 RESET
+            pendingDetailMap = {};
+            pendingItemWise = {};
+            isPendingAvailable = false;
+
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetUpdatePendingYarnDetails",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                // ✅ Send all parameters
+                data: JSON.stringify({
+                    partyId: PartyId,
+                    yarnMaterialID: YarnMaterialID,
+                    yarnColorID: YarnColorID
+                }),
+
+                success: function (res) {
+
+                    let data = res.d;
+
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+
+                    tbody.empty();
+
+                    if (!data || data.length === 0) {
+
+                        isPendingAvailable = false;
+                        tbody.html('<tr><td colspan="7">No Data Found</td></tr>');
+                        $("#tableYarnOutward tbody tr").show();
+
+                        // if (callback) callback();
+                        return;
+                    }
+
+                    isPendingAvailable = true;
+
+                    $.each(data, function (i, item) {
+
+                        let key =
+                            item.YarnMaterialID + "|" +
+                            item.YarnColorID + "|" +
+                            normalize(item.CompanyColourCode);
+
+                        tbody.append(`
+                         <tr>
+                             <td>
+                                 <input type="checkbox" data-key="${key}" class="row-checkbox" value="${item.Id || ''}">
+                             </td>
+                             <td>${item.PartyName}</td>
+                             <td>${item.YarnMaterial}</td>
+                             <td>${item.YarnColor}</td>
+                             <td>${item.CompanyColourCode}</td>
+                             <td>${item.NoofBoxes}</td>
+                         </tr>
+                      `);
+
+                        pendingDetailMap[key] = item.YarnRequirementDetailID;
+
+                        if (!pendingItemWise[key]) {
+                            pendingItemWise[key] = 0;
+                        }
+
+                        pendingItemWise[key] += (parseInt(item.NoofBoxes) || 0);
+                    });
+
+                    //if (callback) callback(); // ✅ no setTimeout
+                },
+
+                error: function () {
+                    tbody.html('<tr><td colspan="7" class="text-danger text-center">Error loading data</td></tr>');
+                    if (callback) callback();
+                }
+            });
+        }
+        function highlightMatchedYarnRows() {
+
+            if (!isPendingAvailable) {
+                $("#tableYarnOutward tbody tr").show().removeClass("table-success");
+                return;
+            }
+            let hasMatch = false;
+            $("#tableYarnOutward tbody tr").each(function () {
+                let row = $(this);
+                let key = row.find(".txtStockInput").data("key");
+
+                if (pendingItemWise[key]) {
+                    hasMatch = true;
+                    row.show().addClass("table-success");
+                } else {
+                    row.hide();
+                }
+            });
+
+            if (!hasMatch) {
+                $("#tableYarnOutward tbody").html(
+                    '<tr><td colspan="8">No Matching Data</td></tr>'
+                );
+            }
+        }
+        function applyCheckboxVisibility() {
+
+            let outwardMap = {};
+
+            // 👉 Outward table keys
+            $(".txtStockInput").each(function () {
+                let key = $(this).data("key");
+                if (key) outwardMap[key] = true;
+            });
+
+            let tbody = $("#pendingYarnTable tbody");
+
+            let matchedRows = [];
+            let unmatchedRows = [];
+
+            // 👉 Loop pending rows
+            tbody.find("tr").each(function () {
+
+                let row = $(this);
+                let checkbox = row.find(".row-checkbox");
+                let key = checkbox.data("key");
+
+                if (outwardMap[key]) {
+
+                    // ✅ enable
+                    checkbox.prop("disabled", false);
+
+                    matchedRows.push(row); // 👉 store for top
+
+                } else {
+
+                    // ❌ disable
+                    checkbox.prop("disabled", true);
+                    checkbox.prop("checked", false);
+
+                    unmatchedRows.push(row); // 👉 store for bottom
+                }
+            });
+
+            // 🔥 Reorder rows (matched first)
+            tbody.empty();
+
+            matchedRows.forEach(r => tbody.append(r));
+            unmatchedRows.forEach(r => tbody.append(r));
+        }
+        function editYarnOutward(id) {
+
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetYarnOutwardForEdit",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ YarnOutwardID: id }),
+
+                success: function (res) {
+
+                    let result = typeof res.d === "string" ? JSON.parse(res.d) : res.d;
+
+                    if (result.Status != 1) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: result.Message
+                        });
+                        return;
+                    }
+
+                    let master = result.Data.Master;
+                    let detail = result.Data.Detail;
+                    let YarnRequirementIDs = result.YarnRequirementIDs;
+
+
+                    console.log("detail", detail);
+                    // =============================
+                    // ✅ 1. FILL MASTER DATA
+                    // =============================
+                    $("#SundryParty").val(master.SundryPartyId).trigger("change");
+                    $("#ListDate").val(formatJsonDate(master.OutwardListDate));
+                    $("#ddlYarnGodownManager").val(master.GodownManagerUserAccountId).trigger("change");
+                    $("#ListNo").val(master.OutwardListNo);
+                    $("#YarnOutwardID").val(master.YarnOutwardID);
+
+
+                    setTimeout(() => {
+                        $("#ddlParty").val(master.PartyId).trigger("change");
+                        $("#ddlParty").prop("disabled", true);
+                    }, 100);
+
+
+
+                    setTimeout(() => {
+
+                        let map = {};
+
+                        detail.forEach(d => {
+
+                            let key = `${d.YarnMaterialID}|${d.YarnColorID}|${(d.YarnColorCode || '').toUpperCase()}|${d.GodownLocationID}`;
+
+                            if (!map[key]) {
+                                map[key] = 0;
+                            }
+
+                            map[key] += parseFloat(d.NoOfBox) || 0;
+                        });
+                        console.log("map", map)
+                        $(".txtStockInput").each(function () {
+
+                            let input = $(this);
+                            let key = `${normalize(input.data("key"))}|${input.data("locationid")}`;
+                            input.val(map[key] || 0);
+                        });
+                        $("#pendingYarnTable .row-checkbox").each(function () {
+
+                            let chk = $(this);
+                            let key = normalize(chk.data("key"));
+                            let detailId = parseInt(chk.val()); // ✅ THIS is YarnRequirementDetailID
+
+                            let isMatched = detail.some(d => {
+
+                                let dKey = normalize(
+                                    `${d.YarnMaterialID}|${d.YarnColorID}|${(d.YarnColorCode || '').toUpperCase()}`
+                                );
+
+                                return dKey === key && d.YarnRequirementDetailID === detailId;
+                            });
+
+                            chk.prop("checked", isMatched);
+                        });
+                    }, 400);
+                },
+                error: function (err) {
+                    console.error("Error:", err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!'
+                    });
+                }
+            });
+        }
+        function saveYarnOutward() {
+            let yarnOutwardID = parseInt($("#YarnOutwardID").val()) || 0;
+            let partyId = parseInt($("#ddlParty").val()) || 0;
+            let listNo = $("#ListNo").val();
+            let listDate = $("#ListDate").val();
+            let godownManager = parseInt($("#ddlYarnGodownManager").val()) || 0;
+            let godownId = parseInt($("#ddlGodownMaster").val()) || 0;
+            let sundrypartyid = parseInt($("#SundryParty").val()) || 0;
+            if (partyId === 0) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Please Select Sundry Creditors Party." });
+                return;
+            }
+            if (!listNo) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Please Mention List No." });
+                return;
+            }
+            if (!listDate) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Please Mention List Date." });
+                return;
+            }
+            if (godownManager === 0) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Please Select Godown Manager." });
+                return;
+            }
+            let detailList = [];
+
+            // 🔥 IMPORTANT: clone global map (so original not destroyed)
+            let tempYarnMap = JSON.parse(JSON.stringify(globalYarnMap || {}));
+
+            $("#tableYarnOutward tbody tr:visible").each(function () {
+
+                let yarnCompanyId = parseInt($(this).find("#CompanyId").text()) || 0;
+                let input = $(this).find(".txtStockInput");
+                let qty = parseInt(input.val()) || 0;
+                if (qty <= 0) return;
+                let key = normalize(input.data("key"));
+                let materialId = parseInt(key.split("|")[0]);
+                let colorId = parseInt(key.split("|")[1]);
+                let locationId = parseInt(input.data("locationid"));
+                let yarnData = tempYarnMap[key] || [];
+                let remainingQty = qty;
+                for (let i = 0; i < yarnData.length; i++) {
+                    if (remainingQty <= 0) break;
+                    let item = yarnData[i];
+                    if (item.stock <= 0) continue;
+
+                    let usedQty = Math.min(item.stock, remainingQty);
+
+                    if (usedQty > 0) {
+
+                        detailList.push({
+                            BillToPartyID: partyId,
+                            YarnMaterialID: materialId,
+                            YarnCompanyID: yarnCompanyId,
+                            YarnColorID: colorId,
+                            GodownLocationID: locationId,
+                            NoOfBox: usedQty,
+                            YarnRequirementDetailID: item.id
+                        });
+
+                        // 🔥 reduce stock globally
+                        item.stock -= usedQty;
+                        remainingQty -= usedQty;
+                    }
+                }
+
+                // fallback (no checkbox selected)
+                if (remainingQty > 0) {
+                    detailList.push({
+                        BillToPartyID: partyId,
+                        YarnMaterialID: materialId,
+                        YarnCompanyID: yarnCompanyId,
+                        YarnColorID: colorId,
+                        GodownLocationID: locationId,
+                        NoOfBox: remainingQty,
+                        YarnRequirementDetailID: 0
+                    });
+                }
+
+            });
+
+            if (detailList.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Enter at least one quantity" });
+                return;
+            }
+
+            // ✅ DATE FORMAT FIX
+            let rawDate = $("#ListDate").val(); // 22-04-2026
+
+            let parts = rawDate.split("-");
+            let formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+            let master = {
+                YarnOutwardID: yarnOutwardID,
+                GodownID: godownId,
+                PartyId: partyId,
+                OutwardListDate: formattedDate,
+                GodownManagerUserAccountId: godownManager,
+                SundryPartyID: sundrypartyid
+            };
+
+            console.log("FINAL DETAIL LIST:", detailList);
+
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/UpdateYarnOutward",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify({
+                    master: master,
+                    detail: detailList
+                }),
+                success: function (res) {
+
+                    let result = typeof res.d === "string" ? JSON.parse(res.d) : res.d;
+                    let data = Array.isArray(result) ? result[0] : result;
+
+                    if (data && data.Status == 1) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: data.Message }).then(() => {
+                            window.location.href = 'YarnOutWardChallanDetails';
+                        });
+
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.Message || "Error saving data" });
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    Swal.fire({ icon: 'error', title: 'Error', text: "Server Error" });
+                }
+            });
+        }
+        function normalize(val) {
+            return (val || "").toString().toUpperCase().trim();
+        }
+        function checkSave() {
+            if (isSubmitting) return false;
+
+            isSubmitting = true;
+            toggleSaveLoader(true);
+
+            var InvoiceDate = document.getElementById('InvoiceDate');
+            var RequirementNo = document.getElementById('RequirementNo');
+            var PartyId = document.getElementById('ddlParty');
+
+            // ===============================
+            // ✅ BASIC VALIDATION
+            // ===============================
+            if (validate(InvoiceDate) == false || validate(RequirementNo) == false || validate(PartyId) == false) {
+
+                validate(InvoiceDate);
+                validate(RequirementNo);
+                validate(PartyId);
+
+                if (PartyId.value == "") {
+                    Swal.fire({ icon: 'warning', title: 'Warning', text: 'Please Select Party Name.' });
+                }
+>>>>>>> origin/master
 
                 isSubmitting = false;
                 toggleSaveLoader(false);
                 return false;
+<<<<<<< HEAD
             } else {
                 duplicateMap[key] = true;
             }
@@ -1599,10 +2729,137 @@
                     window.location.href = 'YarnRequirement';
                 } else {
                     notes.show(response.Message, { type: 'danger' });
+=======
+            }
+
+            var txtColorArray = $("#txtYarnDetailsArray").val();
+            var txtColorData = txtColorArray.slice(0, -1).split('|');
+
+            var isValid = 0;
+
+            // ===============================
+            // ✅ FIELD VALIDATION
+            // ===============================
+            for (var j = 1; j <= txtColorData.length; j++) {
+
+                var YM = document.getElementById("yarnMaterial" + j);
+                var YC = document.getElementById("YarnColor" + j);
+                var CN = document.getElementById("CompanyName" + j);
+                var CC = document.getElementById("ColorCode" + j);
+                var NOB = document.getElementById("NoOfBox" + j);
+
+                if (validate(YM) == false || validate(YC) == false || validate(CN) == false || validate(CC) == false || validate(NOB) == false) {
+
+                    validate(YM);
+                    validate(YC);
+                    validate(CN);
+                    validate(CC);
+                    validate(NOB);
+
+                    isValid++;
+                }
+            }
+
+            if (isValid != 0) {
+                Swal.fire({ icon: 'warning', title: 'Warning', text: "Please Fill all Fields." });
+
+                isSubmitting = false;
+                toggleSaveLoader(false);
+                return false;
+            }
+
+            // ===============================
+            // 🔥 DUPLICATE CHECK
+            // ===============================
+            var duplicateMap = {};
+            var isDuplicate = false;
+
+            for (var j = 0; j < txtColorData.length; j++) {
+
+                var YMVal = $("#yarnMaterial" + txtColorData[j]).val();
+                var YCVal = $("#YarnColor" + txtColorData[j]).val();
+                var CNVal = $("#CompanyName" + txtColorData[j]).val();
+                var CCVal = $("#ColorCode" + txtColorData[j]).val();
+                var NOBVal = $("#NoOfBox" + txtColorData[j]).val();
+
+                var key = YMVal + "_" + YCVal + "_" + CNVal + "_" + CCVal + "_" + NOBVal;
+
+                if (duplicateMap[key]) {
+                    Swal.fire({ icon: 'error', title: 'Duplicate Entry', text: "Duplicate entry found at row " + (j + 1) });
+
+                    isSubmitting = false;
+                    toggleSaveLoader(false);
+                    return false;
+                } else {
+                    duplicateMap[key] = true;
+                }
+            }
+
+            // ===============================
+            // ✅ BUILD JSON
+            // ===============================
+            var appendTemp = '';
+
+            for (var j = 0; j < txtColorData.length; j++) {
+
+                var YMVal = $("#yarnMaterial" + txtColorData[j]).val();
+                var YCVal = $("#YarnColor" + txtColorData[j]).val();
+                var CNVal = $("#CompanyName" + txtColorData[j]).val();
+                var CCVal = $("#ColorCode" + txtColorData[j]).val();
+                var NOBVal = $("#NoOfBox" + txtColorData[j]).val();
+
+                appendTemp += '{';
+                appendTemp += '"YarnMaterialID": "' + YMVal + '",';
+                appendTemp += '"YarnColorID": "' + YCVal + '",';
+                appendTemp += '"CompanyName": "' + CNVal + '",';
+                appendTemp += '"CompanyColourCode": "' + CCVal + '",';
+                appendTemp += '"NoofBoxes": "' + NOBVal + '"';
+                appendTemp += '},';
+            }
+
+            var YarnRequirementArray = '';
+
+            YarnRequirementArray += '{';
+            YarnRequirementArray += '"RequirementDates":"' + InvoiceDate.value + '", ';
+            YarnRequirementArray += '"RequirementNo":"' + RequirementNo.value + '",';
+            YarnRequirementArray += '"PartyId":"' + PartyId.value + '",';
+            YarnRequirementArray += '"listYarnRequirementDetail": [' + appendTemp.slice(0, -1) + ']';
+            YarnRequirementArray += '}';
+
+            console.log(YarnRequirementArray);
+            const formData = new FormData();
+            formData.append('YarnRequirementArray', YarnRequirementArray);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertYarnRequirementMasterMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    if (response.Code == 200) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: "Yarn Requirement Created Successfully." }).then(() => {
+                            window.location.href = 'YarnRequirement';
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message });
+
+                        isSubmitting = false;
+                        toggleSaveLoader(false);
+                    }
+                },
+
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: "Problem occurred while submitting your data." });
+>>>>>>> origin/master
 
                     isSubmitting = false;
                     toggleSaveLoader(false);
                 }
+<<<<<<< HEAD
             },
 
             error: function () {
@@ -1680,11 +2937,82 @@
                 currentChk.prop("checked", false);
 
                 if (typeof Swal !== "undefined") {
+=======
+            });
+        }
+        var isSubmitting = false;
+        function toggleSaveLoader(show) {
+            $("#savebtn").prop("disabled", show);
+            $("#btnText").toggle(!show);
+            $("#btnLoader").toggle(show);
+        }
+        // ✅ Global maps
+        let globalYarnMap = {};
+        let selectionOrderMap = {};
+
+        $(document).on("change", ".row-checkbox", function () {
+
+            let currentChk = $(this);
+            let key = normalize(currentChk.data("key"));
+
+            // ✅ FIX: define inputs
+            let inputs = $(".txtStockInput").filter(function () {
+                return normalize($(this).data("key")) === key;
+            });
+
+            // debug log
+            inputs.each(function () {
+                let input = $(this);
+
+                console.log({
+                    id: input.attr("id"),
+                    locationId: input.data("locationid"),
+                    value: input.val()
+                });
+            });
+
+            // ✅ Max capacity
+            let maxCapacity = 0;
+            inputs.each(function () {
+                maxCapacity += parseInt($(this).data("stock")) || 0;
+            });
+
+            // ✅ Already selected stock
+            let selectedStock = 0;
+
+            $(".row-checkbox:checked").not(currentChk).each(function () {
+
+                let chk = $(this);
+
+                if (normalize(chk.data("key")) === key) {
+                    selectedStock += parseInt(
+                        chk.closest("tr").find("td:eq(5)").text()
+                    ) || 0;
+                }
+            });
+
+            // ✅ Current checkbox stock
+            let currentStock = parseInt(
+                currentChk.closest("tr").find("td:eq(5)").text()
+            ) || 0;
+
+            // 🔥 VALIDATION
+            if (currentChk.is(":checked")) {
+
+                let tempTotal = selectedStock + currentStock;
+                let usableTemp = Math.min(tempTotal, maxCapacity);
+
+                if (usableTemp <= selectedStock) {
+
+                    currentChk.prop("checked", false);
+
+>>>>>>> origin/master
                     Swal.fire({
                         icon: "warning",
                         title: "Limit Reached",
                         text: "Stock already fully allocated!"
                     });
+<<<<<<< HEAD
                 } else {
                     alert("Stock already fully allocated!");
                 }
@@ -1748,3 +3076,66 @@
     });
 
 </script>
+=======
+
+                    return;
+                }
+            }
+
+            // ✅ Build selectedData
+            let selectedData = [];
+
+            $(".row-checkbox:checked").each(function () {
+
+                let chk = $(this);
+
+                if (normalize(chk.data("key")) === key) {
+
+                    let stock = parseInt(
+                        chk.closest("tr").find("td:eq(5)").text()
+                    ) || 0;
+
+                    selectedData.push({
+                        id: parseInt(chk.val()),
+                        stock: stock
+                    });
+                }
+            });
+
+            globalYarnMap[key] = selectedData;
+
+            let totalStock = selectedData.reduce((sum, x) => sum + x.stock, 0);
+            let usableStock = Math.min(totalStock, maxCapacity);
+
+            let totalFilled = 0;
+
+            // reset
+            inputs.val(0);
+
+            // refill
+            inputs.each(function () {
+
+                let input = $(this);
+                let max = parseInt(input.data("stock")) || 0;
+
+                let remaining = usableStock - totalFilled;
+
+                if (remaining <= 0) {
+                    input.val(0);
+                    return;
+                }
+
+                let fill = Math.min(max, remaining);
+
+                input.val(fill);
+                input.data("old", fill);
+
+                totalFilled += fill;
+            });
+
+            console.log("globalYarnMap", globalYarnMap);
+        });
+
+    </script>
+}
+>>>>>>> origin/master

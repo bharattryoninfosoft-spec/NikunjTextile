@@ -2,7 +2,37 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<<<<<<< HEAD
 
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
@@ -20,7 +50,11 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <div class="modal-body">
+=======
+                    <div class="modal-body" style="overflow:auto">
+>>>>>>> origin/master
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
@@ -196,6 +230,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 <script>
     var currentPagePermission = {};
     $(document).ready(function () {
@@ -515,6 +550,218 @@
                     if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+@section Scripts{   
+
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+            getItemUnit();
+            getItemGST();
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText || 'Failed to load default company data.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function getItemUnit() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getItemUnit',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#ServiceUnit option[value]").each(function () {
+                        $(this).remove();
+                    });
+
+                    $('#ServiceUnit').append("<option value='' selected> -- Select -- </option>");
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+                        appendTemp = "<option value='" + admin.UnitId + "'>" + admin.Unit + "</option >";
+                        $('#ServiceUnit').append(appendTemp);
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function getItemGST() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGSTSlabList',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#GSTSLABId option[value]").each(function () {
+                        $(this).remove();
+                    });
+                    appendTemp = "<option value='0' selected></option >";
+                    $('#GSTSLABId').append(appendTemp);
+
+                    for (var i = 0; i < jsonData.length; i++) {
+                        admin = jsonData[i];
+                        appendTemp = "<option value='" + admin.GSTSLABId + "'>" + admin.GSTSLABName + "</option >";
+                        $('#GSTSLABId').append(appendTemp);
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var rowStartVal = $("#rowStartCount").val();
+            var searchYarnMaterial = $("#search-Yarn-Material").val();
+
+            var formData = new FormData();
+            formData.append('searchYarnMaterial', searchYarnMaterial);
+            formData.append('startFrom', rowStartVal);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnMaterialMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    if (rowStartVal == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+
+                    if (response.listYarnMaterialMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = (parseInt(rowStartVal) + parseInt(1));
+                    for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+
+                        var Top = i - 1;
+                        var Previous = i + 1;
+                        var ActionPosition = "";
+
+                        if (response.listYarnMaterialMaster.length != 1) {
+                            if (i == 0) {
+                                var PostDown = response.listYarnMaterialMaster[i].YarnMaterialID + "," + response.listYarnMaterialMaster[i].Position + "|" + response.listYarnMaterialMaster[Previous].YarnMaterialID + "," + response.listYarnMaterialMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listYarnMaterialMaster[i].YarnMaterialID + "' value = '" + PostDown + "' /> ";
+                                ActionPosition += "<span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                            else if (i == parseInt(response.listYarnMaterialMaster.length - 1)) {
+                                var PostUp = response.listYarnMaterialMaster[i].YarnMaterialID + "," + response.listYarnMaterialMaster[i].Position + "|" + response.listYarnMaterialMaster[Top].YarnMaterialID + "," + response.listYarnMaterialMaster[Top].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listYarnMaterialMaster[i].YarnMaterialID + "' value = '" + PostUp + "' /> </span>";
+                                ActionPosition += "<span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
+                            }
+                            else {
+                                var PostUp = response.listYarnMaterialMaster[i].YarnMaterialID + "," + response.listYarnMaterialMaster[i].Position + "|" + response.listYarnMaterialMaster[Top].YarnMaterialID + "," + response.listYarnMaterialMaster[Top].Position;
+                                var PostDown = response.listYarnMaterialMaster[i].YarnMaterialID + "," + response.listYarnMaterialMaster[i].Position + "|" + response.listYarnMaterialMaster[Previous].YarnMaterialID + "," + response.listYarnMaterialMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listYarnMaterialMaster[i].YarnMaterialID + "' value = '" + PostUp + "' /><span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listYarnMaterialMaster[i].YarnMaterialID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                        }
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listYarnMaterialMaster[i].YarnMaterial + "</td>";
+                        temp += "<td>" + response.listYarnMaterialMaster[i].Denier + "</td>";
+                        temp += "<td>" + response.listYarnMaterialMaster[i].Unit + "</td>";
+                        temp += "<td>" + response.listYarnMaterialMaster[i].GSTSLABName + "</td>";
+                        temp += "<td>" + response.listYarnMaterialMaster[i].HSNCode + "</td>";
+
+                        if (response.listYarnMaterialMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        }
+                        else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='EditBtn' " +
+>>>>>>> origin/master
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Edit' " +
@@ -523,18 +770,25 @@
                             "onclick='showRecords(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
                             "</a>&nbsp;&nbsp;";
+<<<<<<< HEAD
                     }
 
                     // DELETE
                     if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='DeleteBtn' " +
+>>>>>>> origin/master
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Delete' " +
                             "onclick='functionYarnDelete(" + response.listYarnMaterialMaster[i].YarnMaterialID + ")'>" +
                             "<i class='icon-x-circle text-danger'></i>" +
                             "</a>";
+<<<<<<< HEAD
                     }
 
                     temp += "</div></td>";
@@ -566,11 +820,399 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+=======
+
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    dataTable.append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        // Delete FinancialYear
+        function functionFYDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this Financial Year record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('FinancialYearIDs', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                displayData(0);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Financial Year deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting Financial Year.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting Financial Year.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Yarn Material");
+            $("#add-alert").hide();
+
+            $("#YarnMaterial").val('');
+            $("#Denier").val('');
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+
+            var YarnMaterial = $('#YarnMaterial').val();
+            var Denier = $('#Denier').val();
+            var UnitId = $('#ServiceUnit').val();
+            var HSNCode = $('#HSNSACCOde').val();
+            var GSTSLABId = $('#GSTSLABId').val();
+
+            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+                validate(document.getElementById('YarnMaterial'));
+                validate(document.getElementById('ServiceUnit'));
+                validate(document.getElementById('HSNSACCOde'));
+                validate(document.getElementById('GSTSLABId'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnMaterial', YarnMaterial);
+                formData.append('Denier', Denier);
+                formData.append('UnitId', UnitId);
+                formData.append('HSNCode', HSNCode);
+                formData.append('GSTSLABId', GSTSLABId);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while saving Yarn Material.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+
+            var YarnMaterial = $('#YarnMaterial').val();
+            var Denier = $('#Denier').val();
+            var UnitId = $('#ServiceUnit').val();
+            var HSNCode = $('#HSNSACCOde').val();
+            var GSTSLABId = $('#GSTSLABId').val();
+
+            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+                validate(document.getElementById('YarnMaterial'));
+                validate(document.getElementById('ServiceUnit'));
+                validate(document.getElementById('HSNSACCOde'));
+                validate(document.getElementById('GSTSLABId'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnMaterial', YarnMaterial);
+                formData.append('Denier', Denier);
+                formData.append('UnitId', UnitId);
+                formData.append('HSNCode', HSNCode);
+                formData.append('GSTSLABId', GSTSLABId);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while saving Yarn Material.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+
+            var YarnMaterial = $('#YarnMaterial').val();
+            var Denier = $('#Denier').val();
+            var UnitId = $('#ServiceUnit').val();
+            var HSNCode = $('#HSNSACCOde').val();
+            var GSTSLABId = $('#GSTSLABId').val();
+
+            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+                validate(document.getElementById('YarnMaterial'));
+                validate(document.getElementById('ServiceUnit'));
+                validate(document.getElementById('HSNSACCOde'));
+                validate(document.getElementById('GSTSLABId'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnMaterialID', id);
+                formData.append('YarnMaterial', YarnMaterial);
+                formData.append('Denier', Denier);
+                formData.append('UnitId', UnitId);
+                formData.append('HSNCode', HSNCode);
+                formData.append('GSTSLABId', GSTSLABId);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/EditYarnMaterialMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#YarnMaterial').val('');
+                            $('#Denier').val('');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while updating Yarn Material.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Yarn Material");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getYarnMaterialMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#YarnMaterial").val(response.listYarnMaterialMaster[0].YarnMaterial);
+                        $("#Denier").val(response.listYarnMaterialMaster[0].Denier);
+                        $("#ServiceUnit").val(response.listYarnMaterialMaster[0].UnitId);
+                        $("#HSNSACCOde").val(response.listYarnMaterialMaster[0].HSNCode);
+                        $("#GSTSLABId").val(response.listYarnMaterialMaster[0].GSTSLABId);
+                        $("#select2-ServiceUnit-container").html(response.listYarnMaterialMaster[0].Unit);
+                        $("#select2-GSTSLABId-container").html(response.listYarnMaterialMaster[0].GSTSLABName);
+
+                        $("#IsActive").prop('checked', response.listYarnMaterialMaster[0].IsActive == "1");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.Message
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to retrieve record details.'
+                    });
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this Yarn Material record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnMaterialID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnMaterialMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Yarn Material deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting Yarn Material.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting Yarn Material.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_YarnMaterialQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
                         displayData(0);
@@ -671,11 +1313,43 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+                        });
+                    }
+                },
+                error: function (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_YarnMaterialQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -692,10 +1366,21 @@
                         notess.show(response.Message, {
                             type: 'danger',
 
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+>>>>>>> origin/master
                         });
                     }
                 },
                 error: function (error) {
+<<<<<<< HEAD
 
 
                     notess.show(response.Message, {
@@ -778,10 +1463,18 @@
 
                     });
 
+=======
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -1149,4 +1842,39 @@
 </script>
 
 
+=======
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+
+}
+>>>>>>> origin/master
 

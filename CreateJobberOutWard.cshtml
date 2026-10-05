@@ -1,0 +1,837 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <!-- Row start -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+            <!-- Modal end -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-section-header">Jobber Outward</div>
+                    <!--Weft Data -->
+                    <div class="row gutters">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Row start -->
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px; ">
+                                        <div id="notes"></div>
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                            <!-- Row start -->
+                                            <div class="row gutters">
+                                                <div class="col-2">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="ListNo" placeholder="List No" value="1" readonly />
+                                                        <div class="field-placeholder">List No<sup style="color:red;">*</sup></div>
+                                                        <div class="ListNo-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListNo-invalid-feedback invalid-feedback">Please Mention List No</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-2">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control datepicker" id="ListDate" placeholder="List Date" value="" />
+                                                        <div class="field-placeholder">List Date<sup style="color:red;">*</sup></div>
+                                                        <div class="ListDate-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ListDate-invalid-feedback invalid-feedback">Please Mention List Date</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3">
+                                                    <!-- Field wrapper start -->
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlParty" class="select-single detail" title="Select Party" data-live-search="true">
+                                                            <option value="-1">Select Party </option>
+                                                        </select>
+                                                        <div class="field-placeholder">Party <sup style="color:red;">*</sup></div>
+                                                        <div class="ddlParty-valid-feedback valid-feedback">Looks good!</div>
+                                                        <div class="ddlParty-invalid-feedback invalid-feedback">Please Select Sundry Creditors Party </div>
+                                                    </div>
+                                                    <!-- Field wrapper end -->
+                                                </div>
+                                                <div class="col-5">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="txtBillingAddress" placeholder="Billing Address" readonly />
+                                                        <div class="field-placeholder">Billing Address</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row gutters align-items-end">
+                                                <!-- Company Party Dropdown -->
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label for="ddlCompanyParty">Company Party</label>
+                                                        <select id="ddlCompanyParty" class="form-control">
+                                                            <option value="">Select Company Party</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Yarn Material Dropdown -->
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label for="ddlYarnMaterial">Yarn Material</label>
+                                                        <select id="ddlYarnMaterial" class="form-control">
+                                                            <option value="">Select Material</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Yarn Color Dropdown -->
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label for="ddlYarnColor">Yarn Color</label>
+                                                        <select id="ddlYarnColor" class="form-control">
+                                                            <option value="">Select Color</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Color Code Display -->
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label for="txtYarnColorCode">Color Code</label>
+                                                        <input type="text" id="txtYarnColorCode" class="form-control" placeholder="Code" readonly />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-2">
+                                                    <div class="form-group">
+                                                        <label for="txtNetWeight">Net Weight</label>
+                                                        <div class="input-group">
+                                                            <!-- Reference/Original Weight Display -->
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" style="background-color:#1273eb; color: white;" id="spnRefNetWeight" title="Current Net Weight">0.00</span>
+                                                            </div>
+                                                            <!-- Input Field for New Value -->
+                                                            <input type="text" id="txtNetWeight" class="form-control" placeholder="Input Weight" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Add Item Button Row -->
+                                                <div class="col-2 text-right">
+                                                    <button type="button" id="btnAddItem" class="btn btn-primary">Add Item</button>
+                                                </div>
+                                            </div>
+                                            <br />
+                                        </div>
+                                        <div class="form-section-header">Item Detail </div>
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                            <div class="row gutters">
+                                                <div class="col-12">
+                                                    <div class="table-responsive shadow-sm rounded">
+                                                        <table class="table table-bordered">
+                                                            <!-- Colored Gradient Header -->
+                                                            <thead style="text-align: center; background-color: #2573e845">
+                                                                <tr>
+                                                                    <th hidden>Godown ID</th>
+                                                                    <th hidden>Company Party ID</th>
+                                                                    <th hidden>Bill To Party ID</th>
+                                                                    <th hidden>Yarn PO ID</th>
+                                                                    <th hidden>Details Json</th>
+                                                                    <th class="py-3">Company Party Name</th>
+                                                                    <th class="py-3" hidden>Billing Address</th>
+                                                                    <th class="py-3">Yarn Material</th>
+                                                                    <th class="py-3">Yarn Color</th>
+                                                                    <th class="py-3">Yarn Color Code</th>
+                                                                    <th class="py-3">Net Weight</th>
+                                                                    <th class="py-3">Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tableJobberOutward">
+                                                                <!-- Dynamic rows will render here -->
+                                                            </tbody>
+
+                                                            <!-- Highlighted Footer -->
+                                                            <tfoot style="background-color: #eef2f7;">
+                                                                <tr>
+                                                                    <td colspan="4" class="text-end font-weight-bold text-uppercase text-secondary align-middle">
+                                                                        Total Weight:
+                                                                    </td>
+                                                                    <td class="text-end align-middle">
+                                                                        <span id="lblTotalWeight" class="badge bg-success fs-6 px-3 py-2 rounded-pill">0.00</span>
+                                                                    </td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Row end -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="JobberOutWardList" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
+                    <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Yarn OutWard </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        var inwardData = [];
+        var globalPartyList = [];
+
+        $(document).ready(function () {
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#savebtn").hide();
+                }
+            }
+
+            var editId = getQueryString("id") || "";
+
+            // Load Pending Inward Data First, then trigger Edit Load if applicable
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/JobberOutward",
+                data: JSON.stringify({ JobberOutwardID: editId }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    try {
+                        inwardData = JSON.parse(response.d);
+
+                        bindCompanyParties();
+                        bindYarnMaterials();
+
+                        if (editId) {
+                            loadJobberOutwardForEdit(editId);
+                        }
+                    }
+                    catch (e) {
+                        console.error("JSON Parse Error:", e);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("JobberOutward Error:", xhr.responseText || error);
+                }
+            });
+
+            GetAllDropDownData();
+        });
+
+        function getQueryString(name) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // STEP 4: bindCompanyParties()
+        function bindCompanyParties() {
+            var uniqueCompanies = [];
+            $('#ddlCompanyParty').empty().append('<option value="">Select Company Party</option>');
+
+            $.each(inwardData, function (i, row) {
+                if (row.CompanyPartyId && $.inArray(String(row.CompanyPartyId), uniqueCompanies) === -1) {
+                    uniqueCompanies.push(String(row.CompanyPartyId));
+                    $('#ddlCompanyParty').append(
+                        $('<option>', {
+                            value: row.CompanyPartyId,
+                            text: row.CompanyPartyName
+                        })
+                    );
+                }
+            });
+        }
+
+        // STEP 5: bindYarnMaterials()
+        function bindYarnMaterials() {
+            var uniqueMaterials = [];
+            $('#ddlYarnMaterial').empty().append('<option value="">Select Material</option>');
+
+            $.each(inwardData, function (i, row) {
+                if (row.YarnMaterialID && $.inArray(String(row.YarnMaterialID), uniqueMaterials) === -1) {
+                    uniqueMaterials.push(String(row.YarnMaterialID));
+                    $('#ddlYarnMaterial').append(
+                        $('<option>', {
+                            value: row.YarnMaterialID,
+                            text: row.YarnMaterial
+                        })
+                    );
+                }
+            });
+        }
+
+        // STEP 6: Company Party Change Event
+        $('#ddlCompanyParty').change(function () {
+            var companyPartyId = $(this).val();
+
+            $('#ddlYarnMaterial').empty().append('<option value="">Select Material</option>');
+            $('#ddlYarnColor').empty().append('<option value="">Select Color</option>');
+            $('#txtYarnColorCode').val('');
+            $('#txtNetWeight').val('');
+            $('#spnRefNetWeight').text('0.00');
+
+            if (!companyPartyId) {
+                bindYarnMaterials();
+                return;
+            }
+
+            var uniqueMaterials = [];
+            $.each(inwardData, function (i, row) {
+                if (String(row.CompanyPartyId) === String(companyPartyId)) {
+                    if ($.inArray(String(row.YarnMaterialID), uniqueMaterials) === -1) {
+                        uniqueMaterials.push(String(row.YarnMaterialID));
+                        $('#ddlYarnMaterial').append(
+                            $('<option>', {
+                                value: row.YarnMaterialID,
+                                text: row.YarnMaterial
+                            })
+                        );
+                    }
+                }
+            });
+        });
+
+        // STEP 7: Yarn Material Change Event
+        $('#ddlYarnMaterial').change(function () {
+            var materialId = $(this).val();
+            var companyPartyId = $('#ddlCompanyParty').val();
+
+            $('#ddlYarnColor').empty().append('<option value="">Select Color</option>');
+            $('#txtYarnColorCode').val('');
+            $('#txtNetWeight').val('');
+            $('#spnRefNetWeight').text('0.00');
+
+            if (!materialId) {
+                return;
+            }
+
+            var uniqueColors = [];
+            $.each(inwardData, function (i, row) {
+                var matchesParty = !companyPartyId || String(row.CompanyPartyId) === String(companyPartyId);
+                if (matchesParty && String(row.YarnMaterialID) === String(materialId)) {
+                    if ($.inArray(String(row.YarnColorID), uniqueColors) === -1) {
+                        uniqueColors.push(String(row.YarnColorID));
+                        $('#ddlYarnColor').append(
+                            $('<option>', {
+                                value: row.YarnColorID,
+                                text: row.YarnColor,
+                                'data-colorcode': row.YarnColorCode
+                            })
+                        );
+                    }
+                }
+            });
+        });
+
+        // STEP 8: Yarn Color Change Event & Available Weight Calculation
+        $('#ddlYarnColor').change(function () {
+            var selectedOption = $(this).find(':selected');
+            var colorCode = selectedOption.data('colorcode');
+            var materialId = $('#ddlYarnMaterial').val();
+            var companyPartyId = $('#ddlCompanyParty').val();
+            var colorId = $(this).val();
+
+            $('#txtYarnColorCode').val(colorCode || '');
+
+            // Collect already selected JobberInwardDetailIDs from grid to exclude from available reference weight
+            var selectedDetailIds = [];
+            $('#tableJobberOutward tr').each(function () {
+                var detailsJson = $(this).find('.hdnDetails').val();
+                if (detailsJson) {
+                    try {
+                        var details = JSON.parse(detailsJson);
+                        $.each(details, function (i, detail) {
+                            if (detail.JobberInwardDetailID) {
+                                selectedDetailIds.push(String(detail.JobberInwardDetailID));
+                            }
+                        });
+                    } catch (e) { }
+                }
+            });
+
+            if (materialId && colorId) {
+                var totalWeight = 0;
+                $.each(inwardData, function (i, row) {
+                    var matchesParty = !companyPartyId || String(row.CompanyPartyId) === String(companyPartyId);
+                    var isAlreadySelected = selectedDetailIds.indexOf(String(row.JobberInwardDetailID)) !== -1;
+
+                    if (matchesParty && String(row.YarnMaterialID) === String(materialId) && String(row.YarnColorID) === String(colorId) && !isAlreadySelected) {
+                        totalWeight += parseFloat(row.NetWeight || 0);
+                    }
+                });
+
+                $('#spnRefNetWeight').text(totalWeight.toFixed(2));
+            } else {
+                $('#spnRefNetWeight').text('0.00');
+            }
+        });
+
+        // STEP 13: loadJobberOutwardForEdit() Integration
+        function loadJobberOutwardForEdit(id) {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetJobberOutwardView",
+                data: JSON.stringify({ JobberOutwardID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function () {
+                    $("#savebtn").prop("disabled", true);
+                },
+                success: function (response) {
+                    $("#savebtn").prop("disabled", false);
+                    var result = response.d;
+
+                    if (typeof result === "string") {
+                        result = JSON.parse(result);
+                    }
+
+                    if (!result || result.Code != 200) {
+                        Swal.fire('Error', result && result.Message ? result.Message : 'Jobber Outward data not found.', 'error');
+                        return;
+                    }
+
+                    var master = result.Master;
+                    if (master && master.length > 0) {
+                        $("#ListNo").val(master[0].OutwardListNo || "");
+                        if (master[0].OutwardListDate) {
+                            var dateValue = master[0].OutwardListDate;
+                            if (dateValue.indexOf("/Date(") >= 0) {
+                                var timestamp = parseInt(dateValue.replace(/[^0-9]/g, ""));
+                                dateValue = new Date(timestamp);
+                            } else {
+                                dateValue = new Date(dateValue);
+                            }
+
+                            if (!isNaN(dateValue.getTime())) {
+                                var year = dateValue.getFullYear();
+                                var month = ("0" + (dateValue.getMonth() + 1)).slice(-2);
+                                var day = ("0" + dateValue.getDate()).slice(-2);
+                                $("#ListDate").val(year + "-" + month + "-" + day);
+                            }
+                        }
+                        $("#ddlParty").val(master[0].PartyId).trigger('change');
+                        $("#txtBillingAddress").val(master[0].BillingAddress || "");
+                    }
+
+                    $("#tableJobberOutward").empty();
+
+                    if (result.Details && result.Details.length > 0) {
+                        $.each(result.Details, function (i, row) {
+                            var detailsJsonString = "[]";
+
+                            if (row.DetailsJson) {
+                                // If it's already a string, keep it. If it's an object, stringify it.
+                                detailsJsonString = typeof row.DetailsJson === 'string' ? row.DetailsJson : JSON.stringify(row.DetailsJson);
+                            }
+
+                            // Fallback only if DetailsJson is completely empty or invalid JSON
+                            if (!detailsJsonString || detailsJsonString === "[]" || detailsJsonString === "null") {
+                                var fallbackArray = [{
+                                    JobberInwardDetailID: row.JobberInwardDetailID || 0,
+                                    JobberInwardID: row.JobberInwardID || 0,
+                                    BarcodeNo: row.BarcodeNo || "",
+                                    BoxNo: row.BoxNo || "",
+                                    NetWeight: row.NetWeight || 0
+                                }];
+                                detailsJsonString = JSON.stringify(fallbackArray);
+                            }
+
+                            var markup = '<tr>' +
+                                '<th hidden class="clsGodownID">' + (row.GodownID || 0) + '</th>' +
+                                '<th hidden class="clsCompanyPartyId">' + (row.CompanyPartyId || 0) + '</th>' +
+                                '<th hidden class="clsBillToPartyId">' + (row.BillToPartyId || 0) + '</th>' +
+                                '<th hidden class="clsYarnPOID">' + (row.YarnPOID || 0) + '</th>' +
+                                '<th hidden class="clsYarnMaterialID">' + (row.YarnMaterialID || 0) + '</th>' +
+                                '<th hidden class="clsYarnColorID">' + (row.YarnColorID || 0) + '</th>' +
+                                '<th hidden class="clsDetailsJson"><input type="hidden" class="hdnDetails" value=\'' + detailsJsonString + '\' /></th>' +
+                                '<td style="text-align:center;">' + (row.CompanyPartyName || "") + '</td>' +
+                                '<th hidden class="billToPartyName">' + (row.BillToPartyName || "") + '</th>' +
+                                '<td style="text-align:center;">' + (row.YarnMaterial || "") + '</td>' +
+                                '<td style="text-align:center;">' + (row.YarnColor || "") + '</td>' +
+                                '<td style="text-align:center;">' + (row.YarnColorCode || "") + '</td>' +
+                                '<td class="clsNetWeight" style="text-align:right;">' + parseFloat(row.NetWeight || 0).toFixed(2) + '</td>' +
+                                '<td style="text-align:center;">' +
+                                '<a href="javascript:void(0);" class="text-primary btnEdit mr-2" title="Edit"><i class="fa fa-edit"></i></a> ' +
+                                '<a href="javascript:void(0);" class="text-danger btnDelete" title="Remove"><i class="icon-x-circle text-danger"></i></a>' +
+                                '</td>' +
+                                '</tr>';
+
+                            $("#tableJobberOutward").append(markup);
+                        });
+                    }
+
+                    calculateTotalWeight();
+                    $("#savebtn").text("Update Yarn Outward");
+                    $("#savebtn").attr("data-edit-id", id);
+                },
+                error: function (xhr, status, error) {
+                    $("#savebtn").prop("disabled", false);
+                    Swal.fire('Server Error', xhr.responseText || error, 'error');
+                }
+            });
+        }
+
+        // STEP 9: Add Item Button Logic
+        $('#btnAddItem').click(function () {
+            var companyPartyId = $('#ddlCompanyParty').val();
+            var materialId = $('#ddlYarnMaterial').val();
+            var colorId = $('#ddlYarnColor').val();
+            var materialName = $('#ddlYarnMaterial option:selected').text();
+            var colorName = $('#ddlYarnColor option:selected').text();
+            var colorCode = $('#txtYarnColorCode').val();
+            var targetWeight = parseFloat($('#txtNetWeight').val()) || 0;
+            var availableWeight = parseFloat($('#spnRefNetWeight').text()) || 0;
+
+            if (!companyPartyId) {
+                Swal.fire('Warning', 'Please select Company Party.', 'warning');
+                return;
+            }
+            if (!materialId || !colorId) {
+                Swal.fire('Warning', 'Please select Yarn Material and Yarn Color.', 'warning');
+                return;
+            }
+            if (targetWeight <= 0) {
+                Swal.fire('Warning', 'Please enter valid Net Weight.', 'warning');
+                return;
+            }
+            if (targetWeight > availableWeight) {
+                Swal.fire('Warning', 'Input Weight cannot exceed available stock (' + availableWeight.toFixed(2) + ').', 'warning');
+                return;
+            }
+
+            // Gather all already used JobberInwardDetailIDs from the table grid
+            var selectedDetailIds = [];
+            $('#tableJobberOutward tr').each(function () {
+                var detailsJson = $(this).find('.hdnDetails').val();
+                if (!detailsJson) return;
+                try {
+                    var details = JSON.parse(detailsJson);
+                    $.each(details, function (i, detail) {
+                        if (detail.JobberInwardDetailID) {
+                            selectedDetailIds.push(String(detail.JobberInwardDetailID));
+                        }
+                    });
+                } catch (e) { }
+            });
+
+            // Filter inwardData to pick ONLY rows that have NOT been added to the table yet
+            var matchedRows = inwardData.filter(function (row) {
+                var alreadySelected = selectedDetailIds.indexOf(String(row.JobberInwardDetailID)) !== -1;
+                var matchesParty = !companyPartyId || String(row.CompanyPartyId) === String(companyPartyId);
+
+                return matchesParty &&
+                    String(row.YarnMaterialID) === String(materialId) &&
+                    String(row.YarnColorID) === String(colorId) &&
+                    !alreadySelected;
+            });
+
+            if (matchedRows.length === 0) {
+                Swal.fire('Not Found', 'No remaining items or stock found for this selection.', 'error');
+                return;
+            }
+
+            var companyPartyName = '';
+            var billToPartyName = '';
+            var billToPartyId = '';
+            var yarnPOID = '';
+            var godownID = '';
+            var accumulatedWeight = 0;
+            var collectedDetails = [];
+
+            $.each(matchedRows, function (i, row) {
+                if (accumulatedWeight >= targetWeight) {
+                    return false;
+                }
+
+                var rowWeight = parseFloat(row.NetWeight) || 0;
+                if (!companyPartyName) {
+                    companyPartyName = row.CompanyPartyName || '';
+                    companyPartyId = row.CompanyPartyId;
+                    billToPartyName = row.BillToPartyName || '';
+                    billToPartyId = row.BillToPartyId || '';
+                    yarnPOID = row.YarnPOID || 0;
+                    godownID = row.GodownID || 0;
+                }
+
+                var weightToTake = rowWeight;
+                if (accumulatedWeight + rowWeight > targetWeight) {
+                    weightToTake = targetWeight - accumulatedWeight;
+                }
+
+                if (weightToTake <= 0) return;
+
+                accumulatedWeight += weightToTake;
+                collectedDetails.push({
+                    JobberInwardDetailID: row.JobberInwardDetailID,
+                    JobberInwardID: row.JobberInwardID,
+                    BarcodeNo: row.BarcodeNo,
+                    BoxNo: row.BoxNo,
+                    NetWeight: weightToTake
+                });
+            });
+
+            if (accumulatedWeight <= 0) {
+                Swal.fire('Error', 'Could not allocate weight from unassigned stock.', 'error');
+                return;
+            }
+
+            var rowDataJson = JSON.stringify(collectedDetails);
+
+            var markup = '<tr>' +
+                '<th hidden class="clsGodownID">' + godownID + '</th>' +
+                '<th hidden class="clsCompanyPartyId">' + companyPartyId + '</th>' +
+                '<th hidden class="clsBillToPartyId">' + billToPartyId + '</th>' +
+                '<th hidden class="clsYarnPOID">' + yarnPOID + '</th>' +
+                '<th hidden class="clsYarnMaterialID">' + materialId + '</th>' +
+                '<th hidden class="clsYarnColorID">' + colorId + '</th>' +
+                '<th hidden class="clsDetailsJson"><input type="hidden" class="hdnDetails" value=\'' + rowDataJson + '\' /></th>' +
+                '<td style="text-align:center;">' + companyPartyName + '</td>' +
+                '<th hidden class="billToPartyName">' + billToPartyName + '</th>' +
+                '<td style="text-align:center;">' + materialName + '</td>' +
+                '<td style="text-align:center;">' + colorName + '</td>' +
+                '<td style="text-align:center;">' + colorCode + '</td>' +
+                '<td class="clsNetWeight" style="text-align:right;">' + accumulatedWeight.toFixed(2) + '</td>' +
+                '<td style="text-align:center;">' +
+                '<a href="javascript:void(0);" class="text-primary btnEdit mr-2" title="Edit"><i class="fa fa-edit"></i></a> ' +
+                '<a href="javascript:void(0);" class="text-danger btnDelete" title="Remove"><i class="icon-x-circle text-danger"></i></a>' +
+                '</td>' +
+                '</tr>';
+
+            $('#tableJobberOutward').append(markup);
+            calculateTotalWeight();
+
+            // Clear inputs and refresh calculations
+            $('#ddlCompanyParty').val('').trigger('change');
+            $('#ddlYarnMaterial').empty().append('<option value="">Select Material</option>');
+            $('#ddlYarnColor').empty().append('<option value="">Select Color</option>');
+            $('#txtYarnColorCode').val('');
+            $('#txtNetWeight').val('');
+            $('#spnRefNetWeight').text('0.00');
+        });
+
+        // STEP 10: calculateTotalWeight()
+        function calculateTotalWeight() {
+            var total = 0;
+            $('#tableJobberOutward tr').each(function () {
+                var weight = parseFloat($(this).find('.clsNetWeight').text()) || 0;
+                total += weight;
+            });
+            $('#lblTotalWeight').text(total.toFixed(2));
+        }
+
+        // STEP 11: Delete Button Event
+        $(document).on('click', '.btnDelete', function () {
+            var row = $(this).closest('tr');
+            row.remove();
+            calculateTotalWeight();
+        });
+
+        // STEP 12: Edit Button Event (Pulls row back into controls without duplicating)
+        $(document).on('click', '.btnEdit', function () {
+            var row = $(this).closest('tr');
+            var companyPartyId = row.find('.clsCompanyPartyId').text().trim();
+            var materialId = row.find('.clsYarnMaterialID').text().trim();
+            var colorId = row.find('.clsYarnColorID').text().trim();
+            var netWeight = row.find('.clsNetWeight').text().trim();
+
+            row.remove();
+            calculateTotalWeight();
+
+            $('#ddlCompanyParty').val(companyPartyId).trigger('change');
+
+            setTimeout(function () {
+                $('#ddlYarnMaterial').val(materialId).trigger('change');
+
+                setTimeout(function () {
+                    $('#ddlYarnColor').val(colorId).trigger('change');
+                    $('#txtNetWeight').val(netWeight);
+                }, 150);
+            }, 150);
+        });
+
+        // STEP 14: checkSave() / itemsList DetailsJson handling
+        function checkSave() {
+            var PartyId = document.getElementById("ddlParty");
+            var OutwardListNo = document.getElementById("ListNo");
+            var OutwardListDateElement = document.getElementById("ListDate");
+            var OutwardListDateVal = $(OutwardListDateElement).val().trim();
+
+            if (validate(PartyId) == false) {
+                Swal.fire('Required Field', 'Please Select Sundry Creditors Party.', 'warning');
+                return;
+            }
+            if (validate(OutwardListNo) == false) {
+                Swal.fire('Required Field', 'Please Mention List No.', 'warning');
+                return;
+            }
+            if (validate(OutwardListDateElement) == false) {
+                Swal.fire('Required Field', 'Please Mention List Date.', 'warning');
+                return;
+            }
+
+            var itemsList = [];
+            $("#tableJobberOutward tr").each(function () {
+                var row = $(this);
+                var materialId = parseInt(row.find(".clsYarnMaterialID").text().trim()) || 0;
+                var milliseconds = jQuery.now();
+                if (materialId > 0) {
+                    itemsList.push({
+                        CompanyPartyId: parseInt(row.find(".clsCompanyPartyId").text().trim()) || 0,
+                        BillToPartyId: parseInt(row.find(".clsBillToPartyId").text().trim()) || 0,
+                        YarnMaterialID: materialId,
+                        YarnColorID: parseInt(row.find(".clsYarnColorID").text().trim()) || 0,
+                        YarnPOID: parseInt(row.find(".clsYarnPOID").text().trim()) || 0,
+                        NoOfBox: 1,
+                        NetWeight: parseFloat(row.find(".clsNetWeight").text().trim()) || 0,
+                        BarcodeNo: milliseconds,
+                        BoxNo: "BX" + milliseconds,
+                        // THIS LINE MUST ACCURATELY PULL THE JSON STRING FROM THE ROW'S HIDDEN FIELD:
+                        DetailsJson: row.find(".hdnDetails").val() || "[]"
+                    });
+                }
+            });
+
+            if (itemsList.length === 0) {
+                Swal.fire('Empty Table', 'Please add at least one item before saving.', 'warning');
+                return;
+            }
+
+            var editId = $("#savebtn").attr("data-edit-id");
+
+            var masterData = {
+                PartyId: parseInt($(PartyId).val()) || 0,
+                OutwardListNo: $(OutwardListNo).val(),
+                OutwardListDate: OutwardListDateVal,
+                TotalWeight: parseFloat($('#lblTotalWeight').text()) || 0,
+                Details: itemsList,
+                JobberOutwardID: 0,
+                JobberOutwardEncryptedID: editId || ""
+            };
+
+            var apiUrl = "/WebServiceNikunjTextile.asmx/insertJobberOutwardMaster";
+            if (editId) {
+                apiUrl = "/WebServiceNikunjTextile.asmx/updateJobberOutwardMaster";
+            }
+
+            $.ajax({
+                type: "POST",
+                url: apiUrl,
+                data: JSON.stringify({ masterData: masterData }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function () {
+                    $("#savebtn").prop("disabled", true);
+                },
+                success: function (response) {
+                    $("#savebtn").prop("disabled", false);
+                    var res = response.d;
+                    if (typeof res === "string") {
+                        res = JSON.parse(res);
+                    }
+
+                    var responseCode = res.Code || res.d?.Code;
+                    var responseMessage = res.Message || res.d?.Message;
+
+                    if (responseCode == 200 || responseCode == 201) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: editId ? 'Updated Successfully!' : 'Saved Successfully!',
+                            text: responseMessage || 'Operation completed successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function () {
+                            window.location.href = "JobberOutWardList";
+                        });
+                    } else {
+                        Swal.fire('Operation Failed', responseMessage || 'An error occurred while saving.', 'error');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $("#savebtn").prop("disabled", false);
+                    Swal.fire('Server Error', xhr.responseText || error || "An unexpected error occurred.", 'error');
+                }
+            });
+        }
+
+        function validate(code) {
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            if (code.value == "0" || code.value == "" || code.value == "-1") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                return true;
+            }
+        }
+
+        function GetAllDropDownData() {
+            var editId = getQueryString("id") || "";
+            var url = '/WebServiceNikunjTextile.asmx/getJobberOutWardDropDownData';
+            if (editId) {
+                url += '?JobberOutwardID=' + encodeURIComponent(editId);
+            }
+
+            var formData = new FormData();
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        if (response.listPartyMaster && response.listPartyMaster.length > 0) {
+                            globalPartyList = response.listPartyMaster; // Store globally for lookup
+
+                            $('#ddlParty').empty();
+                            var tempPartyName = "<option value='0'> Select Party </option>";
+                            $('#ddlParty').append(tempPartyName);
+                            for (var i = 0; i < response.listPartyMaster.length; i++) {
+                                tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlParty').append(tempPartyName);
+                            }
+                        } else {
+                            $('#ddlParty').empty();
+                            $("#ddlParty").prop('disabled', true);
+                        }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+        // Bind Party change event to auto-fill Billing Address
+        $('#ddlParty').change(function () {
+            var selectedPartyId = parseInt($(this).val()) || 0;
+
+            if (selectedPartyId <= 0) {
+                $('#txtBillingAddress').val('');
+                return;
+            }
+
+            // Find the matching party from our global list
+            var foundParty = globalPartyList.find(function (party) {
+                return parseInt(party.PartyId) === selectedPartyId;
+            });
+
+            if (foundParty) {
+                $('#txtBillingAddress').val(foundParty.BillingAddress || '');
+            } else {
+                $('#txtBillingAddress').val('');
+            }
+        });
+    </script>
+}

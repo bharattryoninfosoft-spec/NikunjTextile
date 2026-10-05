@@ -2,13 +2,110 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<<<<<<< HEAD
 
 <div class="content-wrapper">
+=======
+<style>
+
+    /* =========================================================
+       BROKER TABLE
+       ========================================================= */
+
+    #tblBroker {
+        width: 100%;
+        min-width: 950px;
+        table-layout: fixed;
+        margin-bottom: 0;
+    }
+
+        #tblBroker th,
+        #tblBroker td {
+            vertical-align: middle;
+        }
+
+            /* Broker Code */
+            #tblBroker th:nth-child(1),
+            #tblBroker td:nth-child(1) {
+                width: 110px;
+            }
+
+            /* Broker Name */
+            #tblBroker th:nth-child(2),
+            #tblBroker td:nth-child(2) {
+                width: 180px;
+            }
+
+            /* Mobile */
+            #tblBroker th:nth-child(3),
+            #tblBroker td:nth-child(3) {
+                width: 130px;
+            }
+
+            /* Address */
+            #tblBroker th:nth-child(4),
+            #tblBroker td:nth-child(4) {
+                width: 260px;
+            }
+
+            /* City */
+            #tblBroker th:nth-child(5),
+            #tblBroker td:nth-child(5) {
+                width: 130px;
+            }
+
+            /* Status */
+            #tblBroker th:nth-child(6),
+            #tblBroker td:nth-child(6) {
+                width: 90px;
+                text-align: center;
+            }
+
+            /* Action */
+            #tblBroker th:nth-child(7),
+            #tblBroker td:nth-child(7) {
+                width: 100px;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+        /* =========================================================
+       ADDRESS - MAXIMUM 2 LINES
+       ========================================================= */
+
+        #tblBroker .address-column {
+            white-space: normal !important;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 20px;
+            height: 70px;
+            max-height: 70px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+
+        /* Other columns remain single line */
+        #tblBroker td:not(.address-column) {
+            white-space: nowrap;
+        }
+</style>
+
+
+<div class="content-wrapper">
+
+    <!-- =====================================================
+         TOAST
+         ====================================================== -->
+
+>>>>>>> origin/master
     <div class="toast position-fixed top-0 end-0 m-3" id="liveToast">
         <div class="toast-body bg-success text-white">
             Saved Successfully
         </div>
     </div>
+<<<<<<< HEAD
     <div class="card-header-lg">
         <div class="modal fade" id="brokerModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
@@ -312,10 +409,480 @@
                 error: function (err) {
                     console.log(err);
                 }
+=======
+
+
+    <!-- =====================================================
+         HEADER
+         ====================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h4 class="m-0">
+            Broker Management
+        </h4>
+
+        <button class="btn btn-primary brokerModal"
+                data-bs-toggle="modal"
+                data-bs-target="#brokerModal">
+
+            <i class="fa fa-plus me-1"></i>
+            Add Broker
+
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         BROKER MODAL
+         ====================================================== -->
+
+    <div class="modal fade"
+         id="brokerModal"
+         tabindex="-1"
+         aria-labelledby="brokerModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-lg">
+
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title"
+                        id="brokerModalLabel">
+                        Add Broker
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+
+
+                <!-- Modal Body -->
+
+                <div class="modal-body"
+                     style="overflow:auto"
+                     id="brokerForm">
+
+                    <input type="hidden"
+                           id="BrokerId"
+                           value="0">
+
+
+                    <div class="row g-3">
+
+                        <!-- Broker Code -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input type="text"
+                                       class="form-control"
+                                       id="BrokerCode"
+                                       readonly>
+
+                                <div class="field-placeholder">
+                                    Broker Code
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- GSTIN -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input id="gstin"
+                                       type="text"
+                                       class="form-control clear-field detail"
+                                       placeholder="ex: 24XXXXX9438X1XX"
+                                       minlength="15"
+                                       maxlength="15"
+                                       onkeyup="validate(this)"
+                                       style="text-transform:uppercase;">
+
+                                <input id="gstintemp"
+                                       type="hidden"
+                                       class="clear-field detail">
+
+                                <div class="field-placeholder">
+                                    GSTIN
+                                </div>
+
+                                <div class="invalid-feedback"
+                                     id="GSTError">
+                                    Please Provide Valid GSTIN Number
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PAN -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input id="PanNo"
+                                       type="text"
+                                       class="form-control clear-field detail"
+                                       placeholder="PAN No"
+                                       minlength="10"
+                                       maxlength="10"
+                                       onkeyup="validate(this)"
+                                       style="text-transform:uppercase;">
+
+                                <input id="PanNotemp"
+                                       type="hidden"
+                                       class="clear-field detail">
+
+                                <div class="field-placeholder">
+                                    PAN No
+                                </div>
+
+                                <div class="invalid-feedback"
+                                     id="PanNoError">
+                                    Please Provide Valid PAN Number
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Broker Name -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input type="text"
+                                       class="form-control"
+                                       id="BrokerName">
+
+                                <div class="field-placeholder">
+
+                                    Broker Name
+                                    <span style="color:red">*</span>
+
+                                </div>
+
+                                <div class="invalid-feedback">
+                                    Broker Name is required
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Mobile -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input type="tel"
+                                       class="form-control"
+                                       id="MobileNo"
+                                       maxlength="10"
+                                       onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+
+                                <div class="field-placeholder">
+
+                                    Mobile
+                                    <span style="color:red">*</span>
+
+                                </div>
+
+                                <div class="invalid-feedback">
+                                    Enter valid 10-digit mobile number
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Address -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <textarea class="form-control" id="Address"  rows="2"></textarea>
+
+                                <div class="field-placeholder">
+                                    Address
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- City -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <input type="text"
+                                       class="form-control"
+                                       id="CityName">
+
+                                <div class="field-placeholder">
+                                    City
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Status -->
+
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 mb-3">
+
+                            <div class="field-wrapper">
+
+                                <select class="form-control"
+                                        id="IsActive">
+
+                                    <option value="true">
+                                        Active
+                                    </option>
+
+                                    <option value="false">
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                                <div class="field-placeholder">
+                                    Status
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Modal Footer -->
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            id="saveBtn"
+                            class="btn btn-success px-4"
+                            onclick="saveBroker()">
+
+                        <span id="btnText">
+                            Save
+                        </span>
+
+                        <span id="btnLoader"
+                              class="spinner-border spinner-border-sm d-none"
+                              role="status">
+                        </span>
+
+                    </button>
+
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BROKER TABLE
+         ====================================================== -->
+
+    <div class="row">
+
+        <div class="col-12">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <div class="form-section-header mb-3 fw-bold">
+                        Broker Master
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table id="tblBroker"
+                               class="table table-bordered table-hover align-middle">
+
+                            <thead class="table-primary">
+
+                                <tr>
+
+                                    <th style="width:110px;">
+                                        Broker Code
+                                    </th>
+
+                                    <th style="width:180px;">
+                                        Broker Name
+                                    </th>
+
+                                    <th style="width:130px;">
+                                        Mobile
+                                    </th>
+
+                                    <th style="width:260px;">
+                                        Address
+                                    </th>
+
+                                    <th style="width:130px;">
+                                        City
+                                    </th>
+
+                                    <th style="width:90px;"
+                                        class="text-center">
+                                        Status
+                                    </th>
+
+                                    <th style="width:100px;"
+                                        class="text-center">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        var currentPagePermission = {};
+
+
+        /* =====================================================
+           DOCUMENT READY
+           ====================================================== */
+
+        $(document).ready(function () {
+
+            FunctionIsLogin();
+
+            LoadBrokerList();
+
+        });
+
+
+        /* =====================================================
+           COOKIE
+           ====================================================== */
+
+        function getCookie(name) {
+
+            let match = document.cookie.match(
+                new RegExp('(^| )' + name + '=([^;]+)')
+            );
+
+            if (match) {
+
+                return decodeURIComponent(match[2]);
+
+            }
+
+            return null;
+        }
+
+
+        /* =====================================================
+           LOGIN CHECK
+           ====================================================== */
+
+        function FunctionIsLogin() {
+
+            $.ajax({
+
+                type: "POST",
+
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+
+                data: "{ 'userName':'0' }",
+
+                contentType: "application/json; charset=utf-8",
+
+                dataType: "json",
+
+                success: function (data) {
+
+                    if (data.d === "false") {
+
+                        window.location.replace("/Index");
+
+                    }
+
+                },
+
+                error: function (request, status, error) {
+
+                    console.error(
+                        "Login check failed:",
+                        error
+                    );
+
+                }
+
+>>>>>>> origin/master
             });
 
         }
 
+<<<<<<< HEAD
     });
     $('#brokerModal').on('hidden.bs.modal', function () {
         $(this).find('input, textarea').val('');
@@ -503,3 +1070,961 @@
 
 
 
+=======
+
+        /* =====================================================
+           LOAD BROKER LIST
+           ====================================================== */
+
+        function LoadBrokerList() {
+
+            $.ajax({
+
+                url: "/WebServiceNikunjTextile.asmx/GetBrokerList",
+
+                type: "POST",
+
+                data: "{}",
+
+                contentType: "application/json",
+
+                dataType: "json",
+
+                success: function (res) {
+
+                    var data = res.d;
+
+                    if (typeof data === "string") {
+
+                        data = JSON.parse(data);
+
+                    }
+
+                    bindBrokerTable(data);
+
+                },
+
+                error: function (err) {
+
+                    console.error(
+                        "Error loading broker list:",
+                        err
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        /* =====================================================
+           BIND BROKER TABLE
+           ====================================================== */
+
+        function bindBrokerTable(data) {
+
+            var html = "";
+
+
+            $.each(data, function (i, item) {
+
+                html += "<tr>";
+
+
+                // Broker Code
+
+                html += "<td>" +
+                    (item.BrokerCode || "-") +
+                    "</td>";
+
+
+                // Broker Name
+
+                html += "<td>" +
+                    (item.BrokerName || "-") +
+                    "</td>";
+
+
+                // Mobile
+
+                html += "<td>" +
+                    (item.MobileNo || "-") +
+                    "</td>";
+
+
+                // Address - 2 Lines
+
+                html += "<td class='address-column'>" +
+                    (item.Address || "-") +
+                    "</td>";
+
+
+                // City
+
+                html += "<td>" +
+                    (item.CityName || "-") +
+                    "</td>";
+
+
+                // Status
+
+                html += "<td class='text-center'>";
+
+                html += item.IsActive
+
+                    ? "<span class='badge bg-success'>Active</span>"
+
+                    : "<span class='badge bg-danger'>Inactive</span>";
+
+                html += "</td>";
+
+
+                // Action
+
+                html += "<td class='text-center'>";
+
+
+                // Edit
+
+                html +=
+                    "<i class='fa fa-edit text-primary me-2 EditBtn' " +
+                    "title='Edit' " +
+                    "style='cursor:pointer' " +
+                    "onclick='getBrokerById(" +
+                    item.BrokerId +
+                    ",\"edit\")'></i>";
+
+
+                // View
+
+                html +=
+                    "<i class='fa fa-eye text-dark me-2 ViewBtn' " +
+                    "title='View' " +
+                    "style='cursor:pointer' " +
+                    "onclick='getBrokerById(" +
+                    item.BrokerId +
+                    ",\"view\")'></i>";
+
+
+                // Delete
+
+                html +=
+                    "<i class='fa fa-trash text-danger DeleteBtn' " +
+                    "title='Delete' " +
+                    "style='cursor:pointer' " +
+                    "onclick='deleteBroker(" +
+                    item.BrokerId +
+                    ")'></i>";
+
+
+                html += "</td>";
+
+                html += "</tr>";
+
+            });
+
+
+            $("#tblBroker tbody").html(html);
+
+
+            /* =================================================
+               PERMISSION
+               ================================================== */
+
+            var permission = getCookie("PagePermission");
+
+
+            if (permission) {
+
+                currentPagePermission =
+                    JSON.parse(permission);
+
+
+                if (currentPagePermission.Add === false) {
+
+                    $(".brokerModal").hide();
+
+                }
+
+
+                if (currentPagePermission.Edit === false) {
+
+                    $(".EditBtn").hide();
+
+                }
+
+
+                if (currentPagePermission.Delete === false) {
+
+                    $(".DeleteBtn").hide();
+
+                }
+
+
+                if (currentPagePermission.view === false) {
+
+                    $(".ViewBtn").hide();
+
+                }
+
+            }
+
+        }
+
+
+        /* =====================================================
+           MODAL SHOW
+           ====================================================== */
+
+        $('#brokerModal').on(
+            'show.bs.modal',
+            function () {
+
+                if ($('#BrokerId').val() == '0') {
+
+                    $("#brokerModal input, #brokerModal select, #brokerModal textarea")
+                        .prop("disabled", false);
+
+
+                    $('#brokerModalLabel')
+                        .text("Add Broker");
+
+
+                    $("#saveBtn").show();
+
+
+                    $.ajax({
+
+                        url: '/WebServiceNikunjTextile.asmx/GetNextBrokerCode',
+
+                        type: 'POST',
+
+                        contentType: 'application/json; charset=utf-8',
+
+                        dataType: 'json',
+
+                        data: '{}',
+
+                        success: function (response) {
+
+                            $('#BrokerCode')
+                                .val(response.d);
+
+                        },
+
+                        error: function (err) {
+
+                            console.error(
+                                "Error getting broker code:",
+                                err
+                            );
+
+                        }
+
+                    });
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           MODAL HIDDEN
+           ====================================================== */
+
+        $('#brokerModal').on(
+            'hidden.bs.modal',
+            function () {
+
+                $('#BrokerId').val('0');
+
+                $(this)
+                    .find('input, textarea')
+                    .val('');
+
+                $(this)
+                    .find('input[type="checkbox"]')
+                    .prop('checked', false);
+
+                $(this)
+                    .find('select')
+                    .val('true')
+                    .trigger('change');
+
+                $('.form-control')
+                    .removeClass(
+                        'is-invalid is-valid'
+                    );
+
+            }
+        );
+
+
+        /* =====================================================
+           REMOVE VALIDATION CLASS
+           ====================================================== */
+
+        $('.form-control').on(
+            'input change',
+            function () {
+
+                $(this)
+                    .removeClass('is-invalid');
+
+            }
+        );
+
+
+        /* =====================================================
+           GST / PAN VALIDATION
+           ====================================================== */
+
+        function validate(code) {
+
+            var $el =
+                typeof code === "string"
+                    ? $("#" + code)
+                    : $(code);
+
+            var el = $el[0];
+
+
+            if (!el) {
+
+                return false;
+
+            }
+
+
+            var val = $(el).val();
+
+
+            if (!val ||
+                val.toString().trim() === "") {
+
+                $el.removeClass(
+                    "is-valid is-invalid"
+                );
+
+                return false;
+
+            }
+
+
+            el.value =
+                el.value
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+
+            if (el.id === "gstin") {
+
+                if (val.length === 15) {
+
+                    var gstVal =
+                        val.toUpperCase();
+
+
+                    var pattern =
+                        /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+
+                    if (pattern.test(gstVal)) {
+
+                        $el
+                            .addClass("is-valid")
+                            .removeClass("is-invalid");
+
+
+                        // PAN from GST
+
+                        $('#PanNo')
+                            .val(
+                                gstVal.substring(2, 12)
+                            );
+
+
+                        // Fetch GST details
+
+                        fetchGstDetails(gstVal);
+
+
+                        return true;
+
+                    }
+                    else {
+
+                        $el
+                            .addClass("is-invalid")
+                            .removeClass("is-valid");
+
+
+                        $("#GSTError")
+                            .html(
+                                "Please enter a valid 15-digit GSTIN."
+                            );
+
+
+                        return false;
+
+                    }
+
+                }
+                else {
+
+                    $el.removeClass(
+                        "is-valid is-invalid"
+                    );
+
+                    return false;
+
+                }
+
+            }
+
+
+            $el
+                .addClass("is-valid")
+                .removeClass("is-invalid");
+
+
+            return true;
+
+        }
+
+
+        /* =====================================================
+           FETCH GST DETAILS
+           ====================================================== */
+
+        function fetchGstDetails(gstin) {
+
+            $.ajax({
+
+                type: "POST",
+
+                url: '/WebServiceNikunjTextile.asmx/GetGstDetails',
+
+                data: JSON.stringify({
+                    gstin: gstin
+                }),
+
+                contentType:
+                    "application/json; charset=utf-8",
+
+                dataType: 'json',
+
+                success: function (response) {
+
+                    var res =
+                        (typeof response.d === 'string')
+                            ? JSON.parse(response.d)
+                            : response.d;
+
+
+                    if (res &&
+                        res.success &&
+                        res.data) {
+
+                        var d = res.data;
+
+
+                        $("#BrokerName")
+                            .val(
+                                d.trade_name ||
+                                d.legal_name ||
+                                ''
+                            );
+
+
+                        $("#Address")
+                            .val(
+                                d.address || ''
+                            );
+
+
+                        $("#CityName")
+                            .val(
+                                d.city || ''
+                            );
+
+
+                        showToast(
+                            'success',
+                            'GST Details Auto-filled!'
+                        );
+
+                    }
+                    else {
+
+                        showToast(
+                            'warning',
+                            'GST Details not found'
+                        );
+
+                    }
+
+                },
+
+                error: function () {
+
+                    showToast(
+                        'error',
+                        'Failed to fetch GST details.'
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        /* =====================================================
+           GET BROKER BY ID
+           ====================================================== */
+
+        function getBrokerById(id, mode) {
+
+            $.ajax({
+
+                url:
+                    '/WebServiceNikunjTextile.asmx/GetBrokerById',
+
+                type: 'POST',
+
+                contentType:
+                    'application/json; charset=utf-8',
+
+                dataType: 'json',
+
+                data: JSON.stringify({
+                    BrokerId: id
+                }),
+
+                success: function (res) {
+
+                    let data = res.d;
+
+
+                    $('#BrokerId')
+                        .val(data.BrokerId);
+
+
+                    $('#BrokerCode')
+                        .val(data.BrokerCode);
+
+
+                    $('#BrokerName')
+                        .val(data.BrokerName);
+
+
+                    $('#MobileNo')
+                        .val(data.MobileNo);
+
+
+                    $('#Address')
+                        .val(data.Address);
+
+
+                    $('#CityName')
+                        .val(data.CityName);
+
+
+                    $('#IsActive')
+                        .val(
+                            data.IsActive.toString()
+                        );
+
+
+                    // GST
+
+                    $('#gstin')
+                        .val(data.GSTNo || '');
+
+
+                    // PAN
+
+                    $('#PanNo')
+                        .val(data.PANCard || '');
+
+
+                    if (mode === "view") {
+
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea")
+                            .prop("disabled", true);
+
+
+                        $('#brokerModalLabel')
+                            .text("View Broker");
+
+
+                        $("#saveBtn").hide();
+
+                    }
+                    else {
+
+                        $("#brokerModal input, #brokerModal select, #brokerModal textarea")
+                            .prop("disabled", false);
+
+
+                        $('#brokerModalLabel')
+                            .text("Edit Broker");
+
+
+                        $("#saveBtn").show();
+
+                    }
+
+
+                    $('#brokerModal')
+                        .modal('show');
+
+                },
+
+                error: function (err) {
+
+                    showToast(
+                        'error',
+                        'Failed to fetch broker details.'
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        /* =====================================================
+           SAVE BROKER
+           ====================================================== */
+
+        function saveBroker() {
+
+            let isValid = true;
+
+
+            $('.form-control')
+                .removeClass('is-invalid');
+
+
+            let mobile =
+                $('#MobileNo')
+                    .val()
+                    .trim();
+
+
+            // Broker Name
+
+            if (!$('#BrokerName')
+                .val()
+                .trim()) {
+
+                $('#BrokerName')
+                    .addClass('is-invalid');
+
+                isValid = false;
+
+            }
+
+
+            // Mobile
+
+            if (!mobile) {
+
+                $('#MobileNo')
+                    .addClass('is-invalid');
+
+                isValid = false;
+
+            }
+            else if (!/^[6-9]\d{9}$/.test(mobile)) {
+
+                $('#MobileNo')
+                    .addClass('is-invalid');
+
+                $('#MobileNo')
+                    .siblings('.invalid-feedback')
+                    .text(
+                        "Invalid mobile number"
+                    );
+
+                isValid = false;
+
+            }
+
+
+            if (!isValid) {
+
+                return;
+
+            }
+
+
+            // Loader
+
+            $("#btnText")
+                .text("Saving...");
+
+
+            $("#btnLoader")
+                .removeClass("d-none");
+
+
+            $("#saveBtn")
+                .prop("disabled", true);
+
+
+            var obj = {
+
+                BrokerId:
+                    $('#BrokerId').val(),
+
+                BrokerCode:
+                    $('#BrokerCode').val(),
+
+                BrokerName:
+                    $('#BrokerName')
+                        .val()
+                        .trim(),
+
+                MobileNo:
+                    mobile,
+
+                Address:
+                    $('#Address')
+                        .val()
+                        .trim(),
+
+                CityName:
+                    $('#CityName')
+                        .val()
+                        .trim(),
+
+                CommissionRate:
+                    $('#CommissionRate')
+                        .val() || 0,
+
+                IsActive:
+                    $('#IsActive')
+                        .val() === "true",
+
+                GSTNo:
+                    $('#gstin')
+                        .val()
+                        .trim(),
+
+                PANCard:
+                    $('#PanNo')
+                        .val()
+                        .trim()
+
+            };
+
+
+            $.ajax({
+
+                url:
+                    '/WebServiceNikunjTextile.asmx/SaveBroker',
+
+                type: 'POST',
+
+                contentType:
+                    'application/json; charset=utf-8',
+
+                dataType: 'json',
+
+                data: JSON.stringify({
+                    obj: obj
+                }),
+
+                success: function (res) {
+
+                    $("#btnText")
+                        .text("Save");
+
+
+                    $("#btnLoader")
+                        .addClass("d-none");
+
+
+                    $("#saveBtn")
+                        .prop("disabled", false);
+
+
+                    if (res.d === "success") {
+
+                        showToast(
+                            'success',
+                            'Broker details saved successfully.'
+                        );
+
+
+                        $('#brokerModal')
+                            .modal('hide');
+
+
+                        LoadBrokerList();
+
+                    }
+                    else {
+
+                        showToast(
+                            'error',
+                            res.d
+                        );
+
+                    }
+
+                },
+
+                error: function (xhr, status, error) {
+
+                    $("#btnText")
+                        .text("Save");
+
+
+                    $("#btnLoader")
+                        .addClass("d-none");
+
+
+                    $("#saveBtn")
+                        .prop("disabled", false);
+
+
+                    showToast(
+                        'error',
+                        'Server error while saving record.'
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        /* =====================================================
+           DELETE BROKER
+           ====================================================== */
+
+        function deleteBroker(id) {
+
+            Swal.fire({
+
+                title: "Are you sure?",
+
+                text:
+                    "You want to delete this broker!",
+
+                icon: "warning",
+
+                showCancelButton: true,
+
+                confirmButtonColor: "#d33",
+
+                cancelButtonColor: "#6c757d",
+
+                confirmButtonText:
+                    "Yes, delete it!",
+
+                cancelButtonText:
+                    "Cancel"
+
+            })
+                .then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+
+                            url:
+                                '/WebServiceNikunjTextile.asmx/DeleteBroker',
+
+                            type: 'POST',
+
+                            contentType:
+                                'application/json; charset=utf-8',
+
+                            dataType: 'json',
+
+                            data: JSON.stringify({
+                                BrokerId: id
+                            }),
+
+                            success: function (res) {
+
+                                if (res.d === "success") {
+
+                                    Swal.fire(
+                                        "Deleted!",
+                                        "Broker removed successfully.",
+                                        "success"
+                                    );
+
+
+                                    LoadBrokerList();
+
+                                }
+                                else {
+
+                                    Swal.fire(
+                                        "Error",
+                                        res.d,
+                                        "error"
+                                    );
+
+                                }
+
+                            },
+
+                            error: function (err) {
+
+                                Swal.fire(
+                                    "Error",
+                                    "Failed to delete record.",
+                                    "error"
+                                );
+
+                            }
+
+                        });
+
+                    }
+
+                });
+
+        }
+
+
+        /* =====================================================
+           TOAST
+           ====================================================== */
+
+        function showToast(type, msg) {
+
+            Swal.fire({
+
+                toast: true,
+
+                position: 'top-end',
+
+                icon: type,
+
+                title: msg,
+
+                showConfirmButton: false,
+
+                timer: 2000
+
+            });
+
+        }
+
+    </script>
+
+}
+>>>>>>> origin/master

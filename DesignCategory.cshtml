@@ -1,10 +1,40 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< HEAD
 
 
 
 <!-- Content wrapper start -->
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
@@ -19,7 +49,11 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <div class="modal-body">
+=======
+                    <div class="modal-body" style="overflow:auto">
+>>>>>>> origin/master
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
@@ -129,6 +163,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 <script>
 
     var currentPagePermission = {};
@@ -370,6 +405,161 @@
                     if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText || 'Failed to load default company data.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchDesignCategory = $("#search-Design-Category").val();
+
+            var formData = new FormData();
+            formData.append('searchDesignCategory', searchDesignCategory);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getDesignCategoryMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+
+                    if (response.listDesignCategoryMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listDesignCategoryMaster.length; i++) {
+
+                        var Top = i - 1;
+                        var Previous = i + 1;
+                        var ActionPosition = "";
+
+                        if (response.listDesignCategoryMaster.length != 1) {
+                            if (i == 0) {
+                                var PostDown = response.listDesignCategoryMaster[i].DesignCategoryID + "," + response.listDesignCategoryMaster[i].Position + "|" + response.listDesignCategoryMaster[Previous].DesignCategoryID + "," + response.listDesignCategoryMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listDesignCategoryMaster[i].DesignCategoryID + "' value = '" + PostDown + "' /> ";
+                                ActionPosition += "<span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                            else if (i == parseInt(response.listDesignCategoryMaster.length - 1)) {
+                                var PostUp = response.listDesignCategoryMaster[i].DesignCategoryID + "," + response.listDesignCategoryMaster[i].Position + "|" + response.listDesignCategoryMaster[Top].DesignCategoryID + "," + response.listDesignCategoryMaster[Top].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listDesignCategoryMaster[i].DesignCategoryID + "' value = '" + PostUp + "' /> </span>";
+                                ActionPosition += "<span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
+                            }
+                            else {
+                                var PostUp = response.listDesignCategoryMaster[i].DesignCategoryID + "," + response.listDesignCategoryMaster[i].Position + "|" + response.listDesignCategoryMaster[Top].DesignCategoryID + "," + response.listDesignCategoryMaster[Top].Position;
+                                var PostDown = response.listDesignCategoryMaster[i].DesignCategoryID + "," + response.listDesignCategoryMaster[i].Position + "|" + response.listDesignCategoryMaster[Previous].DesignCategoryID + "," + response.listDesignCategoryMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listDesignCategoryMaster[i].DesignCategoryID + "' value = '" + PostUp + "' /><span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listDesignCategoryMaster[i].DesignCategoryID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                        }
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listDesignCategoryMaster[i].DesignCategory + "</td>";
+
+                        if (response.listDesignCategoryMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        }
+                        else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='EditBtn' " +
+>>>>>>> origin/master
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Edit' " +
@@ -378,18 +568,25 @@
                             "onclick='showRecords(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
                             "</a>&nbsp;&nbsp;";
+<<<<<<< HEAD
                     }
 
                     // DELETE
                     if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='DeleteBtn' " +
+>>>>>>> origin/master
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Delete' " +
                             "onclick='functionYarnDelete(" + response.listDesignCategoryMaster[i].DesignCategoryID + ")'>" +
                             "<i class='icon-x-circle text-danger'></i>" +
                             "</a>";
+<<<<<<< HEAD
                     }
 
                     temp += "</div></td>";
@@ -421,11 +618,354 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+=======
+
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    dataTable.append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        // Delete FinancialYear
+        function functionFYDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this Financial Year record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('FinancialYearIDs', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                displayData(0);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Financial Year deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting Financial Year.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting Financial Year.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add DesignCategory");
+            $("#add-alert").hide();
+
+            $("#DesignCategory").val('');
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignCategory = $('#DesignCategory').val();
+
+            if (validate(document.getElementById('DesignCategory')) == false) {
+                validate(document.getElementById('DesignCategory'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('DesignCategory', DesignCategory);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while saving DesignCategory.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignCategory = $('#DesignCategory').val();
+
+            if (validate(document.getElementById('DesignCategory')) == false) {
+                validate(document.getElementById('DesignCategory'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('DesignCategory', DesignCategory);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while saving DesignCategory.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var DesignCategory = $('#DesignCategory').val();
+
+            if (validate(document.getElementById('DesignCategory')) == false) {
+                validate(document.getElementById('DesignCategory'));
+            }
+            else {
+                var formData = new FormData();
+                formData.append('DesignCategoryID', id);
+                formData.append('DesignCategory', DesignCategory);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/EditDesignCategoryMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#DesignCategory').val('');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while updating DesignCategory.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit DesignCategory");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getDesignCategoryMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#DesignCategory").val(response.listDesignCategoryMaster[0].DesignCategory);
+                        $("#IsActive").prop('checked', response.listDesignCategoryMaster[0].IsActive == "1");
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.Message
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to retrieve record details.'
+                    });
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this DesignCategory record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('DesignCategoryID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteDesignCategoryMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'DesignCategory deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting DesignCategory.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting DesignCategory.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_DesignCategoryQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
                         displayData(0);
@@ -513,11 +1053,43 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+                        });
+                    }
+                },
+                error: function (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_DesignCategoryQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -534,10 +1106,21 @@
                         notess.show(response.Message, {
                             type: 'danger',
 
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+>>>>>>> origin/master
                         });
                     }
                 },
                 error: function (error) {
+<<<<<<< HEAD
 
 
                     notess.show(response.Message, {
@@ -607,10 +1190,18 @@
 
                     });
 
+=======
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -956,5 +1547,38 @@
 
 </script>
 
+=======
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master
 
 

@@ -2,6 +2,7 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<<<<<<< HEAD
 
 
 <!-- Content wrapper start -->
@@ -12,11 +13,24 @@
      
         <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Godown / Warehouse</button>
      
+=======
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="0" />
+
+    <div class="card-header-lg clearfix mb-3">
+        <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">
+            <i class="fa fa-plus me-1"></i> Add Godown / Warehouse
+        </button>
+
+        <!-- Godown Modal -->
+>>>>>>> origin/master
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addNewContactLabel">Add Godown / Warehouse</h5>
+<<<<<<< HEAD
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true"></span>
                         </button>
@@ -72,10 +86,55 @@
                                             </div>
                                         </div>
                                         <!-- Field wrapper end -->
+=======
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="overflow:auto">
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="row gutters">
+                                    <div class="col-md-5 col-12">
+                                        <div class="field-wrapper mb-3">
+                                            <input type="text" id="GodownTitle" name="GodownTitle" placeholder="Godown / Warehouse" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Godown / Warehouse Name <span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Mention Godown Title</div>
+                                        </div>
+                                        <div class="field-wrapper mb-3">
+                                            <input type="text" id="GSTNumber" name="GSTNumber" placeholder="GST Number" class="form-control clear-field" style="text-transform: uppercase;">
+                                            <div class="field-placeholder">GST Number</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5 col-12">
+                                        <div class="field-wrapper mb-3">
+                                            <textarea class="form-control clear-field" id="GodownAddress" name="GodownAddress" placeholder="Godown Address" rows="1"></textarea>
+                                            <div class="field-placeholder">Godown Address</div>
+                                        </div>
+                                        <div class="field-wrapper mb-3">
+                                            <select id="ddlParty" class="form-select clear-field detail" title="ddlParty">
+                                                <option value="">Select Party</option>
+                                            </select>
+                                            <div class="field-placeholder">Select Party</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2 col-12">
+                                        <div class="field-wrapper pt-2">
+                                            <div class="form-check form-switch mb-2">
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked style="cursor:pointer;">
+                                                <label class="form-check-label" for="IsActive">Is Active</label>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input id="IsDefault" class="form-check-input" type="checkbox" value="0" style="cursor:pointer;">
+                                                <label class="form-check-label" for="IsDefault">Is Default</label>
+                                            </div>
+                                        </div>
+>>>>>>> origin/master
                                     </div>
                                 </div>
                             </div>
 
+<<<<<<< HEAD
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
                                 <hr />
                                 <div class="row gutters" id="divLocation">
@@ -163,21 +222,83 @@
 
                                 <input type="hidden" id="txtDeleteLocationArray" name="txtYarnDetailsArray" class="form-control" value="" />
                                 <input type="hidden" id="txtLocationArray" name="txtYarnDetailsArray" class="form-control" value="1|" />
+=======
+                            <div class="col-12"><hr /></div>
+
+                            <div class="col-12" id="divLocation">
+                                <div class="row gutters align-items-center">
+                                    <!-- Manual Location Entry Switch -->
+                                    <div class="col-md-3 col-12 mb-2" id="divManuallyOrAuto">
+                                        <div class="field-wrapper pt-2">
+                                            <div class="form-check form-switch">
+                                                <input id="IsManually" class="form-check-input" type="checkbox" value="0" onchange="functionIsManual()" style="cursor:pointer;">
+                                                <label class="form-check-label fw-bold" for="IsManually">Manual Location Entry</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Auto Generation Inputs -->
+                                    <div class="col-md-3 col-12 mb-3" id="divNoOfRack">
+                                        <div class="field-wrapper">
+                                            <input type="text" id="NoOfRack" name="NoOfRack" placeholder="No Of Rack" class="form-control clear-field" onfocusout="validate(this)" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                            <div class="field-placeholder">No Of Racks <span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Mention No Of Racks</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3 col-12 mb-3" id="divGoLocation">
+                                        <div class="field-wrapper">
+                                            <input type="text" id="PrefixTitle" name="PrefixTitle" placeholder="Prefix Title (e.g. RACK)" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Prefix Title <span class="text-danger">*</span></div>
+                                            <div class="invalid-feedback">Please Mention Prefix Title</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add Location Button -->
+                                    <div class="col-md-3 col-12 mb-3 text-end" id="divAddLocationBtnWrapper">
+                                        <button id="AddLocationbtn" type="button" class="btn btn-primary" onclick="AddLocationbtn()">
+                                            <i class="fa fa-plus me-1"></i> Add Location
+                                        </button>
+                                    </div>
+
+                                    <!-- Location Table -->
+                                    <div class="col-12 mb-3" id="divTableLocation">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered m-0" id="tblYarnMaterial">
+                                                <tbody id="tableItemData">
+                                                    <!-- Dynamic Locations Rendered Here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="txtDeleteLocationArray" value="" />
+                                <input type="hidden" id="txtLocationArray" value="1|" />
+>>>>>>> origin/master
                             </div>
                         </div>
                     </div>
                     <input id="edit-id" type="hidden" />
+<<<<<<< HEAD
                     <div id="notess"></div>
+=======
+>>>>>>> origin/master
                     <div class="modal-footer">
                         <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
                         <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
                         <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+<<<<<<< HEAD
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+=======
+                        <button id="cancelbtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+>>>>>>> origin/master
                     </div>
                 </div>
             </div>
         </div>
     </div>
+<<<<<<< HEAD
     <div style="float:none;clear:both;">
         <br />
     </div>
@@ -471,11 +592,113 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/ActiveFGodownMaster',
+=======
+
+    <!-- Data Table Card -->
+    <div class="row gutters mt-2">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title m-0">Godown / Warehouse Master</h4>
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                            <input id="search-Godown" placeholder="Search Godown Title / Address..." type="text" class="form-control" onkeyup="functionSearch()">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="godownGridTable" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr class="bg-primary text-white">
+                                    <th class="text-white" style="width: 5%;">Sr No</th>
+                                    <th class="text-white">Godown Title</th>
+                                    <th class="text-white">Address</th>
+                                    <th class="text-white" style="width: 10%;">Is Active</th>
+                                    <th class="text-white" style="width: 10%;">Is Default</th>
+                                    <th class="text-white" style="width: 12%;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic AJAX Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-3 mb-4" id="viewMoreContainer">
+        <button type="button" class="btn btn-primary px-4" id="view-more-btn" onclick="displayData(1)">View More</button>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        var currentPagePermission = {};
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        $(document).ready(function () {
+            if ($.fn.select2) {
+                $('#ddlParty').select2({
+                    dropdownParent: $('#addNewContact'),
+                    width: '100%',
+                    placeholder: 'Select Party'
+                });
+            }
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") window.location.replace("/Index");
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        // --- GRID DATA BINDING ---
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            } else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchGodown = $("#search-Godown").val();
+            var formData = new FormData();
+            formData.append('searchGodown', searchGodown);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
 
@@ -1320,12 +1543,305 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteGodownMaster',
+=======
+                    if (rowStart == 0) {
+                        $("#godownGridTable tbody").empty();
+                    }
+
+                    if (!response.listGodownMaster || response.listGodownMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    } else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var temp = "";
+                    var SrNo = rowStart + 1;
+
+                    if (response.listGodownMaster && response.listGodownMaster.length > 0) {
+                        $.each(response.listGodownMaster, function (i, item) {
+                            var activeBadge = item.IsActive == "1"
+                                ? "<span class='badge bg-success'>Active</span>"
+                                : "<span class='badge bg-danger'>Inactive</span>";
+
+                            var defaultBadge = item.IsDefault == "1"
+                                ? "<span class='badge bg-success'>Default</span>"
+                                : "<span class='badge bg-secondary'>Not Default</span>";
+
+                            temp += `<tr>
+                                    <td>${SrNo++}</td>
+                                    <td>${item.GodownTitle} ${item.PartyType ? `<span class='badge bg-info ms-1'>${item.PartyType}</span>` : ''}</td>
+                                    <td>${item.GodownAddress || '-'}</td>
+                                    <td>${activeBadge}</td>
+                                    <td>${defaultBadge}</td>
+                                    <td>
+                                        <div class='actions d-flex gap-2'>
+                                            <a href='javascript:void(0)' class='EditBtn' title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(${item.GodownID})'>
+                                                <i class='icon-edit1 text-info'></i>
+                                            </a>
+                                            <a href='javascript:void(0)' class='DeleteBtn' title='Delete' onclick='functionYarnDelete(${item.GodownID})'>
+                                                <i class='icon-x-circle text-danger '></i>
+                                            </a>
+                                            <a href='javascript:void(0)' title='Toggle Default Status' onclick='functionYarnActive(${item.GodownID})'>
+                                                <i class='icon-verified_user text-primary'></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>`;
+                        });
+                    } else if (rowStart == 0) {
+                        temp = `<tr><td colspan='6' class='text-center text-muted'>No Godown / Warehouse records found</td></tr>`;
+                    }
+
+                    $('#godownGridTable tbody').append(temp);
+                }
+            });
+        }
+
+        // --- TOGGLE MANUAL SWITCH HANDLER ---
+        function functionIsManual() {
+            if ($('#IsManually').is(':checked')) {
+                $("#divNoOfRack, #divGoLocation").hide();
+            } else {
+                $("#divNoOfRack, #divGoLocation").show();
+            }
+        }
+        // --- ADD LOCATIONS (HANDLES BOTH MANUAL SINGLE ROW & AUTO GENERATION) ---
+        
+        // --- ADD LOCATIONS (HANDLES BOTH MANUAL SINGLE ROW & AUTO SEQUENCING) ---
+        function AddLocationbtn() {
+            var godownTitle = document.getElementById('GodownTitle');
+            if (!validate(godownTitle)) {
+                Toast.fire({ icon: 'warning', title: 'Please enter Godown Title first.' });
+                return;
+            }
+
+            var isManual = $('#IsManually').is(':checked');
+            var txtColorArray = $("#txtLocationArray").val() || "";
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
+            var nextIndex = 1;
+
+            if (txtColorData.length > 0 && txtColorData[0] !== "") {
+                var lastVal = parseInt(txtColorData[txtColorData.length - 1]);
+                if (!isNaN(lastVal)) {
+                    nextIndex = lastVal + 1;
+                }
+            }
+
+            var temp = "";
+
+            if (isManual) {
+                // --- MANUAL ENTRY MODE: Add single blank row for manual typing ---
+                var currentIndex = nextIndex++;
+                temp = `<tr id="trLocation${currentIndex}">
+                    <td style="width:10%; text-align: end; vertical-align: middle;">
+                        <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${currentIndex}')"></i>
+                    </td>
+                    <td style="width: 90%;">
+                        <div class="field-wrapper m-0">
+                            <input type="hidden" id="GodownLocationID${currentIndex}" value="0">
+                            <input type="text" id="GodownLocation${currentIndex}" placeholder="Location Title" class="form-control clear-field" onfocusout="checkManualDuplicate(this)">
+                            <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
+                            <div class="invalid-feedback">Please Mention Unique Location Title</div>
+                        </div>
+                    </td>
+                </tr>`;
+                txtColorArray += currentIndex + "|";
+                $("#tableItemData").append(temp);
+                $("#txtLocationArray").val(txtColorArray);
+                setTimeout(() => { $("#GodownLocation" + currentIndex).focus(); }, 200);
+            } else {
+                // --- AUTO GENERATION MODE: Your exact code block ---
+                var noOfRack = document.getElementById('NoOfRack');
+                var prefixTitle = document.getElementById('PrefixTitle');
+
+                if (!validate(noOfRack) || !validate(prefixTitle)) {
+                    Toast.fire({ icon: 'warning', title: 'Please enter No Of Racks and Prefix Title.' });
+                    return;
+                }
+
+                var countToAdd = parseInt(noOfRack.value);
+                var prefix = prefixTitle.value.trim().toUpperCase();
+
+                var existingPrefixCount = 0;
+                var maxSeqForPrefix = 0;
+
+                $('#tableItemData input[id^="GodownLocation"]').each(function () {
+                    var inputVal = $(this).val();
+                    if (inputVal && inputVal.indexOf('-') !== -1) {
+                        var parts = inputVal.split('-');
+                        var existingPrefix = parts[0].trim().toUpperCase();
+                        var existingNum = parseInt(parts[parts.length - 1]);
+
+                        if (existingPrefix === prefix) {
+                            existingPrefixCount++;
+                            if (!isNaN(existingNum) && existingNum > maxSeqForPrefix) {
+                                maxSeqForPrefix = existingNum;
+                            }
+                        }
+                    }
+                });
+
+                if (existingPrefixCount > 0 && existingPrefixCount >= maxSeqForPrefix && countToAdd <= existingPrefixCount) {
+                    Toast.fire({ icon: 'warning', title: 'This prefix and rack range already exists in the table.' });
+                    return;
+                }
+
+                var startNum = maxSeqForPrefix + 1;
+                var actualToAdd = countToAdd;
+
+                if (existingPrefixCount > 0) {
+                    if (countToAdd <= existingPrefixCount) {
+                        Toast.fire({ icon: 'warning', title: 'Racks for prefix ' + prefix + ' already up to ' + existingPrefixCount + '.' });
+                        return;
+                    }
+                    actualToAdd = countToAdd - existingPrefixCount;
+                }
+
+                for (var i = 0; i < actualToAdd; i++) {
+                    var currentNum = startNum + i;
+                    var generatedTitle = prefix + "-" + currentNum;
+                    var currentIndex = nextIndex++;
+
+                    temp += `<tr id="trLocation${currentIndex}">
+                        <td style="width:10%; text-align: end; vertical-align: middle;">
+                            <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${currentIndex}')"></i>
+                        </td>
+                        <td style="width: 90%;">
+                            <div class="field-wrapper m-0">
+                                <input type="hidden" id="GodownLocationID${currentIndex}" value="0">
+                                <input type="text" id="GodownLocation${currentIndex}" placeholder="Location Title" class="form-control clear-field is-valid" value="${generatedTitle}" onfocusout="validate(this)">
+                                <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
+                                <div class="invalid-feedback">Please Mention Location Title</div>
+                            </div>
+                        </td>
+                    </tr>`;
+                    txtColorArray += currentIndex + "|";
+                }
+
+                $("#tableItemData").append(temp);
+                $("#txtLocationArray").val(txtColorArray);
+
+                $("#NoOfRack, #PrefixTitle").val("").removeClass("is-valid is-invalid");
+                Toast.fire({ icon: 'success', title: 'Locations added successfully!' });
+            }
+        }
+        function checkManualDuplicate(inputElement) {
+            validate(inputElement);
+            var typedVal = $(inputElement).val().trim().toUpperCase();
+            if (typedVal === "") return;
+
+            var isDuplicate = false;
+            $('#tableItemData input[id^="GodownLocation"]').each(function () {
+                // Check against other inputs in the table, excluding the current input element itself
+                if (this !== inputElement && $(this).val().trim().toUpperCase() === typedVal) {
+                    isDuplicate = true;
+                    return false; // break loop
+                }
+            });
+
+            if (isDuplicate) {
+                Toast.fire({ icon: 'error', title: 'Location "' + typedVal + '" already exists in the table!' });
+                $(inputElement).val("").addClass("is-invalid").removeClass("is-valid");
+            }
+        }
+
+        function deleteLocationData(abc) {
+            var GodownID = "#GodownLocationID" + abc;
+            var val = $(GodownID).val();
+
+            if (val && val != "0") {
+                var DeleteArray = $("#txtDeleteLocationArray").val();
+                $("#txtDeleteLocationArray").val(DeleteArray + val + ",");
+            }
+
+            $("#trLocation" + abc).remove();
+            var ColorArray = $("#txtLocationArray").val();
+            if (ColorArray) {
+                $("#txtLocationArray").val(ColorArray.replace(abc + "|", ''));
+            }
+        }
+
+        function clearAll() {
+            BindParty();
+            $("#savebtn, #saveViewbtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Godown / Warehouse");
+            $(".clear-field").val("").removeClass("is-valid is-invalid");
+            $("#txtLocationArray").val('');
+            $("#txtDeleteLocationArray").val('');
+            $('#IsActive').prop('checked', true);
+            $('#IsDefault').prop('checked', false);
+            $('#IsManually').prop('checked', false);
+            functionIsManual();
+
+            $("#tableItemData").html("");
+        }
+
+        // --- SAVE / EDIT OPERATIONS ---
+        function checkSaveView() {
+            executeSave(true);
+        }
+
+        function checkSave() {
+            executeSave(false);
+        }
+
+        function executeSave(closeModal) {
+            var godownTitle = document.getElementById('GodownTitle');
+            if (!validate(godownTitle)) return;
+
+            var locationList = [];
+            var txtColorArray = $("#txtLocationArray").val();
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
+            var isLocationValid = true;
+
+            for (var j = 0; j < txtColorData.length; j++) {
+                if (txtColorData[j] != "") {
+                    var GL = document.getElementById("GodownLocation" + txtColorData[j]);
+                    if (GL) {
+                        if (!validate(GL)) {
+                            isLocationValid = false;
+                        } else {
+                            locationList.push({
+                                SrNo: (locationList.length + 1).toString(),
+                                GodownLocationID: "0",
+                                LocationTitle: $(GL).val()
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (!isLocationValid || locationList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'Please provide at least one valid Godown Location.' });
+                return;
+            }
+
+            var godownDataObject = {
+                GodownTitle: $('#GodownTitle').val(),
+                GSTIN: $('#GSTNumber').val(),
+                GodownAddress: $('#GodownAddress').val(),
+                PartyId: $('#ddlParty').val() || "0",
+                IsActive: $("#IsActive").is(':checked') ? "1" : "0",
+                IsDefault: $("#IsDefault").is(':checked') ? "1" : "0",
+                IsManual: $('#IsManually').is(':checked') ? "1" : "0",
+                listGodownLocationMaster: locationList
+            };
+
+            var formData = new FormData();
+            formData.append('GodownArray', JSON.stringify(godownDataObject));
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertGodownMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.Code == 200) {
+<<<<<<< HEAD
 
                         notes.show("Godown Deleted successfully.", {
                             type: 'danger',
@@ -1357,10 +1873,23 @@
                     });
 
 
+=======
+                        Toast.fire({ icon: 'success', title: response.Message || 'Godown Saved Successfully!' });
+                        clearAll();
+                        displayData(0);
+                        if (closeModal) $("#cancelbtn").click();
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.Message });
+                    }
+                },
+                error: function () {
+                    Toast.fire({ icon: 'error', title: 'An error occurred while saving the record.' });
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
     function validate(code) {
         code.value = code.value.replace(/\s+/g, ' ').trim();
@@ -1398,3 +1927,250 @@
 
 
 
+=======
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var godownTitle = document.getElementById('GodownTitle');
+            if (!validate(godownTitle)) return;
+
+            var locationList = [];
+            var txtColorArray = $("#txtLocationArray").val();
+            var txtColorData = txtColorArray ? txtColorArray.slice(0, -1).split('|') : [];
+
+            for (var j = 0; j < txtColorData.length; j++) {
+                if (txtColorData[j] != "") {
+                    var GLVal = $("#GodownLocation" + txtColorData[j]).val();
+                    var GIDVal = $("#GodownLocationID" + txtColorData[j]).val() || "0";
+                    if (GLVal && GLVal.trim() !== "") {
+                        locationList.push({
+                            SrNo: (locationList.length + 1).toString(),
+                            GodownLocationID: GIDVal,
+                            LocationTitle: GLVal
+                        });
+                    }
+                }
+            }
+
+            if (locationList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'Please provide at least one valid Godown Location.' });
+                return;
+            }
+
+            var deleteLocations = $("#txtDeleteLocationArray").val();
+            var godownDataObject = {
+                GodownID: id,
+                GodownTitle: $('#GodownTitle').val(),
+                GSTIN: $('#GSTNumber').val(),
+                GodownAddress: $('#GodownAddress').val(),
+                IsActive: $("#IsActive").is(':checked') ? "1" : "0",
+                IsDefault: $("#IsDefault").is(':checked') ? "1" : "0",
+                PartyId: $('#ddlParty').val() || "0",
+                IsManual: $('#IsManually').is(':checked') ? "1" : "0",
+                DeleteGodownArray: deleteLocations.endsWith(',') ? deleteLocations.slice(0, -1) : deleteLocations,
+                listGodownLocationMaster: locationList
+            };
+
+            var formData = new FormData();
+            formData.append('GodownArray', JSON.stringify(godownDataObject));
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditGodownMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200) {
+                        Toast.fire({ icon: 'success', title: response.Message || 'Updated Successfully!' });
+                        clearAll();
+                        displayData($("#rowStartCount").val());
+                        $("#cancelbtn").click();
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.Message });
+                    }
+                }
+            });
+        }
+
+        // --- RECORD FETCH & ACTIONS ---
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn, #savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Godown / Warehouse");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response && response.listEncryptDecrypt && response.listEncryptDecrypt.length > 0) {
+                        ViewRecordQueryString(response.listEncryptDecrypt[0].DecryptID);
+                    }
+                }
+            });
+        }
+
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('GodownID', DecryptID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownMasterById',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.listGodownMaster && response.listGodownMaster.length > 0) {
+                        var master = response.listGodownMaster[0];
+                        console.log("getGodownMasterById", master);
+                        $("#GodownTitle").val(master.GodownTitle);
+                        $("#GodownAddress").val(master.GodownAddress);
+                        $("#GSTNumber").val(master.GSTIN);
+                        $("#IsActive").prop('checked', master.IsActive == "1");
+                        $("#IsDefault").prop('checked', master.IsDefault == "1");
+                        $("#IsManually").prop('checked', master.IsManual == "1");
+                        functionIsManual();
+
+                        if (master.PartyId) {
+                            $("#ddlParty").val(master.PartyId).trigger('change');
+                        }
+
+                        var temp = "";
+                        var txtColorArray = "";
+
+                        if (master.listGodownLocationMaster && master.listGodownLocationMaster.length > 0) {
+                            $.each(master.listGodownLocationMaster, function (j, loc) {
+                                var ArrayNo = j + 1;
+                                temp += `<tr id="trLocation${ArrayNo}">
+                                        <td style="width:10%; text-align: end; vertical-align: middle;">
+                                            <i class="fa fa-times text-danger fs-5 cursor-pointer" onclick="deleteLocationData('${ArrayNo}')"></i>
+                                        </td>
+                                        <td style="width: 90%;">
+                                            <div class="field-wrapper m-0">
+                                                <input type="hidden" id="GodownLocationID${ArrayNo}" value="${loc.GodownLocationID}">
+                                                <input type="text" id="GodownLocation${ArrayNo}" placeholder="Location Title" class="form-control clear-field" onfocusout="validate(this)" value="${loc.LocationTitle}">
+                                                <div class="field-placeholder">Godown Location <span class="text-danger">*</span></div>
+                                                <div class="invalid-feedback">Please Mention Location Title</div>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                                txtColorArray += ArrayNo + "|";
+                            });
+                        }
+
+                        $("#tableItemData").html(temp);
+                        $("#txtLocationArray").val(txtColorArray);
+                    }
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Godown / Warehouse!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('GodownID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteGodownMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Toast.fire({ icon: 'success', title: 'Godown Deleted successfully.' });
+                                displayData($("#rowStartCount").val());
+                            } else {
+                                Toast.fire({ icon: 'error', title: response.Message || 'Error deleting Godown.' });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function functionYarnActive(abc) {
+            Swal.fire({
+                title: 'Update Default Status?',
+                text: "Set this Godown as default for future transactions?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, set as default!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('GodownID', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/ActiveFGodownMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                Toast.fire({ icon: 'success', title: 'Default Godown status updated.' });
+                                displayData($("#rowStartCount").val());
+                            } else {
+                                Toast.fire({ icon: 'error', title: 'Problem occurred updating default state.' });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function BindParty() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/AllPartyData",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var data = JSON.parse(response.d);
+                    var $ddl = $("#ddlParty").empty().append('<option value="">Select Party</option>');
+
+                    $.each(data, function (i, item) {
+                        $ddl.append($('<option></option>').val(item.ID).html(item.PartyDisplayName));
+                    });
+
+                    if ($.fn.select2 && $ddl.hasClass("select2-hidden-accessible")) {
+                        $ddl.trigger('change');
+                    }
+                }
+            });
+        }
+
+        function validate(code) {
+            if (!code || code.value === undefined) return false;
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var $el = $(code);
+
+            if (code.value === "") {
+                $el.addClass("is-invalid").removeClass("is-valid");
+                return false;
+            } else {
+                $el.addClass("is-valid").removeClass("is-invalid");
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master

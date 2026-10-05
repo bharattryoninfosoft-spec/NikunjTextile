@@ -683,7 +683,11 @@
       </Line>
       <Line Name="Line11">
         <Top>0.02083in</Top>
+<<<<<<< HEAD
         <Left>4.43394in</Left>
+=======
+        <Left>4.42144in</Left>
+>>>>>>> origin/master
         <Height>4.62209in</Height>
         <Width>0in</Width>
         <ZIndex>4</ZIndex>
@@ -763,7 +767,11 @@
       </Line>
       <Line Name="Line20">
         <Top>4.64292in</Top>
+<<<<<<< HEAD
         <Left>4.43371in</Left>
+=======
+        <Left>4.42121in</Left>
+>>>>>>> origin/master
         <Height>0.72705in</Height>
         <Width>0in</Width>
         <ZIndex>11</ZIndex>
@@ -994,7 +1002,11 @@
   <Width>7.73132in</Width>
   <Page>
     <PageHeader>
+<<<<<<< HEAD
       <Height>3.27847in</Height>
+=======
+      <Height>3.29792in</Height>
+>>>>>>> origin/master
       <PrintOnFirstPage>true</PrintOnFirstPage>
       <PrintOnLastPage>true</PrintOnLastPage>
       <ReportItems>
@@ -1021,6 +1033,7 @@
           <Width>7.5in</Width>
           <Style />
         </Textbox>
+<<<<<<< HEAD
         <Textbox Name="txtCompanyLabel">
           <CanGrow>true</CanGrow>
           <Paragraphs>
@@ -1051,6 +1064,8 @@
           <ZIndex>1</ZIndex>
           <Style />
         </Textbox>
+=======
+>>>>>>> origin/master
         <Textbox Name="txtVendorGST">
           <CanGrow>true</CanGrow>
           <Paragraphs>
@@ -1074,11 +1089,19 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>2.40139in</Top>
           <Left>0.20871in</Left>
           <Height>0.25in</Height>
           <Width>3.97917in</Width>
           <ZIndex>2</ZIndex>
+=======
+          <Top>1.44306in</Top>
+          <Left>0.15663in</Left>
+          <Height>0.19305in</Height>
+          <Width>3.97917in</Width>
+          <ZIndex>1</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtVendor">
@@ -1104,6 +1127,7 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>2.15139in</Top>
           <Left>0.20871in</Left>
           <Height>0.25in</Height>
@@ -1116,6 +1140,20 @@
           <Height>0in</Height>
           <Width>7.71392in</Width>
           <ZIndex>4</ZIndex>
+=======
+          <Top>1.25556in</Top>
+          <Left>0.15663in</Left>
+          <Height>0.19444in</Height>
+          <Width>3.97917in</Width>
+          <ZIndex>2</ZIndex>
+          <Style />
+        </Textbox>
+        <Line Name="Line2">
+          <Top>2.19792in</Top>
+          <Height>0in</Height>
+          <Width>7.71392in</Width>
+          <ZIndex>3</ZIndex>
+>>>>>>> origin/master
           <Style>
             <Border>
               <Style>Solid</Style>
@@ -1149,7 +1187,11 @@
           <Left>4.50871in</Left>
           <Height>0.25in</Height>
           <Width>3in</Width>
+<<<<<<< HEAD
           <ZIndex>5</ZIndex>
+=======
+          <ZIndex>4</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtOrderDate">
@@ -1179,7 +1221,11 @@
           <Left>4.50871in</Left>
           <Height>0.25in</Height>
           <Width>3in</Width>
+<<<<<<< HEAD
           <ZIndex>6</ZIndex>
+=======
+          <ZIndex>5</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtShipGST">
@@ -1205,11 +1251,19 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>1.52708in</Top>
           <Left>0.2035in</Left>
           <Height>0.25in</Height>
           <Width>3.97917in</Width>
           <ZIndex>7</ZIndex>
+=======
+          <Top>2.49306in</Top>
+          <Left>4.50871in</Left>
+          <Height>0.25in</Height>
+          <Width>3.01045in</Width>
+          <ZIndex>6</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtShipName">
@@ -1236,11 +1290,19 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>1.29861in</Top>
           <Left>0.21913in</Left>
           <Height>0.25in</Height>
           <Width>3.97917in</Width>
           <ZIndex>8</ZIndex>
+=======
+          <Top>2.26459in</Top>
+          <Left>4.52434in</Left>
+          <Height>0.25in</Height>
+          <Width>2.99482in</Width>
+          <ZIndex>7</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Line Name="LineHeader">
@@ -1248,7 +1310,11 @@
           <Left>0.0486cm</Left>
           <Height>0in</Height>
           <Width>7.69479in</Width>
+<<<<<<< HEAD
           <ZIndex>9</ZIndex>
+=======
+          <ZIndex>8</ZIndex>
+>>>>>>> origin/master
           <Style>
             <Border>
               <Style>Solid</Style>
@@ -1284,7 +1350,11 @@
           <Left>0.5566cm</Left>
           <Height>0.25in</Height>
           <Width>7.3in</Width>
+<<<<<<< HEAD
           <ZIndex>10</ZIndex>
+=======
+          <ZIndex>9</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtMobile">
@@ -1316,7 +1386,11 @@
           <Left>0.5566cm</Left>
           <Height>0.25in</Height>
           <Width>7.3in</Width>
+<<<<<<< HEAD
           <ZIndex>11</ZIndex>
+=======
+          <ZIndex>10</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtCompanyAddress">
@@ -1341,7 +1415,11 @@
           <Left>0.21913in</Left>
           <Height>0.22292in</Height>
           <Width>7.3in</Width>
+<<<<<<< HEAD
           <ZIndex>12</ZIndex>
+=======
+          <ZIndex>11</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtCompanyName">
@@ -1367,7 +1445,11 @@
           <Left>0.55667cm</Left>
           <Height>0.25833in</Height>
           <Width>7.3in</Width>
+<<<<<<< HEAD
           <ZIndex>13</ZIndex>
+=======
+          <ZIndex>12</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtVendorGST3">
@@ -1393,6 +1475,7 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>2.86528in</Top>
           <Left>0.20871in</Left>
           <Height>0.25in</Height>
@@ -1458,6 +1541,13 @@
           <Height>0.25in</Height>
           <Width>3in</Width>
           <ZIndex>16</ZIndex>
+=======
+          <Top>1.83195in</Top>
+          <Left>0.15663in</Left>
+          <Height>0.19791in</Height>
+          <Width>3.97917in</Width>
+          <ZIndex>13</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
         <Textbox Name="txtShipGST2">
@@ -1483,6 +1573,7 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>1.79097in</Top>
           <Left>0.2035in</Left>
           <Height>0.25in</Height>
@@ -1508,6 +1599,21 @@
           <Height>0.88125in</Height>
           <Width>0in</Width>
           <ZIndex>19</ZIndex>
+=======
+          <Top>2.75695in</Top>
+          <Left>4.50871in</Left>
+          <Height>0.25in</Height>
+          <Width>3.01045in</Width>
+          <ZIndex>14</ZIndex>
+          <Style />
+        </Textbox>
+        <Line Name="Line4">
+          <Top>1.22917in</Top>
+          <Left>4.42621in</Left>
+          <Height>2.05833in</Height>
+          <Width>0in</Width>
+          <ZIndex>15</ZIndex>
+>>>>>>> origin/master
           <Style>
             <Border>
               <Style>Solid</Style>
@@ -1537,11 +1643,109 @@
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>2.65in</Top>
           <Left>0.2035in</Left>
           <Height>0.1875in</Height>
           <Width>3.97917in</Width>
           <ZIndex>20</ZIndex>
+=======
+          <Top>1.62917in</Top>
+          <Left>0.15142in</Left>
+          <Height>0.1875in</Height>
+          <Width>3.97917in</Width>
+          <ZIndex>16</ZIndex>
+          <Style />
+        </Textbox>
+        <Textbox Name="txtCompanyLabel">
+          <CanGrow>true</CanGrow>
+          <Paragraphs>
+            <Paragraph>
+              <TextRuns>
+                <TextRun>
+                  <Value>Company Name : </Value>
+                  <Style>
+                    <FontFamily>Arial Black</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>=First(Fields!CompanyPartyName.Value, "Master")</Value>
+                  <Style>
+                    <FontFamily>times New Roman</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+              </TextRuns>
+              <Style />
+            </Paragraph>
+          </Paragraphs>
+          <Top>2.25799in</Top>
+          <Left>0.15785in</Left>
+          <Height>0.25in</Height>
+          <Width>3.95521in</Width>
+          <ZIndex>17</ZIndex>
+          <Style />
+        </Textbox>
+        <Textbox Name="txtCompanyLabel2">
+          <CanGrow>true</CanGrow>
+          <Paragraphs>
+            <Paragraph>
+              <TextRuns>
+                <TextRun>
+                  <Value>Company GST : </Value>
+                  <Style>
+                    <FontFamily>Arial Black</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>=First(Fields!CompanyGSTIN.Value, "Master")</Value>
+                  <Style>
+                    <FontFamily>times New Roman</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+              </TextRuns>
+              <Style />
+            </Paragraph>
+          </Paragraphs>
+          <Top>2.44479in</Top>
+          <Left>0.15993in</Left>
+          <Height>0.25in</Height>
+          <Width>3.96563in</Width>
+          <ZIndex>18</ZIndex>
+          <Style />
+        </Textbox>
+        <Textbox Name="txtCompanyLabel3">
+          <CanGrow>true</CanGrow>
+          <Paragraphs>
+            <Paragraph>
+              <TextRuns>
+                <TextRun>
+                  <Value>Company Address : </Value>
+                  <Style>
+                    <FontFamily>Arial Black</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>=First(Fields!CompanyBillingAddress.Value, "Master")</Value>
+                  <Style>
+                    <FontFamily>times New Roman</FontFamily>
+                    <FontSize>9pt</FontSize>
+                  </Style>
+                </TextRun>
+              </TextRuns>
+              <Style />
+            </Paragraph>
+          </Paragraphs>
+          <Top>2.6559in</Top>
+          <Left>0.14743in</Left>
+          <Height>0.25in</Height>
+          <Width>3.96563in</Width>
+          <ZIndex>19</ZIndex>
+>>>>>>> origin/master
           <Style />
         </Textbox>
       </ReportItems>
@@ -1663,6 +1867,7 @@
                 <TextRun>
                   <Value>Terms &amp; Conditions</Value>
                   <Style>
+<<<<<<< HEAD
                     <FontFamily>Arial Black</FontFamily>
                     <FontWeight>Bold</FontWeight>
                   </Style>
@@ -1684,16 +1889,73 @@
                   <Style>
                     <FontFamily>Times New Roman</FontFamily>
                     <FontSize>8pt</FontSize>
+=======
+                    <FontStyle>Normal</FontStyle>
+                    <FontFamily>Times New Roman</FontFamily>
+                    <FontSize>11pt</FontSize>
+                    <FontWeight>Bold</FontWeight>
+                    <TextDecoration>None</TextDecoration>
+                    <Color>#000000</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value xml:space="preserve">
+</Value>
+                  <Style>
+                    <FontStyle>Normal</FontStyle>
+                    <FontFamily>Times New Roman</FontFamily>
+                    <FontSize>6.5pt</FontSize>
+                    <FontWeight>Bold</FontWeight>
+                    <TextDecoration>None</TextDecoration>
+                    <Color>#000000</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value xml:space="preserve">
+</Value>
+                  <Style>
+                    <FontStyle>Normal</FontStyle>
+                    <FontFamily>Times New Roman</FontFamily>
+                    <FontSize>6.5pt</FontSize>
+                    <FontWeight>Normal</FontWeight>
+                    <TextDecoration>None</TextDecoration>
+                    <Color>#000000</Color>
+                  </Style>
+                </TextRun>
+                <TextRun>
+                  <Value>- Yarn supplied must strictly conform to the specifications mentioned in the Purchase Order, including count, denier, composition, shade, lustre, and quality parameters.
+- No denier variation shall be acceptable in the supplied yarn. In case of dyed yarn, shade variation beyond acceptable industry tolerance shall not be permitted.
+- Supplier shall ensure uniformity in quality throughout the lot. Any defects such as contamination, oil stains, knots, mixed yarn, moisture damage, or inconsistent winding shall be treated as rejection criteria.
+- Goods must be delivered only to the shipping address mentioned in the Purchase Order.
+- Delivery timing shall be restricted to between 9:00 AM and 7:00 PM on working days unless otherwise communicated in writing.
+- Prices shall be considered strictly as per the Purchase Order. Any revision in price must be communicated and mutually approved in advance through issuance of a revised Purchase Order.
+- Loading, unloading, freight, transit insurance, and transportation charges shall be borne entirely by the supplier unless specifically agreed otherwise in writing.
+- Supplier shall ensure proper packing of goods to avoid damage, moisture exposure, or contamination during transit.</Value>
+                  <Style>
+                    <FontStyle>Normal</FontStyle>
+                    <FontFamily>Times New Roman</FontFamily>
+                    <FontSize>7.8pt</FontSize>
+                    <FontWeight>Normal</FontWeight>
+                    <TextDecoration>None</TextDecoration>
+                    <Color>#000000</Color>
+>>>>>>> origin/master
                   </Style>
                 </TextRun>
               </TextRuns>
               <Style />
             </Paragraph>
           </Paragraphs>
+<<<<<<< HEAD
           <Top>0.06944in</Top>
           <Left>0.0695in</Left>
           <Height>1.77014in</Height>
           <Width>7.65309in</Width>
+=======
+          <Top>0.05694in</Top>
+          <Left>0.02781in</Left>
+          <Height>1.77014in</Height>
+          <Width>7.69478in</Width>
+>>>>>>> origin/master
           <ZIndex>4</ZIndex>
           <Style />
         </Textbox>

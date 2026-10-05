@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
@@ -8,6 +9,12 @@
 
 
 
+=======
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+>>>>>>> origin/master
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
@@ -15,6 +22,7 @@
     <div class="card-header-lg">
 
         <a href="CreateYarnPO" id="AddYarnPOEntry" style="float:right;" class="btn btn-primary">Add Yarn PO</a>
+<<<<<<< HEAD
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
@@ -336,6 +344,156 @@
                     <input id="edit-id" type="hidden" />
                     <input id="catedit-id" type="hidden" />
                     <div id="notess"></div>
+=======
+        <div class="modal fade" id="addNewContact" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-white" style="background-color: #2b78e4;">
+                        <h5 class="modal-title fw-bold" id="addNewContactLabel">Yarn PO Form</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body" style="overflow-y: auto; height: 600px;">
+                        <div class="row gutters mb-4">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <p id="PPODate" class="mb-0"><b>PO Date: </b>06-07-2026</p>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 text-center text-md-start">
+                                <p id="PPONo" class="mb-0"><b>PO No: </b>1</p>
+                            </div>
+                        </div>
+
+                        <div class="row gutters">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 mb-3">
+                                <div class="form-section-header p-2 fw-bold mb-2" id="divSupplierPartyName" style="background: #7ca5d8; color: black;"> AMBIKA PRINTS </div>
+                                <div class="row">
+                                    <div class="col-xl-7 col-lg-7 col-md-12">
+                                        <input type="hidden" id="hSupplierPartyId" class="form-control" value="1">
+                                        <p id="PSupplierMobileNo" class="mb-1"><b>Mobile No: </b>9012345682 / 0</p>
+                                        <p id="PSupplierEmail" class="mb-1"><b>Email: </b>BHARATDARJI.B@GMAIL.COM</p>
+                                        <p id="PSupplierBillingAddress" class="mb-1"><b>Billing Address: </b>D44/11, RD NUMBER 20,<br>HOZIWALA INDUSTRIAL ESTATE, SACHIN APPAREL<br>PARK SEZ., SACHIN, SURAT, GUJARAT 394230</p>
+                                    </div>
+                                    <div class="col-xl-5 col-lg-5 col-md-12 mt-md-0 mt-2">
+                                        <p id="PSupplierState" class="mb-1"><b>State: </b>24-GUJARAT</p>
+                                        <p id="PSupplierGSTIN" class="mb-1"><b>GSTIn: </b>24AAACF1515N1Z4</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 mb-3">
+                                <div class="form-section-header p-2 fw-bold mb-2" id="divCompanyPartyName" style="background: #7ca5d8; color: black;"> AMBIKA PRINTS </div>
+                                <div class="row">
+                                    <div class="col-xl-7 col-lg-7 col-md-12">
+                                        <input type="hidden" id="hCompanyPartyId" class="form-control" value="2">
+                                        <p id="PCompanyMobileNo" class="mb-1"><b>Mobile No: </b>9012345682 / 0</p>
+                                        <p id="PCompanyEmail" class="mb-1"><b>Email: </b>BHARATDARJI.B@GMAIL.COM</p>
+                                        <p id="PCompanyBillingAddress" class="mb-1"><b>Billing Address: </b>D44/11, RD NUMBER 20,<br>HOZIWALA INDUSTRIAL ESTATE, SACHIN APPAREL<br>PARK SEZ., SACHIN, SURAT, GUJARAT 394230</p>
+                                    </div>
+                                    <div class="col-xl-5 col-lg-5 col-md-12 mt-md-0 mt-2">
+                                        <p id="PCompanyState" class="mb-1"><b>State: </b>24-GUJARAT</p>
+                                        <p id="PCompanyGSTIN" class="mb-1"><b>GSTIn: </b>24AAACF1515N1Z4</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 mb-3">
+                                <div class="form-section-header p-2 fw-bold mb-2" id="divBillToPartyName" style="background: #7ca5d8; color: black;"> KHODIYAR PRINTS </div>
+                                <div class="row">
+                                    <div class="col-xl-7 col-lg-7 col-md-12">
+                                        <input type="hidden" id="hBillToPartyId" class="form-control" value="3">
+                                        <p id="PBillToMobileNo" class="mb-1"><b>Mobile No: </b>9898989898 / 0</p>
+                                        <p id="PBillToEmail" class="mb-1"><b>Email: </b>SALES@KHODIYARPRINTS.COM</p>
+                                        <p id="PBillToBillingAddress" class="mb-1"><b>Billing Address: </b>BHARUCH MAIN BRANCH</p>
+                                    </div>
+                                    <div class="col-xl-5 col-lg-5 col-md-12 mt-md-0 mt-2">
+                                        <p id="PBillToState" class="mb-1"><b>State: </b>24-GUJARAT</p>
+                                        <p id="PBillToGSTIN" class="mb-1"><b>GSTIn: </b>24AAACK1234F1Z2</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 mb-3">
+                                <div class="form-section-header p-2 fw-bold mb-2" id="divGoDownDetail" style="background: #7ca5d8; color: black;"> Godown Detail </div>
+                                <div class="row">
+                                    <div class="col-xl-12 col-lg-12 col-md-12">
+                                        <input type="hidden" id="hGodownID" class="form-control" value="4">
+                                        <p id="PGodownTitle" class="mb-1"><b>Godown Title: </b>WEAVELANE YARN</p>
+                                        <p id="PGodownAddress" class="mb-1"><b>Godown Address: </b>YARN</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <input type="hidden" id="txtPurchasenStock" value="0" />
+                                    <table class="table table-bordered table-sm align-middle text-center" id="tblYarnMaterial">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="8" class="text-start bg-light text-primary p-2">Yarn Details</th>
+                                            </tr>
+                                            <tr class="bg-light">
+                                                <th style="width:3%;">#</th>
+                                                <th style="width: 15%;">Yarn Material</th>
+                                                <th style="width: 15%;">Yarn Color</th>
+                                                <th style="width: 15%;">Company Code</th>
+                                                <th style="width: 10%;">Qty</th>
+                                                <th style="width: 10%;">Rate</th>
+                                                <th style="width: 15%;">GST SLAB</th>
+                                                <th style="width: 15%;">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableYarnPO">
+                                            <tr>
+                                                <td>1</td>
+                                                <td>110 LICHI</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <div style="width: 20px; height: 20px; background-color: #a3c4df; margin-right: 8px;"></div>
+                                                        DEMIO
+                                                    </div>
+                                                </td>
+                                                <td>DEMIO</td>
+                                                <td>20</td>
+                                                <td>&#8377;200/-</td>
+                                                <td>5% GST</td>
+                                                <td>&#8377;4,200/-</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="bg-dark text-primary">
+                                                <td colspan="4" class="text-end fw-bold">Total</td>
+                                                <td class="fw-bold"><span id="pTotalQty">20</span></td>
+                                                <td class="fw-bold" hidden>&#8377; <span id="pTotalRate">200</span>/-</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td class="fw-bold">&#8377; <span id="pTotalAmount">4,200</span>/-</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3 text-muted">
+                            <div class="col-md-3 col-sm-6">
+                                <p class="mb-0 fw-bold">Delivery Time in Days: <span class="fw-normal" id="spanDeliveryTime">2-3 DAYS</span></p>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <p class="mb-0 fw-bold">Payment Condition in Days: <span class="fw-normal" id="spanPaymentCondition">45-60 DAYS</span></p>
+                            </div>
+                            <div class="col-md-5 col-sm-12">
+                                <p class="mb-0 fw-bold">Notes Remarks: <span class="fw-normal" id="spanNotesRemarks"></span></p>
+                            </div>
+                        </div>
+
+                        <input id="edit-id" type="hidden" />
+                        <input id="catedit-id" type="hidden" />
+                        <div id="notess"></div>
+                    </div>
+
+>>>>>>> origin/master
                     <div class="modal-footer">
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -357,9 +515,13 @@
                     <div class="form-section-header">Yarn PO Form</div>
                     <br />
 
+<<<<<<< HEAD
 
                     <div class="row gutters">
 
+=======
+                    <div class="row gutters">
+>>>>>>> origin/master
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
                             <button class="btn btn-danger" id="btnGeneratePDF">
                                 <span id="btnText">
@@ -372,7 +534,10 @@
                             </button>
                         </div>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <div class="field-wrapper">
@@ -381,6 +546,7 @@
                             </div>
                             <!-- Field wrapper end -->
                         </div>
+<<<<<<< HEAD
 
                     </div>
 
@@ -403,10 +569,38 @@
                                 </tr>
                             </thead>
                             <tbody>
+=======
+                    </div>
+
+                    <!-- Clean Standard HTML Table -->
+                    <div class="table-responsive">
+                        <table id="tblYarnPOList" class="table table-hover table-bordered m-0 align-middle">
+                            <thead>
+                                <tr style="background-color: #1273eb; color: white;">
+                                    <th style="width: 3%; text-align: center;">
+                                        <input type="checkbox" id="selectAllHeader" class="form-check-input" />
+                                    </th>
+                                    <th style="width: 4%; text-align: center; color: white;">Sr No</th>
+                                    <th style="width: 8%; text-align: center; color: white;">Action</th>
+                                    <th style="width: 8%; color: white;">PO <br /> Date</th>
+                                    <th style="width: 6%; color: white;">PO <br /> No</th>
+                                    <th style="width: 15%; color: white;">Supplier <br /> Name</th>
+                                    <th style="width: 15%; color: white;">Bill To <br /> Name</th>
+                                    <th style="width: 15%; color: white;">Company <br /> Name</th>
+                                    <th style="width: 12%; color: white;">Godown <br /> Details</th>
+                                    <th style="width: 8%; color: white;">Total <br /> Amount</th>
+                                    <th style="width: 8%; color: white;">Delivery <br /> Time</th>
+                                    <th style="width: 8%; color: white;">Payment <br /> Condition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic Rows Injected Here -->
+>>>>>>> origin/master
                             </tbody>
                         </table>
                     </div>
 
+<<<<<<< HEAD
 
 
                     <br />
@@ -429,11 +623,22 @@
 
 
 
+=======
+                    <br />
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="divPaggination">
+                            <!-- Dynamic Pagination Injected Here -->
+                        </ul>
+                    </nav>
+
+>>>>>>> origin/master
                 </div>
             </div>
 
         </div>
     </div>
+<<<<<<< HEAD
 
     <!-- Row end -->
 
@@ -1051,11 +1256,112 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteYarnPOMaster',
+=======
+    <!-- Row end -->
+
+</div>
+
+@section Scripts{
+    <script>
+        // Reusable SweetAlert Toast Configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        var currentPagePermission = {};
+        var selectedIds = [];
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayPagginationData();
+            displayData(0);
+            getYarnColor();
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: request.statusText || 'Error fetching company details.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayPagginationData();
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = rowStartCheck;
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchRequirementNo', searchdesignNo);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnPOMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("Yarn Requirement deleted successfully.", {
@@ -1088,10 +1394,74 @@
                     });
 
 
+=======
+                    var $tbody = $("#tblYarnPOList tbody");
+                    $tbody.empty();
+                    $("#selectAllHeader").prop('checked', false);
+
+                    var temp = "";
+                    var srno = parseInt(rowStart) + 1;
+
+                    if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                        for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+                            var item = response.listYarnPOMaster[i];
+                            var isChecked = selectedIds.indexOf(item.YarnPOID) !== -1 ? "checked" : "";
+
+                            temp += "<tr>";
+                            temp += "<td class='text-center'><input type='checkbox' class='row-checkbox form-check-input' value='" + item.YarnPOID + "' " + isChecked + " /></td>";
+                            temp += "<td class='text-center'>" + srno++ + "</td>";
+                            temp += "<td class='text-center'><div class='actions'>";
+
+                            if (item.EditableOrNot == "0") {
+                                temp += "<a href='javascript:void(0);' class='EditBtn me-2' data-toggle='tooltip' title='Edit' onclick='showEditRecords(" + item.YarnPOID + ")'>" +
+                                    "<i class='icon-edit1 text-info'></i></a>";
+
+                                temp += "<a href='javascript:void(0);' class='viewBtn me-2' data-toggle='tooltip' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + item.YarnPOID + ")'>" +
+                                    "<i class='fa fa-eye text-secondary'></i></a>";
+
+                                temp += "<a href='javascript:void(0);' class='DeleteBtn' data-toggle='tooltip' title='Delete' onclick='functionUserDelete(" + item.YarnPOID + ")'>" +
+                                    "<i class='icon-x-circle text-danger'></i></a>";
+                            } else {
+                                temp += "<a href='javascript:void(0);' class='viewBtn' data-toggle='tooltip' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + item.YarnPOID + ")'>" +
+                                    "<i class='fa fa-eye text-secondary'></i></a>";
+                            }
+
+                            temp += "</div></td>";
+                            temp += "<td>" + (item.PODates || '') + "</td>";
+                            temp += "<td>" + (item.PONo || '') + "</td>";
+                            temp += "<td>" + (item.SupplierPartyName || '') + "<br/><small class='text-muted'>" + (item.SupplierMobileNo || '') + "</small></td>";
+                            temp += "<td>" + (item.BillToPartyName || '') + "<br/><small class='text-muted'>" + (item.BillToMobileNo || '') + "</small></td>";
+                            temp += "<td>" + (item.CompanyPartyName || '') + "<br/><small class='text-muted'>" + (item.CompanyMobileNo || '') + "</small></td>";
+                            temp += "<td>" + (item.GodownTitle || '') + "<br/><small class='text-muted'>" + (item.GodownAddress || '') + "</small></td>";
+                            temp += "<td><i class='fa fa-inr'></i> " + item.TotalAmount.toLocaleString("en-IN") + "/-</td>";
+                            temp += "<td>" + (item.DeliveryTime || '') + "</td>";
+                            temp += "<td>" + (item.PaymentCondition || '') + "</td>";
+                            temp += "</tr>";
+                        }
+                    } else {
+                        temp = "<tr><td colspan='12' class='text-center text-muted'>No records found</td></tr>";
+                    }
+
+                    $tbody.html(temp);
+
+                    // Apply permissions
+                    var permission = getCookie("PagePermission");
+                    if (permission != null && permission != "") {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddYarnPOEntry").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("Display Data Error:", error);
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
     var selectedIds = [];
 
@@ -1214,3 +1584,331 @@
 
 
 
+=======
+        var total = 0;
+        var Paggination = 0;
+
+        function displayPagginationData() {
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchString', searchdesignNo);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnPOMasterPaggination',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (!response.listPagginationMaster || response.listPagginationMaster.length == 0 || response.listPagginationMaster[0].Paggination == "0") {
+                        $('#divPaggination').hide();
+                        return;
+                    }
+
+                    total = response.listPagginationMaster[0].Total;
+                    Paggination = parseInt(response.listPagginationMaster[0].Paggination);
+
+                    var temp = "";
+                    var limit = Math.min(Paggination, 10);
+
+                    for (var i = 1; i <= limit; i++) {
+                        var activeClass = (i == 1) ? "active" : "";
+                        temp += "<li class='page-item " + activeClass + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                    }
+
+                    if (Paggination > 10) {
+                        temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+                    }
+
+                    $('#divPaggination').html(temp).show();
+                },
+                error: function (request, status, error) {
+                    console.error("Pagination Error:", error);
+                }
+            });
+        }
+
+        function funcationPaggination(abc) {
+            var a = "#a" + abc;
+            $('#divPaggination li').removeClass('active');
+            $(a).addClass('active');
+
+            $("#rowStartCount").val(((abc - 1) * 30));
+            displayData(((abc - 1) * 30));
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Yarn PO Form");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    ViewRecordQueryString(DecryptID);
+                },
+                error: function (request, status, error) {
+                    console.error("Encrypt ID Error:", error);
+                }
+            });
+        }
+
+        var ArrayYarnColor = [];
+
+        function getYarnColor() {
+            var formData = new FormData();
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+                },
+                error: function (request, status, error) {
+                    console.error("Yarn Color Error:", error);
+                }
+            });
+        }
+
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnPOID', DecryptID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnPODetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+                        $("#PPODate").html("<b>PO Date: </b>" + response.listYarnPOMaster[i].PODates);
+                        $("#PPONo").html("<b>PO No: </b>" + response.listYarnPOMaster[i].PONo);
+
+                        $("#divSupplierPartyName").html(response.listYarnPOMaster[i].SupplierPartyName);
+                        $("#PSupplierMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].SupplierMobileNo + " / " + response.listYarnPOMaster[i].SupplierAlterMobileNo);
+                        $("#PSupplierEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].SupplierEmail);
+                        $("#PSupplierBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].SupplierBillingAddress);
+                        $("#PSupplierState").html("<b>State: </b>" + response.listYarnPOMaster[i].SupplierState);
+                        $("#PSupplierGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].SupplierGSTIN);
+
+                        $("#divBillToPartyName").html(response.listYarnPOMaster[i].BillToPartyName);
+                        $("#PBillToMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].BillToMobileNo + " / " + response.listYarnPOMaster[i].BillToAlterMobileNo);
+                        $("#PBillToEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].BillToEmail);
+                        $("#PBillToBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].BillToBillingAddress);
+                        $("#PBillToState").html("<b>State: </b>" + response.listYarnPOMaster[i].BillToState);
+                        $("#PBillToGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].BillToGSTIN);
+
+                        $("#divCompanyPartyName").html(response.listYarnPOMaster[i].CompanyPartyName);
+                        $("#PCompanyMobileNo").html("<b>Mobile No: </b>" + response.listYarnPOMaster[i].CompanyMobileNo + " / " + response.listYarnPOMaster[i].CompanyAlterMobileNo);
+                        $("#PCompanyEmail").html("<b>Email: </b>" + response.listYarnPOMaster[i].CompanyEmail);
+                        $("#PCompanyBillingAddress").html("<b>Billing Address: </b>" + response.listYarnPOMaster[i].CompanyBillingAddress);
+                        $("#PCompanyState").html("<b>State: </b>" + response.listYarnPOMaster[i].CompanyState);
+                        $("#PCompanyGSTIN").html("<b>GSTIn: </b>" + response.listYarnPOMaster[i].CompanyGSTIN);
+
+                        $("#hGodownID").val(response.listYarnPOMaster[i].GodownID);
+                        $("#PGodownTitle").html("<b>Godown Title: </b>" + response.listYarnPOMaster[i].GodownTitle);
+                        $("#PGodownAddress").html("<b>Godown Address: </b>" + response.listYarnPOMaster[i].GodownAddress);
+
+                        $("#pTotalQty").html(response.listYarnPOMaster[i].TotalQty.toLocaleString("en-IN"));
+                        $("#pTotalRate").html(response.listYarnPOMaster[i].TotalRate.toLocaleString("en-IN"));
+                        $("#pTotalAmount").html(response.listYarnPOMaster[i].TotalAmount.toLocaleString("en-IN"));
+
+                        $("#spanDeliveryTime").html(response.listYarnPOMaster[i].DeliveryTime);
+                        $("#spanPaymentCondition").html(response.listYarnPOMaster[i].PaymentCondition);
+                        $("#spanNotesRemarks").html(response.listYarnPOMaster[i].NotesRemarks);
+
+                        $("#tableYarnPO tbody").empty();
+                        var dataTable = $('#tableYarnPO');
+                        var temp = "";
+                        var srno = 1;
+
+                        for (var j = 0; j < response.listYarnPOMaster[i].listYarnPODetails.length; j++) {
+                            temp += "<tr><td>" + srno++ + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].YarnMaterial + "</td>";
+                            temp += "<td style='display: flex; align-items: center; gap: 5px;'> <div style='width: 35px; height: 35px; border-radius: 3px; background-color: #" + response.listYarnPOMaster[i].listYarnPODetails[j].YarnColorCode + ";'></div> " + response.listYarnPOMaster[i].listYarnPODetails[j].YarnColor + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].CompanyCode + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].Qty.toLocaleString("en-IN") + "</td>";
+                            temp += "<td style='text-align: center;'><i class='fa fa-inr'></i>" + response.listYarnPOMaster[i].listYarnPODetails[j].Rate.toLocaleString("en-IN") + "/-</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnPOMaster[i].listYarnPODetails[j].GSTSLABName + "</td>";
+                            temp += "<td style='text-align: center;'><i class='fa fa-inr'></i>" + response.listYarnPOMaster[i].listYarnPODetails[j].Amount.toLocaleString("en-IN") + "/-</td>";
+                            temp += "</tr>";
+                        }
+                        $("#tableYarnPO tbody").empty();
+                        dataTable.html(temp);
+                    }
+                },
+                error: function (request, status, error) {
+                    console.error("View Record Error:", error);
+                }
+            });
+        }
+
+        function showEditRecords(id) {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    var DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.location.href = '/UpdateYarnPO?id=' + DecryptID;
+                },
+                error: function (request, status, error) {
+                    console.error("Edit Record Error:", error);
+                }
+            });
+        }
+
+        // SweetAlert2 Delete Confirmation
+        function functionUserDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to delete this Yarn PO record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnPOID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnPOMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Yarn PO deleted successfully.'
+                                });
+                                displayData(0);
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.Message || 'Failed to delete record.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'A problem occurred while deleting the record.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Checkbox Management
+        $(document).on("change", "#selectAllHeader", function () {
+            var isChecked = $(this).is(":checked");
+            $("#tblYarnPOList tbody .row-checkbox").prop("checked", isChecked).trigger("change");
+        });
+
+        $(document).on("change", "#tblYarnPOList tbody .row-checkbox", function () {
+            var val = parseInt($(this).val());
+            if ($(this).is(":checked")) {
+                if (selectedIds.indexOf(val) === -1) {
+                    selectedIds.push(val);
+                }
+            } else {
+                var index = selectedIds.indexOf(val);
+                if (index !== -1) {
+                    selectedIds.splice(index, 1);
+                }
+                $("#selectAllHeader").prop("checked", false);
+            }
+        });
+
+        $(document).on("click", "#btnGeneratePDF", function () {
+            if (selectedIds.length === 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please select at least one record to generate PDF.'
+                });
+                return;
+            }
+
+            ExportPDF(selectedIds);
+        });
+
+        function ExportPDF(ids) {
+            $("#btnText").hide();
+            $("#btnLoader").show();
+            $("#btnGeneratePDF").prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/ExportPDF",
+                data: JSON.stringify({ yarnPOIds: ids }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var result = response.d;
+
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    if (result && result.FilePath) {
+                        window.open(result.FilePath, "_blank");
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'PDF Generation Failed',
+                            text: 'Could not generate the requested PDF file.'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    $("#btnText").show();
+                    $("#btnLoader").hide();
+                    $("#btnGeneratePDF").prop("disabled", false);
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred while generating the PDF.'
+                    });
+                }
+            });
+        }
+    </script>
+}
+>>>>>>> origin/master

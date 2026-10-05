@@ -122,6 +122,7 @@
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -380,17 +381,140 @@
 
                                 var PostUp = response.listYarnQualityMaster[i].YarnQualityID + "," + response.listYarnQualityMaster[i].Position + "|" + response.listYarnQualityMaster[Top].YarnQualityID + "," + response.listYarnQualityMaster[Top].Position;
 
+=======
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#master-tab").addClass("active");
+            $("#tab-Master").addClass("show active");
+            $("#aYarnQuality").addClass("current-page");
+
+            FunctionIsLogin();
+            displayData(0);
+            //getDefaultCompany();
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: request.statusText || "Failed to fetch default company.",
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getYarnQualityMaster?startFrom=' + rowStart,
+                data: "{ 'startFrom':'" + rowStart + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+
+                    if (response.listYarnQualityMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = 1;
+                    for (var i = 0; i < response.listYarnQualityMaster.length; i++) {
+
+                        var Top = i - 1;
+                        var Previous = i + 1;
+                        var ActionPosition = "";
+
+                        if (response.listYarnQualityMaster.length != 1) {
+                            if (i == 0) {
+                                var PostDown = response.listYarnQualityMaster[i].YarnQualityID + "," + response.listYarnQualityMaster[i].Position + "|" + response.listYarnQualityMaster[Previous].YarnQualityID + "," + response.listYarnQualityMaster[Previous].Position;
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listYarnQualityMaster[i].YarnQualityID + "' value = '" + PostDown + "' /> ";
+                                ActionPosition += "<span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listYarnQualityMaster[i].YarnQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                            else if (i == parseInt(response.listYarnQualityMaster.length - 1)) {
+                                var PostUp = response.listYarnQualityMaster[i].YarnQualityID + "," + response.listYarnQualityMaster[i].Position + "|" + response.listYarnQualityMaster[Top].YarnQualityID + "," + response.listYarnQualityMaster[Top].Position;
+>>>>>>> origin/master
                                 ActionPosition += "<input type='hidden' id='PostUp_" + response.listYarnQualityMaster[i].YarnQualityID + "' value = '" + PostUp + "' /> </span>";
                                 ActionPosition += "<span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listYarnQualityMaster[i].YarnQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
                             }
                             else {
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                 var PostUp = response.listYarnQualityMaster[i].YarnQualityID + "," + response.listYarnQualityMaster[i].Position + "|" + response.listYarnQualityMaster[Top].YarnQualityID + "," + response.listYarnQualityMaster[Top].Position;
                                 var PostDown = response.listYarnQualityMaster[i].YarnQualityID + "," + response.listYarnQualityMaster[i].Position + "|" + response.listYarnQualityMaster[Previous].YarnQualityID + "," + response.listYarnQualityMaster[Previous].Position;
 
                                 ActionPosition += "<input type='hidden' id='PostUp_" + response.listYarnQualityMaster[i].YarnQualityID + "' value = '" + PostUp + "' /><span class='icon-triangle-up'  title='Up'  onclick='onPostUp(" + response.listYarnQualityMaster[i].YarnQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
                                 ActionPosition += "<input type='hidden' id='PostDown_" + response.listYarnQualityMaster[i].YarnQualityID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down'  onclick='onPostDown(" + response.listYarnQualityMaster[i].YarnQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
                             }
+<<<<<<< HEAD
 
                     }
 
@@ -435,11 +559,280 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+=======
+                        }
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listYarnQualityMaster[i].YarnQuality + "</td>";
+
+                        if (response.listYarnQualityMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        }
+                        else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnQualityMaster[i].YarnQualityID + ")'><i class='icon-edit1 text-info'></i></a> &nbsp;&nbsp; <a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listYarnQualityMaster[i].YarnQualityID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                        temp += "</tr>";
+                    }
+
+                    dataTable.append(temp);
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Yarn Quality");
+            $("#add-alert").hide();
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback, .valid-feedback").hide(); // Fixed Comma Issue
+        }
+
+        function checkSaveView() {
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+            var YarnQuality = $('#YarnQuality').val();
+
+            if (validate(document.getElementById('YarnQuality')) == false) {
+                // Validation handles UI state
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnQuality', YarnQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertYarnQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.Message,
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire('Error!', response.Message, 'error');
+                        }
+                    },
+                    error: function (request, status, error) {
+                        Swal.fire('Error!', request.statusText || "Problem occurred while saving.", 'error');
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+            var YarnQuality = $('#YarnQuality').val();
+
+            if (validate(document.getElementById('YarnQuality')) == false) {
+                // Validation handles UI state
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnQuality', YarnQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertYarnQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#YarnQuality').val(''); // Clear field for new entry
+                            Swal.fire({
+                                title: 'Success!',
+                                text: response.Message,
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false,
+                                position: 'top-end',
+                                toast: true // Acts like a notification
+                            });
+                            displayData(0);
+                        }
+                        else {
+                            Swal.fire('Error!', response.Message, 'error');
+                        }
+                    },
+                    error: function (request, status, error) {
+                        Swal.fire('Error!', request.statusText || "Problem occurred while saving.", 'error');
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = "0";
+            if ($("#IsActive").is(':checked')) {
+                IsActive = "1";
+            }
+
+            var YarnQuality = $('#YarnQuality').val();
+
+            if (validate(document.getElementById('YarnQuality')) == false) {
+                // Validation handles UI state
+            }
+            else {
+                var formData = new FormData();
+                formData.append('YarnQualityID', id);
+                formData.append('YarnQuality', YarnQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/EditYarnQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#YarnQuality').val('');
+                            Swal.fire({
+                                title: 'Updated!',
+                                text: response.Message,
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            Swal.fire('Error!', response.Message, 'error');
+                        }
+                    },
+                    error: function (request, status, error) {
+                        Swal.fire('Error!', request.statusText || "Problem occurred while updating.", 'error');
+                    }
+                });
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Yarn Quality");
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getYarnQualityMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#YarnQuality").val(response.listYarnQualityMaster[0].YarnQuality);
+                        if (response.listYarnQualityMaster[0].IsActive == "1") {
+                            $("#IsActive").prop('checked', true);
+                        }
+                        else {
+                            $("#IsActive").prop('checked', false);
+                        }
+                    }
+                    else {
+                        Swal.fire('Error!', response.Message, 'error');
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire('Error!', request.statusText || "Failed to fetch record.", 'error');
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            // SweetAlert2 Confirmation Dialog
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnQualityID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnQualityMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Yarn Quality has been deleted successfully.',
+                                    'success'
+                                );
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire('Error!', 'Problem occurred while deleting Yarn Quality.', 'error');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            Swal.fire('Error!', request.statusText || 'Problem occurred while deleting Yarn Quality.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo + "").val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ItemCategoryQueue', // NOTE: Verify this endpoint
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
                         displayData(0);
@@ -525,11 +918,34 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertYarnQualityMaster',
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Swal.fire('Error!', 'Problem occurred while reordering data.', 'error');
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire('Error!', request.statusText || 'Problem occurred while reordering data.', 'error');
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo + "").val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_ItemCategoryQueue', // NOTE: Verify this endpoint
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -619,10 +1035,21 @@
 
                     });
 
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Swal.fire('Error!', 'Problem occurred while reordering data.', 'error');
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire('Error!', request.statusText || 'Problem occurred while reordering data.', 'error');
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -972,3 +1399,37 @@
 
 
 </html>
+=======
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trimLeft(); // Changed to trimLeft to allow spaces during typing
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback, .valid-feedback").hide();
+
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master

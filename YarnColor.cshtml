@@ -1,6 +1,36 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< HEAD
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
@@ -137,6 +167,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 <!-- Content wrapper end -->
 <script>
     document.title = "Yarn Color - Nikunj Textile";
@@ -383,11 +414,507 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+=======
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        var currentPagePermission = {};
+
+        // Configure SweetAlert2 Toast helper for non-blocking notifications
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: request.statusText || 'Failed to fetch default company.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            } else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchYarnColor = $("#search-Yarn-Color").val();
+            var formData = new FormData();
+            formData.append('SearchYarnColor', searchYarnColor);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMaster',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+                    console.log(response);
+
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var tableBody = $("#copy-print-csv tbody");
+                    var temp = "";
+
+                    if (response.listYarnColorMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    } else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+                        var Top = i - 1;
+                        var Previous = i + 1;
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listYarnColorMaster[i].YarnColor + "</td>";
+                        temp += "<td><span style='background-color: #" + response.listYarnColorMaster[i].YarnColorCode + "; border-radius: 2px; font-weight: 600; padding: 0.25rem 1.5rem; line-height: 100%; vertical-align: middle; margin-right: 5px;'></span> #" + response.listYarnColorMaster[i].YarnColorCode + "</td>";
+
+                        if (response.listYarnColorMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        } else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' class='YarnColorEdit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listYarnColorMaster[i].YarnColorID + ")'><i class='icon-edit1 text-info'></i></a>";
+                        temp += "<a href='javascript:void(0);' class='YarnColorDelete' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listYarnColorMaster[i].YarnColorID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    tableBody.append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".YarnColorEdit").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".YarnColorDelete").hide(); }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function changeYarnColor(abc) {
+            if (abc.value == "") {
+                $("#divModelBody").css("background-color", "white");
+            } else {
+                var colorCode = "#" + abc.value;
+                $("#divModelBody").css("background-color", colorCode);
+            }
+        }
+
+        function functionFYDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this record!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('FinancialYearIDs', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                displayData(0);
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Financial Year deleted successfully.'
+                                });
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Problem has been occurred while deleting Financial Year.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Problem has been occurred while deleting Financial Year.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Yarn Color");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+            $("#YarnColorCode").val('');
+            $("#divModelBody").css("background-color", "white");
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var YarnColor = $('#YarnColor').val();
+            var YarnColorCode = $('#YarnColorCode').val();
+            var YColor = YarnColorCode.slice(0, 1);
+
+            if (YColor == "#") {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please Remove # in Yarn Color.'
+                });
+            } else {
+                if (validate(document.getElementById('YarnColor')) == false || validate(document.getElementById('YarnColorCode')) == false) {
+                    validate(document.getElementById('YarnColor'));
+                    validate(document.getElementById('YarnColorCode'));
+                } else {
+                    var formData = new FormData();
+                    formData.append('YarnColor', YarnColor);
+                    formData.append('YarnColorCode', YarnColorCode);
+                    formData.append('IsActive', IsActive);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/insertYarnColorMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 201) {
+                                clearAll();
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: response.Message
+                                });
+                                displayData(0);
+                                $("#cancelbtn").click();
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.Message
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'An error occurred while saving.'
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var YarnColor = $('#YarnColor').val();
+            var YarnColorCode = $('#YarnColorCode').val();
+            var YColor = YarnColorCode.slice(0, 1);
+
+            if (YColor == "#") {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please Remove # in Yarn Color.'
+                });
+            } else {
+                if (validate(document.getElementById('YarnColor')) == false || validate(document.getElementById('YarnColorCode')) == false) {
+                    validate(document.getElementById('YarnColor'));
+                    validate(document.getElementById('YarnColorCode'));
+                } else {
+                    var formData = new FormData();
+                    formData.append('YarnColor', YarnColor);
+                    formData.append('YarnColorCode', YarnColorCode);
+                    formData.append('IsActive', IsActive);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/insertYarnColorMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 201) {
+                                clearAll();
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: response.Message
+                                });
+                                displayData(0);
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.Message
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'An error occurred while saving.'
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var YarnColor = $('#YarnColor').val();
+            var YarnColorCode = $('#YarnColorCode').val();
+            var YColor = YarnColorCode.slice(0, 1);
+
+            if (YColor == "#") {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please Remove # in Yarn Color.'
+                });
+            } else {
+                if (validate(document.getElementById('YarnColor')) == false || validate(document.getElementById('YarnColorCode')) == false) {
+                    validate(document.getElementById('YarnColor'));
+                    validate(document.getElementById('YarnColorCode'));
+                } else {
+                    var formData = new FormData();
+                    formData.append('YarnColorID', id);
+                    formData.append('YarnColor', YarnColor);
+                    formData.append('YarnColorCode', YarnColorCode);
+                    formData.append('IsActive', IsActive);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/EditYarnColorMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 201) {
+                                clearAll();
+                                $('#YarnColor').val('');
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: response.Message
+                                });
+                                displayData(0);
+                                $("#cancelbtn").click();
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.Message
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'An error occurred while editing.'
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Yarn Color");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#YarnColor").val(response.listYarnColorMaster[0].YarnColor);
+                        $("#YarnColorCode").val(response.listYarnColorMaster[0].YarnColorCode);
+
+                        var colorCode = "#" + response.listYarnColorMaster[0].YarnColorCode;
+                        $("#divModelBody").css("background-color", colorCode);
+
+                        if (response.listYarnColorMaster[0].IsActive == "1") {
+                            $("#IsActive").prop('checked', true);
+                        } else {
+                            $("#IsActive").prop('checked', false);
+                        }
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.Message
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Failed to retrieve record details.'
+                    });
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Yarn Color!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnColorID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnColorMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Yarn Color deleted successfully.'
+                                });
+                                displayData(0);
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Problem has been occurred while deleting Yarn Color.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Problem has been occurred while deleting Yarn Color.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo + "").val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_YarnColorQueue',
+>>>>>>> origin/master
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
                         displayData(0);
@@ -776,11 +1303,40 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteYarnColorMaster',
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Problem has been occurred while retrieving your data.'
+                        });
+                    }
+                },
+                error: function (error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Problem has been occurred while retrieving your data.'
+                    });
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo + "").val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_YarnColorQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("Yarn Color deleted successfully.", {
@@ -813,10 +1369,27 @@
                     });
 
 
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Problem has been occurred while retrieving your data.'
+                        });
+                    }
+                },
+                error: function (error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Problem has been occurred while retrieving your data.'
+                    });
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
     function onPostUp(QueueNo) {
 
@@ -943,4 +1516,36 @@
 </script>
 
 
+=======
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master
 

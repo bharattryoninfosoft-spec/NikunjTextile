@@ -1,0 +1,911 @@
+@{ Layout = "/_LayoutPage1.cshtml"; }
+
+<style>
+    /* =========================================================
+       PAGE & HEADER STYLES
+       ========================================================= */
+    .production-page {
+        width: 100%;
+    }
+
+    .form-section-header {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding: 7px 12px !important;
+        margin-bottom: 0 !important;
+        background: #e5f0fc !important;
+        border-radius: 2px 2px 0 0 !important;
+        color: #222 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-section-header-sub {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        padding: 4px 8px !important;
+        background: #f0f4f9 !important;
+        border-radius: 3px !important;
+        color: #164f87 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* =========================================================
+       LEFT PANEL & CARDS
+       ========================================================= */
+    .production-left-panel {
+        border-right: 1px solid #c9cfd6;
+        padding-right: 12px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .production-left-panel::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .production-left-panel::-webkit-scrollbar-thumb {
+        background: #bbb;
+        border-radius: 3px;
+    }
+
+    .production-left-panel .wl-input-sm,
+    .production-left-panel .form-control,
+    .production-left-panel .select-single {
+        width: 100% !important;
+    }
+
+    .field-wrapper {
+           margin-bottom: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .field-placeholder {
+        font-size: 11px;
+        font-weight: 700;
+        color: #164f87;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+    }
+
+    .wl-input-sm, .select-single {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 3px 6px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+        background: #ffffff;
+    }
+
+    .filter-section-card {
+        background: #fdfdfd;
+        border: 1px solid #dce3eb;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    /* =========================================================
+       TABLE STYLING
+       ========================================================= */
+    .order-table-scroll {
+        width: 100%;
+        max-height: 320px;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+    }
+
+    #tblOrderListTable {
+        width: 100% !important;
+        min-width: 960px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblOrderListTable th,
+    #tblOrderListTable td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 3px 6px !important;
+        height: 36px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblOrderListTable thead th {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* COLUMN WIDTHS FOR ENTRY TOP TABLE */
+    #tblOrderListTable th:nth-child(1), #tblOrderListTable td:nth-child(1) { width: 38px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(2), #tblOrderListTable td:nth-child(2) { width: 115px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(3), #tblOrderListTable td:nth-child(3) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(4), #tblOrderListTable td:nth-child(4) { width: 100px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(5), #tblOrderListTable td:nth-child(5) { width: 220px !important; text-align: left !important; }
+    #tblOrderListTable th:nth-child(6), #tblOrderListTable td:nth-child(6) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) { width: 95px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(9), #tblOrderListTable td:nth-child(9) { width: 95px !important; text-align: center !important; }
+
+    #tblOrderListTable input[type="checkbox"] {
+        width: 14px !important;
+        height: 14px !important;
+        margin: 0 !important;
+        cursor: pointer;
+    }
+
+    #tblOrderListTable .txt-production {
+        width: 75px !important;
+        height: 26px !important;
+        padding: 2px 4px !important;
+        margin: 0 auto !important;
+        display: block !important;
+        text-align: center !important;
+        border: 1px solid #1677ff !important;
+        border-radius: 2px !important;
+        background: #fff !important;
+        font-size: 12px !important;
+    }
+
+    #tblOrderListTable tr.table-active td { background: #f1f7fd !important; }
+    #tblOrderListTable tbody tr:hover { background: #f7f9fb !important; }
+
+    /* PRODUCTION REPORT SUMMARY TABLE */
+    .production-report-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #000;
+        background: #fff;
+    }
+
+    #tblProductionReportTable {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblProductionReportTable th, #tblProductionReportTable td {
+        border: 1px solid #000 !important;
+        padding: 3px 6px !important;
+        height: 30px !important;
+        line-height: 17px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+    }
+
+    #tblProductionReportTable thead th {
+        background: #fde6d2 !important;
+        color: #111 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+    }
+
+    #tblProductionReportTable tfoot td {
+        background: #fde6d2 !important;
+        color: #111 !important;
+        font-weight: 700 !important;
+    }
+
+    /* BADGES & THUMBNAILS */
+    .slip-code-badge {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-weight: 700;
+        color: #0d6efd;
+        background: #e7f1ff;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid #b6d4fe;
+        display: inline-block;
+        font-size: 0.75rem;
+    }
+
+    .cm-thumb-img {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #0d6efd;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .cm-thumb-img:hover { transform: scale(1.15); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+    /* ORDER GROUP ROW */
+    #tblOrderListTable tbody tr.order-group-row td {
+        background: #c5dced !important;
+        color: #111 !important;
+        font-weight: 700 !important;
+        height: 26px !important;
+        padding: 2px 5px !important;
+    }
+</style>
+
+<div class="content-wrapper production-page">
+    <div id="notes"></div>
+
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body p-2">
+
+                    <!-- PAGE HEADER WITH BACK TO LIST BUTTON -->
+                    <div class="form-section-header">
+                        <div>
+                            <i class="fa fa-cut me-1"></i> <span id="lblPageHeader">WEAVELANE FOR JOBBER TO BUTTA CUTTING</span>
+                        </div>
+                        <div>
+                            <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-outline-primary btn-sm px-3">
+                                <i class="fa fa-list me-1"></i> Jobber Outward List
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row gutters mt-2">
+                        <!-- LEFT PANEL: FILTERS -->
+                        <div class="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12 production-left-panel">
+                            <!-- SECTION 1: ISSUE DETAILS -->
+                            <div class="filter-section-card">
+                                <div class="form-section-header-sub mb-2">
+                                    <i class="fa fa-user-circle me-1"></i> Issue Details
+                                </div>
+                                <div class="field-wrapper">
+                                    <div class="field-placeholder">Job Worker</div>
+                                    <select id="txtJobWorker" class="select-single detail w-100" data-live-search="true">
+                                        <option value="">-- Select Job Worker --</option>
+                                    </select>
+                                </div>
+                                <div class="field-wrapper">
+                                    <div class="field-placeholder">Job Type</div>
+                                    <select id="ddlJobType" class="select-single detail w-100">
+                                        <option value="BORDER AND BUTTA CUTTING BOTH">BORDER AND BUTTA CUTTING BOTH</option>
+                                        <option value="ONLY BORDER">ONLY BORDER</option>
+                                        <option value="ONLY BUTTA">ONLY BUTTA</option>
+                                    </select>
+                                </div>
+                                <div class="field-wrapper mb-0">
+                                    <div class="field-placeholder">Challan Date</div>
+                                    <input type="date" id="txtChallanDate" class="wl-input-sm w-100" />
+                                </div>
+                            </div>
+
+                            <!-- SECTION 2: SEARCH FILTERS -->
+                            <div class="filter-section-card">
+                                <div class="form-section-header-sub text-secondary mb-2">
+                                    <i class="fa fa-filter me-1"></i> Search Filters
+                                </div>
+                                <div class="field-wrapper">
+                                    <div class="field-placeholder">Design No</div>
+                                    <select id="filterDesignNo" class="select-single detail w-100" data-live-search="true">
+                                        <option value="">-- ALL --</option>
+                                    </select>
+                                </div>
+                                <div class="field-wrapper">
+                                    <div class="field-placeholder">Slip No</div>
+                                    <input type="text" id="filterSlipNo" class="wl-input-sm w-100" placeholder="Search Slip No..." />
+                                </div>
+                                <div class="field-wrapper mb-2">
+                                    <div class="field-placeholder">Machine No</div>
+                                    <select id="filterMachineNo" class="select-single detail w-100">
+                                        <option value="">-- ALL --</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid gap-2 mt-2">
+                                    <button type="button" id="btnFilterReset" class="btn btn-secondary btn-sm w-100">
+                                        <i class="fa fa-refresh me-1"></i> Reset Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT PANEL: MAIN TABLES -->
+                        <div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 col-12 ps-lg-2">
+                            <div class="form-section-header">
+                                <span>ProductionSlip Details</span>
+                                <span class="badge bg-primary font-weight-normal text-white" style="font-size:11px;" id="lblPendingCount">0 Slips Available</span>
+                            </div>
+                            <div class="order-table-scroll">
+                                <table id="tblOrderListTable" class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="chkSelectAll" /></th>
+                                            <th>SLIP NO</th>
+                                            <th>MACHINE NO</th>
+                                            <th>DESIGN NO</th>
+                                            <th>COLOUR MATCHING ID</th>
+                                            <th>ORDER PCS</th>
+                                            <th>PREV ISSUE PCS</th>
+                                            <th>PENDING PCS</th>
+                                            <th>ISSUE PCS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblOrderListBody">
+                                        <tr><td colspan="9" class="text-center text-muted py-3">Loading production slip data...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="form-section-header mt-3">
+                                <span>Assing JOBBER TO BUTTA CUTTING</span>
+                            </div>
+                            <div class="production-report-scroll">
+                                <table id="tblProductionReportTable" class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>SLIP NO</th>
+                                            <th>MACHINE NO</th>
+                                            <th>DESIGN NO</th>
+                                            <th>COLOUR MATCHING ID</th>
+                                            <th>ORDER PCS</th>
+                                            <th>PREV ISSUE PCS</th>
+                                            <th>PENDING PCS</th>
+                                            <th>ISSUE PCS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tblProductionReportBody">
+                                        <tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" class="text-end font-weight-bold">TOTAL</td>
+                                            <td id="lblTotalOrderPcs" class="text-center font-weight-bold">0</td>
+                                            <td id="lblTotalIssuedPcs" class="text-center font-weight-bold text-secondary">0</td>
+                                            <td id="lblTotalPendingPcs" class="text-center font-weight-bold text-danger">0</td>
+                                            <td id="lblTotalPcs" class="text-center font-weight-bold text-primary">0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-12 text-end">
+                                    <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-secondary btn-sm me-2" id="btnBack">
+                                        Back
+                                    </a>
+                                    <button type="button" class="btn btn-primary btn-sm px-4" id="btnAddForProduction">
+                                        <i class="fa fa-save me-1"></i> <span id="lblSubmitBtnText">Save Allotment</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Image Preview -->
+<div class="modal fade" id="modalImagePreview" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title m-0" id="modalImagePreviewLabel"><i class="fa fa-picture-o me-2"></i>Colour Matching Image</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-3">
+                <img id="imgPreviewTarget" src="" class="img-fluid rounded border shadow-sm" style="max-height: 450px;" alt="Colour Matching Image" />
+                <div id="imgPreviewCaption" class="mt-2 text-dark font-weight-bold" style="font-size:13px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+
+        function getQueryString(name) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        var editId = getQueryString("id") || "";
+        var todayStr = new Date().toISOString().split('T')[0];
+        $('#txtChallanDate').val(todayStr);
+
+        var allSlipsList = [];
+
+        if (editId && parseInt(editId) > 0) {
+            $('#lblPageHeader').text('EDIT JOBBER TO BUTTA CUTTING');
+            $('#lblSubmitBtnText').text('Update Allotment');
+        }
+
+        loadDropdowns(function () {
+            initDataLoad();
+        });
+
+        function showNotification(msg, isError) {
+            if (typeof toastr !== 'undefined') {
+                if (isError) toastr.error(msg);
+                else toastr.success(msg);
+            } else {
+                alert(msg);
+            }
+        }
+
+        function loadDropdowns(callback) {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetProcessFilterDropdowns",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d || res;
+                    if (data) {
+                        if (data.Jobbers && data.Jobbers.length > 0) {
+                            var $jobber = $('#txtJobWorker').empty();
+                            if (data.Jobbers.length > 1) {
+                                $jobber.append('<option value="">-- Select Job Worker --</option>');
+                            }
+                            $.each(data.Jobbers, function (i, j) {
+                                $jobber.append('<option value="' + j.JobberID + '">' + j.JobberName + '</option>');
+                            });
+                            if (data.Jobbers.length === 1) {
+                                $jobber.val(data.Jobbers[0].JobberID).prop('disabled', true);
+                            }
+                        }
+                        if (data.Designs && data.Designs.length > 0) {
+                            var $des = $('#filterDesignNo').empty().append('<option value="">-- ALL --</option>');
+                            $.each(data.Designs, function (i, d) {
+                                $des.append('<option value="' + d.DesignNo + '">' + d.DesignNo + '</option>');
+                            });
+                        }
+                        if (data.Machines && data.Machines.length > 0) {
+                            var $mch = $('#filterMachineNo').empty().append('<option value="">-- ALL --</option>');
+                            $.each(data.Machines, function (i, m) {
+                                $mch.append('<option value="' + m.MachineNumber + '">Machine #' + m.MachineNumber + '</option>');
+                            });
+                        }
+                    }
+                    if (callback) callback();
+                },
+                error: function () {
+                    if (callback) callback();
+                }
+            });
+        }
+
+        function initDataLoad() {
+            allSlipsList = [];
+            if (editId && parseInt(editId) > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "WebServiceNikunjTextile.asmx/GetJobberToButtaCuttingDetail",
+                    data: JSON.stringify({ processTransactionID: parseInt(editId) }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (res) {
+                        var r = res.d || res;
+                        if (r && r.Status && r.Master) {
+                            if (r.Master.JobberID) {
+                                $('#txtJobWorker').val(String(r.Master.JobberID));
+                            }
+                            if ((!$('#txtJobWorker').val() || $('#txtJobWorker').val() === "") && r.Master.JobberName) {
+                                $("#txtJobWorker option").filter(function () {
+                                    return $(this).text().trim().toLowerCase() === r.Master.JobberName.trim().toLowerCase();
+                                }).prop('selected', true);
+                            }
+                            $('#ddlJobType').val(r.Master.JobType || "BORDER AND BUTTA CUTTING BOTH");
+                            if (r.Master.TransactionDate) $('#txtChallanDate').val(r.Master.TransactionDate);
+                            $('#lblPageHeader').text('EDIT JOBBER TO BUTTA CUTTING (CHALLAN: ' + r.Master.ProcessTransactionNo + ')');
+
+                            if (Array.isArray(r.Details)) {
+                                $.each(r.Details, function (i, d) {
+                                    var origPcs = parseFloat(d.PCS || 0);
+                                    var issuedOther = parseFloat(d.IssuedPCS || 0);
+                                    var pendPcs = parseFloat(d.PendingPCS || (origPcs - issuedOther));
+                                    var curIssue = parseFloat(d.IssuePCS || d.AllottedPcs || 0);
+
+                                    allSlipsList.push({
+                                        ProductionOrderID: d.ProductionOrderID || 0,
+                                        ProductionOrderDetailID: d.ProductionOrderDetailID || 0,
+                                        ProductionOrderSubDetailID: d.ProductionOrderSubDetailID || 0,
+                                        SlipNo: d.SlipNo,
+                                        MachineNumber: d.MachineNumber || 1,
+                                        DesignNo: d.DesignNo || "-",
+                                        ColourMatchingID: d.ColourMatchingID || 0,
+                                        ColourMatchingName: d.ColourMatchingName || "-",
+                                        PhotoPath: d.PhotoPath || "",
+                                        PCS: origPcs,
+                                        IssuedPCS: issuedOther,
+                                        PendingPCS: pendPcs,
+                                        AllottedPcs: curIssue,
+                                        IsChecked: true,
+                                        IsExistingInChallan: true
+                                    });
+                                });
+                            }
+                        }
+                        fetchAndMergePendingSlips();
+                    },
+                    error: function () {
+                        fetchAndMergePendingSlips();
+                    }
+                });
+            } else {
+                fetchAndMergePendingSlips();
+            }
+        }
+
+        function fetchAndMergePendingSlips() {
+            var req = {
+                jobberID: 0,
+                productionOrderID: 0,
+                slipNo: $('#filterSlipNo').val() || "",
+                machineNumber: parseInt($('#filterMachineNo').val()) || 0,
+                fromDate: "",
+                toDate: ""
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobberToButtaCuttingData",
+                data: JSON.stringify(req),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d || res;
+                    if (Array.isArray(data)) {
+                        $.each(data, function (i, newItem) {
+                            var exists = false;
+                            $.each(allSlipsList, function (j, existingItem) {
+                                if (newItem.ProductionOrderDetailID > 0 && newItem.ProductionOrderDetailID === existingItem.ProductionOrderDetailID) {
+                                    if (newItem.ProductionOrderSubDetailID > 0 && newItem.ProductionOrderSubDetailID === existingItem.ProductionOrderSubDetailID) {
+                                        exists = true; return false;
+                                    } else if (!newItem.ProductionOrderSubDetailID && newItem.SlipNo === existingItem.SlipNo) {
+                                        exists = true; return false;
+                                    }
+                                }
+                            });
+                            if (!exists) {
+                                newItem.IsChecked = false;
+                                allSlipsList.push(newItem);
+                            }
+                        });
+                    }
+                    renderSlipsTable(allSlipsList);
+                },
+                error: function () {
+                    renderSlipsTable(allSlipsList);
+                }
+            });
+        }
+
+        function renderSlipsTable(list) {
+            var $tbody = $('#tblOrderListBody').empty();
+
+            if (!list || list.length === 0) {
+                $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No pending slips available.</td></tr>');
+                $('#lblPendingCount').text('0 Slips');
+                renderSummaryTable();
+                return;
+            }
+
+            var designFilter = $('#filterDesignNo').val() || '';
+            var slipFilter = ($('#filterSlipNo').val() || '').toLowerCase().trim();
+            var machineFilter = $('#filterMachineNo').val() || '';
+
+            var currentGroupHeader = "";
+            var visibleCount = 0;
+
+            $.each(list, function (idx, r) {
+                var slipNoVal = (r.SlipNo && r.SlipNo !== '-') ? r.SlipNo : ('SO14-01-' + String(idx + 1).padStart(2, '0'));
+                if (slipNoVal && slipNoVal.toUpperCase().indexOf('SO') !== 0) {
+                    slipNoVal = 'SO' + slipNoVal;
+                }
+                r.SlipNo = slipNoVal;
+
+                if (designFilter && (r.DesignNo || '') !== designFilter) return true;
+                if (slipFilter && slipNoVal.toLowerCase().indexOf(slipFilter) === -1) return true;
+                if (machineFilter && String(r.MachineNumber || 1) !== String(machineFilter)) return true;
+
+                visibleCount++;
+
+                var parentGroup = (slipNoVal || '').split('-')[0];
+                if (parentGroup && parentGroup !== '-' && parentGroup !== currentGroupHeader) {
+                    currentGroupHeader = parentGroup;
+                    var groupTr = '<tr class="order-group-row">' +
+                        '<td class="text-center"><input type="checkbox" class="chkGroupHeader" data-group="' + currentGroupHeader + '" /></td>' +
+                        '<td class="group-slip">' + currentGroupHeader + '</td>' +
+                        '<td colspan="7"></td>' +
+                        '</tr>';
+                    $tbody.append(groupTr);
+                }
+
+                var isChecked = r.IsChecked ? 'checked' : '';
+                var trClass = r.IsChecked ? 'table-active' : '';
+
+                var tr = '<tr class="' + trClass + '" data-idx="' + idx + '" data-group="' + parentGroup + '">' +
+                    '<td class="text-center"><input type="checkbox" class="chkRow" data-idx="' + idx + '" ' + isChecked + ' /></td>' +
+                    '<td class="text-center"><span class="slip-code-badge">' + slipNoVal + '</span></td>' +
+                    '<td class="text-center">' + (r.MachineNumber || 1) + '</td>' +
+                    '<td class="text-center font-weight-bold">' + (r.DesignNo || '-') + '</td>' +
+                    '<td>' + getColourMatchingHtml(r) + '</td>' +
+                    '<td class="text-center font-weight-bold"><span class="badge bg-light text-dark border px-2 py-1">' + (r.PCS || 0) + '</span></td>' +
+                    '<td class="text-center"><span class="badge bg-light text-secondary border px-2 py-1">' + (r.IssuedPCS || 0) + '</span></td>' +
+                    '<td class="text-center font-weight-bold"><span class="badge bg-danger-subtle text-danger border px-2 py-1">' + (r.PendingPCS || r.PCS || 0) + '</span></td>' +
+                    '<td class="text-center"><input type="number" class="txtProdInput txt-production" data-idx="' + idx + '" value="' + (r.AllottedPcs || r.PendingPCS || r.PCS || 0) + '" min="0" max="' + (r.PendingPCS || r.PCS || 0) + '" /></td>' +
+                    '</tr>';
+
+                $tbody.append(tr);
+            });
+
+            $('#lblPendingCount').text(visibleCount + ' Slips');
+            renderSummaryTable();
+        }
+
+        function renderSummaryTable() {
+            var $tbody = $('#tblProductionReportBody').empty();
+            var totalOrderPcs = 0;
+            var totalIssuedPcs = 0;
+            var totalPendingPcs = 0;
+            var totalInputPcs = 0;
+            var checkedCount = 0;
+
+            $.each(allSlipsList, function (idx, item) {
+                if (item.IsChecked) {
+                    checkedCount++;
+                    var orderPcs = parseFloat(item.PCS || 0);
+                    var issuedPcs = parseFloat(item.IssuedPCS || 0);
+                    var pendingPcs = parseFloat(item.PendingPCS || orderPcs);
+                    var inputPcs = parseFloat(item.AllottedPcs || pendingPcs || 0);
+
+                    totalOrderPcs += orderPcs;
+                    totalIssuedPcs += issuedPcs;
+                    totalPendingPcs += pendingPcs;
+                    totalInputPcs += inputPcs;
+
+                    var tr = '<tr>' +
+                        '<td class="text-center font-weight-bold">' + (item.SlipNo || '-') + '</td>' +
+                        '<td class="text-center">' + (item.MachineNumber || 1) + '</td>' +
+                        '<td class="text-center"><strong>' + (item.DesignNo || '-') + '</strong></td>' +
+                        '<td>' + getColourMatchingHtml(item) + '</td>' +
+                        '<td class="text-center font-weight-bold">' + orderPcs + '</td>' +
+                        '<td class="text-center text-secondary">' + issuedPcs + '</td>' +
+                        '<td class="text-center font-weight-bold text-danger">' + pendingPcs + '</td>' +
+                        '<td class="rep-pcs text-center font-weight-bold text-primary">' + inputPcs + '</td>' +
+                        '</tr>';
+                    $tbody.append(tr);
+                }
+            });
+
+            if (checkedCount === 0) {
+                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
+            }
+
+            $('#lblTotalOrderPcs').text(totalOrderPcs);
+            $('#lblTotalIssuedPcs').text(totalIssuedPcs);
+            $('#lblTotalPendingPcs').text(totalPendingPcs);
+            $('#lblTotalPcs').text(totalInputPcs);
+        }
+
+        function getColourMatchingHtml(r) {
+            var photoPath = r.PhotoPath || r.ColorMatchingPhoto || r.ImageUrl || '';
+            var cmText = r.ColourMatchingName || (r.ColourMatchingID > 0 ? ('CM-' + r.ColourMatchingID) : '-');
+            var imgSrc = '';
+
+            if (photoPath) {
+                photoPath = photoPath.replace(/\\/g, '/');
+                if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                else imgSrc = photoPath;
+            }
+
+            var safeCmText = $('<div>').text(cmText || '-').html();
+            var safeDesignNo = $('<div>').text(r.DesignNo || '-').html();
+            var safeImgSrc = $('<div>').text(imgSrc || '').html();
+
+            var imgHtml = '';
+            if (imgSrc) {
+                imgHtml = '<img src="' + safeImgSrc + '" class="cm-thumb-img me-2" data-img="' + safeImgSrc + '" data-design="' + safeDesignNo + '" data-cm="' + safeCmText + '" title="Click to enlarge image" />';
+            } else {
+                imgHtml = '<span class="badge bg-light text-muted border me-2" style="font-size:10px; padding:4px 6px;"><i class="fa fa-picture-o"></i></span>';
+            }
+
+            return '<div class="d-flex align-items-center">' + imgHtml + '<span class="font-weight-bold">' + safeCmText + '</span></div>';
+        }
+
+        $('#chkSelectAll').change(function () {
+            var checked = $(this).is(':checked');
+            $.each(allSlipsList, function (i, r) {
+                r.IsChecked = checked;
+            });
+            $('.chkRow, .chkGroupHeader').prop('checked', checked);
+            if (checked) $('#tblOrderListTable tbody tr').addClass('table-active');
+            else $('#tblOrderListTable tbody tr').removeClass('table-active');
+            renderSummaryTable();
+        });
+
+        $(document).on('change', '.chkGroupHeader', function () {
+            var group = $(this).data('group');
+            var isChecked = $(this).is(':checked');
+            $('#tblOrderListTable tr[data-group="' + group + '"]').find('.chkRow').prop('checked', isChecked).trigger('change');
+        });
+
+        $(document).on('change', '.chkRow', function () {
+            var idx = $(this).data('idx');
+            var isChecked = $(this).is(':checked');
+            if (allSlipsList[idx]) {
+                allSlipsList[idx].IsChecked = isChecked;
+            }
+
+            var $tr = $(this).closest('tr');
+            if (isChecked) $tr.addClass('table-active');
+            else $tr.removeClass('table-active');
+
+            renderSummaryTable();
+        });
+
+        $(document).on('input change', '.txtProdInput', function () {
+            var idx = $(this).data('idx');
+            var val = parseFloat($(this).val());
+            if (isNaN(val)) val = 0;
+
+            if (allSlipsList[idx]) {
+                var maxAvailable = parseFloat(allSlipsList[idx].PendingPCS || allSlipsList[idx].PCS || 0);
+                if (val > maxAvailable) {
+                    showNotification('Entered Issue PCS (' + val + ') cannot exceed available Order / Pending PCS (' + maxAvailable + ').', true);
+                    val = maxAvailable;
+                    $(this).val(val);
+                } else if (val < 0) {
+                    val = 0;
+                    $(this).val(val);
+                }
+                allSlipsList[idx].AllottedPcs = val;
+                if (allSlipsList[idx].IsChecked) {
+                    renderSummaryTable();
+                }
+            }
+        });
+
+        $('#filterDesignNo, #filterMachineNo').change(function () {
+            renderSlipsTable(allSlipsList);
+        });
+
+        $('#filterSlipNo').on('keyup input change', function () {
+            renderSlipsTable(allSlipsList);
+        });
+
+        $('#btnFilterReset').click(function () {
+            $('#filterSlipNo').val('');
+            $('#filterDesignNo').val('');
+            $('#filterMachineNo').val('');
+            renderSlipsTable(allSlipsList);
+        });
+
+        $(document).on('click', 'img.cm-thumb-img', function () {
+            var imgUrl = $(this).attr('data-img');
+            var designNo = $(this).attr('data-design');
+            var colourMatching = $(this).attr('data-cm');
+            if (imgUrl) {
+                $('#imgPreviewTarget').attr('src', imgUrl);
+                $('#imgPreviewCaption').text('Design No: ' + (designNo || '-') + ' | Colour Matching: ' + (colourMatching || '-'));
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modalEl = document.getElementById('modalImagePreview');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    $('#modalImagePreview').modal('show');
+                }
+            }
+        });
+
+        $(document).on('error', 'img.cm-thumb-img', function () {
+            $(this).replaceWith('<span class="badge bg-light text-muted border me-2" style="font-size:10px; padding:4px 6px;"><i class="fa fa-picture-o"></i></span>');
+        });
+
+        // SAVE / UPDATE BUTTON HANDLER
+        $('#btnAddForProduction').click(function () {
+            var jobberId = parseInt($('#txtJobWorker').val()) || 0;
+            if (jobberId <= 0) {
+                showNotification('Please select Job Worker from the left panel.', true);
+                return;
+            }
+
+            var selectedItems = [];
+            var hasValidationError = false;
+            $.each(allSlipsList, function (i, item) {
+                if (item.IsChecked) {
+                    var inputPcs = parseFloat(item.AllottedPcs || item.PendingPCS || item.PCS || 0);
+                    var maxAllowed = parseFloat(item.PendingPCS || item.PCS || 0);
+                    if (inputPcs > maxAllowed) {
+                        showNotification('Issue PCS (' + inputPcs + ') for Slip ' + (item.SlipNo || '') + ' cannot exceed Order/Pending PCS (' + maxAllowed + ').', true);
+                        hasValidationError = true;
+                        return false;
+                    }
+                    if (inputPcs <= 0) {
+                        showNotification('Issue PCS for Slip ' + (item.SlipNo || '') + ' must be greater than 0.', true);
+                        hasValidationError = true;
+                        return false;
+                    }
+                    selectedItems.push({
+                        ProductionOrderID: item.ProductionOrderID || 0,
+                        ProductionOrderDetailID: item.ProductionOrderDetailID || 0,
+                        ProductionOrderSubDetailID: item.ProductionOrderSubDetailID || 0,
+                        SlipNo: item.SlipNo || "",
+                        PCS: inputPcs
+                    });
+                }
+            });
+
+            if (hasValidationError) return;
+
+            if (selectedItems.length === 0) {
+                showNotification('Please select at least one item checkbox for production.', true);
+                return;
+            }
+
+            var $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+            var isEditMode = (editId && parseInt(editId) > 0);
+            var targetUrl = isEditMode ? "WebServiceNikunjTextile.asmx/UpdateJobberToButtaCutting" : "WebServiceNikunjTextile.asmx/SaveJobberToButtaCutting";
+
+            var payload = {
+                jobberID: jobberId,
+                jobType: $('#ddlJobType').val() || "BORDER AND BUTTA CUTTING BOTH",
+                challanDate: $('#txtChallanDate').val() || todayStr,
+                items: selectedItems
+            };
+
+            if (isEditMode) {
+                payload.processTransactionID = parseInt(editId);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: targetUrl,
+                data: JSON.stringify(payload),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && (r.Status || r.Success)) {
+                        var msg = isEditMode ? 'Allotment updated successfully!' : ('Allotment saved successfully! Challan No: ' + (r.TransactionNo || 'BC0001'));
+                        showNotification(msg, false);
+                        setTimeout(function () {
+                            window.location.href = "JobberToButtaCuttingList.cshtml";
+                        }, 1000);
+                    } else {
+                        showNotification(r.Message || 'Failed to save allotment.', true);
+                    }
+                },
+                error: function () {
+                    showNotification('Error saving allotment to database.', true);
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).html('<i class="fa fa-save me-1"></i> ' + (isEditMode ? 'Update Allotment' : 'Save Allotment'));
+                }
+            });
+        });
+    });
+</script>
+}

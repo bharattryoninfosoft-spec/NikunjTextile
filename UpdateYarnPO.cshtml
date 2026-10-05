@@ -1,18 +1,104 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< HEAD
+=======
+
+<style>
+    /* Styling according to modern layout */
+    .item-section-title {
+        background-color: #2573e8;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-size: 15px;
+    }
+
+    .tbl-item-detail {
+        width: 100%;
+        border-collapse: collapse !important;
+        background-color: #ffffff;
+    }
+
+        .tbl-item-detail th,
+        .tbl-item-detail td {
+            padding: 10px 8px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #e9ecef !important;
+        }
+
+        .tbl-item-detail thead th {
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #2573e8;
+            border-bottom: 2px solid #dee2e6 !important;
+        }
+
+        .tbl-item-detail tfoot td {
+            background-color: #f8f9fa;
+            border-top: 2px solid #dee2e6 !important;
+            border-bottom: none !important;
+            padding: 12px 8px !important;
+        }
+
+    .total-badge {
+        background-color: #22c55e;
+        color: white;
+        padding: 6px 18px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 14px;
+        display: inline-block;
+    }
+
+    .field-wrapper-custom {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+        .field-wrapper-custom label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .field-wrapper-custom .form-control,
+        .field-wrapper-custom .form-select {
+            height: 38px;
+            font-size: 13px;
+        }
+
+    #GSTEntry {
+        font-size: 12px !important;
+        padding-left: 6px !important;
+        padding-right: 20px !important;
+    }
+</style>
+
+>>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
 
+<<<<<<< HEAD
 
     <button id="AddPartyModel" style="float:right; display:none;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact"> </button>
     <!-- Party Mastwer Modal -->
+=======
+    <!-- Hidden Trigger Button for Modals -->
+    <button id="AddPartyModel" style="float:right; display:none;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact"></button>
+
+    <!-- Master Add Modal (Handles Party, Yarn Material & Yarn Color dynamically) -->
+>>>>>>> origin/master
     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addNewContactLabel">Add Party</h5>
+<<<<<<< HEAD
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"></span>
                     </button>
@@ -284,10 +370,85 @@
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
                                                     <select id="placeOfSupply" class="select-single js-states clear-field detail" title="Select Place" data-live-search="true">
+=======
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body" id="divModelBody" style="overflow: initial !important; height:auto !important; min-height:200px !important;">
+
+                    <!-- 1. Party Master Section -->
+                    <div class="row gutters" id="DivPartyMaster">
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+                                    <div class="col-6">
+                                        <div class="row gutters">
+                                            <div class="col-6">
+                                                <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Party Details</div>
+                                            </div>
+                                            <div class="col-6"></div>
+                                            <hr />
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <select id="SundryParty" class="form-control" name="SundryParty">
+                                                        <option value="0"></option>
+                                                        <option value="1">Sundry Creditors</option>
+                                                        <option value="2">Sundry Debtors</option>
+                                                        <option value="3">Job Work</option>
+                                                    </select>
+                                                    <div class="field-placeholder">Select Sundry Party</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="gstin" type="text" class="form-control clear-field detail" placeholder="ex: 20XXXXX9438X1XX" min="15" maxlength="15" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                                    <div class="field-placeholder">GSTIN<sup class="text-danger">*</sup></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="PanNo" type="text" class="form-control clear-field detail" placeholder="PanNo" min="10" maxlength="10" onkeyup="validate(this)" style="text-transform: uppercase;">
+                                                    <div class="field-placeholder">PAN No<sup class="text-danger">*</sup></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="party-name" placeholder="Enter Name" type="text" class="form-control clear-field detail" onfocusout="validate(this)">
+                                                    <div class="field-placeholder">Party Name <span class="text-danger">*</span></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="phone" placeholder="Enter Mobile" type="tel" class="form-control clear-field detail" onfocusout="validate(this)" min="10" maxlength="10" onkeypress="return (event.charCode>=48 && event.charCode<=57)">
+                                                    <div class="field-placeholder">Mobile Number <span class="text-danger">*</span></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="alt-phone" placeholder="Enter Alternate Mobile" type="tel" class="form-control clear-field detail" min="10" maxlength="10">
+                                                    <div class="field-placeholder">Alternate Number</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="email" placeholder="Enter Email" type="text" class="form-control clear-field detail">
+                                                    <div class="field-placeholder">Email</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                                <div class="field-wrapper">
+                                                    <select id="placeOfSupply" class="select-single js-states clear-field detail">
+>>>>>>> origin/master
                                                         <option value="-1">Select</option>
                                                     </select>
                                                     <div class="field-placeholder">Place Of Supply</div>
                                                 </div>
+<<<<<<< HEAD
                                                 <!-- Field wrapper end -->
 
                                             </div>
@@ -398,12 +559,40 @@
 
                                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
+=======
+                                            </div>
+
+                                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="pincode" placeholder="Enter Pincode" type="tel" class="form-control clear-field detail" min="6" maxlength="6" onkeyup="myFunctionPINCODE(this)">
+                                                    <div class="field-placeholder">Pincode</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="city" placeholder="Enter City" type="text" class="form-control clear-field detail">
+                                                    <div class="field-placeholder">City</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
+                                                <div class="field-wrapper">
+                                                    <select id="BrokerModel" class="select-single js-states clear-field detail">
+                                                        <option value="-1">Select</option>
+                                                    </select>
+                                                    <div class="field-placeholder">Broker</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+>>>>>>> origin/master
                                                 <div class="field-wrapper">
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input clear-field detail" type="checkbox" id="chcekIsActiveParty" checked style="cursor:pointer;">
                                                         <label class="form-check-label" for="chcekIsActiveParty">Is Active Party</label>
                                                     </div>
                                                 </div>
+<<<<<<< HEAD
 
                                             </div>
 
@@ -545,20 +734,59 @@
 
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
+=======
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6" style="border-left: 1px solid #c3c3c3;">
+                                        <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Bank Details</div>
+                                        <hr style="margin: 0px 0px 16px 0;" />
+
+                                        <div class="row gutters">
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="BankHolderName" type="text" class="form-control clear-field detail" placeholder="Bank Holder Name">
+                                                    <div class="field-placeholder">Bank Holder Name</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="BankAccountNo" type="text" class="form-control clear-field detail" placeholder="Bank Account No">
+                                                    <div class="field-placeholder">Bank A/c No</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                                <div class="field-wrapper">
+                                                    <input id="BankIFSCCode" placeholder="Enter IFSC" type="text" min="11" maxlength="11" class="form-control clear-field detail" onkeyup="myFunctionIFSC(this)">
+                                                    <div class="field-placeholder">Bank IFSC</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+>>>>>>> origin/master
                                                 <div class="field-wrapper">
                                                     <input id="BankName" type="text" class="form-control clear-field detail" placeholder="Bank Name" readonly>
                                                     <div class="field-placeholder">Bank Name</div>
                                                 </div>
+<<<<<<< HEAD
                                                 <!-- Field wrapper end -->
                                             </div>
 
 
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
+=======
+                                            </div>
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+>>>>>>> origin/master
                                                 <div class="field-wrapper">
                                                     <input id="BankBranch" type="text" class="form-control clear-field detail" placeholder="Bank Branch" readonly>
                                                     <div class="field-placeholder">Bank Branch</div>
                                                 </div>
+<<<<<<< HEAD
                                                 <!-- Field wrapper end -->
                                             </div>
 
@@ -591,32 +819,54 @@
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
                                             <!-- Field wrapper start -->
+=======
+                                            </div>
+                                        </div>
+
+                                        <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
+                                        <hr style="margin: 5px 0px 16px 0;" />
+
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+>>>>>>> origin/master
                                             <div class="field-wrapper">
                                                 <textarea id="billingAddress" onkeyup="checkShippingAdd()" class="form-control clear-field detail" rows="3" placeholder="Enter Billing Address"></textarea>
                                                 <div class="field-placeholder">Billing Address</div>
                                             </div>
+<<<<<<< HEAD
                                             <!-- Field wrapper end -->
 
                                         </div>
 
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
 
+=======
+                                        </div>
+
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="divaddchk">
+>>>>>>> origin/master
                                             <div class="field-wrapper">
                                                 <div class="form-check form-check-inline" style="margin-left: 65%;">
                                                     <input class="form-check-input clear-field detail" onclick="toggleShippingAddress()" type="checkbox" id="chcekAddress" value="option" checked style="cursor:pointer;">
                                                     <label class="form-check-label" for="chcekAddress">Same as Billing Address</label>
                                                 </div>
                                             </div>
+<<<<<<< HEAD
 
                                         </div>
 
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
                                             <!-- Field wrapper start -->
+=======
+                                        </div>
+
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+>>>>>>> origin/master
                                             <div class="field-wrapper">
                                                 <textarea id="shippingAddress" class="form-control clear-field" rows="3" placeholder="Enter Shipping Address" disabled></textarea>
                                                 <div class="field-placeholder">Shipping Address</div>
                                             </div>
+<<<<<<< HEAD
                                             <!-- Field wrapper end -->
 
                                         </div>
@@ -642,10 +892,106 @@
                 <div id="notess"></div>
                 <div class="modal-footer" id="divModalFooter">
 
+=======
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Yarn Material Section -->
+                    <div class="row gutters" id="DivYarnMaterial" style="display:none;">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="row gutters">
+                                <div class="col-4 mb-3">
+                                    <div class="field-wrapper">
+                                        <input type="text" id="YarnMaterial" name="YarnMaterial" class="form-control clear-field" onfocusout="validate(this)">
+                                        <div class="field-placeholder">Yarn Material & Quality<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <div class="field-wrapper">
+                                        <input type="text" id="Denier" name="Denier" class="form-control clear-field">
+                                        <div class="field-placeholder">Denier</div>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <div class="field-wrapper">
+                                        <div class="form-check form-check-inline" style="margin-top: 6px;">
+                                            <input id="IsActiveYarnMaterial" class="form-check-input" type="checkbox" value="1" checked>
+                                            <label class="form-check-label" for="IsActiveYarnMaterial">Is Active</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="field-wrapper">
+                                        <select id="ServiceUnit" class="select-single js-states form-control" title="Select Unit" data-live-search="true">
+                                            <option value="-1">Select</option>
+                                        </select>
+                                        <div class="field-placeholder">Unit<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="field-wrapper">
+                                        <input class="form-control clear-field detail" type="text" id="HSNSACCOde" placeholder="HSN Code" onfocusout="validate(this)">
+                                        <div class="field-placeholder">HSN Code<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="field-wrapper">
+                                        <select id="GSTSLABId" class="select-single js-states form-control" title="Select GST Slab" data-live-search="true">
+                                            <option value="-1">Select</option>
+                                        </select>
+                                        <div class="field-placeholder">GST Slab<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Yarn Color Section -->
+                    <div class="row gutters" id="DivYarnColor" style="display:none;">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="row gutters">
+                                <div class="col-5">
+                                    <div class="field-wrapper">
+                                        <input type="text" id="YarnColor" name="YarnColor" class="form-control clear-field" onfocusout="validate(this)">
+                                        <div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="field-wrapper">
+                                        <div class="input-group">
+                                            <span class="input-group-text">#</span>
+                                            <input type="text" id="YarnColorCode" name="YarnColorCode" class="form-control clear-field" onfocusout="validate(this)" onkeyup="changeYarnColor(this)">
+                                        </div>
+                                        <div class="field-placeholder">Yarn Color Code<sup style="color:red;">*</sup></div>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="field-wrapper">
+                                        <div class="form-check form-check-inline" style="margin-top: 6px;">
+                                            <input id="IsActiveYarnColor" class="form-check-input" type="checkbox" value="1" checked>
+                                            <label class="form-check-label" for="IsActiveYarnColor" style="background-color: white; border-radius: 10px; padding: 3px;">Is Active</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer" id="divModalFooter">
+                    <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="saveparty()">Save & New</button>
+                    <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+>>>>>>> origin/master
                 </div>
             </div>
         </div>
     </div>
+<<<<<<< HEAD
 
 
 
@@ -653,10 +999,16 @@
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
+=======
+    <!-- Main Page Row -->
+    <div class="row gutters">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+>>>>>>> origin/master
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">Update Purchase Order Form</div>
                     <br />
+<<<<<<< HEAD
                     <!--Images-->
                     <div class="row gutters">
 
@@ -693,12 +1045,28 @@
 
                                 <input type="hidden" id="YarnPOID" class="form-control datepicker">
                                 <!-- Field wrapper start -->
+=======
+
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div id="dropzone-sm">
+                                <input type="hidden" id="txtDesignColorMatchingFormID" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="row gutters">
+                            <div class="col-4">
+                                <input type="hidden" id="YarnPOID" class="form-control" />
+>>>>>>> origin/master
                                 <div class="field-wrapper">
                                     <div class="input-group">
                                         <input type="text" id="PODate" class="form-control datepicker">
                                     </div>
                                     <div class="field-placeholder">Date <span class="text-danger">*</span></div>
                                 </div>
+<<<<<<< HEAD
                                 <!-- Field wrapper end -->
 
 
@@ -706,10 +1074,15 @@
                             <div class="col-4">
 
                                 <!-- Field wrapper start -->
+=======
+                            </div>
+                            <div class="col-4">
+>>>>>>> origin/master
                                 <div class="field-wrapper">
                                     <input type="text" class="form-control" id="PONo" value="1" title="InvoiceNo" onkeypress="return (event.charCode>=48 && event.charCode<=57)" readonly>
                                     <div class="field-placeholder">Number <span class="text-danger">*</span></div>
                                 </div>
+<<<<<<< HEAD
                                 <!-- Field wrapper end -->
 
 
@@ -768,11 +1141,30 @@
                                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-4">
 
                                             <div class="field-wrapper" style=" text-align: center; margin: 0;">
+=======
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Supplier & Company Party Section with '+' Buttons -->
+                    <div class="row gutters">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row justify-content-between" style="border-bottom: 1px solid #c3c3c3; margin-top: -20px;">
+                                        <div id="notes"></div>
+
+                                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-4">
+                                            <div class="field-wrapper" style="text-align: center; margin: 0;">
+>>>>>>> origin/master
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input detail" onclick="toggleSupplierDetails()" type="checkbox" id="chcekSupplierDetails" value="" style="cursor:pointer;">
                                                     <label class="form-check-label" for="chcekSupplierDetails">Same as Supplier Details</label>
                                                 </div>
                                             </div>
+<<<<<<< HEAD
 
                                         </div>
 
@@ -837,11 +1229,60 @@
                                             <!-- Row start -->
                                             <div class="row gutters">
 
+=======
+                                        </div>
+
+                                        <!-- Vendor Dropdown with '+' Party Button -->
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <div class="row gutters">
+                                                <div class="col-12">
+                                                    <div class="form-section-header light-bg">Vendor</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlSupplier" class="select-single detail" title="Supplier" data-live-search="true" onchange="OnSupplierParty(this.value)">
+                                                            <option value="-1">Supplier</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Supplier</div>
+                                                        <button type="button" id="AddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addparty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="SupplierGST" placeholder="ex: 20XXXXX9438X1XX" readonly>
+                                                        <div class="field-placeholder">GST</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <textarea id="SupplierAddress" class="form-control detail" rows="3" placeholder="Address" readonly></textarea>
+                                                        <div class="field-placeholder">Address</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <input id="SupplierPhone" placeholder="Phone" type="tel" class="form-control detail" readonly>
+                                                        <div class="field-placeholder">Phone</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Company Dropdown with '+' Party Button -->
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
+                                            <div class="row gutters">
+>>>>>>> origin/master
                                                 <div class="col-12">
                                                     <div class="form-section-header light-bg">Company</div>
                                                 </div>
 
                                                 <div class="col-6">
+<<<<<<< HEAD
 
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
@@ -896,19 +1337,56 @@
                                             <!-- Row start -->
                                             <div class="row gutters">
 
+=======
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlCompany" class="select-single detail" title="Company" data-live-search="true" onchange="OnCompanyParty(this.value)">
+                                                            <option value="-1">Company</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Company</div>
+                                                        <button type="button" id="CompanyAddPartyModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addCompanyParty()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="CompanyGST" placeholder="ex: 20XXXXX9438X1XX" readonly>
+                                                        <div class="field-placeholder">GST</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-8">
+                                                    <div class="field-wrapper">
+                                                        <textarea id="CompanyAddress" class="form-control detail" rows="3" placeholder="Address" readonly></textarea>
+                                                        <div class="field-placeholder">Address</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <div class="row gutters">
+>>>>>>> origin/master
                                                 <div class="col-12">
                                                     <div class="form-section-header light-bg">Bill To</div>
                                                 </div>
 
                                                 <div class="col-6">
+<<<<<<< HEAD
 
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
                                                         <select id="ddlCompany" class="select-single detail" title="Select Bill To Name" data-live-search="true" onchange="OnCompanyParty(this.value)">
+=======
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlBillTo" class="select-single detail" title="BillTo" data-live-search="true" onchange="OnBillToParty(this.value)">
+>>>>>>> origin/master
                                                             <option value="-1">Bill To</option>
                                                         </select>
                                                         <div class="field-placeholder">Bill To</div>
                                                     </div>
+<<<<<<< HEAD
                                                     <!-- Field wrapper end -->
 
                                                 </div>
@@ -973,28 +1451,54 @@
                                                         <div class="field-placeholder">Address</div>
                                                     </div>
                                                     <!-- Field wrapper end -->
+=======
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <input type="text" class="form-control" id="BillToGST" placeholder="ex: 20XXXXX9438X1XX" readonly>
+                                                        <div class="field-placeholder">GST</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="field-wrapper">
+                                                        <textarea id="BillToAddress" class="form-control detail" rows="3" placeholder="Address" readonly></textarea>
+                                                        <div class="field-placeholder">Address</div>
+                                                    </div>
+>>>>>>> origin/master
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
+<<<<<<< HEAD
                                             <!-- Row start -->
                                             <div class="row gutters">
 
 
 
+=======
+                                            <div class="row gutters">
+>>>>>>> origin/master
                                                 <div class="col-12">
                                                     <div class="form-section-header light-bg">Shipping</div>
                                                 </div>
 
                                                 <div class="col-6">
+<<<<<<< HEAD
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
                                                         <select id="ddlGodownID" class="select-single detail" title="Select Godown" data-live-search="true" onchange="OnChangeGown(this.value)">
+=======
+                                                    <div class="field-wrapper">
+                                                        <select id="ddlGodownID" class="select-single detail" title="Godown" data-live-search="true" onchange="OnChangeGown(this.value)">
+>>>>>>> origin/master
                                                             <option value="-1">Godown</option>
                                                         </select>
                                                         <div class="field-placeholder">Godown</div>
                                                     </div>
+<<<<<<< HEAD
                                                     <!-- Field wrapper end -->
 
                                                 </div>
@@ -1011,10 +1515,22 @@
                                                         <div class="field-placeholder">Address</div>
                                                     </div>
                                                     <!-- Field wrapper end -->
+=======
+                                                </div>
+
+                                                <div class="col-6"></div>
+
+                                                <div class="col-8">
+                                                    <div class="field-wrapper">
+                                                        <textarea id="GodownAddress" class="form-control detail" rows="3" placeholder="Address" readonly></textarea>
+                                                        <div class="field-placeholder">Address</div>
+                                                    </div>
+>>>>>>> origin/master
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+<<<<<<< HEAD
                                     <!-- Row end -->
                                     <div class="row gutters">
                                         <div class="col-12">
@@ -1116,12 +1632,147 @@
                                                             <th style="text-align: center;"><h5 id="TotalRate">0</h5></th>
                                                             <th style="text-align:end;"></th>
                                                             <th style="text-align: center;"><h5 id="TotalAmount">0</h5></th>
+=======
+
+                                    <!-- Selection Bar aligned with Table Columns -->
+                                    <div class="row gutters align-items-end mt-4 mb-3">
+                                        <input type="hidden" id="editingRowId" value="0" />
+                                        <input type="hidden" id="editingPODetailID" value="0" />
+
+                                        <!-- 1. Yarn Material -->
+                                        <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-12" style="width: 18%;">
+                                            <div class="field-wrapper mb-0">
+                                                <select id="yarnMaterialEntry" class="select-single detail" title="Yarn Material" data-live-search="true" onchange="YarnYarnMaterialEntry()">
+                                                    <option value="0">Select Material</option>
+                                                </select>
+                                                <div class="field-placeholder">Yarn Material</div>
+                                                <button type="button" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addYarnMaterialModal()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2. Yarn Color -->
+                                        <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-12" style="width: 18%;">
+                                            <div class="field-wrapper mb-0">
+                                                <div class="d-flex align-items-center">
+                                                    <div id="tdYarnColorEntry" style="width: 26px; height: 26px; border-radius: 3px; flex-shrink: 0; background-color: #eee; border: 1px solid #ccc; margin-right: 5px;"></div>
+                                                    <div style="flex-grow: 1; position: relative;">
+                                                        <select id="YarnColorEntry" class="select-single detail" title="Yarn Color" data-live-search="true" onchange="YarnColorChangeEntry()">
+                                                            <option value="0">Select Color</option>
+                                                        </select>
+                                                        <div class="field-placeholder">Yarn Color</div>
+                                                        <button type="button" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="addYarnColorModal()" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                            <i class="fa fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 3. Yarn Color Code -->
+                                        <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6 col-12" style="width: 10%;">
+                                            <div class="field-wrapper-custom mb-0">
+                                                <label for="CompanyCodeEntry">Yarn Color Code</label>
+                                                <input type="text" class="form-control" id="CompanyCodeEntry" placeholder="Code" />
+                                            </div>
+                                        </div>
+
+                                        <!-- 4. Qty -->
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 8%;">
+                                            <div class="field-wrapper-custom mb-0">
+                                                <label for="QtyEntry">Qty</label>
+                                                <input type="tel" class="form-control" id="QtyEntry" placeholder="0" onkeypress="return validateFloatKeyPress(this,event);" maxlength="9" onkeyup="calculationYarnEntry()" />
+                                            </div>
+                                        </div>
+
+                                        <!-- 5. Rate -->
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 8%;">
+                                            <div class="field-wrapper-custom mb-0">
+                                                <label for="RateEntry">Rate</label>
+                                                <input type="tel" class="form-control" id="RateEntry" placeholder="0" onkeypress="return validateFloatKeyPress(this,event);" maxlength="9" onkeyup="calculationYarnEntry()" />
+                                            </div>
+                                        </div>
+
+                                        <!-- 6. GST -->
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 10%;">
+                                            <div class="field-wrapper-custom mb-0">
+                                                <label for="GSTEntry">GST</label>
+                                                <select id="GSTEntry" class="form-select" onchange="calculationYarnEntry()">
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- 7. Amount -->
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 10%;">
+                                            <div class="field-wrapper-custom mb-0">
+                                                <label for="AmountEntry">Amount</label>
+                                                <input type="tel" class="form-control bg-light" id="AmountEntry" placeholder="0" readonly />
+                                            </div>
+                                        </div>
+
+                                        <!-- 8. Action Button -->
+                                        <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6 col-12" style="width: 15%;">
+                                            <button type="button" id="btnAddItem" class="btn btn-primary fw-bold px-4" style="height: 38px;" onclick="AddSingleRowToTable()">
+                                                Add Item
+                                            </button>
+                                            <button type="button"
+                                                    id="btnCancelEdit"
+                                                    class="btn btn-secondary fw-bold"
+                                                    style="height: 38px; width: 45px; display:none;"
+                                                    title="Cancel"
+                                                    onclick="resetSingleEntryRow()">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Table Area -->
+                                    <div class="row gutters mt-3">
+                                        <div class="col-12">
+                                            <div class="col-12">
+                                                <div class="form-section-header light-bg"> Item Detail</div>
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <input type="hidden" id="txtPurchasenStock" value="0" />
+
+                                                <table class="tbl-item-detail table-clean" id="tblYarnItemDetails">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 22%;text-align:center">Yarn Material</th>
+                                                            <th style="width: 18%; text-align: center">Yarn Color</th>
+                                                            <th style="width: 16%; text-align: center">Yarn Color Code</th>
+                                                            <th style="width: 10%; text-align: center">Qty</th>
+                                                            <th style="width: 10%; text-align: center">Rate</th>
+                                                            <th style="width: 8%; text-align:center">GST</th>
+                                                            <th style="width: 10%; text-align: center">Amount</th>
+                                                            <th style="width: 6%; text-align: center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tableAddedItems">
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-muted py-4">No items added yet. Use the fields above to add an item.</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3" class="text-end fw-bold align-middle">TOTAL WEIGHT / QTY:</td>
+                                                            <td class="text-center align-middle">
+                                                                <span class="total-badge" id="TotalQty">0</span>
+                                                            </td>
+                                                            <td class="text-center align-middle fw-bold" id="TotalRate">0</td>
+                                                            <td></td>
+                                                            <td class="text-center align-middle fw-bold" id="TotalAmount">0.00</td>
+                                                            <td></td>
+>>>>>>> origin/master
                                                         </tr>
                                                     </tfoot>
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
+<<<<<<< HEAD
                                 </div>
                             </div>
                         </div>
@@ -1203,11 +1854,69 @@
 
 
 
+=======
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="row gutters mt-3">
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="DeliveryTime" value="2-3 Days" title="DeliveryTime">
+                                    <div class="field-placeholder">Delivery Time in Days <span class="text-danger">*</span></div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="field-wrapper">
+                                    <input type="text" class="form-control" id="PaymentCondition" value="45-60 Days" title="PaymentCondition">
+                                    <div class="field-placeholder">Payment Condition in Days <span class="text-danger">*</span></div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12" id="DivAddNotes">
+                                    <p style="color: #1273eb; cursor: pointer; font-weight: 600;" onclick="AddNotes()">+ Add Notes / Remarks</p>
+                                </div>
+
+                                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-4 col-12" id="DivNotes" style="display:none;">
+                                    <div class="field-wrapper">
+                                        <h6 style="text-align:end; margin-top: -18px;">
+                                            <span onclick="CloseNotes()" style="cursor:pointer;"><i class="icon-x-circle"></i></span>
+                                        </h6>
+                                        <textarea id="NotesRemarks" class="form-control" placeholder="Enter your Notes or Remarks"></textarea>
+                                        <div class="field-placeholder">Notes / Remarks <span class="text-danger">*</span></div>
+                                    </div>
+                                </div>
+                                <script>
+                                    function AddNotes() {
+                                        $("#DivAddNotes").hide();
+                                        $("#DivNotes").show();
+                                        $("#NotesRemarks").focus().val('');
+                                    }
+                                    function CloseNotes() {
+                                        $("#DivAddNotes").show();
+                                        $("#DivNotes").hide();
+                                        $("#NotesRemarks").val('');
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="txtYarnDetailsArray" title="txtYarnDetailsArray" value="" />
+                    <input type="hidden" id="txtDeleteYarnDetailsArray" title="DeleteYarnDetailsArray" />
+                    <div id="divMatchingColor"></div>
+>>>>>>> origin/master
                     <br />
 
                     <div class="modal-footer">
                         <a href="YarnPO" class="btn btn-light" style="font-size: medium;"><i class="fa fa-arrow-left"></i>Back</a>
                         <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Update</button>
+<<<<<<< HEAD
                         <button id="Updatebtn" type="button" class="btn btn-primary" onclick="checkUpdate()" style="font-size: medium; display:none;">Update</button>
                     </div>
 
@@ -1702,11 +2411,73 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/getYarnReqCompanyColorCode',
+=======
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        document.title = "Update Yarn PO - Nikunj Textile";
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        var ArrayYarnColor = [];
+        var ArrayYarnMaterial = [];
+        var ArrayGstSlab = [];
+        var ListPartyArray = [];
+        var ListGodownArray = [];
+        var CompanyAddParty = false;
+
+        var addedItemsArray = [];
+        var rowCounter = 0;
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#YarnForm-tab").addClass("active");
+            $("#tab-YarnForm").addClass("show active");
+            $("#aCreateYarnPO").addClass("current-page");
+
+            FunctionIsLogin();
+            getDesignEntryForm();
+            getPartyDetail();
+            getGodownDetail();
+            bindBrokerDropdown();
+            getStates(0);
+            getItemUnit();
+            getItemGST();
+
+            setTimeout(function () {
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                if (hashes.length > 0 && hashes[0].indexOf('=') !== -1) {
+                    functionYarnPO(hashes[0].split('=')[1]);
+                }
+            }, 1000);
+        });
+
+        function getDesignEntryForm(autoSelectMaterialId = 0, autoSelectColorId = 0) {
+            var formData = new FormData();
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryYarnPOForm',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     //console.log(response);
                     if (response.listYarnRequirementMaster.length > 0) {
 
@@ -1871,6 +2642,76 @@
             validate(document.getElementById('GSTSLABId'));
         }
         else {
+=======
+                    if (response.Code == "200") {
+                        ArrayYarnColor = [response.listYarnColorMaster];
+                        ArrayYarnMaterial = [response.listYarnMaterialMaster];
+                        ArrayGstSlab = [response.listGstSlabMaster];
+
+                        populateEntryDropdowns(autoSelectMaterialId, autoSelectColorId);
+                    }
+                }
+            });
+        }
+
+        function populateEntryDropdowns(autoSelectMaterialId = 0, autoSelectColorId = 0) {
+            if (ArrayYarnMaterial[0] && ArrayYarnMaterial[0].length > 0) {
+                $('#yarnMaterialEntry').empty().append("<option value='0' selected>Select Material</option>");
+                $.each(ArrayYarnMaterial[0], function (i, item) {
+                    $('#yarnMaterialEntry').append(`<option value="${item.YarnMaterialID}">${item.YarnMaterial}</option>`);
+                });
+                if (autoSelectMaterialId > 0) {
+                    $("#yarnMaterialEntry").val(autoSelectMaterialId).trigger("change");
+                }
+            }
+
+            if (ArrayYarnColor[0] && ArrayYarnColor[0].length > 0) {
+                $('#YarnColorEntry').empty().append("<option value='0' selected>Select Color</option>");
+                $.each(ArrayYarnColor[0], function (i, item) {
+                    $('#YarnColorEntry').append(`<option value="${item.YarnColorID}">${item.YarnColor}</option>`);
+                });
+                if (autoSelectColorId > 0) {
+                    $("#YarnColorEntry").val(autoSelectColorId).trigger("change");
+                }
+            }
+
+            if (ArrayGstSlab[0] && ArrayGstSlab[0].length > 0) {
+                $('#GSTEntry').empty();
+                $.each(ArrayGstSlab[0], function (i, item) {
+                    $('#GSTEntry').append(`<option value="${item.GSTSLABId}">${item.GSTSLABName}</option>`);
+                });
+            }
+        }
+
+        // Trigger Add Yarn Material in shared modal
+        function addYarnMaterialModal() {
+            getItemUnit();
+            getItemGST();
+
+            $("#DivPartyMaster, #DivYarnColor").hide();
+            $("#DivYarnMaterial").show();
+
+            $("#addNewContactLabel").html("Add Yarn Material");
+            $("#YarnMaterial, #Denier, #HSNSACCOde").val('');
+            $(".clear-field").removeClass("is-valid is-invalid");
+
+            var tempFooter = '<button id="saveViewPartybtn" type="button" class="btn btn-primary" title="Add New Yarn Material" onclick="checkYarnMaterialSaveViewModal()">Save</button>';
+            tempFooter += '<button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>';
+            $("#divModalFooter").html(tempFooter);
+        }
+
+        function checkYarnMaterialSaveViewModal() {
+            var IsActive = $("#IsActiveYarnMaterial").is(':checked') ? "1" : "0";
+            var YarnMaterial = $('#YarnMaterial').val();
+            var Denier = $('#Denier').val();
+            var UnitId = $('#ServiceUnit').val();
+            var HSNCode = $('#HSNSACCOde').val();
+            var GSTSLABId = $('#GSTSLABId').val();
+
+            if (!validate(document.getElementById('YarnMaterial')) || !validate(document.getElementById('ServiceUnit')) || !validate(document.getElementById('HSNSACCOde')) || !validate(document.getElementById('GSTSLABId'))) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('YarnMaterial', YarnMaterial);
@@ -1880,7 +2721,10 @@
             formData.append('GSTSLABId', GSTSLABId);
             formData.append('IsActive', IsActive);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
@@ -1890,6 +2734,7 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
+<<<<<<< HEAD
 
 
                         setTimeout(function () {
@@ -1926,10 +2771,20 @@
 
                     });
 
+=======
+                        Toast.fire({ icon: 'success', title: 'Yarn Material saved successfully!' });
+                        var newMaterialId = response.id ? parseInt(response.id) : 0;
+                        getDesignEntryForm(newMaterialId, 0);
+                        $("#cancelbtn").click();
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.Message || 'Failed to save.' });
+                    }
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -2691,12 +3546,50 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertPartyinYarnRequirementMaster',
+=======
+        // Trigger Add Yarn Color in shared modal
+        function addYarnColorModal() {
+            $("#DivPartyMaster, #DivYarnMaterial").hide();
+            $("#DivYarnColor").show();
+
+            $("#addNewContactLabel").html("Add Yarn Color");
+            $("#YarnColor, #YarnColorCode").val('');
+            $(".clear-field").removeClass("is-valid is-invalid");
+
+            var tempFooter = '<button id="saveViewPartybtn" type="button" class="btn btn-primary" title="Add New Yarn Color" onclick="checkYarnColorSaveViewModal()">Save</button>';
+            tempFooter += '<button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>';
+            $("#divModalFooter").html(tempFooter);
+        }
+
+        function checkYarnColorSaveViewModal() {
+            var IsActive = $("#IsActiveYarnColor").is(':checked') ? "1" : "0";
+            var YarnColor = $('#YarnColor').val();
+            var YarnColorCode = $('#YarnColorCode').val();
+
+            if (YarnColorCode.startsWith("#")) {
+                YarnColorCode = YarnColorCode.substring(1);
+            }
+
+            if (!validate(document.getElementById('YarnColor')) || !validate(document.getElementById('YarnColorCode'))) {
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('YarnColor', YarnColor);
+            formData.append('YarnColorCode', YarnColorCode);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertYarnColorMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
+<<<<<<< HEAD
 
 
 
@@ -4194,3 +5087,781 @@
     }
 
 </script>
+=======
+                        Toast.fire({ icon: 'success', title: 'Yarn Color saved successfully!' });
+                        var newColorId = response.id ? parseInt(response.id) : 0;
+                        getDesignEntryForm(0, newColorId);
+                        $("#cancelbtn").click();
+                    } else {
+                        Toast.fire({ icon: 'error', title: response.Message || 'Failed to save.' });
+                    }
+                }
+            });
+        }
+
+        function addparty() {
+            $("#DivYarnMaterial, #DivYarnColor").hide();
+            $("#DivPartyMaster").show();
+            $("#addNewContactLabel").html("Add Party Information");
+            CompanyAddParty = false;
+        }
+
+        function addCompanyParty() {
+            addparty();
+            CompanyAddParty = true;
+        }
+
+        function YarnColorChangeEntry() {
+            var yarnColors = ArrayYarnColor[0];
+            var val = parseInt($("#YarnColorEntry").val());
+            var yarnColor = yarnColors ? yarnColors.find(item => item.YarnColorID === val) : null;
+            if (yarnColor) {
+                $("#tdYarnColorEntry").css("background-color", "#" + yarnColor.YarnColorCode);
+            } else {
+                $("#tdYarnColorEntry").css("background-color", "#eee");
+            }
+        }
+
+        function YarnYarnMaterialEntry() {
+            var yarnMaterials = ArrayYarnMaterial[0];
+            var val = parseInt($("#yarnMaterialEntry").val());
+            var mat = yarnMaterials ? yarnMaterials.find(item => item.YarnMaterialID === val) : null;
+            if (mat) {
+                if (mat.GSTSLABId == '0') {
+                    $("#GSTEntry").val("14");
+                } else {
+                    $("#GSTEntry").val(mat.GSTSLABId);
+                }
+            }
+            calculationYarnEntry();
+        }
+
+        function calculationYarnEntry() {
+            var QtyValue = $("#QtyEntry").val() || 0;
+            var RateValue = $("#RateEntry").val() || 0;
+            var GSTValue = $("#GSTEntry").val() || 0;
+
+            var GstSlab = ArrayGstSlab[0];
+            var GSTIGST = GstSlab ? GstSlab.find(item => item.GSTSLABId === parseInt(GSTValue)) : null;
+            var IGSTVAL = GSTIGST ? parseFloat(GSTIGST.IGST) / 100 : 0;
+
+            var TotalAmount = 0;
+            if (IGSTVAL == 0) {
+                TotalAmount = (parseFloat(QtyValue) * parseFloat(RateValue));
+            } else {
+                TotalAmount = ((parseFloat(QtyValue) * parseFloat(RateValue)) * parseFloat(IGSTVAL)) + ((parseFloat(QtyValue) * parseFloat(RateValue)));
+            }
+
+            $("#AmountEntry").val(TotalAmount.toFixed(2));
+        }
+
+        function AddSingleRowToTable() {
+            var matId = $("#yarnMaterialEntry").val();
+            var colorId = $("#YarnColorEntry").val();
+            var code = $("#CompanyCodeEntry").val().trim();
+            var qty = parseFloat($("#QtyEntry").val() || 0);
+            var rate = parseFloat($("#RateEntry").val() || 0);
+            var gstId = $("#GSTEntry").val();
+            var amount = parseFloat($("#AmountEntry").val() || 0);
+
+            var editingId = parseInt($("#editingRowId").val() || "0");
+            var poDetailId = parseInt($("#editingPODetailID").val() || "0");
+
+            if (matId == "0" || colorId == "0" || qty <= 0 || rate <= 0) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Please select Yarn Material, Yarn Color, Quantity, and Rate.'
+                });
+                return;
+            }
+
+            var matName = $("#yarnMaterialEntry option:selected").text();
+            var colorName = $("#YarnColorEntry option:selected").text();
+            var gstName = $("#GSTEntry option:selected").text();
+            var colorBg = $("#tdYarnColorEntry").css("background-color");
+
+            if (editingId > 0) {
+                var index = addedItemsArray.findIndex(x => x.RowId === editingId);
+                if (index !== -1) {
+                    addedItemsArray[index].YarnMaterialID = matId;
+                    addedItemsArray[index].YarnMaterialName = matName;
+                    addedItemsArray[index].YarnColorID = colorId;
+                    addedItemsArray[index].YarnColorName = colorName;
+                    addedItemsArray[index].YarnColorBg = colorBg;
+                    addedItemsArray[index].CompanyCode = code;
+                    addedItemsArray[index].Qty = qty;
+                    addedItemsArray[index].Rate = rate;
+                    addedItemsArray[index].GSTSLABId = gstId;
+                    addedItemsArray[index].GSTSLABName = gstName;
+                    addedItemsArray[index].Amount = amount;
+
+                    Toast.fire({ icon: 'success', title: 'Item updated successfully.' });
+                }
+            } else {
+                rowCounter++;
+                var rowObj = {
+                    RowId: rowCounter,
+                    YarnPODetailID: 0,
+                    YarnMaterialID: matId,
+                    YarnMaterialName: matName,
+                    YarnColorID: colorId,
+                    YarnColorName: colorName,
+                    YarnColorBg: colorBg,
+                    CompanyCode: code,
+                    Qty: qty,
+                    Rate: rate,
+                    GSTSLABId: gstId,
+                    GSTSLABName: gstName,
+                    Amount: amount
+                };
+
+                addedItemsArray.push(rowObj);
+                Toast.fire({ icon: 'success', title: 'Item added successfully.' });
+            }
+
+            renderAddedTable();
+            resetSingleEntryRow();
+        }
+
+        function editAddedRow(rowId) {
+            var item = addedItemsArray.find(x => x.RowId === rowId);
+            if (item) {
+                $("#editingRowId").val(item.RowId);
+                $("#editingPODetailID").val(item.YarnPODetailID);
+
+                $("#yarnMaterialEntry").val(item.YarnMaterialID).trigger('change');
+                $("#YarnColorEntry").val(item.YarnColorID).trigger('change');
+                $("#tdYarnColorEntry").css("background-color", item.YarnColorBg);
+                $("#CompanyCodeEntry").val(item.CompanyCode);
+                $("#QtyEntry").val(item.Qty);
+                $("#RateEntry").val(item.Rate);
+                $("#GSTEntry").val(item.GSTSLABId);
+                $("#AmountEntry").val(item.Amount.toFixed(2));
+
+                $("#btnAddItem").text("Update").removeClass("btn-primary").addClass("btn-warning");
+                $("#btnCancelEdit").show();
+            }
+        }
+        function renderAddedTable() {
+            var $tbody = $("#tableAddedItems");
+            $tbody.empty();
+
+            if (addedItemsArray.length === 0) {
+                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-4">No items added yet. Select item parameters above and click "Add Item".</td></tr>');
+                $("#TotalQty, #TotalRate").text("0");
+                $("#TotalAmount").text("0.00");
+                return;
+            }
+
+            var totalQty = 0, totalRate = 0, totalAmount = 0;
+
+            $.each(addedItemsArray, function (i, item) {
+                totalQty += item.Qty;
+                totalRate += item.Rate;
+                totalAmount += item.Amount;
+
+                var tr = `
+                        <tr id="addedRow_${item.RowId}">
+                            <td class="text-center">${item.YarnMaterialName}</td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <div style="width:18px; height:18px; border-radius:3px; background-color:${item.YarnColorBg}; border:1px solid #ccc;"></div>
+                                    <span>${item.YarnColorName}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">${item.CompanyCode || '-'}</td>
+                            <td class="text-center fw-bold">${item.Qty.toLocaleString("en-IN")}</td>
+                            <td class="text-center">${item.Rate.toLocaleString("en-IN")}</td>
+                            <td class="text-center text-primary fw-bold">${item.GSTSLABName}</td>
+                            <td class="text-center fw-bold">${item.Amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                            <td class="text-center">
+                                <i class="fa fa-pencil text-info me-2" style="cursor:pointer;" onclick="editAddedRow(${item.RowId})" title="Edit"></i>
+                                <i class="fa fa-trash text-danger" style="cursor:pointer;" onclick="removeAddedRow(${item.RowId})" title="Remove"></i>
+                            </td>
+                        </tr>
+                    `;
+                $tbody.append(tr);
+            });
+
+            $("#TotalQty").text(totalQty.toLocaleString("en-IN"));
+            $("#TotalRate").text(totalRate.toLocaleString("en-IN"));
+            $("#TotalAmount").text(totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 }));
+        }
+
+        function removeAddedRow(rowId) {
+            Swal.fire({
+                title: 'Delete Item?',
+                text: 'Are you sure you want to remove this yarn entry?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var item = addedItemsArray.find(x => x.RowId === rowId);
+                    if (item && item.YarnPODetailID > 0) {
+                        var currentDeleteList = $("#txtDeleteYarnDetailsArray").val();
+                        $("#txtDeleteYarnDetailsArray").val(currentDeleteList + item.YarnPODetailID + ",");
+                    }
+
+                    if (parseInt($("#editingRowId").val()) === rowId) {
+                        resetSingleEntryRow();
+                    }
+                    addedItemsArray = addedItemsArray.filter(x => x.RowId !== rowId);
+                    renderAddedTable();
+                    Toast.fire({ icon: 'success', title: 'Item removed.' });
+                }
+            });
+        }
+        function resetSingleEntryRow() {
+            $("#editingRowId").val("0");
+            $("#editingPODetailID").val("0");
+            $("#yarnMaterialEntry, #YarnColorEntry").val("0").trigger('change');
+            $("#tdYarnColorEntry").css("background-color", "#eee");
+            $("#CompanyCodeEntry, #QtyEntry, #RateEntry, #AmountEntry").val("");
+            $("#btnAddItem").text("Add Item").removeClass("btn-warning").addClass("btn-primary");
+            $("#GSTEntry").val("14").trigger('change');
+            $("#btnCancelEdit").hide();
+        }
+
+        function functionYarnPO(YarnPOID) {
+            var formData = new FormData();
+            formData.append('YarnPOID', YarnPOID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnPODetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response && response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                        var po = response.listYarnPOMaster[0];
+
+                        $("#YarnPOID").val(po.YarnPOID);
+                        $("#PODate").val(po.PODates);
+                        $("#PONo").val(po.PONo);
+
+                        if (po.IsSameAsSupplier == "1") {
+                            $("#chcekSupplierDetails").prop("checked", true);
+                            $("#ddlBillTo").prop("disabled", true);
+                        }
+
+                        $("#ddlSupplier").val(po.SupplierPartyID);
+                        $("#select2-ddlSupplier-container").html(po.SupplierPartyName);
+                        $("#SupplierPhone").val(po.SupplierMobileNo);
+                        $("#SupplierAddress").val(po.SupplierBillingAddress);
+                        $("#SupplierGST").val(po.SupplierGSTIN);
+
+                        $("#ddlBillTo").val(po.BillToPartyID);
+                        $("#select2-ddlBillTo-container").html(po.BillToPartyName);
+                        $("#BillToGST").val(po.BillToGSTIN);
+                        $("#BillToAddress").val(po.BillToBillingAddress);
+
+                        $("#ddlCompany").val(po.CompanyPartyID);
+                        $("#select2-ddlCompany-container").html(po.CompanyPartyName);
+                        $("#CompanyGST").val(po.CompanyGSTIN);
+                        $("#CompanyAddress").val(po.CompanyBillingAddress);
+
+                        $("#ddlGodownID").val(po.GodownID);
+                        $("#select2-ddlGodownID-container").html(po.GodownTitle);
+                        $("#GodownAddress").val(po.GodownAddress);
+
+                        $("#DeliveryTime").val(po.DeliveryTime);
+                        $("#PaymentCondition").val(po.PaymentCondition);
+                        $("#NotesRemarks").val(po.NotesRemarks);
+
+                        if (po.NotesRemarks && po.NotesRemarks != "") {
+                            $("#DivAddNotes").hide();
+                            $("#DivNotes").show();
+                        }
+
+                        addedItemsArray = [];
+                        rowCounter = 0;
+
+                        if (po.listYarnPODetails && po.listYarnPODetails.length > 0) {
+                            $.each(po.listYarnPODetails, function (j, detail) {
+                                rowCounter++;
+                                var matName = detail.YarnMaterial || (ArrayYarnMaterial[0] ? (ArrayYarnMaterial[0].find(x => x.YarnMaterialID === detail.YarnMaterialID)?.YarnMaterial || "") : "");
+                                var colorName = detail.YarnColor || (ArrayYarnColor[0] ? (ArrayYarnColor[0].find(x => x.YarnColorID === detail.YarnColorID)?.YarnColor || "") : "");
+                                var gstName = detail.GSTSLABName || (ArrayGstSlab[0] ? (ArrayGstSlab[0].find(x => x.GSTSLABId === detail.GSTSLABId)?.GSTSLABName || "") : "");
+
+                                addedItemsArray.push({
+                                    RowId: rowCounter,
+                                    YarnPODetailID: detail.YarnPODetailID || 0,
+                                    YarnMaterialID: detail.YarnMaterialID,
+                                    YarnMaterialName: matName,
+                                    YarnColorID: detail.YarnColorID,
+                                    YarnColorName: colorName,
+                                    YarnColorBg: "#" + (detail.YarnColorCode || "eee"),
+                                    CompanyCode: detail.CompanyCode || "",
+                                    Qty: parseFloat(detail.Qty || 0),
+                                    Rate: parseFloat(detail.Rate || 0),
+                                    GSTSLABId: detail.GSTSLABId,
+                                    GSTSLABName: gstName,
+                                    Amount: parseFloat(detail.Amount || 0)
+                                });
+                            });
+                        }
+                        renderAddedTable();
+                    }
+                }
+            });
+        }
+
+        function checkSave() {
+            var YarnPOID = $("#YarnPOID").val();
+            var Supplier = $("#ddlSupplier").val();
+            var BillTo = $("#ddlBillTo").val();
+            var Company = $("#ddlCompany").val();
+            var Godown = $("#ddlGodownID").val();
+            var DeleteYarnDetailsArray = $("#txtDeleteYarnDetailsArray").val();
+
+            if (Supplier === "0" || !Supplier) return Toast.fire({ icon: 'warning', title: 'Please Select Supplier Name.' });
+            if (Company === "0" || !Company) return Toast.fire({ icon: 'warning', title: 'Please Select Company Detail.' });
+            if (BillTo === "0" || !BillTo) return Toast.fire({ icon: 'warning', title: 'Please Select Bill To.' });
+            if (Godown === "0" || !Godown) return Toast.fire({ icon: 'warning', title: 'Please Select Godown.' });
+
+            if (addedItemsArray.length === 0) {
+                return Toast.fire({ icon: 'warning', title: 'Please add at least one item to the table.' });
+            }
+
+            var PODate = document.getElementById("PODate");
+            var PONo = document.getElementById("PONo");
+            var DeliveryTime = document.getElementById("DeliveryTime");
+            var PaymentCondition = document.getElementById("PaymentCondition");
+            var NotesRemarks = document.getElementById("NotesRemarks");
+
+            if (!validate(PODate) || !validate(PONo) || !validate(DeliveryTime) || !validate(PaymentCondition)) {
+                return Toast.fire({ icon: 'warning', title: 'Please fill all required fields.' });
+            } else {
+                var appendTemp = '';
+                $.each(addedItemsArray, function (i, item) {
+                    appendTemp += '{';
+                    appendTemp += '"YarnPODetailID": "' + item.YarnPODetailID + '",';
+                    appendTemp += '"YarnMaterialID": "' + item.YarnMaterialID + '",';
+                    appendTemp += '"YarnColorID": "' + item.YarnColorID + '",';
+                    appendTemp += '"CompanyCode": "' + item.CompanyCode + '",';
+                    appendTemp += '"Qty": "' + item.Qty + '",';
+                    appendTemp += '"Rate": "' + item.Rate + '",';
+                    appendTemp += '"GSTSLABId": "' + item.GSTSLABId + '",';
+                    appendTemp += '"Amount": "' + item.Amount + '"';
+                    appendTemp += '},';
+                });
+
+                var IsSameAsSupplier = $('#chcekSupplierDetails').prop('checked') ? 1 : 0;
+                var IsSameAsCompany = $('#chcekCompanyDetails').prop('checked') ? 1 : 0;
+
+                var YarnPO = '{';
+                YarnPO += '"YarnPOID":"' + YarnPOID + '", ';
+                YarnPO += '"PODates":"' + PODate.value + '", ';
+                YarnPO += '"PONo":"' + PONo.value + '",';
+                YarnPO += '"SupplierPartyID":"' + Supplier + '",';
+                YarnPO += '"IsSameAsSupplier":"' + IsSameAsSupplier + '",';
+                YarnPO += '"BillToPartyID":"' + BillTo + '",';
+                YarnPO += '"CompanyPartyID":"' + Company + '",';
+                YarnPO += '"IsSameAsCompany":"' + IsSameAsCompany + '",';
+                YarnPO += '"GodownID":"' + Godown + '",';
+                YarnPO += '"TotalQty":"' + $("#TotalQty").text() + '",';
+                YarnPO += '"TotalRate":"' + $("#TotalRate").text() + '",';
+                YarnPO += '"TotalAmount":"' + $("#TotalAmount").text() + '",';
+                YarnPO += '"DeliveryTime":"' + DeliveryTime.value + '",';
+                YarnPO += '"PaymentCondition":"' + PaymentCondition.value + '",';
+                YarnPO += '"NotesRemarks":"' + NotesRemarks.value + '",';
+                YarnPO += '"DeleteYarnDetailsArray":"' + (DeleteYarnDetailsArray.endsWith(',') ? DeleteYarnDetailsArray.slice(0, -1) : DeleteYarnDetailsArray) + '",';
+                YarnPO += '"listYarnPODetails": [' + appendTemp.slice(0, -1) + ']';
+                YarnPO += '}';
+
+                const formData = new FormData();
+                formData.append('YarnPOArray', YarnPO);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/UpdateYarnPOMasterMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Yarn PO Updated Successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = 'YarnPO';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message || 'Failed to update record.'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while submitting your data.'
+                        });
+                    }
+                });
+            }
+        }
+
+        /* Generic Helpers */
+        function validateFloatKeyPress(el, evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            var number = el.value.split('.');
+            if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) return false;
+            if (number.length > 1 && charCode == 46) return false;
+            return true;
+        }
+
+        function validate(code) {
+            if (!code || !code.id) return true;
+            if (code.value == "0" || code.value == "") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                return false;
+            } else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                return true;
+            }
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Session Expired",
+                            text: "Please login again."
+                        }).then(() => {
+                            window.location.replace("/Index");
+                        });
+                    }
+                }
+            });
+        }
+
+        function getPartyDetail() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getPartyDetails',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        ListPartyArray = [response.listPartyMaster];
+                        if (response.listPartyMaster.length > 0) {
+                            $('#ddlSupplier, #ddlBillTo, #ddlCompany, #ddlShipped').empty();
+                            $('#ddlSupplier').append("<option value='0'> Select Vendor </option>");
+                            $('#ddlCompany').append("<option value='0'> Select Company </option>");
+                            $('#ddlBillTo').append("<option value='0'> Select Bill To Name</option>");
+                            $('#ddlShipped').append("<option value='0'> Select Shipped Name </option>");
+
+                            for (var i = 0; i < response.listPartyMaster.length; i++) {
+                                var tempPartyName = "<option value='" + response.listPartyMaster[i].PartyId + "'> " + response.listPartyMaster[i].PartyName + " </option>";
+                                $('#ddlSupplier, #ddlBillTo, #ddlCompany, #ddlShipped').append(tempPartyName);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getGodownDetail() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownDetails',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == "200") {
+                        ListGodownArray = [response.listGodownMaster];
+                        if (response.listGodownMaster.length > 0) {
+                            $('#ddlGodownID').empty().append("<option value='0'>Godown </option>");
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+                                $('#ddlGodownID').append("<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>");
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function bindBrokerDropdown() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetBrokerList',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    let data = JSON.parse(response.d);
+                    $("#BrokerModel, #ddlBroker").empty().append('<option value="-1">Select</option>');
+                    $.each(data, function (i, item) {
+                        var opt = `<option value="${item.BrokerCode}">${item.BrokerCode} - ${item.BrokerName}</option>`;
+                        $("#BrokerModel, #ddlBroker").append(opt);
+                    });
+                }
+            });
+        }
+
+        function getStates(GSTStateCode) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getStates',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var jsonData = JSON.parse(data.d);
+                    $('#placeOfSupply').empty().append("<option value='0'>Select Place Of Supply</option>");
+                    for (var i = 0; i < jsonData.length; i++) {
+                        var admin = jsonData[i];
+                        var selected = (admin.GSTStateCode == GSTStateCode) ? "selected" : "";
+                        $('#placeOfSupply').append("<option value='" + admin.GSTStateCode + "' " + selected + ">" + admin.GSTStateCode + "-" + admin.StateTitle + "</option>");
+                    }
+                }
+            });
+        }
+
+        function getItemUnit() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getItemUnit',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#ServiceUnit").empty().append("<option value='' selected> -- Select -- </option>");
+                    for (var i = 0; i < jsonData.length; i++) {
+                        $('#ServiceUnit').append("<option value='" + jsonData[i].UnitId + "'>" + jsonData[i].Unit + "</option>");
+                    }
+                }
+            });
+        }
+
+        function getItemGST() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGSTSlabList',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var jsonData = JSON.parse(data.d);
+                    $("#GSTSLABId").empty().append("<option value='0' selected></option>");
+                    for (var i = 0; i < jsonData.length; i++) {
+                        $('#GSTSLABId').append("<option value='" + jsonData[i].GSTSLABId + "'>" + jsonData[i].GSTSLABName + "</option>");
+                    }
+                }
+            });
+        }
+
+        function OnSupplierParty(abc) {
+            if ($("#chcekSupplierDetails").is(':checked')) {
+                if ($("#ddlSupplier").val() == "0") {
+                    $("#SupplierGST, #SupplierAddress, #SupplierPhone").val('');
+                    $("#chcekSupplierDetails").prop("checked", false);
+                    $('#ddlBillTo').removeAttr('disabled');
+                } else {
+                    var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+                    if (PartyDetail) {
+                        $("#SupplierGST").val(PartyDetail.GSTIN);
+                        $("#SupplierAddress").val(PartyDetail.BillingAddress);
+                        $("#SupplierPhone").val(PartyDetail.MobileNo);
+                        $("#ddlBillTo").prop("disabled", true).val(abc);
+                        $("#select2-ddlBillTo-container").html(PartyDetail.PartyName);
+                        $("#BillToGST").val(PartyDetail.GSTIN);
+                        $("#BillToAddress").val(PartyDetail.BillingAddress);
+                    }
+                }
+            } else {
+                $('#ddlBillTo').removeAttr('disabled');
+                var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+                if (PartyDetail) {
+                    $("#SupplierGST").val(PartyDetail.GSTIN);
+                    $("#SupplierAddress").val(PartyDetail.BillingAddress);
+                    $("#SupplierPhone").val(PartyDetail.MobileNo);
+                }
+            }
+        }
+
+        function OnBillToParty(abc) {
+            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+            if (PartyDetail) {
+                $("#BillToGST").val(PartyDetail.GSTIN);
+                $("#BillToAddress").val(PartyDetail.BillingAddress);
+            }
+        }
+
+        function OnCompanyParty(abc) {
+            var PartyDetail = ListPartyArray.flat().find(item => parseInt(item.PartyId) === parseInt(abc));
+            if (PartyDetail) {
+                $("#CompanyGST").val(PartyDetail.GSTIN);
+                $("#CompanyAddress").val(PartyDetail.BillingAddress);
+            }
+        }
+
+        function OnChangeGown(abc) {
+            var GoDownDetail = ListGodownArray[0].find(item => item.GodownID === parseInt(abc));
+            if (GoDownDetail) {
+                $("#GodownAddress").val(GoDownDetail.GodownAddress);
+            }
+        }
+
+        function toggleSupplierDetails() {
+            if ($("#chcekSupplierDetails").is(':checked')) {
+                if ($("#ddlSupplier").val() == "0") {
+                    Toast.fire({ icon: "warning", title: "Please Select Supplier." });
+                } else {
+                    $("#ddlCompany").prop("disabled", true).val($("#ddlSupplier").val());
+                    $("#select2-ddlCompany-container").html($("#ddlCompany").find('option:selected').text());
+                    $("#CompanyGST").val($("#SupplierGST").val());
+                    $("#CompanyAddress").val($("#SupplierAddress").val());
+                }
+            } else {
+                $('#ddlCompany').removeAttr('disabled');
+            }
+        }
+
+        function toggleShippingAddress() {
+            if ($("#chcekAddress").prop("checked") == true) {
+                $("#shippingAddress").attr("disabled", true).val($("#billingAddress").val());
+            } else {
+                $("#shippingAddress").attr("disabled", false);
+            }
+        }
+
+        function checkShippingAdd() {
+            if ($("#chcekAddress").prop("checked") == true) {
+                $("#shippingAddress").val($("#billingAddress").val());
+            }
+        }
+
+        function resetPartyForm() {
+            $(".clear-field").val("");
+            $("#SundryParty").val("0");
+            $("#placeOfSupply, #Broker").val("-1");
+            $("#editbtn").hide();
+            $("#savebtn, #saveViewbtn").show();
+            $("#addNewContactLabel").text("Add Party");
+        }
+        $("#cancelbtn").on("click", function () { resetPartyForm(); });
+
+        function saveparty() {
+            var name = document.getElementById('party-name');
+            var phone = document.getElementById('phone');
+            if (validate(name) == false || validate(phone) == false) {
+                validate(name); validate(phone);
+            } else {
+                var formData = new FormData();
+                formData.append('PartyName', name.value);
+                formData.append('MobileNo', phone.value);
+                formData.append('AlterMobileNo', $('#alt-phone').val() || '0');
+                formData.append('Email', $('#email').val());
+                formData.append('BillingAddress', $('#billingAddress').val());
+                formData.append('ShippingAddress', $('#shippingAddress').val());
+                formData.append('IsSameAddress', $("#chcekAddress").is(':checked') ? "1" : "0");
+                formData.append('GSTIN', $('#gstin').val());
+                formData.append('State', $("#placeOfSupply option:selected").text());
+                formData.append('PanNo', $('#PanNo').val());
+                formData.append('Pincode', $('#pincode').val());
+                formData.append('city', $('#city').val());
+                formData.append('BankHolderName', $('#BankHolderName').val());
+                formData.append('BankAccountNo', $('#BankAccountNo').val());
+                formData.append('BankIFSCCode', $('#BankIFSCCode').val());
+                formData.append('BankName', $('#BankName').val());
+                formData.append('BankBranch', $('#BankBranch').val());
+                formData.append('IsActiveParty', $("#chcekIsActiveParty").is(':checked') ? "1" : "0");
+                formData.append('SundryParty', $('#SundryParty').val());
+                formData.append('BrokerCode', $("#Broker").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertPartyMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            $("#addNewContact").modal("hide");
+                            getPartyDetail();
+                            setTimeout(function () {
+                                var partyId = parseInt(response.id);
+                                if (!CompanyAddParty) {
+                                    $("#ddlSupplier").val(partyId).trigger('change');
+                                    OnSupplierParty(partyId);
+                                } else {
+                                    $("#ddlCompany").val(partyId).trigger('change');
+                                    OnCompanyParty(partyId);
+                                }
+                            }, 300);
+                            Toast.fire({ icon: 'success', title: response.Message || 'Party saved successfully!' });
+                        } else {
+                            Toast.fire({ icon: 'error', title: response.Message || 'Failed to save party.' });
+                        }
+                    }
+                });
+            }
+        }
+
+        function myFunctionIFSC(abc) {
+            var code = abc.value.trim().toUpperCase();
+            if (!code || code.length !== 11) {
+                setInvalid(abc); clearBankFields(); return;
+            }
+            $.ajax({
+                type: "GET",
+                url: "https://ifsc.razorpay.com/" + code,
+                success: function (response) {
+                    if (response && response.BANK) {
+                        $("#BankName").val(response.BANK);
+                        $("#BankBranch").val(response.BRANCH);
+                        setValid(abc);
+                    } else {
+                        setInvalid(abc); clearBankFields();
+                    }
+                },
+                error: function () { setInvalid(abc); clearBankFields(); }
+            });
+        }
+        function setValid(el) { el.classList.add("is-valid"); el.classList.remove("is-invalid"); }
+        function setInvalid(el) { el.classList.remove("is-valid"); el.classList.add("is-invalid"); }
+        function clearBankFields() { $("#BankName, #BankBranch").val(''); }
+
+        function myFunctionPINCODE(abc) {
+            var code = abc.value;
+            if (code.length == 6) {
+                $.ajax({
+                    type: "GET",
+                    url: "https://api.postalpincode.in/pincode/" + code,
+                    success: function (response) {
+                        if (response && response[0].PostOffice) {
+                            $("#city").val(response[0].PostOffice[0].District);
+                            setValid(abc);
+                        } else { setInvalid(abc); $("#city").val(''); }
+                    },
+                    error: function () { setInvalid(abc); $("#city").val(''); }
+                });
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master

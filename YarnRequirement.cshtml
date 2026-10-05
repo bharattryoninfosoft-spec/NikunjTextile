@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< ours
 
 
 
@@ -8,17 +9,50 @@
 
 
 
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> theirs
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
     <div class="card-header-lg">
+<<<<<<< ours
 
+=======
+>>>>>>> theirs
         <a href="CreateYarnRequirement" id="AddYarnRequirement" style="float:right;" class="btn btn-primary">Add Yarn Requirement Form</a>
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
+<<<<<<< ours
                         <h5 class="modal-title" id="addNewContactLabel"> </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true"></span>
@@ -158,6 +192,52 @@
                     <div id="notess"></div>
                     <div class="modal-footer">
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+=======
+                        <h5 class="modal-title" id="addNewContactLabel">Yarn Requirement Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary border-bottom pb-2">Party Information</h6>
+                                <p id="PMobileNo"><strong>Mobile No: </strong>-</p>
+                                <p id="PBillingAddress"><strong>Address: </strong>-</p>
+                                <p id="PEmail"><strong>Email: </strong>-</p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="text-primary border-bottom pb-2">Requirement Details</h6>
+                                <p id="PRequirementDate"><strong>Requirement Date: </strong>-</p>
+                                <p id="PRequirementNo"><strong>Requirement No: </strong>-</p>
+                                <p id="PState"><strong>State: </strong>-</p>
+                                <p id="PGSTIN"><strong>GSTIn: </strong>-</p>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="tblYarnMaterial">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Yarn Material</th>
+                                        <th>Yarn Color</th>
+                                        <th>Company Name</th>
+                                        <th>Company Colour Code</th>
+                                        <th>No of Boxes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableYarnData">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+>>>>>>> theirs
                     </div>
                 </div>
             </div>
@@ -246,6 +326,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< ours
 <!-- Content wrapper end -->
 
 
@@ -394,18 +475,194 @@
                     if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+@section Scripts{
+    <script>
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+        var currentPagePermission = {};
+        var ArrayYarnMaterial = [];
+        var ArrayYarnColor = [];
+        $(document).ready(function () {
+
+            FunctionIsLogin();
+            displayPagginationData();
+            displayData(0);
+            getYarnColor();
+            getDesignEntryForm();
+            //getDefaultCompany();
+        });
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        function getDesignEntryForm() {
+
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryYarnReqForm',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    if (response.Code == "200") {
+
+                        ArrayYarnColor.push(response.listYarnColorMaster);
+                        ArrayYarnMaterial.push(response.listYarnMaterialMaster);
+
+                        //Yarn Color
+                        if (response.listYarnColorMaster.length > 0) {
+                            var templistYarnColorMaster = "";
+
+                            templistYarnColorMaster = "<option value='0' selected> Select Yarn Color </option>";
+                            $('#YarnColor1').append(templistYarnColorMaster);
+                            for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+                                templistYarnColorMaster = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
+                                $('#YarnColor1').append(templistYarnColorMaster);
+                            }
+                        }
+
+                        //Yarn Material
+                        if (response.listYarnMaterialMaster.length > 0) {
+                            var templistYarnMaterialMaster = "";
+
+                            templistYarnMaterialMaster = "<option value='0' selected> Select Yarn Material </option>";
+                            $('#yarnMaterial1').append(templistYarnMaterialMaster);
+
+                            for (var i = 0; i < response.listYarnMaterialMaster.length; i++) {
+                                templistYarnMaterialMaster = "<option value='" + response.listYarnMaterialMaster[i].YarnMaterialID + "'> " + response.listYarnMaterialMaster[i].YarnMaterial + " </option>";
+                                $('#yarnMaterial1').append(templistYarnMaterialMaster);
+                            }
+                        }
+
+                        //Yarn Requirement NO
+                        if (response.listYarnRequirementMaster.length > 0) {
+                            $('#RequirementNo').val(response.listYarnRequirementMaster[0].RequirementNo);
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                }
+            });
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    notes.show(request.statusText, {
+                        type: 'danger'
+                    });
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function functionSearch() {
+            displayPagginationData();
+            displayData(0);
+        }
+        function displayData(rowStartCheck) {
+            var rowStart = rowStartCheck;
+            var searchdesignNo = $("#SearchRequirementNo").val();
+            var formData = new FormData();
+            formData.append('SearchRequirementNo', searchdesignNo);
+            formData.append('startFrom', rowStart);
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnRequirementMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+
+                    var temp = "";
+
+                    var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listYarnRequirementMaster.length; i++) {
+
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        temp += "<td><div class='actions'>";
+
+                        // EDIT
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='EditBtn' " +
+>>>>>>> theirs
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Edit' " +
                             "onclick='showEditRecords(" + response.listYarnRequirementMaster[i].YarnRequirementID + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
                             "</a>&nbsp;&nbsp;&nbsp;";
+<<<<<<< ours
                     }
 
                     // VIEW
                     if (currentPagePermission.View == true || currentPagePermission.View == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='viewBtn' " +
+>>>>>>> theirs
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Details' " +
@@ -414,18 +671,25 @@
                             "onclick='showRecords(" + response.listYarnRequirementMaster[i].YarnRequirementID + ")'>" +
                             "<i class='fa fa-eye text-secondary'></i>" +
                             "</a>&nbsp;&nbsp;&nbsp;";
+<<<<<<< ours
                     }
 
                     // DELETE
                     if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
 
                         temp += "<a href='javascript:void(0);' " +
+=======
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='DeleteBtn' " +
+>>>>>>> theirs
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Delete' " +
                             "onclick='functionUserDelete(" + response.listYarnRequirementMaster[i].YarnRequirementID + ")'>" +
                             "<i class='icon-x-circle text-danger'></i>" +
                             "</a>";
+<<<<<<< ours
                     }
 
                     temp += "</div></td>";
@@ -788,11 +1052,185 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteYarnRequirementMaster',
+=======
+
+                        temp += "</div></td>";
+                        temp += "<td>" + response.listYarnRequirementMaster[i].RequirementDates + "</td>";
+                        temp += "<td>" + response.listYarnRequirementMaster[i].RequirementNo + "</td>";
+                        temp += "<td>" + response.listYarnRequirementMaster[i].PartyName + "</td>";
+                        temp += "<td>" + response.listYarnRequirementMaster[i].MobileNo + "</td>";
+                        temp += "<td>" + response.listYarnRequirementMaster[i].GSTIN + "</td>";
+                        temp += "</tr>";
+
+                    }
+                    if (rowStart == 0)
+                        $("#copy-print-csv tbody").html(temp);
+                    else
+                        $("#copy-print-csv tbody").append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission != null && permission != "") {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddYarnRequirement").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function displayPagginationData() {
+
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchString', searchdesignNo);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnRequirementMasterPaggination',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+                    total = response.listPagginationMaster[0].Total;
+                    Paggination = response.listPagginationMaster[0].Paggination + 1;
+                    prevNo = 0;
+                    nextNo = 10;
+
+                    if (response.listPagginationMaster[0].Paggination == "0") {
+                        $('#divPaggination').hide();
+                    }
+                    else {
+                        if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                            var temp = "";
+                            for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            $('#divPaggination').html(temp).show();
+                        }
+                        else {
+                            var temp = "";
+                            for (var i = 1; i <= 10; i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                            $('#divPaggination').html(temp).show();
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function funcationPaggination(abc) {
+            $("#trLoading").show();
+            var a = "#a" + abc;
+            SelectNo = abc;
+            $('li').removeClass('active');
+            $(a).addClass('active');
+
+            $("#rowStartCount").val(((abc - 1) * 30));
+            displayData(((abc - 1) * 30));
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function showRecords(id) {
+
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Yarn Requirement Form");
+
+            var DecryptID = "";
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    ViewRecordQueryString(DecryptID);
+                },
+                error: function (request, status, error) {
+
+                }
+            });
+        }
+        function getYarnColor() {
+
+            var formData = new FormData();
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+
+                    if (response.Code == "200") {
+                        if (response.listYarnColorMaster.length > 0) {
+                            var tempDesignNo = "";
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                }
+            });
+        }
+        function ViewRecordQueryString(DecryptID) {
+
+            var formData = new FormData();
+            formData.append('YarnRequirementID', DecryptID);
+
+            var PartyId = 0;
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnRequirementDetails',
+>>>>>>> theirs
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+<<<<<<< ours
                     if (response.Code == 200) {
 
                         notes.show("Yarn Requirement deleted successfully.", {
@@ -824,10 +1262,222 @@
                         //icon: '<i class="icon-alert-triangle"></i>'
                     });
 
+=======
+                    console.log("getYarnRequirementDetails", response);
+
+                    if (response.Code == "200") {
+                        var userTable = $('#TblUser');
+                        for (var i = 0; i < response.listYarnRequirementMaster.length; i++) {
+                            $("#YarnRequirementID").val(response.listYarnRequirementMaster[i].YarnRequirementID);
+                            $("#PRequirementDate").html("<b>Requirement Date : </b>" + response.listYarnRequirementMaster[i].RequirementDates);
+                            $("#PRequirementNo").html("<b>Requirement No : </b>" + response.listYarnRequirementMaster[i].RequirementNo);
+                            $("#ddlParty").val(response.listYarnRequirementMaster[i].PartyId);
+                            $("#select2-ddlParty-container").html(response.listYarnRequirementMaster[i].PartyName);
+                            $("#divPartyName").html(response.listYarnRequirementMaster[i].PartyName);
+                            $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnRequirementMaster[i].MobileNo + " / " + response.listYarnRequirementMaster[i].AlterMobileNo);
+                            $("#PEmail").html("<b>Email: </b>" + response.listYarnRequirementMaster[i].Email);
+                            $("#PBillingAddress").html("<b>Billing Address: </b>" + response.listYarnRequirementMaster[i].BillingAddress);
+                            $("#PState").html("<b>State: </b>" + response.listYarnRequirementMaster[i].State);
+                            $("#PGSTIN").html("<b>GSTIn: </b>" + response.listYarnRequirementMaster[i].GSTIN);
+                            $("#DivLblPartyDetails").show();
+                            var tempColorMatching = '';
+                            var YarnDetailsArray = "";
+                            for (var j = 0; j < response.listYarnRequirementMaster[i].listYarnRequirementDetail.length; j++) {
+                                var SrNo = j + 1;
+                                if (j == 0) {
+                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
+                                    tempColorMatching += '<td style="width:3%;">';
+                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')">';
+
+                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
+                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
+                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
+                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        }
+                                    }
+                                    tempColorMatching += '</select>';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + ';"></div>';
+                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
+
+                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
+                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
+                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
+                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                        }
+
+                                    }
+                                    tempColorMatching += '</select>';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
+
+                                    tempColorMatching += '<option value="0" selected>Select Select Company</option>';
+                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
+                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
+                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                        }
+                                    }
+                                    tempColorMatching += '</select>';
+
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:17%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)"  value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '</tr>';
+                                }
+                                else {
+                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
+                                    tempColorMatching += '<td style="width:3%;">';
+                                    tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + SrNo + ')"></i>';
+
+                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')">';
+
+                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
+                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
+                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
+                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
+                                        }
+                                    }
+                                    tempColorMatching += '</select>';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + '; "></div>';
+                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
+
+                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
+                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
+                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
+                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
+                                        }
+
+                                    }
+                                    tempColorMatching += '</select>';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
+                                    tempColorMatching += '<option value="0" selected>Select Select Company</option>';
+                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
+                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
+                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                        }
+                                        else {
+                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
+                                        }
+                                    }
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:20%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '<td style="width:17%;">';
+                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
+                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)"  value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
+                                    tempColorMatching += '</div>';
+                                    tempColorMatching += '</td>';
+
+                                    tempColorMatching += '</tr>';
+                                }
+                                YarnDetailsArray += SrNo + "|";
+                            }
+                            $("#txtYarnDetailsArray").val(YarnDetailsArray);
+                            $("#tableYarnData").html(tempColorMatching);
+                        }
+                    }
+                    else {
+                        // Replaced native alert + redirect with SweetAlert2
+                        Swal.fire({
+                            title: 'Notice',
+                            text: response.Message,
+                            icon: 'info',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/YarnRequirement';
+                            }
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    window.location.href = '/YarnRequirement';
+                }
+            });
+
+        }
+        function showEditRecords(id) {
+            var DecryptID = "";
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.location.href = '/UpdateYarnRequirement?id=' + response.listEncryptDecrypt[0].DecryptID;
+                },
+                error: function (request, status, error) {
+>>>>>>> theirs
 
                 }
             });
         }
+<<<<<<< ours
 
     }
 
@@ -837,4 +1487,72 @@
 </script>
 
 
+=======
+        function functionUserDelete(id) {
+            // Replaced native confirm() with SweetAlert2 confirmation dialog
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Are you sure you want to delete this record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnRequirementID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnRequirementMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Yarn Requirement deleted successfully.',
+                                    'success'
+                                );
+
+                                notes.show("Yarn Requirement deleted successfully.", {
+                                    type: 'danger'
+                                });
+
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire(
+                                    'Error!',
+                                    'A problem occurred while deleting the Design Entry Form.',
+                                    'error'
+                                );
+
+                                notes.show("Problem has been occurred while deleting Design Entry Form .", {
+                                    type: 'danger'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire(
+                                'Error!',
+                                'A problem occurred while processing your request.',
+                                'error'
+                            );
+
+                            notes.show("Problem has been occurred while deleting Design Entry Form.", {
+                                type: 'danger'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
+>>>>>>> theirs
 

@@ -13,7 +13,11 @@ namespace NikunjTextile.Class
         public DateTime DateAndTime { get; set; }
         public DateTime ChallanDate { get; set; }
         public string DateAndTimes { get; set; }
+<<<<<<< HEAD
         public int OutwardListNo { get; set; }
+=======
+        public string OutwardListNo { get; set; }
+>>>>>>> origin/master
         public DateTime OutwardListDate { get; set; }
         public string OutwardListDates { get; set; }
         public string siftYarnInwardDetailID { get; set; }
@@ -62,8 +66,13 @@ namespace NikunjTextile.Class
         public string siftGodownInputBox { get; set; }
         public string Address { get; set; }
         public int ChallanNo { get; set; }
+<<<<<<< HEAD
 
 
+=======
+         
+        public string GeneratedLink { get; set; }
+>>>>>>> origin/master
 
         public string updatesiftGodownInputBox { get; set; }
         //public string strBillToPartyID { get; set; }
@@ -104,7 +113,13 @@ namespace NikunjTextile.Class
         public int UserAccountId { get; set; }
         public int YarnRequirementDetailID { get; set; }
         public DateTime YarnRequirementDateTime { get; set; }
+<<<<<<< HEAD
        
+=======
+        public int YarnCompanyID { get; set; }
+
+
+>>>>>>> origin/master
     }
     public class YarnOutwardEditResponse
     {
@@ -139,6 +154,79 @@ namespace NikunjTextile.Class
         public int YarnRequirementDetailID { get; set; }
         public DateTime YarnRequirementDateTime { get; set; }
     }
+<<<<<<< HEAD
 
    
+=======
+    public class JobberOutwardMasterDTO
+    {
+        public int PartyId { get; set; }
+        public string OutwardListNo { get; set; }
+        public string OutwardListDate { get; set; }
+        public decimal TotalWeight { get; set; } // Added this property to match front-end payload
+        public int YarnPOID { get; set; }        
+        public string JobberOutwardEncryptedID { get; set; }
+        public int JobberOutwardID { get; set; }
+        public List<JobberOutwardDetailDTO> Details { get; set; }
+    }
+
+    public class JobberOutwardDetailDTO
+    {
+        public int GodownID { get; set; }
+        public int JobberInwardDetailID { get; set; }
+        public int JobberInwardID { get; set; }
+        public int BillToPartyId { get; set; }
+        public int YarnMaterialID { get; set; }
+        public int YarnColorID { get; set; }
+        public int NoOfBox { get; set; }
+        public decimal NetWeight { get; set; }
+        public string BarcodeNo { get; set; }
+        public string BoxNo { get; set; }         
+        public int YarnPOID { get; set; }
+        public int CompanyPartyId{get;set;}
+        public string DetailsJson { get; set; }
+        public string JobberOutwardEncryptedID { get; set; }
+    }
+
+    public class ServiceResponse
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+    }
+
+    public class PartyDetailsDTO
+    {
+        public int PartyId { get; set; }
+        public string PartyName { get; set; }
+        public string BillingAddress { get; set; }
+    }
+    public class JobberOutwardMasterModel
+    {
+        public int JobberOutwardID { get; set; }
+        public string JobberOutwardEncryptedID { get; set; }
+        public int PartyId { get; set; }
+        public string OutwardListNo { get; set; }
+        public string OutwardListDate { get; set; }
+        public decimal TotalWeight { get; set; }
+        public List<JobberOutwardDetailModel> Details { get; set; }
+    }
+
+
+    public class JobberOutwardDetailModel
+    {
+        public int JobberOutwardDetailID { get; set; }
+
+        public int GodownID { get; set; }
+        public int JobberInwardDetailID { get; set; }
+        public int JobberInwardID { get; set; }
+        public int BillToPartyId { get; set; }
+        public int YarnMaterialID { get; set; }
+        public int YarnColorID { get; set; }
+        public int NoOfBox { get; set; }
+        public decimal NetWeight { get; set; }
+        public string BarcodeNo { get; set; }
+        public string BoxNo { get; set; }
+        public int YarnPOID { get; set; }
+    }
+>>>>>>> origin/master
 }

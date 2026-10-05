@@ -2,7 +2,43 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<<<<<<< HEAD
 
+=======
+<style>
+    /* Hide Action column during print */
+    @@media print {
+        .actions {
+            display: none !important;
+        }
+    }
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
@@ -19,7 +55,11 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <div class="modal-body">
+=======
+                    <div class="modal-body" style="overflow:auto">
+>>>>>>> origin/master
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
@@ -48,22 +88,32 @@
                                     </div>
 
                                     <div class="col-4">
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                         <!-- Field wrapper start -->
                                         <div class="field-wrapper">
                                             <div class="form-check form-check-inline">
                                                 <br />
                                                 <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+<<<<<<< HEAD
                                                 <label class="form-check-label" for="IsActive-default">Is Active</label>
 
+=======
+                                                <label class="form-check-label" for="IsActive">Is Active</label>
+>>>>>>> origin/master
                                             </div>
                                         </div>
                                         <!-- Field wrapper end -->
                                     </div>
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> origin/master
                                 </div>
                             </div>
                         </div>
@@ -71,8 +121,13 @@
                     <input id="edit-id" type="hidden" />
                     <div id="notess"></div>
                     <div class="modal-footer">
+<<<<<<< HEAD
                         <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
                         <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+=======
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="submitForm('view')">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="submitForm('new')">Save & New</button>
+>>>>>>> origin/master
                         <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -95,6 +150,7 @@
                     <div class="row gutters">
 
                         <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+<<<<<<< HEAD
 
                             <button class="btn btn-success btn-sm"
                                     onclick="exportTableToExcel('copy-print-csv', 'TypeMaster')">
@@ -114,6 +170,17 @@
                                 <i class="bi bi-printer-fill"></i> Print
                             </button>
 
+=======
+                            <button class="btn btn-success btn-sm" onclick="exportTableToExcel('copy-print-csv', 'TypeMaster')">
+                                <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="generatePDF()">
+                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="printTable()">
+                                <i class="bi bi-printer-fill"></i> Print
+                            </button>
+>>>>>>> origin/master
                         </div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
@@ -125,8 +192,11 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/master
                     <div class="table-responsive">
                         <table id="copy-print-csv" class="table table-hover table-bordered m-0">
                             <thead>
@@ -134,7 +204,11 @@
                                     <th>Sr No</th>
                                     <th>Type</th>
                                     <th>Status</th>
+<<<<<<< HEAD
                                     <th>Action</th>
+=======
+                                    <th class="actions-th">Action</th>
+>>>>>>> origin/master
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -151,6 +225,7 @@
         <br /><br /><br />
     </div>
     <!-- Row end -->
+<<<<<<< HEAD
 
 </div>
 <!-- Content wrapper end -->
@@ -500,6 +575,158 @@
             validate(document.getElementById('Type'));
         }
         else {
+=======
+</div>
+<!-- Content wrapper end -->
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            $('#Unit').select2({
+                dropdownParent: $('#addNewContact'),
+                width: '100%',
+                placeholder: 'Select Unit'
+            });
+            FunctionIsLogin();
+            displayData(0);
+        });
+        function getItemUnit() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetUnitMaster",
+                type: "POST",
+                data: "{}",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d;
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+                    $("#Unit").empty();
+                    $("#Unit").append('<option value="">All Unit</option>');
+                    $.each(data, function (i, item) {
+                        $("#Unit").append('<option value="' + item.UnitId + '">' + item.Unit + '</option>');
+                    });
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to retrieve item units.' });
+                }
+            });
+        }
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                }
+            });
+        }
+        function functionSearch() {
+            displayData(0);
+        }
+        function displayData(rowStartCheck) {
+            var rowStart = (rowStartCheck != 0) ? parseInt($("#rowStartCount").val()) + 10 : 0;
+            $("#rowStartCount").val(rowStart);
+
+            var searchTyre = $("#search-Type").val();
+            var formData = new FormData();
+            formData.append('searchTyre', searchTyre);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getTypeMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+
+                    if (response.listTypeMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    } else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var temp = "";
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listTypeMaster.length; i++) {
+                        var item = response.listTypeMaster[i];
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + item.Type + "</td>";
+                        temp += item.IsActive == "1"
+                            ? "<td><span class='badge bg-success'>Active</span></td>"
+                            : "<td><span class='badge bg-danger'>Inactive</span></td>";
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' class='EditBtn' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + item.TypeID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' class='DeleteBtn' onclick='functionTypeDelete(" + item.TypeID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        temp += "</div></td></tr>";
+                    }
+
+                    $("#copy-print-csv tbody").append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (!currentPagePermission.Add) { $("#AddFinacialYearModel").hide(); }
+                        if (!currentPagePermission.Edit) { $(".EditBtn").hide(); }
+                        if (!currentPagePermission.Delete) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to retrieve data.' });
+                }
+            });
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#saveViewbtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Type");
+            $("#add-alert").hide();
+            $("#Type").val('');
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback, .valid-feedback").hide();
+            getItemUnit();
+        }
+        function submitForm(actionType) {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var Type = $('#Type').val();
+            var UnitId = $('#Unit').val();
+
+            if (!validate(document.getElementById('Type'))) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('Type', Type);
@@ -516,6 +743,7 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
+<<<<<<< HEAD
 
                         notess.show(response.Message, {
                             type: 'success',
@@ -568,6 +796,31 @@
             validate(document.getElementById('Type'));
         }
         else {
+=======
+                        Swal.fire({ icon: 'success', title: 'Success!', text: response.Message, timer: 2000, showConfirmButton: false });
+                        displayData(0);
+                        if (actionType === 'view') {
+                            $("#cancelbtn").click();
+                        }
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: response.Message });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'An error occurred while saving the record.' });
+                }
+            });
+        }
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var Type = $('#Type').val();
+            var UnitId = $('#Unit').val();
+
+            if (!validate(document.getElementById('Type'))) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('TypeID', id);
@@ -584,6 +837,7 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
+<<<<<<< HEAD
 
                         clearAll();
 
@@ -965,3 +1219,155 @@
 
 
 
+=======
+                        clearAll();
+                        Swal.fire({ icon: 'success', title: 'Updated!', text: response.Message, timer: 2000, showConfirmButton: false });
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: response.Message });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'An error occurred while updating.' });
+                }
+            });
+        }
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Type");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getTypeMasterById?id=' + id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        var item = response.listTypeMaster[0];
+                        $("#Type").val(item.Type);
+                        $('#Unit').val(item.UnitId).trigger('change');
+                        $("#IsActive").prop('checked', item.IsActive == "1");
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: response.Message });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to retrieve record details.' });
+                }
+            });
+        }
+        function functionTypeDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you really want to delete this Type record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('TypeID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteTypeMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Type deleted successfully.', timer: 2000, showConfirmButton: false });
+                                displayData(0);
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Error!', text: response.Message || 'Problem occurred while deleting Type.' });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+
+            if (code.value == "") {
+                $(code).removeClass("is-valid").addClass("is-invalid");
+                $(errorMessageInvalid).show();
+                $(errorMessageValid).hide();
+                return false;
+            } else {
+                $(code).removeClass("is-invalid").addClass("is-valid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                return true;
+            }
+        }
+        function exportTableToExcel(tableID, filename = '') {
+            var tableSelect = document.getElementById(tableID);
+            // Clone table to remove actions column from export
+            var cloneTable = tableSelect.cloneNode(true);
+            $(cloneTable).find('tr').find('td:last-child, th:last-child').remove();
+
+            var html = cloneTable.outerHTML;
+            var blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel' });
+            var url = URL.createObjectURL(blob);
+
+            var downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.download = filename ? filename + '.xls' : 'excel_data.xls';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+        function printTable() {
+            var tableSelect = document.getElementById("copy-print-csv");
+            var cloneTable = tableSelect.cloneNode(true);
+            $(cloneTable).find('tr').find('td:last-child, th:last-child').remove();
+
+            var style = `
+                        <style>
+                            body { font-family: Arial; padding: 20px; }
+                            table { width: 100%; border-collapse: collapse; }
+                            table, th, td { border: 1px solid #000; }
+                            th, td { padding: 8px; text-align: left; }
+                        </style>
+                    `;
+
+            var win = window.open('', '', 'height=700,width=900');
+            win.document.write(`<html><head><title>Print Table</title>${style}</head><body><h3>Type Master Report</h3>${cloneTable.outerHTML}</body></html>`);
+            win.document.close();
+            win.focus();
+            setTimeout(function () {
+                win.print();
+                win.close();
+            }, 500);
+        }
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Clone table to safely exclude the last action column from the exported PDF
+            var tableSelect = document.getElementById("copy-print-csv");
+            var cloneTable = tableSelect.cloneNode(true);
+            $(cloneTable).find('tr').find('td:last-child, th:last-child').remove();
+
+            doc.autoTable({
+                html: cloneTable,
+                // Optional styling adjustments
+                styles: { fontSize: 10, cellPadding: 4 },
+                headStyles: { fillColor: [41, 128, 185] }
+            });
+
+            doc.save('TypeMaster.pdf');
+        }
+    </script>
+}
+>>>>>>> origin/master

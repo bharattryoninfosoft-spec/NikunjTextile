@@ -11,6 +11,7 @@
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
             <div class="card">
+<<<<<<< HEAD
                 <div class="card-body">                    
                         <div class="form-section-header">User Permission</div> 
 
@@ -165,31 +166,188 @@
                                     <tr>
                                         <td>${sub.SubMenu_Name}</td>
 
+=======
+                <div class="card-body">
+                    <div class="form-section-header">User Permission</div>
+
+                    <!-- User Dropdown -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label>Select User</label>
+                            <select id="ddlUser" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Select Menu</label>
+                            <select id="ddlMenu" class="form-control"></select>
+                        </div>
+                    </div>
+                    <!-- Permission Table -->
+                    <table class="table table-bordered" id="tblPermission">
+                        <thead>
+                            <tr>
+                                <th>Sub Menu</th>
+                                <th>All</th>
+                                <th>View</th>
+                                <th>Add</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                    <button class="btn btn-success" id="btnSavePermission">
+                        <i class="bi bi-save me-1"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#forms-tab").addClass("active");
+            $("#tab-forms").addClass("show active");
+            $("#aUserPermission").addClass("current-page");
+
+            FunctionIsLogin();
+            loadUsers();
+            loadMenusDropdown();
+        });
+
+        // ===========================
+        // 🔐 LOGIN CHECK
+        // ===========================
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                }
+            });
+        }
+
+        // ===========================
+        // 👤 LOAD USERS
+        // ===========================
+        function loadUsers() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetUsers',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+                    $('#ddlUser').empty().append('<option value="0">Select User</option>');
+                    $.each(data, function (i, u) {
+                        $('#ddlUser').append(`<option value="${u.UserAccountId}">${u.UserAccountName}</option>`);
+                    });
+                }
+            });
+        }
+
+        // ===========================
+        // 📂 LOAD MENU DROPDOWN
+        // ===========================
+        function loadMenusDropdown() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetAllMenus',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+                    $('#ddlMenu').empty().append('<option value="0">Select Menu</option>');
+                    $.each(data, function (i, m) {
+                        $('#ddlMenu').append(`<option value="${m.Menu_Id}">${m.Menu_Name}</option>`);
+                    });
+                }
+            });
+        }
+
+        // ===========================
+        // 🔁 DROPDOWN CHANGE
+        // ===========================
+        $('#ddlMenu, #ddlUser').change(function () {
+            loadSubMenuTable();
+        });
+
+        // ===========================
+        // 📋 LOAD SUBMENU TABLE
+        // ===========================
+        function loadSubMenuTable() {
+            let menuId = $('#ddlMenu').val();
+            let userId = $('#ddlUser').val();
+
+            if (menuId == 0) {
+                $('#tblPermission tbody').empty();
+                return;
+            }
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetAllMenus',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+                    let html = '';
+                    let selectedMenu = data.find(x => x.Menu_Id == menuId);
+
+                    if (!selectedMenu) {
+                        $('#tblPermission tbody').empty();
+                        return;
+                    }
+
+                    $.each(selectedMenu.SubMenus, function (i, sub) {
+                        html += `
+                                    <tr>
+                                        <td>${sub.SubMenu_Name}</td>
+>>>>>>> origin/master
                                         <td>
                                             <input type="checkbox" class="chkAll"
                                                 data-menu="${menuId}" data-sub="${sub.SubMenu_Id}">
                                         </td>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                         <td>
                                             <input type="checkbox" class="chkView"
                                                 data-menu="${menuId}" data-sub="${sub.SubMenu_Id}">
                                         </td>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                         <td>
                                             <input type="checkbox" class="chkAdd"
                                                 data-menu="${menuId}" data-sub="${sub.SubMenu_Id}">
                                         </td>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                         <td>
                                             <input type="checkbox" class="chkEdit"
                                                 data-menu="${menuId}" data-sub="${sub.SubMenu_Id}">
                                         </td>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                         <td>
                                             <input type="checkbox" class="chkDelete"
                                                 data-menu="${menuId}" data-sub="${sub.SubMenu_Id}">
                                         </td>
                                     </tr>`;
+<<<<<<< HEAD
                                 });
 
                                 $('#tblPermission tbody').html(html);
@@ -331,4 +489,146 @@
                 </script>
 
 
+=======
+                    });
+
+                    $('#tblPermission tbody').html(html);
+
+                    // ✅ Load old permission AFTER table render
+                    if (userId != 0) {
+                        loadUserPermission(userId, menuId);
+                    }
+                }
+            });
+        }
+
+        // ===========================
+        // 📥 LOAD USER PERMISSION
+        // ===========================
+        function loadUserPermission(userId, menuId) {
+            $('#tblPermission input[type="checkbox"]').prop('checked', false);
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetUserPermission',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ userId: parseInt(userId) }),
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+                    $.each(data, function (i, p) {
+                        if (p.Menu_Id != menuId) return;
+                        let row = $('#tblPermission tbody tr').filter(function () {
+                            return $(this).find('.chkView').data('sub') == p.SubMenu_Id;
+                        });
+                        row.find('.chkView').prop('checked', p.View == 1 || p.View === true);
+                        row.find('.chkAdd').prop('checked', p.Add == 1 || p.Add === true);
+                        row.find('.chkEdit').prop('checked', p.Edit == 1 || p.Edit === true);
+                        row.find('.chkDelete').prop('checked', p.Delete == 1 || p.Delete === true);
+
+                        // ✅ Auto check ALL
+                        let allChecked =
+                            (p.View == 1 || p.View === true) &&
+                            (p.Add == 1 || p.Add === true) &&
+                            (p.Edit == 1 || p.Edit === true) &&
+                            (p.Delete == 1 || p.Delete === true);
+
+                        row.find('.chkAll').prop('checked', allChecked);
+                    });
+                }
+            });
+        }
+
+        // ===========================
+        // 🔁 ALL CHECKBOX LOGIC
+        // ===========================
+        $(document).on('change', '.chkAll', function () {
+            let row = $(this).closest('tr');
+            row.find('.chkView, .chkAdd, .chkEdit, .chkDelete')
+                .prop('checked', $(this).is(':checked'));
+        });
+
+        // ===========================
+        // 🔁 AUTO CHECK "ALL"
+        // ===========================
+        $(document).on('change', '.chkView, .chkAdd, .chkEdit, .chkDelete', function () {
+            let row = $(this).closest('tr');
+            let allChecked =
+                row.find('.chkView').is(':checked') &&
+                row.find('.chkAdd').is(':checked') &&
+                row.find('.chkEdit').is(':checked') &&
+                row.find('.chkDelete').is(':checked');
+
+            row.find('.chkAll').prop('checked', allChecked);
+        });
+
+        // ===========================
+        // 💾 SAVE PERMISSION
+        // ===========================
+        $('#btnSavePermission').click(function () {
+            let btn = $(this);
+            let userId = $('#ddlUser').val();
+
+            if (userId == 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Select User'
+                });
+                return;
+            }
+
+            let list = [];
+            $('#tblPermission tbody tr').each(function () {
+                let chk = $(this).find('.chkAll');
+                if (chk.length === 0) return;
+                list.push({
+                    User_Id: parseInt(userId),
+                    Menu_Id: parseInt(chk.data('menu')),
+                    SubMenu_Id: parseInt(chk.data('sub')),
+                    CanView: $(this).find('.chkView').is(':checked'),
+                    CanAdd: $(this).find('.chkAdd').is(':checked'),
+                    CanEdit: $(this).find('.chkEdit').is(':checked'),
+                    CanDelete: $(this).find('.chkDelete').is(':checked')
+                });
+            });
+
+            btn.prop('disabled', true);
+            btn.html('<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SavePermission',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({ permissions: list }),
+                success: function (res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.d
+                    });
+                    btn.prop('disabled', false);
+                    btn.html('<i class="bi bi-save me-1"></i> Save');
+
+                    setTimeout(() => {
+                        $('#ddlUser').val(0);
+                        $('#ddlMenu').val(0);
+                        $('#tblPermission tbody').empty();
+                    }, 1500);
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong'
+                    });
+                    btn.prop('disabled', false);
+                    btn.html('<i class="bi bi-save me-1"></i> Save');
+                }
+            });
+        });
+    </script>
+}
+>>>>>>> origin/master
 

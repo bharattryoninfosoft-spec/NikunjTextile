@@ -1,0 +1,693 @@
+﻿@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <input type="hidden" id="rowStartCount" value="" />
+    <div id="notes"></div>
+    <div class="card-header-lg">
+        <a href="/createJobberInward" id="createJobberInward" class="btn btn-primary" style="float:right;"> <i class="fa fa-plus"></i> Add  JobberInward </a>
+    </div>
+    <div style="float:none;clear:both;">
+        <br />
+    </div>
+
+    <!-- Row start -->
+    <div class="card">
+        <div class="card-body">
+
+            <div class="form-section-header">Jobber Inward List</div>
+            <!-- Tabs -->
+            <ul class="nav nav-pills mb-3">
+                <li class="nav-item">
+                    <a class="nav-link active tab-filter"
+                       href="javascript:void(0)"
+                       data-status="0">
+                        Pending
+                        <span class="badge badge-warning ml-1" id="lblPendingCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link tab-filter"
+                       href="javascript:void(0)"
+                       data-status="1">
+                        Accepted
+                        <span class="badge badge-success ml-1" id="lblAcceptedCount">0</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <!-- Pending Tab -->
+                <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    <div class="table-responsive">
+                        <table id="tblJobberInward" class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Source <br />Type</th>
+                                    <th>Challan <br /> No</th>
+                                    <th>Assign<br />Date </th>
+                                    <th>Received<br />Date </th>
+                                    <th>Party<br />Name</th>
+                                    <th>Yarn<br /> Material</th>
+                                    <th>Yarn<br /> Color</th>
+                                    <th>Total<br /> Box</th>
+                                    <th>Net<br /> Weight</th>
+                                    <th>Total<br /> Weight</th>
+                                    <th>Pending<br /> Weight</th>
+                                    <th>Received<br /> Weight</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade"
+                 id="jobberInwardViewModal"
+                 tabindex="-1"
+                 role="dialog"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-xl"
+                     role="document"
+                     style="max-width: 95%;">
+
+                    <div class="modal-content">
+
+                        <!-- Header -->
+                        <div class="modal-header">
+
+                            <h5 class="modal-title">
+                                View Jobber Inward
+                            </h5>
+                            <button type="button"  class="close btnCloseJobberInward" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>  </button>
+
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body" style="overflow:auto">
+
+                            <!-- =========================================
+                         TOP INFORMATION
+                    ========================================== -->
+
+                            <div class="row">
+
+                                <!-- Date -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+
+                                        <label>
+                                            Date <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               id="viewDate"
+                                               class="form-control"
+                                               readonly />
+
+                                    </div>
+                                </div>
+
+
+                                <!-- Jobber Challan -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+
+                                        <label>
+                                            Jobber Challan No
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               id="viewJobberChallanNo"
+                                               class="form-control"
+                                               readonly />
+
+                                    </div>
+                                </div>
+
+
+                                <!-- Received Challan -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+
+                                        <label>
+                                            Received Challan No
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <input type="text"
+                                               id="viewReceivedChallanNo"
+                                               class="form-control"
+                                               readonly />
+
+                                    </div>
+                                </div>
+
+
+                                <!-- Godown -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+
+                                        <label>
+                                            Select Godown
+                                        </label>
+
+                                        <input type="text"
+                                               id="viewGodown"
+                                               class="form-control"
+                                               readonly />
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- =========================================
+                         SENDER / RECEIVER INFORMATION
+                    ========================================== -->
+
+                            <div class="row mt-2">
+
+                                <!-- Sender Name -->
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Sender Name
+                                        </label>
+
+                                        <div id="viewSenderName" style="font-size: 14px; font-weight:bold;">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Received Name -->
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Received Name
+                                        </label>
+
+                                        <div id="viewReceivedName"
+                                             class="font-weight-bold"
+                                            style="font-size: 14px; font-weight:bold;">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Sender Address -->
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Sender Address
+                                        </label>
+
+                                        <div id="viewSenderAddress"
+                                             class="font-weight-bold"
+                                            style="font-size: 14px; font-weight:bold;">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Received Mobile -->
+                                <div class="col-md-6">
+
+                                    <div class="form-group">
+
+                                        <label>
+                                            Received Mobile
+                                        </label>
+
+                                        <div id="viewReceivedMobile"
+                                             class="font-weight-bold"
+                                             style="font-size: 14px; font-weight:bold;">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <hr />
+
+
+                            <!-- =========================================
+                         BOX DETAILS
+                    ========================================== -->
+
+                            <div class="table-responsive">
+
+                                <table id="tblJobberInwardView"
+                                       class="table table-bordered table-striped table-hover">
+
+                                    <thead>
+                                        <tr>
+
+                                            <th style="width:40px;">
+                                                #
+                                            </th>
+
+                                            <th>
+                                                Box No
+                                            </th>
+
+                                            <th>
+                                                Barcode No
+                                            </th>
+
+                                            <th>
+                                                Yarn Material
+                                            </th>
+
+                                            <th>
+                                                Yarn Color
+                                            </th>
+
+                                            <th>
+                                                Net Weight
+                                            </th>
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="jobberInwardViewDetails">
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Footer -->
+                        <div class="modal-footer">
+
+                            <button type="button"
+                                    class="btn btn-secondary btnCloseJobberInward">
+
+                                <i class="fa fa-arrow-left"></i>
+                                Back
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {            
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#createJobberInward").hide();
+                }
+            }
+            FunctionIsLogin(); // Default Load Pending
+            BindDataTable(0);
+            // Tab Click
+            $(".tab-filter").click(function () {
+                $(".tab-filter").removeClass("active");
+                $(this).addClass("active");
+                var status = $(this).data("status");
+                BindDataTable(status);
+            });
+        });
+        var notes = $('#notes').notify({ removeIcon: '<i class="icon-close"></i>' });
+        function BindDataTable(IsComplete) {
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetJobberInwardList",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify({ IsComplete: IsComplete }),
+               
+                success: function (res) {
+                    
+                    var data = JSON.parse(res.d);
+
+                    console.log("GetJobberInwardList", data);
+
+                    $("#tblJobberInward tbody").empty();
+
+                    var html = "";
+
+                    $.each(data, function (i, item) {
+
+                        var statusBadge = item.StatusName == "Pending"
+                            ? "<span class='badge' style='background:#f5012e;color:#fff;'>Pending</span>"
+                            : "<span class='badge' style='background:#489f73;color:#fff;'>Accepted</span>";
+
+                        html += "<tr>";
+                        html += "<td>";
+                        html += (item.SourceType || "") + " ";
+
+                        if (item.StatusName === "Pending") {
+                            html += "<a href='/CreateJobberInward?id=" + encodeURIComponent(item.GeneratedLink) + "' target='_blank' class='ms-2 text-primary'>";
+                            html += "<i class='fa fa-eye'></i>";
+                            html += "</a>";
+                        }
+                        else if (item.StatusName === "Accepted") {
+
+                            // View button
+                            html += "<a href='javascript:void(0);' " +
+                                "class='ms-2 btnViewJobberInward text-info' " +
+                                "data-id='" + item.JobberInwardId + "' " +
+                                "title='View'>";
+                            html += "<i class='fa fa-eye'></i>";
+                            html += "</a>";
+
+                            // Move To Pending button
+                            html += "<a href='javascript:void(0);' " +
+                                "class='ms-2 btnMovePending text-warning' " +
+                                "data-id='" + item.JobberInwardId + "' " +
+                                "title='Move To Pending'>";
+                            html += "<i class='fa fa-undo'></i>";
+                            html += "</a>";
+                        }
+
+
+                        html += "</td>";
+                        html += "<td>" + (item.ChallanNo || "") + "</td>";
+                        html += "<td>" + (item.AssignDate || "") + "</td>";
+                        html += "<td>" + (item.ReceivedDate || "") + "</td>";
+                        html += "<td>" + (item.PartyName || "") + "</td>";
+                        html += "<td>" + (item.YarnMaterial || "") + "</td>";
+                        html += "<td>" + (item.YarnColor || "") + "</td>";
+                        html += "<td class='text-center'>" + parseInt(item.TotalBox || 0) + "</td>";
+                        html += "<td class='text-end'>" + (item.NetWeight || "0") + "</td>";
+                        html += "<td class='text-end'>" + parseFloat(item.TotalWeight || 0).toFixed(2) + "</td>";
+                        html += "<td class='text-end'>" + parseFloat(item.PendingWeight || 0).toFixed(2) + "</td>";
+                        html += "<td class='text-end'>" + parseFloat(item.ReceivedWeight || 0).toFixed(2) + "</td>";
+                        html += "<td>" + statusBadge + "</td>";
+                        html += "</tr>";
+                    });
+
+                    $("#tblJobberInward tbody").html(html);
+
+                    if (IsComplete == 0)
+                        $("#lblPendingCount").text(data.length);
+                    else
+                        $("#lblAcceptedCount").text(data.length);
+                },
+                error: function (xhr) {
+
+                    console.log(xhr.responseText);
+
+                    alert("Error Loading Data");
+                }
+            });
+        }
+        function formatDate(dateString) {
+            var date = new Date(dateString); var day = ("0" + date.getDate()).slice(-2); var month = ("0" + (date.getMonth() + 1)).slice(-2); var year = date.getFullYear(); return day + "/" + month + "/" + year;
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/checkLoginStatus",
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) { if (data.d == "false") { window.location.replace("/Index"); } }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+        function OpenSourceData(generatedLink) {
+            window.open("/CreateJobberInward?id=" + encodeURIComponent(generatedLink), "_blank");
+        }
+        $(document).on("click", ".btnCloseJobberInward", function () {
+            $("#jobberInwardViewModal").modal("hide");
+        });
+        $(document).on("click", ".btnMovePending", function () {
+
+            var jobberInwardID = $(this).data("id");
+
+            Swal.fire({
+                title: "Move to Pending?",
+                text: "Are you sure you want to move this Jobber Inward to Pending?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Move to Pending",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/WebServiceNikunjTextile.asmx/MoveJobberInwardToPending",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify({
+                            JobberInwardID: jobberInwardID
+                        }),
+
+                        success: function (res) {
+
+                            if (res.d === "success") {
+
+                                Swal.fire({
+                                    title: "Success!",
+                                    text: "Jobber Inward moved to Pending successfully.",
+                                    icon: "success",
+                                    confirmButtonText: "OK"
+                                }).then(() => {
+
+                                    // Reload Accepted list
+                                    BindDataTable(1);
+
+                                });
+
+                            } else {
+
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: res.d,
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+
+                            }
+                        },
+
+                        error: function (xhr) {
+
+                            console.log(xhr.responseText);
+
+                            Swal.fire({
+                                title: "Error!",
+                                text: "Error moving Jobber Inward to Pending.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+
+                        }
+                    });
+                }
+            });
+        });
+        $(document).on("click", ".btnViewJobberInward", function () {
+
+            var jobberInwardID = $(this).data("id");
+
+            $("#jobberInwardViewDetails").html(
+                "<tr><td colspan='6' class='text-center'>" +
+                "<i class='fa fa-spinner fa-spin'></i> Loading..." +
+                "</td></tr>"
+            );
+
+            $("#jobberInwardViewModal").modal("show");
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetJobberInwardView",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+
+                data: JSON.stringify({
+                    JobberInwardID: parseInt(jobberInwardID)
+                }),
+
+                success: function (res) {
+
+                    var result = JSON.parse(res.d);
+
+                    if (!result.Status) {
+
+                        Swal.fire({
+                            title: "Error!",
+                            text: result.Message,
+                            icon: "error"
+                        });
+
+                        return;
+                    }
+
+                    var master = result.Master;
+                    var details = result.Details;
+
+                    console.log("GetJobberInwardView master", master)
+                    console.log("GetJobberInwardView details", details)
+                    // =====================================
+                    // MASTER
+                    // =====================================
+
+                    $("#viewDate").val(
+                        master[0].DateAndTime
+                            ? formatDate(master[0].DateAndTime)
+                            : ""
+                    );
+
+                    $("#viewJobberChallanNo").val(
+                        master[0].ReceivedChallanNo || ""  
+                    );
+
+                    $("#viewReceivedChallanNo").val(
+                        master[0].JobberChallanNo || "" 
+                    );
+
+                    $("#viewGodown").val(
+                        master[0].GodownName || ""
+                    );
+
+                    $("#viewSenderName").text(
+                        master[0].SenderName || ""
+                    );
+
+                    $("#viewReceivedName").text(
+                        master[0].ReceivedName || ""
+                    );
+
+                    $("#viewSenderAddress").text(
+                        master[0].SenderAddress || ""
+                    );
+
+                    $("#viewReceivedMobile").text(
+                        master[0].ReceivedMobile || ""
+                    );
+
+
+                    // =====================================
+                    // DETAILS
+                    // =====================================
+
+                    var html = "";
+
+                    $.each(details, function (i, item) {
+
+                        html += "<tr>";
+
+                        html += "<td>" +
+                            (i + 1) +
+                            "</td>";
+
+                        html += "<td>" +
+                            (item.BoxNo || "") +
+                            "</td>";
+
+                        html += "<td>" +
+                            (item.BarcodeNo || "") +
+                            "</td>";
+
+                        html += "<td>" +
+                            (item.YarnMaterial || "") +
+                            "</td>";
+
+                        html += "<td>" +
+                            (item.YarnColor || "") +
+                            "</td>";
+
+                        html += "<td>" +
+                            (item.NetWeight || "0") +
+                            "</td>";
+
+                        html += "</tr>";
+                    });
+
+                    if (html === "") {
+
+                        html =
+                            "<tr>" +
+                            "<td colspan='6' class='text-center'>" +
+                            "No details found" +
+                            "</td>" +
+                            "</tr>";
+                    }
+
+                    $("#jobberInwardViewDetails").html(html);
+                },
+
+                error: function (xhr) {
+
+                    console.log(xhr.responseText);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Error loading Jobber Inward details.",
+                        icon: "error"
+                    });
+                }
+            });
+
+        });
+        function formatDate(dateString) {
+            if (!dateString) return "";
+
+            var date = new Date(dateString);
+
+            var day = ("0" + date.getDate()).slice(-2);
+            var month = ("0" + (date.getMonth() + 1)).slice(-2);
+            var year = date.getFullYear();
+
+            return day + "/" + month + "/" + year;
+        }
+    </script>
+}

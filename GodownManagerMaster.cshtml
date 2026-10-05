@@ -49,7 +49,11 @@
 
                                                 </div>
                                                 <hr />
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> origin/master
                                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                                                     <!-- Field wrapper start -->
                                                     <div class="field-wrapper">
@@ -112,7 +116,11 @@
 
 
 
+<<<<<<< HEAD
                                                  
+=======
+
+>>>>>>> origin/master
 
                                                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
@@ -136,7 +144,11 @@
                                         <div class="col-6" style=" border-left: 1px solid #c3c3c3;">
 
 
+<<<<<<< HEAD
                                              
+=======
+
+>>>>>>> origin/master
                                             <div class="col-6">
                                                 <div class="form-section-header" style="background: transparent; margin: 0; margin-top: 5px;">Address Details</div>
                                             </div>
@@ -154,14 +166,22 @@
 
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper">
+<<<<<<< HEAD
                                                     <textarea id="ManagerAddress"  class="form-control clear-field detail" rows="3" placeholder="Enter Godown Manager Address"></textarea>
+=======
+                                                    <textarea id="ManagerAddress" class="form-control clear-field detail" rows="3" placeholder="Enter Godown Manager Address"></textarea>
+>>>>>>> origin/master
                                                     <div class="field-placeholder">Godown Manager Address</div>
                                                 </div>
                                                 <!-- Field wrapper end -->
 
                                             </div>
 
+<<<<<<< HEAD
                                              
+=======
+
+>>>>>>> origin/master
 
 
 
@@ -253,7 +273,11 @@
                                     <th style="color: white !important;">Email</th>
                                     <th style="color: white !important;">Address</th>
                                     <th style="color: white !important;">Is Active</th>
+<<<<<<< HEAD
                                     <th  style="color: white !important;">Actions</th>
+=======
+                                    <th style="color: white !important;">Actions</th>
+>>>>>>> origin/master
                                 </tr>
                             </thead>
                             <tbody>
@@ -283,6 +307,7 @@
 
         </div>
     </div>
+<<<<<<< HEAD
 
 
 </div>
@@ -875,10 +900,51 @@
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertGodownManagerMaster',
                 data: formData,
+=======
+</div>
+<!-- Content wrapper end -->
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('.active, .show, .current-page').removeClass('active show current-page');
+            $("#master-tab").addClass("active");
+            $("#tab-Master").addClass("show active");
+            $("#aGodownManagerMaster").addClass("current-page");
+            FunctionIsLogin();
+            displayData(0);
+            displayPagginationData();
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function longfunctionfirst(callback) {
+            setTimeout(function () {
+                if (typeof callback == 'function')
+                    callback();
+            }, 10);
+        };
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+>>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -1222,11 +1288,107 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteGodownManagerMaster',
+=======
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function AddPartyModel() {
+            clearAll();
+        }
+
+        function clearAll() {
+            $(".detail").attr("disabled", false);
+
+            $("#saveViewbtn").show();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Godown Manager Information");
+            $("#add-alert").hide();
+            $("#name").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $('#DDLSalesExecutive').val('0');
+            $("#DDLTransportDetails").val("0");
+            $('#BankHolderName').val('');
+            $('#BankAccountNo').val('');
+            $('#BankIFSCCode').val('');
+            $('#BankName').val('');
+            $('#BankBranch').val('');
+
+            $(".clear-field").val("");
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function functionSearch(Searchval) {
+            $("#rowStartCount").val(0);
+            displayPagginationData();
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = rowStartCheck;
+            var searchpartyname = $("#search-GodownManager-name").val();
+
+            var formData = new FormData();
+            formData.append('searchGodownManagerName', searchpartyname);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownManagerMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
 
@@ -1258,10 +1420,48 @@
                     });
 
 
+=======
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+                    var operation = "";
+
+                    var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listGodownManager.length; i++) {
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        temp += "<td>" + response.listGodownManager[i].DateandTimes + "</td>";
+                        temp += "<td>" + response.listGodownManager[i].GodownManagerName + "</td>";
+                        temp += "<td>" + response.listGodownManager[i].MobileNo + "</td>";
+
+                        if (response.listGodownManager[i].AlterMobileNo != "0") {
+                            temp += "<br />" + response.listGodownManager[i].AlterMobileNo;
+                        }
+                        temp += "</td>";
+                        temp += "<td>" + response.listGodownManager[i].Email + "</td>";
+                        temp += "<td>" + response.listGodownManager[i].ManagerAddress + "</td>";
+
+                        if (response.listGodownManager[i].IsActiveManager == "1" || response.listGodownManager[i].IsActiveManager == 1) {
+                            IsApproved = "<span class='badge bg-success'>Approved</span>";
+                        }
+                        else {
+                            IsApproved = "<span class='badge bg-danger'>Not Approved</span>";
+                        }
+                        temp += "<td>" + IsApproved + "</td>";
+                        temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listGodownManager[i].GodownManagerID + ",1)'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listGodownManager[i].GodownManagerID + ",0)'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listGodownManager[i].GodownManagerID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                        temp += "</tr>";
+                    }
+                    $("#copy-print-csv tbody").empty();
+                    dataTable.append(temp);
+                },
+                error: function (request, status, error) {
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
 
 
@@ -1297,4 +1497,458 @@
 </script>
 
 
+=======
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+
+        //Display Paggination
+        function displayPagginationData() {
+            var formData = new FormData();
+            formData.append('GodownManagerName', $("#search-GodownManager-name").val());
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getGodownManagerMasterPaggination',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    total = response.listPagginationMaster[0].Total;
+                    Paggination = response.listPagginationMaster[0].Paggination + 1;
+                    prevNo = 0;
+                    nextNo = 10;
+
+                    if (response.listPagginationMaster[0].Paggination == "0") {
+                        $('#divPaggination').hide();
+                    }
+                    else {
+                        if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                            var temp = "";
+                            for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            $('#divPaggination').html(temp).show();
+                        }
+                        else {
+                            var temp = "";
+                            for (var i = 1; i <= 10; i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                            $('#divPaggination').html(temp).show();
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        //Select Paggination
+        function funcationPaggination(abc) {
+            $("#trLoading").show();
+            var a = "#a" + abc;
+            SelectNo = abc;
+            $('li').removeClass('active');
+            $(a).addClass('active');
+
+            $("#rowStartCount").val(((abc - 1) * 30));
+            displayData(((abc - 1) * 30));
+        }
+
+        //Next Paggination
+        function funcationPagginationNext() {
+            var n = nextNo + 1;
+            var nnext = nextNo + 10;
+
+            if (nextNo > Paggination - 10) {
+                nnext = Paggination;
+
+                prevNo = nextNo;
+                nextNo = nnext;
+                var temp = "";
+
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+                for (var i = prevNo + 1; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+
+                $('#divPaggination').html(temp).show();
+            }
+            else {
+                prevNo = nextNo;
+                nextNo = nnext;
+
+                var temp = "";
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+
+                for (var i = n; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+                $('#divPaggination').html(temp).show();
+            }
+
+            PageNo += 1;
+        }
+
+        //Prev Paggination
+        function funcationPagginationPrev() {
+            PageNo += -1;
+
+            if (PageNo == 0) {
+                var n = 1;
+            }
+            else {
+                var n = PageNo + "1";
+            }
+
+            var nnext = parseInt(n) + 9;
+
+            if (nnext == 10) {
+                nnext = Paggination;
+                prevNo = 1;
+                nextNo = 10;
+
+                var temp = "";
+                for (var i = prevNo; i <= nextNo; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+                $('#divPaggination').html(temp).show();
+            }
+            else {
+                prevNo = nextNo;
+                nextNo = nnext;
+
+                var temp = "";
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a>";
+                for (var i = n; i <= nnext; i++) {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationNext()'>Next</a>";
+
+                $('#divPaggination').html(temp).show();
+            }
+        }
+
+        function checkSaveView() {
+            var GodownManagerName = document.getElementById('GodownManagerName');
+            var MobileNo = document.getElementById('MobileNo');
+            if (validate(GodownManagerName) == false || validate(MobileNo) == false) {
+                validate(GodownManagerName);
+                validate(MobileNo);
+            }
+            else {
+                var email = document.getElementById('email');
+                var AlterMobileNo = document.getElementById('AlterMobileNo');
+                var ManagerAddress = document.getElementById("ManagerAddress");
+
+                var IsActiveManager = "0";
+                if ($("#chcekIsActiveManager").is(':checked')) {
+                    IsActiveManager = "1";
+                }
+
+                var formData = new FormData();
+                formData.append('GodownManagerName', GodownManagerName.value);
+                formData.append('MobileNo', MobileNo.value);
+                if (AlterMobileNo.value == "") {
+                    formData.append('AlterMobileNo', '0');
+                }
+                else {
+                    formData.append('AlterMobileNo', AlterMobileNo.value);
+                }
+
+                formData.append('Email', email.value);
+                formData.append('ManagerAddress', ManagerAddress.value);
+                formData.append('IsActiveManager', IsActiveManager);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGodownManagerMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            displayData(0);
+                            showToast('success', response.Message);
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var GodownManagerName = document.getElementById('GodownManagerName');
+            var MobileNo = document.getElementById('MobileNo');
+            if (validate(GodownManagerName) == false || validate(MobileNo) == false) {
+                validate(GodownManagerName);
+                validate(MobileNo);
+            }
+            else {
+                var email = document.getElementById('email');
+                var AlterMobileNo = document.getElementById('AlterMobileNo');
+                var ManagerAddress = document.getElementById("ManagerAddress");
+
+                var IsActiveManager = "0";
+                if ($("#chcekIsActiveManager").is(':checked')) {
+                    IsActiveManager = "1";
+                }
+
+                var formData = new FormData();
+                formData.append('GodownManagerName', GodownManagerName.value);
+                formData.append('MobileNo', MobileNo.value);
+                if (AlterMobileNo.value == "") {
+                    formData.append('AlterMobileNo', '0');
+                }
+                else {
+                    formData.append('AlterMobileNo', AlterMobileNo.value);
+                }
+
+                formData.append('Email', email.value);
+                formData.append('ManagerAddress', ManagerAddress.value);
+                formData.append('IsActiveManager', IsActiveManager);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertGodownManagerMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            displayData(0);
+                            showToast('success', response.Message);
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while submitting your data.');
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var GodownManagerName = document.getElementById('GodownManagerName');
+            var MobileNo = document.getElementById('MobileNo');
+            var MobileNotemp = document.getElementById('MobileNotemp');
+            if (validate(GodownManagerName) == false || validate(MobileNo) == false) {
+                validate(GodownManagerName);
+                validate(MobileNo);
+            }
+            else {
+                var email = document.getElementById('email');
+                var AlterMobileNo = document.getElementById('AlterMobileNo');
+                var ManagerAddress = document.getElementById("ManagerAddress");
+
+                var IsActiveManager = "0";
+                if ($("#chcekIsActiveManager").is(':checked')) {
+                    IsActiveManager = "1";
+                }
+
+                var formData = new FormData();
+                formData.append('GodownManagerID', id);
+                formData.append('GodownManagerName', GodownManagerName.value);
+                formData.append('MobileNo', MobileNo.value);
+                formData.append('MobileNotemp', MobileNotemp.value);
+                if (AlterMobileNo.value == "") {
+                    formData.append('AlterMobileNo', '0');
+                }
+                else {
+                    formData.append('AlterMobileNo', AlterMobileNo.value);
+                }
+
+                formData.append('Email', email.value);
+                formData.append('ManagerAddress', ManagerAddress.value);
+                formData.append('IsActiveManager', IsActiveManager);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/editGodownManagerMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            showToast('success', response.Message);
+                            displayData($("#rowStartCount").val());
+                            $("#cancelbtn").click();
+                        }
+                        else {
+                            showToast('error', response.Message);
+                        }
+                    },
+                    error: function (error) {
+                        showToast('error', 'An error occurred while updating your data.');
+                    }
+                });
+            }
+        }
+
+        function showRecords(id, status) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#saveViewbtn").hide();
+
+            if (status == 0 || status == "0") {
+                $("#addNewContactLabel").html("Godown Manager Details");
+                $(".detail").attr("disabled", true);
+                $("#editbtn").hide();
+            }
+            else {
+                $("#addNewContactLabel").html("Edit Godown Manager");
+                $(".detail").attr("disabled", false);
+                $("#editbtn").show();
+            }
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getGodownManagerMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#GodownManagerName").val(response.listGodownManager[0].GodownManagerName);
+                        $('#MobileNo').val(response.listGodownManager[0].MobileNo);
+                        $('#MobileNotemp').val(response.listGodownManager[0].MobileNo);
+                        $('#AlterMobileNo').val(response.listGodownManager[0].AlterMobileNo);
+                        $('#email').val(response.listGodownManager[0].email);
+
+                        $("textarea#ManagerAddress").val(response.listGodownManager[0].ManagerAddress);
+
+                        if (response.listGodownManager[0].IsActiveManager == "1") {
+                            $("#chcekIsActiveManager").prop("checked", true);
+                        }
+                        else {
+                            $("#chcekIsActiveManager").prop("checked", false);
+                        }
+                    }
+                    else {
+                        showToast('error', response.Message);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to retrieve record details.');
+                }
+            });
+        }
+
+        function functionUserDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('PartyId', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteGodownManagerMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Party detail deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData($("#rowStartCount").val());
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: response.Message
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting Party Detail.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master
 

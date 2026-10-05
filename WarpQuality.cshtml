@@ -1,17 +1,48 @@
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<<<<<<< HEAD
 
 
 
 
 
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
     <div class="card-header-lg">
         <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Warp Quality</button>
+<<<<<<< HEAD
             <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
@@ -72,10 +103,75 @@
                             <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
                             <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                         </div>
+=======
+        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewContactLabel">Add Warp Quality</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="overflow:auto">
+                        <div id="add-alert" class="alert alert-success" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+                        <br />
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
+                                <div class="row gutters">
+                                    <div class="col-6">
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <input type="text" id="WarpQuality" name="WarpQuality" class="form-control clear-field" onfocusout="validate(this)">
+                                            <div class="field-placeholder">Warp Quality<sup style="color:red;">*</sup></div>
+                                            <div class="WarpQuality-valid-feedback valid-feedback">Looks good!</div>
+                                            <div class="WarpQuality-invalid-feedback invalid-feedback">Please Mention Warp Quality</div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+
+
+                                    <div class="col-6">
+
+                                        <!-- Field wrapper start -->
+                                        <div class="field-wrapper">
+                                            <div class="form-check form-check-inline">
+                                                <br />
+                                                <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+                                                <label class="form-check-label" for="IsActive-default">Is Active</label>
+
+                                            </div>
+                                        </div>
+                                        <!-- Field wrapper end -->
+                                    </div>
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="edit-id" type="hidden" />
+                    <div id="notess"></div>
+                    <div class="modal-footer">
+                        <button id="saveViewbtn" type="button" class="btn btn-primary" onclick="checkSaveView()">Save</button>
+                        <button id="savebtn" type="button" class="btn btn-outline-primary" onclick="checkSave()">Save & New</button>
+                        <button id="editbtn" type="button" class="btn btn-primary" onclick="checkEdit()">Update</button>
+                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+>>>>>>> origin/master
                     </div>
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
+=======
+    </div>
+>>>>>>> origin/master
     <div style="float:none;clear:both;">
         <br />
     </div>
@@ -131,6 +227,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 <!-- Content wrapper end -->
 
 <script>
@@ -380,11 +477,488 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+=======
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText || 'Failed to load default company data.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            } else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchWarpQuality = $("#search-Warp-Quality").val();
+
+            var formData = new FormData();
+            formData.append('searchWarpQuality', searchWarpQuality);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getWarpQualityMaster',
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+                    console.log(response);
+
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+
+                    if (response.listWarpQualityMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    } else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listWarpQualityMaster.length; i++) {
+                        var Top = i - 1;
+                        var Previous = i + 1;
+                        var ActionPosition = "";
+
+                        if (response.listWarpQualityMaster.length != 1) {
+                            if (i == 0) {
+                                var PostDown = response.listWarpQualityMaster[i].WarpQualityID + "," + response.listWarpQualityMaster[i].Position + "|" + response.listWarpQualityMaster[Previous].WarpQualityID + "," + response.listWarpQualityMaster[Previous].Position;
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listWarpQualityMaster[i].WarpQualityID + "' value = '" + PostDown + "' /> ";
+                                ActionPosition += "<span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listWarpQualityMaster[i].WarpQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            } else if (i == parseInt(response.listWarpQualityMaster.length - 1)) {
+                                var PostUp = response.listWarpQualityMaster[i].WarpQualityID + "," + response.listWarpQualityMaster[i].Position + "|" + response.listWarpQualityMaster[Top].WarpQualityID + "," + response.listWarpQualityMaster[Top].Position;
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listWarpQualityMaster[i].WarpQualityID + "' value = '" + PostUp + "' /> </span>";
+                                ActionPosition += "<span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listWarpQualityMaster[i].WarpQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'></td>";
+                            } else {
+                                var PostUp = response.listWarpQualityMaster[i].WarpQualityID + "," + response.listWarpQualityMaster[i].Position + "|" + response.listWarpQualityMaster[Top].WarpQualityID + "," + response.listWarpQualityMaster[Top].Position;
+                                var PostDown = response.listWarpQualityMaster[i].WarpQualityID + "," + response.listWarpQualityMaster[i].Position + "|" + response.listWarpQualityMaster[Previous].WarpQualityID + "," + response.listWarpQualityMaster[Previous].Position;
+
+                                ActionPosition += "<input type='hidden' id='PostUp_" + response.listWarpQualityMaster[i].WarpQualityID + "' value = '" + PostUp + "' /><span class='icon-triangle-up' title='Up' onclick='onPostUp(" + response.listWarpQualityMaster[i].WarpQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span>";
+                                ActionPosition += "<input type='hidden' id='PostDown_" + response.listWarpQualityMaster[i].WarpQualityID + "' value = '" + PostDown + "' /><span class='icon-triangle-down' title='Down' onclick='onPostDown(" + response.listWarpQualityMaster[i].WarpQualityID + ")' style='color: #337ab7; font-size: x-large; cursor: pointer;'> </span></td>";
+                            }
+                        }
+
+                        temp += "<tr>";
+                        temp += "<td>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listWarpQualityMaster[i].WarpQuality + "</td>";
+
+                        if (response.listWarpQualityMaster[i].IsActive == "1") {
+                            temp += "<td><span class='badge bg-success'>Active</span></td>";
+                        } else {
+                            temp += "<td><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td><div class='actions'>";
+                        temp += "<a href='javascript:void(0);' class='EditBtn' data-toggle='tooltip' data-placement='top' title='' data-original-title='Edit' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listWarpQualityMaster[i].WarpQualityID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' class='DeleteBtn' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionYarnDelete(" + response.listWarpQualityMaster[i].WarpQualityID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+
+                    dataTable.append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionFYDelete(abc) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('FinancialYearIDs', abc);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteFinancialYearMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 1) {
+                                displayData(0);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Financial Year deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting Financial Year.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting Financial Year.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Warp Quality");
+            $("#add-alert").hide();
+
+            $("#WarpQuality").val('');
+
+            $(".company-invalid-feedback").hide();
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var WarpQuality = $('#WarpQuality').val();
+
+            if (validate(document.getElementById('WarpQuality')) == false) {
+                validate(document.getElementById('WarpQuality'));
+            } else {
+                var formData = new FormData();
+                formData.append('WarpQuality', WarpQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertWarpQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var WarpQuality = $('#WarpQuality').val();
+
+            if (validate(document.getElementById('WarpQuality')) == false) {
+                validate(document.getElementById('WarpQuality'));
+            } else {
+                var formData = new FormData();
+                formData.append('WarpQuality', WarpQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/insertWarpQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var WarpQuality = $('#WarpQuality').val();
+
+            if (validate(document.getElementById('WarpQuality')) == false) {
+                validate(document.getElementById('WarpQuality'));
+            } else {
+                var formData = new FormData();
+                formData.append('WarpQualityID', id);
+                formData.append('WarpQuality', WarpQuality);
+                formData.append('IsActive', IsActive);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/EditWarpQualityMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.Code == 201) {
+                            clearAll();
+                            $('#WarpQuality').val('');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: response.Message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            displayData(0);
+                            $("#cancelbtn").click();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.Message
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred.'
+                        });
+                    }
+                });
+            }
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Warp Quality");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getWarpQualityMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#WarpQuality").val(response.listWarpQualityMaster[0].WarpQuality);
+                        $("#IsActive").prop('checked', response.listWarpQualityMaster[0].IsActive == "1");
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.Message
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to retrieve record details.'
+                    });
+                }
+            });
+        }
+
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this Warp Quality record?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('WarpQualityID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteWarpQualityMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Warp Quality deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Problem occurred while deleting Warp Quality.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Problem occurred while deleting Warp Quality.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function onPostUp(QueueNo) {
+            var down = $("#PostUp_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_WarpQualityQueue',
+>>>>>>> origin/master
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+<<<<<<< HEAD
 
                     if (response.Code == 1) {
                         displayData(0);
@@ -468,11 +1042,42 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertWarpQualityMaster',
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+                        });
+                    }
+                },
+                error: function (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+                }
+            });
+        }
+
+        function onPostDown(QueueNo) {
+            var down = $("#PostDown_" + QueueNo).val();
+            var formData = new FormData();
+            formData.append('PostQueue', down);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateTbl_WarpQualityQueue',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 201) {
                         clearAll();
 
@@ -489,10 +1094,20 @@
                         notess.show(response.Message, {
                             type: 'danger',
 
+=======
+                    if (response.Code == 1) {
+                        displayData($("#rowStartCount").val());
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Problem occurred while retrieving your data.'
+>>>>>>> origin/master
                         });
                     }
                 },
                 error: function (error) {
+<<<<<<< HEAD
 
 
                     notess.show(response.Message, {
@@ -560,10 +1175,18 @@
 
                     });
 
+=======
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Problem occurred while retrieving your data.'
+                    });
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -883,5 +1506,36 @@
     }
 </script>
 
+=======
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+            if (code.value == "") {
+                if (code.id == "name") {
+                    $(".company-invalid-feedback").show();
+                }
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else if ((code.id == "igst" || code.id == "gst" || code.id == "cess") && code.value[code.value.length - 1] == ".") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            } else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                $(".company-invalid-feedback").show();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master
 
 

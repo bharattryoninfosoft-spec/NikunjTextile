@@ -5,7 +5,37 @@
 
 
 
+<<<<<<< HEAD
 
+=======
+<style>
+    /* Hide Export Buttons */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons {
+        display: none !important;
+    }
+
+    /* Hide Search Box */
+    .dataTables_filter {
+        display: none !important;
+    }
+
+    /* Hide "Showing x to y of z entries" */
+    .dataTables_info {
+        display: none !important;
+    }
+
+    /* Hide Pagination */
+    .dataTables_paginate {
+        display: none !important;
+    }
+
+    /* Hide "Show Entries" Dropdown */
+    .dataTables_length {
+        display: none !important;
+    }
+</style>
+>>>>>>> origin/master
 
 
 <!-- Content wrapper start -->
@@ -24,8 +54,12 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <div class="modal-body" style=" overflow: initial !important; height:500px !important;">
 
+=======
+                    <div class="modal-body" style=" overflow: auto !important; height: 500px !important;">
+>>>>>>> origin/master
 
                         <div class="row gutters">
 
@@ -322,6 +356,7 @@
 
 
 
+<<<<<<< HEAD
 
 
 <script>
@@ -494,18 +529,160 @@
                         if (currentPagePermission.Edit == true || currentPagePermission.Edit == "true") {
 
                             temp += "<a href='javascript:void(0);' " +
+=======
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayPagginationData();
+            displayData(0);
+            getYarnColor();
+            //getDefaultCompany();
+        });
+
+        // Helper function for SweetAlert2 toast notifications
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Failed to fetch default company.');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionSearch() {
+            displayPagginationData();
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = rowStartCheck;
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchRequirementNo', searchdesignNo);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var temp = "";
+
+                    var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listYarnInwardMaster.length; i++) {
+
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        temp += "<td><div class='actions'>";
+
+                        var TotalBarcode = "";
+
+                        // ======================================
+                        // BARCODE BUTTON
+                        // ======================================
+
+                        if (response.listYarnInwardMaster[i].TotalBarcode != "0") {
+                            TotalBarcode =
+                                "<a href='javascript:void(0);' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Print Stickers' " +
+                                "onclick='showYarnBarcodeRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
+                                "<i class='fa fa-barcode text-secondary fa-2x'></i>" +
+                                "</a>";
+                        }
+
+                        // ======================================
+                        // WHEN NOT COMPLETED
+                        // ======================================
+
+                        if (response.listYarnInwardMaster[i].IsComplete == 0) {
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='EditBtn' " +
+>>>>>>> origin/master
                                 "data-toggle='tooltip' " +
                                 "data-placement='top' " +
                                 "title='Edit' " +
                                 "onclick='showEditRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
                                 "<i class='icon-edit1 text-info'></i>" +
                                 "</a>&nbsp;&nbsp;&nbsp;";
+<<<<<<< HEAD
                         }
 
                         // VIEW
                         if (currentPagePermission.View == true || currentPagePermission.View == "true") {
 
                             temp += "<a href='javascript:void(0);' " +
+=======
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='viewBtn' " +
+>>>>>>> origin/master
                                 "data-toggle='tooltip' " +
                                 "data-placement='top' " +
                                 "title='Details' " +
@@ -514,18 +691,25 @@
                                 "onclick='showRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
                                 "<i class='fa fa-eye text-secondary'></i>" +
                                 "</a>&nbsp;&nbsp;&nbsp;";
+<<<<<<< HEAD
                         }
 
                         // DELETE
                         if (currentPagePermission.Delete == true || currentPagePermission.Delete == "true") {
 
                             temp += "<a href='javascript:void(0);' " +
+=======
+
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='DeleteBtn' " +
+>>>>>>> origin/master
                                 "data-toggle='tooltip' " +
                                 "data-placement='top' " +
                                 "title='Delete' " +
                                 "onclick='functionUserDelete(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
                                 "<i class='icon-x-circle text-danger'></i>" +
                                 "</a>";
+<<<<<<< HEAD
                         }
 
                         temp += "<br />" + TotalBarcode;
@@ -536,6 +720,14 @@
                         if (currentPagePermission.View == true || currentPagePermission.View == "true") {
 
                             temp += "<a href='javascript:void(0);' " +
+=======
+
+                            temp += "<br />" + TotalBarcode;
+                        }
+                        else {
+                            temp += "<a href='javascript:void(0);' " +
+                                "class='viewBtn' " +
+>>>>>>> origin/master
                                 "data-toggle='tooltip' " +
                                 "data-placement='top' " +
                                 "title='Details' " +
@@ -544,6 +736,7 @@
                                 "onclick='showRecords(" + response.listYarnInwardMaster[i].YarnInwardID + ")'>" +
                                 "<i class='fa fa-eye text-secondary'></i>" +
                                 "</a>&nbsp;&nbsp;&nbsp;";
+<<<<<<< HEAD
                         }
 
                         temp += "<br />" + TotalBarcode;
@@ -932,11 +1125,76 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteYarnInwardMaster',
+=======
+
+                            temp += "<br />" + TotalBarcode;
+                        }
+
+                        temp += "</div></td>";
+                        temp += "<td><img src='" + response.listYarnInwardMaster[i].PhotoOfInward + "' style='width:50px; height:50px;'></td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].ChallanNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnPONo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].ChallanDates + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].PartyChallanNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].GodownTitle + "  ";
+
+                        if (response.listYarnInwardMaster[i].GODOWNCHANGE == "GODOWN CHANGE") {
+                            temp += "<br /> <span class='badge rounded-pill bg-warning' style='color:black;'>GODOWN CHANGE</span>";
+                        }
+                        temp += "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].GodownAddress + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].SupplierName + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].MobileNo + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].BillToPartyName + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnMaterial + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].YarnColor + "</td>";
+                        temp += "<td>" + response.listYarnInwardMaster[i].TotalWeight + "</td>";
+
+                        temp += "</tr>";
+                    }
+                    $("#copy-print-csv tbody").empty();
+                    $("#copy-print-csv tbody").append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission != null && permission != "") {
+                        var currentPagePermission = JSON.parse(permission);
+
+                        if (!currentPagePermission.Add) {
+                            $("#AddYarnInwardEntry").hide();
+                        }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+
+        //Display Paggination
+        function displayPagginationData() {
+            var searchdesignNo = $("#SearchRequirementNo").val();
+
+            var formData = new FormData();
+            formData.append('SearchString', searchdesignNo);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardMasterPaggination',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("Yarn Inward deleted successfully.", {
@@ -969,10 +1227,51 @@
                     });
 
 
+=======
+                    total = response.listPagginationMaster[0].Total;
+                    Paggination = response.listPagginationMaster[0].Paggination + 1;
+                    prevNo = 0;
+                    nextNo = 10;
+
+                    if (response.listPagginationMaster[0].Paggination == "0") {
+                        $('#divPaggination').hide();
+                    }
+                    else {
+                        if (parseInt(response.listPagginationMaster[0].Paggination) <= parseInt(10)) {
+                            var temp = "";
+                            for (var i = 1; i <= parseInt(response.listPagginationMaster[0].Paggination); i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            $('#divPaggination').html(temp).show();
+                        }
+                        else {
+                            var temp = "";
+                            for (var i = 1; i <= 10; i++) {
+                                if (i == 1) {
+                                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                                else {
+                                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                                }
+                            }
+                            temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+
+                            $('#divPaggination').html(temp).show();
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
 
 
@@ -1038,3 +1337,259 @@
 
 
 
+=======
+        //Select Paggination
+        function funcationPaggination(abc) {
+            $("#trLoading").show();
+            var a = "#a" + abc;
+            SelectNo = abc;
+            $('li').removeClass('active');
+            $(a).addClass('active');
+
+            $("#rowStartCount").val(((abc - 1) * 30));
+            displayData(((abc - 1) * 30));
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Yarn Inward Form");
+
+            var DecryptID = "";
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    ViewRecordQueryString(DecryptID);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        var ArrayYarnColor = [];
+
+        function getYarnColor() {
+            var formData = new FormData();
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function ViewRecordQueryString(DecryptID) {
+            var formData = new FormData();
+            formData.append('YarnInwardID', DecryptID);
+
+            var PartyId = 0;
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnInwardDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    var userTable = $('#TblUser');
+
+                    for (var i = 0; i < response.listYarnInwardMaster.length; i++) {
+                        /* ---------- View Party Details ---------- */
+                        $("#hYarnInwardID").val(response.listYarnInwardMaster[i].YarnInwardID);
+                        $("#PYarnInwardDate").html("<b>Challan Date: </b>" + response.listYarnInwardMaster[i].ChallanDates);
+                        $("#PChallanNo").html("<b>Party Challan No: </b>" + response.listYarnInwardMaster[i].PartyChallanNo);
+
+                        $("#PYarnPONo").html("<b>Yarn PO No: </b>" + response.listYarnInwardMaster[i].YarnPoNo);
+                        $("#PShippedToName").html("<b>Shipped To Name: </b>" + response.listYarnInwardMaster[i].GodownTitle);
+                        $("#PShippedtoAddress").html("<b>Shipped To Address: </b>" + response.listYarnInwardMaster[i].GodownAddress);
+
+                        $("#PSupplierName").html("<b>Supplier Name: </b>" + response.listYarnInwardMaster[i].SupplierName);
+                        $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnInwardMaster[i].MobileNo);
+                        $("#PCompanyName").html("<b>Company Name: </b>" + response.listYarnInwardMaster[i].BillToPartyName);
+
+                        $("#PYarnMaterial").html("<b>Yarn Material: </b>" + response.listYarnInwardMaster[i].YarnMaterial);
+                        $("#PColourCode").html("<b>Colour Code: </b>" + response.listYarnInwardMaster[i].ColourCode);
+                        $("#PTotalWeight").html("<b>Total Weight: </b>" + response.listYarnInwardMaster[i].TotalWeight);
+
+                        $("#PYarnColor").html("<b>Yarn Color: </b>" + response.listYarnInwardMaster[i].YarnColor);
+                        $("#PLotNo").html("<b>Lot No: </b>" + response.listYarnInwardMaster[i].LotNo);
+                        $("#PPendingWeight").html("<b>Pending Weight: </b>" + response.listYarnInwardMaster[i].PendingWeight);
+                        $("#PGodownTitle").html("<b>Godown Title: </b>" + response.listYarnInwardMaster[i].GodownTitle);
+
+                        /* ---------- Yarn Requirement Detail  ---------- */
+                        $("#tblYarnInward tbody").empty();
+
+                        var dataTable = $('#tblYarnInward tbody');
+                        var temp = "";
+
+                        var srno = parseInt(0) + parseInt(1);
+                        for (var j = 0; j < response.listYarnInwardMaster[i].listYarnInwardDetail.length; j++) {
+                            temp += "<tr><td>" + srno++ + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].BoxNo + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].NetWeight + "</td>";
+                            temp += "<td style='text-align: center;'>" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].LocationTitle + "</td>";
+                            var barcode = "";
+                            if (response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo != "" && response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo != null) {
+                                barcode = '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="" data-original-title="Details" onclick="showBarcodeRecords(' + response.listYarnInwardMaster[i].listYarnInwardDetail[j].YarnInwardDetailID + ')"><i class="fa fa-barcode text-secondary fa-2x" style="font-weight:50;" title="Print Stickers"></i></a>';
+                            }
+                            temp += "<td style='text-align: center;'>" + barcode + " <br />" + response.listYarnInwardMaster[i].listYarnInwardDetail[j].BarcodeNo + "</td>";
+                            temp += "</tr>";
+                        }
+                        $("#tblYarnInward tbody").empty();
+                        dataTable.html(temp);
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showEditRecords(id) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.location.href = '/UpdateYarnInward?id=' + response.listEncryptDecrypt[0].DecryptID;
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function functionUserDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('YarnInwardID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteYarnInwardMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Yarn Inward deleted successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Problem has been occurred while deleting Design Entry Form.'
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Problem has been occurred while deleting Design Entry Form.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function showYarnBarcodeRecords(YarnInwardID) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardID,
+                data: "{ 'id':'" + YarnInwardID + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.open('/YarnBoxMultiBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function showBarcodeRecords(YarnInwardDetailID) {
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + YarnInwardDetailID,
+                data: "{ 'id':'" + YarnInwardDetailID + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.open('/YarnBoxBarcode?id=' + response.listEncryptDecrypt[0].DecryptID, '_blank');
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+    </script>
+}
+>>>>>>> origin/master

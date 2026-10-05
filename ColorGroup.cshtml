@@ -2,15 +2,23 @@
     Layout = "/_LayoutPage1.cshtml";
 }
 
+<<<<<<< HEAD
 
 
 
 <!-- Content wrapper start -->
+=======
+>>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
     <div class="card-header-lg">
         <button id="AddFinacialYearModel" style="float:right;" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add Color Group</button>
+<<<<<<< HEAD
+=======
+
+        <!-- Modal Start -->
+>>>>>>> origin/master
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -21,10 +29,16 @@
                         </button>
                     </div>
                     <div class="modal-body">
+<<<<<<< HEAD
                         <div id="add-alert" class="alert alert-success" role="alert">
                             Record has been saved Successfully.
                         </div>
                         <br />
+=======
+                        <div id="add-alert" class="alert alert-success d-none" role="alert">
+                            Record has been saved Successfully.
+                        </div>
+>>>>>>> origin/master
 
                         <div class="row gutters">
                             <div class="col-xl-12 col-lg-12 col-md-8 col-sm-8 col-12">
@@ -40,25 +54,36 @@
                                         <!-- Field wrapper end -->
                                     </div>
 
+<<<<<<< HEAD
 
 
                                     <div class="col-6">
 
+=======
+                                    <div class="col-6">
+>>>>>>> origin/master
                                         <!-- Field wrapper start -->
                                         <div class="field-wrapper">
                                             <div class="form-check form-check-inline">
                                                 <br />
                                                 <input id="IsActive" class="form-check-input" type="checkbox" value="1" checked>
+<<<<<<< HEAD
                                                 <label class="form-check-label" for="IsActive-default">Is Active</label>
 
+=======
+                                                <label class="form-check-label" for="IsActive">Is Active</label>
+>>>>>>> origin/master
                                             </div>
                                         </div>
                                         <!-- Field wrapper end -->
                                     </div>
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> origin/master
                                 </div>
                             </div>
                         </div>
@@ -74,12 +99,22 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
     </div>
+=======
+        <!-- Modal End -->
+    </div>
+
+>>>>>>> origin/master
     <div style="float:none;clear:both;">
         <br />
     </div>
 
+<<<<<<< HEAD
     <!-- Row start -->
+=======
+    <!-- Table Row start -->
+>>>>>>> origin/master
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
@@ -87,6 +122,7 @@
                 <div class="card-body">
                     <div class="form-section-header">Color Group</div>
                     <br />
+<<<<<<< HEAD
                     <div class="row gutters">
 
 
@@ -94,6 +130,12 @@
                         </div>
 
 
+=======
+                    <div class="row gutters mb-3">
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                        </div>
+
+>>>>>>> origin/master
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <div class="field-wrapper">
@@ -102,6 +144,7 @@
                             </div>
                             <!-- Field wrapper end -->
                         </div>
+<<<<<<< HEAD
 
                     </div>
                     <div class="table-responsive">
@@ -116,6 +159,23 @@
                                 </tr>
                             </thead>
                             <tbody>
+=======
+                    </div>
+
+                    <!-- PURE HTML BOOTSTRAP TABLE (NO DATATABLES) -->
+                    <div class="table-responsive">
+                        <table id="tblColorGroup" class="table table-hover table-bordered m-0">
+                            <thead>
+                                <tr style="background-color: #1273eb; color: white;">
+                                    <th style="color: white; width: 80px; text-align: center;">Sr No</th>
+                                    <th style="color: white;">Color Group</th>
+                                    <th style="color: white; width: 120px; text-align: center;">Is Active</th>
+                                    <th style="color: white; width: 100px; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows dynamic bind via jQuery AJAX -->
+>>>>>>> origin/master
                             </tbody>
                         </table>
                     </div>
@@ -125,12 +185,18 @@
 
         </div>
     </div>
+<<<<<<< HEAD
     <div class="view-more-styl-class">
+=======
+
+    <div class="view-more-styl-class text-center mt-3">
+>>>>>>> origin/master
         <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
     </div>
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 <script>
     var currentPagePermission = {};
     $(document).ready(function () {        
@@ -329,10 +395,148 @@
                             "data-placement='top' " +
                             "title='' " +
                             "data-original-title='Edit' " +
+=======
+
+@section Scripts{
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var currentPagePermission = {};
+
+        $(document).ready(function () {
+            FunctionIsLogin();
+            displayData(0);
+        });
+
+        function showToast(icon, title) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: icon,
+                title: title,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    showToast('error', request.statusText || 'Error fetching company details');
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function functionSearch() {
+            displayData(0);
+        }
+
+        function displayData(rowStartCheck) {
+            var rowStart = 0;
+            if (rowStartCheck != 0) {
+                rowStart = parseInt($("#rowStartCount").val()) + 10;
+                $("#rowStartCount").val(rowStart);
+            }
+            else {
+                rowStart = 0;
+                $("#rowStartCount").val("0");
+            }
+
+            var searchColorGroup = $("#search-Color-Group").val();
+
+            var formData = new FormData();
+            formData.append('SearchColorGroup', searchColorGroup);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorGroupMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (rowStart == 0) {
+                        $("#tblColorGroup tbody").empty();
+                    }
+                    var tbody = $('#tblColorGroup tbody');
+                    var temp = "";
+
+                    if (response.listColorGroupMaster.length < 10) {
+                        $("#view-more-btn").hide();
+                    }
+                    else {
+                        $("#view-more-btn").show();
+                    }
+
+                    var SrNo = rowStart + 1;
+                    for (var i = 0; i < response.listColorGroupMaster.length; i++) {
+                        temp += "<tr>";
+                        temp += "<td class='text-center'>" + SrNo++ + "</td>";
+                        temp += "<td>" + response.listColorGroupMaster[i].ColorGroup + "</td>";
+
+                        if (response.listColorGroupMaster[i].IsActive == "1") {
+                            temp += "<td class='text-center'><span class='badge bg-success'>Active</span></td>";
+                        }
+                        else {
+                            temp += "<td class='text-center'><span class='badge bg-danger'>Inactive</span></td>";
+                        }
+
+                        temp += "<td class='text-center'><div class='actions'>";
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='EditBtn me-2' " +
+>>>>>>> origin/master
                             "data-bs-toggle='modal' " +
                             "data-bs-target='#addNewContact' " +
                             "onclick='showRecords(" + response.listColorGroupMaster[i].ColorGroupID + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
+<<<<<<< HEAD
                             "</a>&nbsp;&nbsp;";
                     }
 
@@ -390,12 +594,65 @@
             validate(document.getElementById('ColorGroup'));
         }
         else {
+=======
+                            "</a>";
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='DeleteBtn' " +
+                            "onclick='functionYarnDelete(" + response.listColorGroupMaster[i].ColorGroupID + ")'>" +
+                            "<i class='icon-x-circle text-danger'></i>" +
+                            "</a>";
+
+                        temp += "</div></td>";
+                        temp += "</tr>";
+                    }
+                    tbody.append(temp);
+
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddFinacialYearModel").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                    }
+                },
+                error: function (request, status, error) { }
+            });
+        }
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#saveViewbtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Group");
+            $("#add-alert").addClass('d-none');
+
+            $("#ColorGroup").val('');
+            $("#IsActive").prop('checked', true);
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function checkSaveView() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var ColorGroup = $('#ColorGroup').val();
+
+            if (validate(document.getElementById('ColorGroup')) == false) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroup', ColorGroup);
             formData.append('IsActive', IsActive);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
@@ -406,15 +663,20 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
+<<<<<<< HEAD
 
                         notes.show(response.Message, {
                             type: 'success',
 
                         });
+=======
+                        showToast('success', response.Message || 'Color Group added successfully.');
+>>>>>>> origin/master
                         displayData(0);
                         $("#cancelbtn").click();
                     }
                     else {
+<<<<<<< HEAD
 
 
                         notess.show(response.Message, {
@@ -450,12 +712,33 @@
             validate(document.getElementById('ColorGroup'));
         }
         else {
+=======
+                        Swal.fire('Error', response.Message, 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while saving Color Group.', 'error');
+                }
+            });
+        }
+
+        function checkSave() {
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var ColorGroup = $('#ColorGroup').val();
+
+            if (validate(document.getElementById('ColorGroup')) == false) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroup', ColorGroup);
             formData.append('IsActive', IsActive);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/insertColorGroupMaster',
@@ -466,6 +749,7 @@
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
+<<<<<<< HEAD
 
                         notess.show(response.Message, {
                             type: 'success',
@@ -491,10 +775,22 @@
 
                     });
 
+=======
+                        showToast('success', response.Message || 'Color Group added successfully.');
+                        displayData(0);
+                    }
+                    else {
+                        Swal.fire('Error', response.Message, 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while saving Color Group.', 'error');
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
 
 
 
@@ -517,6 +813,16 @@
             validate(document.getElementById('ColorGroup'));
         }
         else {
+=======
+        function checkEdit() {
+            var id = $("#edit-id").val();
+            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+            var ColorGroup = $('#ColorGroup').val();
+
+            if (validate(document.getElementById('ColorGroup')) == false) {
+                return;
+            }
+>>>>>>> origin/master
 
             var formData = new FormData();
             formData.append('ColorGroupID', id);
@@ -532,6 +838,7 @@
                 processData: false,
                 success: function (response) {
                     if (response.Code == 201) {
+<<<<<<< HEAD
 
                         clearAll();
 
@@ -649,10 +956,40 @@
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
                 data: formData,
+=======
+                        clearAll();
+                        showToast('success', response.Message || 'Color Group updated successfully.');
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
+                        Swal.fire('Error', response.Message, 'error');
+                    }
+                },
+                error: function (error) {
+                    Swal.fire('Error', 'An error occurred while updating Color Group.', 'error');
+                }
+            });
+        }
+
+        function showRecords(id) {
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Edit Color Group");
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getColorGroupMasterById?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+>>>>>>> origin/master
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("Color Group deleted successfully.", {
@@ -685,10 +1022,28 @@
                     });
 
 
+=======
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#ColorGroup").val(response.listColorGroupMaster[0].ColorGroup);
+                        if (response.listColorGroupMaster[0].IsActive == "1") {
+                            $("#IsActive").prop('checked', true);
+                        }
+                        else {
+                            $("#IsActive").prop('checked', false);
+                        }
+                    }
+                    else {
+                        Swal.fire('Error', response.Message, 'error');
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire('Error', 'Failed to fetch details.', 'error');
+>>>>>>> origin/master
                 }
             });
         }
 
+<<<<<<< HEAD
     }
     function onPostUp(QueueNo) {
 
@@ -812,3 +1167,66 @@
 
 
 
+=======
+        function functionYarnDelete(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this Color Group!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('ColorGroupID', id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
+                        data: formData,
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            if (response.Code == 200) {
+                                Swal.fire("Deleted!", "Color Group deleted successfully.", "success");
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire("Error", "Problem occurred while deleting Color Group.", "error");
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire("Error", "Problem occurred while deleting Color Group.", "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        function validate(code) {
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback, .valid-feedback").hide();
+
+            if (code.value == "") {
+                document.getElementById(code.id).classList.remove("is-valid");
+                document.getElementById(code.id).classList.add("is-invalid");
+                $(errorMessageInvalid).show();
+                return false;
+            }
+            else {
+                document.getElementById(code.id).classList.add("is-valid");
+                document.getElementById(code.id).classList.remove("is-invalid");
+                $(errorMessageValid).show();
+                $(errorMessageInvalid).hide();
+                return true;
+            }
+        }
+    </script>
+}
+>>>>>>> origin/master

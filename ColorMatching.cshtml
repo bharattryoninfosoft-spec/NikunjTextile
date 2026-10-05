@@ -1,7 +1,155 @@
+<<<<<<< HEAD
 ﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
+=======
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<style>
+    /* Hide Export Buttons / DataTables defaults */
+    .dt-buttons,
+    .dataTables_wrapper .dt-buttons,
+    .dataTables_filter,
+    .dataTables_info,
+    .dataTables_paginate,
+    .dataTables_length {
+        display: none !important;
+    }
+
+    /* Layout & Styling matching JobproductionorderList */
+    .production-list-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .form-section-header {
+        border-radius: 4px 4px 0 0;
+        background: #e5f0ff !important;
+        margin: 0 0 1rem 0;
+        padding: 0.65rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #1273eb;
+    }
+
+    .production-list-table-container {
+        width: 100%;
+        max-height: 580px;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px 4px 0 0;
+        background: #fff;
+    }
+
+    #copy-print-csv {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0;
+        margin: 0 !important;
+        font-size: 0.775rem !important;
+    }
+
+        #copy-print-csv th,
+        #copy-print-csv td {
+            border-bottom: 1px solid #e6ebf1 !important;
+            border-right: 1px solid #e6ebf1 !important;
+            padding: 7px 10px !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+        }
+
+        #copy-print-csv th:first-child,
+        #copy-print-csv td:first-child {
+            border-left: 1px solid #e6ebf1 !important;
+        }
+
+        #copy-print-csv thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #1273eb !important;
+            color: #ffffff !important;
+            font-size: 0.775rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-align: center !important;
+            height: 38px !important;
+            border-top: 1px solid #1273eb !important;
+            border-bottom: 2px solid #0d5bbd !important;
+        }
+
+        #copy-print-csv tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        #copy-print-csv tbody tr:hover td {
+            background-color: #eef5ff !important;
+        }
+
+    .production-summary-bar {
+        background: #f8fafc;
+        border: 1px solid #dcdfe6;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Pagination controls styling */
+    .pagination-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid #dcdfe6;
+        background: #ffffff;
+        color: #334155;
+        font-size: 0.775rem;
+        font-weight: 600;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        user-select: none;
+    }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #1273eb;
+            color: #ffffff;
+            border-color: #1273eb;
+        }
+
+        .pagination-btn.active {
+            background: #1273eb;
+            color: #ffffff;
+            border-color: #1273eb;
+            box-shadow: 0 2px 4px rgba(18, 115, 235, 0.25);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+</style>
+>>>>>>> origin/master
 <!-- Content wrapper start -->
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
@@ -18,7 +166,11 @@
                             <span aria-hidden="true"></span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <div class="modal-body" id="printArea" style=" overflow: initial !important; height:500px !important;">
+=======
+                    <div class="modal-body" id="printArea" style=" overflow: auto ; height:500px !important;">
+>>>>>>> origin/master
 
 
                         <div class="row gutters">
@@ -107,7 +259,11 @@
 
 
 
+<<<<<<< HEAD
                         <div class="row gutters">       
+=======
+                        <div class="row gutters">
+>>>>>>> origin/master
 
                             <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-12">
 
@@ -222,7 +378,12 @@
                     <input id="catedit-id" type="hidden" />
                     <div id="notess"></div>
                     <div class="modal-footer">
+<<<<<<< HEAD
                         <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary" >Print</button>
+=======
+                        <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary">Print</button>
+                        <button id="btnDownloadImage" type="button" onclick="downloadModalAsImage();" class="btn btn-success"><i class="fa fa-download me-1"></i> Download Image</button>
+>>>>>>> origin/master
                         <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -238,6 +399,7 @@
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
+<<<<<<< HEAD
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">Color Matching Form</div>
@@ -252,6 +414,19 @@
 
 
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+=======
+            <div class="card production-list-card">
+                <div class="card-body p-3">
+                    <div class="form-section-header d-flex justify-content-between align-items-center">
+                        <span><i class="fa fa-list-alt me-2"></i>Color Matching Form</span>
+                        <span class="badge bg-light text-primary border px-2 py-1 fs-7 fw-semibold">
+                            Total Records: <span id="lblTotalCount" class="fw-bold">0</span>
+                        </span>
+                    </div>
+
+                    <div class="row gutters g-2 mb-3">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
+>>>>>>> origin/master
                             <!-- Field wrapper start -->
                             <div class="field-wrapper">
                                 <input id="search-design-no" placeholder="Search Design No." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
@@ -259,6 +434,7 @@
                             </div>
                             <!-- Field wrapper end -->
                         </div>
+<<<<<<< HEAD
 
                     </div>
 
@@ -278,6 +454,22 @@
                                     <th style="color: white !important;">MatchingID</th>
                                     <th style="color: white !important;">Warp ID</th>
                                     <th style="color: white !important;">Weft ID</th>
+=======
+                    </div>
+
+                    <div class="production-list-table-container">
+                        <table id="copy-print-csv" class="table table-bordered align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Sr No</th>
+                                    <th class="text-center">Action</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Design No</th>
+                                    <th class="text-center">Photo Of Design</th>
+                                    <th>MatchingID</th>
+                                    <th>Warp ID</th>
+                                    <th>Weft ID</th>
+>>>>>>> origin/master
                                 </tr>
                             </thead>
                             <tbody>
@@ -285,6 +477,7 @@
                         </table>
                     </div>
 
+<<<<<<< HEAD
 
 
                     <br />
@@ -306,6 +499,32 @@
 
 
 
+=======
+                    <!-- Production Summary Footer with Pagination -->
+                    <div class="production-summary-bar">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="fw-semibold text-secondary fs-7" id="lblShowingInfo">
+                                Showing 0 to 0 of 0 entries
+                            </div>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="pagination-container">
+                            <button type="button" id="btnFirstPage" class="pagination-btn" title="First Page">&laquo;</button>
+                            <button type="button" id="btnPrevPage" class="pagination-btn" title="Previous Page">&lsaquo;</button>
+                            <span id="paginationNumbers" class="d-inline-flex gap-1"></span>
+                            <button type="button" id="btnNextPage" class="pagination-btn" title="Next Page">&rsaquo;</button>
+                            <button type="button" id="btnLastPage" class="pagination-btn" title="Last Page">&raquo;</button>
+                        </div>
+
+                        <!-- Counters -->
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="fs-7 fw-bold text-dark">
+                                Total Records: <span class="badge bg-primary fs-7 ms-1" id="lblTotalCountSummary">0</span>
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> origin/master
 
                 </div>
             </div>
@@ -316,6 +535,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 
 <script>
     var currentPagePermission = {};
@@ -1478,11 +1698,189 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/DeleteDesignColorMatchingFormMaster',
+=======
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        $(document).ready(function () {
+          
+            FunctionIsLogin();
+            displayPagginationData();
+            displayData(0);
+            getYarnColor();
+
+            $("#btnFirstPage").on("click", function () {
+                if (SelectNo > 1) {
+                    funcationPaggination(1);
+                }
+            });
+
+            $("#btnPrevPage").on("click", function () {
+                if (SelectNo > 1) {
+                    funcationPaggination(SelectNo - 1);
+                }
+            });
+
+            $("#btnNextPage").on("click", function () {
+                if (SelectNo < Paggination) {
+                    funcationPaggination(SelectNo + 1);
+                }
+            });
+
+            $("#btnLastPage").on("click", function () {
+                if (SelectNo < Paggination) {
+                    funcationPaggination(Paggination);
+                }
+            });
+        });
+
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: "/WebServiceNikunjTextile.asmx/getCompanyMasterDefault",
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function (response) {
+
+                    if (response.Code == 200 || response.Code == "200") {
+
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+
+                    } else {
+
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Warning",
+                            text: response.Message || "Company data not found."
+                        });
+
+                    }
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: request.statusText || "Something went wrong. Please try again.",
+                        confirmButtonText: "OK"
+                    });
+
+                }
+            });
+        }
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/checkLoginStatus",
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+
+                    console.log(data);
+
+                    if (data.d == "false") {
+
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Session Expired",
+                            text: "Your session has expired. Please login again.",
+                            confirmButtonText: "Login"
+                        }).then(() => {
+                            window.location.replace("/Index");
+                        });
+
+                    }
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Unable to verify login status.",
+                        footer: request.status + " - " + (error || request.statusText),
+                        confirmButtonText: "OK"
+                    });
+
+                }
+            });
+        }
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/Logout",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+
+                    if (data.d == "done") {
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Logged Out",
+                            text: "You have been logged out successfully.",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.replace("/Index");
+                        });
+
+                    } else {
+
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Logout Failed",
+                            text: "Unable to logout. Please try again."
+                        });
+
+                    }
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Something went wrong while logging out.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+        }
+        function functionSearch() {
+            SelectNo = 1;
+            displayPagginationData();
+            displayData(0);
+        }
+        function displayData(rowStartCheck) {
+
+            var rowStart = rowStartCheck;
+            var searchdesignNo = $("#search-design-no").val();
+
+            var formData = new FormData();
+            formData.append('SearchDesignNo', searchdesignNo);
+            formData.append('startFrom', rowStart);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorMatchingFormMaster',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
+<<<<<<< HEAD
                     if (response.Code == 200) {
 
                         notes.show("Color Matching Form deleted successfully.", {
@@ -1514,11 +1912,157 @@
                         //icon: '<i class="icon-alert-triangle"></i>'
                     });
 
+=======
+                    if (rowStart == 0) {
+                        $("#copy-print-csv tbody").empty();
+                    }
+                    var dataTable = $('#copy-print-csv');
+                    var temp = "";
+
+                    var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listDesignColorMatchingForm.length; i++) {
+
+                        temp += "<tr><td>" + srno++ + "</td>";
+                        //temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
+                        temp += "<td><div class='actions'>";
+
+                        // EDIT
+                  
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='EditBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Edit' " +
+                                "onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
+                                "<i class='icon-edit1 text-info'></i>" +
+                                "</a>&nbsp;&nbsp;&nbsp;";
+                   
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='ViewBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='View' " +
+                                "data-bs-toggle='modal' " +
+                                "data-bs-target='#addNewContact' " +
+                                "onclick='showRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
+                                "<i class='fa fa-eye text-secondary'></i>" +
+                                "</a>&nbsp;&nbsp;&nbsp;";
+                      
+
+                        temp += "<a href='javascript:void(0);' " +
+                            "class='DeleteBtn' " +
+                                "data-toggle='tooltip' " +
+                                "data-placement='top' " +
+                                "title='Delete' " +
+                                "onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
+                                "<i class='icon-x-circle text-danger'></i>" +
+                                "</a>";
+                   
+
+                        temp += "</div></td>";
+                        temp += "<td>" + response.listDesignColorMatchingForm[i].DateandTimes + "</td>";
+                        temp += "<td>" + response.listDesignColorMatchingForm[i].DesignerCode + response.listDesignColorMatchingForm[i].DesignNo + "</td>";
+                        temp += "<td><img src='" + response.listDesignColorMatchingForm[i].PhotoOfDesign + "' style='width:50px; height:50px;'></td>";
+
+                        //temp += "<td>" + response.listDesignColorMatchingForm[i].PickOnLoom + "</td>";
+                        //temp += "<td>" + response.listDesignColorMatchingForm[i].TotalCard + "</td>";
+                        //temp += "<td>" + response.listDesignColorMatchingForm[i].WarpQuality + "</td>";
+
+
+                        var MatchingId = "";
+                        var WarpMatchingID = "";
+                        var FeederMatchingID = "";
+                        for (var j = 0; j < response.listDesignColorMatchingForm[i].MatchingID.split(',').length; j++) {
+                            var SrNos = j + 1;
+                            MatchingId += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].WarpMatchingID.split(',')[j] + " <b>-</b> " + response.listDesignColorMatchingForm[i].FeederMatchingID.split(',')[j] + "<br />";
+                            WarpMatchingID += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].WarpMatchingID.split(',')[j] + "<br />";
+                            FeederMatchingID += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].FeederMatchingID.split(',')[j] + "<br />";
+                        }
+
+
+
+                        temp += "<td>" + MatchingId + "</td>";
+                        temp += "<td>" + WarpMatchingID + "</td>";
+                        temp += "<td>" + FeederMatchingID + "</td>";
+
+
+                        temp += "</tr>";
+
+                    }
+                    $("#copy-print-csv tbody").empty();
+                    $("#copy-print-csv tbody").append(temp);
+                    var permission = getCookie("PagePermission");
+                    if (permission) {
+                        var currentPagePermission = JSON.parse(permission);
+                        if (currentPagePermission.Add == false) { $("#AddColorMatching").hide(); }
+                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
+                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
+                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                    }
+                    renderPaginationControls();
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+        }
+        var total = 0;
+        var Paggination = 0;
+        var prevNo = 0;
+        var nextNo = 0;
+        var SelectNo = 1;
+        var PageNo = 0;
+
+        //Display Paggination
+        function displayPagginationData() {
+
+            var searchdesignNo = $("#search-design-no").val();
+
+            var formData = new FormData();
+            formData.append('SearchString', searchdesignNo);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorMatchingFormPaggination',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (!response.listPagginationMaster || response.listPagginationMaster.length === 0 || response.listPagginationMaster[0].Paggination == "0" || response.listPagginationMaster[0].Paggination == 0) {
+                        total = 0;
+                        Paggination = 0;
+                        renderPaginationControls();
+                    }
+                    else {
+                        total = parseInt(response.listPagginationMaster[0].Total) || 0;
+                        Paggination = parseInt(response.listPagginationMaster[0].Paggination) || 0;
+                        renderPaginationControls();
+                    }
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+>>>>>>> origin/master
 
                 }
             });
         }
 
+<<<<<<< HEAD
     }
     //function printModalBody() {
 
@@ -1565,4 +2109,1155 @@
 </script>
 
 
+=======
+        function renderPaginationControls() {
+            $("#lblTotalCount").text(total);
+            if ($("#lblTotalCountSummary").length) $("#lblTotalCountSummary").text(total);
+
+            var startRecord = (total === 0) ? 0 : ((SelectNo - 1) * 30 + 1);
+            var endRecord = Math.min(SelectNo * 30, total);
+            $("#lblShowingInfo").text("Showing " + startRecord + " to " + endRecord + " of " + total + " entries");
+
+            $("#btnFirstPage").prop("disabled", SelectNo <= 1 || Paggination <= 1);
+            $("#btnPrevPage").prop("disabled", SelectNo <= 1 || Paggination <= 1);
+            $("#btnNextPage").prop("disabled", SelectNo >= Paggination || Paggination <= 1);
+            $("#btnLastPage").prop("disabled", SelectNo >= Paggination || Paggination <= 1);
+
+            var $container = $("#paginationNumbers");
+            $container.empty();
+
+            if (Paggination <= 1) return;
+
+            var maxButtons = 5;
+            var startPage = Math.max(1, SelectNo - Math.floor(maxButtons / 2));
+            var endPage = startPage + maxButtons - 1;
+
+            if (endPage > Paggination) {
+                endPage = Paggination;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (var p = startPage; p <= endPage; p++) {
+                var activeClass = (p === SelectNo) ? " active" : "";
+                $container.append('<button type="button" class="pagination-btn' + activeClass + '" onclick="funcationPaggination(' + p + ')">' + p + '</button>');
+            }
+        }
+
+        //Select Paggination
+        function funcationPaggination(abc) {
+            SelectNo = abc;
+            var rowStart = (abc - 1) * 30;
+            $("#rowStartCount").val(rowStart);
+            displayData(rowStart);
+            renderPaginationControls();
+        }
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#editbtn").hide();
+            $("#addNewContactLabel").html("Add Color Matching Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+        function showRecords(id) {
+
+            clearAll();
+            $("#edit-id").val(id);
+            $("#saveViewbtn").hide();
+            $("#savebtn").hide();
+            $("#editbtn").show();
+            $("#addNewContactLabel").html("Design Color Matching Form");
+
+
+            var DecryptID = "";
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getEncryptID?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    //window.location.href = 'UpdatePurchaseInvoice?id=' + response.listEncryptDecrypt[0].DecryptID;
+                    ViewRecordQueryString(DecryptID);
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+
+
+
+
+
+        }
+        var ArrayYarnColor = [];
+        function getYarnColor() {
+
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    //console.log(response);
+                    //alert(response.Code);
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+
+                    if (response.Code == "200") {
+
+                        //Design No
+                        if (response.listYarnColorMaster.length > 0) {
+                            var tempDesignNo = "";
+
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+
+
+        }
+        function ViewRecordQueryString(DecryptID) {
+
+
+            var formData = new FormData();
+            formData.append('DesignColorMatchingFormID', DecryptID);
+
+            var PartyId = 0;
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorMatchingFormDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+
+                    //alert(response.listDesignColorMatchingForm.length);
+                    var userTable = $('#TblUser');
+
+
+                    for (var i = 0; i < response.listDesignColorMatchingForm.length; i++) {
+
+
+                        /* ---------- View Party Details ---------- */
+
+
+                        $("#PhotoOfDesign-preview").html("<img src='" + response.listDesignColorMatchingForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
+
+
+                        $("#warnquality").html(response.listDesignColorMatchingForm[i].WarpQuality);
+                        $("#DesignDate").html(response.listDesignColorMatchingForm[i].DesignDates);
+                        $("#DesignerID").html(response.listDesignColorMatchingForm[i].DesignerName);
+                        $("#Sketcher").html(response.listDesignColorMatchingForm[i].Sketcher);
+                        $("#DesignNo").html(response.listDesignColorMatchingForm[i].DesignerCode + response.listDesignColorMatchingForm[i].DesignNo);
+                        $("#DesignCategory").html(response.listDesignColorMatchingForm[i].DesignCategory);
+
+                        $("#PickOnLoom").html(response.listDesignColorMatchingForm[i].PickOnLoom);
+                        $("#TotalCard").html(response.listDesignColorMatchingForm[i].TotalCard);
+                        //$("#AveragePic").html(response.listDesignColorMatchingForm[i].AveragePic);
+                        //$("#ReedOnLoom").html(response.listDesignColorMatchingForm[i].ReedOnLoom);
+                        $("#type").html(response.listDesignColorMatchingForm[i].Type);
+
+
+                        $("#warpLength").val(response.listDesignColorMatchingForm[i].TotalWarp);
+                        $("#weftLength").val(response.listDesignColorMatchingForm[i].TotalWeft);
+                        $("#ColorArray").val(response.listDesignColorMatchingForm[i].ColorArray);
+
+                        var weftLength = response.listDesignColorMatchingForm[i].TotalWeft;
+                        var warpLength = response.listDesignColorMatchingForm[i].TotalWarp;
+
+                        var WarpCheckBox = response.listDesignColorMatchingForm[i].WarpCheckBox;
+                        var WeftCheckBox = response.listDesignColorMatchingForm[i].WeftCheckBox;
+
+                        var WarSrNo = 1;
+                        /* ---------- Design Form Warp Data ---------- */
+                        var tempColorMatching = '';
+
+
+
+                        var sumWarpWeft = parseInt(warpLength) + parseInt(weftLength);
+                        if (sumWarpWeft > 0) {
+
+                            var tempColorMatching = "";
+                            tempColorMatching += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
+                            tempColorMatching += '<thead>';
+                            //Table Heading
+                            tempColorMatching += '<tr>';
+                            tempColorMatching += ' <th>	<br />';
+                            tempColorMatching += ' </th>';
+
+                            for (var wa = 0; wa < warpLength; wa++) {
+
+
+                                var no = parseInt(wa) + parseInt(1);
+                                tempColorMatching += '<th>';
+                                tempColorMatching += '<div class="field-wrapper" style="margin-bottom: 5px; margin-top:0;">';
+                                tempColorMatching += '<span class="field-placeholder" style="  border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">WARP-' + no + '</span>';
+                                tempColorMatching += '</div>';
+                                tempColorMatching += '</th>';
+
+                            }
+
+                            tempColorMatching += '<th style="background-color: #c8d3df;"><br /></th>';
+
+                            for (var we = 0; we < weftLength; we++) {
+                                var no = parseInt(we) + parseInt(1);
+
+
+                                tempColorMatching += '<th>';
+                                tempColorMatching += '<div class="field-wrapper" style="margin-bottom: 5px; margin-top: 0;">';
+                                tempColorMatching += '<span class="field-placeholder" style=" border: 1px solid black; border-radius: 0; padding: 0px 12px 0px 12px; width: 90%; text-align: center;">FEEDER-' + no + '</span>';
+                                tempColorMatching += '</div>';
+                                tempColorMatching += '</th>';
+
+
+                            }
+
+                            tempColorMatching += '</tr>';
+
+
+                            //Table CheckBox
+                            tempColorMatching += '<tr>';
+                            tempColorMatching += ' <th><br />';
+                            tempColorMatching += ' </th>';
+
+                            for (var wach = 0; wach < warpLength; wach++) {
+
+
+                                var wchk = WarpCheckBox.split("|")[wach];
+
+                                var no = parseInt(wach) + parseInt(1);
+                                if (wach == 0) {
+                                    tempColorMatching += '<th></th>';
+                                }
+                                else {
+
+                                    tempColorMatching += '<th>';
+                                    tempColorMatching += '<center>';
+                                    if (wchk == "1") {
+                                        tempColorMatching += '<input class="form-check-input" type="checkbox" id="chkwarp' + no + '" style="transform: scale(1.3);" onchange="onchangeCHKWarp()" checked disabled>';
+                                    }
+                                    else {
+                                        tempColorMatching += '<input class="form-check-input" type="checkbox" id="chkwarp' + no + '" style="transform: scale(1.3);" onchange="onchangeCHKWarp()" disabled>';
+                                    }
+                                    tempColorMatching += '</center>';
+                                    tempColorMatching += '</th>';
+
+                                }
+
+                            }
+
+                            tempColorMatching += '<th style="background-color: #c8d3df;"><br /></th>';
+
+                            for (var wech = 0; wech < weftLength; wech++) {
+                                var no = parseInt(wech) + parseInt(1);
+
+                                var wchk = WeftCheckBox.split("|")[wech];
+                                //alert("Weft " + wchk);
+                                if (response.listDesignColorMatchingForm[0].listDesignEntryWeftData[wech].DesignSpecification == "GROUND") {
+                                    tempColorMatching += '<th></th>';
+                                }
+                                else {
+                                    tempColorMatching += '<th>';
+                                    tempColorMatching += '<center>';
+                                    if (wchk == "1") {
+                                        tempColorMatching += '<input class="form-check-input" type="checkbox" id="chkweft' + no + '" style="transform: scale(1.3);" onchange="onchangeCHKWeft()" checked disabled>';
+                                    }
+                                    else {
+                                        tempColorMatching += '<input class="form-check-input" type="checkbox" id="chkweft' + no + '" style="transform: scale(1.3);" onchange="onchangeCHKWeft()" disabled>';
+                                    }
+
+                                    tempColorMatching += '</center>';
+                                    tempColorMatching += '</th>';
+                                }
+                            }
+
+                            tempColorMatching += '</tr>';
+
+
+                            //Table Weft and Warp Data
+                            tempColorMatching += '<tr>';
+                            tempColorMatching += '<th><br /></th>';
+
+                            for (var waData = 0; waData < warpLength; waData++) {
+
+                                var no = parseInt(waData) + parseInt(1);
+                                tempColorMatching += '<th>';
+                                tempColorMatching += '<center>';
+                                tempColorMatching += '<input type="text" id="warp' + no + '" class="form-control" onfocusout="validate(this)" value="' + response.listDesignColorMatchingForm[0].listDesignFormWarpData[waData].YarnMaterial + '" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>';
+                                tempColorMatching += '<input type="hidden" id="warpid' + no + '" class="form-control" value="' + response.listDesignColorMatchingForm[0].listDesignFormWarpData[waData].DesignEntryWarpID + '">';
+                                tempColorMatching += '</center>';
+                                tempColorMatching += '</th>';
+                            }
+
+                            tempColorMatching += '<th style="background-color: #c8d3df;"><br /></th>';
+
+
+
+                            for (var weData = 0; weData < weftLength; weData++) {
+                                var no = parseInt(weData) + parseInt(1);
+                                tempColorMatching += '<th>';
+                                tempColorMatching += '<center>';
+                                tempColorMatching += '<span id="spanDesignSpecification' + no + '" style="margin-left: 5px; color: #6f7479; font-size: 0.725rem; font-weight: 500;">' + response.listDesignColorMatchingForm[0].listDesignEntryWeftData[weData].DesignSpecification + '</span>';
+                                tempColorMatching += '<input type="text" id="feeder' + no + '" class="form-control" onfocusout="validate(this)" value="' + response.listDesignColorMatchingForm[0].listDesignEntryWeftData[weData].YarnMaterial + '" style=" margin-top: 3px; min-height: 30px; width: 90%; font-size: x-small; background-color: #e5f0ff;" readonly>';
+                                tempColorMatching += '<input type="hidden" id="feederid' + no + '" class="form-control" value="' + response.listDesignColorMatchingForm[0].listDesignEntryWeftData[weData].DesignEntryWeftID + '">';
+                                tempColorMatching += '</center>';
+                                tempColorMatching += '</th>';
+                            }
+
+                            tempColorMatching += '</tr>';
+
+                            tempColorMatching += '</thead>';
+
+
+
+
+
+
+
+                            //Color Matching
+                            tempColorMatching += '<tbody id="tblColorMatching">';
+
+                            for (var ca = 0; ca < response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails.length; ca++) {
+                                var SrNo = ca + 1;
+
+                                tempColorMatching += '<tr id="trMatching' + SrNo + '">';
+                                tempColorMatching += '<td></td>';
+
+
+                                for (var waColor = 0; waColor < warpLength; waColor++) {
+                                    var no = parseInt(waColor) + parseInt(1);
+
+                                    if (waColor == 0) {
+                                        tempColorMatching += '<td>';
+                                        tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; background-color: white; border-radius: 10px; padding: 0px 5px 1.5px 5px;">Matching ' + SrNo + '</span>';
+                                        tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matching' + SrNo + 'ID">' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].WarpMatchingID + '</span>';
+                                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;gap:5px;">';
+
+                                        var WaMatchingid = "";
+
+                                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+
+                                            var WarpValue = "";
+                                            if (no == 1) {
+                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp1;
+                                            }
+                                            else
+                                                if (no == 2) {
+                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp2;
+                                                }
+                                                else
+                                                    if (no == 3) {
+                                                        WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp3;
+                                                    }
+                                                    else
+                                                        if (no == 4) {
+                                                            WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp4;
+                                                        }
+                                                        else
+                                                            if (no == 5) {
+                                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp5;
+                                                            }
+                                                            else
+                                                                if (no == 6) {
+                                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp6;
+                                                                }
+
+                                                                else
+                                                                    if (no == 7) {
+                                                                        WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp7;
+                                                                    }
+                                                                    else
+                                                                        if (no == 8) {
+                                                                            WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp8;
+                                                                        }
+                                                                        else
+                                                                            if (no == 9) {
+                                                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp9;
+                                                                            }
+                                                                            else
+                                                                                if (no == 10) {
+                                                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp10;
+                                                                                }
+
+
+                                            var mainString = ArrayYarnColor[0][i].YarnColorID;
+                                            var searchString = WarpValue;
+
+                                            if (ArrayYarnColor[0][i].YarnColorID == WarpValue) {
+
+                                                var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
+                                                var YarnColor = ArrayYarnColor[0][i].YarnColor;
+
+                                                tempColorMatching += '<div id="tdMatchingWarp' + SrNo + '' + no + '" style="background-color: ' + YarnColorCode + '; width: 25px;height: 25px; border-radius:3px;"></div>';
+                                                tempColorMatching += '<span style="font-size: medium;">' + YarnColor + '</span>';
+
+                                            }
+
+
+                                        }
+
+                                        tempColorMatching += '</div>';
+                                        tempColorMatching += '</td>';
+                                    }
+                                    else {
+                                        tempColorMatching += '<td>';
+                                        tempColorMatching += '<br />';
+                                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;gap:5px;">';
+
+
+
+                                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+
+                                            var WarpValue = "";
+                                            if (no == 1) {
+                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp1;
+                                            }
+                                            else
+                                                if (no == 2) {
+                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp2;
+                                                }
+                                                else
+                                                    if (no == 3) {
+                                                        WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp3;
+                                                    }
+                                                    else
+                                                        if (no == 4) {
+                                                            WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp4;
+                                                        }
+                                                        else
+                                                            if (no == 5) {
+                                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp5;
+                                                            }
+                                                            else
+                                                                if (no == 6) {
+                                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp6;
+                                                                }
+                                                                else
+                                                                    if (no == 7) {
+                                                                        WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp7;
+                                                                    }
+                                                                    else
+                                                                        if (no == 8) {
+                                                                            WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp8;
+                                                                        }
+                                                                        else
+                                                                            if (no == 9) {
+                                                                                WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp9;
+                                                                            }
+                                                                            else
+                                                                                if (no == 10) {
+                                                                                    WarpValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Warp10;
+                                                                                }
+
+
+                                            var mainString = ArrayYarnColor[0][i].YarnColorID;
+                                            var searchString = WarpValue;
+
+                                            if (ArrayYarnColor[0][i].YarnColorID == WarpValue) {
+
+                                                var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
+                                                var YarnColor = ArrayYarnColor[0][i].YarnColor;
+
+                                                tempColorMatching += '<div id="tdMatchingWarp' + SrNo + '' + no + '" style="background-color:' + YarnColorCode + '; width: 25px;height: 25px; border-radius:3px;"></div>';
+                                                tempColorMatching += '<span style="font-size: medium;">' + YarnColor + '</span>';
+
+                                            }
+
+
+                                        }
+
+                                        tempColorMatching += '</div>';
+                                        tempColorMatching += '</td>';
+                                    }
+                                    SrNo = no;
+                                }
+
+
+
+
+
+
+
+
+                                tempColorMatching += '<td style="background-color: #c8d3df;"><br /></td>';
+
+                                for (var weColor = 0; weColor < weftLength; weColor++) {
+                                    var no = parseInt(weColor) + parseInt(1);
+
+
+                                    if (weColor == 0) {
+                                        tempColorMatching += '<td>';
+                                        tempColorMatching += '<span style="margin-left: 5px; font-weight: 600; color: #1273eb; display:none;" id="matchingWeft' + SrNo + 'ID">' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].FeederMatchingID + '</span>';
+                                        tempColorMatching += '<br />';
+                                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;gap:5px;">';
+
+                                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+
+                                            //alert(response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder1);
+
+                                            var FeederValue = "";
+                                            if (no == 1) {
+                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder1;
+                                            }
+                                            else
+                                                if (no == 2) {
+                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder2;
+                                                }
+                                                else
+                                                    if (no == 3) {
+                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder3;
+                                                    }
+                                                    else
+                                                        if (no == 4) {
+                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder4;
+                                                        }
+                                                        else
+                                                            if (no == 5) {
+                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder5;
+                                                            }
+                                                            else
+                                                                if (no == 6) {
+                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder6;
+                                                                }
+
+                                                                else
+                                                                    if (no == 7) {
+                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder7;
+                                                                    }
+                                                                    else
+                                                                        if (no == 8) {
+                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder8;
+                                                                        }
+                                                                        else
+                                                                            if (no == 9) {
+                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder9;
+                                                                            }
+                                                                            else
+                                                                                if (no == 10) {
+                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder10;
+                                                                                }
+                                                                                else
+                                                                                    if (no == 11) {
+                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder11;
+                                                                                    }
+                                                                                    else
+                                                                                        if (no == 12) {
+                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder12;
+                                                                                        }
+                                                                                        else
+                                                                                            if (no == 13) {
+                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder13;
+                                                                                            }
+                                                                                            else
+                                                                                                if (no == 14) {
+                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder14;
+                                                                                                }
+                                                                                                else
+                                                                                                    if (no == 15) {
+                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder15;
+                                                                                                    }
+                                                                                                    else
+                                                                                                        if (no == 16) {
+                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder16;
+                                                                                                        }
+
+                                                                                                        else
+                                                                                                            if (no == 17) {
+                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder17;
+                                                                                                            }
+                                                                                                            else
+                                                                                                                if (no == 18) {
+                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder18;
+                                                                                                                }
+                                                                                                                else
+                                                                                                                    if (no == 19) {
+                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder19;
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                        if (no == 20) {
+                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder20;
+                                                                                                                        }
+                                                                                                                        else
+                                                                                                                            if (no == 21) {
+                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder21;
+                                                                                                                            }
+                                                                                                                            else
+                                                                                                                                if (no == 22) {
+                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder22;
+                                                                                                                                }
+                                                                                                                                else
+                                                                                                                                    if (no == 23) {
+                                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder23;
+                                                                                                                                    }
+                                                                                                                                    else
+                                                                                                                                        if (no == 24) {
+                                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder24;
+                                                                                                                                        }
+                                                                                                                                        else
+                                                                                                                                            if (no == 25) {
+                                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder25;
+                                                                                                                                            }
+                                                                                                                                            else
+                                                                                                                                                if (no == 26) {
+                                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder26;
+                                                                                                                                                }
+
+                                                                                                                                                else
+                                                                                                                                                    if (no == 27) {
+                                                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder27;
+                                                                                                                                                    }
+                                                                                                                                                    else
+                                                                                                                                                        if (no == 28) {
+                                                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder28;
+                                                                                                                                                        }
+                                                                                                                                                        else
+                                                                                                                                                            if (no == 29) {
+                                                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder29;
+                                                                                                                                                            }
+                                                                                                                                                            else
+                                                                                                                                                                if (no == 30) {
+                                                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder30;
+                                                                                                                                                                }
+
+
+                                            var mainString = ArrayYarnColor[0][i].YarnColorID;
+                                            var searchString = FeederValue;
+
+
+                                            if (ArrayYarnColor[0][i].YarnColorID == FeederValue) {
+
+                                                var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
+                                                var YarnColor = ArrayYarnColor[0][i].YarnColor;
+
+                                                tempColorMatching += '<div id="tdMatchingWeft' + SrNo + '' + no + '" style="background-color:' + YarnColorCode + '; width: 25px;height: 25px; border-radius:3px;"></div>';
+                                                tempColorMatching += '<span style="font-size: medium;" id="MatchingWeft' + SrNo + '' + no + '">' + YarnColor + '</span>';
+
+                                            }
+
+                                        }
+
+                                        tempColorMatching += '</div>';
+                                        tempColorMatching += '</td>';
+
+                                    }
+                                    else {
+                                        tempColorMatching += '<td>';
+
+                                        tempColorMatching += '<br />';
+                                        tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;gap:5px;">';
+                                        for (var i = 0; i < ArrayYarnColor[0].length; i++) {
+
+
+                                            var FeederValue = "";
+                                            if (no == 1) {
+                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder1;
+                                            }
+                                            else
+                                                if (no == 2) {
+                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder2;
+                                                }
+                                                else
+                                                    if (no == 3) {
+                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder3;
+                                                    }
+                                                    else
+                                                        if (no == 4) {
+                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder4;
+                                                        }
+                                                        else
+                                                            if (no == 5) {
+                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder5;
+                                                            }
+                                                            else
+                                                                if (no == 6) {
+                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder6;
+                                                                }
+
+                                                                else
+                                                                    if (no == 7) {
+                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder7;
+                                                                    }
+                                                                    else
+                                                                        if (no == 8) {
+                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder8;
+                                                                        }
+                                                                        else
+                                                                            if (no == 9) {
+                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder9;
+                                                                            }
+                                                                            else
+                                                                                if (no == 10) {
+                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder10;
+                                                                                }
+                                                                                else
+                                                                                    if (no == 11) {
+                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder11;
+                                                                                    }
+                                                                                    else
+                                                                                        if (no == 12) {
+                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder12;
+                                                                                        }
+                                                                                        else
+                                                                                            if (no == 13) {
+                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder13;
+                                                                                            }
+                                                                                            else
+                                                                                                if (no == 14) {
+                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder14;
+                                                                                                }
+                                                                                                else
+                                                                                                    if (no == 15) {
+                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder15;
+                                                                                                    }
+                                                                                                    else
+                                                                                                        if (no == 16) {
+                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder16;
+                                                                                                        }
+
+                                                                                                        else
+                                                                                                            if (no == 17) {
+                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder17;
+                                                                                                            }
+                                                                                                            else
+                                                                                                                if (no == 18) {
+                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder18;
+                                                                                                                }
+                                                                                                                else
+                                                                                                                    if (no == 19) {
+                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder19;
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                        if (no == 20) {
+                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder20;
+                                                                                                                        }
+                                                                                                                        else
+                                                                                                                            if (no == 21) {
+                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder21;
+                                                                                                                            }
+                                                                                                                            else
+                                                                                                                                if (no == 22) {
+                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder22;
+                                                                                                                                }
+                                                                                                                                else
+                                                                                                                                    if (no == 23) {
+                                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder23;
+                                                                                                                                    }
+                                                                                                                                    else
+                                                                                                                                        if (no == 24) {
+                                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder24;
+                                                                                                                                        }
+                                                                                                                                        else
+                                                                                                                                            if (no == 25) {
+                                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder25;
+                                                                                                                                            }
+                                                                                                                                            else
+                                                                                                                                                if (no == 26) {
+                                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder26;
+                                                                                                                                                }
+
+                                                                                                                                                else
+                                                                                                                                                    if (no == 27) {
+                                                                                                                                                        FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder27;
+                                                                                                                                                    }
+                                                                                                                                                    else
+                                                                                                                                                        if (no == 28) {
+                                                                                                                                                            FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder28;
+                                                                                                                                                        }
+                                                                                                                                                        else
+                                                                                                                                                            if (no == 29) {
+                                                                                                                                                                FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder29;
+                                                                                                                                                            }
+                                                                                                                                                            else
+                                                                                                                                                                if (no == 30) {
+                                                                                                                                                                    FeederValue = response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[ca].Feeder30;
+                                                                                                                                                                }
+
+
+                                            var mainString = ArrayYarnColor[0][i].YarnColorID;
+                                            var searchString = FeederValue;
+
+                                            if (ArrayYarnColor[0][i].YarnColorID == FeederValue) {
+
+                                                var YarnColorCode = "#" + ArrayYarnColor[0][i].YarnColorCode;
+                                                var YarnColor = ArrayYarnColor[0][i].YarnColor;
+
+                                                tempColorMatching += '<div id="tdMatchingWeft' + SrNo + '' + no + '" style="background-color:' + YarnColorCode + '; width: 25px;height: 25px; border-radius:3px;"></div>';
+                                                tempColorMatching += '<span style="font-size: medium;" id="MatchingWeft' + SrNo + '' + no + '">' + YarnColor + '</span>';
+
+                                            }
+
+                                        }
+                                        tempColorMatching += '</div>';
+                                        tempColorMatching += '</td>';
+                                    }
+
+
+                                    SrNo = no;
+                                }
+
+                                tempColorMatching += '</tr>';
+
+
+
+                            }
+
+
+                            tempColorMatching += '</tbody>';
+
+
+
+
+
+
+
+
+                            //tempColorMatching += '<tfoot>';
+                            ////Table Footer
+                            //tempColorMatching += '<tr>';
+                            //tempColorMatching += ' <th>	<br />';
+                            //tempColorMatching += ' </th>';
+
+
+                            //var TotalWaWe = parseInt(warpLength) + parseInt(weftLength);
+                            //var no = parseInt(wa) + parseInt(1);
+                            //tempColorMatching += '<th colspan="' + TotalWaWe + '">';
+                            //tempColorMatching += '<div class="field-wrapper" style="margin-bottom: 5px; margin-top:0;">';
+                            //tempColorMatching += '<span class="field-placeholder" style="position: relative; padding: 0px 12px 0px 12px; width: 90%; text-align: center; color:red; font-size: medium;" id="spanDuplicate"></span>';
+                            //tempColorMatching += '</div>';
+                            //tempColorMatching += '</th>';
+                            //tempColorMatching += '</tr>';
+                            //tempColorMatching += '</tfoot>';
+
+
+                            tempColorMatching += '</table>';
+                            console.log(tempColorMatching);
+                            $("#divColorMatchingTable").html(tempColorMatching);
+
+
+
+
+                            //$("#divAddColorMatching").show();
+                            //$("#txtColorArray").val('1|');
+                        }
+
+
+                        // $("#divMatchingColor").html(tempColorMatching);
+
+
+
+
+
+                    }
+
+
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+
+        }
+        function showEditRecords(id) {
+
+            var DecryptID = "";
+
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getDesignColor?id=' + id,
+                data: "{ 'id':'" + id + "' }",
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log(response);
+                    //DecryptID = response.listEncryptDecrypt[0].DecryptID;
+                    window.location.href = '/UpdateDesignColorMatching';
+
+                },
+                error: function (request, status, error) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong while loading data.",
+                        footer: request.status + " - " + (error || request.statusText)
+                    });
+
+                }
+            });
+        }
+        function functionUserDelete(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to recover this record!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, Delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    var formData = new FormData();
+                    formData.append("DesignColorMatchingFormID", id);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/WebServiceNikunjTextile.asmx/DeleteDesignColorMatchingFormMaster",
+                        data: formData,
+                        dataType: "json",
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+
+                            if (response.Code == 200) {
+
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Color Matching Form deleted successfully.",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    displayData(0);
+                                });
+
+                            } else {
+
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Delete Failed",
+                                    text: response.Message || "Problem occurred while deleting the Color Matching Form."
+                                });
+
+                            }
+                        },
+                        error: function (request, status, error) {
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Something went wrong while deleting the record.",
+                                footer: request.status + " - " + (error || request.statusText)
+                            });
+
+                        }
+                    });
+
+                }
+
+            });
+
+        }
+        //function printModalBody() {
+
+        //    var printContents = document.querySelector(".modal-body").innerHTML;
+        //    var originalContents = document.body.innerHTML;
+
+        //    document.body.innerHTML = printContents;
+
+        //    window.print();
+
+        //    document.body.innerHTML = originalContents;
+        //    location.reload();
+        //}
+
+
+        function printModalBody() {
+
+            var table = document.querySelector(".modal-body").innerHTML;
+
+            var html = `
+        <html>
+        <head>
+            <meta charset="UTF-8">
+        </head>
+        <body>
+            ${table}
+        </body>
+        </html>`;
+
+            var blob = new Blob([html], {
+                type: "application/vnd.ms-excel"
+            });
+
+            var url = URL.createObjectURL(blob);
+
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "DesignColorMatching.xls";
+            a.click();
+
+            URL.revokeObjectURL(url);
+
+        }
+
+        function downloadModalAsImage() {
+            var element = document.getElementById("printArea") || document.querySelector(".modal-body");
+            if (!element) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Modal content not found!' });
+                } else {
+                    alert('Modal content not found!');
+                }
+                return;
+            }
+
+            var $btn = $("#btnDownloadImage");
+            var originalBtnHtml = $btn.html();
+            $btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Generating Image...');
+
+            var cloneWrapper = document.createElement("div");
+            cloneWrapper.style.position = "fixed";
+            cloneWrapper.style.left = "-9999px";
+            cloneWrapper.style.top = "0px";
+            cloneWrapper.style.width = Math.max(element.scrollWidth, 1200) + "px";
+            cloneWrapper.style.height = "auto";
+            cloneWrapper.style.zIndex = "-9999";
+            cloneWrapper.style.backgroundColor = "#ffffff";
+            cloneWrapper.style.overflow = "visible";
+
+            var clone = element.cloneNode(true);
+            clone.id = "printArea_clone_download";
+            clone.style.height = "auto";
+            clone.style.maxHeight = "none";
+            clone.style.overflow = "visible";
+            clone.style.padding = "20px";
+            clone.style.backgroundColor = "#ffffff";
+
+            var origInputs = element.querySelectorAll('input, select, textarea');
+            var cloneInputs = clone.querySelectorAll('input, select, textarea');
+            for (var i = 0; i < origInputs.length; i++) {
+                if (origInputs[i].tagName === 'INPUT' || origInputs[i].tagName === 'TEXTAREA') {
+                    cloneInputs[i].value = origInputs[i].value;
+                    if (origInputs[i].type === 'checkbox' || origInputs[i].type === 'radio') {
+                        cloneInputs[i].checked = origInputs[i].checked;
+                    }
+                } else if (origInputs[i].tagName === 'SELECT') {
+                    cloneInputs[i].selectedIndex = origInputs[i].selectedIndex;
+                }
+            }
+
+            var children = clone.querySelectorAll('*');
+            children.forEach(function (child) {
+                child.style.maxHeight = "none";
+                child.style.overflow = "visible";
+                if (child.classList.contains('table-responsive')) {
+                    child.style.overflow = "visible";
+                }
+            });
+
+            cloneWrapper.appendChild(clone);
+            document.body.appendChild(cloneWrapper);
+
+            function triggerCapture() {
+                setTimeout(function () {
+                    var fullHeight = Math.max(cloneWrapper.scrollHeight, cloneWrapper.offsetHeight, clone.scrollHeight);
+                    var fullWidth = Math.max(cloneWrapper.scrollWidth, cloneWrapper.offsetWidth, clone.scrollWidth);
+
+                    html2canvas(cloneWrapper, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: "#ffffff",
+                        width: fullWidth,
+                        height: fullHeight,
+                        windowWidth: fullWidth,
+                        windowHeight: fullHeight,
+                        scrollX: 0,
+                        scrollY: 0
+                    }).then(function (canvas) {
+                        if (document.body.contains(cloneWrapper)) {
+                            document.body.removeChild(cloneWrapper);
+                        }
+
+                        $btn.prop("disabled", false).html(originalBtnHtml);
+
+                        var image = canvas.toDataURL("image/png");
+                        var link = document.createElement("a");
+                        var designNo = ($("#DesignNo").text() || "").trim() || "DesignColorMatching";
+                        link.download = designNo + "_ColorMatching.png";
+                        link.href = image;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }).catch(function (err) {
+                        if (document.body.contains(cloneWrapper)) {
+                            document.body.removeChild(cloneWrapper);
+                        }
+
+                        $btn.prop("disabled", false).html(originalBtnHtml);
+
+                        console.error("html2canvas error:", err);
+                        alert("Error generating image.");
+                    });
+                }, 150);
+            }
+
+            if (typeof html2canvas === 'undefined') {
+                var script = document.createElement('script');
+                script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+                script.onload = function () {
+                    triggerCapture();
+                };
+                script.onerror = function () {
+                    if (document.body.contains(cloneWrapper)) {
+                        document.body.removeChild(cloneWrapper);
+                    }
+                    $btn.prop("disabled", false).html(originalBtnHtml);
+                    alert("Failed to load html2canvas library.");
+                };
+                document.head.appendChild(script);
+            } else {
+                triggerCapture();
+            }
+        }
+    </script>
+
+    }
+>>>>>>> origin/master
 

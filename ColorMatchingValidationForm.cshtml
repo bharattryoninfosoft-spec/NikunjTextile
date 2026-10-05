@@ -82,6 +82,7 @@
                                         </select>
                                     </div>
                                 </div>
+<<<<<<< HEAD
 
 
                             </div>
@@ -95,23 +96,37 @@
 
 
 
+=======
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+>>>>>>> origin/master
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <!-- Field wrapper start -->
                             <br />
                             <br />
                             <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
                                 <div class="dropzone needsclick dz-clickable" id="demo-upload">
                                     <div class="dz-message needsclick" style="text-align: center;">
                                         <label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default" style=" width: 100%; padding-top: 80px;">Photo Of Design.</label>
                                     </div>
                                 </div>
+<<<<<<< HEAD
 
                             </div>
                             <!-- Field wrapper end -->
                         </div>
 
 
+=======
+                            </div>
+                            <!-- Field wrapper end -->
+                        </div>
+>>>>>>> origin/master
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <br />
                             <br />
@@ -305,7 +320,11 @@
 
                                 <div class="row gutters">
                                     <div class="col-12">
+<<<<<<< HEAD
                                         <select class="form-control" style="min-height: 35px;" id="ColorGroup">
+=======
+                                        <select  class="select-single" style="min-height: 35px;" id="ColorGroup">
+>>>>>>> origin/master
                                             <option value="">Select Color Group</option>
                                         </select>
                                     </div>
@@ -354,6 +373,7 @@
 </div>
 
 
+<<<<<<< HEAD
 <!-- Bootstrap Select JS -->
 <script src="vendor/bs-select/bs-select.min.js"></script>
 <script src="vendor/bs-select/bs-select-custom.js"></script>
@@ -501,12 +521,151 @@
         }
         else
             if (code.value == "") {
+=======
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var currentPagePermission = {};
+        $(document).ready(function () {
+
+            var permission = getCookie("PagePermission");
+            if (permission != null && permission != "") {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) {
+                    $("#savebtn").hide();
+                }
+
+            }
+
+            FunctionIsLogin();
+
+            //getDesignEntryForm();
+
+            //getDefaultCompany();
+
+            getDesignEntryForm();
+            getYarnColor();
+            getColorGroup();
+        });
+
+        var notes = $('#notes').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+
+
+        var notess = $('#notess').notify({
+            removeIcon: '<i class="icon-close"></i>'
+        });
+
+
+
+
+
+
+
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    //$("#add-alert").removeClass("alert-success");
+                    //$("#add-alert").addClass("alert-danger");
+                    //$("#add-alert").html(response.Message);
+                    //$("#add-alert").show();
+
+                    notes.show(request.statusText, {
+                        type: 'danger',
+                        //title: 'Opps.!',
+                        //icon: '<i class="icon-alert-triangle"></i>'
+                    });
+
+
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+
+
+        function clearAll() {
+            getDefaultCompany();
+            $("#savebtn").show();
+            $("#Updatebtn").hide();
+            $("#addNewContactLabel").html("Add Design Entry Form");
+            $("#add-alert").hide();
+
+            $("#YarnColor").val('');
+
+            $(".company-invalid-feedback").hide();
+
+            $(".clear-field").removeClass("is-valid is-invalid");
+            $(".invalid-feedback").hide();
+            $(".valid-feedback").hide();
+        }
+
+        function validate(code) {
+            //alert(code);
+            //alert(code.id + "  " + code.value);
+            //console.log(code.id + " Hello");
+
+            code.value = code.value.replace(/\s+/g, ' ').trim();
+            var errorMessageValid = "." + code.id + "-valid-feedback";
+            var errorMessageInvalid = "." + code.id + "-invalid-feedback";
+            $(".invalid-feedback .valid-feedback").hide();
+
+            if (code.value == "0") {
+>>>>>>> origin/master
 
                 document.getElementById(code.id).classList.remove("is-valid");
                 document.getElementById(code.id).classList.add("is-invalid");
                 $(errorMessageInvalid).show();
                 return false;
             }
+<<<<<<< HEAD
             else {
                 document.getElementById(code.id).classList.add("is-valid");
                 document.getElementById(code.id).classList.remove("is-invalid");
@@ -704,10 +863,30 @@
         $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
         $("#upload-ColorMatching-default").val("");
     }
+=======
+            else
+                if (code.value == "") {
+
+                    document.getElementById(code.id).classList.remove("is-valid");
+                    document.getElementById(code.id).classList.add("is-invalid");
+                    $(errorMessageInvalid).show();
+                    return false;
+                }
+                else {
+                    document.getElementById(code.id).classList.add("is-valid");
+                    document.getElementById(code.id).classList.remove("is-invalid");
+                    $(errorMessageValid).show();
+                    $(errorMessageInvalid).hide();
+                    $(".company-invalid-feedback").show();
+                    return true;
+                }
+        }
+>>>>>>> origin/master
 
 
 
 
+<<<<<<< HEAD
     var listDesignColorMatchingDetails = [];
     var listDesignEntryWeftData = [];
 
@@ -737,12 +916,127 @@
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/getCreateColorMatchingFormDetails',
+=======
+        function getDesignEntryForm() {
+
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getExistsDesignNoForm',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    //console.log(response);
+                    //alert(response.Code);
+
+                    if (response.Code == "200") {
+
+                        var DesignColorMatchingFormIDs = "";
+                        var designNo = "";
+                        //Design No
+                        if (response.listDesignEntryForm.length > 0) {
+                            var tempDesignNo = "";
+                            tempDesignNo = "<option value=''> Select Designer No </option>";
+                            $('#DesignNo').append(tempDesignNo);
+                            for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+                                DesignColorMatchingFormIDs = response.listDesignEntryForm[i].DesignColorMatchingFormIDs;
+
+                                tempDesignNo = "<option value='" + response.listDesignEntryForm[i].DesignEntryFormID + "|" + response.listDesignEntryForm[i].DesignColorMatchingFormID + "'> " + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + " </option>";
+                                $('#DesignNo').append(tempDesignNo);
+
+                            }
+                        }
+
+                        //if (DesignColorMatchingFormIDs != "0") {
+                        //    getCookieDesignNo(designNo)
+                        //}
+                    }
+
+                },
+                error: function (request, status, error) {
+
+                    //window.location.href = 'SaleInvoice';
+
+                }
+            });
+
+        }
+
+
+
+        var ArrayYarnColor = [];
+
+        function getYarnColor() {
+
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMatching',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    //console.log(response);
+                    //alert(response.Code);
+                    ArrayYarnColor.push(response.listYarnColorMaster);
+
+                    if (response.Code == "200") {
+
+                        //Design No
+                        if (response.listYarnColorMaster.length > 0) {
+                            var tempDesignNo = "";
+                            //tempDesignNo = "<option value='' selected> Select Color </option>";
+                            //$('#WarpMaching1').append(tempDesignNo);
+                            //$('#WeftMaching1').append(tempDesignNo);
+                            //$('#Metching11').append(tempDesignNo);
+                            //for (var i = 0; i < response.listYarnColorMaster.length; i++) {
+
+                            //    tempDesignNo = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
+                            //    $('#WarpMaching1').append(tempDesignNo);
+                            //    $('#WeftMaching1').append(tempDesignNo);
+                            //    $('#Metching11').append(tempDesignNo);
+                            //}
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                    //window.location.href = 'SaleInvoice';
+
+                }
+            });
+
+
+
+
+
+        }
+
+
+
+        function getColorGroup() {
+
+            var formData = new FormData();
+            //formData.append('SaleInvoiceID', SaleInvoiceID);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getColorGroup',
+>>>>>>> origin/master
                 data: formData,
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     console.log(response);
+<<<<<<< HEAD
 
 
                     var imgStr = `<img src="https://weavelanesoft.in/${response.listDesignColorMatchingForm[0].PhotoOfDesign}" style="width:100%;margin-top:-54px;">`;
@@ -786,21 +1080,50 @@
                 error: function (request, status, error) {
 
                     //window.location.href = 'PurchaseInvoice';
+=======
+                    //alert(response.Code);
+
+                    if (response.Code == "200") {
+
+                        //Design No
+                        if (response.listColorGroupMaster.length > 0) {
+                            var tempDesignNo = "";
+                            tempDesignNo = "<option value='0' selected> Select Color Group </option>";
+                            $('#ColorGroup').html(tempDesignNo);
+
+                            for (var i = 0; i < response.listColorGroupMaster.length; i++) {
+                                tempDesignNo = "<option value='" + response.listColorGroupMaster[i].ColorGroupID + "'> " + response.listColorGroupMaster[i].ColorGroup + " </option>";
+                                $('#ColorGroup').append(tempDesignNo);
+
+                            }
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+
+                    //window.location.href = 'SaleInvoice';
+>>>>>>> origin/master
 
                 }
             });
 
 
+<<<<<<< HEAD
         }
         else {
             $("#upload-PhotoOfDesign-default-preview").html('Photo Of Design.');
 
             $("#weftLength").val('');
             $("#warpLength").val('');
+=======
+
+
+>>>>>>> origin/master
 
         }
 
 
+<<<<<<< HEAD
     }
 
 
@@ -922,28 +1245,242 @@
             $("#btnclearColorMatchingDefault").click();
         }
         else {
+=======
+
+
+
+        function saveImage(input) {
+            var previewStr = "#" + input.id + "-preview";
+            if (input.files && input.files[0]) {
+                var fildr = new FileReader();
+                fildr.onload = function (e) {
+                    var imgStr = "<img src='" + e.target.result + "' style='width:100%;margin-top:-54px;'>";
+                    $(previewStr).html(imgStr);
+                    $(previewStr).css('color', 'initial');
+                }
+                fildr.readAsDataURL(input.files[0]);
+                return true;
+            }
+            else {
+                var message = "";
+                if (input.id == "upload-image" || input.id == "upload-image-default") {
+                    message = "Photo Of Sketch Is Needed.";
+                }
+                else {
+                    message = "Photo Of Design Is Needed.";
+                }
+                $(previewStr).html(message);
+                $(previewStr).css('color', 'red');
+                return false;
+            }
+        }
+
+
+        function clearColorMatchingDefault() {
+            $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
+            $("#upload-ColorMatching-default").val("");
+        }
+
+
+
+
+        var listDesignColorMatchingDetails = [];
+        var listDesignEntryWeftData = [];
+
+        function getDesignNo(abc) {
+            //alert(abc.value);
+
+
+            $("#divColorMatchingTable").html('');
+
+            listDesignColorMatchingDetails = [];
+            listDesignEntryWeftData = [];
+            if (abc.value != "") {
+                var DesignEntryFormID = abc.value.split("|")[0];
+                var DesignColorMatchingFormID = abc.value.split("|")[1];
+
+                //alert(DesignEntryFormID + " - " + DesignColorMatchingFormID);
+
+
+
+
+                var formData = new FormData();
+                formData.append('DesignEntryFormID', DesignEntryFormID);
+                formData.append('DesignColorMatchingFormID', DesignColorMatchingFormID);
+
+                var PartyId = 0;
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/getCreateColorMatchingFormDetails',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log(response);
+
+
+                        var imgStr = `<img src="https://weavelanesoft.in/${response.listDesignColorMatchingForm[0].PhotoOfDesign}" style="width:100%;margin-top:-54px;">`;
+                        $("#upload-PhotoOfDesign-default-preview").html(imgStr);
+                        $("#upload-PhotoOfDesign-default-preview").css('color', 'initial');
+
+                        var weftLength = response.listDesignColorMatchingForm[0].TotalWeft;
+                        var warpLength = response.listDesignColorMatchingForm[0].TotalWarp;
+                        var WarpCheckBox = response.listDesignColorMatchingForm[0].WarpCheckBox;
+                        var WeftCheckBox = response.listDesignColorMatchingForm[0].WeftCheckBox;
+
+
+
+                        //alert(weftLength + " " + warpLength);
+
+                        $("#weftLength").val(weftLength);
+                        $("#warpLength").val(warpLength);
+                        $("#WarpCheckBox").val(WarpCheckBox);
+                        $("#WeftCheckBox").val(WeftCheckBox);
+
+
+                        var tempColorMatchingID = '<option value="0" selected>Select Color Matching</option>';
+                        $("#ColorMatchingID").html(tempColorMatchingID);
+                        for (var i = 0; i < response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails.length; i++) {
+                            tempColorMatchingID = '<option value="' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].DesignColorMatchingDetailsID + '">' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].WarpMatchingID + ' - ' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].FeederMatchingID + '</option>';
+                            $("#ColorMatchingID").append(tempColorMatchingID);
+                        }
+
+                        listDesignColorMatchingDetails.push(response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails);
+                        listDesignEntryWeftData.push(response.listDesignColorMatchingForm[0].listDesignEntryWeftData);
+
+                        $("#Previousbtn").hide();
+                        $("#Nextbtn").show();
+
+
+
+                        $("#btnclearColorMatchingDefault").click();
+
+
+                    },
+                    error: function (request, status, error) {
+
+                        //window.location.href = 'PurchaseInvoice';
+
+                    }
+                });
+
+
+            }
+            else {
+                $("#upload-PhotoOfDesign-default-preview").html('Photo Of Design.');
+
+                $("#weftLength").val('');
+                $("#warpLength").val('');
+
+            }
+
+
+        }
+
+
+
+
+
+        function checkPrevious() {
+>>>>>>> origin/master
 
             var selectedOption = $('#ColorMatchingID').find('option:selected');
 
             var prevOption = selectedOption.prev();
             var nextOption = selectedOption.next();
 
+<<<<<<< HEAD
             $("#Nextbtn").show();
             $("#Previousbtn").show();
 
             if (prevOption.text() == "") {
+=======
+            //console.log("Prev:", prevOption.val(), prevOption.text());
+            //console.log("Next:", nextOption.val(), nextOption.text());
+
+            $('#ColorMatchingID').val(prevOption.val());
+
+            // setTimeout(function () {
+            //console.log("Another message after 5 seconds using an anonymous function.");
+
+            var selectedColorOption = $('#ColorMatchingID').find('option:selected');
+
+            var prevColorOption = selectedColorOption.prev();
+            var nextColorOption = selectedColorOption.next();
+
+            //console.log("Prev:", prevColorOption.val(), prevColorOption.text());
+            //console("Next:", nextColorOption.val(), nextColorOption.text());
+
+
+            $("#Nextbtn").show();
+            $("#Previousbtn").show();
+
+            if (prevColorOption.text() == "") {
+
+                $("#Previousbtn").hide();
+                $("#Nextbtn").show();
+            }
+
+            if (nextColorOption.text() == "") {
+
+                $("#Nextbtn").hide();
+                $("#Previousbtn").show();
+            }
+
+            $("#btnclearColorMatchingDefault").click();
+            getColorMatchingId(document.getElementById("ColorMatchingID"));
+
+            //}, 500);
+        }
+
+
+        function checkNext() {
+
+            var selectedOption = $('#ColorMatchingID').find('option:selected');
+
+            var prevOption = selectedOption.prev();
+            var nextOption = selectedOption.next();
+
+            //console.log("Prev:", prevOption.val(), prevOption.text());
+            //console.log("Next:", nextOption.val(), nextOption.text());
+
+            $('#ColorMatchingID').val(nextOption.val());
+            //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
+
+            //setTimeout(function () {
+            //console.log("Another message after 5 seconds using an anonymous function.");
+
+            var selectedColorOption = $('#ColorMatchingID').find('option:selected');
+
+            var prevColorOption = selectedColorOption.prev();
+            var nextColorOption = selectedColorOption.next();
+
+            //console.log("Prev:", prevColorOption.val(), prevColorOption.text());
+            //console.log("Next:", nextColorOption.val(), nextColorOption.text());
+            $("#Nextbtn").show();
+            $("#Previousbtn").show();
+
+            if (prevColorOption.text() == "") {
+>>>>>>> origin/master
                 $("#Previousbtn").hide();
                 $("#Nextbtn").show();
             }
 
             //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
 
+<<<<<<< HEAD
             if (nextOption.text() == "") {
+=======
+            if (nextColorOption.text() == "") {
+>>>>>>> origin/master
 
                 $("#Nextbtn").hide();
                 $("#Previousbtn").show();
             }
 
+<<<<<<< HEAD
 
             //alert(listDesignColorMatchingDetails[0].length);
 
@@ -951,11 +1488,424 @@
             var weftLength = $("#weftLength").val();
 
             console.log(listDesignColorMatchingDetails[0]);
+=======
+            $("#btnclearColorMatchingDefault").click();
+            getColorMatchingId(document.getElementById("ColorMatchingID"));
+
+
+            //}, 500);
+            //$("#btnclearColorMatchingDefault").click();
+        }
+
+
+        function showWarp(abc) {
+            var matchingwarp = "#MatchingWarp" + abc;
+            $(matchingwarp).removeAttr("disabled");
+        }
+
+
+
+        function showFeeder(abc) {
+            var matchingwarp = "#MatchingFeeder" + abc;
+            $(matchingwarp).removeAttr("disabled");
+        }
+
+        var DesignColorMatchingDetails = [];
+
+        function getColorMatchingId(abc) {
+            //alert(abc.value);
+
+            if (abc.value == "0") {
+                $("#btnclearColorMatchingDefault").click();
+            }
+            else {
+
+                var selectedOption = $('#ColorMatchingID').find('option:selected');
+
+                var prevOption = selectedOption.prev();
+                var nextOption = selectedOption.next();
+
+                $("#Nextbtn").show();
+                $("#Previousbtn").show();
+
+                if (prevOption.text() == "") {
+                    $("#Previousbtn").hide();
+                    $("#Nextbtn").show();
+                }
+
+                //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
+
+                if (nextOption.text() == "") {
+
+                    $("#Nextbtn").hide();
+                    $("#Previousbtn").show();
+                }
+
+
+                //alert(listDesignColorMatchingDetails[0].length);
+
+                var warpLength = $("#warpLength").val();
+                var weftLength = $("#weftLength").val();
+
+                console.log(listDesignColorMatchingDetails[0]);
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+                DesignColorMatchingDetails = listDesignColorMatchingDetails[0];
+
+                var tempColorMatchingTable = "";
+
+                for (var i = 0; i < listDesignColorMatchingDetails[0].length; i++) {
+
+
+                    if (abc.value == listDesignColorMatchingDetails[0][i].DesignColorMatchingDetailsID) {
+
+
+                        if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
+                            //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
+                            var imgStr = `<img src="https://weavelanesoft.in/${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}"
+                                style="width:100%;margin-top:-54px;">`;
+
+                            $("#upload-ColorMatching-default-preview").html(imgStr);
+                            $("#upload-ColorMatching-default-preview").css('color', 'initial');
+                            //alert(imgStr);
+                            $("#upload-ColorMatching-temp-default").val(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto);
+
+
+                            $("#savebtn").removeClass("btn btn-primary").addClass("btn btn-warning");
+                            $("#savebtn").text('Update Color Validate');
+
+                        }
+                        else {
+                            $("#upload-ColorMatching-temp-default").val('');
+
+                            $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
+                            $("#upload-ColorMatching-default").val("");
+
+                            $("#savebtn").removeClass("btn btn-warning").addClass("btn btn-primary");
+                            $("#savebtn").text('Save Color Validate');
+                        }
+
+
+                        if (listDesignColorMatchingDetails[0][i].ColorGroupID != "0") {
+                            $("#ColorGroup").val(listDesignColorMatchingDetails[0][i].ColorGroupID);
+                        }
+                        else {
+                            $("#ColorGroup").val(0);
+                        }
+
+
+
+
+                        tempColorMatchingTable += '<br /><br />';
+                        tempColorMatchingTable += '<input type="hidden" id="WarpMatchingID" value="' + listDesignColorMatchingDetails[0][i].WarpMatchingID + '" class="form-control"/>';
+                        tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
+                        tempColorMatchingTable += ' <tbody>';
+
+                        //var warpLength = 5;
+                        var warpData = listDesignColorMatchingDetails[0][i];
+                        var warps = {};
+
+                        var WarpCheckBoxArry = $("#WarpCheckBox").val().split("|");
+
+                        for (let w = 1; w <= warpLength; w++) {
+                            warps["Warp" + w] = warpData["Warp" + w];
+
+                            var srNos = w - 1;
+
+                            tempColorMatchingTable += '<tr style="text-align: center;">';
+                            tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Warp ' + w + '</th>';
+                            if (srNos == 0) {
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> </th>';
+                            }
+                            else {
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <input type="hidden" value="' + WarpCheckBoxArry[srNos] + '" id="ischeckWarp' + w + '" disabled/></th>';
+                            }
+
+
+                            tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
+                            tempColorMatchingTable += ' <select id="MatchingWarp' + w + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp(' + w + ')" disabled>';
+                            tempColorMatchingTable += ' <option value="0"> Select Color </option>';
+                            var ColorCode = "";
+                            for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                                if (warpData["Warp" + w] == ArrayYarnColor[0][j].YarnColorID) {
+                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                    ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
+                                }
+                                else {
+                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                }
+                            }
+
+                            tempColorMatchingTable += '</select>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '<td id="tdWarColor' + w + '" style="padding: .3rem .3rem; width: 15%; ">';
+                            tempColorMatchingTable += '<div id="tddivColor' + w + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
+                            tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(' + w + ')">';
+                            tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
+                            tempColorMatchingTable += '</a>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '</tr>';
+
+                            //alert("Warp " + w + "  " + warpData["Warp" + w]);
+                        }
+
+
+                        tempColorMatchingTable += '</tbody>';
+                        tempColorMatchingTable += '</table>';
+
+                        tempColorMatchingTable += '<hr style="height: 5px;">';
+
+                        tempColorMatchingTable += '<input type="hidden" id="FeederMatchingID" value="' + listDesignColorMatchingDetails[0][i].FeederMatchingID + '" class="form-control"/>';
+                        tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
+                        tempColorMatchingTable += ' <tbody>';
+
+                        var FeederData = listDesignColorMatchingDetails[0][i];
+                        var Feeder = {};
+
+                        console.log(listDesignEntryWeftData[0][0].DesignSpecification);
+
+                        var DesignEntryWeftData = listDesignEntryWeftData[0][i];
+                        var DesignSpecification = {};
+
+
+                        var WeftCheckBoxArry = $("#WeftCheckBox").val().split("|");
+
+                        for (let fe = 1; fe <= weftLength; fe++) {
+                            Feeder["Feeder" + fe] = warpData["Feeder" + fe];
+
+                            var srNo = fe - 1;
+
+                            //DesignSpecification["DesignSpecification" + fe] = warpData["DesignSpecification" + fe];
+                            //alert("Feeder " + fe + "  " + warpData["Feeder" + fe]);
+
+                            tempColorMatchingTable += '<tr style="text-align: center;">';
+                            tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Feeder ' + fe + '</th>';
+
+                            if (listDesignEntryWeftData[0][srNo].DesignSpecification == "GROUND") {
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span></th>';
+                            }
+                            else {
+                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span> &nbsp; <input type="hidden" value="' + WeftCheckBoxArry[srNo] + '" id="ischeckWeft' + fe + '" disabled/></th>';
+                            }
+
+                            tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
+                            tempColorMatchingTable += ' <select id="MatchingFeeder' + fe + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder(' + fe + ')" disabled>';
+                            tempColorMatchingTable += ' <option value="0"> Select Color </option>';
+                            var ColorCode = "";
+                            for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                                if (warpData["Feeder" + fe] == ArrayYarnColor[0][j].YarnColorID) {
+                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                    ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
+                                }
+                                else {
+                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
+                                }
+                            }
+
+                            tempColorMatchingTable += '</select>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '<td id="tdWarColor' + fe + '" style="padding: .3rem .3rem; width: 15%; ">';
+                            tempColorMatchingTable += '<div id="tddivFeederColor' + fe + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
+                            tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(' + fe + ')">';
+                            tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
+                            tempColorMatchingTable += '</a>';
+                            tempColorMatchingTable += '</td>';
+                            tempColorMatchingTable += '</tr>';
+                        }
+
+                        tempColorMatchingTable += '</tbody>';
+                        tempColorMatchingTable += '</table>';
+
+                        tempColorMatchingTable += '<br /> ';
+                        tempColorMatchingTable += '<center><span class="field-placeholder" style="position: relative; padding: 0px 12px 0px 12px; width: 90%; text-align: center; color:red; font-size: medium; font-weight: 600;" id="spanDuplicate"></span></center>';
+                        tempColorMatchingTable += '<br /> ';
+                        $("#divColorMatchingTable").html(tempColorMatchingTable);
+                        //divColorMatchingTable
+                    }
+
+
+
+
+
+
+
+                }
+
+            }
+        }
+
+
+
+        function MatchingWarp(abc) {
+
+            var MatchingWarp = "#MatchingWarp" + abc;
+
+
+            var yarnColors = ArrayYarnColor[0];
+
+            var YarnColorID = $(MatchingWarp).val();
+            var yarnColorCode = null;
+
+            $.each(yarnColors, function (index, item) {
+
+                if (item.YarnColorID == YarnColorID) {
+                    yarnColorCode = item.YarnColorCode;
+                    return false; // break the loop once found
+                }
+
+            });
+
+            var tddivColor = "#tddivColor" + abc;
+            var yarnColor = "#" + yarnColorCode;
+
+            $(tddivColor).css("background-color", yarnColor);
+
+
+
+
+            var warpLength = $("#warpLength").val();
+
+            var WarpMatchingID = "";
+            for (var i = 0; i < warpLength; i++) {
+                var SrNo = i + 1;
+
+                var MatchingWarp = "#MatchingWarp" + SrNo;
+
+                if (i == 0) {
+                    WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+                else {
+
+                    var ischeckWarp = "#ischeckWarp" + SrNo;
+                    var checkWarpValue = $(ischeckWarp).val();
+
+                    if (checkWarpValue == "1") {
+                        WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
+                    }
+                }
+            }
+            $("#WarpMatchingID").val(WarpMatchingID.slice(0, -1));
+
+
+
+            var MatchingID = WarpMatchingID.slice(0, -1) + "/" + $("#FeederMatchingID").val();
+            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
+
+                var SrNos = j + 1;
+                var ColorMatchingID = $("#ColorMatchingID").val();
+
+                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
+
+
+                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
+
+                        $("#savebtn").hide();
+                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
+                        return true;
+                    }
+                    else {
+                        $("#savebtn").show();
+                        $("#spanDuplicate").html("");
+                    }
+
+                }
+
+
+
+            }
+
+
+        }
+
+        function MatchingFeeder(abc) {
+
+            var MatchingFeeder1 = "#MatchingFeeder" + abc;
+
+
+
+            var yarnColors = ArrayYarnColor[0];
+            console.log(yarnColors);
+            var YarnColorID = $(MatchingFeeder1).val();
+            var yarnColorCode = null;
+
+            $.each(yarnColors, function (index, item) {
+
+                if (item.YarnColorID == YarnColorID) {
+                    yarnColorCode = item.YarnColorCode;
+                    return false; // break the loop once found
+                }
+
+            });
+
+            var tddivColor = "#tddivFeederColor" + abc;
+            var yarnColor = "#" + yarnColorCode;
+
+            $(tddivColor).css("background-color", yarnColor);
+
+
+
+
+
+            var weftLength = $("#weftLength").val();
+
+            let missing = [], checked = [];
+            for (let i = 1; i <= weftLength; i++) {
+                const chk = $(`#ischeckWeft${i}`);
+                if (!chk.length) missing.push(i);
+                else checked.push(i);
+            }
+            console.log(missing);
+            console.log(checked);
+
+            var MatchingFeeder = "";
+            if (missing.length > 0) {
+                for (var mi = 0; mi < missing.length; mi++) {
+                    var MFeeder = "#MatchingFeeder" + missing[mi];
+                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+            }
+
+
+            for (var ck = 0; ck < checked.length; ck++) {
+                //var srNo = ck + 1;
+                var ischeckWeft = "#ischeckWeft" + checked[ck];
+                var checkVal = $(ischeckWeft).val();
+
+                if (checkVal == 1) {
+                    var MFeeder = "#MatchingFeeder" + checked[ck];
+                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+
+
+            }
+
+            var FeederMatchingID = MatchingFeeder.slice(0, -1);
+            $("#FeederMatchingID").val(FeederMatchingID);
+>>>>>>> origin/master
+
+
+
+
+
+<<<<<<< HEAD
 
 
 
@@ -1142,10 +2092,33 @@
                     tempColorMatchingTable += '<br /> ';
                     $("#divColorMatchingTable").html(tempColorMatchingTable);
                     //divColorMatchingTable
+=======
+            var MatchingID = $("#WarpMatchingID").val() + "/" + FeederMatchingID;
+            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
+
+                var SrNos = j + 1;
+                var ColorMatchingID = $("#ColorMatchingID").val();
+
+                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
+
+
+                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
+
+                        $("#savebtn").hide();
+                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
+                        return true;
+                    }
+                    else {
+                        $("#savebtn").show();
+                        $("#spanDuplicate").html("");
+                    }
+
+>>>>>>> origin/master
                 }
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -1180,10 +2153,22 @@
         var yarnColor = "#" + yarnColorCode;
 
         $(tddivColor).css("background-color", yarnColor);
+=======
+            }
 
 
 
 
+
+
+
+        }
+>>>>>>> origin/master
+
+
+
+
+<<<<<<< HEAD
         var warpLength = $("#warpLength").val();
 
         var WarpMatchingID = "";
@@ -1374,10 +2359,43 @@
             }
         }
         // $("#WarpMatchingID").val(WarpMatchingID.slice(0, -1));
+=======
 
 
 
 
+        function checkSave() {
+
+            $("#loading-wrapper").show();
+
+            var warpLength = $("#warpLength").val();
+
+            var WarpMatchingID = "";
+            for (var i = 0; i < warpLength; i++) {
+                var SrNo = i + 1;
+
+                var MatchingWarp = "#MatchingWarp" + SrNo;
+
+                if (i == 0) {
+                    WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+                else {
+
+                    var ischeckWarp = "#ischeckWarp" + SrNo;
+                    var checkWarpValue = $(ischeckWarp).val();
+
+                    if (checkWarpValue == "1") {
+                        WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
+                    }
+                }
+            }
+            // $("#WarpMatchingID").val(WarpMatchingID.slice(0, -1));
+>>>>>>> origin/master
+
+
+
+
+<<<<<<< HEAD
         var weftLength = $("#weftLength").val();
 
         let missing = [], checked = [];
@@ -1518,6 +2536,124 @@
                             //icon: '<i class="icon-alert-triangle"></i>'
                         });
                         ColorMatchingPhotoUploadOrNot = 0;
+=======
+            var weftLength = $("#weftLength").val();
+
+            let missing = [], checked = [];
+            for (let i = 1; i <= weftLength; i++) {
+                const chk = $(`#ischeckWeft${i}`);
+                if (!chk.length) missing.push(i);
+                else checked.push(i);
+            }
+            console.log(missing);
+            console.log(checked);
+
+            var MatchingFeeder = "";
+            if (missing.length > 0) {
+                for (var mi = 0; mi < missing.length; mi++) {
+                    var MFeeder = "#MatchingFeeder" + missing[mi];
+                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+            }
+
+
+            for (var ck = 0; ck < checked.length; ck++) {
+                //var srNo = ck + 1;
+                var ischeckWeft = "#ischeckWeft" + checked[ck];
+                var checkVal = $(ischeckWeft).val();
+
+                if (checkVal == 1) {
+                    var MFeeder = "#MatchingFeeder" + checked[ck];
+                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
+                }
+
+
+            }
+
+            var FeederMatchingID = MatchingFeeder.slice(0, -1);
+            //$("#FeederMatchingID").val(FeederMatchingID);
+
+
+
+            //alert(WarpMatchingID + FeederMatchingID);
+
+            var NoMatchingError = 0;
+
+            var MatchingID = WarpMatchingID + FeederMatchingID;
+            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
+
+                var SrNos = j + 1;
+                var ColorMatchingID = $("#ColorMatchingID").val();
+
+                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
+
+
+                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
+                        NoMatchingError = 1;
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Duplicate Found',
+                            text: 'Matching ' + SrNos + ' already exists.',
+                            confirmButtonText: 'OK'
+                        });
+
+                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
+                        $("#loading-wrapper").hide();
+                        return false;
+                    }
+                    else {
+                        NoMatchingError = 0;
+                        $("#spanDuplicate").html("");
+
+
+                    }
+
+                }
+
+
+
+            }
+            if (NoMatchingError == 0) {
+                var ColorGroup = document.getElementById("ColorGroup");
+                var ColorMatchingID = document.getElementById("ColorMatchingID");
+                var ColorMatchingPhoto = document.getElementById("upload-ColorMatching-temp-default").value;
+
+                if (validate(ColorGroup) == false || validate(ColorMatchingID) == false) {
+                    validate(ColorGroup);
+                    validate(ColorMatchingID);
+
+                    $("#loading-wrapper").hide();
+                    //if (validate(ColorGroup) == false) {
+                    //    notes.show('Please Select Color Group.', {
+                    //        type: 'danger',
+                    //        //title: 'Opps.!',
+                    //        //icon: '<i class="icon-alert-triangle"></i>'
+                    //    });
+                    //}
+
+                }
+                else {
+
+                    var ColorMatchingPhotoUploadOrNot = 0;
+                    //alert(ColorMatchingPhoto);
+                    if ($('#upload-ColorMatching-default')[0].files.length == 0) {
+
+                        if (ColorMatchingPhoto == "") {
+                            $("#loading-wrapper").hide();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Photo Required',
+                                text: 'Please upload Color Matching Photo.'
+                            });
+                            ColorMatchingPhotoUploadOrNot = 0;
+                        }
+                        else {
+                            ColorMatchingPhotoUploadOrNot = 1;
+                        }
+
+
+
+>>>>>>> origin/master
                     }
                     else {
                         ColorMatchingPhotoUploadOrNot = 1;
@@ -1525,6 +2661,7 @@
 
 
 
+<<<<<<< HEAD
                 }
                 else {
                     ColorMatchingPhotoUploadOrNot = 1;
@@ -1632,6 +2769,113 @@
 
 
 
+=======
+                    if (ColorMatchingPhotoUploadOrNot == 1) {
+
+
+
+                        var WarpFeederArray = "";
+                        WarpFeederArray += "{";
+                        WarpFeederArray += '"DesignColorMatchingDetailsID": "' + $("#ColorMatchingID").val() + '",';
+                        WarpFeederArray += '"DesignColorMatchingFormID": "' + $("#DesignNo").val().split("|")[1] + '",';
+                        WarpFeederArray += '"ColorGroupID": "' + $("#ColorGroup").val() + '",';
+                        WarpFeederArray += '"ColorMatchingPhoto": "' + $("#upload-ColorMatching-temp-default").val() + '",';
+                        WarpFeederArray += '"WarpMatchingID": "' + $("#WarpMatchingID").val() + '",';
+
+                        for (var wa = 0; wa < warpLength; wa++) {
+                            var Sno = parseInt(wa) + parseInt(1);
+
+                            var Matching = "#MatchingWarp" + Sno;
+
+                            var MG = $(Matching).val();
+                            var warp = "Warp" + Sno;
+
+                            WarpFeederArray += '"' + warp + '": "' + MG + '",';
+                            //alert(WarpFeederArray);
+                        }
+
+                        WarpFeederArray += '"FeederMatchingID": "' + $("#FeederMatchingID").val() + '",';
+
+
+                        for (var we = 0; we < weftLength; we++) {
+                            var Sno = parseInt(we) + parseInt(1);
+                            var Matching = "#MatchingFeeder" + Sno;
+
+                            var MG = $(Matching).val();
+                            var weft = "Feeder" + Sno;
+
+                            if (Sno == weftLength) {
+                                WarpFeederArray += '"' + weft + '": "' + MG + '"';
+                            }
+                            else {
+                                WarpFeederArray += '"' + weft + '": "' + MG + '",';
+                            }
+
+                        }
+
+                        WarpFeederArray += '}';
+
+
+                        console.log(WarpFeederArray);
+
+
+                        var ColorMatching = $('#upload-ColorMatching-default')[0].files[0];
+
+                        var formData = new FormData();
+                        formData.append('DesignColorMatchingDetails', WarpFeederArray);
+                        formData.append('ColorMatching', ColorMatching);
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: '/WebServiceNikunjTextile.asmx/UpdateDesignColorMatchingValidationFormMaster',
+                            data: formData,
+                            dataType: 'json',
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+
+                                if (response.Code == 200) {
+                                    $("#loading-wrapper").hide();
+                                    //$("#editItembtn").attr("disabled", false);
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: 'Design Entry Created Successfully.',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        // Optional
+                                        // window.location.href = 'DesignEntry';
+                                    });
+                                }
+                                else {
+                                    $("#loading-wrapper").hide();
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.Message
+                                    });
+
+                                }
+                            },
+                            error: function (error) {
+                                $("#loading-wrapper").hide();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Problem has occurred while submitting your data.'
+                                });
+
+                            }
+                        });
+
+
+
+
+                    }
+
+
+>>>>>>> origin/master
 
                 }
 
@@ -1641,6 +2885,7 @@
 
 
 
+<<<<<<< HEAD
         }
 
 
@@ -1653,4 +2898,14 @@
 
 </script>
 
+=======
+
+
+
+
+        }
+
+    </script>
+}
+>>>>>>> origin/master
 

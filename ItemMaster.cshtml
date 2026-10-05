@@ -47,6 +47,10 @@
     .mt-3 {
         margin-top: 2rem !important;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
     .select2-selection.is-invalid {
         border: 1px solid #dc3545 !important;
     }
@@ -60,7 +64,10 @@
     }
 </style>
 
+<<<<<<< HEAD
 <!-- Content wrapper start -->
+=======
+>>>>>>> origin/master
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
     <div id="notes"></div>
@@ -79,7 +86,11 @@
                     </div>
 
                     <!-- Body -->
+<<<<<<< HEAD
                     <div class="modal-body">
+=======
+                    <div class="modal-body" style="overflow:auto">
+>>>>>>> origin/master
                         <input type="hidden" id="ItemId" value="0" />
                         <input type="hidden" id="BarcodeNo" value="" />
                         <div class="row g-3">
@@ -208,6 +219,7 @@
     <!-- Row end -->
 
 </div>
+<<<<<<< HEAD
 
 <script>
     var currentPagePermission = {};
@@ -727,5 +739,488 @@
     }
 </script>
 
+=======
+@section Scripts{
+    <script>
+        var currentPagePermission = {};
+        $(document).ready(function () {
+            FunctionIsLogin();
+            loadItemMaster();
+            bindItemDropdowns();
+        });
+
+        $('#ItemName,#UnitId,#GSTSLABId').select2('destroy').select2({
+            dropdownParent: $('#itemModal'),
+            width: '100%'
+        });
+
+        $("#ItemName, #UnitId, #GSTSLABId").on("change", function () {
+            let container = $(this).next('.select2-container');
+            container.find('.select2-selection').removeClass("is-invalid");
+            container.removeClass("is-invalid");
+        });
+
+        function validateDecimal(el) {
+            let value = el.value;
+
+            // Remove invalid characters
+            value = value.replace(/[^0-9.]/g, '');
+
+            // Allow only one dot
+            let parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts[1];
+            }
+
+            // Limit to 2 decimal places
+            if (parts[1]) {
+                parts[1] = parts[1].substring(0, 2);
+                value = parts[0] + '.' + parts[1];
+            }
+
+            el.value = value;
+        }
+
+        $("input").on("input", function () {
+            $(this).removeClass("is-invalid");
+        });
+
+        function getDefaultCompany() {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.Code == 200 || response.Code == "200") {
+                        $("#company-id").val(response.listCompanyMaster[0].CompanyId);
+                        $("#company-default").html(response.listCompanyMaster[0].CompanyName);
+                    }
+                },
+                error: function (request, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: request.statusText || 'Failed to load default company data.'
+                    });
+                }
+            });
+        }
+
+        function FunctionIsLogin() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/checkLoginStatus',
+                data: "{ 'userName':'0' }",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    console.log(data);
+                    if (data.d == "false") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function logout() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/Logout',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    if (data.d == "done") {
+                        window.location.replace("/Index");
+                    }
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        function loadItemMaster() {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/GetItemMasterList",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+
+                    if (data.Status == 1) {
+                        bindItemTable(data.Data);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.Message
+                        });
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to retrieve item master list.'
+                    });
+                }
+            });
+        }
+
+        // VIEW
+        $(document).on("click", ".view", function () {
+            let id = $(this).data("id");
+            openItemModal(id, "view");
+        });
+
+        $('#itemModal').on('hidden.bs.modal', function () {
+            $(this).find('input, textarea').val('');
+            $(this).find('input[type="checkbox"]').prop('checked', false);
+            $(this).find('select').val(null).trigger('change');
+            $("#SaleRate").removeClass("is-valid is-invalid").val('');
+            $("#HSNCode").removeClass("is-valid is-invalid").val('');
+        });
+
+        function openItemModal(id, mode) {
+            $("#itemModal").modal("show");
+            if (mode === "add") {
+                $("#itemModalTitle").text("Add Item");
+                $("#ItemId").val(0);
+                $("#ItemCode").val("");
+                $("#ItemName").val("");
+                $("#UnitId").val("");
+                $("#GSTSLABId").val("");
+                $("#HSNCode").val("");
+                $("#SaleRate").val("");
+                $("#IsActive").val("1");
+            }
+            else if (mode === "edit") {
+                $("#itemModalTitle").text("Edit Item");
+            }
+            else if (mode === "view") {
+                $("#itemModalTitle").text("View Item");
+            }
+
+            // Disable all fields in view mode
+            if (mode === "view") {
+                $("#itemModal input, #itemModal select, #itemModal textarea").prop("disabled", true);
+                $("#saveBtn").hide(); // hide save button
+            } else {
+                $("#itemModal input, #itemModal select, #itemModal textarea").prop("disabled", false);
+                $("#saveBtn").show();
+            }
+
+            // Load data
+            if (id > 0) {
+                $.ajax({
+                    url: '/WebServiceNikunjTextile.asmx/GetItemById',
+                    type: 'POST',
+                    data: JSON.stringify({ ItemId: id }),
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function (res) {
+                        let result = JSON.parse(res.d);
+                        if (result.Status === 1) {
+                            let d = result.Data;
+                            console.log("result", d);
+                            $("#ItemId").val(d.ItemId);
+                            $("#BarcodeNo").val(d.BarcodeNo);
+                            $("#HSNCode").val(d.HSNCode);
+                            $("#PurchaseRate").val(d.PurchaseRate);
+                            $("#SaleRate").val(d.SaleRate);
+                            $("#OpeningStock").val(d.OpeningStock);
+                            $("#MinStockLevel").val(d.MinStockLevel);
+                            $("#Description").val(d.Description);
+                            $("#IsActive").prop("checked", d.IsActive);
+                            $("#ItemName").val(d.ItemName).trigger("change");
+                            $("#UnitId").val(d.UnitId).trigger("change");
+                            $("#GSTSLABId").val(d.GSTSLABId).trigger("change");
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: result.Message || 'Failed to fetch item details.'
+                            });
+                        }
+                    },
+                    error: function (err) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while fetching item details.'
+                        });
+                    }
+                });
+            }
+        }
+
+        // EDIT
+        $(document).on("click", ".edit", function () {
+            let id = $(this).data("id");
+            openItemModal(id, "edit");
+        });
+
+        // DELETE
+        $(document).on("click", ".delete", function () {
+            let id = $(this).data("id");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You want to delete this item!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: "Yes, Delete"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteItem(id);
+                }
+            });
+        });
+
+        $(document).on("change", "#ItemName", function () {
+            let designerCode = $(this).find("option:selected").data("code") || "";
+            $("#ItemCode").val(designerCode);
+        });
+
+        function bindItemTable(data) {
+            let html = "";
+
+            $.each(data, function (i, row) {
+                html += "<tr>";
+                html += "<td>" + row.ItemCode + "</td>";
+                html += "<td>" + row.ItemName + "</td>";
+                html += "<td>" + row.Unit + "</td>";
+                html += "<td>" + row.GSTSLABName + "</td>";
+                html += "<td>" + row.HSNCode + "</td>";
+                html += "<td>" + row.SaleRate + "</td>";
+
+                html += "<td>";
+                html += row.IsActive
+                    ? "<span class='badge bg-success'>Active</span>"
+                    : "<span class='badge bg-danger'>Inactive</span>";
+                html += "</td>";
+
+                html += "<td>";
+                html += "<i class='fa fa-edit text-primary edit me-2' data-id='" + row.ItemId + "'></i>";
+                html += "<i class='fa fa-eye text-dark view me-2' data-id='" + row.ItemId + "'></i>";
+                html += "<i class='fa fa-trash text-danger delete' data-id='" + row.ItemId + "'></i>";
+                html += "</td>";
+                html += "</tr>";
+            });
+
+            $("#tblItemMaster tbody").html(html);
+            var permission = getCookie("PagePermission");
+            if (permission) {
+                var currentPagePermission = JSON.parse(permission);
+                if (currentPagePermission.Add == false) { $("#AddItemMaster").hide(); }
+                if (currentPagePermission.Edit == false) { $(".edit").hide(); }
+                if (currentPagePermission.Delete == false) { $(".delete").hide(); }
+                if (currentPagePermission.view == false) { $(".view").hide(); }
+            }
+        }
+
+        function deleteItem(id) {
+            $.ajax({
+                url: "/WebServiceNikunjTextile.asmx/DeleteItem",
+                type: "POST",
+                data: JSON.stringify({ ItemId: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+
+                    if (data.Status == 1) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        loadItemMaster(); // reload table
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.Message
+                        });
+                    }
+                },
+                error: function (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while deleting the item.'
+                    });
+                }
+            });
+        }
+
+        function bindItemDropdowns() {
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/GetItemDropdownData',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (res) {
+                    let data = JSON.parse(res.d);
+
+                    // bind dropdowns here
+                    $("#ItemName").empty().append('<option value="">Select</option>');
+                    $.each(data.Designers, function (i, item) {
+                        $("#ItemName").append(`
+                            <option value="${item.DesignerID}"
+                                    data-code="${item.DesignerCode}"
+                                    data-name="${item.DesignerName}">
+                                ${item.DesignerCode} - ${item.DesignerName}
+                            </option>
+                        `);
+                    });
+
+                    $("#UnitId").empty().append('<option value="">Select</option>');
+                    $.each(data.Units, function (i, item) {
+                        $("#UnitId").append(`<option value="${item.UnitId}">${item.UnitCode}</option>`);
+                    });
+
+                    $("#GSTSLABId").empty().append('<option value="">Select</option>');
+                    $.each(data.GST, function (i, item) {
+                        $("#GSTSLABId").append(`<option value="${item.GSTSLABId}">${item.GSTSLABName}%</option>`);
+                    });
+                },
+                error: function (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to populate dropdown options.'
+                    });
+                }
+            });
+        }
+
+        function showToast(type, msg) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        function saveItem() {
+            let isValid = true;
+
+            // Reset
+            $(".form-control").removeClass("is-valid is-invalid");
+            $(".select2-selection").removeClass("is-invalid");
+
+            // ITEM NAME
+            let item = $("#ItemName").val();
+            if (!item) {
+                let container = $("#ItemName").next('.select2-container');
+                container.find('.select2-selection').addClass("is-invalid");
+                container.addClass("is-invalid");
+                isValid = false;
+            }
+
+            // UNIT
+            let unit = $("#UnitId").val();
+            if (!unit) {
+                let container = $("#UnitId").next('.select2-container');
+                container.find('.select2-selection').addClass("is-invalid");
+                container.addClass("is-invalid");
+                isValid = false;
+            }
+
+            // GST
+            let gst = $("#GSTSLABId").val();
+            if (!gst) {
+                let container = $("#GSTSLABId").next('.select2-container');
+                container.find('.select2-selection').addClass("is-invalid");
+                container.addClass("is-invalid");
+                isValid = false;
+            }
+
+            let hsn = $("#HSNCode").val().trim();
+            if (hsn === "") {
+                $("#HSNCode").addClass("is-invalid");
+                isValid = false;
+            } else {
+                $("#HSNCode").removeClass("is-invalid").addClass("is-valid");
+            }
+
+            let rate = $("#SaleRate").val().trim();
+            if (rate === "" || isNaN(rate)) {
+                $("#SaleRate").addClass("is-invalid");
+                isValid = false;
+            } else {
+                $("#SaleRate").removeClass("is-invalid").addClass("is-valid");
+            }
+
+            // STOP
+            if (!isValid) return;
+
+            $("#btnText").text("Saving...");
+            $("#btnLoader").removeClass("d-none");
+            $("#saveBtn").prop("disabled", true);
+
+            var milliseconds = jQuery.now();
+            let model = {
+                ItemId: parseInt($("#ItemId").val()) || 0,
+                ItemCode: $("#ItemCode").val(),
+                ItemName: $("#ItemName").val(),
+                UnitId: parseInt($("#UnitId").val()) || 0,
+                HSNCode: $("#HSNCode").val(),
+                GSTSLABId: parseInt($("#GSTSLABId").val()) || 0,
+                PurchaseRate: parseFloat($("#PurchaseRate").val()) || 0,
+                SaleRate: parseFloat($("#SaleRate").val()) || 0,
+                OpeningStock: parseFloat($("#OpeningStock").val()) || 0,
+                MinStockLevel: parseFloat($("#MinStockLevel").val()) || 0,
+                Description: $("#Description").val() || '',
+                IsActive: $("#IsActive").is(":checked"),
+                BarcodeNo: $("#BarcodeNo").val() || milliseconds,
+            };
+
+            $.ajax({
+                url: '/WebServiceNikunjTextile.asmx/SaveItem',
+                type: 'POST',
+                data: JSON.stringify({ model: model }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (res) {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+
+                    let data = JSON.parse(res.d);
+
+                    if (data.Status == 1) {
+                        showToast('success', 'Saved Successfully');
+                        $('#itemModal').modal('hide');
+                        loadItemMaster();
+                    } else {
+                        showToast('error', data.Message || 'Something went wrong');
+                    }
+                },
+                error: function () {
+                    $("#btnText").text("Save");
+                    $("#btnLoader").addClass("d-none");
+                    $("#saveBtn").prop("disabled", false);
+                    showToast('error', 'Something went wrong');
+                }
+            });
+        }
+    </script>
+}
+>>>>>>> origin/master
 
 
