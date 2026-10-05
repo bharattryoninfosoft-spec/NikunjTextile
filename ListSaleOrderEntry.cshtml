@@ -543,8 +543,8 @@
                         <tr>
                             <td>${idx + 1}</td>
                             <td>${ac.ChargeRemark || '--'}</td>
-                            <td>&#8377; ${parseFloat(ac.ChargeValue || 0).toFixed(2)}</td>
-                            <td>&#8377; ${calculatedChargeAmount.toFixed(2)}</td>
+                            <td><i class="fa fa-inr"></i> ${parseFloat(ac.ChargeValue || 0).toFixed(2)}</td>
+                            <td><i class="fa fa-inr"></i> ${calculatedChargeAmount.toFixed(2)}</td>
                         </tr>`;
                         addChargesTbody.append(row);
                     });
@@ -610,8 +610,8 @@
                             <td>${colorBreakdown || '<span class="text-muted small">No colors specified</span>'}</td>
                             <td class="text-end fw-bold">${qty}</td>
                             <td class="text-center">${item.Unit || 'PCS'}</td>
-                            <td class="text-end fw-semibold">&#8377; ${calculatedRate.toFixed(2)}</td>
-                            <td class="text-end fw-bold text-success">&#8377; ${calculatedAmount.toFixed(2)}</td>
+                            <td class="text-end fw-semibold"><i class="fa fa-inr"></i> ${calculatedRate.toFixed(2)}</td>
+                            <td class="text-end fw-bold text-success"><i class="fa fa-inr"></i> ${calculatedAmount.toFixed(2)}</td>
                         </tr>`;
                         itemTbody.append(row);
                     });

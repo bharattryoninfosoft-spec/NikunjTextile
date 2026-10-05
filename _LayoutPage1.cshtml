@@ -215,14 +215,15 @@
                     });
                     // ACTIVE PAGE
                     // ACTIVE PAGE
-                    var currentUrl = window.location.pathname.toLowerCase();
+                    var currentUrl = (window.location.pathname + window.location.search).toLowerCase();
+                    var currentPath = window.location.pathname.toLowerCase();
                     var isFound = false;
 
                     $("#dynamicMenuContent a").each(function () {
 
                         var menuUrl = ($(this).attr("href") || "").toLowerCase();
 
-                        if (currentUrl == menuUrl) {
+                        if (currentUrl == menuUrl || (currentUrl.indexOf('?') === -1 && currentPath == menuUrl)) {
 
                             isFound = true;
 

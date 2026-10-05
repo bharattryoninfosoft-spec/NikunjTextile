@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props" Condition="Exists('packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props')" />
   <Import Project="..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props" Condition="Exists('..\packages\Microsoft.SqlServer.Types.170.1000.7\build\net472\Microsoft.SqlServer.Types.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -9254,6 +9254,18 @@
     <Content Include="JobberStockReport.cshtml" />
     <Content Include="JobberMaster.cshtml" />
     <Content Include="JobproductionorderList.cshtml" />
+    <Content Include="JobberToButtaCutting.cshtml" />
+    <Content Include="JobberToButtaCuttingList.cshtml" />
+    <Content Include="ButtaCuttingHistoryList.cshtml" />
+    <Content Include="ButtaCuttingJobberReceiveList.cshtml" />
+    <Content Include="ButtaCuttingReceiveList.cshtml" />
+    <Content Include="ButtaCuttingStockList.cshtml" />
+    <Content Include="ButtaCuttingToJobberList.cshtml" />
+    <Content Include="JobberReceive.cshtml" />
+    <Content Include="JobberReceiveList.cshtml" />
+    <Content Include="JobberToProcess.cshtml" />
+    <Content Include="JobberToProcessList.cshtml" />
+    <Content Include="JobberToProcessPrint.cshtml" />
     <None Include="packages.config" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\.signature.p7s" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\BouncyCastle.Cryptography.2.6.2.nupkg" />
@@ -10550,6 +10562,12 @@
     <Content Include="PhotoOfDesign\oymgioshopping %281%29.webp" />
     <Content Include="PhotoOfDesign\rrnjnxshopping %281%29.webp" />
     <Content Include="PhotoOfDesign\xcxfbtshopping %281%29.webp" />
+    <Content Include="ProcessIssueBack.cshtml" />
+    <Content Include="ProcessIssueBackList.cshtml" />
+    <Content Include="ProcessManagementHistory.cshtml" />
+    <Content Include="ProcessReceive.cshtml" />
+    <Content Include="ProcessReceiveList.cshtml" />
+    <Content Include="ProcessStock.cshtml" />
     <None Include="PurchaseOrderDS.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PurchaseOrderDS.Designer.cs</LastGenOutput>
@@ -10575,6 +10593,7 @@
     <Content Include="SaleOrderAdditionalCharges.xsc">
       <DependentUpon>SaleOrderAdditionalCharges.xsd</DependentUpon>
     </Content>
+    <Content Include="ReceiveJobberToButtaCutting.cshtml" />
     <None Include="SaleOrderAdditionalCharges.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>SaleOrderAdditionalCharges.Designer.cs</LastGenOutput>

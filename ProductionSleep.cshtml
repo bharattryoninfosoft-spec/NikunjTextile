@@ -4879,11 +4879,18 @@
                                             "</td>" +
 
 
-                                            "<td class='text-start'>" +
-
-                                            "<div>" + escapeHtml(getColour(item)) + "</div>" +
-
-                                            "</td>" +
+                                            (function () {
+                                                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                                                var imgSrc = '';
+                                                if (photoPath) {
+                                                    photoPath = photoPath.replace(/\\/g, '/');
+                                                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                                                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                                                    else imgSrc = photoPath;
+                                                }
+                                                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                                                return "<td class='text-start'><div style='display:flex; align-items:center;'>" + imgHtml + "<span>" + escapeHtml(getColour(item)) + "</span></div></td>";
+                                            })() +
 
 
                                         "<td class='text-center td-pcs fw-bold'>" +
@@ -6233,11 +6240,18 @@
 
                                         /* COLOUR MATCHING ID */
 
-                                        "<td>" +
-                                        escapeHtml(
-                                            colour
-                                        ) +
-                                        "</td>" +
+                                        (function () {
+                                            var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                                            var imgSrc = '';
+                                            if (photoPath) {
+                                                photoPath = photoPath.replace(/\\/g, '/');
+                                                if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                                                else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                                                else imgSrc = photoPath;
+                                            }
+                                            var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                                            return "<td><div style='display:flex; align-items:center;'>" + imgHtml + "<span>" + escapeHtml(colour) + "</span></div></td>";
+                                        })() +
 
 
                                         /* PCS */

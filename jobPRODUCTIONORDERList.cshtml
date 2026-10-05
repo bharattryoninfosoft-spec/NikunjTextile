@@ -931,6 +931,17 @@
                         defaultInputVal = remainingPcs;
                     }
 
+                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                    var imgSrc = '';
+                    if (photoPath) {
+                        photoPath = photoPath.replace(/\\/g, '/');
+                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                        else imgSrc = photoPath;
+                    }
+                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
                     rows += '<tr>' +
                         '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + detailId + '" data-detailid="' + detailId + '" data-orderid="' + orderId + '" /></td>' +
                         '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
@@ -940,7 +951,7 @@
                         '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
                         '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
                         '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        '<td><span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></td>' +
+                        colourTd +
                         '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
                         '<td class="text-end fw-bold text-info">' + completedPcs.toFixed(2) + '</td>' +
                         '<td class="text-end fw-bold text-danger">' + remainingPcs.toFixed(2) + '</td>' +
@@ -962,6 +973,17 @@
                         allottedRepeatVal = (calcSubR % 1 === 0) ? calcSubR : parseFloat(calcSubR.toFixed(2));
                     }
 
+                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                    var imgSrc = '';
+                    if (photoPath) {
+                        photoPath = photoPath.replace(/\\/g, '/');
+                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                        else imgSrc = photoPath;
+                    }
+                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
                     rows += '<tr>' +
                         '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + subDetailId + '" data-detailid="' + detailId + '" /></td>' +
                         '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
@@ -971,7 +993,7 @@
                         '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
                         '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
                         '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        '<td><span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></td>' +
+                        colourTd +
                         '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
                         '<td class="text-end fw-bold text-info">' + allottedPcs.toFixed(2) + '</td>' +
                         '<td class="text-center fw-semibold text-secondary">' + escapeHtml(prodDate) + '</td>' +
@@ -989,6 +1011,17 @@
                     '</tr>';
                 } else {
                     var completedSubIdsStr = (item.SubDetailIDs && $.trim(item.SubDetailIDs) !== '') ? $.trim(item.SubDetailIDs) : String(detailId);
+                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                    var imgSrc = '';
+                    if (photoPath) {
+                        photoPath = photoPath.replace(/\\/g, '/');
+                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                        else imgSrc = photoPath;
+                    }
+                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
                     rows += '<tr>' +
                         '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + completedSubIdsStr + '" data-detailid="' + detailId + '" /></td>' +
                         '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
@@ -998,7 +1031,7 @@
                         '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
                         '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
                         '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        '<td><span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></td>' +
+                        colourTd +
                         '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
                         '<td class="text-end fw-bold text-success">' + completedPcs.toFixed(2) + '</td>' +
                         '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +

@@ -1,0 +1,572 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .production-list-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-list-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .production-list-filter {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 10px 12px;
+    }
+
+    .production-list-filter label {
+        display: block;
+        color: #164f87;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .production-list-filter .form-control,
+    .production-list-filter select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+    }
+
+    .production-list-filter .btn {
+        height: 31px;
+        min-width: 82px;
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 2px;
+    }
+
+    .production-list-table-scroll {
+        width: 100%;
+        max-height: 570px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+    }
+
+    #tblProcessStock {
+        width: 100% !important;
+        min-width: 1720px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblProcessStock th,
+    #tblProcessStock td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 4px 6px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblProcessStock thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* Column Widths */
+    #tblProcessStock th:nth-child(1), #tblProcessStock td:nth-child(1) { width: 45px !important; text-align: center !important; }
+    #tblProcessStock th:nth-child(2), #tblProcessStock td:nth-child(2) { width: 120px !important; text-align: center !important; font-weight: 700; }
+    #tblProcessStock th:nth-child(3), #tblProcessStock td:nth-child(3) { width: 150px !important; text-align: left !important; }
+    #tblProcessStock th:nth-child(4), #tblProcessStock td:nth-child(4) { width: 180px !important; text-align: left !important; }
+    #tblProcessStock th:nth-child(5), #tblProcessStock td:nth-child(5) { width: 85px !important; text-align: center !important; font-weight: 700; color: #164f87; }
+    #tblProcessStock th:nth-child(6), #tblProcessStock td:nth-child(6) { width: 85px !important; text-align: center !important; font-weight: 700; }
+    #tblProcessStock th:nth-child(7), #tblProcessStock td:nth-child(7) { width: 100px !important; text-align: center !important; }
+    #tblProcessStock th:nth-child(8), #tblProcessStock td:nth-child(8) { width: 80px !important; text-align: center !important; }
+    #tblProcessStock th:nth-child(9), #tblProcessStock td:nth-child(9) { width: 130px !important; text-align: left !important; }
+    #tblProcessStock th:nth-child(10), #tblProcessStock td:nth-child(10) { width: 170px !important; text-align: left !important; }
+    #tblProcessStock th:nth-child(11), #tblProcessStock td:nth-child(11) { width: 95px !important; text-align: right !important; }
+    #tblProcessStock th:nth-child(12), #tblProcessStock td:nth-child(12) { width: 105px !important; text-align: right !important; }
+    #tblProcessStock th:nth-child(13), #tblProcessStock td:nth-child(13) { width: 105px !important; text-align: right !important; font-weight: 700; color: #198754; background: #e8f5e9; }
+    #tblProcessStock th:nth-child(14), #tblProcessStock td:nth-child(14) { width: 65px !important; text-align: right !important; }
+    #tblProcessStock th:nth-child(15), #tblProcessStock td:nth-child(15) { width: 110px !important; text-align: center !important; }
+    #tblProcessStock th:nth-child(16), #tblProcessStock td:nth-child(16) { width: 155px !important; text-align: center !important; }
+
+    #tblProcessStock tbody tr:hover td { background: #f7f9fb !important; }
+    #tblProcessStock tbody td { color: #30343b; background: #fff; }
+
+    .po-status {
+        display: inline-block;
+        min-width: 90px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .po-status.available { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+    .po-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 8px;
+        margin: 0 1px;
+        border: 1px solid #b9c2cc;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: 11px;
+        text-decoration: none !important;
+    }
+    .po-action:hover { background: #eef5fb; color: #164f87; }
+    .po-action.btn-issueback { background: #0d6efd; color: #fff; border-color: #0d6efd; font-weight: 600; }
+    .po-action.btn-issueback:hover { background: #0b5ed7; color: #fff; }
+
+    .production-list-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .production-list-total {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .production-list-pagination {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .production-list-pagination button {
+        min-width: 30px;
+        height: 28px;
+        padding: 2px 7px;
+        border: 1px solid #c4cbd3;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        font-size: 12px;
+    }
+    .production-list-pagination button.active {
+        background: #e4eef9;
+        border-color: #9eb8d2;
+        font-weight: 700;
+    }
+    .production-list-pagination button:disabled { opacity: .45; cursor: not-allowed; }
+</style>
+
+<div class="content-wrapper production-list-page">
+    <div id="notes"></div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+
+            <!-- PAGE HEADER -->
+            <div class="production-list-header">
+                <span>BUTTA CUTTING STOCK (Derived from Received Movement)</span>
+                <div>
+                    <a href="~/ButtaCuttingReceiveList.cshtml" class="btn btn-outline-primary btn-sm px-3 me-2">
+                        <i class="fa fa-arrow-down me-1"></i> Butta Cutting Receive
+                    </a>
+                    <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-primary btn-sm px-3">
+                        <i class="fa fa-list me-1"></i> Jobber To Butta Cutting List
+                    </a>
+                </div>
+            </div>
+
+            <!-- FILTERS SECTION (Process Filter Internal To BUTTA CUTTING) -->
+            <div class="production-list-filter">
+                <div class="row g-2 align-items-end">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+                        <label>Processor</label>
+                        <select id="stockFilterProcessor" class="form-control">
+                            <option value="">-- ALL PROCESSORS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+                        <label>Jobber</label>
+                        <select id="stockFilterJobber" class="form-control">
+                            <option value="">-- ALL JOBBERS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Sales Order</label>
+                        <input type="text" id="stockFilterSO" class="form-control" placeholder="SO No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Slip No</label>
+                        <input type="text" id="stockFilterSlipNo" class="form-control" placeholder="Slip No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Design No</label>
+                        <input type="text" id="stockFilterDesignNo" class="form-control" placeholder="Design No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Machine No</label>
+                        <input type="number" id="stockFilterMachineNo" class="form-control" min="1" placeholder="Machine No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>From Date</label>
+                        <input type="date" id="stockFromDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>To Date</label>
+                        <input type="date" id="stockToDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 text-end ms-auto">
+                        <button type="button" id="btnSearchStock" class="btn btn-primary me-1">
+                            <i class="fa fa-search me-1"></i> Search
+                        </button>
+                        <button type="button" id="btnResetStock" class="btn btn-outline-secondary">
+                            <i class="fa fa-refresh me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN TABLE -->
+            <div class="production-list-table-scroll">
+                <table id="tblProcessStock" class="table table-bordered table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th>SR NO</th>
+                            <th>PROCESS</th>
+                            <th>PROCESSOR</th>
+                            <th>JOBBER</th>
+                            <th>SO NO</th>
+                            <th>SLIP NO</th>
+                            <th>DESIGN NO</th>
+                            <th>MACHINE NO</th>
+                            <th>COLOUR MATCHING</th>
+                            <th>JOB TYPE</th>
+                            <th>RECEIVED PCS</th>
+                            <th>ISSUED BACK PCS</th>
+                            <th>AVAILABLE PCS</th>
+                            <th>MTR</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblProcessStockBody">
+                        <tr>
+                            <td colspan="16" class="text-center text-muted py-4">
+                                <i class="fa fa-spinner fa-spin me-1"></i> Loading Butta Cutting stock items...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER WITH TOTAL RECORDS & PAGINATION -->
+            <div class="production-list-footer">
+                <div class="production-list-total">
+                    Total Butta Cutting Stock Slips: <span id="lblTotalRecords">0</span> | Total Available PCS: <span id="lblTotalAvailablePCS" class="text-success font-weight-bold">0</span>
+                </div>
+                <div id="stockPagination" class="production-list-pagination"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- HISTORY LOG MODAL -->
+<div class="modal fade" id="mdlStockHistory" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light py-2">
+                <h6 class="modal-title font-weight-bold">Movement History Log</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div id="mdlStockHistoryContent">
+                    <div class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin me-1"></i> Loading history...</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    var globalStockList = [];
+    var currentPage = 1;
+    var pageSize = 25;
+    var buttaCuttingProcessID = 0;
+
+    function getUrlProcessID() {
+        var urlParams = new URLSearchParams(window.location.search);
+        return parseInt(urlParams.get('processID')) || 0;
+    }
+
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+        var qPid = getUrlProcessID();
+        if (qPid > 0) { buttaCuttingProcessID = qPid; }
+        loadFilterDropdowns();
+
+        $('#btnSearchStock').click(function () {
+            currentPage = 1;
+            loadProcessStock();
+        });
+
+        $('#btnResetStock').click(function () {
+            $('#stockFilterProcessor').val('');
+            $('#stockFilterJobber').val('');
+            $('#stockFilterSO').val('');
+            $('#stockFilterSlipNo').val('');
+            $('#stockFilterDesignNo').val('');
+            $('#stockFilterMachineNo').val('');
+            $('#stockFromDate').val('');
+            $('#stockToDate').val('');
+            currentPage = 1;
+            loadProcessStock();
+        });
+    });
+
+    function loadFilterDropdowns() {
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetGenericProcessFilterDropdowns",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                var qPid = getUrlProcessID();
+                if (qPid > 0) {
+                    buttaCuttingProcessID = qPid;
+                } else if (d.Processes) {
+                    var bProc = d.Processes.find(function(p){ 
+                        return (p.ProcessCode === "BUTTA_CUTTING") || (p.ProcessName && p.ProcessName.toUpperCase().indexOf("BUTTA") !== -1); 
+                    });
+                    if (bProc) { buttaCuttingProcessID = bProc.ProcessID; }
+                }
+                if (d.Jobbers) {
+                    var htmlJ = '<option value="">-- ALL JOBBERS --</option>';
+                    $.each(d.Jobbers, function (i, item) {
+                        htmlJ += '<option value="' + item.JobberID + '">' + item.JobberName + '</option>';
+                    });
+                    $('#stockFilterJobber').html(htmlJ);
+                }
+                if (d.Processors) {
+                    var htmlP = '<option value="">-- ALL PROCESSORS --</option>';
+                    $.each(d.Processors, function (i, item) {
+                        var pId = item.ProcessorID || item.JobberID;
+                        var pName = item.ProcessorName || item.JobberName;
+                        htmlP += '<option value="' + pId + '">' + pName + '</option>';
+                    });
+                    $('#stockFilterProcessor').html(htmlP);
+                }
+                loadProcessStock();
+            },
+            error: function() {
+                loadProcessStock();
+            }
+        });
+    }
+
+    function loadProcessStock() {
+        $('#tblProcessStockBody').html('<tr><td colspan="16" class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin me-1"></i> Loading Butta Cutting stock items...</td></tr>');
+
+        var req = {
+            processID: buttaCuttingProcessID, // Strictly locked to BUTTA CUTTING
+            processorID: parseInt($('#stockFilterProcessor').val()) || 0,
+            jobberID: parseInt($('#stockFilterJobber').val()) || 0,
+            soNumber: $('#stockFilterSO').val() || '',
+            slipNo: $('#stockFilterSlipNo').val() || '',
+            designNo: $('#stockFilterDesignNo').val() || '',
+            machineNumber: parseInt($('#stockFilterMachineNo').val()) || 0,
+            fromDate: $('#stockFromDate').val() || '',
+            toDate: $('#stockToDate').val() || ''
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetProcessStock",
+            data: JSON.stringify(req),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var list = res.d || res;
+                if (list && list.Status === false) {
+                    $('#tblProcessStockBody').html('<tr><td colspan="16" class="text-center text-danger py-4">' + (list.Message || 'Process context not found.') + '</td></tr>');
+                    globalStockList = [];
+                    renderStockTable();
+                    return;
+                }
+                if (list && list.length !== undefined) {
+                    globalStockList = list;
+                    renderStockTable();
+                } else {
+                    globalStockList = [];
+                    renderStockTable();
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                $('#tblProcessStockBody').html('<tr><td colspan="16" class="text-center text-danger py-4">Error loading Butta Cutting stock records.</td></tr>');
+            }
+        });
+    }
+
+    function renderStockTable() {
+        var total = globalStockList.length;
+        $('#lblTotalRecords').text(total);
+
+        var totalAvailableSum = 0;
+        $.each(globalStockList, function (i, item) {
+            totalAvailableSum += (item.AvailablePCS || 0);
+        });
+        $('#lblTotalAvailablePCS').text(totalAvailableSum);
+
+        if (total === 0) {
+            $('#tblProcessStockBody').html('<tr><td colspan="16" class="text-center text-muted py-4">No available Butta Cutting stock found.</td></tr>');
+            $('#stockPagination').empty();
+            return;
+        }
+
+        var totalPages = Math.ceil(total / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        var startIdx = (currentPage - 1) * pageSize;
+        var endIdx = Math.min(startIdx + pageSize, total);
+        var pageItems = globalStockList.slice(startIdx, endIdx);
+
+        var html = '';
+        $.each(pageItems, function (i, item) {
+            var srNo = startIdx + i + 1;
+            var isAvailable = item.AvailablePCS > 0;
+            var statusBadge = isAvailable ? '<span class="po-status available">AVAILABLE</span>' : '<span class="po-status status-completed">RETURNED</span>';
+            var ibUrl = 'ProcessIssueBack.cshtml?processID=' + (item.ProcessID || 0) + '&processorID=' + (item.ProcessorID || 0) + '&jobberID=' + (item.JobberID || 0) + '&slipNo=' + encodeURIComponent(item.SlipNo || '');
+
+            html += '<tr>';
+            html += '<td class="text-center">' + srNo + '</td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + (item.ProcessName || 'BUTTA CUTTING') + '</td>';
+            html += '<td>' + item.ProcessorName + '</td>';
+            html += '<td>' + item.JobberName + '</td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + (item.SONumber || '-') + '</td>';
+            html += '<td class="text-center font-weight-bold">' + item.SlipNo + '</td>';
+            html += '<td class="text-center">' + (item.DesignNo || '-') + '</td>';
+            html += '<td class="text-center">' + item.MachineNumber + '</td>';
+            html += '<td>' + (item.ColourMatchingName || '-') + '</td>';
+            html += '<td class="text-center">' + (item.JobType || '-') + '</td>';
+            html += '<td class="text-end">' + item.ReceivedPCS + '</td>';
+            html += '<td class="text-end">' + item.IssuedBackPCS + '</td>';
+            html += '<td class="text-end font-weight-bold text-success" style="background:#e8f5e9;">' + item.AvailablePCS + '</td>';
+            html += '<td class="text-end">0</td>';
+            html += '<td class="text-center">' + statusBadge + '</td>';
+            html += '<td class="text-center">';
+            if (isAvailable) {
+                html += '<a href="' + ibUrl + '" class="po-action btn-issueback me-1" title="Issue Back to Jobber"><i class="fa fa-share me-1"></i> Issue Back</a>';
+            } else {
+                html += '<button type="button" class="po-action me-1" disabled style="opacity:0.5; cursor:not-allowed;"><i class="fa fa-check me-1"></i> Returned</button>';
+            }
+            html += '<button type="button" class="po-action" onclick="viewSlipHistory(\'' + item.SlipNo + '\')" title="History"><i class="fa fa-history"></i></button>';
+            html += '</td>';
+            html += '</tr>';
+        });
+
+        $('#tblProcessStockBody').html(html);
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        if (totalPages <= 1) {
+            $('#stockPagination').empty();
+            return;
+        }
+
+        var html = '';
+        html += '<button type="button" onclick="goToStockPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '><i class="fa fa-chevron-left"></i></button>';
+        for (var p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) {
+                html += '<button type="button" class="' + (p === currentPage ? 'active' : '') + '" onclick="goToStockPage(' + p + ')">' + p + '</button>';
+            } else if (p === currentPage - 3 || p === currentPage + 3) {
+                html += '<button type="button" disabled>...</button>';
+            }
+        }
+        html += '<button type="button" onclick="goToStockPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '><i class="fa fa-chevron-right"></i></button>';
+        $('#stockPagination').html(html);
+    }
+
+    function goToStockPage(page) {
+        currentPage = page;
+        renderStockTable();
+    }
+
+    function viewSlipHistory(slipNo) {
+        $('#mdlStockHistoryContent').html('<div class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin me-1"></i> Loading history...</div>');
+        $('#mdlStockHistory').modal('show');
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetProcessTransactionHistoryLog",
+            data: JSON.stringify({ slipNo: slipNo, productionOrderDetailID: 0 }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                if (d.Status && d.History) {
+                    var html = '<table class="table table-bordered table-sm font-size-12 m-0">';
+                    html += '<thead class="bg-light"><tr><th>DATE</th><th>TYPE</th><th>PROCESS</th><th>FROM</th><th>TO</th><th>SLIP NO</th><th>QTY</th><th>REMARK</th></tr></thead><tbody>';
+                    if (d.History.length > 0) {
+                        $.each(d.History, function (i, h) {
+                            html += '<tr>';
+                            html += '<td>' + h.DateStr + '</td>';
+                            html += '<td><span class="badge bg-secondary">' + h.TransactionType + '</span></td>';
+                            html += '<td>' + (h.ProcessName || 'BUTTA CUTTING') + '</td>';
+                            html += '<td>' + h.FromPartyName + '</td>';
+                            html += '<td>' + h.ToPartyName + '</td>';
+                            html += '<td>' + h.SlipNo + '</td>';
+                            html += '<td class="text-end font-weight-bold">' + h.Qty + '</td>';
+                            html += '<td>' + (h.Remark || '-') + '</td>';
+                            html += '</tr>';
+                        });
+                    } else {
+                        html += '<tr><td colspan="8" class="text-center text-muted">No movement history records found.</td></tr>';
+                    }
+                    html += '</tbody></table>';
+                    $('#mdlStockHistoryContent').html(html);
+                } else {
+                    $('#mdlStockHistoryContent').html('<div class="alert alert-danger">' + (d.Message || 'Failed to load history') + '</div>');
+                }
+            }
+        });
+    }
+</script>
+}

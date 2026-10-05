@@ -1,0 +1,597 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .receive-page {
+        width: 100%;
+    }
+
+    .form-section-header {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding: 8px 12px !important;
+        margin-bottom: 0 !important;
+        background: #164f87 !important;
+        color: #fff !important;
+        border-radius: 2px 2px 0 0 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .field-placeholder {
+        font-size: 11px;
+        font-weight: 700;
+        color: #164f87;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+    }
+
+    .wl-input-sm, .select-single {
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+        background: #ffffff;
+    }
+
+    .filter-card-box {
+        background: #fff;
+        border: 1px solid #bfc7d1;
+        border-radius: 0 0 4px 4px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .table-scroll-container {
+        width: 100%;
+        max-height: 420px;
+        overflow: auto;
+        border: 1px solid #000;
+        background: #fff;
+    }
+
+    #tblReceiveList {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblReceiveList th, #tblReceiveList td {
+        border: 1px solid #000 !important;
+        padding: 4px 8px !important;
+        height: 32px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+    }
+
+    #tblReceiveList thead th {
+        background: #f8f9fa !important;
+        color: #000 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-transform: uppercase;
+    }
+
+    #tblReceiveList tfoot td {
+        background: #f8f9fa !important;
+        color: #000 !important;
+        font-weight: 700 !important;
+    }
+
+    .txt-rec-pcs, .txt-short-pcs {
+        width: 80px !important;
+        height: 26px !important;
+        padding: 2px 4px !important;
+        margin: 0 auto !important;
+        display: block !important;
+        text-align: center !important;
+        border: 1px solid #0d6efd !important;
+        border-radius: 2px !important;
+        font-weight: 700;
+    }
+
+    .txt-short-pcs {
+        border-color: #dc3545 !important;
+        color: #dc3545;
+    }
+
+    .cm-thumb-img {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 3px;
+        border: 1px solid #0d6efd;
+        cursor: pointer;
+    }
+</style>
+
+<div class="content-wrapper receive-page">
+    <div id="notes"></div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-2">
+
+            <!-- MAIN SECTION HEADER -->
+            <div class="form-section-header">
+                <div>
+                    <i class="fa fa-download me-2"></i> <span id="lblHeaderParty">JOBBER NAME - RECEIVE CHALLAN</span>
+                </div>
+                <div>
+                    <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-light btn-sm text-dark px-3 py-1">
+                        <i class="fa fa-list me-1"></i> Issue & Receive List
+                    </a>
+                </div>
+            </div>
+
+            <!-- TOP FILTERS & CHALLAN DETAILS -->
+            <div class="filter-card-box">
+                <div class="row g-3 align-items-end mb-2">
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <label class="field-placeholder">Issue Challan No</label>
+                        <select id="ddlIssueChallan" class="select-single w-100">
+                            <option value="">-- Select Issue Challan --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <label class="field-placeholder">Design No</label>
+                        <select id="ddlFilterDesign" class="select-single w-100">
+                            <option value="">-- ALL DESIGNS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <label class="field-placeholder">Butta Cutting Party (Job Worker)</label>
+                        <input type="text" id="txtPartyName" class="wl-input-sm w-100 bg-light" readonly placeholder="Auto-filled Job Worker" />
+                    </div>
+                </div>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <label class="field-placeholder">Receive Challan Date</label>
+                        <input type="date" id="txtReceiveDate" class="wl-input-sm w-100" />
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <label class="field-placeholder">Butta Cutting Receive Challan No</label>
+                        <input type="text" id="txtReceiveChallanNo" class="wl-input-sm w-100 bg-light text-primary font-weight-bold" readonly placeholder="Auto-generated BCR0001" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHALLAN ITEMS LIST TABLE HEADER -->
+            <div class="text-center font-weight-bold py-2 bg-light border border-bottom-0 text-uppercase" style="font-size:13px; letter-spacing:1px; color:#164f87;">
+                CHALLAN LIST
+            </div>
+
+            <!-- ITEMS TABLE -->
+            <div class="table-scroll-container">
+                <table id="tblReceiveList" class="table table-bordered table-sm m-0">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">NO</th>
+                            <th style="width:130px;">ISSUE CHALLAN NO</th>
+                            <th style="width:110px;">SLIP NO</th>
+                            <th style="width:140px;">JOB TYPE</th>
+                            <th style="width:110px;">DESIGN NO</th>
+                            <th>COLOUR MATCHING ID</th>
+                            <th style="width:100px;">PRODUCTION PCS</th>
+                            <th style="width:110px;">RECEIVE PCS</th>
+                            <th style="width:100px;">SHORT PCS</th>
+                            <th style="width:60px;">TICK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblReceiveBody">
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">Please select an Issue Challan from the top dropdown to load slips.</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" class="text-end font-weight-bold">TOTAL PCS</td>
+                            <td id="lblTotalIssuePcs" class="text-center font-weight-bold">0</td>
+                            <td id="lblTotalReceivePcs" class="text-center font-weight-bold text-primary">0</td>
+                            <td id="lblTotalShortPcs" class="text-center font-weight-bold text-danger">0</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- BOTTOM SAVE ACTION BUTTON -->
+            <div class="row mt-3">
+                <div class="col-12 text-start">
+                    <button type="button" id="btnSaveReceive" class="btn btn-primary btn-md px-4 me-2">
+                        <i class="fa fa-save me-1"></i> SAVE RECEIVE CHALLAN
+                    </button>
+                    <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-secondary btn-md px-3">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Image Preview -->
+<div class="modal fade" id="modalImagePreview" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title m-0"><i class="fa fa-picture-o me-2"></i>Colour Matching Image</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-3">
+                <img id="imgPreviewTarget" src="" class="img-fluid rounded border shadow-sm" style="max-height: 450px;" alt="Colour Matching Image" />
+                <div id="imgPreviewCaption" class="mt-2 text-dark font-weight-bold" style="font-size:13px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+
+        function getQueryString(name) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        var issueIdParam = getQueryString("issueID") || getQueryString("id") || "";
+        var editId = getQueryString("editId") || "";
+        var todayStr = new Date().toISOString().split('T')[0];
+        $('#txtReceiveDate').val(todayStr);
+
+        var currentReceiveItems = [];
+        var currentJobberID = 0;
+
+        loadPendingIssueChallans(function () {
+            if (editId && parseInt(editId) > 0) {
+                loadEditReceiveData(parseInt(editId));
+            } else if (issueIdParam && parseInt(issueIdParam) > 0) {
+                $('#ddlIssueChallan').val(issueIdParam).change();
+            }
+        });
+
+        function showNotification(msg, isError) {
+            if (typeof toastr !== 'undefined') {
+                if (isError) toastr.error(msg);
+                else toastr.success(msg);
+            } else {
+                alert(msg);
+            }
+        }
+
+        function loadPendingIssueChallans(callback) {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetIssueChallansForReceive",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var list = res.d || res;
+                    var $ddl = $('#ddlIssueChallan').empty().append('<option value="">-- Select Issue Challan --</option>');
+                    if (Array.isArray(list) && list.length > 0) {
+                        $.each(list, function (i, c) {
+                            $ddl.append('<option value="' + c.ProcessTransactionID + '" data-jobber="' + (c.JobberName || '') + '" data-jobberid="' + c.JobberID + '">' + c.ProcessTransactionNo + ' - ' + (c.JobberName || 'Jobber') + ' (' + c.TransactionDate + ')</option>');
+                        });
+                    }
+                    if (callback) callback();
+                },
+                error: function () {
+                    if (callback) callback();
+                }
+            });
+        }
+
+        function loadEditReceiveData(recId) {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobberToButtaCuttingDetail",
+                data: JSON.stringify({ processTransactionID: recId }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status && r.Master) {
+                        $('#lblHeaderParty').text('EDIT RECEIVE CHALLAN (' + r.Master.ProcessTransactionNo + ')');
+                        $('#btnSaveReceive').html('<i class="fa fa-save me-1"></i> UPDATE RECEIVE CHALLAN');
+                        $('#txtReceiveChallanNo').val(r.Master.ProcessTransactionNo);
+                        $('#txtPartyName').val(r.Master.JobberName || '');
+                        if (r.Master.TransactionDate) $('#txtReceiveDate').val(r.Master.TransactionDate);
+                        currentJobberID = r.Master.JobberID || 0;
+
+                        if (r.Master.ReferenceTransactionID && r.Master.ReferenceTransactionID > 0) {
+                            $('#ddlIssueChallan').val(r.Master.ReferenceTransactionID);
+                        }
+
+                        currentReceiveItems = r.Details || [];
+                        var uniqueDesigns = [];
+                        var $ddlDes = $('#ddlFilterDesign').empty().append('<option value="">-- ALL DESIGNS --</option>');
+                        $.each(currentReceiveItems, function (i, item) {
+                            if (item.DesignNo && $.inArray(item.DesignNo, uniqueDesigns) === -1) {
+                                uniqueDesigns.push(item.DesignNo);
+                                $ddlDes.append('<option value="' + item.DesignNo + '">' + item.DesignNo + '</option>');
+                            }
+                            item.IsTicked = true;
+                        });
+
+                        renderReceiveTable(currentReceiveItems);
+                    }
+                }
+            });
+        }
+
+        $('#ddlIssueChallan').change(function () {
+            var issueTxnId = parseInt($(this).val()) || 0;
+            if (issueTxnId <= 0) {
+                currentReceiveItems = [];
+                $('#txtPartyName').val('');
+                $('#txtReceiveChallanNo').val('');
+                $('#lblHeaderParty').text('JOBBER NAME - RECEIVE CHALLAN');
+                renderReceiveTable([]);
+                return;
+            }
+
+            var $opt = $(this).find('option:selected');
+            var partyName = $opt.attr('data-jobber') || '';
+            currentJobberID = parseInt($opt.attr('data-jobberid')) || 0;
+
+            $('#txtPartyName').val(partyName);
+            if (partyName) $('#lblHeaderParty').text(partyName.toUpperCase() + ' - RECEIVE CHALLAN');
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetIssueChallanDetailForReceive",
+                data: JSON.stringify({ issueProcessTransactionID: issueTxnId }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status) {
+                        if (r.NextReceiveNo) $('#txtReceiveChallanNo').val(r.NextReceiveNo);
+                        currentReceiveItems = r.Details || [];
+
+                        // Populate Design Dropdown filter
+                        var uniqueDesigns = [];
+                        var $ddlDes = $('#ddlFilterDesign').empty().append('<option value="">-- ALL DESIGNS --</option>');
+                        $.each(currentReceiveItems, function (i, item) {
+                            if (item.DesignNo && $.inArray(item.DesignNo, uniqueDesigns) === -1) {
+                                uniqueDesigns.push(item.DesignNo);
+                                $ddlDes.append('<option value="' + item.DesignNo + '">' + item.DesignNo + '</option>');
+                            }
+                            item.IsTicked = true; // Checked by default
+                        });
+
+                        renderReceiveTable(currentReceiveItems);
+                    } else {
+                        showNotification(r ? r.Message : 'Error loading details.', true);
+                    }
+                },
+                error: function () {
+                    showNotification('Error connecting to server.', true);
+                }
+            });
+        });
+
+        $('#ddlFilterDesign').change(function () {
+            renderReceiveTable(currentReceiveItems);
+        });
+
+        function renderReceiveTable(items) {
+            var $tbody = $('#tblReceiveBody').empty();
+
+            if (!items || items.length === 0) {
+                $tbody.append('<tr><td colspan="10" class="text-center text-muted py-4">Please select an Issue Challan from the top dropdown to load slips.</td></tr>');
+                $('#lblTotalIssuePcs').text(0);
+                $('#lblTotalReceivePcs').text(0);
+                $('#lblTotalShortPcs').text(0);
+                return;
+            }
+
+            var filterDesign = $('#ddlFilterDesign').val() || '';
+            var issueTxnNo = $('#ddlIssueChallan option:selected').text().split(' - ')[0] || 'BC0001';
+
+            var totalIssue = 0, totalRec = 0, totalShort = 0;
+            var count = 0;
+
+            $.each(items, function (idx, r) {
+                if (filterDesign && r.DesignNo !== filterDesign) return true;
+
+                count++;
+                var isChecked = r.IsTicked ? 'checked' : '';
+                var issuePcs = parseFloat(r.PendingReceivePCS || r.IssuePCS || 0);
+                var recPcs = parseFloat(r.ReceivePCS || issuePcs);
+                var shortPcs = parseFloat(r.ShortPCS || 0);
+
+                if (r.IsTicked) {
+                    totalIssue += issuePcs;
+                    totalRec += recPcs;
+                    totalShort += shortPcs;
+                }
+
+                var tr = '<tr>' +
+                    '<td class="text-center">' + count + '</td>' +
+                    '<td class="text-center font-weight-bold text-primary">' + issueTxnNo + '</td>' +
+                    '<td class="text-center font-weight-bold">' + r.SlipNo + '</td>' +
+                    '<td class="text-center">' + (r.JobType || 'BORDER & BUTTA') + '</td>' +
+                    '<td class="text-center font-weight-bold">' + r.DesignNo + '</td>' +
+                    '<td>' + getColourMatchingHtml(r) + '</td>' +
+                    '<td class="text-center font-weight-bold">' + issuePcs + '</td>' +
+                    '<td class="text-center"><input type="number" class="txt-rec-pcs" data-idx="' + idx + '" value="' + recPcs + '" min="0" max="' + issuePcs + '" /></td>' +
+                    '<td class="text-center"><input type="number" class="txt-short-pcs" data-idx="' + idx + '" value="' + shortPcs + '" min="0" max="' + issuePcs + '" /></td>' +
+                    '<td class="text-center"><input type="checkbox" class="chkTick" data-idx="' + idx + '" ' + isChecked + ' style="width:16px; height:16px; cursor:pointer;" /></td>' +
+                    '</tr>';
+
+                $tbody.append(tr);
+            });
+
+            $('#lblTotalIssuePcs').text(totalIssue);
+            $('#lblTotalReceivePcs').text(totalRec);
+            $('#lblTotalShortPcs').text(totalShort);
+        }
+
+        $(document).on('change', '.chkTick', function () {
+            var idx = $(this).data('idx');
+            var isChecked = $(this).is(':checked');
+            if (currentReceiveItems[idx]) {
+                currentReceiveItems[idx].IsTicked = isChecked;
+                renderReceiveTable(currentReceiveItems);
+            }
+        });
+
+        $(document).on('input change', '.txt-rec-pcs', function () {
+            var idx = $(this).data('idx');
+            var val = parseFloat($(this).val()) || 0;
+            if (currentReceiveItems[idx]) {
+                var pendingPcs = parseFloat(currentReceiveItems[idx].PendingReceivePCS || currentReceiveItems[idx].IssuePCS || 0);
+                var shortPcs = parseFloat(currentReceiveItems[idx].ShortPCS || 0);
+                if (val < 0) val = 0;
+                if (val + shortPcs > pendingPcs) {
+                    val = Math.max(0, pendingPcs - shortPcs);
+                    showNotification('Receive PCS + Short PCS cannot exceed Current Pending PCS (' + pendingPcs + ').', true);
+                }
+                currentReceiveItems[idx].ReceivePCS = val;
+                renderReceiveTable(currentReceiveItems);
+            }
+        });
+
+        $(document).on('input change', '.txt-short-pcs', function () {
+            var idx = $(this).data('idx');
+            var val = parseFloat($(this).val()) || 0;
+            if (currentReceiveItems[idx]) {
+                var pendingPcs = parseFloat(currentReceiveItems[idx].PendingReceivePCS || currentReceiveItems[idx].IssuePCS || 0);
+                var recPcs = parseFloat(currentReceiveItems[idx].ReceivePCS || 0);
+                if (val < 0) val = 0;
+                if (recPcs + val > pendingPcs) {
+                    val = Math.max(0, pendingPcs - recPcs);
+                    showNotification('Receive PCS + Short PCS cannot exceed Current Pending PCS (' + pendingPcs + ').', true);
+                }
+                currentReceiveItems[idx].ShortPCS = val;
+                renderReceiveTable(currentReceiveItems);
+            }
+        });
+
+        function getColourMatchingHtml(r) {
+            var photoPath = r.PhotoPath || r.ColorMatchingPhoto || r.ImageUrl || '';
+            var cmText = r.ColourMatchingName || (r.ColourMatchingID > 0 ? ('CM-' + r.ColourMatchingID) : '-');
+            var imgSrc = '';
+
+            if (photoPath) {
+                photoPath = photoPath.replace(/\\/g, '/');
+                if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                else imgSrc = photoPath;
+            }
+
+            var safeCmText = $('<div>').text(cmText || '-').html();
+            var safeDesignNo = $('<div>').text(r.DesignNo || '-').html();
+            var safeImgSrc = $('<div>').text(imgSrc || '').html();
+
+            var imgHtml = '';
+            if (imgSrc) {
+                imgHtml = '<img src="' + safeImgSrc + '" class="cm-thumb-img me-2" data-img="' + safeImgSrc + '" data-design="' + safeDesignNo + '" data-cm="' + safeCmText + '" title="Click to enlarge image" />';
+            } else {
+                imgHtml = '<span class="badge bg-light text-muted border me-2" style="font-size:10px; padding:4px 6px;"><i class="fa fa-picture-o"></i></span>';
+            }
+
+            return '<div class="d-flex align-items-center">' + imgHtml + '<span class="font-weight-bold">' + safeCmText + '</span></div>';
+        }
+
+        $(document).on('click', 'img.cm-thumb-img', function () {
+            var imgUrl = $(this).attr('data-img');
+            var designNo = $(this).attr('data-design');
+            var colourMatching = $(this).attr('data-cm');
+            if (imgUrl) {
+                $('#imgPreviewTarget').attr('src', imgUrl);
+                $('#imgPreviewCaption').text('Design No: ' + (designNo || '-') + ' | Colour Matching: ' + (colourMatching || '-'));
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modalEl = document.getElementById('modalImagePreview');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    $('#modalImagePreview').modal('show');
+                }
+            }
+        });
+
+        // SAVE RECEIVE CHALLAN HANDLER
+        $('#btnSaveReceive').click(function () {
+            var issueTxnId = parseInt($('#ddlIssueChallan').val()) || 0;
+            if (issueTxnId <= 0) {
+                showNotification('Please select an Issue Challan first.', true);
+                return;
+            }
+
+            var selectedItems = [];
+            $.each(currentReceiveItems, function (i, item) {
+                if (item.IsTicked && (item.ReceivePCS > 0 || item.ShortPCS > 0)) {
+                    selectedItems.push({
+                        IssueDetailID: item.IssueDetailID || 0,
+                        ProductionOrderID: item.ProductionOrderID || 0,
+                        ProductionOrderDetailID: item.ProductionOrderDetailID || 0,
+                        ProductionOrderSubDetailID: item.ProductionOrderSubDetailID || 0,
+                        SlipNo: item.SlipNo || "",
+                        IssuePCS: parseFloat(item.PendingReceivePCS || item.IssuePCS || 0),
+                        ReceivePCS: parseFloat(item.ReceivePCS || 0),
+                        ShortPCS: parseFloat(item.ShortPCS || 0)
+                    });
+                }
+            });
+
+            if (selectedItems.length === 0) {
+                showNotification('Please select at least one slip item to receive.', true);
+                return;
+            }
+
+            var $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+            var payload = {
+                issueProcessTransactionID: issueTxnId,
+                jobberID: currentJobberID,
+                receiveDate: $('#txtReceiveDate').val() || todayStr,
+                items: selectedItems
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/SaveReceiveJobberToButtaCutting",
+                data: JSON.stringify(payload),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status) {
+                        showNotification('Receive Challan Saved Successfully! No: ' + (r.ReceiveChallanNo || 'BCR0001'), false);
+                        setTimeout(function () {
+                            window.location.href = "JobberToButtaCuttingList.cshtml";
+                        }, 1200);
+                    } else {
+                        showNotification(r ? r.Message : 'Failed to save receive challan.', true);
+                    }
+                },
+                error: function () {
+                    showNotification('Error saving receive challan.', true);
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).html('<i class="fa fa-save me-1"></i> SAVE RECEIVE CHALLAN');
+                }
+            });
+        });
+    });
+</script>
+}

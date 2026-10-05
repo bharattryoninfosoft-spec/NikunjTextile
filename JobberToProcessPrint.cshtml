@@ -1,0 +1,425 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Process Transaction Challan Print</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .print-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px 30px;
+            border: 1px solid #dcdcdc;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .no-print-bar {
+            max-width: 900px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .company-header {
+            border-bottom: 2px solid #164f87;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .company-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #164f87;
+            letter-spacing: 0.5px;
+        }
+
+        .company-sub {
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        .report-title-badge {
+            display: inline-block;
+            background: #164f87;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .info-table td {
+            padding: 4px 8px;
+            vertical-align: top;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: #164f87;
+            width: 140px;
+            background: #f8fafc;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .detail-table th, .detail-table td {
+            border: 1px solid #b0bec5;
+            padding: 6px 8px;
+            vertical-align: middle;
+        }
+
+        .detail-table thead th {
+            background: #e4eef9;
+            color: #164f87;
+            font-weight: 700;
+            text-align: center;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .signature-box {
+            width: 200px;
+            border-top: 1px dashed #78909c;
+            padding-top: 5px;
+            font-weight: 600;
+            color: #455a64;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .no-print-bar {
+                display: none !important;
+            }
+
+            .print-container {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ACTION BUTTONS BAR -->
+    <div class="no-print-bar">
+        <div>
+            <button type="button" class="btn btn-primary btn-sm px-3" onclick="window.print()">
+                <i class="fa fa-print me-1"></i> Print Challan
+            </button>
+            <button type="button" id="btnDownloadCrystalPdf" class="btn btn-outline-danger btn-sm px-3 ms-2">
+                <i class="fa fa-file-pdf-o me-1"></i> Export Crystal PDF
+            </button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="window.close()">
+            <i class="fa fa-times me-1"></i> Close
+        </button>
+    </div>
+
+    <!-- MAIN PRINT CONTAINER -->
+    <div class="print-container">
+        <div id="printLoading" class="text-center py-5">
+            <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+            <p class="mt-2 text-muted">Loading transaction report data...</p>
+        </div>
+
+        <div id="printContent" style="display:none;">
+            <!-- COMPANY HEADER -->
+            <div class="company-header">
+                <div>
+                    <div class="company-title" id="lblCompanyName">NIKUNJ TEXTILE ERP</div>
+                    <div class="company-sub" id="lblCompanyAddress">Ring Road, Surat, Gujarat - 395002</div>
+                    <div class="company-sub"><strong>GSTIN:</strong> <span id="lblCompanyGST">24AAAAA0000A1Z5</span> | <strong>Phone:</strong> <span id="lblCompanyPhone">+91 98765 43210</span></div>
+                </div>
+                <div class="text-end">
+                    <div class="report-title-badge" id="lblReportTitle">PROCESS CHALLAN</div>
+                </div>
+            </div>
+
+            <!-- TRANSACTION HEADER INFO -->
+            <table class="info-table">
+                <tr>
+                    <td class="info-label">Challan No:</td>
+                    <td><strong class="text-primary font-size-14" id="lblChallanNo">-</strong></td>
+                    <td class="info-label">Challan Date:</td>
+                    <td><strong id="lblChallanDate">-</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Process:</td>
+                    <td><strong id="lblProcessName">-</strong></td>
+                    <td class="info-label">Ref Challan No:</td>
+                    <td><span id="lblRefChallanNo">-</span></td>
+                </tr>
+                <tr>
+                    <td class="info-label" id="lblFromPartyLabel">From Party:</td>
+                    <td><span id="lblFromPartyName">-</span></td>
+                    <td class="info-label" id="lblToPartyLabel">To Party:</td>
+                    <td><span id="lblToPartyName">-</span></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Remark:</td>
+                    <td colspan="3"><span id="lblMasterRemark">-</span></td>
+                </tr>
+            </table>
+
+            <!-- DETAILS TABLE -->
+            <table class="detail-table">
+                <thead id="tblPrintHead">
+                    <!-- Dynamic Headers -->
+                </thead>
+                <tbody id="tblPrintBody">
+                    <!-- Dynamic Body -->
+                </tbody>
+                <tfoot id="tblPrintFoot">
+                    <!-- Dynamic Summary -->
+                </tfoot>
+            </table>
+
+            <!-- SIGNATURE SECTION -->
+            <div class="signature-section">
+                <div class="signature-box">Prepared By</div>
+                <div class="signature-box">Checked By</div>
+                <div class="signature-box">Receiver Signature</div>
+                <div class="signature-box">Authorized Signature</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://tryoninfosoft.web.app/sr/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('body').removeClass('fullscreen');
+            var id = getUrlParameter('id') || getUrlParameter('processTransactionID');
+            if (id && parseInt(id) > 0) {
+                loadReportData(parseInt(id));
+            } else {
+                $('#printLoading').html('<div class="alert alert-danger">No valid Process Transaction ID provided.</div>');
+            }
+
+            $('#btnDownloadCrystalPdf').click(function () {
+                if (id) {
+                    exportCrystalPdf(parseInt(id));
+                }
+            });
+        });
+
+        function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+            return '';
+        }
+
+        function loadReportData(id) {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GenerateProcessChallanReportData",
+                data: JSON.stringify({ processTransactionID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var d = res.d || res;
+                    if (d.Status && d.Master) {
+                        renderReport(d);
+                    } else {
+                        $('#printLoading').html('<div class="alert alert-danger">' + (d.Message || 'Failed to load report data.') + '</div>');
+                    }
+                },
+                error: function (xhr) {
+                    console.error(xhr);
+                    $('#printLoading').html('<div class="alert alert-danger">Error connecting to server.</div>');
+                }
+            });
+        }
+
+        function renderReport(d) {
+            var m = d.Master;
+            var details = d.Details || [];
+            var c = d.Company || {};
+
+            $('#lblCompanyName').text(c.CompanyName || 'NIKUNJ TEXTILE ERP');
+            $('#lblCompanyAddress').text(c.Address || 'Surat, Gujarat');
+            $('#lblCompanyGST').text(c.GSTNo || '-');
+            $('#lblCompanyPhone').text(c.Phone || '-');
+
+            $('#lblChallanNo').text(m.ProcessTransactionNo);
+            $('#lblChallanDate').text(m.TransactionDateStr);
+            $('#lblProcessName').text(m.ProcessName);
+            $('#lblFromPartyName').text(m.FromPartyName);
+            $('#lblToPartyName').text(m.ToPartyName);
+            $('#lblRefChallanNo').text(m.ReferenceTransactionNo ? m.ReferenceTransactionNo + ' (' + m.ReferenceTransactionDateStr + ')' : '-');
+            $('#lblMasterRemark').text(m.Remark || '-');
+
+            var tType = m.TransactionType || 'ISSUE';
+            var title = 'PROCESS CHALLAN';
+            if (tType === 'ISSUE') {
+                title = 'PROCESS ISSUE CHALLAN';
+                $('#lblFromPartyLabel').text('Jobber (From):');
+                $('#lblToPartyLabel').text('Processor (To):');
+            } else if (tType === 'RECEIVE') {
+                title = 'PROCESS RECEIVE CHALLAN';
+                $('#lblFromPartyLabel').text('Processor (From):');
+                $('#lblToPartyLabel').text('Jobber (To):');
+            } else if (tType === 'ISSUE_BACK') {
+                title = 'PROCESS ISSUE BACK CHALLAN';
+                $('#lblFromPartyLabel').text('Processor (From):');
+                $('#lblToPartyLabel').text('Jobber (To):');
+            } else if (tType === 'JOBBER_RECEIVE') {
+                title = 'JOBBER RECEIVE CHALLAN';
+                $('#lblFromPartyLabel').text('Processor (From):');
+                $('#lblToPartyLabel').text('Jobber (To):');
+            }
+            $('#lblReportTitle').text(title);
+
+            // TABLE HEADERS
+            var headHtml = '<tr><th style="width:40px;">SR</th><th>SO NO</th><th>SLIP NO</th><th>DESIGN NO</th><th>COLOUR MATCHING</th><th style="width:60px;">MACHINE</th>';
+            if (tType === 'ISSUE') {
+                headHtml += '<th style="width:90px; text-align:right;">ISSUE PCS</th>';
+            } else if (tType === 'RECEIVE') {
+                headHtml += '<th style="width:80px; text-align:right;">ISSUE PCS</th><th style="width:80px; text-align:right;">RECEIVE PCS</th><th style="width:80px; text-align:right;">SHORT PCS</th>';
+            } else if (tType === 'ISSUE_BACK') {
+                headHtml += '<th style="width:90px; text-align:right;">ISSUE BACK PCS</th>';
+            } else if (tType === 'JOBBER_RECEIVE') {
+                headHtml += '<th style="width:90px; text-align:right;">RECEIVE PCS</th>';
+            }
+            headHtml += '<th>REMARK</th></tr>';
+            $('#tblPrintHead').html(headHtml);
+
+            // TABLE BODY & TOTALS
+            var bodyHtml = '';
+            var totIssue = 0, totReceive = 0, totShort = 0, totIssueBack = 0;
+
+            $.each(details, function (i, det) {
+                bodyHtml += '<tr>';
+                bodyHtml += '<td class="text-center">' + (i + 1) + '</td>';
+                bodyHtml += '<td class="text-center">' + (det.SONumber || 'SO36') + '</td>';
+                bodyHtml += '<td class="text-center font-weight-bold text-primary">' + det.SlipNo + '</td>';
+                bodyHtml += '<td class="text-center">' + det.DesignNo + '</td>';
+                bodyHtml += '<td>' + (det.ColourMatchingName || '-') + '</td>';
+                bodyHtml += '<td class="text-center">' + det.MachineNumber + '</td>';
+
+                if (tType === 'ISSUE') {
+                    bodyHtml += '<td class="text-end font-weight-bold">' + det.IssuePCS + '</td>';
+                    totIssue += det.IssuePCS;
+                } else if (tType === 'RECEIVE') {
+                    bodyHtml += '<td class="text-end">' + det.IssuePCS + '</td>';
+                    bodyHtml += '<td class="text-end font-weight-bold text-success">' + det.ReceivePCS + '</td>';
+                    bodyHtml += '<td class="text-end text-danger">' + (det.ShortPCS > 0 ? det.ShortPCS : '-') + '</td>';
+                    totIssue += det.IssuePCS;
+                    totReceive += det.ReceivePCS;
+                    totShort += det.ShortPCS;
+                } else if (tType === 'ISSUE_BACK') {
+                    bodyHtml += '<td class="text-end font-weight-bold text-success">' + det.IssuePCS + '</td>';
+                    totIssueBack += det.IssuePCS;
+                } else if (tType === 'JOBBER_RECEIVE') {
+                    bodyHtml += '<td class="text-end font-weight-bold text-success">' + det.ReceivePCS + '</td>';
+                    totReceive += det.ReceivePCS;
+                }
+
+                bodyHtml += '<td>' + (det.Remark || '-') + '</td>';
+                bodyHtml += '</tr>';
+            });
+            $('#tblPrintBody').html(bodyHtml);
+
+            // TABLE FOOTER TOTALS
+            var footHtml = '<tr style="background:#f8fafc; font-weight:700;"><td colspan="6" class="text-end">TOTAL:</td>';
+            if (tType === 'ISSUE') {
+                footHtml += '<td class="text-end text-primary">' + totIssue + '</td>';
+            } else if (tType === 'RECEIVE') {
+                footHtml += '<td class="text-end">' + totIssue + '</td><td class="text-end text-success">' + totReceive + '</td><td class="text-end text-danger">' + totShort + '</td>';
+            } else if (tType === 'ISSUE_BACK') {
+                footHtml += '<td class="text-end text-success">' + totIssueBack + '</td>';
+            } else if (tType === 'JOBBER_RECEIVE') {
+                footHtml += '<td class="text-end text-success">' + totReceive + '</td>';
+            }
+            footHtml += '<td></td></tr>';
+            $('#tblPrintFoot').html(footHtml);
+
+            $('#printLoading').hide();
+            $('#printContent').show();
+        }
+
+        function exportCrystalPdf(id) {
+            $('#btnDownloadCrystalPdf').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Generating Crystal PDF...');
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GenerateProcessChallanReportPDF",
+                data: JSON.stringify({ processTransactionID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var pdfUrl = res.d || res;
+                    $('#btnDownloadCrystalPdf').prop('disabled', false).html('<i class="fa fa-file-pdf-o me-1"></i> Export Crystal PDF');
+                    if (pdfUrl && pdfUrl.indexOf('Error') === -1) {
+                        window.open(pdfUrl, '_blank');
+                    } else {
+                        alert(pdfUrl || 'Failed to generate Crystal PDF.');
+                    }
+                },
+                error: function (xhr) {
+                    $('#btnDownloadCrystalPdf').prop('disabled', false).html('<i class="fa fa-file-pdf-o me-1"></i> Export Crystal PDF');
+                    console.error(xhr);
+                    alert('Error connecting to Crystal Report server engine.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿using iText.Forms.Xfdf;
+using iText.Forms.Xfdf;
 using iText.Kernel.Geom;
 using iText.Layout.Element;
 using iTextSharp.text;
@@ -622,7 +622,8 @@ namespace NikunjTextile
 
         #region Sale Order Entry API
         [WebMethod]
-        public void GetSaleOrderListAPI(int page = 1, int pageSize = 10)
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void GetSaleOrderListAPI(int page = 1, int pageSize = 10, string SearchRequirementNo = "")
         {
             try
             {
@@ -633,22 +634,68 @@ namespace NikunjTextile
                     con.Open();
 
                     int offset = (page - 1) * pageSize;
+                    if (offset < 0) offset = 0;
+                    if (pageSize <= 0) pageSize = 10;
+
+                    string searchQuery = "";
+                    if (!string.IsNullOrEmpty(SearchRequirementNo))
+                    {
+                        searchQuery = " WHERE (SO.OrderNo LIKE '%' + @Search + '%' OR PM.PartyName LIKE '%' + @Search + '%' OR BM.BrokerName LIKE '%' + @Search + '%' OR TMST.TransportName LIKE '%' + @Search + '%') ";
+                    }
 
                     string query = @"
                 SELECT 
                     SO.SaleOrderID,
                     SO.OrderNo,
-                    SO.OrderDate,
-                    PM.PartyName,
-                    BM.BrokerName,
-                    TM.TransportName,
-                    SO.TotalQty,
+                    CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,
+                    ISNULL(PM.PartyName, '') AS PartyName,
+                    ISNULL(BM.BrokerName, CAST(ISNULL(SO.BrokerID, '') AS VARCHAR(50))) AS BrokerName,
+                    ISNULL(TMST.TransportName, CAST(ISNULL(SO.TransportID, '') AS VARCHAR(50))) AS TransportName,
+                    ISNULL(SO.TotalQty, 0) AS TotalQty,
+                    ISNULL(D.TotalRate, 0) + ISNULL(AC.ChargeValue, 0) AS Rate,
+                    ISNULL(AC.ChargeRemark, '') AS ChargeRemark,
+                    ISNULL(AC.ChargeValue, 0) AS ChargeValue,
+                    CALC.SubTotalAmount,
+                    ISNULL(SO.DiscountPercent, 0) AS DiscountPercent,
+                    CALC.DiscountAmount,
+                    CALC.TaxableAmount,
+                    ISNULL(SO.GSTPercent, 0) AS GSTPercent,
+                    CALC.GSTAmount,
+                    CALC.RoundOff,
+                    CALC.InvoiceAmount AS FinalInvoiceAmount,
                     SO.InvoiceAmount
                 FROM SaleOrder SO
                 LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
                 LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
-                LEFT JOIN TransportMaster TM ON SO.TransportID = TM.TransportCode
-                ORDER BY CAST(SO.OrderNo AS INT) DESC, SO.OrderDate DESC
+                LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode
+                OUTER APPLY (
+                    SELECT MAX(ISNULL(SOA1.ChargeRemark, '')) AS ChargeRemark, SUM(ISNULL(SOA1.ChargeValue, 0)) AS ChargeValue
+                    FROM SaleOrderAdditionalCharges SOA1 WHERE SOA1.SaleOrderID = SO.SaleOrderID
+                ) AC
+                OUTER APPLY (
+                    SELECT SUM(ISNULL(D1.BrokerRate, 0)) AS TotalRate, SUM(ISNULL(D1.BrokerRate, 0) * ISNULL(D1.Qty, 0)) AS DetailAmount, SUM(ISNULL(D1.Qty, 0)) AS DetailQty
+                    FROM SaleOrderDetails D1 WHERE D1.SaleOrderID = SO.SaleOrderID
+                ) D
+                CROSS APPLY (
+                    SELECT ISNULL(D.DetailAmount, 0) + (ISNULL(AC.ChargeValue, 0) * ISNULL(D.DetailQty, 0)) AS SubTotalAmount
+                ) S
+                CROSS APPLY (
+                    SELECT S.SubTotalAmount, S.SubTotalAmount * (ISNULL(SO.DiscountPercent, 0) / 100.0) AS DiscountAmount,
+                           S.SubTotalAmount - (S.SubTotalAmount * (ISNULL(SO.DiscountPercent, 0) / 100.0)) AS TaxableAmount
+                ) X
+                CROSS APPLY (
+                    SELECT X.SubTotalAmount, X.DiscountAmount, X.TaxableAmount, X.TaxableAmount * (ISNULL(SO.GSTPercent, 0) / 100.0) AS GSTAmount
+                ) Y
+                CROSS APPLY (
+                    SELECT Y.SubTotalAmount, Y.DiscountAmount, Y.TaxableAmount, Y.GSTAmount, Y.TaxableAmount + Y.GSTAmount AS UnroundedInvoiceTotal
+                ) Z
+                CROSS APPLY (
+                    SELECT Z.SubTotalAmount, Z.DiscountAmount, Z.TaxableAmount, Z.GSTAmount, Z.UnroundedInvoiceTotal,
+                           ROUND(Z.UnroundedInvoiceTotal, 0) - Z.UnroundedInvoiceTotal AS RoundOff,
+                           ROUND(Z.UnroundedInvoiceTotal, 0) AS InvoiceAmount
+                ) CALC
+                " + searchQuery + @"
+                ORDER BY TRY_CAST(SO.OrderNo AS INT) DESC, SO.OrderDate DESC
                 OFFSET @Offset ROWS
                 FETCH NEXT @PageSize ROWS ONLY";
 
@@ -656,6 +703,10 @@ namespace NikunjTextile
                     {
                         cmd.Parameters.AddWithValue("@Offset", offset);
                         cmd.Parameters.AddWithValue("@PageSize", pageSize);
+                        if (!string.IsNullOrEmpty(SearchRequirementNo))
+                        {
+                            cmd.Parameters.AddWithValue("@Search", SearchRequirementNo);
+                        }
 
                         List<SaleOrderVM> list = new List<SaleOrderVM>();
 
@@ -666,20 +717,30 @@ namespace NikunjTextile
                                 list.Add(new SaleOrderVM
                                 {
                                     SaleOrderID = Convert.ToInt32(rdr["SaleOrderID"]),
-                                    OrderNo = rdr["OrderNo"].ToString(),
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
-                                    PartyName = rdr["PartyName"] == DBNull.Value ? "" : rdr["PartyName"].ToString(),
-                                    BrokerName = rdr["BrokerName"] == DBNull.Value ? "" : rdr["BrokerName"].ToString(),
-                                    TransportName = rdr["TransportName"] == DBNull.Value ? "" : rdr["TransportName"].ToString(),
-                                    TotalQty = rdr["TotalQty"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["TotalQty"]),
-                                    InvoiceAmount = rdr["InvoiceAmount"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["InvoiceAmount"])
+                                    OrderNo = rdr["OrderNo"]?.ToString() ?? "",
+                                    OrderDate = rdr["OrderDate"]?.ToString() ?? "",
+                                    PartyName = rdr["PartyName"]?.ToString() ?? "",
+                                    BrokerName = rdr["BrokerName"]?.ToString() ?? "",
+                                    TransportName = rdr["TransportName"]?.ToString() ?? "",
+                                    TotalQty = SafeDecimal(rdr["TotalQty"]),
+                                    DiscountPercent = SafeDecimal(rdr["DiscountPercent"]),
+                                    DiscountAmount = SafeDecimal(rdr["DiscountAmount"]),
+                                    GSTPercent = SafeDecimal(rdr["GSTPercent"]),
+                                    GSTAmount = SafeDecimal(rdr["GSTAmount"]),
+                                    RoundOff = SafeDecimal(rdr["RoundOff"]),
+                                    InvoiceAmount = SafeDecimal(rdr["FinalInvoiceAmount"])
                                 });
                             }
                         }
 
+                        string countQuery = "SELECT COUNT(*) FROM SaleOrder SO LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode " + searchQuery;
                         int totalRecords;
-                        using (SqlCommand countCmd = new SqlCommand("SELECT COUNT(*) FROM SaleOrder", con))
+                        using (SqlCommand countCmd = new SqlCommand(countQuery, con))
                         {
+                            if (!string.IsNullOrEmpty(SearchRequirementNo))
+                            {
+                                countCmd.Parameters.AddWithValue("@Search", SearchRequirementNo);
+                            }
                             totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
                         }
 
@@ -1349,6 +1410,7 @@ namespace NikunjTextile
         }
 
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public ApiResponse<int> SaveSaleOrderAPI(SaleOrderModel model)
         {
             if (model == null)
@@ -1674,6 +1736,7 @@ namespace NikunjTextile
             cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = model.RoundOff;
         }
         [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public ApiResponse<SaleOrderVM> GetSaleOrderByIdAPI(int SaleOrderID)
         {
             Context.Response.Clear();
@@ -1683,36 +1746,48 @@ namespace NikunjTextile
             js.MaxJsonLength = Int32.MaxValue;
             try
             {
-
                 string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
                 using (SqlConnection con = new SqlConnection(conStr))
                 using (SqlCommand cmd = new SqlCommand(@"
-                    SELECT SO.SaleOrderID,SO.OrderNo,CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,SO.PartyId,PM.PartyName,SO.BrokerID,SO.TransportID,SO.MarkupPercent,
-                        SO.TotalQty,SO.TotalAmount,So.DiscountType,SO.AdditionalRemark,SO.AdditionalValue,SO.DiscountPercent,SO.DiscountAmount,SO.GSTPercent,SO.GSTAmount,SO.InvoiceAmount,SO.Remark,SO.UserAccountId,SO.FinancialYearID,
-                        SO.CompanyId,D.DetailID,D.SaleOrderID,D.DesignID,D.DesignNo,D.ItemType,TM.Type,D.NoOfColours,D.Qty AS DetailQty,D.Unit,D.Rate,D.Amount,SD.SubDetailID,D.DesignColorMatchingID,
-                        SD.DetailID,SD.ColourID,SD.ColourName,SD.Qty AS SubQty,SD.Unit AS SubUnit,SD.Remark as SubRemark,D.BrokerRate,SO.RoundOff,    
-                        ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
-                        ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID,DEFM.DesignNo,DEFM.DesignerCode,DEFM.TypeID,TM.Type,ISNULL(UM.UnitCode, '') AS UnitCode,
-                        ISNULL(UM.UnitId, 0) AS UnitId,ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
-                        ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,ISNULL(CGM.ColorGroup, '') AS ColorGroup,
-	                    ISNULL(DEFM.SaleRate, 0) AS SaleRate 
+                    -- 1st Query: Get Master, Details, and SubDetails
+                    SELECT SO.SaleOrderID, SO.OrderNo, CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate, SO.PartyId, PM.PartyName, SO.BrokerID, SO.TransportID,
+                           ISNULL(BM.BrokerName, SO.BrokerID) AS BrokerName,
+                           ISNULL(TMST.TransportName, SO.TransportID) AS TransportName,
+                           SO.MarkupPercent, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount,
+                           SO.Remark, SO.UserAccountId, SO.FinancialYearID, SO.CompanyId, 
+                           SO.RoundOff, SO.DiscountType, SO.AdditionalRemark, SO.AdditionalValue,      
+                           D.DetailID, D.SaleOrderID AS DetailSaleOrderID, D.DesignID, D.DesignNo AS SavedDesignNo, D.ItemType, TM.Type, D.NoOfColours, 
+                           D.Qty AS DetailQty, D.Unit, D.Rate, D.Amount, D.BrokerRate, 
+                           SD.SubDetailID, SD.DetailID AS SubDetailDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark as SubRemark, 
+                           ISNULL(DCMD.DesignColorMatchingDetailsID, 0) AS ColorDetailsID,
+                           ISNULL(DCMD.ColorGroupID, 0) AS ColorGroupID,
+                           ISNULL(CGM.ColorGroup, '') AS ColorGroup,
+                           ISNULL(DCMD.ColorMatchingPhoto, '') AS ColorMatchingPhoto,
+                           DEFM.DesignEntryFormID, DCMFM.DesignColorMatchingFormID, DEFM.DesignerCode, 
+                           ISNULL(UM.UnitCode, '') AS UnitCode, ISNULL(UM.UnitId, 0) AS UnitId,
+                           ISNULL(DEFM.SaleRate, 0) AS SaleRate 
                     FROM SaleOrder SO
                     LEFT JOIN PartyMaster PM ON SO.PartyId = PM.PartyId
+                    LEFT JOIN BrokerMaster BM ON SO.BrokerID = BM.BrokerCode
+                    LEFT JOIN TransportMaster TMST ON SO.TransportID = TMST.TransportCode
                     LEFT JOIN SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
                     LEFT JOIN TypeMaster TM ON TM.TypeID = D.ItemType
                     LEFT JOIN SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
                     LEFT JOIN UnitMaster UM ON UM.UnitId = TM.UnitId
                     LEFT JOIN DesignColorMatchingDetails DCMD ON SD.ColourID = DCMD.DesignColorMatchingDetailsID
                     LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignColorMatchingFormID = DCMD.DesignColorMatchingFormID
-                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID= DCMFM.DesignEntryFormID
+                    LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
                     LEFT JOIN ColorGroupMaster CGM ON CGM.ColorGroupID = DCMD.ColorGroupID
-                    WHERE SO.SaleOrderID = @ID ORDER BY D.DetailID, SD.SubDetailID
-                    ", con))
+                    WHERE SO.SaleOrderID = @ID 
+                    ORDER BY D.DetailID, SD.SubDetailID;
+
+                    -- 2nd Query: Get Additional Charges
+                    SELECT AdditionalChargeID, SaleOrderID, ChargeRemark, ChargeValue, TotalCalculatedAmount 
+                    FROM SaleOrderAdditionalCharges 
+                    WHERE SaleOrderID = @ID", con))
                 {
-                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID; // ✅ FIXED (no AddWithValue)
+                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
 
                     con.Open();
 
@@ -1722,18 +1797,19 @@ namespace NikunjTextile
 
                         while (rdr.Read())
                         {
-                            // ✅ MASTER
                             if (order == null)
                             {
                                 order = new SaleOrderVM
                                 {
                                     SaleOrderID = SafeInt(rdr["SaleOrderID"]),
                                     OrderNo = rdr["OrderNo"]?.ToString(),
-                                    OrderDate = Convert.ToDateTime(rdr["OrderDate"]).ToString("dd-MM-yyyy"),
+                                    OrderDate = rdr["OrderDate"]?.ToString(),
                                     PartyID = SafeInt(rdr["PartyId"]),
                                     PartyName = rdr["PartyName"]?.ToString(),
-                                    BrokerID = (rdr["BrokerID"].ToString()),
+                                    BrokerID = rdr["BrokerID"]?.ToString(),
+                                    BrokerName = rdr["BrokerName"]?.ToString(),
                                     TransportID = rdr["TransportID"]?.ToString(),
+                                    TransportName = rdr["TransportName"]?.ToString(),
                                     MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                     TotalQty = SafeDecimal(rdr["TotalQty"]),
                                     TotalAmount = SafeDecimal(rdr["TotalAmount"]),
@@ -1743,75 +1819,59 @@ namespace NikunjTextile
                                     GSTAmount = SafeDecimal(rdr["GSTAmount"]),
                                     InvoiceAmount = SafeDecimal(rdr["InvoiceAmount"]),
                                     Remark = rdr["Remark"]?.ToString(),
-                                    ColourID = SafeInt(rdr["ColourID"]),
-                                    ColourName = rdr["ColourName"]?.ToString(),
-                                    Qty = SafeDecimal(rdr["SubQty"]),
-                                    Unit = rdr["SubUnit"]?.ToString(),
-                                    SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                    DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                    DesignName = rdr["DesignNo"]?.ToString(),
-                                    ColorGroupId = SafeInt(rdr["ColorGroupID"]),
-                                    ColorGroup = rdr["ColorGroup"]?.ToString(),
-                                    ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                    UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                    TypeID = SafeInt(rdr["TypeID"]?.ToString()),
                                     AdditionalValue = SafeDecimal(rdr["AdditionalValue"]),
-                                    AdditionalRemark = (rdr["AdditionalRemark"].ToString()),
-                                    DiscountType = (rdr["AdditionalValue"].ToString()),
+                                    AdditionalRemark = rdr["AdditionalRemark"]?.ToString(),
+                                    DiscountType = rdr["DiscountType"]?.ToString(),
                                     RoundOff = SafeDecimal(rdr["RoundOff"]),
-                                    Details = new List<SaleOrderDetailVM>()
+                                    Details = new List<SaleOrderDetailVM>(),
+                                    AdditionalCharges = new List<SaleOrderAdditionalChargeModel>()
                                 };
                             }
 
-                            // ✅ DETAIL
                             if (rdr["DetailID"] != DBNull.Value)
                             {
                                 int detailId = SafeInt(rdr["DetailID"]);
-
-                                var detail = order.Details
-                                    .FirstOrDefault(x => x.DetailID == detailId);
+                                var detail = order.Details.FirstOrDefault(x => x.DetailID == detailId);
 
                                 if (detail == null)
                                 {
                                     detail = new SaleOrderDetailVM
                                     {
                                         DetailID = detailId,
-                                        colorId = SafeInt(rdr["ColourID"]?.ToString()),
+                                        colorId = SafeInt(rdr["ColourID"]),
                                         ColorGroupId = SafeInt(rdr["ColorGroupId"]),
-                                        ColorGroup = (rdr["ColorGroup"].ToString()),
-                                        colorName = (rdr["ColourName"].ToString()),
+                                        ColorGroup = rdr["ColorGroup"]?.ToString(),
+                                        colorName = rdr["ColourName"]?.ToString(),
                                         ItemType = SafeInt(rdr["ItemType"]),
                                         Type = rdr["Type"]?.ToString(),
                                         NoOfColours = SafeInt(rdr["NoOfColours"]),
                                         Qty = SafeDecimal(rdr["DetailQty"]),
                                         Unit = rdr["Unit"]?.ToString(),
-                                        TotalQty = SafeDecimal(rdr["TotalQty"]),
+                                        TotalQty = SafeDecimal(rdr["DetailQty"]),
                                         Rate = SafeDecimal(rdr["Rate"]),
                                         Amount = SafeDecimal(rdr["Amount"]),
+                                        BrokerRate = SafeDecimal(rdr["BrokerRate"]),
                                         SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                        DesignId = (rdr["DesignID"]?.ToString()),
-                                        DesignNo = (rdr["DesignNo"]?.ToString()),
-                                        DesignColorMatchingID = SafeInt (rdr["DesignColorMatchingID"]),
-                                        DesignName = rdr["DesignNo"]?.ToString(),
-                                        ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                        UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                        TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                        DesignId = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
+                                        DesignNo = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
+                                        DesignName = rdr["SavedDesignNo"]?.ToString(),
+                                        ColorDetailsID = SafeInt(rdr["ColorDetailsID"]),
+                                        UnitId = SafeInt(rdr["UnitId"]),
+                                        TypeID = SafeInt(rdr["ItemType"]),
                                         MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                         ColourID = SafeInt(rdr["ColourID"]),
                                         ColourName = rdr["ColourName"]?.ToString(),
-                                        BrokerRate = SafeDecimal(rdr["BrokerRate"]),
+                                        ImageUrl = rdr["ColorMatchingPhoto"]?.ToString(),
                                         SubDetails = new List<SaleOrderSubVM>()
                                     };
-
                                     order.Details.Add(detail);
                                 }
 
-                                // ✅ SUB DETAIL
                                 if (rdr["SubDetailID"] != DBNull.Value)
                                 {
                                     int subId = SafeInt(rdr["SubDetailID"]);
 
-                                    if (!detail.SubDetails.Any(x => x.SubDetailID == subId)) // ✅ prevent duplicate
+                                    if (!detail.SubDetails.Any(x => x.SubDetailID == subId))
                                     {
                                         detail.SubDetails.Add(new SaleOrderSubVM
                                         {
@@ -1821,28 +1881,43 @@ namespace NikunjTextile
                                             Qty = SafeDecimal(rdr["SubQty"]),
                                             Unit = rdr["SubUnit"]?.ToString(),
                                             SaleRate = SafeDecimal(rdr["SaleRate"]),
-                                            DesignNo = (rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString()),
-                                            DesignName = rdr["DesignNo"]?.ToString(),
+                                            DesignNo = rdr["DesignEntryFormID"]?.ToString() + "|" + rdr["DesignColorMatchingFormID"]?.ToString(),
+                                            DesignName = rdr["SavedDesignNo"]?.ToString(),
                                             ColorGroupId = SafeInt(rdr["ColorGroupID"]),
                                             ColorGroup = rdr["ColorGroup"]?.ToString(),
                                             Remark = rdr["SubRemark"]?.ToString(),
-                                            ColorDetailsID = SafeInt(rdr["ColorDetailsID"]?.ToString()),
-                                            UnitId = SafeInt(rdr["UnitId"]?.ToString()),
-                                            TypeID = SafeInt(rdr["TypeID"]?.ToString()),
+                                            ColorDetailsID = SafeInt(rdr["ColorDetailsID"]),
+                                            UnitId = SafeInt(rdr["UnitId"]),
+                                            TypeID = SafeInt(rdr["ItemType"]),
                                             MarkupPercent = SafeDecimal(rdr["MarkupPercent"]),
                                         });
                                     }
                                 }
                             }
                         }
-                        if(order != null)
+
+                        if (order != null && rdr.NextResult())
+                        {
+                            while (rdr.Read())
+                            {
+                                order.AdditionalCharges.Add(new SaleOrderAdditionalChargeModel
+                                {
+                                    AdditionalChargeID = SafeInt(rdr["AdditionalChargeID"]),
+                                    ChargeRemark = rdr["ChargeRemark"]?.ToString(),
+                                    ChargeValue = SafeDecimal(rdr["ChargeValue"]),
+                                    TotalCalculatedAmount = SafeDecimal(rdr["TotalCalculatedAmount"])
+                                });
+                            }
+                        }
+
+                        if (order != null)
                         {
                             var response = new ApiResponse<SaleOrderVM>
                             {
                                 Code = 200,
                                 success = true,
-                                Message = "",
-                                Data = order ?? new SaleOrderVM { Details = new List<SaleOrderDetailVM>() }
+                                Message = "Success",
+                                Data = order
                             };
                             Context.Response.Write(js.Serialize(response));
                             Context.Response.Flush();
@@ -1856,26 +1931,269 @@ namespace NikunjTextile
                             {
                                 Code = 400,
                                 success = false,
-                                Data=null,
-                                Message="No Data Found"
+                                Data = null,
+                                Message = "No Data Found"
                             };
                             Context.Response.Write(js.Serialize(response));
                             Context.Response.Flush();
                             Context.Response.SuppressContent = true;
                             HttpContext.Current.ApplicationInstance.CompleteRequest();
-                            return new ApiResponse<SaleOrderVM>();                         
+                            return new ApiResponse<SaleOrderVM>();
                         }
-                     
                     }
                 }
             }
             catch (Exception ex)
             {
-                return new ApiResponse<SaleOrderVM>
+                var errResp = new ApiResponse<SaleOrderVM>
                 {
+                    Code = 400,
                     success = false,
                     Message = ex.Message
                 };
+                Context.Response.Write(js.Serialize(errResp));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<SaleOrderVM>();
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ApiResponse<bool> DeleteSaleOrderAPI(int SaleOrderID)
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            try
+            {
+                string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(conStr))
+                {
+                    con.Open();
+
+                    using (SqlTransaction trans = con.BeginTransaction())
+                    {
+                        try
+                        {
+                            // 1. DELETE ADDITIONAL CHARGES
+                            using (SqlCommand cmdAdd = new SqlCommand("DELETE FROM SaleOrderAdditionalCharges WHERE SaleOrderID = @ID", con, trans))
+                            {
+                                cmdAdd.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdAdd.ExecuteNonQuery();
+                            }
+
+                            // 2. DELETE SUB DETAILS
+                            using (SqlCommand cmdSub = new SqlCommand(@"
+                                DELETE SD 
+                                FROM SaleOrderSubDetails SD
+                                INNER JOIN SaleOrderDetails D ON SD.DetailID = D.DetailID
+                                WHERE D.SaleOrderID = @ID
+                            ", con, trans))
+                            {
+                                cmdSub.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdSub.ExecuteNonQuery();
+                            }
+
+                            // 3. DELETE DETAILS
+                            using (SqlCommand cmdDetails = new SqlCommand("DELETE FROM SaleOrderDetails WHERE SaleOrderID = @ID", con, trans))
+                            {
+                                cmdDetails.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdDetails.ExecuteNonQuery();
+                            }
+
+                            // 4. DELETE MASTER
+                            using (SqlCommand cmdMaster = new SqlCommand("DELETE FROM SaleOrder WHERE SaleOrderID = @ID", con, trans))
+                            {
+                                cmdMaster.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdMaster.ExecuteNonQuery();
+                            }
+
+                            trans.Commit();
+
+                            var response = new ApiResponse<bool>
+                            {
+                                Code = 200,
+                                success = true,
+                                Message = "Deleted Successfully",
+                                Data = true
+                            };
+                            Context.Response.Write(js.Serialize(response));
+                            Context.Response.Flush();
+                            Context.Response.SuppressContent = true;
+                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            return new ApiResponse<bool>();
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            var errResp = new ApiResponse<bool>
+                            {
+                                Code = 400,
+                                success = false,
+                                Message = ex.Message,
+                                Data = false
+                            };
+                            Context.Response.Write(js.Serialize(errResp));
+                            Context.Response.Flush();
+                            Context.Response.SuppressContent = true;
+                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            return new ApiResponse<bool>();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var errResp = new ApiResponse<bool>
+                {
+                    Code = 400,
+                    success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+                Context.Response.Write(js.Serialize(errResp));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<bool>();
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ApiResponse<List<ColorMatchingDetailModel>> GetColorMatchingDetailsAPI(int designColorMatchingFormID, int colorGroupID)
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            try
+            {
+                List<ColorMatchingDetailModel> list = new List<ColorMatchingDetailModel>();
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT DesignColorMatchingFormID, DesignColorMatchingDetailsID, WarpMatchingID, FeederMatchingID, ColorGroupID 
+                                                            FROM DesignColorMatchingDetails
+                                                            WHERE DesignColorMatchingFormID = @FormID AND (@ColorGroupID = -1 OR ColorGroupID = @ColorGroupID OR ColorGroupID = -1)", con))
+                    {
+                        cmd.Parameters.AddWithValue("@FormID", designColorMatchingFormID);
+                        cmd.Parameters.AddWithValue("@ColorGroupID", colorGroupID);
+
+                        con.Open();
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
+                            {
+                                list.Add(new ColorMatchingDetailModel
+                                {
+                                    DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                    DesignColorMatchingDetailsID = Convert.ToInt32(rdr["DesignColorMatchingDetailsID"]),
+                                    ColorGroupID = Convert.ToInt32(rdr["ColorGroupID"]),
+                                    WarpMatchingID = rdr["WarpMatchingID"]?.ToString(),
+                                    FeederMatchingID = rdr["FeederMatchingID"]?.ToString(),
+                                });
+                            }
+                        }
+                    }
+                }
+
+                var response = new ApiResponse<List<ColorMatchingDetailModel>>
+                {
+                    Code = 200,
+                    success = true,
+                    Message = "Success",
+                    Data = list
+                };
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<List<ColorMatchingDetailModel>>();
+            }
+            catch (Exception ex)
+            {
+                var errResp = new ApiResponse<List<ColorMatchingDetailModel>>
+                {
+                    Code = 400,
+                    success = false,
+                    Message = ex.Message,
+                    Data = null
+                };
+                Context.Response.Write(js.Serialize(errResp));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<List<ColorMatchingDetailModel>>();
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public ApiResponse<List<string>> GetAdditionalRemarksAPI()
+        {
+            Context.Response.Clear();
+            Context.Response.ContentType = "application/json";
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
+
+            try
+            {
+                List<string> remarks = new List<string>();
+                string conString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(conString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT ChargeRemark FROM SaleOrderAdditionalCharges WHERE ISNULL(ChargeRemark,'') <> '' ORDER BY ChargeRemark", con))
+                    {
+                        con.Open();
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
+                            {
+                                remarks.Add(rdr["ChargeRemark"].ToString());
+                            }
+                        }
+                    }
+                }
+
+                var response = new ApiResponse<List<string>>
+                {
+                    Code = 200,
+                    success = true,
+                    Message = "Success",
+                    Data = remarks
+                };
+                Context.Response.Write(js.Serialize(response));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<List<string>>();
+            }
+            catch (Exception ex)
+            {
+                var errResp = new ApiResponse<List<string>>
+                {
+                    Code = 400,
+                    success = false,
+                    Message = ex.Message,
+                    Data = null
+                };
+                Context.Response.Write(js.Serialize(errResp));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                return new ApiResponse<List<string>>();
             }
         }
         public decimal SafeDecimal(object val)

@@ -1,0 +1,531 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .production-entry-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-card-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .production-form-section {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 12px 14px;
+    }
+
+    .production-form-section label {
+        display: block;
+        color: #164f87;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .production-form-section .form-control,
+    .production-form-section select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+    }
+
+    .production-table-scroll {
+        width: 100%;
+        max-height: 480px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+        margin-top: 8px;
+    }
+
+    #tblReceiveDetail {
+        width: 100% !important;
+        min-width: 1350px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblReceiveDetail th,
+    #tblReceiveDetail td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 4px 6px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblReceiveDetail thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* Table Column Widths */
+    #tblReceiveDetail th:nth-child(1), #tblReceiveDetail td:nth-child(1) { width: 38px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(2), #tblReceiveDetail td:nth-child(2) { width: 110px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(3), #tblReceiveDetail td:nth-child(3) { width: 110px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(4), #tblReceiveDetail td:nth-child(4) { width: 85px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(5), #tblReceiveDetail td:nth-child(5) { width: 130px !important; text-align: left !important; }
+    #tblReceiveDetail th:nth-child(6), #tblReceiveDetail td:nth-child(6) { width: 120px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(7), #tblReceiveDetail td:nth-child(7) { width: 85px !important; text-align: right !important; }
+    #tblReceiveDetail th:nth-child(8), #tblReceiveDetail td:nth-child(8) { width: 95px !important; text-align: right !important; }
+    #tblReceiveDetail th:nth-child(9), #tblReceiveDetail td:nth-child(9) { width: 100px !important; text-align: right !important; font-weight: 700; color: #d93025; }
+    #tblReceiveDetail th:nth-child(10), #tblReceiveDetail td:nth-child(10) { width: 100px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(11), #tblReceiveDetail td:nth-child(11) { width: 95px !important; text-align: center !important; }
+    #tblReceiveDetail th:nth-child(12), #tblReceiveDetail td:nth-child(12) { width: 75px !important; text-align: right !important; }
+    #tblReceiveDetail th:nth-child(13), #tblReceiveDetail td:nth-child(13) { width: 140px !important; text-align: left !important; }
+
+    .input-qty {
+        width: 100% !important;
+        height: 26px !important;
+        padding: 2px 4px !important;
+        font-size: 12px !important;
+        text-align: right !important;
+        border: 1px solid #0d6efd !important;
+        border-radius: 2px !important;
+        font-weight: 700;
+    }
+    .input-qty.invalid {
+        border-color: #dc3545 !important;
+        background-color: #f8d7da !important;
+        color: #842029 !important;
+    }
+
+    .production-summary-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #f8fafc;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 3px;
+        background: #e9ecef;
+        font-size: 12px;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+    .stat-badge span { font-weight: 700; color: #0d6efd; }
+    .stat-badge.pending span { color: #d93025; }
+    .stat-badge.receive span { color: #198754; }
+</style>
+
+<div class="content-wrapper production-entry-page">
+    <div id="notes"></div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+
+            <!-- PAGE HEADER -->
+            <div class="production-card-header">
+                <span>PROCESS RECEIVE ENTRY</span>
+                <div>
+                    <a href="~/ProcessReceiveList.cshtml" class="btn btn-outline-secondary btn-sm px-3 me-2">
+                        <i class="fa fa-arrow-left me-1"></i> Back to List
+                    </a>
+                    <button type="button" id="btnSaveProcessReceive" class="btn btn-success btn-sm px-4">
+                        <i class="fa fa-save me-1"></i> Save Receive Challan
+                    </button>
+                </div>
+            </div>
+
+            <!-- FORM HEADER FIELDS -->
+            <div class="production-form-section">
+                <input type="hidden" id="hdnIssueProcessTransactionID" value="0" />
+                <input type="hidden" id="hdnJobberID" value="0" />
+                <input type="hidden" id="hdnProcessID" value="0" />
+                <input type="hidden" id="hdnProcessorID" value="0" />
+
+                <div class="row g-2">
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Issue Challan No</label>
+                        <input type="text" id="txtIssueChallanNo" class="form-control" readonly style="background:#e9ecef; font-weight:700; color:#164f87;" />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
+                        <label>Process</label>
+                        <input type="text" id="txtProcessName" class="form-control" readonly style="background:#e9ecef; font-weight:700;" />
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Jobber (From)</label>
+                        <input type="text" id="txtJobberName" class="form-control" readonly style="background:#e9ecef;" />
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
+                        <label>Processor (To)</label>
+                        <input type="text" id="txtProcessorName" class="form-control" readonly style="background:#e9ecef;" />
+                    </div>
+
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Receive Challan No</label>
+                        <input type="text" id="txtReceiveChallanNo" class="form-control" readonly style="background:#e9ecef; font-weight:700; color:#198754;" placeholder="Auto-generated" />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
+                        <label>Receive Date</label>
+                        <input type="date" id="txtReceiveDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+                        <label>Job Type</label>
+                        <input type="text" id="txtJobType" class="form-control" readonly style="background:#e9ecef;" />
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+                        <label>Remark</label>
+                        <input type="text" id="txtRemark" class="form-control" placeholder="Optional receive remark..." />
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL TABLE -->
+            <div class="production-table-scroll">
+                <table id="tblReceiveDetail" class="table table-bordered table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="chkSelectAllDetail" checked /></th>
+                            <th>SLIP NO</th>
+                            <th>DESIGN NO</th>
+                            <th>MACHINE NO</th>
+                            <th>COLOUR MATCHING</th>
+                            <th>JOB TYPE</th>
+                            <th>ISSUED PCS</th>
+                            <th>ALREADY REC</th>
+                            <th>PENDING REC</th>
+                            <th>RECEIVE PCS</th>
+                            <th>SHORT PCS</th>
+                            <th>MTR</th>
+                            <th>REMARK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblReceiveDetailBody">
+                        <tr>
+                            <td colspan="13" class="text-center text-muted py-4">
+                                <i class="fa fa-spinner fa-spin me-1"></i> Loading issue detail items...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SUMMARY FOOTER -->
+            <div class="production-summary-footer">
+                <div>
+                    <span class="stat-badge">Total Slips: <span id="lblTotalSlips">0</span></span>
+                    <span class="stat-badge">Total Issued PCS: <span id="lblTotalIssuedPCS">0</span></span>
+                    <span class="stat-badge pending">Total Pending Receive: <span id="lblTotalPendingPCS">0</span></span>
+                    <span class="stat-badge receive">Total Receive PCS: <span id="lblTotalReceivePCS">0</span></span>
+                    <span class="stat-badge">Total Short PCS: <span id="lblTotalShortPCS">0</span></span>
+                </div>
+                <div>
+                    <button type="button" id="btnSaveProcessReceiveBottom" class="btn btn-success btn-sm px-4">
+                        <i class="fa fa-save me-1"></i> Save Receive Challan
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    var globalDetailItems = [];
+
+    $(document).ready(function () {
+        $('body').removeClass('fullscreen');
+        var today = new Date().toISOString().split('T')[0];
+        $('#txtReceiveDate').val(today);
+
+        var issueID = getUrlParameter('issueID');
+        if (issueID && parseInt(issueID) > 0) {
+            loadIssueChallanDetail(parseInt(issueID));
+        } else {
+            alert('No Issue Challan ID specified.');
+            window.location.href = 'ProcessReceiveList.cshtml';
+        }
+
+        $('#chkSelectAllDetail').change(function () {
+            var checked = $(this).is(':checked');
+            $('.chk-row-item').prop('checked', checked);
+            calculateTotals();
+        });
+
+        $('#btnSaveProcessReceive, #btnSaveProcessReceiveBottom').click(function () {
+            saveProcessReceive();
+        });
+    });
+
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return '';
+    }
+
+    function loadIssueChallanDetail(issueID) {
+        $('#tblReceiveDetailBody').html('<tr><td colspan="13" class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin me-1"></i> Loading issue detail items...</td></tr>');
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetIssueChallanDetailForProcessReceive",
+            data: JSON.stringify({ issueProcessTransactionID: issueID }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                if (d.Status && d.Master) {
+                    var m = d.Master;
+                    $('#hdnIssueProcessTransactionID').val(m.ProcessTransactionID);
+                    $('#txtIssueChallanNo').val(m.ProcessTransactionNo);
+                    $('#txtProcessName').val(m.ProcessName);
+                    $('#hdnProcessID').val(m.ProcessID);
+                    $('#txtJobberName').val(m.JobberName);
+                    $('#hdnJobberID').val(m.JobberID);
+                    $('#txtProcessorName').val(m.ProcessorName);
+                    $('#hdnProcessorID').val(m.ProcessorID);
+                    $('#txtJobType').val(m.JobType || m.ProcessName + ' JOB');
+                    $('#txtReceiveChallanNo').val(d.NextReceiveNo || '');
+
+                    globalDetailItems = d.Details || [];
+                    renderDetailTable();
+                } else {
+                    alert(d.Message || 'Error loading issue detail items.');
+                    window.location.href = 'ProcessReceiveList.cshtml';
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                alert('Error connecting to WebService.');
+            }
+        });
+    }
+
+    function renderDetailTable() {
+        if (!globalDetailItems || globalDetailItems.length === 0) {
+            $('#tblReceiveDetailBody').html('<tr><td colspan="13" class="text-center text-muted py-4">No pending items found for this issue challan.</td></tr>');
+            calculateTotals();
+            return;
+        }
+
+        var html = '';
+        $.each(globalDetailItems, function (i, item) {
+            html += '<tr data-idx="' + i + '">';
+            html += '<td class="text-center"><input type="checkbox" class="chk-row-item" checked data-idx="' + i + '" onchange="calculateTotals()" /></td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + item.SlipNo + '</td>';
+            html += '<td class="text-center">' + item.DesignNo + '</td>';
+            html += '<td class="text-center">' + item.MachineNumber + '</td>';
+            html += '<td>' + (item.ColourMatchingName || '-') + '</td>';
+            html += '<td class="text-center">' + (item.JobType || '-') + '</td>';
+            html += '<td class="text-end">' + item.IssuePCS + '</td>';
+            html += '<td class="text-end">' + item.AlreadyReceivePCS + '</td>';
+            html += '<td class="text-end font-weight-bold text-danger cell-pending">' + item.PendingReceivePCS + '</td>';
+            html += '<td class="text-center"><input type="number" class="input-qty input-rec-pcs" value="' + item.PendingReceivePCS + '" min="0" max="' + item.PendingReceivePCS + '" data-idx="' + i + '" oninput="validateRowQty(' + i + ')" /></td>';
+            html += '<td class="text-center"><input type="number" class="input-qty input-short-pcs" value="0" min="0" max="' + item.PendingReceivePCS + '" data-idx="' + i + '" oninput="validateRowQty(' + i + ')" /></td>';
+            html += '<td class="text-end">0</td>';
+            html += '<td><input type="text" class="form-control form-control-sm input-remark" data-idx="' + i + '" style="height:26px !important; font-size:11px;" placeholder="Remark..." /></td>';
+            html += '</tr>';
+        });
+
+        $('#tblReceiveDetailBody').html(html);
+        calculateTotals();
+    }
+
+    function validateRowQty(idx) {
+        var tr = $('#tblReceiveDetailBody tr[data-idx="' + idx + '"]');
+        var recInput = tr.find('.input-rec-pcs');
+        var shortInput = tr.find('.input-short-pcs');
+
+        var item = globalDetailItems[idx];
+        var pending = item.PendingReceivePCS;
+
+        var recVal = parseFloat(recInput.val()) || 0;
+        var shortVal = parseFloat(shortInput.val()) || 0;
+
+        if (recVal < 0) { recVal = 0; recInput.val(0); }
+        if (shortVal < 0) { shortVal = 0; shortInput.val(0); }
+
+        if ((recVal + shortVal) > pending) {
+            recInput.addClass('invalid');
+            shortInput.addClass('invalid');
+        } else {
+            recInput.removeClass('invalid');
+            shortInput.removeClass('invalid');
+        }
+
+        calculateTotals();
+    }
+
+    function calculateTotals() {
+        var totalSlips = 0;
+        var totalIssued = 0;
+        var totalPending = 0;
+        var totalReceive = 0;
+        var totalShort = 0;
+
+        $('#tblReceiveDetailBody tr').each(function () {
+            var chk = $(this).find('.chk-row-item');
+            if (chk.length > 0 && chk.is(':checked')) {
+                var idx = parseInt(chk.attr('data-idx'));
+                var item = globalDetailItems[idx];
+
+                var recVal = parseFloat($(this).find('.input-rec-pcs').val()) || 0;
+                var shortVal = parseFloat($(this).find('.input-short-pcs').val()) || 0;
+
+                totalSlips++;
+                totalIssued += item.IssuePCS;
+                totalPending += item.PendingReceivePCS;
+                totalReceive += recVal;
+                totalShort += shortVal;
+            }
+        });
+
+        $('#lblTotalSlips').text(totalSlips);
+        $('#lblTotalIssuedPCS').text(totalIssued);
+        $('#lblTotalPendingPCS').text(totalPending);
+        $('#lblTotalReceivePCS').text(totalReceive);
+        $('#lblTotalShortPCS').text(totalShort);
+    }
+
+    function saveProcessReceive() {
+        var issueID = parseInt($('#hdnIssueProcessTransactionID').val()) || 0;
+        var jobberID = parseInt($('#hdnJobberID').val()) || 0;
+        var processID = parseInt($('#hdnProcessID').val()) || 0;
+        var processorID = parseInt($('#hdnProcessorID').val()) || 0;
+        var receiveDate = $('#txtReceiveDate').val() || '';
+        var remark = $('#txtRemark').val() || '';
+
+        if (issueID <= 0) {
+            alert('Invalid Issue Challan Reference.');
+            return;
+        }
+
+        var items = [];
+        var isValid = true;
+        var validationMsg = '';
+
+        $('#tblReceiveDetailBody tr').each(function () {
+            var chk = $(this).find('.chk-row-item');
+            if (chk.length > 0 && chk.is(':checked')) {
+                var idx = parseInt(chk.attr('data-idx'));
+                var item = globalDetailItems[idx];
+
+                var recInput = $(this).find('.input-rec-pcs');
+                var shortInput = $(this).find('.input-short-pcs');
+                var remInput = $(this).find('.input-remark');
+
+                var recVal = parseFloat(recInput.val()) || 0;
+                var shortVal = parseFloat(shortInput.val()) || 0;
+                var rowRemark = remInput.val() || '';
+
+                if (recVal < 0 || shortVal < 0) {
+                    isValid = false;
+                    validationMsg = 'Receive PCS and Short PCS cannot be negative (Slip: ' + item.SlipNo + ').';
+                    return false;
+                }
+
+                if ((recVal + shortVal) > item.PendingReceivePCS) {
+                    isValid = false;
+                    validationMsg = 'Receive PCS (' + recVal + ') + Short PCS (' + shortVal + ') cannot exceed Pending Receive PCS (' + item.PendingReceivePCS + ') for Slip ' + item.SlipNo + '.';
+                    return false;
+                }
+
+                if (recVal > 0 || shortVal > 0) {
+                    items.push({
+                        IssueDetailID: item.IssueDetailID,
+                        ProductionOrderID: item.ProductionOrderID,
+                        ProductionOrderDetailID: item.ProductionOrderDetailID,
+                        ProductionOrderSubDetailID: item.ProductionOrderSubDetailID,
+                        SlipNo: item.SlipNo,
+                        IssuePCS: item.IssuePCS,
+                        ReceivePCS: recVal,
+                        ShortPCS: shortVal,
+                        Remark: rowRemark
+                    });
+                }
+            }
+        });
+
+        if (!isValid) {
+            alert(validationMsg);
+            return;
+        }
+
+        if (items.length === 0) {
+            alert('Please select at least one item with Receive PCS or Short PCS > 0.');
+            return;
+        }
+
+        var payload = {
+            issueProcessTransactionID: issueID,
+            jobberID: jobberID,
+            processID: processID,
+            processorID: processorID,
+            receiveDate: receiveDate,
+            remark: remark,
+            items: items
+        };
+
+        $('#btnSaveProcessReceive, #btnSaveProcessReceiveBottom').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/SaveProcessReceive",
+            data: JSON.stringify(payload),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                $('#btnSaveProcessReceive, #btnSaveProcessReceiveBottom').prop('disabled', false).html('<i class="fa fa-save me-1"></i> Save Receive Challan');
+                if (d.Status) {
+                    alert(d.Message || 'Process Receive Saved Successfully!');
+                    window.location.href = 'ProcessReceiveList.cshtml';
+                } else {
+                    alert(d.Message || 'Failed to save receive challan.');
+                }
+            },
+            error: function (xhr) {
+                $('#btnSaveProcessReceive, #btnSaveProcessReceiveBottom').prop('disabled', false).html('<i class="fa fa-save me-1"></i> Save Receive Challan');
+                console.error(xhr);
+                alert('Error connecting to server.');
+            }
+        });
+    }
+</script>
+}

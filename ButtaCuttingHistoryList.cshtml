@@ -1,0 +1,673 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .production-history-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-history-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .production-history-filter {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 10px 12px;
+    }
+
+    .production-history-filter label {
+        display: block;
+        color: #164f87;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .production-history-filter .form-control,
+    .production-history-filter select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+    }
+
+    .production-history-filter .btn {
+        height: 31px;
+        min-width: 82px;
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 2px;
+    }
+
+    .production-history-table-scroll {
+        width: 100%;
+        max-height: 570px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+    }
+
+    #tblProcessHistory {
+        width: 100% !important;
+        min-width: 1700px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblProcessHistory th,
+    #tblProcessHistory td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 4px 6px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblProcessHistory thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* Column Widths */
+    #tblProcessHistory th:nth-child(1), #tblProcessHistory td:nth-child(1) { width: 45px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(2), #tblProcessHistory td:nth-child(2) { width: 120px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(3), #tblProcessHistory td:nth-child(3) { width: 125px !important; text-align: center !important; font-weight: 700; color: #0d6efd; }
+    #tblProcessHistory th:nth-child(4), #tblProcessHistory td:nth-child(4) { width: 100px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(5), #tblProcessHistory td:nth-child(5) { width: 100px !important; text-align: center !important; font-weight: 700; }
+    #tblProcessHistory th:nth-child(6), #tblProcessHistory td:nth-child(6) { width: 160px !important; text-align: left !important; }
+    #tblProcessHistory th:nth-child(7), #tblProcessHistory td:nth-child(7) { width: 175px !important; text-align: left !important; }
+    #tblProcessHistory th:nth-child(8), #tblProcessHistory td:nth-child(8) { width: 90px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(9), #tblProcessHistory td:nth-child(9) { width: 90px !important; text-align: center !important; font-weight: 700; color: #164f87; }
+    #tblProcessHistory th:nth-child(10), #tblProcessHistory td:nth-child(10) { width: 100px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(11), #tblProcessHistory td:nth-child(11) { width: 75px !important; text-align: center !important; }
+    #tblProcessHistory th:nth-child(12), #tblProcessHistory td:nth-child(12) { width: 85px !important; text-align: right !important; font-weight: 700; }
+    #tblProcessHistory th:nth-child(13), #tblProcessHistory td:nth-child(13) { width: 80px !important; text-align: right !important; color: #dc3545; }
+    #tblProcessHistory th:nth-child(14), #tblProcessHistory td:nth-child(14) { width: 180px !important; text-align: left !important; }
+    #tblProcessHistory th:nth-child(15), #tblProcessHistory td:nth-child(15) { width: 100px !important; text-align: center !important; }
+
+    #tblProcessHistory tbody tr:hover td { background: #f7f9fb !important; }
+    #tblProcessHistory tbody td { color: #30343b; background: #fff; }
+
+    .badge-txn {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .badge-txn.issue { background: #e6f7ff; color: #0958d9; border: 1px solid #91caff; }
+    .badge-txn.receive { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .badge-txn.issueback { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .badge-txn.jobberreceive { background: #f9f0ff; color: #531dab; border: 1px solid #d3adf7; }
+
+    .po-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 8px;
+        margin: 0 1px;
+        border: 1px solid #b9c2cc;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: 11px;
+        text-decoration: none !important;
+    }
+    .po-action:hover { background: #eef5fb; color: #164f87; }
+
+    .production-history-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .production-history-pagination {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .production-history-pagination button {
+        min-width: 30px;
+        height: 28px;
+        padding: 2px 7px;
+        border: 1px solid #c4cbd3;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        font-size: 12px;
+    }
+    .production-history-pagination button.active {
+        background: #e4eef9;
+        border-color: #9eb8d2;
+        font-weight: 700;
+    }
+
+    /* TIMELINE STYLING FOR MODAL */
+    .timeline-container {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 15px;
+    }
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 14px;
+        width: 2px;
+        background: #cbd5e1;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 16px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 10px 14px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .timeline-badge {
+        position: absolute;
+        left: -30px;
+        top: 12px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+    }
+    .timeline-item.issue .timeline-badge { background: #0958d9; }
+    .timeline-item.receive .timeline-badge { background: #389e0d; }
+    .timeline-item.issueback .timeline-badge { background: #d46b08; }
+    .timeline-item.jobberreceive .timeline-badge { background: #531dab; }
+
+    .stock-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 8px 12px;
+        text-align: center;
+    }
+    .stock-card-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+    .stock-card-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 2px;
+    }
+</style>
+
+<div class="content-wrapper production-history-page">
+    <div id="notes"></div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+
+            <!-- PAGE HEADER -->
+            <div class="production-history-header">
+                <span>BUTTA CUTTING HISTORY & MOVEMENT TIMELINE</span>
+                <div>
+                    <a href="~/ButtaCuttingStockList.cshtml" class="btn btn-outline-primary btn-sm px-3 me-2">
+                        <i class="fa fa-cubes me-1"></i> Butta Cutting Stock
+                    </a>
+                    <a href="~/JobberToButtaCuttingList.cshtml" class="btn btn-primary btn-sm px-3">
+                        <i class="fa fa-arrow-right me-1"></i> Issue List
+                    </a>
+                </div>
+            </div>
+
+            <!-- FILTERS SECTION (Process Filter Internal To BUTTA CUTTING) -->
+            <div class="production-history-filter">
+                <div class="row g-2 align-items-end">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+                        <label>Jobber</label>
+                        <select id="histFilterJobber" class="form-control">
+                            <option value="">-- ALL JOBBERS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+                        <label>Processor</label>
+                        <select id="histFilterProcessor" class="form-control">
+                            <option value="">-- ALL PROCESSORS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Transaction Type</label>
+                        <select id="histFilterTxnType" class="form-control">
+                            <option value="">-- ALL TYPES --</option>
+                            <option value="ISSUE">ISSUE (Jobber → Process)</option>
+                            <option value="RECEIVE">RECEIVE (Processor Receive)</option>
+                            <option value="ISSUE_BACK">ISSUE BACK (Process → Jobber)</option>
+                            <option value="JOBBER_RECEIVE">JOBBER RECEIVE (Jobber Godown)</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>SO Number</label>
+                        <input type="text" id="histFilterSONumber" class="form-control" placeholder="SO No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Slip / Barcode</label>
+                        <input type="text" id="histFilterSlipNo" class="form-control" placeholder="Slip No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Design No</label>
+                        <input type="text" id="histFilterDesignNo" class="form-control" placeholder="Design No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Machine No</label>
+                        <input type="number" id="histFilterMachineNo" class="form-control" min="1" placeholder="Machine No..." />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>From Date</label>
+                        <input type="date" id="histFromDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>To Date</label>
+                        <input type="date" id="histToDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 text-end ms-auto">
+                        <button type="button" id="btnSearchHistory" class="btn btn-primary me-1">
+                            <i class="fa fa-search me-1"></i> Search
+                        </button>
+                        <button type="button" id="btnResetHistory" class="btn btn-outline-secondary">
+                            <i class="fa fa-refresh me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN TABLE -->
+            <div class="production-history-table-scroll">
+                <table id="tblProcessHistory" class="table table-bordered table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th>SR NO</th>
+                            <th>DATE</th>
+                            <th>TRANSACTION NO</th>
+                            <th>TYPE</th>
+                            <th>PROCESS</th>
+                            <th>FROM PARTY</th>
+                            <th>TO PARTY</th>
+                            <th>SO NO</th>
+                            <th>SLIP NO</th>
+                            <th>DESIGN NO</th>
+                            <th>MACHINE</th>
+                            <th>QTY</th>
+                            <th>SHORT QTY</th>
+                            <th>REMARK</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblProcessHistoryBody">
+                        <tr>
+                            <td colspan="15" class="text-center text-muted py-4">
+                                <i class="fa fa-spinner fa-spin me-1"></i> Loading movement history records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER WITH TOTAL RECORDS & PAGINATION -->
+            <div class="production-history-footer">
+                <div class="font-weight-bold">
+                    Total History Entries: <span id="lblTotalRecords">0</span>
+                </div>
+                <div id="historyPagination" class="production-history-pagination"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- SLIP MOVEMENT TIMELINE & STOCK SUMMARY MODAL -->
+<div class="modal fade" id="mdlSlipTimelineHistory" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-light py-2">
+                <h6 class="modal-title font-weight-bold" id="mdlTimelineTitle">Slip Movement Timeline & Live Stock Breakdown</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div id="mdlTimelineContent">
+                    <div class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin me-1"></i> Loading movement history timeline...</div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    var globalHistoryList = [];
+    var currentPage = 1;
+    var pageSize = 25;
+    var buttaCuttingProcessID = 0;
+
+    function getUrlProcessID() {
+        var urlParams = new URLSearchParams(window.location.search);
+        return parseInt(urlParams.get('processID')) || 0;
+    }
+
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+        var qPid = getUrlProcessID();
+        if (qPid > 0) { buttaCuttingProcessID = qPid; }
+        loadFilterDropdowns();
+
+        $('#btnSearchHistory').click(function () {
+            currentPage = 1;
+            loadProcessHistory();
+        });
+
+        $('#btnResetHistory').click(function () {
+            $('#histFilterJobber').val('');
+            $('#histFilterProcessor').val('');
+            $('#histFilterTxnType').val('');
+            $('#histFilterSONumber').val('');
+            $('#histFilterSlipNo').val('');
+            $('#histFilterDesignNo').val('');
+            $('#histFilterMachineNo').val('');
+            $('#histFromDate').val('');
+            $('#histToDate').val('');
+            currentPage = 1;
+            loadProcessHistory();
+        });
+    });
+
+    function loadFilterDropdowns() {
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetGenericProcessFilterDropdowns",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                var qPid = getUrlProcessID();
+                if (qPid > 0) {
+                    buttaCuttingProcessID = qPid;
+                } else if (d.Processes) {
+                    var bProc = d.Processes.find(function(p){ 
+                        return (p.ProcessCode === "BUTTA_CUTTING") || (p.ProcessName && p.ProcessName.toUpperCase().indexOf("BUTTA") !== -1); 
+                    });
+                    if (bProc) { buttaCuttingProcessID = bProc.ProcessID; }
+                }
+                if (d.Jobbers) {
+                    var htmlJ = '<option value="">-- ALL JOBBERS --</option>';
+                    $.each(d.Jobbers, function (i, item) {
+                        htmlJ += '<option value="' + item.JobberID + '">' + item.JobberName + '</option>';
+                    });
+                    $('#histFilterJobber').html(htmlJ);
+                }
+                if (d.Processors) {
+                    var htmlP = '<option value="">-- ALL PROCESSORS --</option>';
+                    $.each(d.Processors, function (i, item) {
+                        htmlP += '<option value="' + item.ProcessorID + '">' + item.ProcessorName + '</option>';
+                    });
+                    $('#histFilterProcessor').html(htmlP);
+                }
+                loadProcessHistory();
+            },
+            error: function() {
+                loadProcessHistory();
+            }
+        });
+    }
+
+    function loadProcessHistory() {
+        $('#tblProcessHistoryBody').html('<tr><td colspan="15" class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin me-1"></i> Loading movement history records...</td></tr>');
+
+        var req = {
+            fromDate: $('#histFromDate').val() || '',
+            toDate: $('#histToDate').val() || '',
+            processID: buttaCuttingProcessID, // Strictly locked to BUTTA CUTTING
+            jobberID: parseInt($('#histFilterJobber').val()) || 0,
+            processorID: parseInt($('#histFilterProcessor').val()) || 0,
+            transactionType: $('#histFilterTxnType').val() || '',
+            searchNo: '',
+            soNumber: $('#histFilterSONumber').val() || '',
+            slipNo: $('#histFilterSlipNo').val() || '',
+            designNo: $('#histFilterDesignNo').val() || '',
+            machineNo: parseInt($('#histFilterMachineNo').val()) || 0
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetProcessManagementHistory",
+            data: JSON.stringify(req),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var list = res.d || res;
+                if (list && list.length !== undefined) {
+                    globalHistoryList = list;
+                    renderHistoryTable();
+                } else {
+                    globalHistoryList = [];
+                    renderHistoryTable();
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                $('#tblProcessHistoryBody').html('<tr><td colspan="15" class="text-center text-danger py-4">Error loading movement history.</td></tr>');
+            }
+        });
+    }
+
+    function renderHistoryTable() {
+        var total = globalHistoryList.length;
+        $('#lblTotalRecords').text(total);
+
+        if (total === 0) {
+            $('#tblProcessHistoryBody').html('<tr><td colspan="15" class="text-center text-muted py-4">No process history records found matching criteria.</td></tr>');
+            $('#historyPagination').empty();
+            return;
+        }
+
+        var totalPages = Math.ceil(total / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        var startIdx = (currentPage - 1) * pageSize;
+        var endIdx = Math.min(startIdx + pageSize, total);
+        var pageItems = globalHistoryList.slice(startIdx, endIdx);
+
+        var html = '';
+        $.each(pageItems, function (i, item) {
+            var srNo = startIdx + i + 1;
+            var tType = item.TransactionType || 'ISSUE';
+            var badgeClass = 'issue';
+            if (tType === 'RECEIVE') badgeClass = 'receive';
+            else if (tType === 'ISSUE_BACK') badgeClass = 'issueback';
+            else if (tType === 'JOBBER_RECEIVE') badgeClass = 'jobberreceive';
+
+            html += '<tr>';
+            html += '<td class="text-center">' + srNo + '</td>';
+            html += '<td class="text-center">' + item.DateStr + '</td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + (item.TransactionNo || '-') + '</td>';
+            html += '<td class="text-center"><span class="badge-txn ' + badgeClass + '">' + tType + '</span></td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + (item.ProcessName || 'BUTTA CUTTING') + '</td>';
+            html += '<td>' + item.FromPartyName + '</td>';
+            html += '<td>' + item.ToPartyName + '</td>';
+            html += '<td class="text-center">' + (item.SONumber || 'SO36') + '</td>';
+            html += '<td class="text-center font-weight-bold text-primary">' + item.SlipNo + '</td>';
+            html += '<td class="text-center">' + (item.DesignNo || '-') + '</td>';
+            html += '<td class="text-center">' + item.MachineNumber + '</td>';
+            html += '<td class="text-end font-weight-bold">' + item.Qty + '</td>';
+            html += '<td class="text-end text-danger">' + (item.ShortQty > 0 ? item.ShortQty : '-') + '</td>';
+            html += '<td>' + (item.Remark || '-') + '</td>';
+            html += '<td class="text-center">';
+            html += '<button type="button" class="po-action" onclick="openSlipTimeline(\'' + item.SlipNo + '\', ' + item.ProductionOrderDetailID + ')" title="View Timeline & Stock"><i class="fa fa-history me-1"></i> Timeline</button>';
+            html += '</td>';
+            html += '</tr>';
+        });
+
+        $('#tblProcessHistoryBody').html(html);
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        if (totalPages <= 1) {
+            $('#historyPagination').empty();
+            return;
+        }
+
+        var html = '';
+        html += '<button type="button" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '><i class="fa fa-chevron-left"></i></button>';
+        for (var p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) {
+                html += '<button type="button" class="' + (p === currentPage ? 'active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
+            } else if (p === currentPage - 3 || p === currentPage + 3) {
+                html += '<button type="button" disabled>...</button>';
+            }
+        }
+        html += '<button type="button" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '><i class="fa fa-chevron-right"></i></button>';
+        $('#historyPagination').html(html);
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderHistoryTable();
+    }
+
+    function openSlipTimeline(slipNo, podID) {
+        $('#mdlTimelineContent').html('<div class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin me-1"></i> Loading movement history timeline...</div>');
+        $('#mdlSlipTimelineHistory').modal('show');
+
+        $.ajax({
+            type: "POST",
+            url: "WebServiceNikunjTextile.asmx/GetSlipTimelineAndStockSummary",
+            data: JSON.stringify({ slipNo: slipNo || '', productionOrderDetailID: podID || 0 }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var d = res.d || res;
+                if (d.Status) {
+                    var m = d.Meta || {};
+                    var s = d.StockSummary || {};
+                    var t = d.Timeline || [];
+
+                    var html = '';
+                    // META HEADER INFO
+                    html += '<div class="row mb-3 bg-light p-2 border rounded g-2" style="font-size:12px;">';
+                    html += '<div class="col-md-2"><strong>Slip No:</strong> <span class="text-primary font-weight-bold">' + (m.SlipNo || slipNo) + '</span></div>';
+                    html += '<div class="col-md-2"><strong>SO No:</strong> ' + (m.SalesOrderNo || 'SO36') + '</div>';
+                    html += '<div class="col-md-2"><strong>Design:</strong> ' + (m.DesignNo || '-') + '</div>';
+                    html += '<div class="col-md-3"><strong>Colour Matching:</strong> ' + (m.ColourMatchingName || '-') + '</div>';
+                    html += '<div class="col-md-3"><strong>Machine No:</strong> ' + (m.MachineNumber || 1) + '</div>';
+                    html += '</div>';
+
+                    // LIVE STOCK BREAKDOWN CARDS
+                    html += '<div class="row g-2 mb-3">';
+                    html += '<div class="col-md-2"><div class="stock-card"><div class="stock-card-title">Production PCS</div><div class="stock-card-value text-secondary">' + s.OriginalProductionPCS + '</div></div></div>';
+                    html += '<div class="col-md-2"><div class="stock-card"><div class="stock-card-title">Jobber Stock</div><div class="stock-card-value text-primary">' + s.JobberCurrentStockPCS + '</div></div></div>';
+                    html += '<div class="col-md-2"><div class="stock-card"><div class="stock-card-title">Pending Process Rec</div><div class="stock-card-value text-warning">' + s.PendingProcessReceivePCS + '</div></div></div>';
+                    html += '<div class="col-md-2"><div class="stock-card" style="background:#e8f5e9;"><div class="stock-card-title">Process Stock</div><div class="stock-card-value text-success">' + s.ProcessStockPCS + '</div></div></div>';
+                    html += '<div class="col-md-2"><div class="stock-card"><div class="stock-card-title">Pending Jobber Rec</div><div class="stock-card-value text-danger">' + s.PendingJobberReceivePCS + '</div></div></div>';
+                    html += '<div class="col-md-2"><div class="stock-card"><div class="stock-card-title">Total Short PCS</div><div class="stock-card-value text-dark">' + s.TotalShortPCS + '</div></div></div>';
+                    html += '</div>';
+
+                    // TIMELINE
+                    html += '<h6 class="font-weight-bold mt-3 mb-2" style="font-size:13px; color:#164f87;"><i class="fa fa-code-fork me-1"></i> Chronological Movement Ledger Timeline</h6>';
+
+                    if (t.length > 0) {
+                        html += '<div class="timeline-container">';
+                        $.each(t, function (i, item) {
+                            var tType = item.TransactionType || 'ISSUE';
+                            var itemClass = 'issue';
+                            var badgeLabel = 'JOBBER &rarr; PROCESS ISSUE';
+                            if (tType === 'RECEIVE') { itemClass = 'receive'; badgeLabel = 'PROCESSOR RECEIVE'; }
+                            else if (tType === 'ISSUE_BACK') { itemClass = 'issueback'; badgeLabel = 'PROCESS &rarr; JOBBER ISSUE BACK'; }
+                            else if (tType === 'JOBBER_RECEIVE') { itemClass = 'jobberreceive'; badgeLabel = 'JOBBER RECEIVE (GODOWN)'; }
+
+                            html += '<div class="timeline-item ' + itemClass + '">';
+                            html += '<div class="timeline-badge">' + (i + 1) + '</div>';
+                            html += '<div class="d-flex justify-content-between align-items-center mb-1">';
+                            html += '<div><span class="badge-txn ' + itemClass + ' me-2">' + badgeLabel + '</span> <strong class="text-primary">' + (item.TransactionNo || '-') + '</strong></div>';
+                            html += '<small class="text-muted"><i class="fa fa-clock-o me-1"></i>' + item.DateStr + '</small>';
+                            html += '</div>';
+
+                            html += '<div class="row g-2 font-size-12 mt-1">';
+                            html += '<div class="col-md-3"><strong>From:</strong> ' + item.FromPartyName + '</div>';
+                            html += '<div class="col-md-3"><strong>To:</strong> ' + item.ToPartyName + '</div>';
+                            html += '<div class="col-md-2"><strong>Process:</strong> ' + (item.ProcessName || 'BUTTA CUTTING') + '</div>';
+                            html += '<div class="col-md-2"><strong>Qty:</strong> <span class="font-weight-bold text-success">' + item.Qty + ' PCS</span></div>';
+                            if (item.ShortQty > 0) {
+                                html += '<div class="col-md-2"><strong>Short:</strong> <span class="font-weight-bold text-danger">' + item.ShortQty + ' PCS</span></div>';
+                            }
+                            html += '</div>';
+
+                            if (item.Remark) {
+                                html += '<div class="text-muted font-size-11 mt-1"><em>Remark: ' + item.Remark + '</em></div>';
+                            }
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="alert alert-warning text-center py-3">No movement history entries found for this slip.</div>';
+                    }
+
+                    $('#mdlTimelineContent').html(html);
+                } else {
+                    $('#mdlTimelineContent').html('<div class="alert alert-danger">' + (d.Message || 'Failed to load timeline.') + '</div>');
+                }
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                $('#mdlTimelineContent').html('<div class="alert alert-danger">Error fetching timeline from server.</div>');
+            }
+        });
+    }
+</script>
+}

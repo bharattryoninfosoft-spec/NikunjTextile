@@ -329,7 +329,7 @@
                                             <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
                                         </div>
                                         <div class="input-group input-group-sm me-2" style="width: 100px;">
-                                            <span class="input-group-text">&#8377;</span>
+                                            <span class="input-group-text"><i class="fa fa-inr"></i></span>
                                             <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
                                         </div>
                                         <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
@@ -349,7 +349,7 @@
                                     <span class="fw-semibold text-secondary">Discount</span>
                                     <div class="d-flex gap-2 align-items-center">
                                         <div class="input-group input-group-sm" style="width: 110px;">
-                                            <span class="input-group-text">&#8377;</span>
+                                            <span class="input-group-text"><i class="fa fa-inr"></i></span>
                                             <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0" readonly>
                                         </div>
                                         <div class="input-group input-group-sm" style="width: 90px;">
@@ -1333,11 +1333,15 @@
 
                 if (existingRow.length > 0) {
                     // 🔥 UPDATE QUANTITY INSTEAD OF BLOCKING
-                    let qtyCell = existingRow.find("td:eq(5)"); // Adjust index if Qty column index changes
-                    let currentQty = parseFloat(qtyCell.text()) || 0;
-                    let newQty = currentQty + qty;
-
-                    qtyCell.text(newQty);
+                    let qtyInput = existingRow.find(".sub-qty-input");
+                    if (qtyInput.length > 0) {
+                        let currentQty = parseFloat(qtyInput.val()) || 0;
+                        qtyInput.val(currentQty + qty);
+                    } else {
+                        let qtyCell = existingRow.find("td:eq(5)");
+                        let currentQty = parseFloat(qtyCell.text()) || 0;
+                        qtyCell.text(currentQty + qty);
+                    }
 
                     // Optional: Update remark if a new one was provided
                     let remarkInput = $("#DesignSelectionRemark").val().trim();
@@ -1719,7 +1723,7 @@
                 <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
             </div>
             <div class="input-group input-group-sm me-2" style="width: 100px;">
-                <span class="input-group-text">&#8377;</span>
+                <span class="input-group-text"><i class="fa fa-inr"></i></span>
                 <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
             </div>          
             <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
@@ -3145,7 +3149,8 @@
                     let row = $(this);
                     let colorId = row.attr("data-colorid");
                     let colorName = row.find("td:eq(4)").text().trim();
-                    let qty = parseFloat(row.find("td:eq(5)").text()) || 0;
+                    let qtyInput = row.find(".sub-qty-input");
+                    let qty = qtyInput.length > 0 ? (parseFloat(qtyInput.val()) || 0) : (parseFloat(row.find("td:eq(5)").text()) || 0);
                     let remark = row.find("td:eq(6)").text().trim() || "";
                     let rowRate = parseFloat(row.attr("data-rate")) || saleRate;
                     let rowImg = row.attr("data-img") || designImageUrl; // fallback to main image
@@ -3264,7 +3269,7 @@
                     <td hidden>${designName}</td>
                     <td hidden>${colorGroupName}</td>
                     <td>${colorName}</td>
-                    <td>${qty}</td>
+                    <td><input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${qty}" min="1" style="width: 75px;" /></td>
                     <td>${remark}</td>
 
                     <td>
@@ -3646,7 +3651,7 @@
 
                         <td>${item.ColorMatchingName}</td>
 
-                        <td>${item.Qty}</td>
+                        <td><input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${item.Qty}" min="1" style="width: 75px;" /></td>
 
                         <td>${item.Remark || ""}</td>
 
@@ -4020,7 +4025,7 @@
                          <input type="text" class="form-control form-control-sm AdditionalText" value="${ac.ChargeRemark || ''}" placeholder="Remark" autocomplete="off">
                      </div>
                      <div class="input-group input-group-sm me-2" style="width: 100px;">
-                         <span class="input-group-text">&#8377;</span>
+                         <span class="input-group-text"><i class="fa fa-inr"></i></span>
                          <input type="tel" class="form-control form-control-sm AdditionalValue" value="${ac.ChargeValue || 0}">
                      </div>
                      <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>

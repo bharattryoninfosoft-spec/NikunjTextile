@@ -1,0 +1,786 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    .production-list-page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .production-list-header {
+        background: #e5f0fc;
+        color: #222;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 2px 2px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .production-list-filter {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 10px 12px;
+    }
+
+    .production-list-filter label {
+        display: block;
+        color: #164f87;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .production-list-filter .form-control,
+    .production-list-filter select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #c7cdd4 !important;
+        border-radius: 2px !important;
+        box-shadow: none !important;
+    }
+
+    .production-list-filter .btn {
+        height: 31px;
+        min-width: 82px;
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 2px;
+    }
+
+    .production-list-table-scroll {
+        width: 100%;
+        max-height: 570px;
+        overflow: auto;
+        border: 1px solid #bfc7d1;
+        background: #fff;
+    }
+
+    #tblChallanList {
+        width: 100% !important;
+        min-width: 1250px;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+    }
+
+    #tblChallanList th,
+    #tblChallanList td {
+        border: 1px solid #c9cfd6 !important;
+        padding: 4px 6px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #tblChallanList thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #e4eef9 !important;
+        color: #202020 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 34px !important;
+        border: 1px solid #aeb9c6 !important;
+    }
+
+    /* Column Widths */
+    #tblChallanList th:nth-child(1), #tblChallanList td:nth-child(1) { width: 38px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(2), #tblChallanList td:nth-child(2) { width: 50px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(3), #tblChallanList td:nth-child(3) { width: 120px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(4), #tblChallanList td:nth-child(4) { width: 95px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(5), #tblChallanList td:nth-child(5) { width: 120px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(6), #tblChallanList td:nth-child(6) { width: 170px !important; text-align: left !important; }
+    #tblChallanList th:nth-child(7), #tblChallanList td:nth-child(7) { width: 170px !important; text-align: left !important; }
+    #tblChallanList th:nth-child(8), #tblChallanList td:nth-child(8) { width: 130px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(9), #tblChallanList td:nth-child(9) { width: 85px !important; text-align: right !important; }
+    #tblChallanList th:nth-child(10), #tblChallanList td:nth-child(10) { width: 85px !important; text-align: right !important; }
+    #tblChallanList th:nth-child(11), #tblChallanList td:nth-child(11) { width: 85px !important; text-align: right !important; }
+    #tblChallanList th:nth-child(12), #tblChallanList td:nth-child(12) { width: 110px !important; text-align: center !important; }
+    #tblChallanList th:nth-child(13), #tblChallanList td:nth-child(13) { width: 125px !important; text-align: center !important; }
+
+    #tblChallanList tbody tr:hover td { background: #f7f9fb !important; }
+    #tblChallanList tbody td { color: #30343b; background: #fff; }
+
+    .po-number {
+        font-weight: 700;
+        color: #164f87;
+    }
+
+    .po-status {
+        display: inline-block;
+        min-width: 90px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .po-status.issued { background: #fff8e6; color: #b76e00; border: 1px solid #ffe58f; }
+    .po-status.partial { background: #e6f7ff; color: #0958d9; border: 1px solid #91caff; }
+    .po-status.received { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+    .po-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 24px;
+        margin: 0 1px;
+        border: 1px solid #b9c2cc;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: 11px;
+        text-decoration: none !important;
+    }
+    .po-action:hover { background: #eef5fb; color: #164f87; }
+    .po-action.delete:hover { background: #fff1f0; color: #d93025; }
+
+    .production-list-footer {
+        border: 1px solid #c9cfd6;
+        border-top: 0;
+        background: #fff;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+    }
+
+    .production-list-total {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .production-list-pagination {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .production-list-pagination button {
+        min-width: 30px;
+        height: 28px;
+        padding: 2px 7px;
+        border: 1px solid #c4cbd3;
+        background: #fff;
+        color: #333;
+        border-radius: 2px;
+        font-size: 12px;
+    }
+    .production-list-pagination button.active {
+        background: #e4eef9;
+        border-color: #9eb8d2;
+        font-weight: 700;
+    }
+    .production-list-pagination button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .cm-thumb-img {
+        width: 28px;
+        height: 28px;
+        object-fit: cover;
+        border-radius: 3px;
+        border: 1px solid #0d6efd;
+        cursor: pointer;
+    }
+</style>
+
+<div class="content-wrapper production-list-page">
+    <div id="notes"></div>
+
+    <div class="card border-0">
+        <div class="card-body p-0">
+
+            <!-- PAGE HEADER WITH ACTION BUTTON -->
+            <div class="production-list-header">
+                <span id="lblPageHeaderTitle">JOBBER TO PROCESS LIST (Issue Tracking)</span>
+                <div>
+                    <a href="~/JobberToProcess.cshtml" class="btn btn-primary btn-sm px-3">
+                        <i class="fa fa-plus me-1"></i> New Jobber To Process
+                    </a>
+                </div>
+            </div>
+
+            <!-- FILTERS SECTION -->
+            <div class="production-list-filter">
+                <div class="row g-2 align-items-end">
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Process</label>
+                        <select id="listFilterProcess" class="form-control">
+                            <option value="">-- ALL PROCESSES --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Jobber (From)</label>
+                        <select id="listFilterJobber" class="form-control">
+                            <option value="">-- ALL JOBBERS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Processor (To)</label>
+                        <select id="listFilterProcessor" class="form-control">
+                            <option value="">-- ALL PROCESSORS --</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                        <label>Transaction / Slip No</label>
+                        <input type="text" id="listSearchNo" class="form-control" placeholder="Search No / Slip..." />
+                    </div>
+                    <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6">
+                        <label>From Date</label>
+                        <input type="date" id="listFromDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-1 col-lg-1 col-md-3 col-sm-6">
+                        <label>To Date</label>
+                        <input type="date" id="listToDate" class="form-control" />
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 text-end">
+                        <button type="button" id="btnSearchList" class="btn btn-primary me-1">
+                            <i class="fa fa-search me-1"></i> Search
+                        </button>
+                        <button type="button" id="btnResetList" class="btn btn-outline-secondary me-1">
+                            <i class="fa fa-refresh me-1"></i> Reset
+                        </button>
+                       @*  <button type="button" id="btnPrintList" class="btn btn-danger">
+                            <i class="fa fa-print me-1"></i> Print
+                        </button> *@
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN TABLE -->
+            <div class="production-list-table-scroll">
+                <table id="tblChallanList" class="table table-bordered table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="chkSelectAllList" /></th>
+                            <th>SR NO</th>
+                            <th>TRANSACTION NO</th>
+                            <th>DATE</th>
+                            <th>PROCESS</th>
+                            <th>JOBBER (FROM)</th>
+                            <th>PROCESSOR (TO)</th>
+                            <th>JOB TYPE</th>
+                            <th>ISSUED PCS</th>
+                            <th>RECEIVED PCS</th>
+                            <th>PENDING PCS</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblChallanListBody">
+                        <tr>
+                            <td colspan="13" class="text-center text-muted py-4">
+                                <i class="fa fa-spinner fa-spin me-1"></i> Loading transaction records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER WITH TOTAL RECORDS & PAGINATION -->
+            <div class="production-list-footer">
+                <div class="production-list-total">
+                    Total Records: <span id="lblTotalRecords">0</span>
+                </div>
+                <div class="production-list-pagination">
+                    <button type="button" id="btnPrevPage" disabled>&laquo;</button>
+                    <button type="button" class="active">1</button>
+                    <button type="button" id="btnNextPage" disabled>&raquo;</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     VIEW MODAL (PROFESSIONAL LAYOUT)
+     ========================================================= -->
+<div class="modal fade" id="modalViewChallan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title m-0"><i class="fa fa-eye me-2"></i>Jobber To Process Issue Details - <span id="lblViewTxnNo"></span></h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="row g-2 mb-3 bg-light p-2 border rounded m-0">
+                    <div class="col-md-2">
+                        <small class="text-muted text-uppercase d-block font-weight-bold" style="font-size:10px;">Challan No</small>
+                        <span id="lblViewChallanNo" class="po-number font-weight-bold" style="font-size:13px;"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-muted text-uppercase d-block font-weight-bold" style="font-size:10px;">Issue Date</small>
+                        <span id="lblViewChallanDate" class="font-weight-bold text-dark" style="font-size:12px;"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-muted text-uppercase d-block font-weight-bold" style="font-size:10px;">Process</small>
+                        <span id="lblViewProcess" class="badge bg-primary" style="font-size:11px;"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted text-uppercase d-block font-weight-bold" style="font-size:10px;">Jobber (From)</small>
+                        <span id="lblViewJobWorker" class="font-weight-bold text-primary" style="font-size:12px;"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted text-uppercase d-block font-weight-bold" style="font-size:10px;">Processor (To)</small>
+                        <span id="lblViewProcessor" class="font-weight-bold text-success" style="font-size:12px;"></span>
+                    </div>
+                </div>
+
+                <div class="table-responsive border mb-2" style="max-height: 380px;">
+                    <table class="table table-bordered table-sm m-0" id="tblViewChallanItems">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-center" style="width:45px;">SR NO</th>
+                                <th class="text-center" style="width:115px;">SLIP NO</th>
+                                <th class="text-center" style="width:85px;">MACHINE NO</th>
+                                <th class="text-center" style="width:100px;">DESIGN NO</th>
+                                <th>COLOUR MATCHING</th>
+                                <th class="text-center" style="width:90px;">ISSUED PCS</th>
+                                <th class="text-center" style="width:100px;">RECEIVED PCS</th>
+                                <th class="text-center" style="width:90px;">SHORT PCS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblViewChallanBody"></tbody>
+                        <tfoot class="bg-light font-weight-bold">
+                            <tr>
+                                <td colspan="5" class="text-end font-weight-bold">TOTAL</td>
+                                <td id="lblViewTotalIssuePcs" class="text-center font-weight-bold">0</td>
+                                <td id="lblViewTotalReceivePcs" class="text-center font-weight-bold text-primary">0</td>
+                                <td id="lblViewTotalShortPcs" class="text-center font-weight-bold text-danger">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-danger btn-sm" onclick="window.print();"><i class="fa fa-print me-1"></i> Print</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     HISTORY MODAL (MOVEMENT LOG)
+     ========================================================= -->
+<div class="modal fade" id="modalHistoryLog" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white py-2">
+                <h6 class="modal-title m-0"><i class="fa fa-history me-2"></i>Process Transaction Movement History</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="table-responsive border" style="max-height: 400px;">
+                    <table class="table table-bordered table-sm table-striped m-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-center">DATE & TIME</th>
+                                <th class="text-center">PROCESS</th>
+                                <th class="text-center">TYPE</th>
+                                <th>FROM PARTY</th>
+                                <th>TO PARTY</th>
+                                <th class="text-center">SLIP NO</th>
+                                <th class="text-center">MACHINE</th>
+                                <th class="text-end">QTY</th>
+                                <th class="text-end">SHORT</th>
+                                <th>REMARK</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblHistoryLogBody">
+                            <tr><td colspan="10" class="text-center text-muted py-3">Loading history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Image Preview -->
+<div class="modal fade" id="modalImagePreview" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title m-0"><i class="fa fa-picture-o me-2"></i>Colour Matching Image</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-3">
+                <img id="imgPreviewTarget" src="" class="img-fluid rounded border shadow-sm" style="max-height: 450px;" alt="Colour Matching Image" />
+                <div id="imgPreviewCaption" class="mt-2 text-dark font-weight-bold" style="font-size:13px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    $(document).ready(function () {
+        $('body').addClass('fullscreen');
+
+        var todayStr = new Date().toISOString().split('T')[0];
+        $('#listFromDate').val(todayStr);
+        $('#listToDate').val(todayStr);
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var procParam = (urlParams.get('process') || '').toUpperCase();
+        if (procParam === 'BUTTA_CUTTING' || procParam === 'BUTTA CUTTING') {
+            $('#lblPageHeaderTitle').text('JOBBER TO BUTTA CUTTING LIST (Issue Tracking)');
+            document.title = "Jobber To Butta Cutting - Nikunj Textile";
+        }
+
+        loadFilterDropdowns();
+        fetchChallanList();
+
+        function showNotification(msg, isError) {
+            if (typeof toastr !== 'undefined') {
+                if (isError) toastr.error(msg);
+                else toastr.success(msg);
+            } else {
+                alert(msg);
+            }
+        }
+
+        function loadFilterDropdowns() {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetGenericProcessFilterDropdowns",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var data = res.d || res;
+                    if (data) {
+                        if (data.Processes && data.Processes.length > 0) {
+                            var $proc = $('#listFilterProcess').empty().append('<option value="">-- ALL PROCESSES --</option>');
+                            $.each(data.Processes, function (i, p) {
+                                $proc.append('<option value="' + p.ProcessID + '">' + p.ProcessName + '</option>');
+                            });
+
+                            if (procParam === 'BUTTA_CUTTING' || procParam === 'BUTTA CUTTING') {
+                                $('#listFilterProcess').val(1);
+                                fetchChallanList();
+                            }
+                        }
+                        if (data.Jobbers && data.Jobbers.length > 0) {
+                            var $jobber = $('#listFilterJobber').empty();
+                            if (data.Jobbers.length > 1) {
+                                $jobber.append('<option value="">-- ALL JOBBERS --</option>');
+                            }
+                            $.each(data.Jobbers, function (i, j) {
+                                $jobber.append('<option value="' + j.JobberID + '">' + j.JobberName + '</option>');
+                            });
+                            if (data.Jobbers.length === 1) {
+                                $jobber.val(data.Jobbers[0].JobberID).prop('disabled', true);
+                            }
+                        }
+                        if (data.Processors && data.Processors.length > 0) {
+                            var $processor = $('#listFilterProcessor').empty().append('<option value="">-- ALL PROCESSORS --</option>');
+                            $.each(data.Processors, function (i, p) {
+                                $processor.append('<option value="' + p.JobberID + '">' + p.JobberName + '</option>');
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function fetchChallanList() {
+            var req = {
+                fromDate: $('#listFromDate').val() || "",
+                toDate: $('#listToDate').val() || "",
+                jobberID: parseInt($('#listFilterJobber').val()) || 0,
+                processID: parseInt($('#listFilterProcess').val()) || 0,
+                processorID: parseInt($('#listFilterProcessor').val()) || 0,
+                searchNo: $('#listSearchNo').val() || ""
+            };
+
+            var $tbody = $('#tblChallanListBody').empty().append('<tr><td colspan="13" class="text-center py-4"><i class="fa fa-spinner fa-spin me-1"></i> Loading transaction records...</td></tr>');
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobberToProcessList",
+                data: JSON.stringify(req),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var list = res.d || res;
+                    $tbody.empty();
+
+                    if (Array.isArray(list) && list.length > 0) {
+                        var count = 0;
+                        $.each(list, function (idx, item) {
+                            count++;
+                            var statusText = item.StatusText || "ISSUED";
+                            var statusBadge = '';
+
+                            if (statusText === 'RECEIVED') {
+                                statusBadge = '<span class="po-status received">RECEIVED</span>';
+                            } else if (statusText === 'PARTIALLY RECEIVED') {
+                                statusBadge = '<span class="po-status partial">PARTIAL</span>';
+                            } else {
+                                statusBadge = '<span class="po-status issued">ISSUED</span>';
+                            }
+
+                            var tr = '<tr>' +
+                                '<td class="text-center"><input type="checkbox" class="chkRowList" /></td>' +
+                                '<td class="text-center">' + count + '</td>' +
+                                '<td class="text-center"><span class="po-number">' + item.ProcessTransactionNo + '</span></td>' +
+                                '<td class="text-center">' + item.TransactionDate + '</td>' +
+                                '<td class="text-center font-weight-bold text-primary">' + (item.ProcessName || 'PROCESS') + '</td>' +
+                                '<td><strong>' + (item.JobberName || '-') + '</strong></td>' +
+                                '<td><strong>' + (item.ProcessorName || '-') + '</strong></td>' +
+                                '<td class="text-center">' + (item.JobType || '-') + '</td>' +
+                                '<td class="text-end font-weight-bold">' + (item.TotalIssuePCS || 0) + '</td>' +
+                                '<td class="text-end font-weight-bold text-primary">' + (item.TotalReceivePCS || 0) + '</td>' +
+                                '<td class="text-end font-weight-bold text-danger">' + (item.PendingPCS || 0) + '</td>' +
+                                '<td class="text-center">' + statusBadge + '</td>' +
+                                '<td class="text-center">' +
+                                '<button type="button" class="po-action btnViewChallan" data-id="' + item.ProcessTransactionID + '" title="View Details"><i class="fa fa-eye"></i></button>' +
+                                '<button type="button" class="po-action btnViewHistory" data-id="' + item.ProcessTransactionID + '" title="Movement History"><i class="fa fa-history"></i></button>' +
+                                '<a href="JobberToProcess.cshtml?id=' + item.ProcessTransactionID + '" class="po-action" title="Edit Issue"><i class="fa fa-pencil"></i></a>' +
+                                '<button type="button" class="po-action delete btnDeleteChallan" data-id="' + item.ProcessTransactionID + '" title="Delete"><i class="fa fa-trash"></i></button>' +
+                                '</td>' +
+                                '</tr>';
+                            $tbody.append(tr);
+                        });
+
+                        $('#lblTotalRecords').text(count);
+                    } else {
+                        $('#lblTotalRecords').text(0);
+                        $tbody.append('<tr><td colspan="13" class="text-center text-muted py-4">No issue records found matching criteria.</td></tr>');
+                    }
+                },
+                error: function () {
+                    $('#lblTotalRecords').text(0);
+                    $tbody.html('<tr><td colspan="13" class="text-center text-danger py-4">Error fetching issue records.</td></tr>');
+                }
+            });
+        }
+
+        $('#btnSearchList').click(function () { fetchChallanList(); });
+        $('#btnResetList').click(function () {
+            $('#listFromDate').val(todayStr);
+            $('#listToDate').val(todayStr);
+            $('#listFilterJobber').val('');
+            $('#listFilterProcess').val('');
+            $('#listFilterProcessor').val('');
+            $('#listSearchNo').val('');
+            fetchChallanList();
+        });
+
+        $('#btnPrintList').click(function () {
+            window.print();
+        });
+
+        // VIEW MODAL HANDLER
+        $(document).on('click', '.btnViewChallan', function () {
+            var id = $(this).data('id');
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobberToProcessDetail",
+                data: JSON.stringify({ processTransactionID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status) {
+                        $('#lblViewTxnNo, #lblViewChallanNo').text(r.Master.ProcessTransactionNo);
+                        $('#lblViewJobWorker').text(r.Master.JobberName || '-');
+                        $('#lblViewProcessor').text(r.Master.ProcessorName || '-');
+                        $('#lblViewProcess').text(r.Master.ProcessName || 'PROCESS');
+                        $('#lblViewChallanDate').text(r.Master.TransactionDateStr || r.Master.TransactionDate || '-');
+
+                        var $tbody = $('#tblViewChallanBody').empty();
+                        var totIssue = 0, totRec = 0, totShort = 0;
+
+                        $.each(r.Details, function (i, d) {
+                            var issuePcs = parseFloat(d.IssuePCS || d.PCS || 0);
+                            var recPcs = parseFloat(d.ReceivePCS || 0);
+                            var shortPcs = parseFloat(d.ShortPCS || 0);
+
+                            totIssue += issuePcs;
+                            totRec += recPcs;
+                            totShort += shortPcs;
+
+                            var tr = '<tr>' +
+                                '<td class="text-center">' + (i + 1) + '</td>' +
+                                '<td class="text-center font-weight-bold">' + d.SlipNo + '</td>' +
+                                '<td class="text-center">' + d.MachineNumber + '</td>' +
+                                '<td class="text-center font-weight-bold">' + d.DesignNo + '</td>' +
+                                '<td>' + getColourMatchingHtml(d) + '</td>' +
+                                '<td class="text-center font-weight-bold">' + issuePcs + '</td>' +
+                                '<td class="text-center font-weight-bold text-primary">' + recPcs + '</td>' +
+                                '<td class="text-center font-weight-bold text-danger">' + shortPcs + '</td>' +
+                                '</tr>';
+                            $tbody.append(tr);
+                        });
+
+                        $('#lblViewTotalIssuePcs').text(totIssue);
+                        $('#lblViewTotalReceivePcs').text(totRec);
+                        $('#lblViewTotalShortPcs').text(totShort);
+
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            var mEl = document.getElementById('modalViewChallan');
+                            var m = bootstrap.Modal.getInstance(mEl) || new bootstrap.Modal(mEl);
+                            m.show();
+                        } else {
+                            $('#modalViewChallan').modal('show');
+                        }
+                    } else {
+                        showNotification(r ? r.Message : 'Failed to fetch details.', true);
+                    }
+                }
+            });
+        });
+
+        // HISTORY MODAL HANDLER
+        $(document).on('click', '.btnViewHistory', function () {
+            var id = $(this).data('id');
+            var $tbody = $('#tblHistoryLogBody').empty().append('<tr><td colspan="10" class="text-center py-3"><i class="fa fa-spinner fa-spin me-1"></i> Loading movement history...</td></tr>');
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobberToProcessDetail",
+                data: JSON.stringify({ processTransactionID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status && r.Details && r.Details.length > 0) {
+                        var firstSlip = r.Details[0].SlipNo || "";
+                        var podId = r.Details[0].ProductionOrderDetailID || 0;
+
+                        $.ajax({
+                            type: "POST",
+                            url: "WebServiceNikunjTextile.asmx/GetProcessTransactionHistoryLog",
+                            data: JSON.stringify({ slipNo: firstSlip, productionOrderDetailID: podId }),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (hRes) {
+                                var hData = hRes.d || hRes;
+                                $tbody.empty();
+                                if (hData && hData.Status && Array.isArray(hData.History) && hData.History.length > 0) {
+                                    $.each(hData.History, function (i, h) {
+                                        var tr = '<tr>' +
+                                            '<td class="text-center">' + (h.DateStr || '-') + '</td>' +
+                                            '<td class="text-center font-weight-bold text-primary">' + (h.ProcessName || 'PROCESS') + '</td>' +
+                                            '<td class="text-center"><span class="badge bg-secondary">' + (h.TransactionType || 'ISSUE') + '</span></td>' +
+                                            '<td>' + (h.FromPartyName || '-') + '</td>' +
+                                            '<td>' + (h.ToPartyName || '-') + '</td>' +
+                                            '<td class="text-center font-weight-bold">' + (h.SlipNo || '-') + '</td>' +
+                                            '<td class="text-center">' + (h.MachineNumber || 1) + '</td>' +
+                                            '<td class="text-end font-weight-bold text-primary">' + (h.Qty || 0) + '</td>' +
+                                            '<td class="text-end font-weight-bold text-danger">' + (h.ShortQty || 0) + '</td>' +
+                                            '<td>' + (h.Remark || '-') + '</td>' +
+                                            '</tr>';
+                                        $tbody.append(tr);
+                                    });
+                                } else {
+                                    $tbody.html('<tr><td colspan="10" class="text-center text-muted py-3">No history logs recorded yet.</td></tr>');
+                                }
+                            }
+                        });
+                    } else {
+                        $tbody.html('<tr><td colspan="10" class="text-center text-muted py-3">No details found.</td></tr>');
+                    }
+
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var mEl = document.getElementById('modalHistoryLog');
+                        var m = bootstrap.Modal.getInstance(mEl) || new bootstrap.Modal(mEl);
+                        m.show();
+                    } else {
+                        $('#modalHistoryLog').modal('show');
+                    }
+                }
+            });
+        });
+
+        // DELETE HANDLER
+        $(document).on('click', '.btnDeleteChallan', function () {
+            var id = $(this).data('id');
+            if (!confirm('Are you sure you want to delete this issue challan? This will restore the available Jobber stock.')) return;
+
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/DeleteJobberToProcess",
+                data: JSON.stringify({ processTransactionID: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.Status) {
+                        showNotification('Challan deleted successfully.', false);
+                        fetchChallanList();
+                    } else {
+                        showNotification(r ? r.Message : 'Delete failed.', true);
+                    }
+                }
+            });
+        });
+
+        function getColourMatchingHtml(r) {
+            var photoPath = r.PhotoPath || r.ColorMatchingPhoto || r.ImageUrl || '';
+            var cmText = r.ColourMatchingName || (r.ColourMatchingID > 0 ? ('CM-' + r.ColourMatchingID) : '-');
+            var imgSrc = '';
+
+            if (photoPath) {
+                photoPath = photoPath.replace(/\\/g, '/');
+                if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                else imgSrc = photoPath;
+            }
+
+            var safeCmText = $('<div>').text(cmText || '-').html();
+            var safeDesignNo = $('<div>').text(r.DesignNo || '-').html();
+            var safeImgSrc = $('<div>').text(imgSrc || '').html();
+
+            var imgHtml = '';
+            if (imgSrc) {
+                imgHtml = '<img src="' + safeImgSrc + '" class="cm-thumb-img me-2" data-img="' + safeImgSrc + '" data-design="' + safeDesignNo + '" data-cm="' + safeCmText + '" title="Click to enlarge image" />';
+            } else {
+                imgHtml = '<span class="badge bg-light text-muted border me-2" style="font-size:10px; padding:3px 5px;"><i class="fa fa-picture-o"></i></span>';
+            }
+
+            return '<div class="d-flex align-items-center">' + imgHtml + '<span class="font-weight-bold">' + safeCmText + '</span></div>';
+        }
+
+        $(document).on('click', 'img.cm-thumb-img', function () {
+            var imgUrl = $(this).attr('data-img');
+            var designNo = $(this).attr('data-design');
+            var colourMatching = $(this).attr('data-cm');
+            if (imgUrl) {
+                $('#imgPreviewTarget').attr('src', imgUrl);
+                $('#imgPreviewCaption').text('Design No: ' + (designNo || '-') + ' | Colour Matching: ' + (colourMatching || '-'));
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modalEl = document.getElementById('modalImagePreview');
+                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    $('#modalImagePreview').modal('show');
+                }
+            }
+        });
+    });
+</script>
+}
