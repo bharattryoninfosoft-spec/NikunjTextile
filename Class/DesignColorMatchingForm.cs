@@ -25,7 +25,7 @@ namespace NikunjTextile.Class
         public string PhotoOfDesign { get; set; }
         public int DesignerID { get; set; }
         public string DesignNo { get; set; }
-        public int PickOnLoom { get; set; }
+        public string PickOnLoom { get; set; }
         public double TotalCard { get; set; }
         public string DesignerCode { get; set; }
         public string ReedOnLoom { get; set; }

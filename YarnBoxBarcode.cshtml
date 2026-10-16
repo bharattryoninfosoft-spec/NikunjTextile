@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
 }
 
@@ -294,7 +294,7 @@
                         temp += "<tr>";
                         temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Color Code</td>";
                         temp += "<td>:</td>";
-                        temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[0].YarnColorCode + "</th>";
+                        temp += "<th style='font-family: system-ui; text-align: start; '>" + (response.listYarnInwardMaster[0].ColourCode || response.listYarnInwardMaster[0].YarnColorCode || '') + "</th>";
                         temp += "</tr>";
                         temp += "<tr>";
                         temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Net Weight</td>";

@@ -1,6 +1,20 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
+<style>
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+    .pagination .page-link {
+        color: #0d6efd;
+        cursor: pointer;
+    }
+    .pagination .page-item.disabled .page-link {
+        cursor: not-allowed;
+    }
+</style>
 <div class="content-wrapper">
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
@@ -8,13 +22,30 @@
                 <div class="card-body">
                     <div class="form-section-header">Jobber Stock Report</div>
 
-                    <div class="row gutters mt-3">
+                    <!-- Top Filter & Controls -->
+                    <div class="row gutters align-items-center mt-3 mb-2">
+                        <div class="col-md-4 col-sm-6 mb-2">
+                            <input type="text" id="searchJobber" class="form-control" placeholder="🔍 Search Jobber Party...">
+                        </div>
+                        <div class="col-md-8 col-sm-6 mb-2 d-flex justify-content-md-end align-items-center">
+                            <label class="me-2 mb-0 text-muted small">Show:</label>
+                            <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span class="ms-1 text-muted small">entries</span>
+                        </div>
+                    </div>
+
+                    <div class="row gutters">
                         <div class="col-12">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="tblJobberStock">
-                                    <thead>
+                                <table class="table table-bordered table-hover" id="tblJobberStock">
+                                    <thead class="table-primary">
                                         <tr>
-                                            <th>#</th>
+                                            <th style="width: 60px;">#</th>
                                             <th>Jobber Party Name</th>
                                             <th>Total Inward Weight</th>
                                             <th>Total Outward Weight</th>
@@ -25,7 +56,7 @@
                                         <!-- Dynamically populated rows -->
                                     </tbody>
                                     <tfoot>
-                                        <tr class="font-weight-bold">
+                                        <tr class="font-weight-bold table-light">
                                             <td colspan="2" class="text-right">TOTAL:</td>
                                             <td id="lblTotalInward">0.00</td>
                                             <td id="lblTotalOutward">0.00</td>
@@ -33,6 +64,18 @@
                                         </tr>
                                     </tfoot>
                                 </table>
+                            </div>
+
+                            <!-- Pagination Controls -->
+                            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                <div id="lblJobberStockInfo" class="text-muted small mb-2 mb-md-0">
+                                    Showing 0 to 0 of 0 entries
+                                </div>
+                                <nav aria-label="Jobber Stock Pagination">
+                                    <ul class="pagination pagination-sm mb-0" id="jobberStockPagination">
+                                        <!-- Pagination links populated dynamically -->
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -47,8 +90,31 @@
     <script>
         $('body').addClass('fullscreen');
 
+        var fullData = [];
+        var filteredData = [];
+        var currentPage = 1;
+        var pageSize = 10;
+
         $(document).ready(function () {
             loadJobberStockReport();
+
+            $('#searchJobber').on('input', function () {
+                var search = $(this).val().toLowerCase().trim();
+                filteredData = fullData.filter(function (row) {
+                    return !search || (row.JobberPartyName || '').toLowerCase().indexOf(search) >= 0;
+                });
+                currentPage = 1;
+                renderTable();
+                renderPagination();
+                updateTotals();
+            });
+
+            $('#pageSizeSelect').on('change', function () {
+                pageSize = parseInt($(this).val()) || 10;
+                currentPage = 1;
+                renderTable();
+                renderPagination();
+            });
         });
 
         function loadJobberStockReport() {
@@ -60,46 +126,143 @@
                 dataType: "json",
                 success: function (response) {
                     var data = JSON.parse(response.d);
-                    var tbody = $('#tblJobberStock tbody');
-                    tbody.empty();
+                    fullData = Array.isArray(data) ? data : [];
+                    filteredData = fullData.slice();
+                    currentPage = 1;
 
-                    var sumInward = 0;
-                    var sumOutward = 0;
-                    var sumBalance = 0;
-
-                    if (data.length === 0) {
-                        tbody.append('<tr><td colspan="5" class="text-center">No records found.</td></tr>');
-                        return;
-                    }
-
-                    $.each(data, function (index, row) {
-                        var inward = parseFloat(row.TotalInwardWeight) || 0;
-                        var outward = parseFloat(row.TotalOutwardWeight) || 0;
-                        var balance = parseFloat(row.StockBalance) || 0;
-
-                        sumInward += inward;
-                        sumOutward += outward;
-                        sumBalance += balance;
-
-                        var markup = '<tr>' +
-                            '<td>' + (index + 1) + '</td>' +
-                            '<td>' + row.JobberPartyName + '</td>' +
-                            '<td>' + inward.toFixed(2) + '</td>' +
-                            '<td>' + outward.toFixed(2) + '</td>' +
-                            '<td class="font-weight-bold">' + balance.toFixed(2) + '</td>' +
-                            '</tr>';
-                        tbody.append(markup);
-                    });
-
-                    // Update Footer Totals
-                    $('#lblTotalInward').text(sumInward.toFixed(2));
-                    $('#lblTotalOutward').text(sumOutward.toFixed(2));
-                    $('#lblTotalBalance').text(sumBalance.toFixed(2));
+                    renderTable();
+                    renderPagination();
+                    updateTotals();
                 },
                 error: function (xhr, status, error) {
                     console.log("Error loading report: ", error);
                 }
             });
+        }
+
+        function renderTable() {
+            var tbody = $('#tblJobberStock tbody');
+            tbody.empty();
+
+            var totalRecords = filteredData.length;
+            if (totalRecords === 0) {
+                tbody.append('<tr><td colspan="5" class="text-center text-muted py-3">No records found.</td></tr>');
+                $('#lblJobberStockInfo').text('Showing 0 to 0 of 0 entries');
+                return;
+            }
+
+            var totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            var startIndex = (currentPage - 1) * pageSize;
+            var endIndex = Math.min(startIndex + pageSize, totalRecords);
+            var pageData = filteredData.slice(startIndex, endIndex);
+
+            $.each(pageData, function (index, row) {
+                var inward = parseFloat(row.TotalInwardWeight) || 0;
+                var outward = parseFloat(row.TotalOutwardWeight) || 0;
+                var balance = parseFloat(row.StockBalance) || 0;
+
+                var markup = '<tr>' +
+                    '<td>' + (startIndex + index + 1) + '</td>' +
+                    '<td>' + (row.JobberPartyName || '') + '</td>' +
+                    '<td>' + inward.toFixed(2) + '</td>' +
+                    '<td>' + outward.toFixed(2) + '</td>' +
+                    '<td class="font-weight-bold">' + balance.toFixed(2) + '</td>' +
+                    '</tr>';
+                tbody.append(markup);
+            });
+
+            $('#lblJobberStockInfo').text('Showing ' + (startIndex + 1) + ' to ' + endIndex + ' of ' + totalRecords + ' entries');
+        }
+
+        function renderPagination() {
+            var totalRecords = filteredData.length;
+            var totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            var $pagination = $('#jobberStockPagination');
+            $pagination.empty();
+
+            if (totalRecords === 0 || totalPages <= 1) {
+                return;
+            }
+
+            // Previous Button
+            var prevDisabled = currentPage === 1 ? ' disabled' : '';
+            $pagination.append(
+                '<li class="page-item' + prevDisabled + '">' +
+                '<a class="page-link" href="javascript:void(0)" onclick="goToPage(' + (currentPage - 1) + ')">Previous</a>' +
+                '</li>'
+            );
+
+            // Windowed Page Numbers (max 5)
+            var maxButtons = 5;
+            var startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            var endPage = startPage + maxButtons - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            if (startPage > 1) {
+                $pagination.append(
+                    '<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="goToPage(1)">1</a></li>'
+                );
+                if (startPage > 2) {
+                    $pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                }
+            }
+
+            for (var p = startPage; p <= endPage; p++) {
+                var activeClass = (p === currentPage) ? ' active' : '';
+                $pagination.append(
+                    '<li class="page-item' + activeClass + '">' +
+                    '<a class="page-link" href="javascript:void(0)" onclick="goToPage(' + p + ')">' + p + '</a>' +
+                    '</li>'
+                );
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    $pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                }
+                $pagination.append(
+                    '<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="goToPage(' + totalPages + ')">' + totalPages + '</a></li>'
+                );
+            }
+
+            // Next Button
+            var nextDisabled = currentPage === totalPages ? ' disabled' : '';
+            $pagination.append(
+                '<li class="page-item' + nextDisabled + '">' +
+                '<a class="page-link" href="javascript:void(0)" onclick="goToPage(' + (currentPage + 1) + ')">Next</a>' +
+                '</li>'
+            );
+        }
+
+        function goToPage(page) {
+            var totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+            renderPagination();
+        }
+
+        function updateTotals() {
+            var sumInward = 0;
+            var sumOutward = 0;
+            var sumBalance = 0;
+
+            $.each(filteredData, function (i, row) {
+                sumInward += (parseFloat(row.TotalInwardWeight) || 0);
+                sumOutward += (parseFloat(row.TotalOutwardWeight) || 0);
+                sumBalance += (parseFloat(row.StockBalance) || 0);
+            });
+
+            $('#lblTotalInward').text(sumInward.toFixed(2));
+            $('#lblTotalOutward').text(sumOutward.toFixed(2));
+            $('#lblTotalBalance').text(sumBalance.toFixed(2));
         }
     </script>
 }

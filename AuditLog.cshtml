@@ -1,0 +1,445 @@
+@{
+    Layout = "~/_LayoutPage1.cshtml";
+    Page.Title = "System Audit Log | WeaveLaneSoft";
+}
+
+<style>
+    .audit-container {
+        padding: 24px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .card-panel {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .badge-action {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-create {
+        background: #e6f4ea;
+        color: #137333;
+        border: 1px solid #ceead6;
+    }
+
+    .badge-update {
+        background: #e8f0fe;
+        color: #1a73e8;
+        border: 1px solid #aecbfa;
+    }
+
+    .badge-delete {
+        background: #fce8e6;
+        color: #c5221f;
+        border: 1px solid #fad2cf;
+    }
+
+    .badge-login {
+        background: #f3e8fd;
+        color: #9334e6;
+        border: 1px solid #e1c2ff;
+    }
+
+    .badge-error {
+        background: #feefc3;
+        color: #b06000;
+        border: 1px solid #fde293;
+    }
+
+    .badge-default {
+        background: #f1f3f4;
+        color: #3c4043;
+        border: 1px solid #dadce0;
+    }
+
+    .json-box {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 14px;
+        border-radius: 8px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 12px;
+        max-height: 350px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    .meta-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+    }
+
+    .meta-value {
+        font-size: 13px;
+        font-weight: 500;
+        color: #212529;
+    }
+</style>
+
+<div class="audit-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">🛡️ System Audit Log</h3>
+            <p class="text-muted mb-0">Monitor user mutations (CREATE, UPDATE, DELETE), security events, and system errors in real-time.</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-success btn-sm me-2" onclick="exportToExcel()"><i class="fa fa-file-excel-o me-1"></i> Export Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="loadAuditLogs(1)"><i class="fa fa-refresh me-1"></i> Refresh</button>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="card-panel">
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">From Date</label>
+                <input type="date" id="txtFromDate" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">To Date</label>
+                <input type="date" id="txtToDate" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">Module</label>
+                <select id="ddlModule" class="form-select form-select-sm">
+                    <option value="">All Modules</option>
+                    <option value="Yarn Color">Yarn Color</option>
+                    <option value="Color Group">Color Group</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Design Specification">Design Specification</option>
+                    <option value="Sketcher">Sketcher</option>
+                    <option value="Warp Pattern">Warp Pattern</option>
+                    <option value="Type">Type</option>
+                    <option value="Design Category">Design Category</option>
+                    <option value="Yarn Material">Yarn Material</option>
+                    <option value="Item Master">Item Master</option>
+                    <option value="Party Master">Party Master</option>
+                    <option value="Godown Master">Godown Master</option>
+                    <option value="Broker Master">Broker Master</option>
+                    <option value="Transport Master">Transport Master</option>
+                    <option value="Jobber Master">Jobber Master</option>
+                    <option value="Sale Order">Sale Order</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="Yarn PO">Yarn PO</option>
+                    <option value="Yarn Inward">Yarn Inward</option>
+                    <option value="Yarn Outward">Yarn Outward</option>
+                    <option value="Jobber Inward">Jobber Inward</option>
+                    <option value="Jobber Outward">Jobber Outward</option>
+                    <option value="Process Management">Process Management</option>
+                    <option value="Butta Cutting">Butta Cutting</option>
+                    <option value="Color Matching">Color Matching</option>
+                    <option value="Authentication">Authentication</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Reports">Reports</option>
+                    <option value="User Master">User Master</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">Action</label>
+                <select id="ddlAction" class="form-select form-select-sm">
+                    <option value="">All Actions</option>
+                    <option value="CREATE">CREATE</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="LOGIN">LOGIN</option>
+                    <option value="LOGOUT">LOGOUT</option>
+                    <option value="FAILED_LOGIN">FAILED_LOGIN</option>
+                    <option value="APPROVE">APPROVE</option>
+                    <option value="REJECT">REJECT</option>
+                    <option value="EXPORT">EXPORT</option>
+                    <option value="PRINT">PRINT</option>
+                    <option value="ERROR">ERROR</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">Table Name</label>
+                <input type="text" id="txtTableName" class="form-control form-control-sm" placeholder="e.g. YarnInward" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">Search Keyword</label>
+                <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search user, record ID, description..." />
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()"><i class="fa fa-times me-1"></i> Clear</button>
+                <button class="btn btn-dark btn-sm" onclick="loadAuditLogs(1)"><i class="fa fa-search me-1"></i> Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Panel -->
+    <div class="card-panel p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="tblAuditLogs">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>User</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Table</th>
+                        <th>Record ID</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>IP Address</th>
+                        <th class="text-center">Details</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyAuditLogs">
+                    <tr><td colspan="10" class="text-center py-4 text-muted">Loading audit history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination Footer -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+            <div>
+                <span id="lblPaginationSummary" class="text-muted small">Showing 0 to 0 of 0 entries</span>
+            </div>
+            <div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="ulPagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Json Details Modal -->
+<div class="modal fade" id="modalAuditDetails" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">🔍 Audit Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row bg-light p-3 rounded mb-3 g-2">
+                    <div class="col-md-6">
+                        <div class="meta-label">Request URL</div>
+                        <div class="meta-value text-break" id="lblReqUrl">N/A</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="meta-label">Browser & OS (User Agent)</div>
+                        <div class="meta-value text-break" id="lblUserAgent">N/A</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong class="text-secondary">Previous State (OldValue):</strong>
+                        <pre class="json-box mt-1" id="lblOldValue">N/A</pre>
+                    </div>
+                    <div class="col-md-6">
+                        <strong class="text-secondary">New State (NewValue):</strong>
+                        <pre class="json-box mt-1" id="lblNewValue">N/A</pre>
+                    </div>
+                </div>
+                <div id="pnlException" class="d-none">
+                    <strong class="text-danger">Exception / Error Details:</strong>
+                    <pre class="json-box text-warning mt-1" id="lblException"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        let currentLogs = [];
+        let currentPage = 1;
+        let pageSize = 50;
+
+        $(document).ready(function () {
+            loadAuditLogs(1);
+        });
+
+        function loadAuditLogs(page) {
+            currentPage = page || 1;
+            let payload = {
+                fromDate: $('#txtFromDate').val(),
+                toDate: $('#txtToDate').val(),
+                userId: 0,
+                module: $('#ddlModule').val(),
+                action: $('#ddlAction').val(),
+                tableName: $('#txtTableName').val(),
+                recordId: '',
+                search: $('#txtSearch').val(),
+                pageNumber: currentPage,
+                pageSize: pageSize
+            };
+
+            $.ajax({
+                url: 'WebServiceNikunjTextile.asmx/GetAuditLogs',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(payload),
+                dataType: 'json',
+                success: function(res) {
+                    debugger;
+                    let data = (res && res.d !== undefined)
+                        ? (typeof res.d === "string" ? JSON.parse(res.d) : res.d)
+                        : res;
+
+                    if (typeof data === "string") {
+                        data = JSON.parse(data);
+                    }
+
+                    currentLogs = data || [];
+                    let html = '';
+
+                    if (!data || data.length === 0) {
+                        $('#tbodyAuditLogs').html('<tr><td colspan="10" class="text-center py-4 text-muted">No audit log entries matched your filter criteria.</td></tr>');
+                        updatePagination(0, currentPage, pageSize);
+                        return;
+                    }
+
+                    let totalRecords = data[0].TotalRecords || data.length;
+
+                    $.each(data, function (i, row) {
+                        let badgeClass = 'badge-default';
+                        if (row.ActionName === 'CREATE') badgeClass = 'badge-create';
+                        else if (row.ActionName === 'UPDATE') badgeClass = 'badge-update';
+                        else if (row.ActionName === 'DELETE') badgeClass = 'badge-delete';
+                        else if (row.ActionName === 'LOGIN') badgeClass = 'badge-login';
+                        else if (row.ActionName === 'ERROR' || row.Status === 'Error') badgeClass = 'badge-error';
+
+                        html += `<tr>
+                            <td class="small text-nowrap">${row.LogDateTime ? new Date(row.LogDateTime).toLocaleString() : '-'}</td>
+                            <td class="fw-bold small text-nowrap">${row.UserName || 'System'}</td>
+                            <td><span class="badge bg-light text-dark border">${row.ModuleName || '-'}</span></td>
+                            <td><span class="badge-action ${badgeClass}">${row.ActionName || '-'}</span></td>
+                            <td class="small text-muted">${row.TableName || '-'}</td>
+                            <td class="fw-bold small">${row.RecordID || '-'}</td>
+                            <td class="small text-truncate" style="max-width: 250px;" title="${row.Description || ''}">${row.Description || ''}</td>
+                            <td><span class="badge ${row.Status === 'Success' ? 'bg-success' : 'bg-danger'}">${row.Status}</span></td>
+                            <td class="small text-muted">${row.IPAddress || '-'}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-dark" onclick="viewDetails(${i})"><i class="fa fa-eye"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+
+                    $('#tbodyAuditLogs').html(html);
+                    updatePagination(totalRecords, currentPage, pageSize);
+                },
+                error: function (xhr, err) {
+                    console.error("GetAuditLogs failed: ", xhr.responseText);
+                    $('#tbodyAuditLogs').html('<tr><td colspan="10" class="text-center py-4 text-danger">Failed to load audit logs. Please check server logs.</td></tr>');
+                    updatePagination(0, 1, pageSize);
+                }
+            });
+        }
+
+        function clearFilters() {
+            $('#txtFromDate').val('');
+            $('#txtToDate').val('');
+            $('#ddlModule').val('');
+            $('#ddlAction').val('');
+            $('#txtTableName').val('');
+            $('#txtSearch').val('');
+            loadAuditLogs(1);
+        }
+
+        function updatePagination(totalRecords, page, size) {
+            if (totalRecords === 0) {
+                $('#lblPaginationSummary').text('Showing 0 to 0 of 0 entries');
+                $('#ulPagination').html('');
+                return;
+            }
+
+            let start = (page - 1) * size + 1;
+            let end = Math.min(page * size, totalRecords);
+            let totalPages = Math.ceil(totalRecords / size);
+
+            $('#lblPaginationSummary').text(`Showing ${start} to ${end} of ${totalRecords} entries`);
+
+            let paginationHtml = '';
+            paginationHtml += `<li class="page-item ${page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="loadAuditLogs(${page - 1})">Prev</a>
+            </li>`;
+
+            let startPage = Math.max(1, page - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                paginationHtml += `<li class="page-item ${p === page ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="loadAuditLogs(${p})">${p}</a>
+                </li>`;
+            }
+
+            paginationHtml += `<li class="page-item ${page === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="loadAuditLogs(${page + 1})">Next</a>
+            </li>`;
+
+            $('#ulPagination').html(paginationHtml);
+        }
+
+        function formatJsonStr(val) {
+            if (!val) return 'N/A';
+            try {
+                let parsed = typeof val === 'string' ? JSON.parse(val) : val;
+                return JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                return val;
+            }
+        }
+
+        function viewDetails(index) {
+            let row = currentLogs[index];
+            if (!row) return;
+
+            $('#lblReqUrl').text(row.RequestURL || 'N/A');
+            $('#lblUserAgent').text(row.UserAgent || 'N/A');
+
+            $('#lblOldValue').text(formatJsonStr(row.OldValue));
+            $('#lblNewValue').text(formatJsonStr(row.NewValue));
+
+            let errContent = '';
+            if (row.ErrorMessage) errContent += `Error: ${row.ErrorMessage}\n\n`;
+            if (row.ExceptionDetails) errContent += `StackTrace:\n${row.ExceptionDetails}`;
+
+            if (errContent) {
+                $('#pnlException').removeClass('d-none');
+                $('#lblException').text(errContent);
+            } else {
+                $('#pnlException').addClass('d-none');
+            }
+
+            $('#modalAuditDetails').modal('show');
+        }
+
+        function exportToExcel() {
+            if (!currentLogs || currentLogs.length === 0) {
+                alert("No data available to export.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Date,User,Module,Action,Table,RecordID,Description,Status,IPAddress,RequestURL\n";
+            currentLogs.forEach(function (r) {
+                let rowStr = `"${r.LogDateTime || ''}","${r.UserName || ''}","${r.ModuleName || ''}","${r.ActionName || ''}","${r.TableName || ''}","${r.RecordID || ''}","${(r.Description || '').replace(/"/g, '""')}","${r.Status || ''}","${r.IPAddress || ''}","${r.RequestURL || ''}"`;
+                csvContent += rowStr + "\n";
+            });
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `AuditLog_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+}

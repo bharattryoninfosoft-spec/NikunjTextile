@@ -1,5 +1,23 @@
-﻿@{
+@{
     Layout = null;
+
+    var userCookie = Request.Cookies["UserIDs"];
+    if (userCookie != null && !string.IsNullOrEmpty(userCookie.Value))
+    {
+        string uid = userCookie["UserIDs"] ?? userCookie.Value;
+        if (!string.IsNullOrEmpty(uid))
+        {
+            if (uid.StartsWith("UserIDs=", StringComparison.OrdinalIgnoreCase))
+            {
+                uid = uid.Substring("UserIDs=".Length);
+            }
+            if (uid.Trim() != "0" && !string.IsNullOrEmpty(uid.Trim()))
+            {
+                Response.Redirect("/Dashboard");
+                return;
+            }
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -148,17 +166,25 @@
 
         $(document).ready(function () {
             logout();
+
+            // Allow pressing Enter key to submit login
+            $("#email, #password").on("keypress", function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    checkLogin();
+                }
+            });
         });
 
         function validate(code) {
+            if (!code || !code.value) return false;
             code.value = code.value.replace(/\s+/g, ' ').trim();
             var errorMessageValid = "." + code.id + "-valid-feedback";
             var errorMessageInvalid = "." + code.id + "-invalid-feedback";
             var idStr = "#" + code.id;
-            $(".invalid-feedback .valid-feedback").hide();
+
             if (code.value == "" || code.value == "0") {
-                $(idStr).addClass("is-invalid");
-                $(idStr).removeClass("is-valid");
+                $(idStr).addClass("is-invalid").removeClass("is-valid");
                 $(errorMessageInvalid).show();
                 $(".unavailable-feedback").hide();
                 return false;
@@ -173,24 +199,20 @@
                     dataType: "json",
                     success: function (data, status) {
                         var jsonData = data.d;
-                        console.log("yuhu", jsonData);
                         if (jsonData != "false") {
                             $(".email-valid-feedback").show();
                             $(".email-invalid-feedback").hide();
                             $(".unavailable-feedback").hide();
-                            $(idStr).addClass("is-valid");
-                            $(idStr).removeClass("is-invalid");
+                            $(idStr).addClass("is-valid").removeClass("is-invalid");
                             $("#return-message").val("true");
                         }
                         else {
                             $(".email-valid-feedback").hide();
                             $(".email-invalid-feedback").hide();
                             $(".unavailable-feedback").show();
-                            $(idStr).addClass("is-invalid");
-                            $(idStr).removeClass("is-valid");
+                            $(idStr).addClass("is-invalid").removeClass("is-valid");
                             $("#return-message").val("false");
                         }
-                        console.log("return msg", $("#return-message").val());
                     },
                     error: function (request, status, error) {
                         $(".email-valid-feedback").hide();
@@ -198,11 +220,10 @@
                         $(".unavailable-feedback").show();
                     }
                 });
-
+                return true;
             }
             else {
-                $(idStr).addClass("is-valid");
-                $(idStr).removeClass("is-invalid");
+                $(idStr).addClass("is-valid").removeClass("is-invalid");
                 $(errorMessageValid).show();
                 $(errorMessageInvalid).hide();
                 return true;
@@ -224,45 +245,65 @@
         }
 
         function checkLogin() {
-            var email = document.getElementById("email");
-            var password = document.getElementById("password");
-            console.log("Validate email", $("#return-message").val());
-            console.log("password", validate(password));
-            console.log("email empty", email.value != "");
-            if (email.value != "" && validate(password) == true && $("#return-message").val() == "true") {
-                $("#error-alert").hide();
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/getLoginDetails',
-                    data: "{ 'username':'" + email.value + "','password':'" + password.value + "' }",
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data, status) {
-                        console.log(data);
-                        var jsonData = data.d;
-                        if (jsonData == "done") {
-                            window.location.replace("/Dashboard");
-                        }
-                        else if (jsonData == "deactivate") {
-                            $("#error-alert").show();
-                            $("#error-alert").html("User Deactivated. You cannot login into the system.");
-                        }
-                        else {
-                            $("#error-alert").show();
-                            $("#error-alert").html("Incorrect Username Or Password");
-                        }
-                    },
-                    error: function (request, status, error) {
-                        console.log(error);
+            var emailEl = document.getElementById("email");
+            var passwordEl = document.getElementById("password");
+
+            var emailVal = emailEl ? emailEl.value.trim() : "";
+            var passwordVal = passwordEl ? passwordEl.value.trim() : "";
+
+            var hasError = false;
+
+            if (!emailVal) {
+                $("#email").addClass("is-invalid").removeClass("is-valid");
+                $(".email-invalid-feedback").show();
+                $(".email-valid-feedback").hide();
+                hasError = true;
+            } else {
+                $("#email").addClass("is-valid").removeClass("is-invalid");
+                $(".email-valid-feedback").show();
+                $(".email-invalid-feedback").hide();
+            }
+
+            if (!passwordVal) {
+                $("#password").addClass("is-invalid").removeClass("is-valid");
+                $(".password-invalid-feedback").show();
+                $(".password-valid-feedback").hide();
+                hasError = true;
+            } else {
+                $("#password").addClass("is-valid").removeClass("is-invalid");
+                $(".password-valid-feedback").show();
+                $(".password-invalid-feedback").hide();
+            }
+
+            if (hasError) {
+                $("#error-alert").show().html("Please Provide All Details Properly");
+                return;
+            }
+
+            $("#error-alert").hide();
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getLoginDetails',
+                data: JSON.stringify({ username: emailVal, password: passwordVal }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data, status) {
+                    var jsonData = data.d;
+                    if (jsonData == "done") {
+                        window.location.replace("/Dashboard");
                     }
-                });
-            }
-            else {
-                validate(email);
-                validate(password);
-                $("#error-alert").show();
-                $("#error-alert").html("Please Provide All Details Properly");
-            }
+                    else if (jsonData == "deactivate") {
+                        $("#error-alert").show().html("User Deactivated. You cannot login into the system.");
+                    }
+                    else {
+                        $("#error-alert").show().html("Incorrect Username Or Password");
+                    }
+                },
+                error: function (request, status, error) {
+                    console.log(error);
+                    $("#error-alert").show().html("Incorrect Username Or Password");
+                }
+            });
         }
     </script>
 

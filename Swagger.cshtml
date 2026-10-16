@@ -1,0 +1,1772 @@
+@{
+    Layout = null;
+
+    string masterPassword = "admin"; // Default password (also accepts admin@123, 123456)
+    bool isAuthorized = false;
+    string errorMessage = "";
+
+    // Handle logout action
+    if (Request.QueryString["logout"] == "1")
+    {
+        Session["SwaggerAuthorized"] = null;
+        Response.Redirect("/Swagger.cshtml");
+        return;
+    }
+
+    // Check if session is already authenticated
+    if (Session["SwaggerAuthorized"] != null && (bool)Session["SwaggerAuthorized"] == true)
+    {
+        isAuthorized = true;
+    }
+    // Check if password was submitted
+    else if (IsPost)
+    {
+        string enteredPassword = Request.Form["swaggerPassword"];
+        if (!string.IsNullOrEmpty(enteredPassword) && 
+            (enteredPassword == masterPassword || enteredPassword == "admin@123" || enteredPassword == "123456"))
+        {
+            Session["SwaggerAuthorized"] = true;
+            isAuthorized = true;
+        }
+        else
+        {
+            errorMessage = "Incorrect password! Please try again.";
+        }
+    }
+}
+@if (!isAuthorized)
+{
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swagger Security Login - WeaveLane ERP</title>
+    <link rel="icon" type="image/png" href="img/fav.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lock-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            max-width: 420px;
+            width: 100%;
+            padding: 36px 30px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .lock-icon-circle {
+            width: 70px;
+            height: 70px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
+        }
+        .lock-title {
+            font-size: 21px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+        .lock-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper input {
+            width: 100%;
+            height: 44px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0 42px 0 14px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-wrapper input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .toggle-pwd {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        .btn-unlock {
+            width: 100%;
+            height: 44px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-unlock:hover {
+            background: #1d4ed8;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .error-alert {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+        .lock-footer {
+            margin-top: 22px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .lock-footer a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .lock-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-card">
+        <div class="lock-icon-circle">
+            <i class="fa fa-lock"></i>
+        </div>
+        <h2 class="lock-title">Swagger Security Lock</h2>
+        <p class="lock-subtitle">Please enter your authorization password to view and test API endpoints.</p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-alert">
+                <i class="fa fa-exclamation-circle"></i>
+                <span>@errorMessage</span>
+            </div>
+        }
+
+        <form method="post" action="">
+            <div class="form-group">
+                <label for="swaggerPassword">Access Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="swaggerPassword" name="swaggerPassword" placeholder="Enter password..." autofocus required />
+                    <button type="button" class="toggle-pwd" onclick="toggleVisibility()"><i class="fa fa-eye" id="eyeIcon"></i></button>
+                </div>
+            </div>
+            <button type="submit" class="btn-unlock">
+                <i class="fa fa-unlock-alt"></i> Unlock Swagger UI
+            </button>
+        </form>
+
+        <div class="lock-footer">
+            <p>Protected by WeaveLane ERP &bull; <a href="/ProductionOrderList">Return to ERP</a></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleVisibility() {
+            var pwd = document.getElementById("swaggerPassword");
+            var icon = document.getElementById("eyeIcon");
+            if (pwd.type === "password") {
+                pwd.type = "text";
+                icon.className = "fa fa-eye-slash";
+            } else {
+                pwd.type = "password";
+                icon.className = "fa fa-eye";
+            }
+        }
+    </script>
+</body>
+</html>
+    return;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeaveLane ERP - Swagger API Documentation</title>
+    <link rel="icon" type="image/png" href="img/fav.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .custom-topbar {
+            background: linear-gradient(90deg, #102a43 0%, #1a365d 100%);
+            color: #ffffff;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .custom-topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .custom-topbar-badge {
+            background: #2563eb;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .custom-topbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-topbar-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .custom-topbar-links a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .custom-topbar-links a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .custom-topbar-links a.btn-lock {
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            padding: 5px 12px;
+            border-radius: 4px;
+            color: #fca5a5 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .custom-topbar-links a.btn-lock:hover {
+            background: rgba(239, 68, 68, 0.45);
+            color: #ffffff !important;
+            text-decoration: none;
+        }
+
+        .swagger-ui .topbar {
+            display: none !important;
+        }
+
+        .swagger-ui .info {
+            margin: 24px 0 20px 0 !important;
+        }
+
+        .swagger-ui .info .title {
+            color: #0f172a !important;
+            font-size: 26px !important;
+            font-weight: 800 !important;
+        }
+
+        .swagger-ui .opblock.opblock-post {
+            border-color: #2563eb !important;
+            background: rgba(37, 99, 235, 0.04) !important;
+        }
+
+        .swagger-ui .opblock.opblock-post .opblock-summary-method {
+            background: #2563eb !important;
+        }
+
+        .swagger-ui .opblock.opblock-post .opblock-summary {
+            border-color: #2563eb !important;
+        }
+
+        .swagger-ui .opblock-tag {
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            color: #1e3a8a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 10px 0 !important;
+        }
+
+        .swagger-ui .btn.execute {
+            background-color: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #fff !important;
+        }
+
+        .swagger-ui .btn.execute:hover {
+            background-color: #1d4ed8 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="custom-topbar">
+        <div class="custom-topbar-brand">
+            <span class="custom-topbar-badge">49 APIs</span>
+            <span class="custom-topbar-title">WeaveLane - WebServiceMoblieAPI Swagger UI</span>
+        </div>
+        <div class="custom-topbar-links">
+            <a href="/WebServiceMoblieAPI.asmx" target="_blank">Raw ASMX Service</a>
+            <a href="/index">Back to Application</a>
+            <a href="/Swagger.cshtml?logout=1" class="btn-lock" title="Lock Swagger UI">
+                <i class="fa fa-lock"></i> Lock / Logout
+            </a>
+        </div>
+    </header>
+
+    <div id="swagger-ui"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js"></script>
+
+    <script>
+        const swaggerSpec = {
+            openapi: "3.0.3",
+            info: {
+                title: "WebServiceMoblieAPI - Mobile Service",
+                description: "Interactive Swagger Documentation & Live Test Console for **WebServiceMoblieAPI.asmx**.<br/>All endpoints accept JSON payloads via HTTP POST.",
+                version: "1.0.0"
+            },
+            servers: [
+                {
+                    url: "/WebServiceMoblieAPI.asmx",
+                    description: "Local ASMX Web Service Endpoint"
+                }
+            ],
+            tags: [
+                { name: "Authentication", description: "User credentials verification and login" },
+                { name: "Jobber To Process", description: "Issuing lots/slips from Jobber to Processor with item breakdown" },
+                { name: "Process Receive", description: "Receiving finished/processed materials from Processor" },
+                { name: "Process Stock & Issue Back", description: "Processor stock reports and returning lots back to Jobber" },
+                { name: "Jobber Receive", description: "Receiving returned issue-back challans at Jobber godown" },
+                { name: "Butta Cutting Module", description: "Jobber to Butta Cutting issue, receive and stock management" },
+                { name: "Yarn Outward Scan", description: "Barcode scanning for box weights and outward verification" },
+                { name: "Sale Order Entry", description: "Sale order list and design color matching form data" },
+                { name: "History & Reports", description: "Slip timeline, movement history log and challan PDF data" }
+            ],
+            paths: {
+                "/UserLoginAPI": {
+                    post: {
+                        tags: ["Authentication"],
+                        summary: "User Login Authentication",
+                        description: "Authenticates user with username & password, returns user and company info.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            Username: { type: "string", example: "admin" },
+                                            Password: { type: "string", example: "123456" }
+                                        },
+                                        required: ["Username", "Password"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Successful Login Response" } }
+                    }
+                },
+                "/GetGenericProcessFilterDropdowns": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Get Process Filter Dropdowns",
+                        description: "Loads Jobbers, Processors, and Processes dropdown list for filters.",
+                        requestBody: {
+                            content: { "application/json": { schema: { type: "object" } } }
+                        },
+                        responses: { "200": { description: "Dropdown datasets" } }
+                    }
+                },
+                "/GetJobberToProcessData": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Load Eligible Lots for Process Issue",
+                        description: "Fetches production order slips ready to be issued from Jobber to Process. Only slips from Sales Orders with additional work (SaleOrderAdditionalCharges) matching the process are returned, with quantity calculated from true Jobber Godown Stock (Production PCS - Issued PCS + Received Back PCS).",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            jobType: { type: "string", example: "" },
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            searchNo: { type: "string", example: "" },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNo: { type: "integer", example: 0 },
+                                            barcode: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "List of available items" } }
+                    }
+                },
+                "/SaveJobberToProcess": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Save Jobber To Process Challan",
+                        description: "Creates and saves a new challan issuing items to processor.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            jobberID: { type: "integer", example: 1 },
+                                            processID: { type: "integer", example: 1 },
+                                            processorID: { type: "integer", example: 1 },
+                                            jobType: { type: "string", example: "Jobwork" },
+                                            challanDate: { type: "string", example: "2026-10-13" },
+                                            remark: { type: "string", example: "Testing challan" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        ProductionOrderDetailID: { type: "integer", example: 101 },
+                                                        IssuePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Challan save confirmation" } }
+                    }
+                },
+                "/GetJobberToProcessList": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Get Jobber To Process Challans List",
+                        description: "Returns list of issued process challans with search and date filters.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "List of challan records" } }
+                    }
+                },
+                "/GetJobberToProcessDetail": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Get Single Challan Detail",
+                        description: "Retrieves complete details and item list of a specific process transaction.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Challan details" } }
+                    }
+                },
+                "/UpdateJobberToProcess": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Update Jobber To Process Issue Challan",
+                        description: "Updates an existing Jobber to Process issue allotment and slip items.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            processID: { type: "integer", example: 1 },
+                                            processorID: { type: "integer", example: 1 },
+                                            jobType: { type: "string", example: "BORDER AND BUTTA CUTTING BOTH" },
+                                            challanDate: { type: "string", example: "2026-10-13" },
+                                            remark: { type: "string", example: "Updated remark" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        ProductionOrderDetailID: { type: "integer", example: 1 },
+                                                        IssuePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        required: ["processTransactionID", "jobberID", "processID", "processorID", "items"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue update confirmation" } }
+                    }
+                },
+                "/DeleteJobberToProcess": {
+                    post: {
+                        tags: ["Jobber To Process"],
+                        summary: "Delete Process Challan",
+                        description: "Deletes a process transaction and reverts issued quantities.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Deletion status" } }
+                    }
+                },
+                "/GetIssueChallansForProcessReceive": {
+                    post: {
+                        tags: ["Process Receive"],
+                        summary: "Search Issued Challans to Receive",
+                        description: "Finds process challans that have pending quantities to receive.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNo: { type: "integer", example: 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Pending receive challans" } }
+                    }
+                },
+                "/GetIssueChallanDetailForProcessReceive": {
+                    post: {
+                        tags: ["Process Receive"],
+                        summary: "Get Items Detail for Receive",
+                        description: "Loads items and pending pieces of an issued challan to receive.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueProcessTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["issueProcessTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Challan item details" } }
+                    }
+                },
+                "/SaveProcessReceive": {
+                    post: {
+                        tags: ["Process Receive"],
+                        summary: "Save Process Receive Entry",
+                        description: "Saves received processed items into processor stock.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueProcessTransactionID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            processID: { type: "integer", example: 1 },
+                                            processorID: { type: "integer", example: 1 },
+                                            receiveDate: { type: "string", example: "2026-10-13" },
+                                            remark: { type: "string", example: "Receive success" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        IssueDetailID: { type: "integer", example: 1 },
+                                                        ReceivePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Process receive confirmation" } }
+                    }
+                },
+                "/GetProcessStock": {
+                    post: {
+                        tags: ["Process Stock & Issue Back"],
+                        summary: "Get Processor Stock Report",
+                        description: "Calculates current stock available with processors.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            jobberID: { type: "integer", example: 0 },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNumber: { type: "integer", example: 0 },
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Processor stock report" } }
+                    }
+                },
+                "/GetProcessStockForIssueBack": {
+                    post: {
+                        tags: ["Process Stock & Issue Back"],
+                        summary: "Load Stock Available to Return (Issue Back)",
+                        description: "Fetches items currently at processor that can be issued back to jobber.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            jobberID: { type: "integer", example: 0 },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNumber: { type: "integer", example: 0 },
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue back eligible stock" } }
+                    }
+                },
+                "/SaveProcessIssueBack": {
+                    post: {
+                        tags: ["Process Stock & Issue Back"],
+                        summary: "Save Issue Back Challan",
+                        description: "Saves return challan from processor back to jobber.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processorID: { type: "integer", example: 1 },
+                                            processID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            issueBackDate: { type: "string", example: "2026-10-13" },
+                                            remark: { type: "string", example: "Return challan" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        ProductionOrderDetailID: { type: "integer", example: 1 },
+                                                        IssueBackPcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue back save confirmation" } }
+                    }
+                },
+                "/GetProcessIssueBackList": {
+                    post: {
+                        tags: ["Process Stock & Issue Back"],
+                        summary: "Get Issue Back Challans List",
+                        description: "List of all issued-back return challans.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            processorID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            jobberID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNo: { type: "integer", example: 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue back list" } }
+                    }
+                },
+                "/GetProcessIssueBackDetail": {
+                    post: {
+                        tags: ["Process Stock & Issue Back"],
+                        summary: "Get Process Issue Back Challan Detail",
+                        description: "Retrieves complete detail of a Process Issue Back transaction by ID.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue back challan detail" } }
+                    }
+                },
+                "/GetIssueBackChallansForJobberReceive": {
+                    post: {
+                        tags: ["Jobber Receive"],
+                        summary: "Find Return Challans for Jobber Receive",
+                        description: "Finds challans issued back from processor waiting to be received at Jobber.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNo: { type: "integer", example: 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Pending Jobber receive challans" } }
+                    }
+                },
+                "/GetIssueBackDetailForJobberReceive": {
+                    post: {
+                        tags: ["Jobber Receive"],
+                        summary: "Get Issue Back Detail For Jobber Receive",
+                        description: "Loads the details of an issue back challan to prepare for Jobber receive.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueBackTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["issueBackTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Issue back items for Jobber receive" } }
+                    }
+                },
+                "/SaveJobberReceive": {
+                    post: {
+                        tags: ["Jobber Receive"],
+                        summary: "Save Jobber Receive Entry",
+                        description: "Receives goods at Jobber godown from issue-back challan.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueBackTransactionID: { type: "integer", example: 1 },
+                                            processorID: { type: "integer", example: 1 },
+                                            processID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            receiveDate: { type: "string", example: "2026-10-13" },
+                                            remark: { type: "string", example: "Received at Jobber" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        IssueBackDetailID: { type: "integer", example: 1 },
+                                                        ReceivePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Jobber receive confirmation" } }
+                    }
+                },
+                "/GetJobberReceiveList": {
+                    post: {
+                        tags: ["Jobber Receive"],
+                        summary: "Get Jobber Receive Records List",
+                        description: "List of entries received at Jobber godown.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNo: { type: "integer", example: 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Jobber receive records" } }
+                    }
+                },
+                "/GetJobberReceiveDetail": {
+                    post: {
+                        tags: ["Jobber Receive"],
+                        summary: "Get Jobber Receive Challan Detail",
+                        description: "Retrieves header and item details of a Jobber Receive transaction by ID.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Jobber receive challan detail" } }
+                    }
+                },
+                "/GetJobberToButtaCuttingData": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Load Lots for Butta Cutting",
+                        description: "Fetches lots available for Butta Cutting from Jobber.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            jobberID: { type: "integer", example: 0 },
+                                            productionOrderID: { type: "integer", example: 0 },
+                                            slipNo: { type: "string", example: "" },
+                                            machineNumber: { type: "integer", example: 0 },
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            barcode: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Eligible Butta cutting items" } }
+                    }
+                },
+                "/SaveJobberToButtaCutting": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Save Jobber To Butta Cutting Challan",
+                        description: "Saves a new Butta cutting issue challan.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            jobberID: { type: "integer", example: 1 },
+                                            jobType: { type: "string", example: "Butta Cutting" },
+                                            challanDate: { type: "string", example: "2026-10-13" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        ProductionOrderDetailID: { type: "integer", example: 1 },
+                                                        IssuePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Butta cutting challan confirmation" } }
+                    }
+                },
+                "/GetJobberToButtaCuttingList": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Get Butta Cutting Challans List",
+                        description: "List of all issued Butta cutting challans.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            searchNo: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Butta cutting challan list" } }
+                    }
+                },
+                "/SaveButtaCuttingReceive": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Save Butta Cutting Receive",
+                        description: "Receives processed Butta cutting pieces back at Jobber.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueProcessTransactionID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            receiveDate: { type: "string", example: "2026-10-13" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        IssueDetailID: { type: "integer", example: 1 },
+                                                        ReceivePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        required: ["issueProcessTransactionID", "items"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Butta cutting receive confirmation" } }
+                    }
+                },
+                "/SaveReceiveJobberToButtaCutting": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Save Receive Jobber To Butta Cutting (Alias)",
+                        description: "Alias endpoint to receive Butta cutting lots at Jobber godown.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            issueProcessTransactionID: { type: "integer", example: 1 },
+                                            jobberID: { type: "integer", example: 1 },
+                                            receiveDate: { type: "string", example: "2026-10-13" },
+                                            items: {
+                                                type: "array",
+                                                items: {
+                                                    type: "object",
+                                                    properties: {
+                                                        IssueDetailID: { type: "integer", example: 1 },
+                                                        ReceivePcs: { type: "number", example: 10 }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        required: ["issueProcessTransactionID", "items"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Receive confirmation" } }
+                    }
+                },
+                "/GetButtaCuttingStockList": {
+                    post: {
+                        tags: ["Butta Cutting Module"],
+                        summary: "Get Butta Cutting Stock",
+                        description: "Current stock report of pieces in Butta cutting process.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processorID: { type: "integer", example: 0 },
+                                            jobberID: { type: "integer", example: 0 },
+                                            soNumber: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            designNo: { type: "string", example: "" },
+                                            machineNumber: { type: "integer", example: 0 },
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Butta cutting stock report" } }
+                    }
+                },
+                "/GetDisplayYarnoutwardScanMasterAPI": {
+                    post: {
+                        tags: ["Yarn Outward Scan"],
+                        summary: "Get Yarn Outward Scan Master List",
+                        description: "Fetches yarn outward scan master records with pagination.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            Status: { type: "string", example: "" },
+                                            UserId: { type: "integer", example: 1 },
+                                            SearchRequirementNo: { type: "string", example: "" },
+                                            pageNumber: { type: "integer", example: 1 },
+                                            pageSize: { type: "integer", example: 20 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Yarn outward records" } }
+                    }
+                },
+                "/GetYarnOutwardScanAPI": {
+                    post: {
+                        tags: ["Yarn Outward Scan"],
+                        summary: "Get Yarn Outward Scan Details",
+                        description: "Fetches yarn outward scan record and items by YarnOutwardID.",
+                        requestBody: {
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            YarnOutwardID: { type: "string", example: "1", description: "YarnOutward ID (numeric ID or encrypted query string)" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Yarn outward scan details" } }
+                    }
+                },
+                "/GetBoxWeightAPI": {
+                    post: {
+                        tags: ["Yarn Outward Scan"],
+                        summary: "Get Box Weight by Barcode",
+                        description: "Fetches box weight and yarn material info by barcode box number.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            BoxNo: { type: "string", example: "BOX001" },
+                                            YarnMaterial: { type: "integer", example: 1 },
+                                            YarnColour: { type: "integer", example: 1 },
+                                            GodownLocationID: { type: "integer", example: 1 },
+                                            YarnCompany: { type: "integer", example: 1 }
+                                        },
+                                        required: ["BoxNo"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Box weight details" } }
+                    }
+                },
+                "/SaveYarnoutwardScanMasterAPI": {
+                    post: {
+                        tags: ["Yarn Outward Scan"],
+                        summary: "Save Yarn Outward Scan Master",
+                        description: "Saves scanned yarn outward boxes with box weights, barcodes, and challan info.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            model: {
+                                                type: "object",
+                                                properties: {
+                                                    YarnOutwardID: { type: "string", example: "1" },
+                                                    YarnOutwardScanID: { type: "integer", example: 0 },
+                                                    ChallanNo: { type: "string", example: "CH-001" },
+                                                    ChallanDate: { type: "string", example: "2026-10-13" },
+                                                    TotalBox: { type: "integer", example: 5 },
+                                                    TotalWeight: { type: "number", example: 250.5 },
+                                                    PartyId: { type: "integer", example: 1 },
+                                                    UserId: { type: "integer", example: 1 },
+                                                    Details: {
+                                                        type: "array",
+                                                        items: {
+                                                            type: "object",
+                                                            properties: {
+                                                                YarnMaterialID: { type: "integer", example: 1 },
+                                                                YarnColorID: { type: "integer", example: 1 },
+                                                                GodownLocationID: { type: "integer", example: 1 },
+                                                                BoxNo: { type: "string", example: "B-101" },
+                                                                BarcodeNo: { type: "string", example: "BAR12345" },
+                                                                NetWeight: { type: "number", example: 50.1 },
+                                                                YarnInwardDetailID: { type: "integer", example: 0 },
+                                                                YarnCompany: { type: "integer", example: 1 }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        required: ["model"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Save confirmation" } }
+                    }
+                },
+                "/GetSaleOrderListAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Sale Orders List",
+                        description: "Fetches paginated list of Sale Orders.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            page: { type: "integer", example: 1 },
+                                            pageSize: { type: "integer", example: 10 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Sale orders list" } }
+                    }
+                },
+                "/GetDefaultDataLoadAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Sale Order Master Dropdowns",
+                        description: "Loads Party, Broker, Transport and company dropdown options.",
+                        requestBody: {
+                            content: { "application/json": { schema: { type: "object" } } }
+                        },
+                        responses: { "200": { description: "Master dropdown items" } }
+                    }
+                },
+                "/GetDesignEntryDataAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Design Entry Data",
+                        description: "Loads designs, types, units, and color groups for Design Color Matching Form. Pass 0 to fetch all.",
+                        requestBody: {
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            DesignColorMatchingFormID: { type: "integer", example: 0, description: "Pass 0 to fetch all or specific form ID" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Design entry master dataset" } }
+                    }
+                },
+                "/GetDesignDataMasterAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Design Data Master",
+                        description: "Loads all active designs from master.",
+                        requestBody: {
+                            content: { "application/json": { schema: { type: "object" } } }
+                        },
+                        responses: { "200": { description: "List of master designs" } }
+                    }
+                },
+                "/GetDefaultDataSearchAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Search Parties, Brokers & Transports",
+                        description: "Searches party, broker, and transport master lists for autocomplete fields.",
+                        requestBody: {
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            partySearch: { type: "string", example: "" },
+                                            brokerSearch: { type: "string", example: "" },
+                                            transportSearch: { type: "string", example: "" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Filtered master lists" } }
+                    }
+                },
+                "/GetPartyListAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Party Master List",
+                        description: "Fetches list of active parties with GSTIN, billing address, state, and mobile number.",
+                        requestBody: {
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            search: { type: "string", example: "", description: "Search by Party Name or Mobile No" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "List of parties" } }
+                    }
+                },
+                "/SaveSaleOrderAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Save Sale Order",
+                        description: "Creates or updates a Sale Order with full line item details and charges.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            model: {
+                                                type: "object",
+                                                properties: {
+                                                    SaleOrderID: { type: "integer", example: 0 },
+                                                    OrderNo: { type: "string", example: "SO-101" },
+                                                    OrderDate: { type: "string", example: "2026-10-13" },
+                                                    PartyID: { type: "integer", example: 1 },
+                                                    BrokerID: { type: "string", example: "1" },
+                                                    MarkupPercent: { type: "number", example: 0 },
+                                                    TransportID: { type: "string", example: "1" },
+                                                    TotalQty: { type: "number", example: 100 },
+                                                    TotalAmount: { type: "number", example: 50000 },
+                                                    DiscountPercent: { type: "number", example: 0 },
+                                                    DiscountAmount: { type: "number", example: 0 },
+                                                    GSTPercent: { type: "number", example: 5 },
+                                                    GSTAmount: { type: "number", example: 2500 },
+                                                    InvoiceAmount: { type: "number", example: 52500 },
+                                                    Remark: { type: "string", example: "" },
+                                                    AdditionalCharges: {
+                                                        type: "array",
+                                                        items: {
+                                                            type: "object",
+                                                            properties: {
+                                                                ChargeRemark: { type: "string", example: "Packing Charges" },
+                                                                ChargeValue: { type: "number", example: 500 },
+                                                                TotalCalculatedAmount: { type: "number", example: 500 }
+                                                            }
+                                                        }
+                                                    },
+                                                    Details: {
+                                                        type: "array",
+                                                        items: {
+                                                            type: "object",
+                                                            properties: {
+                                                                DesignNo: { type: "string", example: "DSG-01" },
+                                                                ItemType: { type: "string", example: "Saree" },
+                                                                Qty: { type: "number", example: 50 },
+                                                                Rate: { type: "number", example: 500 },
+                                                                Amount: { type: "number", example: 25000 }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        required: ["model"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Sale Order save result" } }
+                    }
+                },
+                "/GetSaleOrderByIdAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Sale Order by ID",
+                        description: "Fetches full Sale Order details including line items for viewing or editing.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            SaleOrderID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["SaleOrderID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Sale order details" } }
+                    }
+                },
+                "/DeleteSaleOrderAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Delete Sale Order",
+                        description: "Soft deletes a sale order and its line items.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            SaleOrderID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["SaleOrderID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Deletion status" } }
+                    }
+                },
+                "/GetColorMatchingDetailsAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Color Matching Details",
+                        description: "Fetches warp and feeder color matching details for a design form.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            designColorMatchingFormID: { type: "integer", example: 1 },
+                                            colorGroupID: { type: "integer", example: -1 }
+                                        },
+                                        required: ["designColorMatchingFormID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Color matching list" } }
+                    }
+                },
+                "/GetAdditionalRemarksAPI": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Get Additional Remarks List",
+                        description: "Loads distinct additional charge remarks used in sale orders.",
+                        requestBody: {
+                            content: { "application/json": { schema: { type: "object" } } }
+                        },
+                        responses: { "200": { description: "List of remarks" } }
+                    }
+                },
+                "/SaveTransport": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Save Transport Master",
+                        description: "Creates or updates transport vendor master data.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            obj: {
+                                                type: "object",
+                                                properties: {
+                                                    TransportId: { type: "integer", example: 0 },
+                                                    TransportName: { type: "string", example: "Express Transport" },
+                                                    FirmName: { type: "string", example: "Express Logistics" },
+                                                    ContactPerson: { type: "string", example: "Rajesh" },
+                                                    MobileNo: { type: "string", example: "9876543210" },
+                                                    Address: { type: "string", example: "Ring Road, Surat" },
+                                                    CityName: { type: "string", example: "Surat" },
+                                                    GSTNo: { type: "string", example: "24AAAAA0000A1Z5" },
+                                                    IsActive: { type: "boolean", example: true }
+                                                },
+                                                required: ["TransportName", "MobileNo"]
+                                            }
+                                        },
+                                        required: ["obj"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Transport save confirmation" } }
+                    }
+                },
+                "/SaleOrderReport": {
+                    post: {
+                        tags: ["Sale Order Entry"],
+                        summary: "Generate Sale Order Report PDF",
+                        description: "Generates consolidated PDF report for selected sale orders.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            saleOrderID: {
+                                                type: "array",
+                                                items: { type: "integer" },
+                                                example: [1, 2]
+                                            }
+                                        },
+                                        required: ["saleOrderID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "PDF generation result" } }
+                    }
+                },
+                "/GetProcessTransactionHistoryLog": {
+                    post: {
+                        tags: ["History & Reports"],
+                        summary: "Get Process Transaction History Log",
+                        description: "Retrieves complete transaction history by slip number and production order detail ID.",
+                        requestBody: {
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            slipNo: { type: "string", example: "SLIP-001" },
+                                            productionOrderDetailID: { type: "integer", example: 1 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Transaction history entries" } }
+                    }
+                },
+                "/GetSlipTimelineAndStockSummary": {
+                    post: {
+                        tags: ["History & Reports"],
+                        summary: "Get Slip Lifecycle Timeline & Stock Summary",
+                        description: "Returns complete movement history (Issue -> Process -> Receive -> Return) for a slip.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            slipNo: { type: "string", example: "SLIP-001" },
+                                            productionOrderDetailID: { type: "integer", example: 1 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Timeline & stock summary" } }
+                    }
+                },
+                "/GetProcessManagementHistory": {
+                    post: {
+                        tags: ["History & Reports"],
+                        summary: "Get Process Management History Log",
+                        description: "Full audit log of all process transactions within date range.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            fromDate: { type: "string", example: "" },
+                                            toDate: { type: "string", example: "" },
+                                            slipNo: { type: "string", example: "" },
+                                            jobberID: { type: "integer", example: 0 },
+                                            processID: { type: "integer", example: 0 },
+                                            processorID: { type: "integer", example: 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Transaction history log" } }
+                    }
+                },
+                "/GenerateProcessChallanReportData": {
+                    post: {
+                        tags: ["History & Reports"],
+                        summary: "Get Process Challan Report Dataset",
+                        description: "Generates header and line item dataset for printing challan reports.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Challan report print dataset" } }
+                    }
+                },
+                "/GenerateProcessChallanReportPDF": {
+                    post: {
+                        tags: ["History & Reports"],
+                        summary: "Generate Process Challan Report PDF",
+                        description: "Generates server-side PDF challan document and returns file download path.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            processTransactionID: { type: "integer", example: 1 }
+                                        },
+                                        required: ["processTransactionID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: { "200": { description: "Generated PDF path or base64" } }
+                    }
+                }
+            }
+        };
+
+        window.onload = function () {
+            SwaggerUIBundle({
+                spec: swaggerSpec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "BaseLayout",
+                docExpansion: "list",
+                filter: true,
+                showExtensions: true,
+                showCommonExtensions: true,
+                defaultModelsExpandDepth: 1,
+                requestInterceptor: function (request) {
+                    request.headers['Content-Type'] = 'application/json; charset=utf-8';
+                    return request;
+                }
+            });
+        };
+    </script>
+</body>
+</html>

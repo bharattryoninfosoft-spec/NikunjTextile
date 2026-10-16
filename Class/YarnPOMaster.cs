@@ -19,7 +19,7 @@ namespace NikunjTextile.Class
         public Int32 FinancialYearID { get; set; }
         public DateTime PODate { get; set; }
         public string PODates { get; set; }
-        public Int32 PONo { get; set; }
+        public int PONo { get; set; }
         public Int64 SupplierPartyID { get; set; }
         public Int64 BillToPartyID { get; set; }
         public int IsSameAsSupplier { get; set; }

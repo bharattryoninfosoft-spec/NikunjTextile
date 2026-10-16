@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
@@ -469,6 +469,7 @@
                     ViewRecordQueryString(DecryptID);
                 },
                 error: function (request, status, error) {
+                    ViewRecordQueryString(id);
                 }
             });
         }
@@ -510,68 +511,96 @@
         }
 
         function ViewRecordQueryString(DecryptID) {
-            var formData = new FormData();
-            formData.append('YarnOutwardID', DecryptID);
+            $("#tableJobberOutward").html("<tr><td colspan='7' class='text-center'><i class='fa fa-spinner fa-spin'></i> Loading...</td></tr>");
 
             $.ajax({
                 type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
-                data: formData,
+                url: '/WebServiceNikunjTextile.asmx/GetJobberOutwardView',
+                data: JSON.stringify({ JobberOutwardID: String(DecryptID) }),
+                contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                contentType: false,
-                processData: false,
                 success: function (response) {
-                    var userTable = $('#TblUser');
-
-                    for (var i = 0; i < response.listYarnOutwardMaster.length; i++) {
-                        $("#hYarnOutwardID").val(response.listYarnOutwardMaster[i].YarnOutwardID);
-                        $("#hGodownManagerUserAccountId").val(response.listYarnOutwardMaster[i].hGodownManagerUserAccountId);
-                        $("#POutwardListNo").html("<b>Outward List No: </b>" + response.listYarnOutwardMaster[i].OutwardListNo);
-                        $("#POutwardListDate").html("<b>Outward List Date: </b>" + response.listYarnOutwardMaster[i].OutwardListDates);
-
-                        var SpanSundryParty = "";
-                        if (response.listYarnOutwardMaster[i].SundryParty == "1") {
-                            SpanSundryParty = "<span class='badge bg-success' style='margin-top: 5px;'><i class='fa fa-arrow-down'></i> Sundry Creditors</span>";
-                        }
-                        else if (response.listYarnOutwardMaster[i].SundryParty == "2") {
-                            SpanSundryParty = "<span class='badge bg-danger' style='margin-top: 5px;'><i class='fa fa-arrow-up'></i> Sundry Debtors</span>";
-                        }
-                        else if (response.listYarnOutwardMaster[i].SundryParty == "3") {
-                            SpanSundryParty = "<span class='badge bg-warning' style='margin-top: 5px;'><i class='fa fa-user'></i> Job Work</span>";
-                        }
-
-                        $("#PPartyName").html("<b>Sundry Party Name: </b>" + response.listYarnOutwardMaster[i].PartyName + "  " + SpanSundryParty);
-                        $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnOutwardMaster[i].MobileNo);
-
-                        $("#PUserAccountName").html("<b>Godown Manager: </b>" + response.listYarnOutwardMaster[i].UserAccountName);
-                        $("#PUserAccountMobileNo").html("<b>Manager Mobile No: </b>" + response.listYarnOutwardMaster[i].UserAccountMobileNo);
-
-                        $("#tblYarnOutward tbody").empty();
-
-                        var dataTable = $('#tblYarnOutward tbody');
-                        var temp = "";
-                        var spanTotalWeight = "0";
-
-                        var srno = parseInt(0) + parseInt(1);
-                        for (var j = 0; j < response.listYarnOutwardMaster[i].listYarnOutwardDetail.length; j++) {
-                            temp += "<tr><td>" + srno++ + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].CompanyName + " <br />" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].CompanyMobileNo + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnMaterial + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColor + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].YarnColorCode + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].LocationTitle + "<br />" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].GodownTitle + "</td>";
-                            temp += "<td style='text-align: center;'>" + response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox + "</td>";
-                            temp += "</tr>";
-
-                            spanTotalWeight = parseFloat(spanTotalWeight) + parseFloat(response.listYarnOutwardMaster[i].listYarnOutwardDetail[j].NoOfBox);
-                        }
-                        $("#tblYarnOutward tbody").empty();
-                        dataTable.html(temp);
-
-                        $("#spanTotalWeight").html(parseFloat(spanTotalWeight).toFixed(2));
+                    var res = response.d || response;
+                    if (typeof res === "string") {
+                        res = JSON.parse(res);
                     }
+
+                    if (!res || res.Code != 200 || !res.Master || res.Master.length === 0) {
+                        $("#tableJobberOutward").html("<tr><td colspan='7' class='text-center text-muted'>No records found</td></tr>");
+                        return;
+                    }
+
+                    var master = res.Master[0];
+                    var details = res.Details || [];
+
+                    $("#hJobberOutwardID").val(master.JobberOutwardID || "");
+                    $("#POutwardListNo").html("<b>Outward List No: </b>" + (master.OutwardListNo || ""));
+
+                    var outwardDateStr = "";
+                    if (master.OutwardListDate) {
+                        var dVal = master.OutwardListDate;
+                        if (typeof dVal === "string" && dVal.indexOf("/Date(") >= 0) {
+                            dVal = new Date(parseInt(dVal.replace(/[^0-9]/g, "")));
+                        } else {
+                            dVal = new Date(dVal);
+                        }
+                        if (!isNaN(dVal.getTime())) {
+                            var dd = ("0" + dVal.getDate()).slice(-2);
+                            var mm = ("0" + (dVal.getMonth() + 1)).slice(-2);
+                            var yyyy = dVal.getFullYear();
+                            outwardDateStr = dd + "-" + mm + "-" + yyyy;
+                        }
+                    }
+                    $("#POutwardListDate").html("<b>Outward List Date: </b>" + outwardDateStr);
+
+                    var SpanSundryParty = "";
+                    if (master.SundryParty == "1") {
+                        SpanSundryParty = "<span class='badge bg-success' style='margin-top: 5px;'><i class='fa fa-arrow-down'></i> Sundry Creditors</span>";
+                    }
+                    else if (master.SundryParty == "2") {
+                        SpanSundryParty = "<span class='badge bg-danger' style='margin-top: 5px;'><i class='fa fa-arrow-up'></i> Sundry Debtors</span>";
+                    }
+                    else if (master.SundryParty == "3") {
+                        SpanSundryParty = "<span class='badge bg-warning' style='margin-top: 5px;'><i class='fa fa-user'></i> Job Work</span>";
+                    }
+
+                    $("#PPartyName").html("<b>Sundry Party Name: </b>" + (master.PartyName || "") + "  " + SpanSundryParty);
+                    $("#PMobileNo").html("<b>Mobile No: </b>" + (master.MobileNo || ""));
+
+                    $("#PUserAccountName").html("<b>Godown Manager: </b>" + (master.UserAccountName || ""));
+                    $("#PUserAccountMobileNo").html("<b>Manager Mobile No: </b>" + (master.UserAccountMobileNo || ""));
+
+                    $("#tableJobberOutward").empty();
+
+                    var temp = "";
+                    var totalBoxes = 0;
+
+                    for (var j = 0; j < details.length; j++) {
+                        var row = details[j];
+                        var srno = j + 1;
+                        var boxQty = parseInt(row.NoOfBox) || 1;
+                        temp += "<tr>";
+                        temp += "<td>" + srno + "</td>";
+                        temp += "<td style='text-align: center;'>" + (row.CompanyPartyName || "") + "</td>";
+                        temp += "<td style='text-align: center;'>" + (row.YarnMaterial || "") + "</td>";
+                        temp += "<td style='text-align: center;'>" + (row.YarnColor || "") + "</td>";
+                        temp += "<td style='text-align: center;'>" + (row.YarnColorCode || "") + "</td>";
+                        temp += "<td style='text-align: center;'>" + (row.BoxNo || "") + "</td>";
+                        temp += "<td style='text-align: center;'>" + boxQty + "</td>";
+                        temp += "</tr>";
+
+                        totalBoxes += boxQty;
+                    }
+
+                    if (details.length === 0) {
+                        temp = "<tr><td colspan='7' class='text-center text-muted'>No details found</td></tr>";
+                    }
+
+                    $("#tableJobberOutward").html(temp);
+                    $("#spanTotalWeight").html(totalBoxes);
                 },
                 error: function (request, status, error) {
+                    $("#tableJobberOutward").html("<tr><td colspan='7' class='text-center text-danger'>Failed to load data</td></tr>");
                 }
             });
         }

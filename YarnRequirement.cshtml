@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
@@ -46,6 +46,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h6 class="text-primary border-bottom pb-2">Party Information</h6>
+                                <p id="PPartyName"><strong>Party Name: </strong>-</p>
                                 <p id="PMobileNo"><strong>Mobile No: </strong>-</p>
                                 <p id="PBillingAddress"><strong>Address: </strong>-</p>
                                 <p id="PEmail"><strong>Email: </strong>-</p>
@@ -543,174 +544,46 @@
                     console.log("getYarnRequirementDetails", response);
 
                     if (response.Code == "200") {
-                        var userTable = $('#TblUser');
                         for (var i = 0; i < response.listYarnRequirementMaster.length; i++) {
-                            $("#YarnRequirementID").val(response.listYarnRequirementMaster[i].YarnRequirementID);
-                            $("#PRequirementDate").html("<b>Requirement Date : </b>" + response.listYarnRequirementMaster[i].RequirementDates);
-                            $("#PRequirementNo").html("<b>Requirement No : </b>" + response.listYarnRequirementMaster[i].RequirementNo);
-                            $("#ddlParty").val(response.listYarnRequirementMaster[i].PartyId);
-                            $("#select2-ddlParty-container").html(response.listYarnRequirementMaster[i].PartyName);
-                            $("#divPartyName").html(response.listYarnRequirementMaster[i].PartyName);
-                            $("#PMobileNo").html("<b>Mobile No: </b>" + response.listYarnRequirementMaster[i].MobileNo + " / " + response.listYarnRequirementMaster[i].AlterMobileNo);
-                            $("#PEmail").html("<b>Email: </b>" + response.listYarnRequirementMaster[i].Email);
-                            $("#PBillingAddress").html("<b>Billing Address: </b>" + response.listYarnRequirementMaster[i].BillingAddress);
-                            $("#PState").html("<b>State: </b>" + response.listYarnRequirementMaster[i].State);
-                            $("#PGSTIN").html("<b>GSTIn: </b>" + response.listYarnRequirementMaster[i].GSTIN);
-                            $("#DivLblPartyDetails").show();
-                            var tempColorMatching = '';
-                            var YarnDetailsArray = "";
-                            for (var j = 0; j < response.listYarnRequirementMaster[i].listYarnRequirementDetail.length; j++) {
-                                var SrNo = j + 1;
-                                if (j == 0) {
-                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
-                                    tempColorMatching += '<td style="width:3%;">';
-                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
-                                    tempColorMatching += '</td>';
+                            var master = response.listYarnRequirementMaster[i];
+                            $("#YarnRequirementID").val(master.YarnRequirementID);
+                            $("#PRequirementDate").html("<strong>Requirement Date: </strong>" + (master.RequirementDates || "-"));
+                            $("#PRequirementNo").html("<strong>Requirement No: </strong>" + (master.RequirementNo || "-"));
+                            $("#PPartyName").html("<strong>Party Name: </strong>" + (master.PartyName || "-"));
 
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')">';
-
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
-                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
-                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
-                                        }
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + ';"></div>';
-                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
-
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
-                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
-                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
-                                        }
-
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
-
-                                    tempColorMatching += '<option value="0" selected>Select Select Company</option>';
-                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
-                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        }
-                                    }
-                                    tempColorMatching += '</select>';
-
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:17%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)"  value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '</tr>';
-                                }
-                                else {
-                                    tempColorMatching += '<tr id="trMatching' + SrNo + '">';
-                                    tempColorMatching += '<td style="width:3%;">';
-                                    tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + SrNo + ')"></i>';
-
-                                    tempColorMatching += '<input type="hidden" id="txtYarnRequirementDetailID' + SrNo + '" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnRequirementDetailID + '">';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="yarnMaterial' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnPOCompany(\'' + SrNo + '\')">';
-
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Material</option>';
-                                    for (var k = 0; k < ArrayYarnMaterial[0].length; k++) {
-                                        if (ArrayYarnMaterial[0][k].YarnMaterialID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnMaterialID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "' selected> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + ArrayYarnMaterial[0][k].YarnMaterialID + "'> " + ArrayYarnMaterial[0][k].YarnMaterial + " </option>";
-                                        }
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<div id="tdYarnColor' + SrNo + '" style="width: 35px; height: 35px; border-radius: 3px; background-color: #' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorCode + '; "></div>';
-                                    tempColorMatching += '<select id="YarnColor' + SrNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="YarnColorChange(\'' + SrNo + '\')">';
-
-                                    tempColorMatching += '<option value="0" selected>Select Yarn Color</option>';
-                                    for (var k = 0; k < ArrayYarnColor[0].length; k++) {
-                                        if (ArrayYarnColor[0][k].YarnColorID == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].YarnColorID) {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "' selected> " + ArrayYarnColor[0][k].YarnColor + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + ArrayYarnColor[0][k].YarnColorID + "'> " + ArrayYarnColor[0][k].YarnColor + " </option>";
-                                        }
-
-                                    }
-                                    tempColorMatching += '</select>';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<select id="CompanyName' + SrNo + '" class="form-control" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
-                                    tempColorMatching += '<option value="0" selected>Select Select Company</option>';
-                                    for (var p = 0; p < response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster.length; p++) {
-                                        if (response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId == response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].PartyId) {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        }
-                                        else {
-                                            tempColorMatching += "<option value='" + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyId + "' selected> " + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].listPartyMaster[p].PartyName + " </option>";
-                                        }
-                                    }
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:20%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="text" class="form-control" id="ColorCode' + SrNo + '" placeholder="Color Code" value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].CompanyColourCode + '" onfocusout="validate(this)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '<td style="width:17%;">';
-                                    tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;">';
-                                    tempColorMatching += '<input type="tel" class="form-control" id="NoOfBox' + SrNo + '" placeholder="No Of Boxes" onfocusout="validate(this)"  value="' + response.listYarnRequirementMaster[i].listYarnRequirementDetail[j].NoofBoxes + '" onkeypress="return (event.charCode>=48 && event.charCode<=57)" />';
-                                    tempColorMatching += '</div>';
-                                    tempColorMatching += '</td>';
-
-                                    tempColorMatching += '</tr>';
-                                }
-                                YarnDetailsArray += SrNo + "|";
+                            var mob = master.MobileNo || "";
+                            if (master.AlterMobileNo && master.AlterMobileNo.trim() !== "") {
+                                mob += (mob ? " / " : "") + master.AlterMobileNo;
                             }
-                            $("#txtYarnDetailsArray").val(YarnDetailsArray);
+                            $("#PMobileNo").html("<strong>Mobile No: </strong>" + (mob || "-"));
+                            $("#PEmail").html("<strong>Email: </strong>" + (master.Email || "-"));
+                            $("#PBillingAddress").html("<strong>Address: </strong>" + (master.BillingAddress || "-"));
+                            $("#PState").html("<strong>State: </strong>" + (master.State || "-"));
+                            $("#PGSTIN").html("<strong>GSTIn: </strong>" + (master.GSTIN || "-"));
+
+                            var tempColorMatching = '';
+                            var details = master.listYarnRequirementDetail || [];
+                            if (details.length > 0) {
+                                for (var j = 0; j < details.length; j++) {
+                                    var detail = details[j];
+                                    var SrNo = j + 1;
+                                    var colorHex = (detail.YarnColorCode || '').replace(/^#/, '');
+                                    var colorBoxHtml = colorHex
+                                        ? '<div style="width: 25px; height: 25px; border-radius: 3px; border: 1px solid #ccc; background-color: #' + colorHex + '; display: inline-block; vertical-align: middle; margin-right: 8px;"></div>'
+                                        : '';
+
+                                    tempColorMatching += '<tr>';
+                                    tempColorMatching += '<td style="text-align: center; vertical-align: middle; font-weight: 500;">' + SrNo + '</td>';
+                                    tempColorMatching += '<td style="vertical-align: middle;">' + (detail.YarnMaterial || '-') + '</td>';
+                                    tempColorMatching += '<td style="vertical-align: middle;"><div style="display: flex; align-items: center; gap: 6px;">' + colorBoxHtml + '<span>' + (detail.YarnColor || '-') + '</span></div></td>';
+                                    tempColorMatching += '<td style="vertical-align: middle;">' + (detail.CompanyName || '-') + '</td>';
+                                    tempColorMatching += '<td style="vertical-align: middle;">' + (detail.CompanyColourCode || '-') + '</td>';
+                                    tempColorMatching += '<td style="vertical-align: middle; text-align: center; font-weight: 500;">' + (detail.NoofBoxes !== undefined && detail.NoofBoxes !== null ? detail.NoofBoxes : '0') + '</td>';
+                                    tempColorMatching += '</tr>';
+                                }
+                            } else {
+                                tempColorMatching += '<tr><td colspan="6" class="text-center text-muted">No Yarn Details Found</td></tr>';
+                            }
                             $("#tableYarnData").html(tempColorMatching);
                         }
                     }

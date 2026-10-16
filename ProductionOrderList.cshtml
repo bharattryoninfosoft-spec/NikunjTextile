@@ -1,258 +1,300 @@
 @{ Layout = "/_LayoutPage1.cshtml"; }
 
 <style>
-    .production-list-page {
-        width: 100%;
-        padding: 0;
+    .production-list-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: 20px;
     }
 
     .production-list-header {
-        background: #e5f0fc;
-        color: #222;
-        font-size: 14px;
-        font-weight: 700;
-        padding: 8px 12px;
-        border-radius: 2px 2px 0 0;
-        margin-bottom: 0;
+        background: #eef5fc;
+        padding: 10px 16px;
+        border-bottom: 1px solid #d8e2ec;
+        border-radius: 6px 6px 0 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .production-list-filter {
-        border: 1px solid #c9cfd6;
-        border-top: 0;
-        background: #fff;
-        padding: 10px 12px;
+    .production-list-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-        .production-list-filter .form-group {
-            margin-bottom: 6px;
-        }
+    .production-list-filter {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+    }
 
-        .production-list-filter label {
-            display: block;
-            color: #164f87;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
+    .filter-group {
+        margin-bottom: 0;
+    }
 
-        .production-list-filter .form-control,
-        .production-list-filter select {
-            height: 31px !important;
-            min-height: 31px !important;
-            padding: 4px 8px !important;
-            font-size: 12px !important;
-            border: 1px solid #c7cdd4 !important;
-            border-radius: 2px !important;
-            box-shadow: none !important;
-        }
+    .filter-group label {
+        display: block;
+        color: #1e40af;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 
-        .production-list-filter .btn {
-            height: 31px;
-            min-width: 82px;
-            font-size: 12px;
-            padding: 4px 12px;
-            border-radius: 2px;
-        }
+    .filter-group .form-control,
+    .filter-group select {
+        height: 33px !important;
+        min-height: 33px !important;
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 4px !important;
+        background-color: #ffffff !important;
+        box-shadow: none !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .filter-group .form-control:focus,
+    .filter-group select:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15) !important;
+    }
+
+    .filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .filter-actions .btn {
+        height: 33px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        transition: all 0.15s ease-in-out;
+    }
 
     .production-list-table-scroll {
         width: 100%;
         max-height: 570px;
         overflow: auto;
-        border: 1px solid #bfc7d1;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px 4px 0 0;
         background: #fff;
     }
 
     #tblProductionOrderList {
         width: 100% !important;
-        min-width: 1180px;
+        min-width: 1280px;
         table-layout: fixed !important;
         border-collapse: collapse !important;
         margin: 0 !important;
         font-size: 12px !important;
     }
 
-        #tblProductionOrderList th,
-        #tblProductionOrderList td {
-            border: 1px solid #c9cfd6 !important;
-            padding: 4px 6px !important;
-            height: 30px !important;
-            line-height: 20px !important;
-            vertical-align: middle !important;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    #tblProductionOrderList th,
+    #tblProductionOrderList td {
+        border: 1px solid #e2e8f0 !important;
+        padding: 5px 8px !important;
+        height: 32px !important;
+        line-height: 20px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        #tblProductionOrderList thead th {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: #e4eef9 !important;
-            color: #202020 !important;
-            font-size: 12px !important;
-            font-weight: 700 !important;
-            text-align: center !important;
-            height: 34px !important;
-            border: 1px solid #aeb9c6 !important;
-        }
+    #tblProductionOrderList thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #eef5fc !important;
+        color: #1e293b !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        height: 36px !important;
+        border: 1px solid #cbd5e1 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 
-        #tblProductionOrderList th:nth-child(1),
-        #tblProductionOrderList td:nth-child(1) {
-            width: 38px !important;
-            text-align: center !important;
-        }
+    /* Column Widths (Col 3 widened to 175px to prevent "PRODUCTION ..." truncation) */
+    #tblProductionOrderList th:nth-child(1),
+    #tblProductionOrderList td:nth-child(1) {
+        width: 38px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList th:nth-child(2),
-        #tblProductionOrderList td:nth-child(2) {
-            width: 48px !important;
-            text-align: center !important;
-        }
+    #tblProductionOrderList th:nth-child(2),
+    #tblProductionOrderList td:nth-child(2) {
+        width: 52px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList th:nth-child(3),
-        #tblProductionOrderList td:nth-child(3) {
-            width: 110px !important;
-            text-align: center !important;
-        }
+    #tblProductionOrderList th:nth-child(3),
+    #tblProductionOrderList td:nth-child(3) {
+        width: 175px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList th:nth-child(4),
-        #tblProductionOrderList td:nth-child(4) {
-            width: 115px !important;
-            text-align: center !important;
-        }
+    #tblProductionOrderList th:nth-child(4),
+    #tblProductionOrderList td:nth-child(4) {
+        width: 110px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList th:nth-child(5),
-        #tblProductionOrderList td:nth-child(5) {
-            width: 210px !important;
-            text-align: left !important;
-        }
+    #tblProductionOrderList th:nth-child(5),
+    #tblProductionOrderList td:nth-child(5) {
+        width: 210px !important;
+        text-align: left !important;
+    }
 
-        #tblProductionOrderList th:nth-child(6),
-        #tblProductionOrderList td:nth-child(6) {
-            width: 90px !important;
-            text-align: right !important;
-        }
+    #tblProductionOrderList th:nth-child(6),
+    #tblProductionOrderList td:nth-child(6) {
+        width: 95px !important;
+        text-align: right !important;
+    }
 
-        #tblProductionOrderList th:nth-child(7),
-        #tblProductionOrderList td:nth-child(7) {
-            width: 120px !important;
-            text-align: right !important;
-        }
+    #tblProductionOrderList th:nth-child(7),
+    #tblProductionOrderList td:nth-child(7) {
+        width: 115px !important;
+        text-align: right !important;
+    }
 
-        #tblProductionOrderList th:nth-child(8),
-        #tblProductionOrderList td:nth-child(8) {
-            width: 115px !important;
-            text-align: right !important;
-        }
+    #tblProductionOrderList th:nth-child(8),
+    #tblProductionOrderList td:nth-child(8) {
+        width: 120px !important;
+        text-align: right !important;
+    }
 
-        #tblProductionOrderList th:nth-child(9),
-        #tblProductionOrderList td:nth-child(9) {
-            width: 115px !important;
-            text-align: right !important;
-        }
+    #tblProductionOrderList th:nth-child(9),
+    #tblProductionOrderList td:nth-child(9) {
+        width: 115px !important;
+        text-align: right !important;
+    }
 
-        #tblProductionOrderList th:nth-child(10),
-        #tblProductionOrderList td:nth-child(10) {
-            width: 115px !important;
-            text-align: right !important;
-        }
+    #tblProductionOrderList th:nth-child(10),
+    #tblProductionOrderList td:nth-child(10) {
+        width: 120px !important;
+        text-align: right !important;
+    }
 
-        #tblProductionOrderList th:nth-child(11),
-        #tblProductionOrderList td:nth-child(11) {
-            width: 105px !important;
-            text-align: center !important;
-        }
+    #tblProductionOrderList th:nth-child(11),
+    #tblProductionOrderList td:nth-child(11) {
+        width: 110px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList th:nth-child(12),
-        #tblProductionOrderList td:nth-child(12) {
-            width: 145px !important;
-            text-align: center !important;
-        }
+    #tblProductionOrderList th:nth-child(12),
+    #tblProductionOrderList td:nth-child(12) {
+        width: 135px !important;
+        text-align: center !important;
+    }
 
-        #tblProductionOrderList tbody tr:hover td {
-            background: #f7f9fb !important;
-        }
+    #tblProductionOrderList tbody tr:hover td {
+        background: #f1f7fe !important;
+    }
 
-        #tblProductionOrderList tbody td {
-            color: #30343b;
-            background: #fff;
-        }
+    #tblProductionOrderList tbody td {
+        color: #334155;
+        background: #fff;
+    }
 
     .po-number {
         font-weight: 700;
-        color: #164f87;
+        color: #0f52ba;
     }
 
     .po-pending {
-        color: #d93025 !important;
+        color: #dc2626 !important;
         font-weight: 700;
     }
 
     .po-complete {
-        color: #198754 !important;
+        color: #059669 !important;
         font-weight: 700;
     }
 
     .po-status {
         display: inline-block;
-        min-width: 78px;
-        padding: 3px 7px;
+        min-width: 80px;
+        padding: 3px 8px;
         border-radius: 12px;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 600;
+        line-height: 1.2;
+        text-align: center;
     }
 
-        .po-status.pending {
-            background: #fff1f0;
-            color: #d93025;
-            border: 1px solid #f3b7b2;
-        }
+    .po-status.pending {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
 
-        .po-status.complete {
-            background: #eef9f1;
-            color: #198754;
-            border: 1px solid #b8dfc2;
-        }
+    .po-status.complete {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
 
-        .po-status.cancelled {
-            background: #f2f2f2;
-            color: #666;
-            border: 1px solid #d2d2d2;
-        }
+    .po-status.cancelled {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+    }
 
     .po-action {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 27px;
+        width: 28px;
+        height: 28px;
         margin: 0 2px;
-        border: 1px solid #b9c2cc;
+        border: 1px solid #cbd5e1;
         background: #fff;
-        color: #333;
-        border-radius: 2px;
+        color: #475569;
+        border-radius: 4px;
         cursor: pointer;
         font-size: 12px;
         text-decoration: none !important;
+        transition: all 0.15s ease-in-out;
     }
 
-        .po-action:hover {
-            background: #eef5fb;
-            color: #164f87;
-        }
+    .po-action:hover {
+        background: #e0f2fe;
+        color: #0284c7;
+        border-color: #7dd3fc;
+    }
 
-        .po-action.delete:hover {
-            background: #fff1f0;
-            color: #d93025;
-        }
+    .po-action.delete:hover {
+        background: #fee2e2;
+        color: #dc2626;
+        border-color: #fca5a5;
+    }
 
     .production-list-footer {
-        border: 1px solid #c9cfd6;
+        border: 1px solid #cbd5e1;
         border-top: 0;
-        background: #fff;
-        padding: 7px 10px;
+        border-radius: 0 0 4px 4px;
+        background: #f8fafc;
+        padding: 8px 14px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -260,8 +302,8 @@
     }
 
     .production-list-total {
-        font-weight: 700;
-        color: #333;
+        font-weight: 600;
+        color: #475569;
     }
 
     .production-list-pagination {
@@ -270,60 +312,79 @@
         gap: 3px;
     }
 
-        .production-list-pagination button {
-            min-width: 30px;
-            height: 28px;
-            padding: 2px 7px;
-            border: 1px solid #c4cbd3;
-            background: #fff;
-            color: #333;
-            border-radius: 2px;
-            font-size: 12px;
-        }
+    .production-list-pagination button {
+        min-width: 30px;
+        height: 28px;
+        padding: 2px 7px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #334155;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+    }
 
-            .production-list-pagination button.active {
-                background: #e4eef9;
-                border-color: #9eb8d2;
-                font-weight: 700;
-            }
+    .production-list-pagination button:hover:not(:disabled) {
+        background: #e2e8f0;
+    }
 
-            .production-list-pagination button:disabled {
-                opacity: .45;
-                cursor: not-allowed;
-            }
+    .production-list-pagination button.active {
+        background: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+        font-weight: 700;
+    }
+
+    .production-list-pagination button:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+    }
 
     .production-list-empty {
         text-align: center !important;
-        color: #777 !important;
-        padding: 22px !important;
+        color: #64748b !important;
+        padding: 24px !important;
         font-weight: 600;
     }
 
     .production-list-loading {
         text-align: center !important;
         padding: 25px !important;
-        color: #666 !important;
+        color: #64748b !important;
+        font-weight: 600;
     }
 
     .production-list-error {
         display: none;
-        margin: 8px 0 0;
-        padding: 8px 10px;
-        border: 1px solid #f1b7b3;
-        background: #fff4f3;
-        color: #b42318;
+        margin: 10px 0 0;
+        padding: 8px 12px;
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #dc2626;
         font-size: 12px;
-        border-radius: 2px;
+        border-radius: 4px;
     }
 
     @@media (max-width: 768px) {
+        .production-list-header {
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
         .production-list-filter .row > div {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+        }
+
+        .filter-actions {
+            flex-wrap: wrap;
         }
 
         .production-list-footer {
             flex-direction: column;
-            gap: 7px;
+            gap: 8px;
             align-items: stretch;
         }
 
@@ -333,153 +394,160 @@
     }
 </style>
 
-<div class="production-page production-list-page">
+<div class="content-wrapper">
+    <div class="production-page production-list-page">
+        <div class="card production-list-card">
 
-    <div class="production-list-header">
-        <span>Production Order List</span>
-        <button type="button"
-                id="btnAddProductionSlip"
-                class="btn btn-primary"
-                style="height: 28px; padding: 0 10px; font-size: 12px; font-weight: 600;"
-                onclick="window.location.href='/ProductionSleep'">
-            <i class="fa fa-plus me-1"></i>  Add Jobber Allotted
-        </button>
-    </div>
+            <div class="production-list-header">
+                <span class="production-list-title">
+                    <i class="fa fa-list-alt text-primary"></i> Production Order List
+                </span>
+                <button type="button"
+                        id="btnAddProductionSlip"
+                        class="btn btn-primary"
+                        style="height: 30px; padding: 0 12px; font-size: 12px; font-weight: 600;"
+                        onclick="window.location.href='/ProductionSleep'">
+                    <i class="fa fa-plus me-1"></i> Add Jobber Allotted
+                </button>
+            </div>
 
-    <div class="production-list-filter">
-        <div class="row">
-            <div class="col-md-2 col-sm-4 col-xs-12">
-                <div class="form-group">
-                    <label>Production Order No</label>
-                    <input type="text"
-                           id="filterProductionOrderNo"
-                           class="form-control"
-                           placeholder="Order No" />
+            <div class="card-body p-3">
+                <div class="production-list-filter">
+                    <div class="row align-items-end">
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="form-group filter-group">
+                                <label for="filterProductionOrderNo">Production Order No</label>
+                                <input type="text"
+                                       id="filterProductionOrderNo"
+                                       class="form-control"
+                                       placeholder="Order No" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="form-group filter-group">
+                                <label for="filterFromDate">From Date</label>
+                                <input type="date"
+                                       id="filterFromDate"
+                                       class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="form-group filter-group">
+                                <label for="filterToDate">To Date</label>
+                                <input type="date"
+                                       id="filterToDate"
+                                       class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="form-group filter-group">
+                                <label for="filterJobWorker">Job Worker</label>
+                                <select id="filterJobWorker" class="form-control">
+                                    <option value="">-- ALL --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1 col-sm-4 col-xs-12">
+                            <div class="form-group filter-group">
+                                <label for="filterStatus">Status</label>
+                                <select id="filterStatus" class="form-control">
+                                    <option value="">-- ALL --</option>
+                                    <option value="1">Pending</option>
+                                    <option value="2">Completed</option>
+                                    <option value="0">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-8 col-xs-12">
+                            <div class="form-group filter-group" style="padding-top: 18px;">
+                                <div class="filter-actions">
+                                    <button type="button"
+                                            id="btnSearchProductionOrder"
+                                            class="btn btn-primary">
+                                        <i class="fa fa-search me-1"></i> Search
+                                    </button>
+
+                                    <button type="button"
+                                            id="btnResetProductionOrder"
+                                            class="btn btn-default"
+                                            style="background: #f1f5f9; border: 1px solid #cbd5e1;">
+                                        <i class="fa fa-refresh me-1"></i> Reset
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            id="btnGeneratePDF">
+                                        <span id="btnText">
+                                            <i class="fa fa-print me-1"></i> Print / PDF
+                                        </span>
+                                        <span id="btnLoader" style="display:none;">
+                                            <i class="fa fa-spinner fa-spin"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="productionListError" class="production-list-error"></div>
+                </div>
+
+                <div class="production-list-table-scroll">
+                    <table id="tblProductionOrderList">
+                        <thead>
+                            <tr>
+                                <th><input id="selectAllPO" type="checkbox" /></th>
+                                <th>SR NO</th>
+                                <th>PRODUCTION ORDER NO</th>
+                                <th>ORDER DATE</th>
+                                <th>JOB WORKER</th>
+                                <th>JOB RATE</th>
+                                <th>TOTAL PCS</th>
+                                <th>PRODUCTION PCS</th>
+                                <th>PENDING PCS</th>
+                                <th>TOTAL AMOUNT</th>
+                                <th>STATUS</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tblProductionOrderListBody">
+                            <tr>
+                                <td colspan="12" class="production-list-loading">
+                                    <i class="fa fa-spinner fa-spin me-1"></i> Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="production-list-footer">
+                    <div class="production-list-total">
+                        Total Records:
+                        <span id="lblProductionOrderCount">0</span>
+                    </div>
+
+                    <div class="production-list-pagination">
+                        <button type="button" id="btnFirstPage" title="First">&laquo;</button>
+                        <button type="button" id="btnPrevPage" title="Previous">&lsaquo;</button>
+                        <span id="productionPageButtons"></span>
+                        <button type="button" id="btnNextPage" title="Next">&rsaquo;</button>
+                        <button type="button" id="btnLastPage" title="Last">&raquo;</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-2 col-sm-4 col-xs-12">
-                <div class="form-group">
-                    <label>From Date</label>
-                    <input type="date"
-                           id="filterFromDate"
-                           class="form-control" />
-                </div>
-            </div>
-
-            <div class="col-md-2 col-sm-4 col-xs-12">
-                <div class="form-group">
-                    <label>To Date</label>
-                    <input type="date"
-                           id="filterToDate"
-                           class="form-control" />
-                </div>
-            </div>
-
-            <div class="col-md-2 col-sm-4 col-xs-12">
-                <div class="form-group">
-                    <label>Job Worker</label>
-                    <select id="filterJobWorker" class="form-control">
-                        <option value="">-- ALL --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-1 col-sm-4 col-xs-12">
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="filterStatus" class="form-control">
-                        <option value="">-- ALL --</option>
-                        <option value="1">Pending</option>
-                        <option value="2">Completed</option>
-                        <option value="0">Cancelled</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-3 col-sm-8 col-xs-12">
-                <div class="form-group" style="padding-top:20px; display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
-                    <button type="button"
-                            id="btnSearchProductionOrder"
-                            class="btn btn-primary"
-                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600;">
-                        <i class="fa fa-search me-1"></i> Search
-                    </button>
-
-                    <button type="button"
-                            id="btnResetProductionOrder"
-                            class="btn btn-default"
-                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600; background:#f1f5f9; border:1px solid #cbd5e1;">
-                        <i class="fa fa-refresh me-1"></i> Reset
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-danger"
-                            id="btnGeneratePDF"
-                            style="height:31px; padding:0 12px; font-size:12px; font-weight:600;">
-                        <span id="btnText">
-                            <i class="fa fa-print me-1"></i> Print / PDF
-                        </span>
-                        <span id="btnLoader" style="display:none;">
-                            <i class="fa fa-spinner fa-spin"></i>
-                        </span>
-                    </button>
-                </div>
-            </div>
         </div>
-
-        <div id="productionListError" class="production-list-error"></div>
     </div>
-
-    <div style="margin-top:10px;">
-        <div class="production-list-table-scroll">
-            <table id="tblProductionOrderList">
-                <thead>
-                    <tr>
-                        <th><input id="selectAllPO" type="checkbox" /></th>
-                        <th>SR NO</th>
-                        <th>PRODUCTION ORDER NO</th>
-                        <th>ORDER DATE</th>
-                        <th>JOB WORKER</th>
-                        <th>JOB RATE</th>
-                        <th>TOTAL PCS</th>
-                        <th>PRODUCTION PCS</th>
-                        <th>PENDING PCS</th>
-                        <th>TOTAL AMOUNT</th>
-                        <th>STATUS</th>
-                        <th>ACTION</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tblProductionOrderListBody">
-                    <tr>
-                        <td colspan="12" class="production-list-loading">
-                            Loading...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="production-list-footer">
-            <div class="production-list-total">
-                Total Records:
-                <span id="lblProductionOrderCount">0</span>
-            </div>
-
-            <div class="production-list-pagination">
-                <button type="button" id="btnFirstPage" title="First">&laquo;</button>
-                <button type="button" id="btnPrevPage" title="Previous">&lsaquo;</button>
-                <span id="productionPageButtons"></span>
-                <button type="button" id="btnNextPage" title="Next">&rsaquo;</button>
-                <button type="button" id="btnLastPage" title="Last">&raquo;</button>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 @section Scripts {
+
     <script type="text/javascript">
         $('body').addClass('fullscreen');
         var productionOrderListData = [];

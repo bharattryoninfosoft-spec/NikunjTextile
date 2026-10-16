@@ -614,6 +614,27 @@
 
     <script>
         $('body').addClass('fullscreen');
+
+        function initSelect2() {
+            setTimeout(function () {
+                $('select').not('.no-select2, .swal2-select, .swal-select, .swal2-container select, .swal-container select').each(function () {
+                    var $el = $(this);
+                    if ($el.data('select2')) {
+                        $el.select2('destroy');
+                    }
+                    $el.select2({
+                        width: '100%'
+                    });
+                });
+            }, 100);
+        }
+
+        $(document).on('change', 'select', function () {
+            if (typeof validate === 'function' && this.id) {
+                validate(this);
+            }
+        });
+
         $(document).ready(function () {
 
 
@@ -626,6 +647,7 @@
             FunctionIsLogin();
 
             getDesignEntryForm();
+            initSelect2();
 
             //getDefaultCompany();
 

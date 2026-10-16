@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
 }
 
@@ -168,14 +168,13 @@
                             temp += "<tr>";
                             temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Color Code</td>";
                             temp += "<td>:</td>";
-                            temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[i].YarnColorCode.substring(0, 23) + "</th>";
-                            temp += "</tr>";
-                            temp += "<tr>";
-                            temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Net Weight</td>";
-                            temp += "<td>:</td>";
-                            temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[i].NetWeight  + "</th>";
+                            temp += "<th style='font-family: system-ui; text-align: start; '>" + (response.listYarnInwardMaster[i].ColourCode || response.listYarnInwardMaster[i].YarnColorCode || '').substring(0, 23) + "</th>";
                             temp += "</tr>";
                             temp += "</table>";
+                            temp += "<div style='display: flex; justify-content: space-between; align-items: center; width: 92%; margin: 6px auto 4px auto; font-size: x-large; font-family: system-ui;'>";
+                            temp += "<div style='text-align: left;'><span style='font-weight: 500;'>Net Weight</span> : <span style='font-weight: bold;'>" + response.listYarnInwardMaster[i].NetWeight + "</span></div>";
+                            temp += "<div style='text-align: right;'><span style='font-weight: bold;'>Box No: " + (response.listYarnInwardMaster[i].BoxNo || '') + "</span></div>";
+                            temp += "</div>";
                             //temp += "<hr />";
                             temp += "<center style='border-top: 2px solid black; margin-top: 10px;'>";
                             temp += "<svg id='barcode" + i + "' style='width: 100%;'></svg>";
@@ -206,14 +205,13 @@
                             temp += "<tr>";
                             temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Color Code</td>";
                             temp += "<td>:</td>";
-                            temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[i].YarnColorCode.substring(0, 23) + "</th>";
-                            temp += "</tr>";
-                            temp += "<tr>";
-                            temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Net Weight</td>";
-                            temp += "<td>:</td>";
-                            temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[i].NetWeight  + "</th>";
+                            temp += "<th style='font-family: system-ui; text-align: start; '>" + (response.listYarnInwardMaster[i].ColourCode || response.listYarnInwardMaster[i].YarnColorCode || '').substring(0, 23) + "</th>";
                             temp += "</tr>";
                             temp += "</table>";
+                            temp += "<div style='display: flex; justify-content: space-between; align-items: center; width: 92%; margin: 6px auto 4px auto; font-size: x-large; font-family: system-ui;'>";
+                            temp += "<div style='text-align: left;'><span style='font-weight: 500;'>Net Weight</span> : <span style='font-weight: bold;'>" + response.listYarnInwardMaster[i].NetWeight + "</span></div>";
+                            temp += "<div style='text-align: right;'><span style='font-weight: bold;'>Box No: " + (response.listYarnInwardMaster[i].BoxNo || '') + "</span></div>";
+                            temp += "</div>";
                             //temp += "<hr />";
                             temp += "<center style='border-top: 2px solid black; margin-top: 10px;'>";
                             temp += "<svg id='barcode" + i + "' style='width: 100%;'></svg>";

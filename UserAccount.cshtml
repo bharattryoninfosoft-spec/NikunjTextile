@@ -1,40 +1,241 @@
-﻿
+
 @{
     Layout = "/_LayoutPage1.cshtml";
 }
 
 <style>
-    /* Hide Export Buttons */
+    /* Hide DataTables default controls if injected */
     .dt-buttons,
-    .dataTables_wrapper .dt-buttons {
-        display: none !important;
-    }
-
-    /* Hide Search Box */
-    .dataTables_filter {
-        display: none !important;
-    }
-
-    /* Hide "Showing x to y of z entries" */
-    .dataTables_info {
-        display: none !important;
-    }
-
-    /* Hide Pagination */
-    .dataTables_paginate {
-        display: none !important;
-    }
-
-    /* Hide "Show Entries" Dropdown */
+    .dataTables_wrapper .dt-buttons,
+    .dataTables_filter,
+    .dataTables_info,
+    .dataTables_paginate,
     .dataTables_length {
         display: none !important;
+    }
+
+    /* Modern Table & Card Styles */
+    .user-table-wrapper {
+        width: 100%;
+        max-height: calc(100vh - 280px);
+        min-height: 280px;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #c9cfd6;
+        border-radius: 4px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .user-table-wrapper::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .user-table-wrapper::-webkit-scrollbar-thumb {
+        background: #c1c7cf;
+        border-radius: 3px;
+    }
+    .user-table-wrapper::-webkit-scrollbar-track {
+        background: #f5f6f8;
+    }
+
+    #copy-print-csv {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        table-layout: auto !important;
+    }
+
+    #copy-print-csv thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #e4eef9 !important;
+        color: #1a3353 !important;
+        font-weight: 700 !important;
+        font-size: 11.5px !important;
+        padding: 8px 10px !important;
+        border-bottom: 2px solid #b8c8da !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: 1px solid #d4dde7 !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    #copy-print-csv thead th:last-child {
+        border-right: none !important;
+    }
+
+    #copy-print-csv tbody td {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        color: #2b3648 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        border-right: 1px solid #f1f4f8 !important;
+        border-left: none !important;
+        border-top: none !important;
+        vertical-align: middle !important;
+        height: 42px !important;
+    }
+
+    #copy-print-csv tbody td:last-child {
+        border-right: none !important;
+    }
+
+    #copy-print-csv tbody tr:hover {
+        background-color: #f6f9fc !important;
+    }
+
+    .user-profile-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-profile-box .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #d2dbe5;
+        background: #f1f5f9;
+        flex-shrink: 0;
+    }
+
+    .user-profile-box .user-name {
+        font-weight: 600;
+        color: #1a4f89;
+        text-decoration: none;
+        max-width: 170px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .user-profile-box .user-name:hover {
+        color: #0d6efd;
+        text-decoration: underline;
+    }
+
+    .user-role-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 12px;
+        background: #eef2f7;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .action-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        margin: 0 2px;
+        text-decoration: none !important;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .action-icon-btn:hover {
+        background: #e8edf3;
+        transform: translateY(-1px);
+    }
+
+    .action-icon-btn i {
+        font-size: 15px;
+    }
+
+    /* Table Footer & Pagination */
+    .table-footer-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 14px;
+        margin-top: 10px;
+        border-top: 1px solid #e6ebf1;
+    }
+
+    .table-info-text {
+        font-size: 12.5px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .pagination-bar .page-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        font-size: 12px;
+        font-weight: 500;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        background: #fff;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        user-select: none;
+    }
+
+    .pagination-bar .page-btn:hover:not(.disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #0f172a;
+    }
+
+    .pagination-bar .page-btn.active {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        font-weight: 600;
+        cursor: default;
+    }
+
+    .pagination-bar .page-btn.disabled {
+        color: #94a3b8;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
     }
 </style>
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
 
     <div class="card-header-lg">
-        <button style="float:right;" class="btn btn-primary" id="AddUserAccountEntry" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()">Add User Account</button>
+        <button style="float:right;" class="btn btn-primary d-inline-flex align-items-center" id="AddUserAccountEntry" data-bs-toggle="modal" data-bs-target="#addNewContact" onclick="clearAll()"><i class="bi bi-person-plus-fill me-1"></i> Add User Account</button>
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -206,50 +407,66 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-section-header">User Master</div>
-                    <div class="row align-items-center mb-3">
-                        <!-- BUTTONS -->
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-
-                            <button class="btn btn-success btn-sm"
+                    <div class="row align-items-center mb-3 g-2">
+                        <!-- BUTTONS & PAGE SIZE -->
+                        <div class="col-xl-8 col-lg-8 col-md-7 col-sm-12 d-flex align-items-center flex-wrap gap-2">
+                            <button class="btn btn-success btn-sm d-inline-flex align-items-center gap-1"
                                     onclick="exportTableToExcel('copy-print-csv','UserAccount')">
                                 <i class="bi bi-file-earmark-excel-fill"></i>
                                 Excel
                             </button>
 
-                            <button class="btn btn-danger btn-sm"
+                            <button class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1"
                                     onclick="generatePDF()">
                                 <i class="bi bi-file-earmark-pdf-fill"></i>
                                 PDF
                             </button>
 
-                            <button class="btn btn-primary btn-sm"
+                            <button class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
                                     onclick="printTable()">
                                 <i class="bi bi-printer-fill"></i>
                                 Print
                             </button>
+
+                            <div class="d-inline-flex align-items-center gap-1 ms-sm-2">
+                                <span class="text-muted small">Show</span>
+                                <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto; height: 31px; font-size: 12px;" onchange="onPageSizeChange(this.value)">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="text-muted small">entries</span>
+                            </div>
                         </div>
+
                         <!-- SEARCH -->
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-2">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-search"></i>
+                        <div class="col-xl-4 col-lg-4 col-md-5 col-sm-12">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
                                 </span>
-                                <input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="searchTable()" />
+                                <input type="search" id="searchBox" class="form-control form-control-sm border-start-0" placeholder="Search user, role, company, email..." oninput="onSearchInput()" />
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" onclick="clearSearch()" style="display:none;" title="Clear Search">
+                                    <i class="bi bi-x"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table id="copy-print-csv" class="table v-middle">
+
+                    <div class="user-table-wrapper">
+                        <table id="copy-print-csv" class="table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Company Name</th>
-                                    <th>User Role</th>
-                                    <th>Mobile No</th>
-                                    <th>Email</th>
-                                    <th>Allow Login</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
+                                    <th style="width: 45px; text-align: center;">#</th>
+                                    <th style="min-width: 190px;">User & Profile</th>
+                                    <th style="min-width: 150px;">Company Name</th>
+                                    <th style="min-width: 120px;">User Role</th>
+                                    <th style="min-width: 110px;">Mobile No</th>
+                                    <th style="min-width: 170px;">Email</th>
+                                    <th style="width: 100px; text-align: center;">Allow Login</th>
+                                    <th style="width: 105px; text-align: center;">Date</th>
+                                    <th style="width: 110px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -257,14 +474,21 @@
                         </table>
                     </div>
 
+                    <!-- PAGINATION FOOTER -->
+                    <div class="table-footer-wrapper">
+                        <div id="tableInfo" class="table-info-text">
+                            Showing 0 to 0 of 0 entries
+                        </div>
+                        <nav aria-label="User Master Pagination">
+                            <ul class="pagination-bar" id="paginationControls">
+                            </ul>
+                        </nav>
+                    </div>
+
                 </div>
             </div>
 
         </div>
-    </div>
-    <div class="view-more-styl-class">
-        <button type="button" class="btn btn-primary view-more-btn-style" id="view-more-btn" onclick="displayData(1)">View More</button>
-        <br /><br /><br />
     </div>
     <!-- Row end -->
 
@@ -348,112 +572,225 @@
             });
         }
 
-        function displayData(rowStartCheck) {
-            var rowStart = 0;
-            if (rowStartCheck != 0) {
-                rowStart = parseInt($("#rowStartCount").val()) + 10;
-                $("#rowStartCount").val(rowStart);
-            }
-            else {
-                rowStart = 0;
-                $("#rowStartCount").val("0");
+        var fullUserList = [];
+        var filteredUserList = [];
+        var currentPage = 1;
+        var pageSize = 10;
+
+        function displayData(resetPage) {
+            if (resetPage === undefined || resetPage === 0 || resetPage === true) {
+                currentPage = 1;
             }
             $.ajax({
                 type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getUserMaster?startFrom=' + rowStart,
-                data: "{ 'startFrom':'" + rowStart + "' }",
+                url: '/WebServiceNikunjTextile.asmx/getUserMaster?startFrom=0',
                 dataType: 'json',
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (rowStart == 0) {
-                        $("#copy-print-csv tbody").empty();
-                    }
-
-                    var tableBody = $("#copy-print-csv tbody");
-                    var temp = "";
-                    var operation = "";
-
-                    if (response.listUserAccountMaster.length < 10) {
-                        $("#view-more-btn").hide();
-                    }
-                    else {
-                        $("#view-more-btn").show();
-                    }
-
-                    for (var i = 0; i < response.listUserAccountMaster.length; i++) {
-                        if (response.listUserAccountMaster[i].AllowLogin == "1" ||
-                            response.listUserAccountMaster[i].AllowLogin == 1) {
-                            operation = "<span class='badge bg-success'>Yes</span>";
-                        }
-                        else {
-                            operation = "<span class='badge bg-danger'>No</span>";
-                        }
-
-                        temp += "<tr>";
-                        temp += "<td>" +
-                            "<div class='media-box'>" +
-                            "<img style='width:40px;height:40px;' " +
-                            "src='" + response.listUserAccountMaster[i].UserAccountProfile + "' " +
-                            "class='media-avatar'>" +
-                            "<div class='media-box-body'>" +
-                            "<a href='javascript:void(0);' class='text-truncate'>" +
-                            response.listUserAccountMaster[i].UserAccountName +
-                            "</a>" +
-                            "</div>" +
-                            "</div>" +
-                            "</td>";
-
-                        temp += "<td>" + response.listUserAccountMaster[i].CompanyName + "</td>";
-                        temp += "<td>" + response.listUserAccountMaster[i].UserRole + "</td>";
-                        temp += "<td>" + response.listUserAccountMaster[i].UserAccountMobileNo + "</td>";
-                        temp += "<td>" + response.listUserAccountMaster[i].UserAccountEmail + "</td>";
-                        temp += "<td>" + operation + "</td>";
-                        temp += "<td>" + response.listUserAccountMaster[i].UserAccountDateAndTimes + "</td>";
-
-                        // ==========================================
-                        // ACTIONS COLUMN WITH PERMISSION CONTROLS
-                        // ==========================================
-                        temp += "<td><div class='actions'>";
-
-                        var canEdit = currentPagePermission.Edit === true || currentPagePermission.Edit === "true";
-                        var canDelete = currentPagePermission.Delete === true || currentPagePermission.Delete === "true";
-
-                        // If neither edit nor delete are allowed, show a dash or leave blank
-                        if (!canEdit && !canDelete) {
-                            temp += "-";
-                        } else {
-                            // EDIT
-                            if (canEdit) {
-                                temp += "<a href='javascript:void(0);' " +
-                                    "title='Edit' " +
-                                    "data-bs-toggle='modal' " +
-                                    "data-bs-target='#addNewContact' " +
-                                    "onclick='showRecords(" + response.listUserAccountMaster[i].UserAccountId + ")'>" +
-                                    "<i class='icon-edit1 text-info'></i>" +
-                                    "</a>&nbsp;&nbsp;";
-                            }
-
-                            // DELETE
-                            if (canDelete) {
-                                temp += "<a href='javascript:void(0);' " +
-                                    "title='Delete' " +
-                                    "onclick='functionUserDelete(" + response.listUserAccountMaster[i].UserAccountId + ")'>" +
-                                    "<i class='icon-x-circle text-danger'></i>" +
-                                    "</a>";
-                            }
-                        }
-
-                        temp += "</div></td>";
-                        temp += "</tr>";
-                    }
-
-                    tableBody.append(temp);
+                    fullUserList = (response && response.listUserAccountMaster) ? response.listUserAccountMaster : [];
+                    applyFilter();
                 },
                 error: function (request, status, error) {
-                    console.log(error);
+                    console.error("Error fetching users:", error);
+                    fullUserList = [];
+                    filteredUserList = [];
+                    renderUserTable();
+                    renderPagination();
                 }
             });
+        }
+
+        function applyFilter() {
+            var search = ($("#searchBox").val() || "").trim().toLowerCase();
+            if (search.length > 0) {
+                $("#clearSearchBtn").show();
+                filteredUserList = fullUserList.filter(function (item) {
+                    var name = String(item.UserAccountName || "").toLowerCase();
+                    var company = String(item.CompanyName || "").toLowerCase();
+                    var role = String(item.UserRole || "").toLowerCase();
+                    var mobile = String(item.UserAccountMobileNo || "").toLowerCase();
+                    var email = String(item.UserAccountEmail || "").toLowerCase();
+                    var login = (item.AllowLogin == "1" || item.AllowLogin == 1) ? "yes active allow" : "no inactive disabled";
+                    var date = String(item.UserAccountDateAndTimes || "").toLowerCase();
+                    return name.indexOf(search) > -1 ||
+                        company.indexOf(search) > -1 ||
+                        role.indexOf(search) > -1 ||
+                        mobile.indexOf(search) > -1 ||
+                        email.indexOf(search) > -1 ||
+                        login.indexOf(search) > -1 ||
+                        date.indexOf(search) > -1;
+                });
+            } else {
+                $("#clearSearchBtn").hide();
+                filteredUserList = fullUserList.slice();
+            }
+
+            var maxPage = Math.ceil(filteredUserList.length / pageSize) || 1;
+            if (currentPage > maxPage) {
+                currentPage = maxPage;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+
+            renderUserTable();
+            renderPagination();
+        }
+
+        function onSearchInput() {
+            currentPage = 1;
+            applyFilter();
+        }
+
+        function clearSearch() {
+            $("#searchBox").val("");
+            onSearchInput();
+        }
+
+        function onPageSizeChange(val) {
+            pageSize = parseInt(val) || 10;
+            currentPage = 1;
+            applyFilter();
+        }
+
+        function renderUserTable() {
+            var tableBody = $("#copy-print-csv tbody");
+            tableBody.empty();
+
+            if (!filteredUserList || filteredUserList.length === 0) {
+                tableBody.html('<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-info-circle me-1"></i> No matching user records found</td></tr>');
+                $("#tableInfo").text("Showing 0 to 0 of 0 entries" + (fullUserList.length > 0 ? " (filtered from " + fullUserList.length + " total entries)" : ""));
+                return;
+            }
+
+            var totalRecords = filteredUserList.length;
+            var startIndex = (currentPage - 1) * pageSize;
+            var endIndex = Math.min(startIndex + pageSize, totalRecords);
+
+            var temp = "";
+            var canEdit = currentPagePermission.Edit === true || currentPagePermission.Edit === "true";
+            var canDelete = currentPagePermission.Delete === true || currentPagePermission.Delete === "true";
+
+            for (var i = startIndex; i < endIndex; i++) {
+                var user = filteredUserList[i];
+                var srNo = i + 1;
+                var profileImg = user.UserAccountProfile ? user.UserAccountProfile : '/img/user.png';
+                var allowLoginHtml = (user.AllowLogin == "1" || user.AllowLogin == 1)
+                    ? '<span class="status-badge bg-success text-white">Yes</span>'
+                    : '<span class="status-badge bg-danger text-white">No</span>';
+
+                var userName = user.UserAccountName || '-';
+                var safeUserName = userName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                temp += "<tr>";
+                temp += "<td class='text-center text-muted fw-bold'>" + srNo + "</td>";
+                temp += "<td>" +
+                    "<div class='user-profile-box'>" +
+                    "<img class='avatar' src='" + profileImg + "' onerror=\"this.src='/img/user.png';\" alt='User Profile' />" +
+                    "<a href='javascript:void(0);' class='user-name' title='" + safeUserName + "'>" + userName + "</a>" +
+                    "</div>" +
+                    "</td>";
+                temp += "<td>" + (user.CompanyName || '-') + "</td>";
+                temp += "<td><span class='user-role-badge'>" + (user.UserRole || '-') + "</span></td>";
+                temp += "<td>" + (user.UserAccountMobileNo || '-') + "</td>";
+                temp += "<td>" + (user.UserAccountEmail || '-') + "</td>";
+                temp += "<td class='text-center'>" + allowLoginHtml + "</td>";
+                temp += "<td class='text-center text-nowrap'>" + (user.UserAccountDateAndTimes || '-') + "</td>";
+
+                // ACTIONS
+                temp += "<td class='text-center'><div class='d-inline-flex align-items-center justify-content-center'>";
+                if (!canEdit && !canDelete) {
+                    temp += "<span class='text-muted'>-</span>";
+                } else {
+                    if (canEdit) {
+                        temp += "<a href='javascript:void(0);' class='action-icon-btn text-info' title='Edit User' " +
+                            "data-bs-toggle='modal' data-bs-target='#addNewContact' " +
+                            "onclick='showRecords(" + user.UserAccountId + ")'>" +
+                            "<i class='icon-edit1'></i>" +
+                            "</a>";
+
+                        temp += "<a href='javascript:void(0);' class='action-icon-btn text-warning' title='Reset Password' " +
+                            "onclick='openAdminResetPassword(" + user.UserAccountId + ", \"" + safeUserName + "\")'>" +
+                            "<i class='bi bi-key-fill'></i>" +
+                            "</a>";
+                    }
+                    if (canDelete) {
+                        temp += "<a href='javascript:void(0);' class='action-icon-btn text-danger' title='Delete User' " +
+                            "onclick='functionUserDelete(" + user.UserAccountId + ")'>" +
+                            "<i class='icon-x-circle'></i>" +
+                            "</a>";
+                    }
+                }
+                temp += "</div></td>";
+                temp += "</tr>";
+            }
+
+            tableBody.html(temp);
+
+            var infoText = "Showing " + (startIndex + 1) + " to " + endIndex + " of " + totalRecords + " entries";
+            if (filteredUserList.length !== fullUserList.length) {
+                infoText += " (filtered from " + fullUserList.length + " total entries)";
+            }
+            $("#tableInfo").text(infoText);
+        }
+
+        function renderPagination() {
+            var totalPages = Math.ceil(filteredUserList.length / pageSize) || 1;
+            var paginationEl = $("#paginationControls");
+            paginationEl.empty();
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            var html = "";
+
+            // First & Previous
+            var prevDisabled = currentPage === 1 ? "disabled" : "";
+            html += "<li class='page-btn " + prevDisabled + "' onclick='changePage(1)' title='First Page'><i class='bi bi-chevron-double-left'></i></li>";
+            html += "<li class='page-btn " + prevDisabled + "' onclick='changePage(" + (currentPage - 1) + ")' title='Previous Page'><i class='bi bi-chevron-left'></i></li>";
+
+            // Sliding page numbers
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                html += "<li class='page-btn' onclick='changePage(1)'>1</li>";
+                if (startPage > 2) {
+                    html += "<li class='page-btn disabled'>...</li>";
+                }
+            }
+
+            for (var p = startPage; p <= endPage; p++) {
+                var activeClass = p === currentPage ? "active" : "";
+                html += "<li class='page-btn " + activeClass + "' onclick='changePage(" + p + ")'>" + p + "</li>";
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += "<li class='page-btn disabled'>...</li>";
+                }
+                html += "<li class='page-btn' onclick='changePage(" + totalPages + ")'>" + totalPages + "</li>";
+            }
+
+            // Next & Last
+            var nextDisabled = currentPage === totalPages ? "disabled" : "";
+            html += "<li class='page-btn " + nextDisabled + "' onclick='changePage(" + (currentPage + 1) + ")' title='Next Page'><i class='bi bi-chevron-right'></i></li>";
+            html += "<li class='page-btn " + nextDisabled + "' onclick='changePage(" + totalPages + ")' title='Last Page'><i class='bi bi-chevron-double-right'></i></li>";
+
+            paginationEl.html(html);
+        }
+
+        function changePage(page) {
+            var totalPages = Math.ceil(filteredUserList.length / pageSize) || 1;
+            if (page < 1 || page > totalPages || page === currentPage) {
+                return;
+            }
+            currentPage = page;
+            renderUserTable();
+            renderPagination();
+            $(".user-table-wrapper").scrollTop(0);
         }
 
         function showRecords(id) {
@@ -835,26 +1172,43 @@
         }
 
         function exportTableToExcel(tableID, filename = 'UserAccount') {
-            var table = document.getElementById(tableID);
-            if (!table) {
-                Toast.fire({ icon: 'error', title: 'Table not found.' });
+            if (!filteredUserList || filteredUserList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'No data available to export.' });
                 return;
             }
-            var clonedTable = table.cloneNode(true);
-            var rows = clonedTable.querySelectorAll('tr');
-            rows.forEach(function (row) {
-                if (row.cells.length > 7) {
-                    row.deleteCell(7);
-                }
-            });
-            clonedTable.removeAttribute('id');
-            clonedTable.removeAttribute('class');
-            var html = `<html><head><meta charset="UTF-8"></head><body>${clonedTable.outerHTML}</body></html>`;
-            var blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            var html = '<table border="1"><thead><tr style="background:#e4eef9; font-weight:bold;">' +
+                '<th>#</th>' +
+                '<th>Name</th>' +
+                '<th>Company Name</th>' +
+                '<th>User Role</th>' +
+                '<th>Mobile No</th>' +
+                '<th>Email</th>' +
+                '<th>Allow Login</th>' +
+                '<th>Date</th>' +
+                '</tr></thead><tbody>';
+
+            for (var i = 0; i < filteredUserList.length; i++) {
+                var u = filteredUserList[i];
+                var allowLogin = (u.AllowLogin == "1" || u.AllowLogin == 1) ? 'Yes' : 'No';
+                html += '<tr>' +
+                    '<td style="text-align:center;">' + (i + 1) + '</td>' +
+                    '<td>' + (u.UserAccountName || '') + '</td>' +
+                    '<td>' + (u.CompanyName || '') + '</td>' +
+                    '<td>' + (u.UserRole || '') + '</td>' +
+                    '<td>' + (u.UserAccountMobileNo || '') + '</td>' +
+                    '<td>' + (u.UserAccountEmail || '') + '</td>' +
+                    '<td style="text-align:center;">' + allowLogin + '</td>' +
+                    '<td style="text-align:center;">' + (u.UserAccountDateAndTimes || '') + '</td>' +
+                    '</tr>';
+            }
+            html += '</tbody></table>';
+
+            var fullHtml = `<html><head><meta charset="UTF-8"></head><body>${html}</body></html>`;
+            var blob = new Blob(['\ufeff', fullHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
             var url = URL.createObjectURL(blob);
             var link = document.createElement('a');
             link.href = url;
-            link.download = filename + '.xls';
+            link.download = filename + '_' + getCurrentDateTime() + '.xls';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -866,36 +1220,32 @@
                 Toast.fire({ icon: 'error', title: 'PDF library is not loaded.' });
                 return;
             }
-            const { jsPDF } = window.jspdf;
-            var doc = new jsPDF('l', 'pt', 'a4');
-            var table = document.getElementById('copy-print-csv');
-            if (!table) {
-                Toast.fire({ icon: 'error', title: 'Table not found.' });
-                return;
-            }
-            doc.setFontSize(16);
-            doc.text('User Account Report', 40, 40);
-            var headers = ['Name', 'Company Name', 'User Role', 'Mobile No', 'Email', 'Allow Login', 'Date'];
-            var data = [];
-            var rows = table.querySelectorAll('tbody tr');
-            rows.forEach(function (row) {
-                if (row.style.display === 'none') { return; }
-                var cells = row.querySelectorAll('td');
-                if (cells.length < 7) { return; }
-                var rowData = [];
-                var nameElement = cells[0].querySelector('.media-box-body a');
-                var name = nameElement ? nameElement.textContent.trim() : cells[0].textContent.trim();
-                rowData.push(name);
-                for (var i = 1; i < 7; i++) {
-                    var value = cells[i].textContent.trim().replace(/\s+/g, ' ');
-                    rowData.push(value);
-                }
-                data.push(rowData);
-            });
-            if (data.length === 0) {
+            if (!filteredUserList || filteredUserList.length === 0) {
                 Toast.fire({ icon: 'warning', title: 'No data available to export.' });
                 return;
             }
+            const { jsPDF } = window.jspdf;
+            var doc = new jsPDF('l', 'pt', 'a4');
+            doc.setFontSize(16);
+            doc.text('User Account Report', 40, 40);
+            var headers = ['#', 'Name', 'Company Name', 'User Role', 'Mobile No', 'Email', 'Allow Login', 'Date'];
+            var data = [];
+
+            for (var i = 0; i < filteredUserList.length; i++) {
+                var u = filteredUserList[i];
+                var allowLogin = (u.AllowLogin == "1" || u.AllowLogin == 1) ? 'Yes' : 'No';
+                data.push([
+                    i + 1,
+                    u.UserAccountName || '',
+                    u.CompanyName || '',
+                    u.UserRole || '',
+                    u.UserAccountMobileNo || '',
+                    u.UserAccountEmail || '',
+                    allowLogin,
+                    u.UserAccountDateAndTimes || ''
+                ]);
+            }
+
             doc.autoTable({
                 head: [headers],
                 body: data,
@@ -924,22 +1274,27 @@
         }
 
         function printTable() {
-            var table = document.getElementById("copy-print-csv");
-            if (!table) {
-                Toast.fire({ icon: 'error', title: 'Table not found.' });
+            if (!filteredUserList || filteredUserList.length === 0) {
+                Toast.fire({ icon: 'warning', title: 'No data available to print.' });
                 return;
             }
-            var clonedTable = table.cloneNode(true);
-            var rows = clonedTable.querySelectorAll('tr');
-            rows.forEach(function (row) {
-                if (row.cells.length > 7) {
-                    row.deleteCell(7);
-                }
-                var actions = row.querySelectorAll('.actions');
-                actions.forEach(function (element) {
-                    element.remove();
-                });
-            });
+            var rowsHtml = '';
+            for (var i = 0; i < filteredUserList.length; i++) {
+                var u = filteredUserList[i];
+                var allowLogin = (u.AllowLogin == "1" || u.AllowLogin == 1) ? 'Yes' : 'No';
+                var profileImg = u.UserAccountProfile ? u.UserAccountProfile : '/img/user.png';
+                rowsHtml += '<tr>' +
+                    '<td style="text-align:center;">' + (i + 1) + '</td>' +
+                    '<td><div class="media-box"><img src="' + profileImg + '" class="media-avatar" onerror="this.style.display=\'none\'" /><span>' + (u.UserAccountName || '') + '</span></div></td>' +
+                    '<td>' + (u.CompanyName || '') + '</td>' +
+                    '<td>' + (u.UserRole || '') + '</td>' +
+                    '<td>' + (u.UserAccountMobileNo || '') + '</td>' +
+                    '<td>' + (u.UserAccountEmail || '') + '</td>' +
+                    '<td style="text-align:center;">' + allowLogin + '</td>' +
+                    '<td style="text-align:center;">' + (u.UserAccountDateAndTimes || '') + '</td>' +
+                    '</tr>';
+            }
+
             var style = `
                 <style>
                     @@page { size: landscape; margin: 10mm; }
@@ -950,20 +1305,37 @@
                     .print-header p { margin: 5px 0 0; font-size: 11px; }
                     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
                     table, th, td { border: 1px solid #000; }
-                    th { font-weight: bold; text-align: center; padding: 7px; font-size: 11px; }
+                    th { font-weight: bold; text-align: center; padding: 7px; font-size: 11px; background: #f2f2f2; }
                     td { padding: 6px; font-size: 10px; vertical-align: middle; word-break: break-word; }
                     .media-box { display: flex; align-items: center; gap: 8px; }
-                    .media-avatar { width: 35px !important; height: 35px !important; object-fit: cover; border-radius: 50%; }
-                    .media-box-body a { color: #000 !important; text-decoration: none !important; }
-                    .badge { color: #000 !important; background: transparent !important; border: none !important; padding: 0 !important; }
+                    .media-avatar { width: 28px !important; height: 28px !important; object-fit: cover; border-radius: 50%; }
                 </style>
                 `;
+
+            var tableHtml = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:5%;">#</th>
+                            <th style="width:20%;">User & Profile</th>
+                            <th style="width:16%;">Company Name</th>
+                            <th style="width:12%;">User Role</th>
+                            <th style="width:12%;">Mobile No</th>
+                            <th style="width:18%;">Email</th>
+                            <th style="width:7%;">Allow Login</th>
+                            <th style="width:10%;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            `;
+
             var win = window.open('', '_blank', 'height=900,width=1200');
             if (!win) {
                 Toast.fire({ icon: 'warning', title: 'Please allow pop-ups for printing.' });
                 return;
             }
-            win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>User Account Report</title>${style}</head><body><div class="print-header"><h2>User Account Report</h2><p>Generated on: ${new Date().toLocaleString()}</p></div>${clonedTable.outerHTML}</body></html>`);
+            win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>User Account Report</title>${style}</head><body><div class="print-header"><h2>User Account Report</h2><p>Generated on: ${new Date().toLocaleString()}</p></div>${tableHtml}</body></html>`);
             win.document.close();
             win.focus();
             setTimeout(function () {
@@ -973,27 +1345,62 @@
         }
 
         function searchTable() {
-            var input, filter, table, tr, td, i, j, txtValue, found;
-            input = document.getElementById("searchBox");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("copy-print-csv");
-            tr = table.getElementsByTagName("tr");
+            onSearchInput();
+        }
 
-            for (i = 1; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td");
-                found = false;
-
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            found = true;
-                            break;
-                        }
+        function openAdminResetPassword(userId, userName) {
+            Swal.fire({
+                title: 'Reset User Password',
+                html: '<p class="text-secondary small mb-3">Set a new password for user <strong>' + userName + '</strong></p>' +
+                      '<input type="text" id="adminNewPassword" class="swal2-input" placeholder="Enter new password (min 4 chars)" style="-webkit-text-security: disc; text-security: disc; max-width: 100%; box-sizing: border-box;" value="" />',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-check-lg me-1"></i>Reset Password',
+                confirmButtonColor: '#0d6efd',
+                showLoaderOnConfirm: true,
+                didOpen: () => {
+                    var pwdInput = document.getElementById('adminNewPassword');
+                    if (pwdInput) {
+                        pwdInput.value = '';
+                        pwdInput.focus();
                     }
+                },
+                preConfirm: () => {
+                    var pwdInput = document.getElementById('adminNewPassword');
+                    var newPassword = pwdInput ? pwdInput.value : '';
+                    if (!newPassword || newPassword.trim().length < 4) {
+                        Swal.showValidationMessage('Password must be at least 4 characters long.');
+                        return false;
+                    }
+                    return $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/AdminChangeUserPassword',
+                        data: {
+                            TargetUserId: userId,
+                            NewPassword: newPassword.trim()
+                        },
+                        dataType: "json"
+                    }).then(response => {
+                        var res = response.d || response;
+                        if (typeof res === "string") {
+                            try { res = JSON.parse(res); } catch (e) {}
+                        }
+                        if (res.Code !== 200) {
+                            throw new Error(res.Message || 'Failed to reset password');
+                        }
+                        return res;
+                    }).catch(error => {
+                        Swal.showValidationMessage(error.message || 'Request failed');
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: result.value.Message || 'Password reset successfully!'
+                    });
                 }
-                tr[i].style.display = found ? "" : "none";
-            }
+            });
         }
     </script>
 }

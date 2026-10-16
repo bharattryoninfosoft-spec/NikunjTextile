@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
@@ -13,19 +13,62 @@
         display: none !important;
     }
 
-    /* Hide "Showing x to y of z entries" */
-    .dataTables_info {
-        display: none !important;
-    }
-
-    /* Hide Pagination */
-    .dataTables_paginate {
-        display: none !important;
-    }
-
     /* Hide "Show Entries" Dropdown */
     .dataTables_length {
         display: none !important;
+    }
+
+    /* DataTables Info & Pagination Styling */
+    .dataTables_wrapper .dataTables_info {
+        font-size: 0.85rem;
+        color: #495057;
+        padding-top: 0.75rem;
+        float: left;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 0.5rem;
+        float: right;
+        text-align: right;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        display: inline-block;
+        min-width: 32px;
+        padding: 4px 10px;
+        margin: 0 2px;
+        text-align: center;
+        text-decoration: none !important;
+        cursor: pointer;
+        color: #0d6efd !important;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background: #fff;
+        font-size: 0.85rem;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef !important;
+        border-color: #0d6efd !important;
+        color: #0a58ca !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+        color: #6c757d !important;
+        background: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        cursor: not-allowed;
+        opacity: 0.65;
     }
 </style>
 <div class="content-wrapper">
@@ -636,6 +679,79 @@
                 }
             });
         }
+        function groupReportData(data) {
+            if (!data || !Array.isArray(data) || data.length === 0) return data;
+
+            var keys = Object.keys(data[0]);
+            if (keys.length <= 1) return data;
+
+            var metricKeys = [];
+            var groupKeys = [];
+
+            // Identify quantity/weight metric columns vs grouping columns
+            keys.forEach(function (key, index) {
+                var lower = key.toLowerCase();
+                var isWeight = lower.indexOf('weight') >= 0 || lower.indexOf('wt') >= 0;
+                var isBox = (lower.indexOf('box') >= 0 || lower.indexOf('stock') >= 0 || lower.indexOf('qty') >= 0 || lower.indexOf('pcs') >= 0 || lower.indexOf('count') >= 0)
+                            && lower.indexOf('color') < 0 && lower.indexOf('code') < 0;
+
+                if (isWeight || isBox) {
+                    metricKeys.push(key);
+                } else if (index >= keys.length - 2 && lower.indexOf('color') < 0 && lower.indexOf('name') < 0 && lower.indexOf('party') < 0 && lower.indexOf('material') < 0 && lower.indexOf('godown') < 0 && lower.indexOf('location') < 0) {
+                    metricKeys.push(key);
+                } else {
+                    groupKeys.push(key);
+                }
+            });
+
+            if (metricKeys.length === 0 && keys.length >= 2) {
+                metricKeys = [keys[keys.length - 2], keys[keys.length - 1]];
+                groupKeys = keys.slice(0, keys.length - 2);
+            }
+
+            var groupedMap = {};
+            var groupedList = [];
+
+            data.forEach(function (row) {
+                var compositeKey = groupKeys.map(function (k) {
+                    return String(row[k] === null || row[k] === undefined ? '' : row[k]).trim().toUpperCase();
+                }).join('___');
+
+                if (!groupedMap[compositeKey]) {
+                    var newRow = {};
+                    keys.forEach(function (k) {
+                        newRow[k] = row[k];
+                    });
+                    metricKeys.forEach(function (mk) {
+                        newRow[mk] = parseFloat(row[mk]) || 0;
+                    });
+                    groupedMap[compositeKey] = newRow;
+                    groupedList.push(newRow);
+                } else {
+                    var existingRow = groupedMap[compositeKey];
+                    metricKeys.forEach(function (mk) {
+                        var val = parseFloat(row[mk]) || 0;
+                        existingRow[mk] = (parseFloat(existingRow[mk]) || 0) + val;
+                    });
+                }
+            });
+
+            // Format metrics: box count as integer if whole number, weight to 2 decimal places
+            groupedList.forEach(function (row) {
+                metricKeys.forEach(function (mk) {
+                    var val = parseFloat(row[mk]) || 0;
+                    var lower = mk.toLowerCase();
+                    if (lower.indexOf('weight') >= 0 || lower.indexOf('wt') >= 0 || (val % 1 !== 0)) {
+                        row[mk] = parseFloat(val.toFixed(2));
+                    } else {
+                        row[mk] = Math.round(val);
+                    }
+                });
+            });
+
+            return groupedList;
+        }
+
         function LoadReport() {
 
             if (!ValidateDates()) return;
@@ -688,6 +804,10 @@
 
                         return;
                     }
+
+                    // Group identical rows and sum boxes & net weight
+                    data = groupReportData(data);
+
                     if ($.fn.DataTable.isDataTable('#reportTable')) {
                         $('#reportTable').DataTable().clear().destroy();
                     }
@@ -762,7 +882,7 @@
                         responsive: true,
                         pageLength: 25,
                         lengthChange: false,
-                        info: false
+                        info: true
                     });
                 }
 

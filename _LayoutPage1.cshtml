@@ -1,3 +1,30 @@
+@{
+    // Server-Side Authentication Guard: Prevent direct access to any page without login
+    var userCookie = Request.Cookies["UserIDs"];
+    bool isAuthenticated = false;
+
+    if (userCookie != null && !string.IsNullOrEmpty(userCookie.Value))
+    {
+        string uid = userCookie["UserIDs"] ?? userCookie.Value;
+        if (!string.IsNullOrEmpty(uid))
+        {
+            if (uid.StartsWith("UserIDs=", StringComparison.OrdinalIgnoreCase))
+            {
+                uid = uid.Substring("UserIDs=".Length);
+            }
+            if (uid.Trim() != "0" && !string.IsNullOrEmpty(uid.Trim()))
+            {
+                isAuthenticated = true;
+            }
+        }
+    }
+
+    if (!isAuthenticated)
+    {
+        Response.Redirect("/Index");
+        return;
+    }
+}
 <!DOCTYPE html>
 
 <html>
@@ -26,6 +53,30 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #e1e6f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal;
+            color: #495057;
+            padding-left: 10px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+        .swal2-container .select2-container,
+        .swal-container .select2-container {
+            display: none !important;
+        }
+    </style>
 </head>
 <body style="overflow:hidden;">
     <div class="page-wrapper">
@@ -69,8 +120,12 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end md">
                                     <div class="header-profile-actions">
-                                        <a href="javascript:void(0)" onclick="logout()">
-                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                        <a href="javascript:void(0)" onclick="openChangePasswordModal()" style="display: flex; align-items: center; padding: 8px 16px; color: #333; text-decoration: none;">
+                                            <i class="bi bi-key me-2" style="font-size: 1.1rem; color: #0d6efd;"></i> Change Password
+                                        </a>
+                                        <hr class="dropdown-divider my-1">
+                                        <a href="javascript:void(0)" onclick="logout()" style="display: flex; align-items: center; padding: 8px 16px; color: #dc3545; text-decoration: none;">
+                                            <i class="bi bi-box-arrow-right me-2" style="font-size: 1.1rem;"></i> Logout
                                         </a>
                                     </div>
                                 </div>
@@ -122,6 +177,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(function () {
+            FunctionIsLogin();
             var page = window.location.pathname.toLowerCase();
             if (page.includes("saleorder")) {
                 $("body").addClass("fullscreen");
@@ -129,8 +185,14 @@
             else if (page.includes("dashboard")) {
                 $("body").addClass("sidebar-mini");
             }
-
         });
+
+        $(window).on("popstate pageshow", function () {
+            if (typeof window.highlightCurrentMenu === "function") {
+                window.highlightCurrentMenu();
+            }
+        });
+
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -156,13 +218,218 @@
             });
         }
         loadDynamicMenu();
-        //$(document).ready(function () {
+        // Global Select2 extension to keep UI in sync when setting .val() programmatically (with recursion guard)
+        (function ($) {
+            if (!$ || !$.fn) return;
+            var origVal = $.fn.val;
+            var isSyncingVal = false;
 
-        //    $("#toggle-sidebar").click(function () {
+            $.fn.val = function () {
+                if (arguments.length === 0) {
+                    return origVal.apply(this, arguments);
+                }
 
-        //        $(".page-wrapper").toggleClass("toggled");
-        //    });
-        //});
+                var isSelect = this.is("select");
+                var oldVal = isSelect ? this.val() : null;
+                var result = origVal.apply(this, arguments);
+
+                if (isSelect && !isSyncingVal) {
+                    var newVal = this.val();
+                    if (oldVal !== newVal) {
+                        isSyncingVal = true;
+                        try {
+                            this.each(function () {
+                                var $select = $(this);
+                                if ($select.data("select2")) {
+                                    $select.trigger("change.select2");
+                                }
+                            });
+                        } finally {
+                            isSyncingVal = false;
+                        }
+                    }
+                }
+                return result;
+            };
+        })(jQuery);
+
+        window.initAllSelect2 = function (context) {
+            if (typeof $.fn.select2 !== "function") return;
+            var $target = context ? $(context).find("select") : $("select");
+
+            $target.not(".no-select2, .swal2-select, .swal-select, .swal2-container select, .swal-container select").each(function () {
+                var $select = $(this);
+                if (!$select.data("select2")) {
+                    $select.select2({
+                        width: "100%"
+                    });
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            window.initAllSelect2();
+        });
+
+        $(document).ajaxComplete(function () {
+            setTimeout(function () {
+                window.initAllSelect2();
+            }, 100);
+        });
+
+        $(document).on("change", "select", function () {
+            if (typeof validate === "function" && this.id) {
+                validate(this);
+            }
+        });
+
+        $(document).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
+            if (jqXHR.status !== 0 && jqXHR.status !== 200 && ajaxSettings.url && !ajaxSettings.url.includes("LogErrorRecord")) {
+                var errorMsg = "AJAX Failure: " + (thrownError || jqXHR.statusText) + " (HTTP " + jqXHR.status + ")";
+                $.ajax({
+                    type: "POST",
+                    url: "/WebServiceNikunjTextile.asmx/LogErrorRecord",
+                    data: JSON.stringify({
+                        moduleName: "Client Application",
+                        methodName: ajaxSettings.url,
+                        errorMessage: errorMsg,
+                        stackTrace: jqXHR.responseText || ""
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function () {},
+                    error: function () {}
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            setTimeout(function () {
+                if (typeof window.highlightCurrentMenu === "function") {
+                    window.highlightCurrentMenu();
+                }
+            }, 200);
+        });
+        window.highlightCurrentMenu = function () {
+            var rawPath = (window.location.pathname || "").toLowerCase().replace(/\.cshtml$/i, "").replace(/\/$/, "");
+            if (!rawPath || rawPath === "/") rawPath = "/dashboard";
+
+            var currentUrlClean = (window.location.pathname + window.location.search).toLowerCase().replace(/\.cshtml$/i, "").replace(/\/$/, "");
+            var cleanPath = rawPath;
+
+            // Comprehensive lowercased page mapping for form, edit, create, and list route variants
+            var pageMap = {
+                // Production & Slips
+                "/productionsleep": "/jobproductionorderlist",
+                "/jobproductionorderlist": "/jobproductionorderlist",
+
+                // Butta Cutting & Jobber Flow
+                "/jobbertobuttacutting": "/jobbertobuttacuttinglist",
+                "/receivejobbertobuttacutting": "/buttacuttingreceivelist",
+                "/buttacuttingreceive": "/buttacuttingreceivelist",
+                "/buttacuttingstock": "/buttacuttingstocklist",
+                "/buttacuttingtojobber": "/buttacuttingtojobberlist",
+                "/jobberreceive": "/jobberreceivelist",
+                "/buttacuttinghistory": "/buttacuttinghistorylist",
+                "/buttacuttingjobberreceive": "/buttacuttingjobberreceivelist",
+
+                // Process Flow
+                "/jobbertoprocess": "/jobbertoprocesslist",
+                "/jobbertoprocessprint": "/jobbertoprocesslist",
+                "/processreceive": "/processreceivelist",
+                "/processstock": "/processstock",
+                "/processissueback": "/processissuebacklist",
+                "/processmanagementhistory": "/processmanagementhistory",
+
+                // Sales Order
+                "/updatedesigncolormatching": "/createdesigncolormatching",
+                "/updatedesignentry": "/createdesignentry",
+                "/updatesaleorderentry": "/listsaleorderentry",
+                "/saleorderentry": "/listsaleorderentry",
+
+                // Yarn Flow
+                "/updateyarninward": "/createyarninward",
+                "/updateyarnoutwardchallan": "/yarnoutwardchallandetails",
+                "/yarnoutwardchallan": "/yarnoutwardchallandetails",
+                "/yarnoutwardchallannew": "/yarnoutwardchallandetails",
+                "/updateyarnoutwardchallannew": "/yarnoutwardchallandetails",
+                "/updateyarnoutwardscan": "/yarnoutwardscandetails",
+                "/yarnoutwardscan": "/yarnoutwardscandetails",
+                "/updateyarnpo": "/createyarnpo",
+                "/updateyarnrequirement": "/createyarnrequirement",
+
+                // Jobber Inward / Outward
+                "/createjobberinward": "/createjobberinward",
+                "/jobberyarninward": "/jobberyarninward",
+                "/createjobberoutward": "/createjobberoutward",
+                "/jobberoutwardlist": "/jobberoutwardlist"
+            };
+
+            var targetPath = pageMap[cleanPath] || cleanPath;
+            var isFound = false;
+
+            // Reset menu selection state
+            $("#dynamicMenuTabs .nav-link").removeClass("active");
+            $("#dynamicMenuContent .tab-pane").removeClass("show active");
+            $("#dynamicMenuContent a").removeClass("current-page");
+
+            // 1. Direct or PageMap match
+            $("#dynamicMenuContent a").each(function () {
+                var href = ($(this).attr("href") || "").toLowerCase().replace(/\.cshtml$/i, "").replace(/\/$/, "");
+                if (!href || href === "#") return;
+
+                if (href === cleanPath || href === currentUrlClean || href === targetPath) {
+                    isFound = true;
+                    $(this).addClass("current-page");
+
+                    var tabPane = $(this).closest(".tab-pane");
+                    tabPane.addClass("show active");
+
+                    var tabId = tabPane.attr("id");
+                    if (tabId) {
+                        $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
+                    }
+
+                    document.title = $(this).text().trim() + " - Nikunj Textile";
+                    return false; // Break $.each loop
+                }
+            });
+
+            // 2. Base-name / Fuzzy match fallback (e.g. /jobbertobuttacutting -> /jobbertobuttacuttinglist)
+            if (!isFound) {
+                $("#dynamicMenuContent a").each(function () {
+                    var href = ($(this).attr("href") || "").toLowerCase().replace(/\.cshtml$/i, "").replace(/\/$/, "");
+                    if (!href || href === "#") return;
+
+                    var hrefNoList = href.replace(/list$/i, "");
+                    var cleanNoList = cleanPath.replace(/list$/i, "");
+                    var targetNoList = targetPath.replace(/list$/i, "");
+
+                    if (hrefNoList === cleanNoList || hrefNoList === targetNoList || cleanNoList === href || targetNoList === href) {
+                        isFound = true;
+                        $(this).addClass("current-page");
+
+                        var tabPane = $(this).closest(".tab-pane");
+                        tabPane.addClass("show active");
+
+                        var tabId = tabPane.attr("id");
+                        if (tabId) {
+                            $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
+                        }
+
+                        document.title = $(this).text().trim() + " - Nikunj Textile";
+                        return false;
+                    }
+                });
+            }
+
+            // 3. Fallback: Default to first tab if nothing matched
+            if (!isFound && $("#dynamicMenuTabs .active").length === 0) {
+                $("#dynamicMenuTabs .nav-link:first").addClass("active");
+                $("#dynamicMenuContent .tab-pane:first").addClass("show active");
+            }
+        };
+
         function loadDynamicMenu() {
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/GetDynamicMenu',
@@ -213,79 +480,9 @@
                                                                                                                                                                                       </div>`;
                         $("#dynamicMenuContent").append(contentHtml);
                     });
-                    // ACTIVE PAGE
-                    // ACTIVE PAGE
-                    var currentUrl = (window.location.pathname + window.location.search).toLowerCase();
-                    var currentPath = window.location.pathname.toLowerCase();
-                    var isFound = false;
 
-                    $("#dynamicMenuContent a").each(function () {
-
-                        var menuUrl = ($(this).attr("href") || "").toLowerCase();
-
-                        if (currentUrl == menuUrl || (currentUrl.indexOf('?') === -1 && currentPath == menuUrl)) {
-
-                            isFound = true;
-
-                            $(this).addClass("current-page");
-
-                            var tabPane = $(this).closest(".tab-pane");
-                            tabPane.addClass("show active");
-
-                            var tabId = tabPane.attr("id");
-                            $('#dynamicMenuTabs a[href="#' + tabId + '"]').addClass("active");
-
-                            document.title = $(this).text().trim() + " - Nikunj Textile";
-                        }
-                    });
-
-                    // If page not found in dynamic menu
-                    if (!isFound) {
-
-                        $("#dynamicMenuTabs .nav-link").removeClass("active");
-                        $("#dynamicMenuContent .tab-pane").removeClass("show active");
-                        $("#dynamicMenuContent a").removeClass("current-page");
-
-                        var pageMap = {
-
-                            "/updatedesigncolormatching": "/designcolormatching",
-                            "/updatedesignentry": "/designentry",
-                            "/UpdateSaleOrderEntry": "/ListSaleOrderEntry",
-                            "/updateyarninward": "/yarninward",
-                            "/updateyarnoutwardchallan": "/yarnoutwardchallan",
-                            "/updateyarnoutwardchallannew": "/YarnOutWardChallanDetails",
-                            "/updateyarnoutwardscan": "/YarnOutWardScanDetails",
-                            "/updateyarnpo": "/yarnpo",
-                            "/updateyarnrequirement": "/yarnrequirement",
-                            "/PendingPOReport": "/PendingPOReport",
-                            "/saleorderjobberreport": "/saleorderjobberreport"
-                        };
-
-                        if (pageMap[currentUrl]) {
-
-                            var menu = $("#dynamicMenuContent a").filter(function () {
-                                return (($(this).attr("href") || "").toLowerCase() == pageMap[currentUrl]);
-                            });
-
-                            if (menu.length) {
-
-                                menu.addClass("current-page");
-
-                                var pane = menu.closest(".tab-pane");
-                                pane.addClass("show active");
-
-                                $('#dynamicMenuTabs a[href="#' + pane.attr("id") + '"]').addClass("active");
-
-                                document.title = menu.text().trim() + " - Nikunj Textile";
-                            }
-                        }
-                    }
-
-                    // DEFAULT ACTIVE
-                    if ($("#dynamicMenuTabs .active").length == 0) {
-                        $("#dynamicMenuTabs .nav-link:first").addClass("active");
-                        $("#dynamicMenuContent .tab-pane:first").addClass("show active");
-                    }
+                    // HIGHLIGHT ACTIVE CURRENT PAGE MENU ITEM
+                    window.highlightCurrentMenu();
                 },
                 error: function (xhr, status, error) {
                     console.log(xhr.responseText);
@@ -303,28 +500,25 @@
         });
 
         function logout() {
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/Logout',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data, status) {
-                    if (data.d == "done") {
-                        Swal.fire({
-                            title: "Logout?",
-                            text: "Do you want to logout?",
-                            icon: "question",
-                            showCancelButton: true,
-                            confirmButtonText: "Logout"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.replace("/Index");
-                            }
-                        });
-
-                    }
-                },
-                error: function (request, status, error) {
+            Swal.fire({
+                title: "Logout Confirmation",
+                text: "Are you sure you want to logout?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Logout",
+                confirmButtonColor: "#dc3545",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/Logout',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        complete: function () {
+                            window.location.replace("/Index");
+                        }
+                    });
                 }
             });
         }
@@ -361,7 +555,189 @@
         function deleteCookie(name) {
             document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;";
         }
+
+        function openChangePasswordModal() {
+            $('#txtOldPassword').val('');
+            $('#txtNewPassword').val('');
+            $('#txtConfirmPassword').val('');
+            $('#changePasswordAlert').addClass('d-none').removeClass('alert-danger alert-success').html('');
+            
+            if (typeof $('#changePasswordModal').modal === 'function') {
+                $('#changePasswordModal').modal('show');
+            } else if (window.bootstrap && bootstrap.Modal) {
+                try {
+                    var modalEl = document.getElementById('changePasswordModal');
+                    var modal = (typeof bootstrap.Modal.getInstance === 'function' ? bootstrap.Modal.getInstance(modalEl) : null) || new bootstrap.Modal(modalEl);
+                    modal.show();
+                } catch (e) {
+                    $('#changePasswordModal').addClass('show').css('display', 'block');
+                }
+            } else {
+                $('#changePasswordModal').addClass('show').css('display', 'block');
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        function hideChangePasswordModal() {
+            if (typeof $('#changePasswordModal').modal === 'function') {
+                $('#changePasswordModal').modal('hide');
+            } else if (window.bootstrap && bootstrap.Modal) {
+                try {
+                    var modalEl = document.getElementById('changePasswordModal');
+                    var modal = typeof bootstrap.Modal.getInstance === 'function' ? bootstrap.Modal.getInstance(modalEl) : null;
+                    if (modal) modal.hide();
+                    else $('#changePasswordModal').removeClass('show').css('display', 'none');
+                } catch (e) {
+                    $('#changePasswordModal').removeClass('show').css('display', 'none');
+                }
+            } else {
+                $('#changePasswordModal').removeClass('show').css('display', 'none');
+            }
+        }
+
+        function submitChangePassword() {
+            var oldPass = $('#txtOldPassword').val().trim();
+            var newPass = $('#txtNewPassword').val().trim();
+            var confirmPass = $('#txtConfirmPassword').val().trim();
+            var alertBox = $('#changePasswordAlert');
+
+            if (!oldPass || !newPass) {
+                alertBox.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="bi bi-exclamation-triangle-fill me-2"></i>Please enter both Current Password and New Password.');
+                return;
+            }
+            if (newPass.length < 4) {
+                alertBox.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="bi bi-exclamation-triangle-fill me-2"></i>New password must be at least 4 characters long.');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alertBox.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="bi bi-exclamation-triangle-fill me-2"></i>New Password and Confirm Password do not match.');
+                return;
+            }
+
+            alertBox.addClass('d-none');
+            $('#btnSavePassword').prop('disabled', true);
+            $('#btnSavePasswordSpinner').removeClass('d-none');
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/ChangeUserPassword',
+                data: {
+                    OldPassword: oldPass,
+                    NewPassword: newPass,
+                    ConfirmPassword: confirmPass
+                },
+                dataType: "json",
+                success: function (response) {
+                    $('#btnSavePassword').prop('disabled', false);
+                    $('#btnSavePasswordSpinner').addClass('d-none');
+
+                    var res = response.d || response;
+                    if (typeof res === "string") {
+                        try { res = JSON.parse(res); } catch (e) {}
+                    }
+
+                    if (res.Code === 200) {
+                        hideChangePasswordModal();
+
+                        // Perform Auto-Logout and Redirect to Login Screen
+                        $.ajax({
+                            type: "POST",
+                            url: '/WebServiceNikunjTextile.asmx/Logout',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            complete: function () {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Password Updated Successfully!',
+                                    text: 'Your password has been changed. Please log in with your new password.',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#0d6efd',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                }).then(() => {
+                                    window.location.replace("/Index");
+                                });
+                            }
+                        });
+                    } else {
+                        var errMsg = res.Message || 'Failed to update password. Please check your current password.';
+                        alertBox.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="bi bi-exclamation-triangle-fill me-2"></i>' + errMsg);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#btnSavePassword').prop('disabled', false);
+                    $('#btnSavePasswordSpinner').addClass('d-none');
+                    alertBox.removeClass('d-none alert-success').addClass('alert-danger').html('<i class="bi bi-exclamation-triangle-fill me-2"></i>An unexpected server error occurred. Please try again.');
+                }
+            });
+        }
     </script>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white" id="changePasswordModalLabel">
+                        <i class="bi bi-key me-2"></i>Change Password
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="changePasswordAlert" class="alert d-none" role="alert"></div>
+                    <form id="changePasswordForm" autocomplete="off" onsubmit="return false;">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">Current Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="txtOldPassword" placeholder="Enter current password" required />
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('txtOldPassword', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">New Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="txtNewPassword" placeholder="Enter new password (min 4 chars)" required />
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('txtNewPassword', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">Confirm New Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="txtConfirmPassword" placeholder="Re-enter new password" required />
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('txtConfirmPassword', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" id="btnSavePassword" onclick="submitChangePassword()">
+                        <span id="btnSavePasswordSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @RenderSection("Scripts", required: false)
 </body>

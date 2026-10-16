@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -62,6 +62,20 @@
         border: none;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
+
+    /* Pagination */
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+    .pagination .page-link {
+        color: #0d6efd;
+        cursor: pointer;
+    }
+    .pagination .page-item.disabled .page-link {
+        cursor: not-allowed;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -69,17 +83,26 @@
         <div class="card">
             <div class="card">
                 <div class="card-body">
-                    <div class="row mb-3">
+                    <div class="row mb-3 align-items-center">
                         <div class="col-md-3">
-                            <button id="btnPdf" class="btn btn-outline-primary">📄 PDF</button>
-                            <button id="btnExcel" class="btn btn-outline-success">📊 Excel</button>
-                            <button id="btnPrint" class="btn btn-outline-secondary">🖨 Print</button>
+                            <button id="btnPdf" class="btn btn-outline-danger btn-sm">
+                                <i class="fa fa-file-pdf-o me-1"></i> PDF
+                            </button>
+                            <button id="btnExcel" class="btn btn-outline-success btn-sm">
+                                <i class="fa fa-file-excel-o me-1"></i> Excel
+                            </button>
+                            <button id="btnPrint" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-print me-1"></i> Print
+                            </button>
                         </div>
 
                         <div class="col-md-5">
-                            <input type="text" id="searchGodown"
-                                   class="form-control"
-                                   placeholder="🔍 Search Location / Godown...">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa fa-search text-muted"></i></span>
+                                <input type="text" id="searchGodown"
+                                       class="form-control border-start-0"
+                                       placeholder="Search Location / Godown...">
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <select id="filterGodown" class="form-control">
@@ -88,12 +111,12 @@
                         </div>
                     </div>
 
-                    <!-- 📊 Table -->
+                    <!-- Table -->
                     <div class="table-responsive">
                         <table id="tblPendingGodown" class="table table-bordered table-hover">
                             <thead class="bg-primary text-white">
                                 <tr>
-                                    <th style="width:80px;">#</th>
+                                    <th style="width:70px; text-align:center;">#</th>
                                     <th>Location</th>
                                     <th>Godown</th>
                                     <th>Address</th>
@@ -101,6 +124,25 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap" id="godownPaginationWrapper">
+                        <div id="lblGodownInfo" class="text-muted small mb-2 mb-md-0">
+                            Showing 0 to 0 of 0 entries
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 mb-0 text-muted small">Show:</label>
+                            <select id="pageSizeGodown" class="form-select form-select-sm me-3" style="width: auto;">
+                                <option value="10" selected>10 entries</option>
+                                <option value="25">25 entries</option>
+                                <option value="50">50 entries</option>
+                                <option value="100">100 entries</option>
+                            </select>
+                            <nav aria-label="Location Pagination">
+                                <ul class="pagination pagination-sm mb-0" id="godownPagination"></ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,173 +187,237 @@
                 }
             });
         }
-        let groupedData = {}; // ✅ GLOBAL (important)
+        let rawData = [];
+        let filteredData = [];
+        let godownCollapsedMap = {};
+        let currentPage = 1;
+        let pageSize = 10;
 
         function LoadReport() {
-
             $.ajax({
                 url: '/WebServiceNikunjTextile.asmx/EmptyLocationReport',
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-
                 success: function (response) {
-
                     let res = JSON.parse(response.d);
-                    let data = res.data;
+                    rawData = Array.isArray(res.data) ? res.data : [];
 
-                    groupedData = {}; // reset
-
-                    // 👉 Group data
-                    data.forEach(item => {
-                        if (!groupedData[item.GodownTitle]) {
-                            groupedData[item.GodownTitle] = [];
-                        }
-                        groupedData[item.GodownTitle].push(item);
-                    });
-
-                    let html = '';
-                    let index = 1;
-
-                    // 👉 Render
-                    $.each(groupedData, function (godown, items) {
-
-                        let safeGroup = godown.replace(/[^a-zA-Z0-9]/g, '_');
-
-                        html += `
-                                <tr class="group-header" data-group="${safeGroup}">
-                                    <td colspan="4">
-                                        <span class="toggle-btn">➕</span>
-                                        <strong>${godown} (${items.length})</strong>
-                                    </td>
-                                </tr>
-                            `;
-
-                        items.forEach(item => {
-                            html += `
-                                    <tr class="group-row group-${safeGroup}">
-                                        <td>${index++}</td>
-                                        <td>${item.LocationTitle}</td>
-                                        <td>${item.GodownTitle}</td>
-                                        <td>${item.GodownAddress}</td>
-                                    </tr>
-                                `;
-                        });
-                    });
-
-                    $('#tblPendingGodown tbody').html(html);
-
-                    // 👉 Default collapse
-                    $('.group-row').hide();
-
-                    // 👉 Toggle
-                    $('.toggle-btn').off().on('click', function () {
-
-                        let header = $(this).closest('tr');
-                        let group = header.data('group');
-                        let rows = $(`.group-${group}`);
-
-                        if (rows.is(':visible')) {
-                            rows.hide();
-                            $(this).text('➕');
-                        } else {
-                            rows.show();
-                            $(this).text('➖');
-                        }
-                    });
-
-                    // 👉 Fill dropdown HERE (✅ FIXED)
+                    // Populate Godown dropdown
+                    let godowns = [...new Set(rawData.map(x => x.GodownTitle).filter(Boolean))].sort();
                     let options = '<option value="">All Godown</option>';
-
-                    Object.keys(groupedData).forEach(g => {
-                        let safe = g.replace(/[^a-zA-Z0-9]/g, '_');
-                        options += `<option value="${safe}">${g}</option>`;
+                    godowns.forEach(g => {
+                        options += `<option value="${g}">${g}</option>`;
                     });
-
                     $('#filterGodown').html(options);
+
+                    applyFilters();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error loading empty location report:", error);
                 }
             });
         }
 
         function applyFilters() {
+            let searchValue = ($('#searchGodown').val() || '').toLowerCase().trim();
+            let selectedGodown = $('#filterGodown').val() || '';
 
-            let searchValue = $('#searchGodown').val().toLowerCase().trim();
-            let selectedGodown = $('#filterGodown').val();
-
-            $('.group-header').hide();
-            $('.group-row').hide();
-
-            $('.group-row').each(function () {
-
-                let location = $(this).find('td:eq(1)').text().toLowerCase();
-                let godown = $(this).find('td:eq(2)').text().toLowerCase();
-
-                let groupClass = $(this).attr('class').split(' ')
-                    .find(c => c.startsWith('group-') && c !== 'group-row');
-
-                let groupName = groupClass.replace('group-', '');
-
-                let matchSearch = (
-                    searchValue === '' ||
-                    location.includes(searchValue) ||
-                    godown.includes(searchValue)
-                );
-
-                let matchGodown = (
-                    selectedGodown === '' ||
-                    groupName === selectedGodown
-                );
-
-                if (matchSearch && matchGodown) {
-                    $(this).show();
-
-                    let header = $(`.group-header[data-group="${groupName}"]`);
-                    header.show();
-                    header.find('.toggle-btn').text('➖');
+            filteredData = rawData.filter(function (item) {
+                let gTitle = item.GodownTitle || '';
+                if (selectedGodown && gTitle !== selectedGodown) {
+                    return false;
                 }
+
+                if (searchValue) {
+                    let loc = (item.LocationTitle || '').toLowerCase();
+                    let gdn = gTitle.toLowerCase();
+                    let addr = (item.GodownAddress || '').toLowerCase();
+                    return loc.indexOf(searchValue) >= 0 || gdn.indexOf(searchValue) >= 0 || addr.indexOf(searchValue) >= 0;
+                }
+
+                return true;
             });
 
-            if (searchValue === '' && selectedGodown === '') {
-                $('.group-header').show();
-                $('.group-row').hide();
-                $('.toggle-btn').text('➕');
-            }
+            currentPage = 1;
+            renderTable();
+            renderPagination();
         }
 
-        $('#searchGodown').on('keyup', applyFilters);
-        $('#filterGodown').on('change', applyFilters);
+        function renderTable() {
+            let totalRecords = filteredData.length;
+            let tbody = $('#tblPendingGodown tbody');
+            tbody.empty();
 
-        // ✅ PDF Export (Supports Groups)
-        $('#btnPdf').click(function () {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            let body = [];
+            if (totalRecords === 0) {
+                tbody.html('<tr><td colspan="4" class="text-center text-muted py-3">No empty locations found.</td></tr>');
+                $('#lblGodownInfo').text('Showing 0 to 0 of 0 entries');
+                return;
+            }
 
-            $('#tblPendingGodown tbody tr:visible').each(function () {
-                if ($(this).hasClass('group-header')) {
-                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
-                    body.push([
-                        {
-                            content: cleanText,
-                            colSpan: 4,
-                            styles: { fillColor: [231, 241, 255], fontStyle: 'bold', textColor: [13, 110, 253], halign: 'left' }
-                        }
-                    ]);
+            let totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            let startIndex = (currentPage - 1) * pageSize;
+            let endIndex = Math.min(startIndex + pageSize, totalRecords);
+            let pageData = filteredData.slice(startIndex, endIndex);
+
+            // Count per godown in filtered dataset
+            let godownCounts = {};
+            filteredData.forEach(x => {
+                let g = x.GodownTitle || 'Unknown';
+                godownCounts[g] = (godownCounts[g] || 0) + 1;
+            });
+
+            let html = '';
+            let lastGodown = null;
+
+            pageData.forEach(function (item, idx) {
+                let actualIdx = startIndex + idx + 1;
+                let godownName = item.GodownTitle || 'Unknown';
+                let safeGroup = godownName.replace(/[^a-zA-Z0-9]/g, '_');
+                let isCollapsed = godownCollapsedMap[godownName] === true;
+
+                if (godownName !== lastGodown) {
+                    lastGodown = godownName;
+                    let totalInGroup = godownCounts[godownName] || 0;
+                    let iconClass = isCollapsed ? 'fa-plus-circle' : 'fa-minus-circle';
+
+                    html += `
+                        <tr class="group-header" data-godown="${godownName}" data-group="${safeGroup}">
+                            <td colspan="4">
+                                <span class="toggle-btn me-2"><i class="fa ${iconClass}"></i></span>
+                                <strong>${godownName} (${totalInGroup} Locations)</strong>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                let rowDisplay = isCollapsed ? 'style="display:none;"' : '';
+                html += `
+                    <tr class="group-row group-${safeGroup}" ${rowDisplay}>
+                        <td class="text-center">${actualIdx}</td>
+                        <td class="fw-semibold text-primary">${item.LocationTitle || ''}</td>
+                        <td>${item.GodownTitle || ''}</td>
+                        <td>${item.GodownAddress || ''}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.html(html);
+
+            // Toggle collapse/expand on group header click
+            $('.group-header').off('click').on('click', function () {
+                let godownName = $(this).data('godown');
+                let safeGroup = $(this).data('group');
+                let rows = $(`.group-${safeGroup}`);
+                let icon = $(this).find('.toggle-btn i');
+
+                if (rows.is(':visible')) {
+                    rows.hide();
+                    icon.removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                    godownCollapsedMap[godownName] = true;
                 } else {
-                    let tds = $(this).children('td');
-                    if (tds.length >= 4) {
-                        body.push([
-                            $(tds[0]).text().trim(),
-                            $(tds[1]).text().trim(),
-                            $(tds[2]).text().trim(),
-                            $(tds[3]).text().trim()
-                        ]);
-                    }
+                    rows.show();
+                    icon.removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                    godownCollapsedMap[godownName] = false;
                 }
             });
 
+            $('#lblGodownInfo').text('Showing ' + (startIndex + 1) + ' to ' + endIndex + ' of ' + totalRecords + ' entries');
+        }
+
+        function renderPagination() {
+            let totalRecords = filteredData.length;
+            let totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            let $pagination = $('#godownPagination');
+            $pagination.empty();
+
+            if (totalRecords === 0 || totalPages <= 1) {
+                return;
+            }
+
+            // Previous Button
+            let prevDisabled = currentPage === 1 ? ' disabled' : '';
+            $pagination.append(
+                `<li class="page-item${prevDisabled}">
+                    <a class="page-link" href="javascript:void(0)" onclick="goToGodownPage(${currentPage - 1})">Previous</a>
+                </li>`
+            );
+
+            // Windowed Page Numbers
+            let maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = startPage + maxButtons - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            if (startPage > 1) {
+                $pagination.append(`<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="goToGodownPage(1)">1</a></li>`);
+                if (startPage > 2) {
+                    $pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                let active = p === currentPage ? ' active' : '';
+                $pagination.append(`<li class="page-item${active}"><a class="page-link" href="javascript:void(0)" onclick="goToGodownPage(${p})">${p}</a></li>`);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    $pagination.append(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+                $pagination.append(`<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="goToGodownPage(${totalPages})">${totalPages}</a></li>`);
+            }
+
+            // Next Button
+            let nextDisabled = currentPage === totalPages ? ' disabled' : '';
+            $pagination.append(
+                `<li class="page-item${nextDisabled}">
+                    <a class="page-link" href="javascript:void(0)" onclick="goToGodownPage(${currentPage + 1})">Next</a>
+                </li>`
+            );
+        }
+
+        function goToGodownPage(page) {
+            let totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+            renderPagination();
+        }
+
+        $('#searchGodown').on('input keyup', applyFilters);
+        $('#filterGodown').on('change', applyFilters);
+        $('#pageSizeGodown').on('change', function () {
+            pageSize = parseInt($(this).val()) || 10;
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        });
+
+        // PDF Export (Exports all filtered locations)
+        $('#btnPdf').click(function () {
+            if (!filteredData || filteredData.length === 0) {
+                alert("No data available to export.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            let body = filteredData.map((item, index) => [
+                index + 1,
+                item.LocationTitle || '',
+                item.GodownTitle || '',
+                item.GodownAddress || ''
+            ]);
+
             doc.setFontSize(14);
-            doc.text("Godown Report", 14, 12);
+            doc.text("Empty Location Report", 14, 12);
 
             doc.autoTable({
                 head: [['#', 'Location', 'Godown', 'Address']],
@@ -320,94 +426,87 @@
                 styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
                 headStyles: { fillColor: [13, 110, 253], textColor: 255, halign: 'center' },
                 columnStyles: {
-                    0: { cellWidth: 15 },
+                    0: { cellWidth: 15, halign: 'center' },
                     1: { cellWidth: 50 },
-                    2: { cellWidth: 45 },
-                    3: { cellWidth: 60 }
+                    2: { cellWidth: 50 },
+                    3: { cellWidth: 65 }
                 },
                 theme: 'grid'
             });
 
-            doc.save('Godown_Report.pdf');
+            doc.save('Empty_Location_Report.pdf');
         });
 
-        // ✅ Excel Export (Includes Group Headers)
+        // Excel Export (Exports all filtered locations)
         $('#btnExcel').click(function () {
-            let data = [];
-            data.push(['#', 'Location', 'Godown', 'Address']);
-
-            $('#tblPendingGodown tbody tr:visible').each(function () {
-                if ($(this).hasClass('group-header')) {
-                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
-                    data.push([cleanText, '', '', '']); // Span across row for Excel
-                } else {
-                    let tds = $(this).children('td');
-                    if (tds.length >= 4) {
-                        data.push([
-                            $(tds[0]).text().trim(),
-                            $(tds[1]).text().trim(),
-                            $(tds[2]).text().trim(),
-                            $(tds[3]).text().trim()
-                        ]);
-                    }
-                }
+            if (!filteredData || filteredData.length === 0) {
+                alert("No data available to export.");
+                return;
+            }
+            let data = [['#', 'Location', 'Godown', 'Address']];
+            filteredData.forEach((item, index) => {
+                data.push([
+                    index + 1,
+                    item.LocationTitle || '',
+                    item.GodownTitle || '',
+                    item.GodownAddress || ''
+                ]);
             });
 
             let ws = XLSX.utils.aoa_to_sheet(data);
             ws['!cols'] = [{ wch: 8 }, { wch: 25 }, { wch: 25 }, { wch: 35 }];
 
             let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Godown Report");
-            XLSX.writeFile(wb, "Godown_Report.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Empty Locations");
+            XLSX.writeFile(wb, "Empty_Location_Report.xlsx");
         });
 
-        // ✅ Print Function (Supports Groups)
+        // Print Function (Prints all filtered locations)
         $('#btnPrint').click(function () {
-            let printContent = `
-                    <html>
-                    <head>
-                        <title>Godown Report</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 20px; }
-                            h2 { text-align: center; color: #333; }
-                            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                            th, td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; font-size: 13px; }
-                            th { background-color: #0d6efd; color: white; text-align: center; }
-                            .group-header { background-color: #e7f1ff; font-weight: bold; color: #0d6efd; }
-                        </style>
-                    </head>
-                    <body>
-                        <h2>Godown Report</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width:50px;">#</th>
-                                    <th>Location</th>
-                                    <th>Godown</th>
-                                    <th>Address</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+            if (!filteredData || filteredData.length === 0) {
+                alert("No data available to print.");
+                return;
+            }
+            let rowsHtml = '';
+            filteredData.forEach((item, index) => {
+                rowsHtml += `
+                    <tr>
+                        <td style="text-align:center;">${index + 1}</td>
+                        <td>${item.LocationTitle || ''}</td>
+                        <td>${item.GodownTitle || ''}</td>
+                        <td>${item.GodownAddress || ''}</td>
+                    </tr>
                 `;
-
-            $('#tblPendingGodown tbody tr:visible').each(function () {
-                if ($(this).hasClass('group-header')) {
-                    let cleanText = $(this).clone().find('.toggle-btn').remove().end().text().trim();
-                    printContent += `<tr class="group-header"><td colspan="4">${cleanText}</td></tr>`;
-                } else {
-                    let tds = $(this).children('td');
-                    if (tds.length >= 4) {
-                        printContent += `<tr>
-                                <td>${$(tds[0]).text()}</td>
-                                <td>${$(tds[1]).text()}</td>
-                                <td>${$(tds[2]).text()}</td>
-                                <td>${$(tds[3]).text()}</td>
-                            </tr>`;
-                    }
-                }
             });
 
-            printContent += `</tbody></table></body></html>`;
+            let printContent = `
+                <html>
+                <head>
+                    <title>Empty Location Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h2 { text-align: center; color: #333; margin-bottom: 15px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        th, td { border: 1px solid #dee2e6; padding: 8px 12px; font-size: 13px; text-align: left; }
+                        th { background-color: #0d6efd; color: white; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Empty Location Report</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">#</th>
+                                <th>Location</th>
+                                <th>Godown</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </body>
+                </html>
+            `;
 
             let win = window.open('', '', 'width=900,height=700');
             win.document.write(printContent);

@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -177,6 +177,24 @@
                                                 <br>
                                                 <p id="PGodownTitle"> </p>
                                             </div>
+                                        </div>
+                                        <div class="col-12" id="divPhotoOfInwardContainer" style="display:none; margin-top: 10px;">
+                                            <div class="field-wrapper">
+                                                <label><b>Photo Of Inward:</b></label>
+                                                <div style="margin-top: 5px;">
+                                                    <a id="linkPhotoOfInward" href="javascript:void(0);" target="_blank" title="Click to view original image in new tab">
+                                                        <img id="imgPhotoOfInward" src="" alt="Photo Of Inward" style="max-height: 240px; max-width: 100%; border: 1px solid #ced4da; border-radius: 6px; padding: 4px; cursor: pointer; object-fit: contain; background: #fff;" />
+                                                    </a>
+                                                    <div style="margin-top: 6px;">
+                                                        <a id="btnViewOriginalPhoto" href="javascript:void(0);" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 12px;">
+                                                            <i class="fa fa-external-link"></i> View Original Image
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12" id="noPhotoOfInwardText" style="display:none; margin-top: 10px; color: #888; font-style: italic;">
+                                            <b>Photo Of Inward:</b> No image available
                                         </div>
                                     </div>
 
@@ -526,7 +544,16 @@
                         }
 
                         temp += "</div></td>";
-                        temp += "<td><img src='" + response.listYarnInwardMaster[i].PhotoOfInward + "' style='width:50px; height:50px;'></td>";
+                        var photo = (response.listYarnInwardMaster[i].PhotoOfInward || "").trim();
+                        if (photo && photo !== "" && photo !== "NULL") {
+                            var safePhoto = photo;
+                            if (!safePhoto.startsWith("/") && !safePhoto.startsWith("http")) {
+                                safePhoto = "/" + safePhoto;
+                            }
+                            temp += "<td><a href='" + safePhoto + "' target='_blank' title='Click to view original image'><img src='" + safePhoto + "' style='width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; cursor:pointer;'></a></td>";
+                        } else {
+                            temp += "<td><span class='text-muted' style='font-size:11px;'>No Photo</span></td>";
+                        }
                         temp += "<td>" + response.listYarnInwardMaster[i].ChallanNo + "</td>";
                         temp += "<td>" + response.listYarnInwardMaster[i].YarnPONo + "</td>";
                         temp += "<td>" + response.listYarnInwardMaster[i].ChallanDates + "</td>";
@@ -655,6 +682,12 @@
             $(".clear-field").removeClass("is-valid is-invalid");
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
+
+            $("#imgPhotoOfInward").attr("src", "");
+            $("#linkPhotoOfInward").attr("href", "javascript:void(0);");
+            $("#btnViewOriginalPhoto").attr("href", "javascript:void(0);");
+            $("#divPhotoOfInwardContainer").hide();
+            $("#noPhotoOfInwardText").hide();
         }
 
         function showRecords(id) {
@@ -742,6 +775,26 @@
                         $("#PLotNo").html("<b>Lot No: </b>" + response.listYarnInwardMaster[i].LotNo);
                         $("#PPendingWeight").html("<b>Pending Weight: </b>" + response.listYarnInwardMaster[i].PendingWeight);
                         $("#PGodownTitle").html("<b>Godown Title: </b>" + response.listYarnInwardMaster[i].GodownTitle);
+
+                        /* ---------- Photo Of Inward ---------- */
+                        var photoOfInward = (response.listYarnInwardMaster[i].PhotoOfInward || "").trim();
+                        if (photoOfInward && photoOfInward !== "" && photoOfInward !== "NULL") {
+                            var photoUrl = photoOfInward;
+                            if (!photoUrl.startsWith("/") && !photoUrl.startsWith("http")) {
+                                photoUrl = "/" + photoUrl;
+                            }
+                            $("#imgPhotoOfInward").attr("src", photoUrl);
+                            $("#linkPhotoOfInward").attr("href", photoUrl);
+                            $("#btnViewOriginalPhoto").attr("href", photoUrl);
+                            $("#divPhotoOfInwardContainer").show();
+                            $("#noPhotoOfInwardText").hide();
+                        } else {
+                            $("#imgPhotoOfInward").attr("src", "");
+                            $("#linkPhotoOfInward").attr("href", "javascript:void(0);");
+                            $("#btnViewOriginalPhoto").attr("href", "javascript:void(0);");
+                            $("#divPhotoOfInwardContainer").hide();
+                            $("#noPhotoOfInwardText").show();
+                        }
 
                         /* ---------- Yarn Requirement Detail  ---------- */
                         $("#tblYarnInward tbody").empty();

@@ -1,4 +1,4 @@
-﻿@{ Layout = "/_LayoutPage1.cshtml"; }
+@{ Layout = "/_LayoutPage1.cshtml"; }
 
 <div class="content-wrapper">
     <input type="hidden" id="rowStartCount" value="" />
@@ -1188,11 +1188,17 @@
 
                                         if (!ArrayYarnColor || !ArrayYarnColor[0]) return;
 
+                                        var seenColorIds = {};
                                         $.each(ArrayYarnColor[0], function (i, item) {
-                                            colorDDL.append($("<option>", {
-                                                value: item.YarnColorID,
-                                                text: item.YarnColor
-                                            }));
+                                            var itemColorId = parseInt(item.YarnColorID) || 0;
+                                            var colorName = (item.YarnColor || "").trim();
+                                            if (itemColorId > 0 && colorName !== "" && !seenColorIds[itemColorId]) {
+                                                seenColorIds[itemColorId] = true;
+                                                colorDDL.append($("<option>", {
+                                                    value: itemColorId,
+                                                    text: colorName
+                                                }));
+                                            }
                                         });
                                     }
                                     function BindYarnColorsByMaterial(rowNo, materialId, selectedColorId) {
@@ -1202,16 +1208,26 @@
 
                                         if (!ArrayYarnColor || !ArrayYarnColor[0]) return;
 
+                                        var matId = parseInt(materialId) || 0;
+                                        var seenColorIds = {};
+
                                         $.each(ArrayYarnColor[0], function (i, item) {
                                             var itemMaterialId = parseInt(item.YarnMaterialID) || 0;
                                             var itemColorId = parseInt(item.YarnColorID) || 0;
+                                            var colorName = (item.YarnColor || "").trim();
 
+                                            var matchMaterial = false;
                                             if (IsJobWork > 0) {
-                                                if (itemMaterialId === parseInt(materialId)) {
-                                                    colorDDL.append($("<option>", { value: itemColorId, text: item.YarnColor }));
-                                                }
+                                                matchMaterial = (itemMaterialId === matId);
                                             } else {
-                                                colorDDL.append($("<option>", { value: itemColorId, text: item.YarnColor }));
+                                                matchMaterial = (matId === 0 || itemMaterialId === matId);
+                                            }
+
+                                            if (matchMaterial) {
+                                                if (itemColorId > 0 && colorName !== "" && !seenColorIds[itemColorId]) {
+                                                    seenColorIds[itemColorId] = true;
+                                                    colorDDL.append($("<option>", { value: itemColorId, text: colorName }));
+                                                }
                                             }
                                         });
 
@@ -1220,18 +1236,10 @@
                                         }
                                     }
                                     function YarnColorChange(rowNo) {
-                                        debugger;
-                                        var materialId =
-                                            parseInt($("#yarnMaterial" + rowNo).val()) || 0;
-
-                                        var colorId =
-                                            parseInt($("#YarnColor" + rowNo).val()) || 0;
-
-                                        var $company =
-                                            $("#CompanyName" + rowNo);
-
-                                        var $colorCode =
-                                            $("#ColorCode" + rowNo);
+                                        var materialId = parseInt($("#yarnMaterial" + rowNo).val()) || 0;
+                                        var colorId = parseInt($("#YarnColor" + rowNo).val()) || 0;
+                                        var $company = $("#CompanyName" + rowNo);
+                                        var $colorCode = $("#ColorCode" + rowNo);
 
                                         // Clear Company
                                         $company.empty().append(
@@ -1240,10 +1248,11 @@
                                                 text: "Select Company"
                                             })
                                         );
-
                                         $colorCode.val("");
+                                        $("#CompanyID" + rowNo).val("0");
 
                                         if (materialId === 0 || colorId === 0) {
+                                            $company.prop("disabled", true);
                                             return;
                                         }
 
@@ -1251,186 +1260,95 @@
                                             return;
                                         }
 
-                                        var yarnColor = null;
+                                        // Find all distinct companies matching this material and color
+                                        var matchingCompanies = [];
+                                        var seenCompanyIds = {};
 
                                         $.each(ArrayYarnColor[0], function (i, item) {
+                                            var itemMaterialId = parseInt(item.YarnMaterialID) || 0;
+                                            var itemColorId = parseInt(item.YarnColorID) || 0;
+                                            var compId = parseInt(item.CompanyId) || 0;
+                                            var compName = (item.CompanyName || "").trim();
+                                            var compCode = (item.CompanyCode || "").trim();
 
-                                            var itemMaterialId =
-                                                parseInt(item.YarnMaterialID) || 0;
-
-                                            var itemColorId =
-                                                parseInt(item.YarnColorID) || 0;
-
-                                            if (
-                                                itemMaterialId === materialId &&
-                                                itemColorId === colorId
-                                            ) {
-                                                yarnColor = item;
-                                                return false;
+                                            if (itemMaterialId === materialId && itemColorId === colorId) {
+                                                if (compId > 0 && compName !== "" && !seenCompanyIds[compId]) {
+                                                    seenCompanyIds[compId] = true;
+                                                    matchingCompanies.push({
+                                                        CompanyId: compId,
+                                                        CompanyName: compName,
+                                                        CompanyCode: compCode
+                                                    });
+                                                }
                                             }
-
                                         });
 
-                                        if (!yarnColor) {
-                                            console.log(
-                                                "Yarn Color not found:",
-                                                materialId,
-                                                colorId
-                                            );
+                                        if (matchingCompanies.length === 0) {
+                                            console.log("No companies found for material:", materialId, "color:", colorId);
+                                            $company.prop("disabled", true);
                                             return;
                                         }
 
-                                        console.log("Selected Yarn Color:", yarnColor);
-
-                                        // =====================================================
-                                        // COMPANY DATA
-                                        // CompanyId = actual Company ID
-                                        // CompanyName = display name
-                                        // CompanyCode = color/company code
-                                        // =====================================================
-
-                                        var companyId =
-                                            parseInt(yarnColor.CompanyId) || 0;
-
-                                        var companyName =
-                                            yarnColor.CompanyName || "";
-
-                                        var companyCode =
-                                            yarnColor.CompanyCode || "";
-
-                                        // Bind Company
-                                        if (companyId > 0 && companyName !== "") {
-
+                                        // Populate all matching companies into dropdown
+                                        $.each(matchingCompanies, function (i, comp) {
                                             $company.append(
                                                 $("<option>", {
-                                                    value: companyId,
-                                                    text: companyName
+                                                    value: comp.CompanyId,
+                                                    text: comp.CompanyName,
+                                                    "data-companycode": comp.CompanyCode
                                                 })
                                             );
-
-                                            // Automatically select company
-                                            $company.val(String(companyId));
-
-                                            // Call company change
-                                            YarnCompanyChange(rowNo);
-                                        }
-
-                                        // Bind Company Code
-                                        $colorCode.val(companyCode);
-
-                                    }
-                                    function YarnPOCompany(rowNo) {
-
-                                        var materialId =
-                                            parseInt($("#yarnMaterial" + rowNo).val()) || 0;
-
-                                        var colorId =
-                                            parseInt($("#YarnColor" + rowNo).val()) || 0;
-
-                                        var $company =
-                                            $("#CompanyName" + rowNo);
-
-                                        var $colorCode =
-                                            $("#ColorCode" + rowNo);
-
-                                        // Clear
-                                        $company.empty().append(
-                                            $("<option>", {
-                                                value: "0",
-                                                text: "Select Company"
-                                            })
-                                        );
-
-                                        $colorCode.val("");
-
-                                        if (materialId === 0 || colorId === 0) {
-                                            return false;
-                                        }
-
-                                        if (!ArrayYarnColor || !ArrayYarnColor[0]) {
-                                            return false;
-                                        }
-
-                                        var companyFound = false;
-
-                                        $.each(ArrayYarnColor[0], function (i, item) {
-
-                                            var itemMaterialId =
-                                                parseInt(item.YarnMaterialID) || 0;
-
-                                            var itemColorId =
-                                                parseInt(item.YarnColorID) || 0;
-
-                                            if (
-                                                itemMaterialId === materialId &&
-                                                itemColorId === colorId
-                                            ) {
-
-                                                var companyId =
-                                                    parseInt(item.CompanyId) || 0;
-
-                                                var companyName =
-                                                    item.CompanyName || "";
-
-                                                var companyCode =
-                                                    item.CompanyCode || "";
-
-                                                if (
-                                                    companyId > 0 &&
-                                                    companyName !== ""
-                                                ) {
-
-                                                    $company.append(
-                                                        $("<option>", {
-                                                            value: companyId,
-                                                            text: companyName
-                                                        })
-                                                    );
-
-                                                    $company.val(
-                                                        String(companyId)
-                                                    );
-
-                                                    $colorCode.val(
-                                                        companyCode
-                                                    );
-
-                                                    companyFound = true;
-
-                                                    console.log(
-                                                        "Company Bind:",
-                                                        {
-                                                            CompanyId: companyId,
-                                                            CompanyName: companyName,
-                                                            CompanyCode: companyCode
-                                                        }
-                                                    );
-
-                                                    return false;
-                                                }
-
-                                            }
-
                                         });
 
-                                        return companyFound;
+                                        // Enable company dropdown so user can select if multiple companies exist
+                                        $company.prop("disabled", false);
+
+                                        if (matchingCompanies.length === 1) {
+                                            // If only 1 company, select it automatically and populate code
+                                            $company.val(String(matchingCompanies[0].CompanyId));
+                                            $("#CompanyID" + rowNo).val(String(matchingCompanies[0].CompanyId));
+                                            $colorCode.val(matchingCompanies[0].CompanyCode);
+                                        } else {
+                                            // If multiple companies exist, prompt user to choose
+                                            $company.val("0");
+                                            $("#CompanyID" + rowNo).val("0");
+                                            $colorCode.val("");
+                                        }
+                                    }
+                                    function YarnPOCompany(rowNo) {
+                                        return false;
                                     }
                                     function YarnCompanyChange(rowNo) {
+                                        var selectedCompanyId = parseInt($("#CompanyName" + rowNo).val()) || 0;
+                                        var $colorCode = $("#ColorCode" + rowNo);
 
-                                        var companyId =
-                                            $("#CompanyName" + rowNo).val() || "0";
+                                        $("#CompanyID" + rowNo).val(String(selectedCompanyId));
 
+                                        if (selectedCompanyId === 0) {
+                                            $colorCode.val("");
+                                            return;
+                                        }
 
-                                        /*
-                                         * Here companyId is actual CompanyID.
-                                         * No company name save/use for database.
-                                         */
+                                        var selectedOption = $("#CompanyName" + rowNo + " option:selected");
+                                        var code = selectedOption.attr("data-companycode");
 
-                                        console.log(
-                                            "Selected CompanyID:",
-                                            companyId
-                                        );
-
+                                        if (code !== undefined && code !== null && code !== "") {
+                                            $colorCode.val(code);
+                                        } else {
+                                            var materialId = parseInt($("#yarnMaterial" + rowNo).val()) || 0;
+                                            var colorId = parseInt($("#YarnColor" + rowNo).val()) || 0;
+                                            if (ArrayYarnColor && ArrayYarnColor[0]) {
+                                                $.each(ArrayYarnColor[0], function (i, item) {
+                                                    var itemMaterialId = parseInt(item.YarnMaterialID) || 0;
+                                                    var itemColorId = parseInt(item.YarnColorID) || 0;
+                                                    var compId = parseInt(item.CompanyId) || 0;
+                                                    if (itemMaterialId === materialId && itemColorId === colorId && compId === selectedCompanyId) {
+                                                        $colorCode.val(item.CompanyCode || "");
+                                                        return false;
+                                                    }
+                                                });
+                                            }
+                                        }
                                     }
                                     function FunctionIsLogin() {
                                         $.ajax({
@@ -1450,23 +1368,41 @@
                                         var formData = new FormData();
                                         $.ajax({
                                             type: "POST",
-                                            url: '/WebServiceNikunjTextile.asmx/getPartyDetails',
+                                            url: '/WebServiceNikunjTextile.asmx/getJobberDetailsForYarnRequirement',
                                             data: formData,
                                             dataType: 'json',
                                             contentType: false,
                                             processData: false,
                                             success: function (response) {
-                                                if (response.Code == "200") {
+                                                if (response.Code == "200" || response.Code == 200) {
                                                     $('#ddlParty').empty();
-                                                    $('#ddlParty').append($("<option>", { value: "", text: "Select Party Name" }));
+                                                    cachedJobbersList = response.listJobber || [];
 
-                                                    if (response.listPartyMaster && response.listPartyMaster.length > 0) {
-                                                        $.each(response.listPartyMaster, function (i, item) {
+                                                    var jobbers = response.listJobber || [];
+                                                    var isJobberUser = response.IsJobber || false;
+
+                                                    if (!isJobberUser && jobbers.length > 1) {
+                                                        $('#ddlParty').append($("<option>", { value: "", text: "Select Party Name" }));
+                                                    }
+
+                                                    if (jobbers.length > 0) {
+                                                        $.each(jobbers, function (i, item) {
                                                             $('#ddlParty').append($("<option>", {
-                                                                value: item.PartyId,
+                                                                value: item.Id,
                                                                 text: item.PartyName
                                                             }));
                                                         });
+
+                                                        if (isJobberUser || jobbers.length === 1) {
+                                                            var firstJobber = jobbers[0];
+                                                            $('#ddlParty').val(String(firstJobber.Id));
+                                                            $('#ddlParty').prop('disabled', true);
+                                                            populateJobberUI(firstJobber);
+                                                        } else {
+                                                            $('#ddlParty').prop('disabled', false);
+                                                        }
+                                                    } else {
+                                                        $('#ddlParty').append($("<option>", { value: "", text: "No Jobbers Found" }));
                                                     }
                                                 }
                                                 if (typeof callback === "function") {
@@ -1481,30 +1417,84 @@
                                             }
                                         });
                                     }
-                                    function functionParty(abc) {
-                                        if (abc == "") {
+
+                                    function populateJobberUI(jobber) {
+                                        if (!jobber) {
                                             $("#DivLblPartyDetails").hide();
                                             return;
                                         }
+
+                                        $("#DivLblPartyDetails").show();
+                                        $('#hPartyId').val(jobber.Id || jobber.PartyId || "");
+
+                                        var mob = jobber.MobileNumber || jobber.MobileNo || "";
+                                        if (jobber.AlternateNumber && jobber.AlternateNumber.trim() !== "") {
+                                            mob += (mob ? " / " : "") + jobber.AlternateNumber;
+                                        } else if (jobber.AlterMobileNo && jobber.AlterMobileNo.trim() !== "") {
+                                            mob += (mob ? " / " : "") + jobber.AlterMobileNo;
+                                        }
+
+                                        $('#PMobileNo').html("<b>Mobile No: </b>" + mob);
+                                        $('#PEmail').html("<b>Email : </b>" + (jobber.Email || ""));
+                                        $("#PBillingAddress").html("<b>Address : </b>" + (jobber.BillingAddress || ""));
+                                        $('#PState').html("<b>Place of Supply : </b>" + (jobber.PlaceOfSupply || jobber.State || ""));
+                                        $('#PGSTIN').html("<b>GST : </b>" + (jobber.Gstin || jobber.GSTIN || ""));
+                                        $('#divPartyName').html(jobber.PartyName || "");
+                                    }
+
+                                    function functionParty(abc) {
+                                        if (!abc || abc == "" || abc == "0") {
+                                            $("#DivLblPartyDetails").hide();
+                                            return;
+                                        }
+
+                                        // 1. Search cached jobbers
+                                        if (cachedJobbersList && cachedJobbersList.length > 0) {
+                                            var found = cachedJobbersList.find(function (j) {
+                                                return String(j.Id) === String(abc) || String(j.PartyId) === String(abc);
+                                            });
+                                            if (found) {
+                                                populateJobberUI(found);
+                                                return;
+                                            }
+                                        }
+
+                                        // 2. Fallback to GetJobberById API
                                         $.ajax({
-                                            type: "GET",
-                                            url: '/WebServiceNikunjTextile.asmx/getPartyMasterById?id=' + abc,
-                                            dataType: 'json',
-                                            contentType: false,
-                                            processData: false,
+                                            type: "POST",
+                                            url: "/WebServiceNikunjTextile.asmx/GetJobberById",
+                                            data: JSON.stringify({ id: parseInt(abc, 10) }),
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
                                             success: function (response) {
-                                                if (response.Code == 200 || response.Code == "200") {
-                                                    $("#DivLblPartyDetails").show();
-                                                    $('#hPartyId').val(response.listPartyMaster[0].PartyId);
-                                                    $('#PMobileNo').html("<b>Mobile No: </b>" + response.listPartyMaster[0].MobileNo + " / " + response.listPartyMaster[0].AlterMobileNo);
-                                                    $('#PEmail').html("<b>Email : </b>" + response.listPartyMaster[0].Email);
-                                                    $("#PBillingAddress").html("<b>Address : </b>" + response.listPartyMaster[0].BillingAddress);
-                                                    $('#PState').html("<b>State : </b>" + response.listPartyMaster[0].State);
-                                                    $('#PGSTIN').html("<b>GSTIn : </b>" + response.listPartyMaster[0].GSTIN);
-                                                    $('#divPartyName').html(response.listPartyMaster[0].PartyName);
-                                                } else {
-                                                    $("#DivLblPartyDetails").hide();
+                                                var jobber = response.d || response;
+                                                if (typeof jobber === "string") {
+                                                    try { jobber = JSON.parse(jobber); } catch (e) { }
                                                 }
+                                                if (jobber && (jobber.Id || jobber.PartyId)) {
+                                                    populateJobberUI(jobber);
+                                                } else {
+                                                    $.ajax({
+                                                        type: "GET",
+                                                        url: '/WebServiceNikunjTextile.asmx/getPartyMasterById?id=' + abc,
+                                                        dataType: 'json',
+                                                        contentType: false,
+                                                        processData: false,
+                                                        success: function (pResp) {
+                                                             if ((pResp.Code == 200 || pResp.Code == "200") && pResp.listPartyMaster && pResp.listPartyMaster.length > 0) {
+                                                                populateJobberUI(pResp.listPartyMaster[0]);
+                                                            } else {
+                                                                $("#DivLblPartyDetails").hide();
+                                                            }
+                                                        },
+                                                        error: function () {
+                                                            $("#DivLblPartyDetails").hide();
+                                                        }
+                                                    });
+                                                }
+                                            },
+                                            error: function () {
+                                                $("#DivLblPartyDetails").hide();
                                             }
                                         });
                                     }
@@ -1648,22 +1638,10 @@
 
                                         var companyNameText = $company.is("select") ? $company.find("option:selected").text().trim() : ($company.val() || "");
 
-                                        // Look up the exact numeric Company ID from ArrayYarnColor master list
-                                        var companyIdValue = "0";
-                                        if (ArrayYarnColor && ArrayYarnColor[0]) {
-                                            $.each(ArrayYarnColor[0], function (i, item) {
-                                                var itemMatId = parseInt(item.YarnMaterialID, 10) || 0;
-                                                var itemColId = parseInt(item.YarnColorID, 10) || 0;
-                                                if (itemMatId === materialId && itemColId === colorId) {
-                                                    companyIdValue = String(parseInt(item.CompanyId || item.CompanyID || item.PartyId || 0, 10) || 0);
-                                                    return false;
-                                                }
-                                            });
-                                        }
-
-                                        // Fallback to hidden field if array lookup was 0
-                                        if (companyIdValue === "0" && $("#CompanyID1").length) {
-                                            companyIdValue = $("#CompanyID1").val() || "0";
+                                        var companyIdValue = $company.is("select") ? ($company.val() || "0") : ($("#CompanyID1").val() || "0");
+                                        if (companyNameText === "Select Company" || companyIdValue === "0") {
+                                            companyIdValue = "0";
+                                            companyNameText = "";
                                         }
 
                                         var codeValue = colorCode.val() || "";
@@ -1739,11 +1717,13 @@
                                         $("#yarnMaterial1").val(String(materialId));
                                         BindYarnColorsByMaterial(1, materialId, colorId);
                                         $("#YarnColor1").val(String(colorId));
+                                        YarnColorChange(1);
 
                                         var $company = $("#CompanyName1");
                                         if ($company.is("select")) {
-                                            $company.empty().append($("<option>", { value: companyId, text: companyName }));
-                                            $company.val(String(companyId));
+                                            if (companyId > 0) {
+                                                $company.val(String(companyId));
+                                            }
                                         } else {
                                             $company.val(companyName);
                                         }
@@ -1847,7 +1827,7 @@
                                         }
                                         var $company = $("#CompanyName1");
                                         if ($company.is("select")) {
-                                            $company.empty().append($("<option>", { value: "0", text: "Select Company" }));
+                                            $company.empty().append($("<option>", { value: "0", text: "Select Company" })).prop("disabled", true);
                                         } else {
                                             $company.val("");
                                         }
@@ -1889,7 +1869,10 @@
                                                 $("#InvoiceDate").val(master.RequirementDates || "");
                                                 $("#RequirementNo").val(master.RequirementNo || "");
                                                 $("#ddlParty").val(String(master.PartyId || ""));
-                                                $("#ddlParty").trigger("change");
+                                                $("#hPartyId").val(String(master.PartyId || ""));
+                                                if (master.PartyId) {
+                                                    functionParty(master.PartyId);
+                                                }
 
                                                 $("#divPartyName").html(master.PartyName || "Party Detail");
                                                 $("#PMobileNo").html("<b>Mobile No: </b>" + (master.MobileNo || ""));

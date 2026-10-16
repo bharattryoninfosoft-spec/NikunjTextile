@@ -137,17 +137,16 @@
         border: 1px solid #aeb9c6 !important;
     }
 
-    /* COLUMN WIDTHS FOR ENTRY TABLE */
+    /* COLUMN WIDTHS FOR ENTRY TOP TABLE */
     #tblOrderListTable th:nth-child(1), #tblOrderListTable td:nth-child(1) { width: 38px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(2), #tblOrderListTable td:nth-child(2) { width: 75px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(3), #tblOrderListTable td:nth-child(3) { width: 115px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(4), #tblOrderListTable td:nth-child(4) { width: 85px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(5), #tblOrderListTable td:nth-child(5) { width: 95px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(6), #tblOrderListTable td:nth-child(6) { width: 180px !important; text-align: left !important; }
-    #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) { width: 80px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) { width: 95px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(9), #tblOrderListTable td:nth-child(9) { width: 90px !important; text-align: center !important; }
-    #tblOrderListTable th:nth-child(10), #tblOrderListTable td:nth-child(10) { width: 95px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(2), #tblOrderListTable td:nth-child(2) { width: 115px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(3), #tblOrderListTable td:nth-child(3) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(4), #tblOrderListTable td:nth-child(4) { width: 100px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(5), #tblOrderListTable td:nth-child(5) { width: 220px !important; text-align: left !important; }
+    #tblOrderListTable th:nth-child(6), #tblOrderListTable td:nth-child(6) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) { width: 95px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) { width: 85px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(9), #tblOrderListTable td:nth-child(9) { width: 95px !important; text-align: center !important; }
 
     #tblOrderListTable input[type="checkbox"] {
         width: 14px !important;
@@ -267,69 +266,53 @@
                     </div>
 
                     <div class="row gutters mt-2">
-                        <!-- LEFT PANEL: ISSUE DETAILS & SEARCH FILTERS -->
-                        <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 production-left-panel">
-                            
-                            <!-- SECTION 1: HEADER ISSUE DETAILS -->
+                        <!-- LEFT PANEL: FILTERS -->
+                        <div class="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 production-left-panel">
+                            <!-- SECTION 1: ISSUE DETAILS -->
                             <div class="filter-section-card">
                                 <div class="form-section-header-sub mb-2">
-                                    <i class="fa fa-user-circle me-1"></i> Issue Header Details
+                                    <i class="fa fa-user-circle me-1"></i> Issue Details
                                 </div>
                                 <div class="field-wrapper">
-                                    <div class="field-placeholder">Jobber (From) <span class="text-danger">*</span></div>
-                                    <select id="txtJobWorker" class="select-single detail w-100">
-                                        <option value="">-- Select Jobber --</option>
-                                    </select>
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">Process <span class="text-danger">*</span></div>
-                                    <select id="ddlProcess" class="select-single detail w-100">
-                                        <option value="">-- Select Process --</option>
-                                    </select>
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">Processor (To) <span class="text-danger">*</span></div>
+                                    <div class="field-placeholder">Processor Name <span class="text-danger">*</span></div>
                                     <select id="ddlProcessor" class="select-single detail w-100">
                                         <option value="">-- Select Processor --</option>
                                     </select>
                                 </div>
                                 <div class="field-wrapper">
-                                    <div class="field-placeholder">Job Type</div>
-                                    <select id="ddlJobType" class="select-single detail w-100">
-                                        <option value="BORDER AND BUTTA CUTTING BOTH">BORDER AND BUTTA CUTTING BOTH</option>
-                                        <option value="ONLY BUTTA CUTTING">ONLY BUTTA CUTTING</option>
-                                        <option value="ONLY BORDER CUTTING">ONLY BORDER CUTTING</option>
-                                        <option value="DECO PROCESS">DECO PROCESS</option>
-                                        <option value="EMBROIDERY WORK">EMBROIDERY WORK</option>
-                                        <option value="PRINTING WORK">PRINTING WORK</option>
-                                    </select>
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">Challan Date</div>
+                                    <div class="field-placeholder">Challan Date <span class="text-danger">*</span></div>
                                     <input type="date" id="txtChallanDate" class="wl-input-sm w-100" />
                                 </div>
-                                <div class="field-wrapper mb-0">
-                                    <div class="field-placeholder">Remark</div>
-                                    <input type="text" id="txtRemark" class="wl-input-sm w-100" placeholder="Optional remark..." />
+                                <div class="field-wrapper">
+                                    <div class="field-placeholder">Challan No</div>
+                                    <input type="text" id="txtChallanNo" class="wl-input-sm w-100 bg-light" readonly placeholder="Auto (e.g. BC0001)" />
+                                </div>
+                                <div class="field-wrapper mb-2">
+                                    <div class="field-placeholder">Process Type <span class="text-danger">*</span></div>
+                                    <select id="ddlProcess" class="select-single detail w-100">
+                                        <option value="">-- Select Process Type --</option>
+                                    </select>
+                                </div>
+
+                                <!-- Background fields to preserve compatibility -->
+                                <div style="display: none;">
+                                    <select id="txtJobWorker"><option value="">-- Select Jobber --</option></select>
+                                    <select id="ddlJobType"><option value="BORDER AND BUTTA CUTTING BOTH">BORDER AND BUTTA CUTTING BOTH</option></select>
+                                    <input type="text" id="txtRemark" value="" />
+                                    <input type="text" id="txtBarcodeScan" value="" />
+                                    <select id="filterBarcode"><option value="">-- ALL --</option></select>
+                                    <input type="text" id="filterSONumber" value="" />
                                 </div>
                             </div>
 
-                            <!-- SECTION 2: SEARCH FILTERS & BARCODE SCAN -->
+                            <!-- SECTION 2: SEARCH FILTERS -->
                             <div class="filter-section-card">
                                 <div class="form-section-header-sub text-secondary mb-2">
-                                    <i class="fa fa-filter me-1"></i> Stock Filters & Barcode Scan
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">Barcode / Slip Scan</div>
-                                    <input type="text" id="txtBarcodeScan" class="wl-input-sm w-100 border-primary" placeholder="Scan Barcode / Slip..." autocomplete="off" />
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">SO Number</div>
-                                    <input type="text" id="filterSONumber" class="wl-input-sm w-100" placeholder="Search SO No..." />
+                                    <i class="fa fa-filter me-1"></i> Search Filters
                                 </div>
                                 <div class="field-wrapper">
                                     <div class="field-placeholder">Design No</div>
-                                    <select id="filterDesignNo" class="select-single detail w-100">
+                                    <select id="filterDesignNo" class="select-single detail w-100" data-live-search="true">
                                         <option value="">-- ALL --</option>
                                     </select>
                                 </div>
@@ -351,59 +334,59 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT PANEL: MAIN STOCK TABLES -->
-                        <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12 ps-lg-2">
+                        <!-- RIGHT PANEL: MAIN TABLES -->
+                        <div class="col-xl-10 col-lg-9 col-md-12 col-sm-12 col-12 ps-lg-2">
                             <div class="form-section-header">
-                                <span>Eligible Jobber Stock Slips</span>
-                                <span class="badge bg-primary font-weight-normal text-white" style="font-size:11px;" id="lblPendingCount">Select Jobber, Process & Processor</span>
+                                <span>ProductionSlip Details</span>
+                                <span class="badge bg-primary font-weight-normal text-white" style="font-size:11px;" id="lblPendingCount">0 Slips Available</span>
                             </div>
                             <div class="order-table-scroll">
                                 <table id="tblOrderListTable" class="table table-bordered table-sm">
                                     <thead>
                                         <tr>
                                             <th><input type="checkbox" id="chkSelectAll" /></th>
-                                            <th>SO NO</th>
                                             <th>SLIP NO</th>
                                             <th>MACHINE NO</th>
                                             <th>DESIGN NO</th>
-                                            <th>COLOUR MATCHING</th>
-                                            <th>PROD PCS</th>
-                                            <th>JOBBER STOCK</th>
-                                            <th>ISSUED PCS</th>
+                                            <th>COLOUR MATCHING ID</th>
+                                            <th>ORDER PCS</th>
+                                            <th>PREV ISSUE PCS</th>
+                                            <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblOrderListBody">
-                                        <tr><td colspan="10" class="text-center text-muted py-3">Please select Jobber, Process and Processor from the left panel to load eligible stock.</td></tr>
+                                        <tr><td colspan="9" class="text-center text-muted py-3">Loading production slip data...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
 
                             <div class="form-section-header mt-3">
-                                <span>Assigned Allotment Summary</span>
+                                <span>Assing JOBBER TO PROCESS</span>
                             </div>
                             <div class="production-report-scroll">
                                 <table id="tblProductionReportTable" class="table table-bordered table-sm">
                                     <thead>
                                         <tr>
-                                            <th>SO NO</th>
                                             <th>SLIP NO</th>
                                             <th>MACHINE NO</th>
                                             <th>DESIGN NO</th>
-                                            <th>COLOUR MATCHING</th>
-                                            <th>PROD PCS</th>
-                                            <th>JOBBER STOCK</th>
+                                            <th>COLOUR MATCHING ID</th>
+                                            <th>ORDER PCS</th>
+                                            <th>PREV ISSUE PCS</th>
+                                            <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblProductionReportBody">
-                                        <tr><td colspan="8" class="text-center text-muted py-3">No items selected for process allotment yet.</td></tr>
+                                        <tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="5" class="text-end font-weight-bold">TOTAL</td>
+                                            <td colspan="4" class="text-end font-weight-bold">TOTAL</td>
                                             <td id="lblTotalOrderPcs" class="text-center font-weight-bold">0</td>
-                                            <td id="lblTotalJobberStockPcs" class="text-center font-weight-bold text-secondary">0</td>
+                                            <td id="lblTotalIssuedPcs" class="text-center font-weight-bold text-secondary">0</td>
+                                            <td id="lblTotalPendingPcs" class="text-center font-weight-bold text-danger">0</td>
                                             <td id="lblTotalPcs" class="text-center font-weight-bold text-primary">0</td>
                                         </tr>
                                     </tfoot>
@@ -448,7 +431,7 @@
 @section Scripts{
 <script>
     $(document).ready(function () {
-        $('body').removeClass('fullscreen');
+        $('body').addClass('fullscreen');
 
         function getQueryString(name) {
             var urlParams = new URLSearchParams(window.location.search);
@@ -490,22 +473,24 @@
                     var data = res.d || res;
                     if (data) {
                         if (data.Processes && data.Processes.length > 0) {
-                            var $proc = $('#ddlProcess').empty().append('<option value="">-- Select Process --</option>');
+                            var $proc = $('#ddlProcess').empty().append('<option value="">-- Select Process Type --</option>');
+                            var defaultProcId = "";
                             $.each(data.Processes, function (i, p) {
                                 $proc.append('<option value="' + p.ProcessID + '">' + p.ProcessName + '</option>');
+                                if (!defaultProcId && p.ProcessName && p.ProcessName.toUpperCase().indexOf('BUTTA') >= 0) {
+                                    defaultProcId = p.ProcessID;
+                                }
                             });
+                            if ((!editId || parseInt(editId) <= 0) && defaultProcId) {
+                                $proc.val(defaultProcId);
+                            }
                         }
                         if (data.Jobbers && data.Jobbers.length > 0) {
                             var $jobber = $('#txtJobWorker').empty();
-                            if (data.Jobbers.length > 1) {
-                                $jobber.append('<option value="">-- Select Jobber --</option>');
-                            }
                             $.each(data.Jobbers, function (i, j) {
                                 $jobber.append('<option value="' + j.JobberID + '">' + j.JobberName + '</option>');
                             });
-                            if (data.Jobbers.length === 1) {
-                                $jobber.val(data.Jobbers[0].JobberID).prop('disabled', true);
-                            }
+                            $jobber.val(data.Jobbers[0].JobberID);
                         }
                         if (data.Processors && data.Processors.length > 0) {
                             var $processor = $('#ddlProcessor').empty().append('<option value="">-- Select Processor --</option>');
@@ -525,6 +510,12 @@
                                 $mch.append('<option value="' + m.MachineNumber + '">Machine #' + m.MachineNumber + '</option>');
                             });
                         }
+                        if (data.Barcodes && data.Barcodes.length > 0) {
+                            var $bc = $('#filterBarcode').empty().append('<option value="">-- ALL --</option>');
+                            $.each(data.Barcodes, function (i, b) {
+                                $bc.append('<option value="' + b.Barcode + '">' + b.Barcode + '</option>');
+                            });
+                        }
                     }
                     if (callback) callback();
                 },
@@ -534,7 +525,27 @@
             });
         }
 
-        $('#txtJobWorker, #ddlProcess, #ddlProcessor').change(function () {
+        function loadNextChallanNo(pId) {
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetNextJobberToProcessChallanNo",
+                data: JSON.stringify({ processID: pId || 0 }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var r = res.d || res;
+                    if (r && r.ChallanNo) {
+                        $('#txtChallanNo').val(r.ChallanNo);
+                    }
+                }
+            });
+        }
+
+        $('#ddlProcess').change(function () {
+            var pId = parseInt($(this).val()) || 0;
+            if (!editId || parseInt(editId) <= 0) {
+                loadNextChallanNo(pId);
+            }
             fetchAndMergePendingSlips();
         });
 
@@ -553,13 +564,16 @@
                             if (r.Master.JobberID) $('#txtJobWorker').val(String(r.Master.JobberID));
                             if (r.Master.ProcessID) $('#ddlProcess').val(String(r.Master.ProcessID));
                             if (r.Master.ProcessorID) $('#ddlProcessor').val(String(r.Master.ProcessorID));
+                            if (r.Master.ProcessTransactionNo) $('#txtChallanNo').val(r.Master.ProcessTransactionNo);
                             $('#ddlJobType').val(r.Master.JobType || "BORDER AND BUTTA CUTTING BOTH");
                             if (r.Master.TransactionDate) $('#txtChallanDate').val(r.Master.TransactionDate);
                             $('#lblPageHeader').text('EDIT JOBBER TO PROCESS ISSUE (CHALLAN: ' + r.Master.ProcessTransactionNo + ')');
 
                             if (Array.isArray(r.Details)) {
                                 $.each(r.Details, function (i, d) {
-                                    var origPcs = parseFloat(d.ProductionPCS || d.PCS || 0);
+                                    var origPcs = parseFloat(d.PCS || d.ProductionPCS || 0);
+                                    var issuedOther = parseFloat(d.IssuedPCS || 0);
+                                    var pendPcs = parseFloat(d.PendingPCS || (origPcs - issuedOther));
                                     var curIssue = parseFloat(d.IssuePCS || d.AllottedPcs || 0);
 
                                     allSlipsList.push({
@@ -572,13 +586,12 @@
                                         ColourMatchingID: d.ColourMatchingID || 0,
                                         ColourMatchingName: d.ColourMatchingName || "-",
                                         PhotoPath: d.PhotoPath || "",
-                                        ProductionPCS: origPcs,
-                                        JobberStockPCS: origPcs,
-                                        AlreadyIssuedPCS: 0,
-                                        PendingIssuePCS: origPcs,
+                                        PCS: origPcs,
+                                        IssuedPCS: issuedOther,
+                                        PendingPCS: pendPcs,
                                         AllottedPcs: curIssue,
                                         IsChecked: true,
-                                        SONumber: d.SONumber || "SO36"
+                                        IsExistingInChallan: true
                                     });
                                 });
                             }
@@ -590,32 +603,26 @@
                     }
                 });
             } else {
+                loadNextChallanNo(0);
                 fetchAndMergePendingSlips();
             }
         }
 
         function fetchAndMergePendingSlips() {
-            var jobberId = parseInt($('#txtJobWorker').val()) || 0;
             var processId = parseInt($('#ddlProcess').val()) || 0;
-            var processorId = parseInt($('#ddlProcessor').val()) || 0;
-
-            if (jobberId <= 0 || processId <= 0 || processorId <= 0) {
-                $('#lblPendingCount').text('Select Jobber, Process & Processor');
-                renderSlipsTable(allSlipsList);
-                return;
-            }
 
             var req = {
-                jobberID: jobberId,
+                jobberID: 0,
                 processID: processId,
-                processorID: processorId,
+                processorID: 0,
                 productionOrderID: 0,
                 slipNo: $('#filterSlipNo').val() || "",
-                soNumber: $('#filterSONumber').val() || "",
+                soNumber: "",
                 designNo: $('#filterDesignNo').val() || "",
                 machineNumber: parseInt($('#filterMachineNo').val()) || 0,
                 fromDate: "",
-                toDate: ""
+                toDate: "",
+                barcode: ""
             };
 
             $.ajax({
@@ -626,6 +633,11 @@
                 dataType: "json",
                 success: function (res) {
                     var data = res.d || res;
+                    if (!editId || parseInt(editId) <= 0) {
+                        allSlipsList = [];
+                    } else {
+                        allSlipsList = allSlipsList.filter(function (x) { return x.IsExistingInChallan; });
+                    }
                     if (Array.isArray(data)) {
                         $.each(data, function (i, newItem) {
                             var exists = false;
@@ -656,13 +668,12 @@
             var $tbody = $('#tblOrderListBody').empty();
 
             if (!list || list.length === 0) {
-                $tbody.append('<tr><td colspan="10" class="text-center text-muted py-3">No eligible stock slips available.</td></tr>');
+                $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No pending slips available.</td></tr>');
                 $('#lblPendingCount').text('0 Slips Available');
                 renderSummaryTable();
                 return;
             }
 
-            var soFilter = ($('#filterSONumber').val() || '').toLowerCase().trim();
             var designFilter = $('#filterDesignNo').val() || '';
             var slipFilter = ($('#filterSlipNo').val() || '').toLowerCase().trim();
             var machineFilter = $('#filterMachineNo').val() || '';
@@ -671,26 +682,25 @@
             var visibleCount = 0;
 
             $.each(list, function (idx, r) {
-                var slipNoVal = (r.SlipNo && r.SlipNo !== '-') ? r.SlipNo : ('SO36-01-' + String(idx + 1).padStart(2, '0'));
+                var slipNoVal = (r.SlipNo && r.SlipNo !== '-') ? r.SlipNo : ('SO14-01-' + String(idx + 1).padStart(2, '0'));
+                if (slipNoVal && slipNoVal.toUpperCase().indexOf('SO') !== 0) {
+                    slipNoVal = 'SO' + slipNoVal;
+                }
                 r.SlipNo = slipNoVal;
 
-                var soNoVal = r.SONumber || (slipNoVal.indexOf('-') > 0 ? slipNoVal.split('-')[0] : 'SO36');
-                r.SONumber = soNoVal;
-
-                if (soFilter && soNoVal.toLowerCase().indexOf(soFilter) === -1) return true;
                 if (designFilter && (r.DesignNo || '') !== designFilter) return true;
                 if (slipFilter && slipNoVal.toLowerCase().indexOf(slipFilter) === -1) return true;
                 if (machineFilter && String(r.MachineNumber || 1) !== String(machineFilter)) return true;
 
                 visibleCount++;
 
-                var parentGroup = soNoVal;
+                var parentGroup = (slipNoVal || '').split('-')[0];
                 if (parentGroup && parentGroup !== '-' && parentGroup !== currentGroupHeader) {
                     currentGroupHeader = parentGroup;
                     var groupTr = '<tr class="order-group-row">' +
                         '<td class="text-center"><input type="checkbox" class="chkGroupHeader" data-group="' + currentGroupHeader + '" /></td>' +
-                        '<td class="group-slip font-weight-bold" colspan="2">SO: ' + currentGroupHeader + '</td>' +
-                        '<td colspan="7"></td>' +
+                        '<td class="group-slip font-monospace font-weight-bold" colspan="2">' + currentGroupHeader + '</td>' +
+                        '<td colspan="6"></td>' +
                         '</tr>';
                     $tbody.append(groupTr);
                 }
@@ -698,17 +708,16 @@
                 var isChecked = r.IsChecked ? 'checked' : '';
                 var trClass = r.IsChecked ? 'table-active' : '';
 
-                var tr = '<tr class="' + trClass + '" data-idx="' + idx + '" data-group="' + parentGroup + '" data-slip="' + slipNoVal + '">' +
+                var tr = '<tr class="' + trClass + '" data-idx="' + idx + '" data-group="' + parentGroup + '">' +
                     '<td class="text-center"><input type="checkbox" class="chkRow" data-idx="' + idx + '" ' + isChecked + ' /></td>' +
-                    '<td class="text-center font-weight-bold text-secondary">' + soNoVal + '</td>' +
                     '<td class="text-center"><span class="slip-code-badge">' + slipNoVal + '</span></td>' +
                     '<td class="text-center">' + (r.MachineNumber || 1) + '</td>' +
                     '<td class="text-center font-weight-bold">' + (r.DesignNo || '-') + '</td>' +
                     '<td>' + getColourMatchingHtml(r) + '</td>' +
-                    '<td class="text-center font-weight-bold"><span class="badge bg-light text-dark border px-2 py-1">' + (r.ProductionPCS || r.PCS || 0) + '</span></td>' +
-                    '<td class="text-center font-weight-bold"><span class="badge bg-success-subtle text-success border px-2 py-1">' + (r.JobberStockPCS || r.PendingIssuePCS || 0) + '</span></td>' +
-                    '<td class="text-center"><span class="badge bg-light text-secondary border px-2 py-1">' + (r.AlreadyIssuedPCS || 0) + '</span></td>' +
-                    '<td class="text-center"><input type="number" class="txtProdInput txt-production" data-idx="' + idx + '" value="' + (r.AllottedPcs || r.JobberStockPCS || r.PendingIssuePCS || 0) + '" min="1" max="' + (r.JobberStockPCS || 0) + '" /></td>' +
+                    '<td class="text-center font-weight-bold"><span class="badge bg-light text-dark border px-2 py-1">' + (r.PCS || 0) + '</span></td>' +
+                    '<td class="text-center"><span class="badge bg-light text-secondary border px-2 py-1">' + (r.IssuedPCS || 0) + '</span></td>' +
+                    '<td class="text-center font-weight-bold"><span class="badge bg-danger-subtle text-danger border px-2 py-1">' + (r.PendingPCS || r.PCS || 0) + '</span></td>' +
+                    '<td class="text-center"><input type="number" class="txtProdInput txt-production" data-idx="' + idx + '" value="' + (r.AllottedPcs || r.PendingPCS || r.PCS || 0) + '" min="0" max="' + (r.PendingPCS || r.PCS || 0) + '" /></td>' +
                     '</tr>';
 
                 $tbody.append(tr);
@@ -721,29 +730,32 @@
         function renderSummaryTable() {
             var $tbody = $('#tblProductionReportBody').empty();
             var totalOrderPcs = 0;
-            var totalStockPcs = 0;
+            var totalIssuedPcs = 0;
+            var totalPendingPcs = 0;
             var totalInputPcs = 0;
             var checkedCount = 0;
 
             $.each(allSlipsList, function (idx, item) {
                 if (item.IsChecked) {
                     checkedCount++;
-                    var prodPcs = parseFloat(item.ProductionPCS || item.PCS || 0);
-                    var stockPcs = parseFloat(item.JobberStockPCS || item.PendingIssuePCS || prodPcs);
-                    var inputPcs = parseFloat(item.AllottedPcs || stockPcs || 0);
+                    var orderPcs = parseFloat(item.PCS || 0);
+                    var issuedPcs = parseFloat(item.IssuedPCS || 0);
+                    var pendingPcs = parseFloat(item.PendingPCS || orderPcs);
+                    var inputPcs = parseFloat(item.AllottedPcs || pendingPcs || 0);
 
-                    totalOrderPcs += prodPcs;
-                    totalStockPcs += stockPcs;
+                    totalOrderPcs += orderPcs;
+                    totalIssuedPcs += issuedPcs;
+                    totalPendingPcs += pendingPcs;
                     totalInputPcs += inputPcs;
 
                     var tr = '<tr>' +
-                        '<td class="text-center font-weight-bold">' + (item.SONumber || '-') + '</td>' +
-                        '<td class="text-center font-weight-bold"><span class="slip-code-badge">' + (item.SlipNo || '-') + '</span></td>' +
+                        '<td class="text-center font-weight-bold">' + (item.SlipNo || '-') + '</td>' +
                         '<td class="text-center">' + (item.MachineNumber || 1) + '</td>' +
                         '<td class="text-center"><strong>' + (item.DesignNo || '-') + '</strong></td>' +
                         '<td>' + getColourMatchingHtml(item) + '</td>' +
-                        '<td class="text-center font-weight-bold">' + prodPcs + '</td>' +
-                        '<td class="text-center font-weight-bold text-success">' + stockPcs + '</td>' +
+                        '<td class="text-center font-weight-bold">' + orderPcs + '</td>' +
+                        '<td class="text-center text-secondary">' + issuedPcs + '</td>' +
+                        '<td class="text-center font-weight-bold text-danger">' + pendingPcs + '</td>' +
                         '<td class="rep-pcs text-center font-weight-bold text-primary">' + inputPcs + '</td>' +
                         '</tr>';
                     $tbody.append(tr);
@@ -751,11 +763,12 @@
             });
 
             if (checkedCount === 0) {
-                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-3">No items selected for process allotment yet.</td></tr>');
+                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
             }
 
             $('#lblTotalOrderPcs').text(totalOrderPcs);
-            $('#lblTotalJobberStockPcs').text(totalStockPcs);
+            $('#lblTotalIssuedPcs').text(totalIssuedPcs);
+            $('#lblTotalPendingPcs').text(totalPendingPcs);
             $('#lblTotalPcs').text(totalInputPcs);
         }
 
@@ -820,9 +833,9 @@
             var idx = $(this).data('idx');
             var val = parseFloat($(this).val()) || 0;
             if (allSlipsList[idx]) {
-                var maxAvailable = parseFloat(allSlipsList[idx].JobberStockPCS || allSlipsList[idx].PendingIssuePCS || 0);
+                var maxAvailable = parseFloat(allSlipsList[idx].PendingPCS || allSlipsList[idx].PCS || 0);
                 if (val > maxAvailable) {
-                    showNotification('Entered Issue PCS (' + val + ') cannot exceed available Jobber Stock (' + maxAvailable + ').', true);
+                    showNotification('Entered Issue PCS (' + val + ') cannot exceed Order/Pending PCS (' + maxAvailable + ').', true);
                     val = maxAvailable;
                     $(this).val(val);
                 }
@@ -831,7 +844,7 @@
                     renderSummaryTable();
                 }
             }
-        });
+        });  
 
         // BARCODE SCAN HANDLER
         $('#txtBarcodeScan').on('keypress', function (e) {
@@ -845,7 +858,7 @@
                     if (item.SlipNo && item.SlipNo.toLowerCase() === scanVal) {
                         matchedIdx = idx; return false;
                     }
-                    if (item.Barcode && String(item.Barcode) === scanVal) {
+                    if (item.Barcode && String(item.Barcode).toLowerCase() === scanVal) {
                         matchedIdx = idx; return false;
                     }
                 });
@@ -862,10 +875,16 @@
                     }
                     showNotification('Slip ' + allSlipsList[matchedIdx].SlipNo + ' matched and checked!', false);
                 } else {
-                    showNotification('No available stock slip matched barcode / slip: ' + scanVal, true);
+                    // Try fetching from server if not already in local list
+                    fetchAndMergePendingSlips();
+                    showNotification('Searching server for barcode / slip: ' + scanVal, false);
                 }
                 $(this).val('');
             }
+        });
+
+        $('#filterBarcode').change(function () {
+            fetchAndMergePendingSlips();
         });
 
         $('#filterSONumber, #filterSlipNo').on('keyup input change', function () {
@@ -877,12 +896,13 @@
         });
 
         $('#btnFilterReset').click(function () {
+            $('#filterBarcode').val('');
             $('#filterSONumber').val('');
             $('#filterSlipNo').val('');
             $('#filterDesignNo').val('');
             $('#filterMachineNo').val('');
             $('#txtBarcodeScan').val('');
-            renderSlipsTable(allSlipsList);
+            fetchAndMergePendingSlips();
         });
 
         $(document).on('click', 'img.cm-thumb-img', function () {
@@ -904,20 +924,16 @@
 
         // SAVE / UPDATE BUTTON HANDLER
         $('#btnAddForProduction').click(function () {
-            var jobberId = parseInt($('#txtJobWorker').val()) || 0;
+            var jobberId = parseInt($('#txtJobWorker').val()) || 1;
             var processId = parseInt($('#ddlProcess').val()) || 0;
             var processorId = parseInt($('#ddlProcessor').val()) || 0;
 
-            if (jobberId <= 0) {
-                showNotification('Please select Jobber (From) from the left panel.', true);
+            if (processorId <= 0) {
+                showNotification('Please select Processor Name from the left panel.', true);
                 return;
             }
             if (processId <= 0) {
-                showNotification('Please select Process from the left panel.', true);
-                return;
-            }
-            if (processorId <= 0) {
-                showNotification('Please select Processor (To) from the left panel.', true);
+                showNotification('Please select Process Type from the left panel.', true);
                 return;
             }
 
@@ -926,8 +942,8 @@
 
             $.each(allSlipsList, function (i, item) {
                 if (item.IsChecked) {
-                    var issueQty = parseFloat(item.AllottedPcs || item.JobberStockPCS || item.PendingIssuePCS || 0);
-                    var maxQty = parseFloat(item.JobberStockPCS || item.PendingIssuePCS || 0);
+                    var maxQty = parseFloat(item.PendingPCS || item.PCS || 0);
+                    var issueQty = parseFloat(item.AllottedPcs !== undefined && item.AllottedPcs !== null ? item.AllottedPcs : maxQty);
 
                     if (issueQty <= 0) {
                         showNotification('Issue PCS for slip ' + item.SlipNo + ' must be greater than 0.', true);
@@ -935,7 +951,7 @@
                         return false;
                     }
                     if (issueQty > maxQty) {
-                        showNotification('Issue PCS for slip ' + item.SlipNo + ' (' + issueQty + ') exceeds available stock (' + maxQty + ').', true);
+                        showNotification('Issue PCS for slip ' + item.SlipNo + ' (' + issueQty + ') exceeds pending PCS (' + maxQty + ').', true);
                         hasQtyError = true;
                         return false;
                     }

@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -33,17 +33,17 @@
                                     <div class="modal-body">
                                         <div class="row gutters">
                                             <div class="col-12">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered" style="overflow: hidden; border:1px solid;">
+                                                <div class="yarn-table-scroll" style="max-height: 420px;">
+                                                    <table id="tblYarnLedger" class="table table-bordered yarn-interchange-table">
                                                         <thead>
                                                             <tr>
-                                                                <th style="width:5%;">#</th>
-                                                                <th style="width:15%;">Date And Time</th>
-                                                                <th style="width:11%;">Box No<br> Net Weight</th>
-                                                                <th style="width:11%;">Yarn <br> Material</th>
-                                                                <th style="width:11%;">Yarn Code<br> Yarn Color</th>
-                                                                <th style="width:10%;">Godown</th>
-                                                                <th style="width:10%;">Godown<br /> Location</th>
+                                                                <th style="width: 40px; min-width: 40px;">#</th>
+                                                                <th style="width: 150px; min-width: 140px;">Date And Time</th>
+                                                                <th style="width: 110px; min-width: 100px;">Box No<br> Net Weight</th>
+                                                                <th style="width: 110px; min-width: 100px;">Yarn <br> Material</th>
+                                                                <th style="width: 130px; min-width: 120px;">Yarn Code<br> Yarn Color</th>
+                                                                <th style="width: 110px; min-width: 100px;">Godown</th>
+                                                                <th style="width: 110px; min-width: 100px;">Godown<br /> Location</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="tableYarnInterchangeLedger"></tbody>
@@ -103,17 +103,166 @@
                     <div class="row gutters">
 
                         <style>
-                            table {
-                                border: none; /* Removes all borders */
+                            /* =========================================================
+                               YARN INTERCHANGE TABLE LAYOUT STYLING
+                               ========================================================= */
+                            .yarn-section-header {
+                                font-size: 11px !important;
+                                font-weight: 700 !important;
+                                padding: 6px 10px !important;
+                                background: #f0f4f9 !important;
+                                border: 1px solid #bfc7d1 !important;
+                                border-bottom: none !important;
+                                border-radius: 3px 3px 0 0 !important;
+                                color: #164f87 !important;
+                                text-transform: uppercase;
+                                letter-spacing: 0.3px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
                             }
 
-                            table, th, td {
-                                border: none; /* Removes all borders */
+                            .yarn-table-scroll {
+                                width: 100%;
+                                max-height: 480px;
+                                overflow-x: auto;
+                                overflow-y: auto;
+                                border: 1px solid #bfc7d1;
+                                background: #fff;
+                                border-radius: 0 0 3px 3px;
                             }
 
-                            table {
-                                border-collapse: collapse; /* Collapses borders */
+                            .yarn-table-scroll::-webkit-scrollbar {
+                                width: 6px;
+                                height: 6px;
                             }
+
+                            .yarn-table-scroll::-webkit-scrollbar-thumb {
+                                background: #c1c7cf;
+                                border-radius: 3px;
+                            }
+
+                            .yarn-table-scroll::-webkit-scrollbar-track {
+                                background: #f5f6f8;
+                            }
+
+                            .yarn-interchange-table {
+                                width: 100% !important;
+                                table-layout: auto !important;
+                                border-collapse: collapse !important;
+                                margin: 0 !important;
+                                font-size: 12px !important;
+                            }
+
+                            .yarn-interchange-table th,
+                            .yarn-interchange-table td {
+                                border: 1px solid #c9cfd6 !important;
+                                padding: 5px 8px !important;
+                                height: 32px !important;
+                                line-height: 18px !important;
+                                vertical-align: middle !important;
+                                font-size: 12px !important;
+                                white-space: nowrap !important;
+                            }
+
+                            .yarn-interchange-table thead th {
+                                position: sticky;
+                                top: 0;
+                                z-index: 10;
+                                background: #e4eef9 !important;
+                                color: #202020 !important;
+                                font-size: 11px !important;
+                                font-weight: 700 !important;
+                                text-align: center !important;
+                                height: 34px !important;
+                                border: 1px solid #aeb9c6 !important;
+                                white-space: nowrap !important;
+                            }
+
+                            .yarn-interchange-table tbody tr:hover td {
+                                background: #f7f9fb !important;
+                            }
+
+                            .yarn-interchange-table td a {
+                                color: #164f87;
+                                font-weight: 600;
+                                text-decoration: underline;
+                            }
+
+                            .yarn-interchange-table td a:hover {
+                                color: #0b335c;
+                            }
+
+                            .yarn-interchange-table td img {
+                                max-width: 20px !important;
+                                max-height: 20px !important;
+                                width: auto !important;
+                                height: auto !important;
+                                vertical-align: middle;
+                                cursor: pointer;
+                                transition: transform 0.15s ease-in-out;
+                            }
+
+                            .yarn-interchange-table td img:hover {
+                                transform: scale(1.2);
+                            }
+
+                            /* ALIGNMENTS FOR SOURCE (LEFT) TABLE */
+                            #tblSourceYarn th:nth-child(1), #tblSourceYarn td:nth-child(1) { text-align: center !important; }
+                            #tblSourceYarn th:nth-child(2), #tblSourceYarn td:nth-child(2) { text-align: left !important; }
+                            #tblSourceYarn th:nth-child(3), #tblSourceYarn td:nth-child(3) { text-align: center !important; }
+                            #tblSourceYarn th:nth-child(4), #tblSourceYarn td:nth-child(4) { text-align: center !important; }
+                            #tblSourceYarn th:nth-child(5), #tblSourceYarn td:nth-child(5) { text-align: center !important; }
+                            #tblSourceYarn th:nth-child(6), #tblSourceYarn td:nth-child(6) { text-align: center !important; }
+                            #tblSourceYarn thead th:nth-child(7) { text-align: center !important; }
+                            #tblSourceYarn tbody td:nth-child(7) { text-align: right !important; font-weight: 600; }
+                            #tblSourceYarn th:nth-child(8), #tblSourceYarn td:nth-child(8) { text-align: center !important; }
+
+                            /* ALIGNMENTS FOR SIFT (RIGHT) TABLE */
+                            #tblShiftYarn th:nth-child(1), #tblShiftYarn td:nth-child(1) { text-align: center !important; }
+                            #tblShiftYarn th:nth-child(2), #tblShiftYarn td:nth-child(2) { text-align: center !important; }
+                            #tblShiftYarn th:nth-child(3), #tblShiftYarn td:nth-child(3) { text-align: left !important; }
+                            #tblShiftYarn th:nth-child(4), #tblShiftYarn td:nth-child(4) { text-align: center !important; }
+                            #tblShiftYarn th:nth-child(5), #tblShiftYarn td:nth-child(5) { text-align: center !important; }
+                            #tblShiftYarn th:nth-child(6), #tblShiftYarn td:nth-child(6) { text-align: center !important; }
+                            #tblShiftYarn th:nth-child(7), #tblShiftYarn td:nth-child(7) { text-align: center !important; }
+                            #tblShiftYarn thead th:nth-child(8) { text-align: center !important; }
+                            #tblShiftYarn tbody td:nth-child(8) { text-align: right !important; font-weight: 600; }
+
+                            /* MODAL LEDGER TABLE */
+                            #tblYarnLedger {
+                                width: 100% !important;
+                                min-width: 750px;
+                                table-layout: fixed !important;
+                                border-collapse: collapse !important;
+                                margin: 0 !important;
+                                font-size: 12px !important;
+                            }
+                            #tblYarnLedger th, #tblYarnLedger td {
+                                border: 1px solid #c9cfd6 !important;
+                                padding: 5px 6px !important;
+                                vertical-align: middle !important;
+                                font-size: 12px !important;
+                            }
+                            #tblYarnLedger thead th {
+                                position: sticky;
+                                top: 0;
+                                z-index: 10;
+                                background: #e4eef9 !important;
+                                color: #202020 !important;
+                                font-size: 11px !important;
+                                font-weight: 700 !important;
+                                text-align: center !important;
+                                height: 34px !important;
+                                border: 1px solid #aeb9c6 !important;
+                            }
+                            #tblYarnLedger th:nth-child(1), #tblYarnLedger td:nth-child(1) { width: 40px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(2), #tblYarnLedger td:nth-child(2) { width: 140px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(3), #tblYarnLedger td:nth-child(3) { width: 110px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(4), #tblYarnLedger td:nth-child(4) { width: 110px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(5), #tblYarnLedger td:nth-child(5) { width: 120px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(6), #tblYarnLedger td:nth-child(6) { width: 110px !important; text-align: center !important; }
+                            #tblYarnLedger th:nth-child(7), #tblYarnLedger td:nth-child(7) { width: 110px !important; text-align: center !important; }
                         </style>
 
 
@@ -311,90 +460,61 @@
 
 
                                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-
-
                                             <br />
-
                                             <div class="row gutters">
                                                 <div class="col-12">
-                                                    <div class="table-responsive">
-
-                                                        <table class="table table-bordered" style="overflow: hidden;">
+                                                    <div class="yarn-section-header">
+                                                        <span><i class="fa fa-boxes"></i> Available Yarn In Godown</span>
+                                                    </div>
+                                                    <div class="yarn-table-scroll">
+                                                        <table id="tblSourceYarn" class="table table-bordered yarn-interchange-table">
                                                             <thead>
                                                                 <tr class="text-center">
-                                                                    <th style="width:5%;">#</th>
-                                                                    <th style="width:20%;">Name</th>
-                                                                    <th style="width:15%;"> Material</th>
-                                                                    <th style="width:13%;"> Color</th>
-                                                                    <th style="width:11%;"> Code</th>
-                                                                    <th style="width:11%;"> No</th>
-                                                                    <th style="width:10%;">Net <br /> Weight</th>
-                                                                    <th style="width: 10%; border-left: 1px solid #c3c3c3;">Sift To</th>
+                                                                    <th style="min-width: 35px;">#</th>
+                                                                    <th style="min-width: 180px;">Name</th>
+                                                                    <th style="min-width: 130px;">Material</th>
+                                                                    <th style="min-width: 105px;">Color</th>
+                                                                    <th style="min-width: 95px;">Code</th>
+                                                                    <th style="min-width: 65px;">No</th>
+                                                                    <th style="min-width: 85px;">Net Weight</th>
+                                                                    <th style="min-width: 55px;">Sift To</th>
                                                                 </tr>
                                                             </thead>
-
                                                             <tbody id="tableYarnData">
                                                             </tbody>
-
-
-
-
-
                                                         </table>
-
-
                                                     </div>
                                                 </div>
                                             </div>
-
-
-
-
-
-
                                         </div>
 
-                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style=" border-left: 1px solid #c3c3c3;">
-
-
+                                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="border-left: 1px solid #c3c3c3;">
                                             <br />
-
                                             <div class="row gutters">
                                                 <div class="col-12">
-                                                    <div class="table-responsive">
-
-                                                        <table class="table table-bordered" style="overflow: hidden;">
+                                                    <div class="yarn-section-header">
+                                                        <span><i class="fa fa-exchange-alt"></i> Selected Yarn To Shift</span>
+                                                    </div>
+                                                    <div class="yarn-table-scroll">
+                                                        <table id="tblShiftYarn" class="table table-bordered yarn-interchange-table">
                                                             <thead>
                                                                 <tr class="text-center">
-                                                                    <th style="width: 10%; border-right: 1px solid #c3c3c3;">Sift Back</th>
-                                                                    <th style="width:5%;">#</th>
-                                                                    <th style="width:20%;"> Name</th>
-                                                                    <th style="width:15%;"> Material</th>
-                                                                    <th style="width:13%;"> Color</th>
-                                                                    <th style="width:11%;"> Code</th>
-                                                                    <th style="width:11%;"> No</th>
-                                                                    <th style="width:10%;">Net <br /> Weight</th>
+                                                                    <th style="min-width: 55px;">Sift Back</th>
+                                                                    <th style="min-width: 35px;">#</th>
+                                                                    <th style="min-width: 180px;">Name</th>
+                                                                    <th style="min-width: 130px;">Material</th>
+                                                                    <th style="min-width: 105px;">Color</th>
+                                                                    <th style="min-width: 95px;">Code</th>
+                                                                    <th style="min-width: 65px;">No</th>
+                                                                    <th style="min-width: 85px;">Net Weight</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody id="tableSiftYarnData">
                                                             </tbody>
-
-
-
-
-
                                                         </table>
-
-
                                                     </div>
                                                 </div>
                                             </div>
-
-
-
-
-
-
                                         </div>
 
 

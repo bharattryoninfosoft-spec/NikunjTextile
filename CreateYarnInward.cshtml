@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -198,21 +198,24 @@
                                                         </button>
 
                                                         <div class="modal fade" id="exampleModalExtraLarge" tabindex="-1" aria-labelledby="exampleModalExtraLargeTitle" aria-hidden="true">
-                                                            <div class="modal-dialog modal-xl modal-dialog-centered">
-                                                                <div class="modal-content">
+                                                            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 96vw; margin: 1.75rem auto;">
+                                                                <div class="modal-content shadow-lg border-0" style="border-radius: 8px;">
 
-                                                                    <div class="modal-header" style="background-color: #1273eb; color: white; border-top-left-radius: calc(.3rem - 1px); border-top-right-radius: calc(.3rem - 1px);">
-                                                                        <h5 class="modal-title" id="exampleModalExtraLargeTitle">Yarn Pending PO</h5>
-                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    <div class="modal-header py-3" style="background-color: #1273eb; color: white; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                                                        <h5 class="modal-title font-weight-bold" id="exampleModalExtraLargeTitle"><i class="fa fa-list-alt me-2"></i> Yarn Pending PO</h5>
+                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: brightness(0) invert(1);"></button>
                                                                     </div>
 
-                                                                    <div class="modal-body p-4">
+                                                                    <div class="modal-body p-3" style="max-height: calc(85vh - 120px); overflow-y: auto;">
 
-                                                                        <div class="row mb-3">
-                                                                            <div class="col-xl-4 col-lg-4 col-md-5 col-sm-12 ms-auto">
-                                                                                <div class="field-wrapper mb-0">
-                                                                                    <input id="SearchRequirementNo" placeholder="Search..." type="text" class="form-control clear-field detail" onkeyup="getPendingPOForm()">
-                                                                                    <div class="field-placeholder">Search</div>
+                                                                        <div class="row mb-3 align-items-center">
+                                                                            <div class="col-md-6 col-sm-12 mb-2 mb-md-0">
+                                                                                <span id="pendingPOCountBadge" class="badge bg-primary text-white" style="font-size: 13px; padding: 6px 12px;"></span>
+                                                                            </div>
+                                                                            <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12 ms-auto">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-text bg-light"><i class="fa fa-search"></i></span>
+                                                                                    <input id="SearchRequirementNo" placeholder="Search PO, Supplier, Material..." type="text" class="form-control" onkeyup="getPendingPOForm()">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -224,49 +227,33 @@
                                                                         <input type="hidden" id="PendingYarnColorID" value="0" />
                                                                         <input type="hidden" id="PendingCompanyCode" value="0" />
 
-                                                                        <div class="table-responsive">
-                                                                            <table id="tblPendingPO" class="table table-bordered align-middle text-center mb-0">
-                                                                                <thead>
+                                                                        <div class="table-responsive" style="max-height: 55vh; overflow-y: auto; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+                                                                            <table id="tblPendingPO" class="table table-bordered table-hover table-striped align-middle text-center mb-0" style="font-size: 13px;">
+                                                                                <thead style="position: sticky; top: 0; z-index: 2; background-color: #1273eb;">
                                                                                     <tr style="background-color: #1273eb; color: white;">
-                                                                                        <th style="color: white;">Sr No</th>
-                                                                                        <th style="color: white;">PO <br> No</th>
-                                                                                        <th style="color: white;">PO <br> Date</th>
-                                                                                        <th style="color: white;">Supplier <br> Name</th>
-                                                                                        <th style="color: white;">Bill To <br> Name</th>
-                                                                                        <th style="color: white;">Company <br> Name</th>
-                                                                                        <th style="color: white;">Godown <br> Details</th>
-                                                                                        <th style="color: white;">Yarn <br> Material</th>
-                                                                                        <th style="color: white;">Yarn <br> Color</th>
-                                                                                        <th style="color: white;">Company <br> Code</th>
-                                                                                        <th style="color: white;">Qty</th>
-                                                                                        <th style="color: white;">Pending <br> Qty</th>
+                                                                                        <th style="color: white; white-space: nowrap; width: 60px;">Action</th>
+                                                                                        <th style="color: white; white-space: nowrap;">PO No</th>
+                                                                                        <th style="color: white; white-space: nowrap;">PO Date</th>
+                                                                                        <th style="color: white; min-width: 140px;">Supplier Name</th>
+                                                                                        <th style="color: white; min-width: 140px;">Bill To Name</th>
+                                                                                        <th style="color: white; min-width: 140px;">Company Name</th>
+                                                                                        <th style="color: white; min-width: 150px;">Godown Details</th>
+                                                                                        <th style="color: white; white-space: nowrap;">Yarn Material</th>
+                                                                                        <th style="color: white; white-space: nowrap;">Yarn Color</th>
+                                                                                        <th style="color: white; white-space: nowrap;">Company Code</th>
+                                                                                        <th style="color: white; white-space: nowrap;">Qty</th>
+                                                                                        <th style="color: white; white-space: nowrap;">Pending Qty</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody>
-                                                                                    <tr>
-                                                                                        <td>
-                                                                                            <button class="btn btn-sm btn-outline-primary"><i class="fa fa-plus"></i></button>
-                                                                                        </td>
-                                                                                        <td>1</td>
-                                                                                        <td>06-07-2026</td>
-                                                                                        <td>AMBIKA PRINTS<br><small class="text-muted">9012345682</small></td>
-                                                                                        <td>KHODIYAR PRINTS<br><small class="text-muted">9898989898</small></td>
-                                                                                        <td>AMBIKA PRINTS<br><small class="text-muted">9012345682</small></td>
-                                                                                        <td>WEAVELANE YARN</td>
-                                                                                        <td>110 LICHI</td>
-                                                                                        <td>DEMIO</td>
-                                                                                        <td>DEMIO</td>
-                                                                                        <td>20</td>
-                                                                                        <td>20</td>
-                                                                                    </tr>
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
 
                                                                     </div>
 
-                                                                    <div class="modal-footer bg-light">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnPendingClose">Close</button>
+                                                                    <div class="modal-footer bg-light py-2">
+                                                                        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal" id="btnPendingClose">Close</button>
                                                                     </div>
 
                                                                 </div>
@@ -642,7 +629,7 @@
                                                                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                                                     </div>
                                                                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                                                                        <button type="button" class="btn btn-success" style=" width: 100%;" onclick="btnAddRow()" onfocusout="btnAddRow()"><i class="fa fa-plus"></i> ADD DATA</button>
+                                                                                        <button type="button" class="btn btn-success" style=" width: 100%;" onclick="btnAddRow()"><i class="fa fa-plus"></i> ADD DATA</button>
                                                                                     </div>
 
                                                                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -826,6 +813,22 @@
             console.log(milliseconds);
 
             $("#BarcodeNo1").val(milliseconds);
+
+            $(document).on('keydown', '#tableItemData input, #tableItemData select', function (e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    var id = $(this).attr('id') || '';
+                    if (id.startsWith('BoxNo')) {
+                        var rowNum = id.replace('BoxNo', '');
+                        var nw = $('#NetWeight' + rowNum);
+                        if (nw.length && (!nw.val() || nw.val().trim() === '')) {
+                            nw.focus();
+                            return;
+                        }
+                    }
+                    btnAddRow();
+                }
+            });
         });
 
         $('body').click(function (evt) {
@@ -911,34 +914,41 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    $("#tblPendingPO tbody").empty();
-                    var dataTable = $('#tblPendingPO');
                     var temp = "";
 
-                    for (var i = 0; i < response.listYarnPOMaster.length; i++) {
-                        temp += "<tr>";
-                        temp += "<td><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' onclick='trpendingPO(\"" + response.listYarnPOMaster[i].YarnPODetailID + "\")'><i class='fa fa-plus-square-o fa-2x text-info' style='font-weight:50;'></i></a></td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].PONo + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].PODates + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].SupplierPartyName + " <br />" + response.listYarnPOMaster[i].SupplierMobileNo + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].BillToPartyName + " <br />" + response.listYarnPOMaster[i].BillToMobileNo + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].CompanyPartyName + " <br />" + response.listYarnPOMaster[i].CompanyMobileNo + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].GodownTitle + " <br />" + response.listYarnPOMaster[i].GodownAddress + "</td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].YarnMaterial + " </td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].YarnColor + " </td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].CompanyCode + " </td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].Qty + " </td>";
-                        temp += "<td>" + response.listYarnPOMaster[i].PendingQty + " </td>";
-                        temp += "</tr>";
+                    if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                        $("#pendingPOCountBadge").text("Total Pending: " + response.listYarnPOMaster.length);
+                        for (var i = 0; i < response.listYarnPOMaster.length; i++) {
+                            var item = response.listYarnPOMaster[i];
+                            temp += "<tr>";
+                            temp += "<td><button type='button' class='btn btn-sm btn-outline-primary' title='Select PO' onclick='trpendingPO(\"" + item.YarnPODetailID + "\")'><i class='fa fa-plus'></i></button></td>";
+                            temp += "<td style='font-weight: 600;'>" + (item.PONo || '') + "</td>";
+                            temp += "<td style='white-space: nowrap;'>" + (item.PODates || '') + "</td>";
+                            temp += "<td class='text-start'><b>" + (item.SupplierPartyName || '') + "</b>" + (item.SupplierMobileNo ? "<br><small class='text-muted'>" + item.SupplierMobileNo + "</small>" : "") + "</td>";
+                            temp += "<td class='text-start'><b>" + (item.BillToPartyName || '') + "</b>" + (item.BillToMobileNo ? "<br><small class='text-muted'>" + item.BillToMobileNo + "</small>" : "") + "</td>";
+                            temp += "<td class='text-start'><b>" + (item.CompanyPartyName || '') + "</b>" + (item.CompanyMobileNo ? "<br><small class='text-muted'>" + item.CompanyMobileNo + "</small>" : "") + "</td>";
+                            temp += "<td class='text-start'><b>" + (item.GodownTitle || '') + "</b>" + (item.GodownAddress ? "<br><small class='text-muted'>" + item.GodownAddress + "</small>" : "") + "</td>";
+                            temp += "<td><span class='badge bg-light text-dark border'>" + (item.YarnMaterial || '') + "</span></td>";
+                            temp += "<td>" + (item.YarnColor || '') + "</td>";
+                            temp += "<td>" + (item.CompanyCode || '') + "</td>";
+                            temp += "<td>" + (item.Qty || '0') + "</td>";
+                            temp += "<td style='font-weight: bold; color: #d9534f;'>" + (item.PendingQty || '0') + "</td>";
+                            temp += "</tr>";
+                        }
                     }
-                    $("#tblPendingPO tbody").empty();
-                    dataTable.append(temp);
+                    else {
+                        $("#pendingPOCountBadge").text("Total Pending: 0");
+                        temp = "<tr><td colspan='12' class='text-center py-4 text-muted'>No Pending Purchase Orders Found</td></tr>";
+                    }
+
+                    $("#tblPendingPO tbody").html(temp);
                 },
                 error: function (request, status, error) {
                 }
             });
         }
 
+        var isPendingPOPicking = false;
         function trpendingPO(YarnPODetailID) {
             var formData = new FormData();
             formData.append('YarnPODetailID', YarnPODetailID);
@@ -962,9 +972,11 @@
                             $("#PendingYarnColorID").val(response.listYarnPOMaster[0].YarnColorID);
                             $("#PendingCompanyCode").val(response.listYarnPOMaster[0].CompanyCode);
 
+                            isPendingPOPicking = true;
                             $("#ddlPONumber").val(response.listYarnPOMaster[0].YarnPOID);
                             $("#select2-ddlPONumber-container").html(response.listYarnPOMaster[0].PONo);
                             OnPendingPONumber(response.listYarnPOMaster[0].YarnPOID);
+                            setTimeout(function () { isPendingPOPicking = false; }, 1000);
                         }
                     }
                 },
@@ -1191,10 +1203,11 @@
                 $("#CompanyName").html('');
                 $("#MobileNo").html('');
                 $("#ShippedToAddress").html('');
-                $('#ddlYarnMaterial option').remove();
+                $('#ddlYarnMaterial').html("<option value='0'> Select Material </option>").trigger('change.select2');
+                $('#ddlYarnColor').html("<option value='0'> Select Yarn Color </option>").trigger('change.select2');
+                $('#ddlCompanyColourCode').html("<option value='0'> Select Color Code </option>").trigger('change.select2');
             }
             else {
-                $('#ddlYarnMaterial option').remove();
                 var formData = new FormData();
                 formData.append('YarnPOID', POID);
 
@@ -1220,23 +1233,29 @@
 
                                 OnlistGodown(response.listYarnPOMaster[0].GodownID);
 
-                                var templistYanrMaterialMaster = "";
+                                if (response.listYarnPOMaster[0].listYarnPODetails && response.listYarnPOMaster[0].listYarnPODetails.length > 0) {
+                                    var details = response.listYarnPOMaster[0].listYarnPODetails;
+                                    var seenMaterials = {};
+                                    var optionsHtml = "<option value='0'> Select Material </option>";
+                                    var pendingMatId = $("#PendingYarnMaterialID").val();
 
-                                if (response.listYarnPOMaster[0].listYarnPODetails.length > 0) {
-                                    templistYanrMaterialMaster = "<option value='0' > Select Material </option>";
-                                    $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
+                                    for (var i = 0; i < details.length; i++) {
+                                        var matId = details[i].YarnMaterialID;
+                                        if (seenMaterials[matId]) continue;
+                                        seenMaterials[matId] = true;
 
-                                    for (var i = 0; i < response.listYarnPOMaster[0].listYarnPODetails.length; i++) {
-                                        if ($("#PendingYarnMaterialID").val() == response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterialID) {
-                                            templistYanrMaterialMaster = "<option value='" + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterialID + "' selected> " + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterial + " </option>";
-                                            $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
+                                        if (pendingMatId == matId) {
+                                            optionsHtml += "<option value='" + matId + "' selected> " + details[i].YarnMaterial + " </option>";
                                         }
                                         else {
-                                            templistYanrMaterialMaster = "<option value='" + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterialID + "'> " + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterial + " </option>";
-                                            $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
+                                            optionsHtml += "<option value='" + matId + "'> " + details[i].YarnMaterial + " </option>";
                                         }
                                     }
-                                    OnPendingYarnMaterial($("#PendingYarnMaterialID").val());
+                                    $('#ddlYarnMaterial').html(optionsHtml).trigger('change.select2');
+                                    OnPendingYarnMaterial(pendingMatId);
+                                }
+                                else {
+                                    $('#ddlYarnMaterial').html("<option value='0'> Select Material </option>").trigger('change.select2');
                                 }
                             }
                         }
@@ -1248,16 +1267,18 @@
         }
 
         function OnPONumber(POID) {
+            if (isPendingPOPicking) return;
             if (POID == 0) {
                 $("#ShippedToName").html('');
                 $("#SupplierName").html('');
                 $("#CompanyName").html('');
                 $("#MobileNo").html('');
                 $("#ShippedToAddress").html('');
-                $('#ddlYarnMaterial option').remove();
+                $('#ddlYarnMaterial').html("<option value='0'> Select Material </option>").trigger('change.select2');
+                $('#ddlYarnColor').html("<option value='0'> Select Yarn Color </option>").trigger('change.select2');
+                $('#ddlCompanyColourCode').html("<option value='0'> Select Color Code </option>").trigger('change.select2');
             }
             else {
-                $('#ddlYarnMaterial option').remove();
                 var formData = new FormData();
                 formData.append('YarnPOID', POID);
 
@@ -1283,26 +1304,30 @@
 
                                 OnlistGodown(response.listYarnPOMaster[0].GodownID);
 
-                                var templistYanrMaterialMaster = "";
+                                if (response.listYarnPOMaster[0].listYarnPODetails && response.listYarnPOMaster[0].listYarnPODetails.length > 0) {
+                                    var details = response.listYarnPOMaster[0].listYarnPODetails;
+                                    var seenMaterials = {};
+                                    var optionsHtml = "";
 
-                                if (response.listYarnPOMaster[0].listYarnPODetails.length > 0) {
-                                    if (response.listYarnPOMaster[0].listYarnPODetails.length == 1) {
-                                        templistYanrMaterialMaster = "<option value='0' > Select Material </option>";
-                                        $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
-                                        templistYanrMaterialMaster = "<option value='" + response.listYarnPOMaster[0].listYarnPODetails[0].YarnMaterialID + "' selected> " + response.listYarnPOMaster[0].listYarnPODetails[0].YarnMaterial + " </option>";
-                                        $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
-
-                                        OnYarnMaterial(response.listYarnPOMaster[0].listYarnPODetails[0].YarnMaterialID);
+                                    if (details.length == 1) {
+                                        optionsHtml = "<option value='0'> Select Material </option>";
+                                        optionsHtml += "<option value='" + details[0].YarnMaterialID + "' selected> " + details[0].YarnMaterial + " </option>";
+                                        $('#ddlYarnMaterial').html(optionsHtml).trigger('change.select2');
+                                        OnYarnMaterial(details[0].YarnMaterialID);
                                     }
                                     else {
-                                        templistYanrMaterialMaster = "<option value='0' selected> Select Material </option>";
-                                        $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
-
-                                        for (var i = 0; i < response.listYarnPOMaster[0].listYarnPODetails.length; i++) {
-                                            templistYanrMaterialMaster = "<option value='" + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterialID + "' > " + response.listYarnPOMaster[0].listYarnPODetails[i].YarnMaterial + " </option>";
-                                            $('#ddlYarnMaterial').append(templistYanrMaterialMaster);
+                                        optionsHtml = "<option value='0' selected> Select Material </option>";
+                                        for (var i = 0; i < details.length; i++) {
+                                            var matId = details[i].YarnMaterialID;
+                                            if (seenMaterials[matId]) continue;
+                                            seenMaterials[matId] = true;
+                                            optionsHtml += "<option value='" + matId + "'> " + details[i].YarnMaterial + " </option>";
                                         }
+                                        $('#ddlYarnMaterial').html(optionsHtml).trigger('change.select2');
                                     }
+                                }
+                                else {
+                                    $('#ddlYarnMaterial').html("<option value='0'> Select Material </option>").trigger('change.select2');
                                 }
                             }
                         }
@@ -1314,8 +1339,6 @@
         }
 
         function OnPendingYarnMaterial(YarnMaterialID) {
-            $('#ddlYarnColor option').remove();
-
             var formData = new FormData();
             formData.append('YarnPOID', $("#ddlPONumber").val());
             formData.append('YarnMaterialID', YarnMaterialID);
@@ -1331,23 +1354,28 @@
                     console.log("getYarnMaterialinward", response);
 
                     if (response.Code == "200") {
-                        if (response.listYarnPOMaster.length > 0) {
-                            var templistYanrColorMaster = "";
-                            templistYanrColorMaster = "<option value='0' > Select Yarn Color </option>";
-                            $('#ddlYarnColor').append(templistYanrColorMaster);
+                        if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                            var seenColors = {};
+                            var optionsHtml = "<option value='0'> Select Yarn Color </option>";
+                            var pendingColorId = $("#PendingYarnColorID").val();
 
                             for (var i = 0; i < response.listYarnPOMaster.length; i++) {
-                                if ($("#PendingYarnColorID").val() == response.listYarnPOMaster[i].YarnColorID) {
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnColorID + "' selected> " + response.listYarnPOMaster[i].YarnColor + " </option>";
-                                    $('#ddlYarnColor').append(templistYanrColorMaster);
+                                var colorId = response.listYarnPOMaster[i].YarnColorID;
+                                if (seenColors[colorId]) continue;
+                                seenColors[colorId] = true;
+
+                                if (pendingColorId == colorId) {
+                                    optionsHtml += "<option value='" + colorId + "' selected> " + response.listYarnPOMaster[i].YarnColor + " </option>";
                                 }
                                 else {
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnColorID + "'> " + response.listYarnPOMaster[i].YarnColor + " </option>";
-                                    $('#ddlYarnColor').append(templistYanrColorMaster);
+                                    optionsHtml += "<option value='" + colorId + "'> " + response.listYarnPOMaster[i].YarnColor + " </option>";
                                 }
                             }
-
-                            OnPendingYarnColor($("#PendingYarnColorID").val());
+                            $('#ddlYarnColor').html(optionsHtml).trigger('change.select2');
+                            OnPendingYarnColor(pendingColorId);
+                        }
+                        else {
+                            $('#ddlYarnColor').html("<option value='0'> Select Yarn Color </option>").trigger('change.select2');
                         }
                     }
                 },
@@ -1357,8 +1385,6 @@
         }
 
         function OnYarnMaterial(YarnMaterialID) {
-            $('#ddlYarnColor option').remove();
-
             var formData = new FormData();
             formData.append('YarnPOID', $("#ddlPONumber").val());
             formData.append('YarnMaterialID', YarnMaterialID);
@@ -1374,33 +1400,30 @@
                     console.log(response);
 
                     if (response.Code == "200") {
-                        if (response.listYarnPOMaster.length > 0) {
-                            if (response.listYarnPOMaster.length == 1) {
-                                var templistYanrColorMaster = "";
+                        if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                            var details = response.listYarnPOMaster;
+                            var seenColors = {};
+                            var optionsHtml = "";
 
-                                if (response.listYarnPOMaster.length > 0) {
-                                    templistYanrColorMaster = "<option value='0' > Select Yarn Color </option>";
-                                    $('#ddlYarnColor').append(templistYanrColorMaster);
-
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[0].YarnColorID + "' selected> " + response.listYarnPOMaster[0].YarnColor + " </option>";
-                                    $('#ddlYarnColor').append(templistYanrColorMaster);
-
-                                    OnYarnColor(response.listYarnPOMaster[0].YarnColorID);
-                                }
+                            if (details.length == 1) {
+                                optionsHtml = "<option value='0'> Select Yarn Color </option>";
+                                optionsHtml += "<option value='" + details[0].YarnColorID + "' selected> " + details[0].YarnColor + " </option>";
+                                $('#ddlYarnColor').html(optionsHtml).trigger('change.select2');
+                                OnYarnColor(details[0].YarnColorID);
                             }
                             else {
-                                var templistYanrColorMaster = "";
-
-                                if (response.listYarnPOMaster.length > 0) {
-                                    templistYanrColorMaster = "<option value='0' selected> Select Yarn Color </option>";
-                                    $('#ddlYarnColor').append(templistYanrColorMaster);
-
-                                    for (var i = 0; i < response.listYarnPOMaster.length; i++) {
-                                        templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnColorID + "'> " + response.listYarnPOMaster[i].YarnColor + " </option>";
-                                        $('#ddlYarnColor').append(templistYanrColorMaster);
-                                    }
+                                optionsHtml = "<option value='0' selected> Select Yarn Color </option>";
+                                for (var i = 0; i < details.length; i++) {
+                                    var colorId = details[i].YarnColorID;
+                                    if (seenColors[colorId]) continue;
+                                    seenColors[colorId] = true;
+                                    optionsHtml += "<option value='" + colorId + "'> " + details[i].YarnColor + " </option>";
                                 }
+                                $('#ddlYarnColor').html(optionsHtml).trigger('change.select2');
                             }
+                        }
+                        else {
+                            $('#ddlYarnColor').html("<option value='0'> Select Yarn Color </option>").trigger('change.select2');
                         }
                     }
                 },
@@ -1410,8 +1433,6 @@
         }
 
         function OnPendingYarnColor(YarnColorID) {
-            $('#ddlCompanyColourCode option').remove();
-
             var formData = new FormData();
             formData.append('YarnPOID', $("#ddlPONumber").val());
             formData.append('YarnMaterialID', $("#ddlYarnMaterial").val());
@@ -1428,24 +1449,34 @@
                     console.log(response);
 
                     if (response.Code == "200") {
-                        if (response.listYarnPOMaster.length > 0) {
-                            var templistYanrColorMaster = "";
-
-                            templistYanrColorMaster = "<option value='0' > Select Color Code </option>";
-                            $('#ddlCompanyColourCode').append(templistYanrColorMaster);
+                        if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                            var seenCodes = {};
+                            var optionsHtml = "<option value='0'> Select Color Code </option>";
+                            var pendingPODetailId = $("#PendingYarnPODetailID").val();
+                            var selectedDetailId = 0;
 
                             for (var i = 0; i < response.listYarnPOMaster.length; i++) {
-                                if ($("#PendingYarnPODetailID").val() == response.listYarnPOMaster[i].YarnPODetailID) {
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnPODetailID + "' selected> " + response.listYarnPOMaster[i].CompanyCode + " </option>";
-                                    $('#ddlCompanyColourCode').append(templistYanrColorMaster);
+                                var codeId = response.listYarnPOMaster[i].YarnPODetailID;
+                                if (seenCodes[codeId]) continue;
+                                seenCodes[codeId] = true;
+
+                                if (pendingPODetailId == codeId) {
+                                    optionsHtml += "<option value='" + codeId + "' selected> " + response.listYarnPOMaster[i].CompanyCode + " </option>";
+                                    selectedDetailId = codeId;
                                 }
                                 else {
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnPODetailID + "'> " + response.listYarnPOMaster[i].CompanyCode + " </option>";
-                                    $('#ddlCompanyColourCode').append(templistYanrColorMaster);
+                                    optionsHtml += "<option value='" + codeId + "'> " + response.listYarnPOMaster[i].CompanyCode + " </option>";
                                 }
-
-                                OnYarnTotalWeightChange(response.listYarnPOMaster[i].YarnPODetailID);
                             }
+                            $('#ddlCompanyColourCode').html(optionsHtml).trigger('change.select2');
+                            if (selectedDetailId > 0) {
+                                OnYarnTotalWeightChange(selectedDetailId);
+                            } else if (response.listYarnPOMaster.length > 0) {
+                                OnYarnTotalWeightChange(response.listYarnPOMaster[0].YarnPODetailID);
+                            }
+                        }
+                        else {
+                            $('#ddlCompanyColourCode').html("<option value='0'> Select Color Code </option>").trigger('change.select2');
                         }
                     }
                 },
@@ -1455,8 +1486,6 @@
         }
 
         function OnYarnColor(YarnColorID) {
-            $('#ddlCompanyColourCode option').remove();
-
             var formData = new FormData();
             formData.append('YarnPOID', $("#ddlPONumber").val());
             formData.append('YarnMaterialID', $("#ddlYarnMaterial").val());
@@ -1473,33 +1502,30 @@
                     console.log(response);
 
                     if (response.Code == "200") {
-                        if (response.listYarnPOMaster.length > 0) {
-                            if (response.listYarnPOMaster.length == 1) {
-                                var templistYanrColorMaster = "";
+                        if (response.listYarnPOMaster && response.listYarnPOMaster.length > 0) {
+                            var details = response.listYarnPOMaster;
+                            var seenCodes = {};
+                            var optionsHtml = "";
 
-                                if (response.listYarnPOMaster.length > 0) {
-                                    templistYanrColorMaster = "<option value='0' > Select Color Code </option>";
-                                    $('#ddlCompanyColourCode').append(templistYanrColorMaster);
-
-                                    templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[0].YarnPODetailID + "' selected> " + response.listYarnPOMaster[0].CompanyCode + " </option>";
-                                    $('#ddlCompanyColourCode').append(templistYanrColorMaster);
-
-                                    OnYarnTotalWeightChange(response.listYarnPOMaster[0].YarnPODetailID);
-                                }
+                            if (details.length == 1) {
+                                optionsHtml = "<option value='0'> Select Color Code </option>";
+                                optionsHtml += "<option value='" + details[0].YarnPODetailID + "' selected> " + details[0].CompanyCode + " </option>";
+                                $('#ddlCompanyColourCode').html(optionsHtml).trigger('change.select2');
+                                OnYarnTotalWeightChange(details[0].YarnPODetailID);
                             }
                             else {
-                                var templistYanrColorMaster = "";
-
-                                if (response.listYarnPOMaster.length > 0) {
-                                    templistYanrColorMaster = "<option value='0' selected> Select Company Code </option>";
-                                    $('#ddlCompanyColourCode').append(templistYanrColorMaster);
-
-                                    for (var i = 0; i < response.listYarnPOMaster.length; i++) {
-                                        templistYanrColorMaster = "<option value='" + response.listYarnPOMaster[i].YarnPODetailID + "'> " + response.listYarnPOMaster[i].CompanyCode + " </option>";
-                                        $('#ddlCompanyColourCode').append(templistYanrColorMaster);
-                                    }
+                                optionsHtml = "<option value='0' selected> Select Company Code </option>";
+                                for (var i = 0; i < details.length; i++) {
+                                    var codeId = details[i].YarnPODetailID;
+                                    if (seenCodes[codeId]) continue;
+                                    seenCodes[codeId] = true;
+                                    optionsHtml += "<option value='" + codeId + "'> " + details[i].CompanyCode + " </option>";
                                 }
+                                $('#ddlCompanyColourCode').html(optionsHtml).trigger('change.select2');
                             }
+                        }
+                        else {
+                            $('#ddlCompanyColourCode').html("<option value='0'> Select Color Code </option>").trigger('change.select2');
                         }
                     }
                 },
@@ -1737,7 +1763,9 @@
                 }
                 if (isValid == 0) {
                     for (var i = 0; i < txtColorData.length; i++) {
-                        var ArrayNo = parseInt(txtColorData[(txtColorData.length - 1)]) + parseInt(1);
+                        var lastRowNo = txtColorData[(txtColorData.length - 1)];
+                        var lastLocationVal = $("#Location" + lastRowNo).val();
+                        var ArrayNo = parseInt(lastRowNo) + parseInt(1);
                         tempColorMatching += '<tr id="trMatching' + ArrayNo + '">';
                         tempColorMatching += '<td style="width:3%;">';
                         tempColorMatching += '<i class="fa fa-times fa-2x" style="color: red; margin-top: 14px; cursor:pointer;" onclick="deleteYarnData(' + ArrayNo + ')"></i>';
@@ -1758,9 +1786,12 @@
                         tempColorMatching += '<div class="field-wrapper" style="display:flex;align-items:center;justify-content:center;gap:5px;margin: 0;">';
                         tempColorMatching += '<div id="tdLocation' + ArrayNo + '" style="width: 35px; height: 35px; border-radius: 3px;"></div>';
                         tempColorMatching += '<select id="Location' + ArrayNo + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)">';
-                        tempColorMatching += '<option value="0" selected>Select Location</option>';
-                        for (var i = 0; i < ArrayGodownLoaction[0].length; i++) {
-                            tempColorMatching += "<option value='" + ArrayGodownLoaction[0][i].GodownLocationID + "'> " + ArrayGodownLoaction[0][i].LocationTitle + " </option>";
+                        tempColorMatching += '<option value="0"' + (!lastLocationVal || lastLocationVal == "0" ? ' selected' : '') + '>Select Location</option>';
+                        if (ArrayGodownLoaction.length > 0 && ArrayGodownLoaction[0]) {
+                            for (var k = 0; k < ArrayGodownLoaction[0].length; k++) {
+                                var isSel = (lastLocationVal && ArrayGodownLoaction[0][k].GodownLocationID == lastLocationVal) ? ' selected' : '';
+                                tempColorMatching += "<option value='" + ArrayGodownLoaction[0][k].GodownLocationID + "'" + isSel + "> " + ArrayGodownLoaction[0][k].LocationTitle + " </option>";
+                            }
                         }
                         tempColorMatching += '</select>';
                         tempColorMatching += '</div>';
@@ -1768,6 +1799,14 @@
                         tempColorMatching += '</tr>';
                         $("#txtYarnDetailsArray").val(txtColorArray + ArrayNo + "|");
                         $("#tableItemData").append(tempColorMatching);
+
+                        if (lastLocationVal && lastLocationVal != "0") {
+                            $("#Location" + ArrayNo).val(lastLocationVal);
+                            var newLocElem = document.getElementById("Location" + ArrayNo);
+                            if (newLocElem) {
+                                validate(newLocElem);
+                            }
+                        }
 
                         setTimeout(() => {
                             var boxno = "#BoxNo" + ArrayNo;
@@ -1785,10 +1824,10 @@
 
         function deleteYarnData(abc) {
             var trMatching = "#trMatching" + abc;
-            var replace = abc + "|";
-            var ColorArray = $("#txtYarnDetailsArray").val();
             $(trMatching).remove();
-            $("#txtYarnDetailsArray").val(ColorArray.replace(replace, ''));
+            var ColorArray = $("#txtYarnDetailsArray").val().split('|').filter(x => x && x !== abc.toString()).join('|');
+            $("#txtYarnDetailsArray").val(ColorArray ? ColorArray + '|' : '');
+            PendingWeightCalc();
         }
 
         function PendingWeightCalc() {
@@ -1801,15 +1840,11 @@
             var txtColorData = txtColorArray.slice(0, -1).split('|');
 
             for (var j = 0; j < txtColorData.length; j++) {
+                if (!txtColorData[j]) continue;
                 var NW = "#NetWeight" + txtColorData[j];
-                var NWVal = $(NW).val();
-
-                if (NWVal == "") {
-                    TotWei += parseFloat(0);
-                }
-                else {
-                    TotWei += parseFloat(NWVal);
-                }
+                if ($(NW).length === 0) continue;
+                var NWVal = parseFloat($(NW).val()) || 0;
+                TotWei += NWVal;
             }
 
             if (TotalWeight == "") {
@@ -1993,18 +2028,26 @@
                     var appendTemp = '';
 
                     for (var j = 0; j < txtColorData.length; j++) {
-                        var BN = "#BoxNo" + txtColorData[j];
-                        var BNVal = $(BN).val();
-                        var BAR = "#BarcodeNo" + txtColorData[j];
-                        var BARVal = $(BAR).val();
-                        var NW = "#NetWeight" + txtColorData[j];
-                        var NWVal = $(NW).val();
-                        var LC = "#Location" + txtColorData[j];
-                        var LCVal = $(LC).val();
+                        var id = txtColorData[j];
+                        if (!id) continue;
+                        var tr = $("#trMatching" + id);
+                        if (tr.length === 0) continue;
+
+                        var BNVal = $("#BoxNo" + id).val() || "";
+                        var BARVal = $("#BarcodeNo" + id).val() || "";
+                        var rawNW = $("#NetWeight" + id).val();
+                        var NWVal = parseFloat(rawNW);
+                        var LCVal = $("#Location" + id).val() || "0";
+
+                        if (!BNVal.trim() && (isNaN(NWVal) || NWVal === 0)) {
+                            continue;
+                        }
+
+                        var finalNetWeight = isNaN(NWVal) ? "0.00" : NWVal.toFixed(2);
 
                         appendTemp += '{';
                         appendTemp += '"BoxNo": "' + BNVal + '",';
-                        appendTemp += '"NetWeight": "' + NWVal + '",';
+                        appendTemp += '"NetWeight": "' + finalNetWeight + '",';
                         appendTemp += '"BarcodeNo": "' + BARVal + '",';
                         appendTemp += '"GodownLocationID": "' + LCVal + '"';
                         appendTemp += '},';
@@ -2026,7 +2069,7 @@
                     YarnInwardArray += '"PendingWeight":"' + $("#TotalPendingTotalWeight").val() + '",';
                     YarnInwardArray += '"GodownID":"' + GodownID.value + '",';
                     YarnInwardArray += '"IsComplete":"' + IsComplete + '",';
-                    YarnInwardArray += '"listYarnInwardDetail": [' + appendTemp.slice(0, -1) + ']';
+                    YarnInwardArray += '"listYarnInwardDetail": [' + (appendTemp ? appendTemp.slice(0, -1) : '') + ']';
                     YarnInwardArray += '}';
 
                     const formData = new FormData();
@@ -2150,18 +2193,26 @@
 
                     var appendTemp = '';
                     for (var j = 0; j < txtColorData.length; j++) {
-                        var BN = "#BoxNo" + txtColorData[j];
-                        var BNVal = $(BN).val();
-                        var BAR = "#BarcodeNo" + txtColorData[j];
-                        var BARVal = $(BAR).val();
-                        var NW = "#NetWeight" + txtColorData[j];
-                        var NWVal = $(NW).val();
-                        var LC = "#Location" + txtColorData[j];
-                        var LCVal = $(LC).val();
+                        var id = txtColorData[j];
+                        if (!id) continue;
+                        var tr = $("#trMatching" + id);
+                        if (tr.length === 0) continue;
+
+                        var BNVal = $("#BoxNo" + id).val() || "";
+                        var BARVal = $("#BarcodeNo" + id).val() || "";
+                        var rawNW = $("#NetWeight" + id).val();
+                        var NWVal = parseFloat(rawNW);
+                        var LCVal = $("#Location" + id).val() || "0";
+
+                        if (!BNVal.trim() && (isNaN(NWVal) || NWVal === 0)) {
+                            continue;
+                        }
+
+                        var finalNetWeight = isNaN(NWVal) ? "0.00" : NWVal.toFixed(2);
 
                         appendTemp += '{';
                         appendTemp += '"BoxNo": "' + BNVal + '",';
-                        appendTemp += '"NetWeight": "' + NWVal + '",';
+                        appendTemp += '"NetWeight": "' + finalNetWeight + '",';
                         appendTemp += '"BarcodeNo": "' + BARVal + '",';
                         appendTemp += '"GodownLocationID": "' + LCVal + '"';
                         appendTemp += '},';
@@ -2183,7 +2234,7 @@
                     YarnInwardArray += '"PendingWeight":"' + $("#TotalPendingTotalWeight").val() + '",';
                     YarnInwardArray += '"GodownID":"' + GodownID.value + '",';
                     YarnInwardArray += '"IsComplete":"1",';
-                    YarnInwardArray += '"listYarnInwardDetail": [' + appendTemp.slice(0, -1) + ']';
+                    YarnInwardArray += '"listYarnInwardDetail": [' + (appendTemp ? appendTemp.slice(0, -1) : '') + ']';
                     YarnInwardArray += '}';
 
                     const formData = new FormData();
@@ -2235,19 +2286,20 @@
             $('#tableItemData').find('[id^="NetWeight"]').each(function () {
                 receiveWeight += parseFloat($(this).val()) || 0;
             });
+            receiveWeight = parseFloat(receiveWeight.toFixed(2));
             let ReceivePOQty = parseFloat($('#ReceivePOQty').val()) || 0;
-            let ChallanWeight = parseFloat($('#TotalWeight').val()) || 0;
+            let ChallanWeight = parseFloat(parseFloat($('#TotalWeight').val() || 0).toFixed(2));
             let TotalPendingWeight = parseFloat($('#TotalPendingWeight').text()) || 0;
 
             let pending = totalWeight - receiveWeight;
 
             $('#TotalPendingWeight').text(pending.toFixed(2));
 
-            if (ChallanWeight !== receiveWeight) {
+            if (ChallanWeight.toFixed(2) !== receiveWeight.toFixed(2)) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Challan Pending Weight InComplete',
-                    text: `Total: ${ChallanWeight} | Received: ${receiveWeight}`
+                    text: `Total: ${ChallanWeight.toFixed(2)} | Received: ${receiveWeight.toFixed(2)}`
                 });
                 return;
             }
@@ -2256,7 +2308,7 @@
                 title: 'Confirm Save',
                 html: `
                         <b>Total Weight:</b> ${totalWeight} <br>
-                        <b>Receive Weight:</b> ${ReceivePOQty + receiveWeight}<br>
+                        <b>Receive Weight:</b> ${(ReceivePOQty + receiveWeight).toFixed(2)}<br>
                         <b>Pending Weight:</b> ${TotalPendingWeight}
                     `,
                 icon: 'info',

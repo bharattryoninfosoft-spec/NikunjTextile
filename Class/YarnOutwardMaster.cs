@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -88,6 +88,7 @@ namespace NikunjTextile.Class
         public int FinancialYearID { get; set; }
         public int SundryPartyId { get; set; }
         public int CompanyId { get; set; }
+        public string PartyName { get; set; }
     }
 
     public class YarnOutwardDetailModel

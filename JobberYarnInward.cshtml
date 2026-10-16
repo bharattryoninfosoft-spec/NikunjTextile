@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -587,11 +587,11 @@
                     );
 
                     $("#viewJobberChallanNo").val(
-                        master[0].ReceivedChallanNo || ""  
+                        master[0].JobberChallanNo || ""  
                     );
 
                     $("#viewReceivedChallanNo").val(
-                        master[0].JobberChallanNo || "" 
+                        master[0].ReceivedChallanNo || master[0].JobWorkOutwardId || "" 
                     );
 
                     $("#viewGodown").val(
