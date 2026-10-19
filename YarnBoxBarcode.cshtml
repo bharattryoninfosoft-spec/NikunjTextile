@@ -280,7 +280,7 @@
                         
                         temp += "<div style='border: 1px solid; border-radius: 10px; width: 98%; '>";
                         temp += "<h1 style='clear: both; width: 95%; background-color: #FFFFFF; color: #000000; text-align: center; margin: 2px; margin-top: 15px; font-family: sans-serif;'>" + response.listYarnInwardMaster[0].CompanyName + "</h1>";
-                        temp += "<table style='width: 100%; font-size: x-large; '>";
+                        temp += "<table style='font-size: x-large; '>";
                         temp += "<tr>";
                         temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Yarn Material</td>";
                         temp += "<td>:</td>";
@@ -296,12 +296,11 @@
                         temp += "<td>:</td>";
                         temp += "<th style='font-family: system-ui; text-align: start; '>" + (response.listYarnInwardMaster[0].ColourCode || response.listYarnInwardMaster[0].YarnColorCode || '') + "</th>";
                         temp += "</tr>";
-                        temp += "<tr>";
-                        temp += "<td style=' font-family: system-ui; text-align: end; font-weight: 500;'>Net Weight</td>";
-                        temp += "<td>:</td>";
-                        temp += "<th style='font-family: system-ui; text-align: start; '>" + response.listYarnInwardMaster[0].NetWeight + "</th>";
-                        temp += "</tr>";
                         temp += "</table>";
+                        temp += "<div style='display: flex; justify-content: space-between; align-items: center; width: 92%; margin: 6px auto 4px auto; font-size: x-large; font-family: system-ui;'>";
+                        temp += "<div style='text-align: left;'><span style='font-weight: 500;'>Net Weight</span> : <span style='font-weight: bold;'>" + response.listYarnInwardMaster[0].NetWeight + "</span></div>";
+                        temp += "<div style='text-align: right;'><span style='font-weight: bold;'>Box No: " + (response.listYarnInwardMaster[0].BoxNo || '') + "</span></div>";
+                        temp += "</div>";
                         //temp += "<hr />";
                         temp += "<center style='border-top: 2px solid black; margin-top: 10px;'>";
                         temp += "<svg id='barcode' style='width: 100%;'></svg>";

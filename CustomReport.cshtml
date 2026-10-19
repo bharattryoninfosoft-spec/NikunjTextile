@@ -1,7 +1,201 @@
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Web.Script.Serialization;
 @{
+    if (Request["handler"] == "GetBoxDetails")
+    {
+        Response.Clear();
+        Response.ContentType = "application/json";
+
+        string locationTitle = (Request["LocationTitle"] ?? "").Trim();
+        string godownTitle = (Request["GodownTitle"] ?? "").Trim();
+        string yarnMaterial = (Request["YarnMaterial"] ?? "").Trim();
+        string yarnColor = (Request["YarnColor"] ?? "").Trim();
+        string yarnColorCode = (Request["YarnColorCode"] ?? "").Trim();
+        string companyName = (Request["CompanyName"] ?? "").Trim();
+        string partyName = (Request["PartyName"] ?? "").Trim();
+        bool allInLocation = (Request["AllInLocation"] ?? "").ToLower() == "true";
+
+        var list = new System.Collections.Generic.List<object>();
+        string cs = System.Configuration.ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+        try
+        {
+            using (SqlConnection con = new SqlConnection(cs))
+            {
+                con.Open();
+
+                string baseQuery = @"
+WITH LatestInterchange AS (
+    SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
+    FROM (
+        SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
+               ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) as rn
+        FROM YarnInterchangeMaster
+        WHERE YarnInwardDetailID IS NOT NULL
+    ) sub WHERE rn = 1
+),
+ActiveBoxes AS (
+    SELECT 
+        YID.YarnInwardDetailID,
+        YID.BoxNo,
+        YID.BarcodeNo,
+        CAST(ISNULL(YID.NetWeight, 0) AS DECIMAL(18,2)) AS NetWeight,
+        YID.YarnInwardID,
+        COALESCE(NULLIF(LI.GodownLocationID, 0), NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) AS CurrentLocationID,
+        COALESCE(LI.YarnMaterialID, YIM.YarnMaterialID) AS CurrentMaterialID,
+        COALESCE(LI.YarnColorID, YIM.YarnColorID) AS CurrentColorID
+    FROM YarnInwardDetail YID
+    INNER JOIN YarnInwardMaster YIM ON YID.YarnInwardID = YIM.YarnInwardID
+    LEFT JOIN LatestInterchange LI ON YID.YarnInwardDetailID = LI.YarnInwardDetailID
+    WHERE ISNULL(YID.BoxNo, '') <> ''
+      AND NOT EXISTS (
+          SELECT 1 FROM YARNOUTWARDScanMasterDetails YOSD WHERE YOSD.BarcodeNo = YID.BarcodeNo
+      )
+)
+SELECT 
+    AB.YarnInwardDetailID,
+    AB.BoxNo,
+    AB.BarcodeNo,
+    AB.NetWeight,
+    GLM.LocationTitle,
+    GM.GodownTitle,
+    YMM.YarnMaterial,
+    YCM.YarnColor,
+    YCM.YarnColorCode,
+    COALESCE(PM_Bill.PartyName, CM.CompanyName, '') AS CompanyName,
+    COALESCE(PM_Ship.PartyName, '') AS PartyName,
+    YIM.ChallanNo,
+    CONVERT(VARCHAR(10), YIM.YarnInwardDate, 120) AS YarnInwardDate
+FROM ActiveBoxes AB
+INNER JOIN YarnInwardMaster YIM ON AB.YarnInwardID = YIM.YarnInwardID
+LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = AB.CurrentLocationID
+LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
+LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = AB.CurrentMaterialID
+LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = AB.CurrentColorID
+LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
+LEFT JOIN CompanyMaster CM ON CM.CompanyId = YIM.CompanyId
+LEFT JOIN PartyMaster PM_Bill ON PM_Bill.PartyId = YPM.BillToPartyID
+LEFT JOIN PartyMaster PM_Ship ON PM_Ship.PartyId = YPM.ShippedToPartyID
+WHERE UPPER(RTRIM(LTRIM(GLM.LocationTitle))) = UPPER(RTRIM(LTRIM(@LocationTitle)))";
+
+                string rowFilter = "";
+                if (!allInLocation)
+                {
+                    if (!string.IsNullOrEmpty(yarnMaterial))
+                    {
+                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YMM.YarnMaterial, '')))) = UPPER(RTRIM(LTRIM(@YarnMaterial)))";
+                    }
+                    if (!string.IsNullOrEmpty(yarnColor))
+                    {
+                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YCM.YarnColor, '')))) = UPPER(RTRIM(LTRIM(@YarnColor)))";
+                    }
+                    if (!string.IsNullOrEmpty(yarnColorCode))
+                    {
+                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YCM.YarnColorCode, '')))) = UPPER(RTRIM(LTRIM(@YarnColorCode)))";
+                    }
+                }
+
+                string orderBy = @"
+ORDER BY 
+    CASE WHEN ISNUMERIC(AB.BoxNo) = 1 THEN CAST(AB.BoxNo AS BIGINT) ELSE 999999999 END,
+    AB.BoxNo";
+
+                DataTable dt = new DataTable();
+                using (SqlCommand cmd = new SqlCommand(baseQuery + rowFilter + orderBy, con))
+                {
+                    cmd.Parameters.AddWithValue("@LocationTitle", locationTitle);
+                    cmd.Parameters.AddWithValue("@YarnMaterial", yarnMaterial);
+                    cmd.Parameters.AddWithValue("@YarnColor", yarnColor);
+                    cmd.Parameters.AddWithValue("@YarnColorCode", yarnColorCode);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt);
+                }
+
+                if (dt.Rows.Count == 0 && !allInLocation)
+                {
+                    using (SqlCommand cmdFallback = new SqlCommand(baseQuery + orderBy, con))
+                    {
+                        cmdFallback.Parameters.AddWithValue("@LocationTitle", locationTitle);
+                        SqlDataAdapter da = new SqlDataAdapter(cmdFallback);
+                        da.Fill(dt);
+                    }
+                }
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    list.Add(new
+                    {
+                        YarnInwardDetailID = dr["YarnInwardDetailID"],
+                        BoxNo = dr["BoxNo"].ToString(),
+                        BarcodeNo = dr["BarcodeNo"].ToString(),
+                        NetWeight = Convert.ToDecimal(dr["NetWeight"]),
+                        LocationTitle = dr["LocationTitle"].ToString(),
+                        GodownTitle = dr["GodownTitle"].ToString(),
+                        YarnMaterial = dr["YarnMaterial"].ToString(),
+                        YarnColor = dr["YarnColor"].ToString(),
+                        YarnColorCode = dr["YarnColorCode"].ToString(),
+                        CompanyName = dr["CompanyName"].ToString(),
+                        PartyName = dr["PartyName"].ToString(),
+                        ChallanNo = dr["ChallanNo"].ToString(),
+                        YarnInwardDate = dr["YarnInwardDate"].ToString()
+                    });
+                }
+
+                var resObj = new
+                {
+                    status = "success",
+                    totalBoxes = list.Count,
+                    data = list
+                };
+                Response.Write(new JavaScriptSerializer().Serialize(resObj));
+            }
+        }
+        catch (Exception ex)
+        {
+            var errObj = new
+            {
+                status = "error",
+                message = ex.Message
+            };
+            Response.Write(new JavaScriptSerializer().Serialize(errObj));
+        }
+
+        Response.End();
+        return;
+    }
     Layout = "/_LayoutPage1.cshtml";
 }
 <style>
+    /* Box Count Link Styling */
+    .btn-box-details {
+        transition: all 0.2s ease-in-out;
+        letter-spacing: 0.3px;
+        box-shadow: 0 1px 3px rgba(13, 110, 253, 0.25);
+    }
+    .btn-box-details:hover {
+        background-color: #0b5ed7 !important;
+        transform: translateY(-1px) scale(1.05);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.35) !important;
+    }
+    .box-count-cell {
+        cursor: pointer;
+    }
+    .box-count-cell:hover {
+        background-color: rgba(13, 110, 253, 0.05) !important;
+    }
+
+    /* Modal Table Styling */
+    #tblBoxDetailsList thead th {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    #tblBoxDetailsList tbody td {
+        font-size: 0.88rem;
+    }
+
     /* Hide Export Buttons */
     .dt-buttons,
     .dataTables_wrapper .dt-buttons {
@@ -216,6 +410,166 @@
 
                         </div>
 
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Box Details Modal -->
+            <div class="modal fade" id="modalLocationBoxes" tabindex="-1" aria-labelledby="modalLocationBoxesLabel" aria-hidden="true" style="z-index: 1060;">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+
+                        <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff; border-bottom: none;">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-3 me-3 p-2 rounded-circle" style="background: rgba(255,255,255,0.18); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa fa-cubes text-white" style="font-size: 1.3rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                                        <h5 class="modal-title mb-0 font-weight-bold fw-bold text-white" id="modalLocationBoxesLabel" style="letter-spacing: -0.2px;">Location Box Details:</h5>
+                                        <span id="modalLocTitle" class="badge badge-light px-2 py-1" style="font-size: 0.95rem; font-weight: 700; color: #1e40af; background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">Location</span>
+                                    </div>
+                                    <small id="modalLocSubTitle" class="text-white-50" style="font-size: 0.82rem;">Boxes and weights inside this location</small>
+                                </div>
+                            </div>
+                            <button type="button" class="close text-white ml-auto ms-auto" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" style="opacity: 0.9; font-size: 1.6rem; background: transparent; border: none; line-height: 1; cursor: pointer; text-shadow: none;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body p-3 p-md-4" style="background-color: #f8fafc;">
+                            <!-- Summary Stats Row -->
+                            <div class="row g-2 mb-3">
+                                <!-- Location & Godown -->
+                                <div class="col-lg-3 col-md-6 col-12 mb-2 mb-lg-0">
+                                    <div class="p-2 px-3 rounded shadow-sm h-100" style="background: #ffffff; border: 1px solid #e2e8f0;">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fa fa-map-marker text-muted mr-1 me-1" style="font-size: 0.8rem;"></i>
+                                            <span class="text-muted text-uppercase font-weight-bold fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Location & Godown</span>
+                                        </div>
+                                        <div class="font-weight-bold fw-bold text-dark text-truncate" id="boxModalLocationInfo" style="font-size: 0.92rem;">-</div>
+                                    </div>
+                                </div>
+
+                                <!-- Material & Color -->
+                                <div class="col-lg-3 col-md-6 col-12 mb-2 mb-lg-0">
+                                    <div class="p-2 px-3 rounded shadow-sm h-100" style="background: #ffffff; border: 1px solid #e2e8f0;">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fa fa-tag text-muted mr-1 me-1" style="font-size: 0.8rem;"></i>
+                                            <span class="text-muted text-uppercase font-weight-bold fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Material & Color</span>
+                                        </div>
+                                        <div class="font-weight-bold fw-bold text-dark text-truncate" id="boxModalMaterialInfo" style="font-size: 0.92rem;">-</div>
+                                    </div>
+                                </div>
+
+                                <!-- Total Boxes -->
+                                <div class="col-lg-2 col-md-4 col-4">
+                                    <div class="p-2 px-3 rounded text-center shadow-sm h-100" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                                        <span class="d-block text-uppercase font-weight-bold fw-bold" style="font-size: 0.68rem; color: #1e40af; letter-spacing: 0.5px;">Total Boxes</span>
+                                        <div class="font-weight-bold fw-bold" style="font-size: 1.35rem; color: #1d4ed8; line-height: 1.2;">
+                                            <span id="boxModalTotalBoxes">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Total Net Weight -->
+                                <div class="col-lg-2 col-md-4 col-4">
+                                    <div class="p-2 px-3 rounded text-center shadow-sm h-100" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                        <span class="d-block text-uppercase font-weight-bold fw-bold" style="font-size: 0.68rem; color: #166534; letter-spacing: 0.5px;">Total Weight</span>
+                                        <div class="font-weight-bold fw-bold" style="font-size: 1.35rem; color: #15803d; line-height: 1.2;">
+                                            <span id="boxModalTotalWeight">0.00</span> <small style="font-size: 0.75rem; font-weight: 600; color: #166534;">kg</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Avg Wt / Box -->
+                                <div class="col-lg-2 col-md-4 col-4">
+                                    <div class="p-2 px-3 rounded text-center shadow-sm h-100" style="background: #fffbeb; border: 1px solid #fde68a;">
+                                        <span class="d-block text-uppercase font-weight-bold fw-bold" style="font-size: 0.68rem; color: #92400e; letter-spacing: 0.5px;">Avg Wt / Box</span>
+                                        <div class="font-weight-bold fw-bold" style="font-size: 1.35rem; color: #b45309; line-height: 1.2;">
+                                            <span id="boxModalAvgWeight">0.00</span> <small style="font-size: 0.75rem; font-weight: 600; color: #92400e;">kg</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table Controls / Search -->
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="gap: 10px;">
+                                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                                    <div class="input-group" style="width: 290px; max-width: 100%;">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-white border-right-0" style="border-radius: 8px 0 0 8px; border-color: #cbd5e1; color: #64748b;">
+                                                <i class="fa fa-search"></i>
+                                            </span>
+                                        </div>
+                                        <input type="text" id="boxSearchInput" class="form-control border-left-0" placeholder="Search Box No / Barcode..." style="border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 0.88rem; box-shadow: none;">
+                                    </div>
+                                    <span id="boxFilterCount" class="badge badge-secondary px-2 py-1" style="font-size: 0.78rem; border-radius: 6px; background-color: #475569;">0 boxes</span>
+                                </div>
+
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-primary active font-weight-bold px-3 py-1" id="btnFilterRowOnly" style="border-radius: 6px 0 0 6px;">
+                                        <i class="fa fa-filter mr-1 me-1"></i> This Yarn Only (<span id="countRowOnly">0</span>)
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary px-3 py-1" id="btnFilterAllLocation">
+                                        <i class="fa fa-cubes mr-1 me-1"></i> All in Location <span id="countAllLocBadge"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success font-weight-bold px-3 py-1" id="btnExportBoxesExcel" title="Download Excel" style="border-radius: 0 6px 6px 0;">
+                                        <i class="fa fa-file-excel-o mr-1 me-1"></i> Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Box Details Table Container -->
+                            <div class="card border-0 shadow-sm" style="border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1 !important;">
+                                <div class="card-body p-0">
+                                    <div id="boxLoadingSpinner" class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                            <span class="visually-hidden sr-only">Loading boxes...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted font-weight-bold fw-semibold mb-0" style="font-size: 0.9rem;">Fetching box weights for this location...</p>
+                                    </div>
+
+                                    <div id="boxErrorMsg" class="alert alert-danger m-3 d-none" style="border-radius: 6px;"></div>
+
+                                    <div id="boxTableWrapper" class="table-responsive d-none" style="max-height: 440px; overflow-y: auto;">
+                                        <table class="table table-hover table-striped mb-0 align-middle" id="tblBoxDetailsList" style="font-size: 0.86rem; border-collapse: separate; border-spacing: 0;">
+                                            <thead class="sticky-top" style="top: 0; z-index: 10; background: #0f172a; color: #f8fafc;">
+                                                <tr>
+                                                    <th class="text-center py-2" style="width: 45px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">#</th>
+                                                    <th class="text-center py-2" style="width: 140px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Box No</th>
+                                                    <th class="text-center py-2" style="width: 160px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Barcode No</th>
+                                                    <th class="text-right text-end py-2" style="width: 135px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Net Weight (kg)</th>
+                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Material</th>
+                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Color (Code)</th>
+                                                    <th class="text-center py-2" style="width: 110px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Inward Date</th>
+                                                    <th class="text-center py-2" style="width: 100px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Challan No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="background: #ffffff;"></tbody>
+                                            <tfoot class="sticky-bottom font-weight-bold fw-bold" style="bottom: 0; background: #f8fafc; border-top: 2px solid #cbd5e1; box-shadow: 0 -2px 6px rgba(0,0,0,0.03);">
+                                                <tr>
+                                                    <td colspan="3" class="text-right text-end text-muted text-uppercase py-2" style="font-size: 0.8rem; letter-spacing: 0.5px; vertical-align: middle;">Total:</td>
+                                                    <td class="text-right text-end font-weight-bold fw-bold text-success py-2" id="tfootTotalWeight" style="font-size: 1.05rem; vertical-align: middle;">0.00 kg</td>
+                                                    <td colspan="4" class="text-muted py-2" style="vertical-align: middle;">
+                                                        <span class="badge badge-light px-2 py-1 border" style="background:#ffffff; color:#334155; font-size:0.82rem; font-weight: 600;">
+                                                            <i class="fa fa-cubes text-primary mr-1 me-1"></i><span id="tfootTotalBoxes">0</span> Boxes
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer py-2 px-3" style="background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                            <small class="text-muted mr-auto me-auto d-none d-sm-inline" style="font-size: 0.8rem;">
+                                <i class="fa fa-info-circle mr-1 me-1 text-primary"></i>Showing active in-stock yarn boxes in location
+                            </small>
+                            <button type="button" class="btn btn-secondary btn-sm px-4 font-weight-bold" data-dismiss="modal" data-bs-dismiss="modal" style="border-radius: 6px;">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -814,11 +1168,42 @@
 
                     $("#reportTable").empty();
 
+                    var colKeys = Object.keys(data[0]);
+                    var cols = colKeys.map(function (key) {
+                        var lower = key.toLowerCase();
+                        var isBoxCount = lower.indexOf('box') >= 0 && lower.indexOf('color') < 0 && lower.indexOf('code') < 0;
+                        if (isBoxCount) {
+                            return {
+                                data: key,
+                                title: key,
+                                className: 'text-center box-count-cell',
+                                render: function (val, type, row) {
+                                    var count = val || 0;
+                                    return '<a href="javascript:void(0)" class="btn-box-details badge bg-primary text-white text-decoration-none px-2 py-1 shadow-sm" ' +
+                                        'title="Click to view all boxes and weights in this location" style="cursor: pointer; font-size: 0.95rem; display: inline-block;">' +
+                                        '<i class="fa fa-cubes me-1"></i>' + count +
+                                        '</a>';
+                                }
+                            };
+                        }
+                        var isWeight = lower.indexOf('weight') >= 0 || lower.indexOf('wt') >= 0;
+                        if (isWeight) {
+                            return {
+                                data: key,
+                                title: key,
+                                className: 'text-end fw-semibold',
+                                render: function (val) {
+                                    var num = parseFloat(val) || 0;
+                                    return num.toFixed(2);
+                                }
+                            };
+                        }
+                        return { data: key, title: key };
+                    });
+
                     $("#reportTable").DataTable({
                         data: data,
-                        columns: Object.keys(data[0]).map(function (key) {
-                            return { data: key, title: key };
-                        }),
+                        columns: cols,
 
                         dom: '<"row mb-2"<"col-md-6"B><"col-md-6 text-end"f>>rtip',
 
@@ -1019,6 +1404,289 @@
             $("#loadFilterModal").modal("hide");
             // 🔥 Load report
             LoadReport()
+        });
+
+        // ========================================================
+        // 📦 LOCATION BOX DETAILS MODAL LOGIC
+        // ========================================================
+        var currentModalRowData = null;
+        var rowBoxesCache = [];
+        var allBoxesCache = [];
+
+        $(document).on("click", ".btn-box-details, .btn-box-details *, td.box-count-cell", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var tr = $(this).closest('tr');
+            var table = $('#reportTable').DataTable();
+            var rowData = table.row(tr).data();
+
+            if (rowData) {
+                showBoxDetailsModal(rowData);
+            }
+        });
+
+        function openBoxModalElement() {
+            var $m = $("#modalLocationBoxes");
+            if (typeof $m.modal === 'function') {
+                $m.modal('show');
+            } else if (window.bootstrap && bootstrap.Modal) {
+                try {
+                    var el = document.getElementById('modalLocationBoxes');
+                    var modal = (typeof bootstrap.Modal.getInstance === 'function' ? bootstrap.Modal.getInstance(el) : null) || new bootstrap.Modal(el);
+                    modal.show();
+                } catch (e) {
+                    $m.addClass('show').css('display', 'block');
+                }
+            } else {
+                $m.addClass('show').css('display', 'block');
+            }
+        }
+
+        function closeBoxModalElement() {
+            var $m = $("#modalLocationBoxes");
+            if (typeof $m.modal === 'function') {
+                $m.modal('hide');
+            } else if (window.bootstrap && bootstrap.Modal) {
+                try {
+                    var el = document.getElementById('modalLocationBoxes');
+                    var modal = typeof bootstrap.Modal.getInstance === 'function' ? bootstrap.Modal.getInstance(el) : null;
+                    if (modal) modal.hide();
+                    else $m.removeClass('show').css('display', 'none');
+                } catch (e) {
+                    $m.removeClass('show').css('display', 'none');
+                }
+            } else {
+                $m.removeClass('show').css('display', 'none');
+            }
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css('padding-right', '');
+        }
+
+        $(document).on("click", "#modalLocationBoxes [data-dismiss='modal'], #modalLocationBoxes [data-bs-dismiss='modal']", function () {
+            closeBoxModalElement();
+        });
+
+        function showBoxDetailsModal(rowData) {
+            currentModalRowData = rowData;
+            rowBoxesCache = [];
+            allBoxesCache = [];
+
+            var locTitle = rowData.LocationTitle || rowData.GodownLocationTitle || rowData.Location || '';
+            var gdnTitle = rowData.GodownTitle || rowData.Godown || '';
+            var mat = rowData.YarnMaterial || rowData.Material || '';
+            var color = rowData.YarnColor || rowData.Color || '';
+            var code = rowData.YarnColorCode || rowData.ColorCode || '';
+            var comp = rowData.CompanyName || '';
+            var party = rowData.PartyName || '';
+            var boxes = parseInt(rowData.NoOfBoxes || rowData.Boxes || 0) || 0;
+            var weight = parseFloat(rowData.NetWeight || rowData.Weight || 0).toFixed(2);
+
+            $("#modalLocTitle").text(locTitle || 'Location');
+            $("#modalLocSubTitle").text('Boxes and weights inside ' + (locTitle || 'this location'));
+
+            var locText = locTitle || '-';
+            if (gdnTitle) locText += ' <span class="text-muted fw-normal">(' + gdnTitle + ')</span>';
+            $("#boxModalLocationInfo").html(locText);
+
+            var matText = mat || '-';
+            if (color) matText += ' / ' + color;
+            if (code) matText += ' <span class="badge bg-secondary">' + code + '</span>';
+            $("#boxModalMaterialInfo").html(matText);
+
+            $("#boxModalTotalBoxes").text(boxes);
+            $("#boxModalTotalWeight").text(weight);
+            var avg = boxes > 0 ? (parseFloat(weight) / boxes).toFixed(2) : '0.00';
+            $("#boxModalAvgWeight").text(avg);
+
+            // Reset modal controls
+            $("#boxSearchInput").val('');
+            $("#boxErrorMsg").addClass("d-none").text('');
+            $("#boxTableWrapper").addClass("d-none");
+            $("#boxLoadingSpinner").removeClass("d-none");
+            $("#btnFilterRowOnly").addClass("btn-primary active font-weight-bold").removeClass("btn-outline-primary");
+            $("#btnFilterAllLocation").removeClass("btn-primary active font-weight-bold").addClass("btn-outline-secondary");
+            $("#countRowOnly").text(boxes);
+            $("#countAllLocBadge").empty();
+
+            openBoxModalElement();
+
+            // Fetch boxes
+            fetchBoxDetails(rowData, false);
+        }
+
+        function fetchBoxDetails(rowData, allInLocation) {
+            var locTitle = rowData.LocationTitle || rowData.GodownLocationTitle || rowData.Location || '';
+            var gdnTitle = rowData.GodownTitle || rowData.Godown || '';
+            var mat = rowData.YarnMaterial || rowData.Material || '';
+            var color = rowData.YarnColor || rowData.Color || '';
+            var code = rowData.YarnColorCode || rowData.ColorCode || '';
+            var comp = rowData.CompanyName || '';
+            var party = rowData.PartyName || '';
+
+            $("#boxLoadingSpinner").removeClass("d-none");
+            $("#boxTableWrapper").addClass("d-none");
+            $("#boxErrorMsg").addClass("d-none");
+
+            $.ajax({
+                url: '/CustomReport.cshtml?handler=GetBoxDetails',
+                type: 'POST',
+                data: {
+                    LocationTitle: locTitle,
+                    GodownTitle: gdnTitle,
+                    YarnMaterial: mat,
+                    YarnColor: color,
+                    YarnColorCode: code,
+                    CompanyName: comp,
+                    PartyName: party,
+                    AllInLocation: allInLocation ? 'true' : 'false'
+                },
+                dataType: 'json',
+                success: function (res) {
+                    $("#boxLoadingSpinner").addClass("d-none");
+                    if (res && res.status === 'success' && res.data) {
+                        if (!allInLocation) {
+                            rowBoxesCache = res.data;
+                            $("#countRowOnly").text(res.data.length);
+                        } else {
+                            allBoxesCache = res.data;
+                            $("#countAllLocBadge").text('(' + res.data.length + ')');
+                        }
+                        renderBoxTable(res.data);
+                    } else {
+                        $("#boxErrorMsg").removeClass("d-none").text((res && res.message) ? res.message : 'No boxes found for this location.');
+                    }
+                },
+                error: function () {
+                    // Fallback to WebServiceNikunjTextile.asmx
+                    $.ajax({
+                        url: '/WebServiceNikunjTextile.asmx/GetLocationBoxDetails',
+                        type: 'POST',
+                        data: JSON.stringify({
+                            LocationTitle: locTitle,
+                            GodownTitle: gdnTitle,
+                            YarnMaterial: mat,
+                            YarnColor: color,
+                            YarnColorCode: code,
+                            CompanyName: comp,
+                            PartyName: party,
+                            AllInLocation: allInLocation
+                        }),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        success: function (res2) {
+                            $("#boxLoadingSpinner").addClass("d-none");
+                            var parsed = typeof res2.d === 'string' ? JSON.parse(res2.d) : (res2.d || res2);
+                            var boxList = (parsed && parsed.data) ? parsed.data : (Array.isArray(parsed) ? parsed : []);
+                            if (!allInLocation) {
+                                rowBoxesCache = boxList;
+                                $("#countRowOnly").text(boxList.length);
+                            } else {
+                                allBoxesCache = boxList;
+                                $("#countAllLocBadge").text('(' + boxList.length + ')');
+                            }
+                            renderBoxTable(boxList);
+                        },
+                        error: function (xhr2) {
+                            $("#boxLoadingSpinner").addClass("d-none");
+                            $("#boxErrorMsg").removeClass("d-none").text('Error loading box details. Please try again.');
+                        }
+                    });
+                }
+            });
+        }
+
+        function renderBoxTable(boxes) {
+            var tbody = $("#tblBoxDetailsList tbody");
+            tbody.empty();
+
+            var filterText = ($("#boxSearchInput").val() || '').trim().toLowerCase();
+
+            var filtered = (boxes || []).filter(function (b) {
+                if (!filterText) return true;
+                var boxNo = String(b.BoxNo || '').toLowerCase();
+                var barcode = String(b.BarcodeNo || '').toLowerCase();
+                var mat = String(b.YarnMaterial || '').toLowerCase();
+                var col = String(b.YarnColor || '').toLowerCase();
+                return boxNo.indexOf(filterText) >= 0 || barcode.indexOf(filterText) >= 0 || mat.indexOf(filterText) >= 0 || col.indexOf(filterText) >= 0;
+            });
+
+            $("#boxFilterCount").text(filtered.length + ' / ' + (boxes ? boxes.length : 0) + ' boxes');
+
+            if (filtered.length === 0) {
+                tbody.html('<tr><td colspan="8" class="text-center py-4 text-muted"><i class="fa fa-info-circle me-1"></i> No matching boxes found.</td></tr>');
+                $("#tfootTotalWeight").html('0.00 <small class="font-weight-normal fw-normal">kg</small>');
+                $("#tfootTotalBoxes").text(0);
+                $("#boxTableWrapper").removeClass("d-none");
+                return;
+            }
+
+            var totalWt = 0;
+            filtered.forEach(function (b, idx) {
+                var wt = parseFloat(b.NetWeight) || 0;
+                totalWt += wt;
+
+                var rowHtml = '<tr>' +
+                    '<td class="text-center text-muted font-weight-bold fw-bold py-2" style="vertical-align:middle;">' + (idx + 1) + '</td>' +
+                    '<td class="text-center py-2" style="vertical-align:middle;"><span class="badge badge-light border px-2 py-1" style="font-size:0.88rem; font-weight:700; color:#1e293b; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05); border-color:#cbd5e1 !important;"><i class="fa fa-cube text-primary mr-1 me-1"></i>' + (b.BoxNo || '-') + '</span></td>' +
+                    '<td class="text-center font-monospace py-2" style="vertical-align:middle; font-size:0.85rem; color:#475569; letter-spacing:0.5px;">' + (b.BarcodeNo || '-') + '</td>' +
+                    '<td class="text-right text-end font-weight-bold fw-bold text-success py-2" style="vertical-align:middle; font-size:0.95rem;">' + wt.toFixed(2) + ' <small class="text-muted" style="font-size:0.75rem; font-weight:normal;">kg</small></td>' +
+                    '<td class="py-2" style="vertical-align:middle; font-weight:500; color:#334155;">' + (b.YarnMaterial || '-') + '</td>' +
+                    '<td class="py-2" style="vertical-align:middle; color:#334155;">' + (b.YarnColor || '-') + (b.YarnColorCode ? ' <span class="badge badge-dark px-2 py-1 ml-1 ms-1" style="background:#1e293b; color:#fff; font-size:0.72rem; letter-spacing:0.3px;">' + b.YarnColorCode + '</span>' : '') + '</td>' +
+                    '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + (b.YarnInwardDate || '-') + '</td>' +
+                    '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + (b.ChallanNo || '-') + '</td>' +
+                    '</tr>';
+                tbody.append(rowHtml);
+            });
+
+            $("#tfootTotalWeight").html(totalWt.toFixed(2) + ' <small class="font-weight-normal fw-normal" style="font-size:0.8rem;">kg</small>');
+            $("#tfootTotalBoxes").text(filtered.length);
+            $("#boxTableWrapper").removeClass("d-none");
+        }
+
+        $(document).on("input", "#boxSearchInput", function () {
+            var activeList = $("#btnFilterAllLocation").hasClass("active") ? allBoxesCache : rowBoxesCache;
+            renderBoxTable(activeList);
+        });
+
+        $(document).on("click", "#btnFilterRowOnly", function () {
+            $("#btnFilterRowOnly").addClass("btn-primary active font-weight-bold").removeClass("btn-outline-primary");
+            $("#btnFilterAllLocation").removeClass("btn-primary active font-weight-bold").addClass("btn-outline-secondary");
+            if (rowBoxesCache && rowBoxesCache.length > 0) {
+                renderBoxTable(rowBoxesCache);
+            } else if (currentModalRowData) {
+                fetchBoxDetails(currentModalRowData, false);
+            }
+        });
+
+        $(document).on("click", "#btnFilterAllLocation", function () {
+            $("#btnFilterAllLocation").addClass("btn-primary active font-weight-bold").removeClass("btn-outline-secondary");
+            $("#btnFilterRowOnly").removeClass("btn-primary active font-weight-bold").addClass("btn-outline-primary");
+            if (allBoxesCache && allBoxesCache.length > 0) {
+                renderBoxTable(allBoxesCache);
+            } else if (currentModalRowData) {
+                fetchBoxDetails(currentModalRowData, true);
+            }
+        });
+
+        $(document).on("click", "#btnExportBoxesExcel", function () {
+            var activeList = $("#btnFilterAllLocation").hasClass("active") ? allBoxesCache : rowBoxesCache;
+            if (!activeList || activeList.length === 0) {
+                alert("No boxes to export.");
+                return;
+            }
+            var loc = $("#modalLocTitle").text().trim() || 'Location';
+            var csv = "SrNo,BoxNo,BarcodeNo,NetWeight(kg),Material,Color,ColorCode,InwardDate,ChallanNo\n";
+            activeList.forEach(function (b, i) {
+                csv += (i + 1) + ',"' + (b.BoxNo || '') + '","' + (b.BarcodeNo || '') + '",' + (parseFloat(b.NetWeight) || 0).toFixed(2) + ',"' + (b.YarnMaterial || '') + '","' + (b.YarnColor || '') + '","' + (b.YarnColorCode || '') + '","' + (b.YarnInwardDate || '') + '","' + (b.ChallanNo || '') + '"\n';
+            });
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "BoxDetails_" + loc.replace(/[^a-zA-Z0-9_-]/g, "_") + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     </script>
 

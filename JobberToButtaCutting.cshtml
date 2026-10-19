@@ -144,41 +144,46 @@
         }
 
         #tblOrderListTable th:nth-child(2), #tblOrderListTable td:nth-child(2) {
-            width: 115px !important;
+            width: 110px !important;
             text-align: center !important;
         }
 
         #tblOrderListTable th:nth-child(3), #tblOrderListTable td:nth-child(3) {
-            width: 85px !important;
+            width: 75px !important;
             text-align: center !important;
         }
 
         #tblOrderListTable th:nth-child(4), #tblOrderListTable td:nth-child(4) {
-            width: 100px !important;
-            text-align: center !important;
-        }
-
-        #tblOrderListTable th:nth-child(5), #tblOrderListTable td:nth-child(5) {
-            width: 220px !important;
-            text-align: left !important;
-        }
-
-        #tblOrderListTable th:nth-child(6), #tblOrderListTable td:nth-child(6) {
-            width: 85px !important;
-            text-align: center !important;
-        }
-
-        #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) {
             width: 95px !important;
             text-align: center !important;
         }
 
-        #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) {
+        #tblOrderListTable th:nth-child(5), #tblOrderListTable td:nth-child(5) {
+            width: 200px !important;
+            text-align: left !important;
+        }
+
+        #tblOrderListTable th:nth-child(6), #tblOrderListTable td:nth-child(6) {
+            width: 80px !important;
+            text-align: center !important;
+        }
+
+        #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) {
             width: 85px !important;
             text-align: center !important;
         }
 
+        #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) {
+            width: 80px !important;
+            text-align: center !important;
+        }
+
         #tblOrderListTable th:nth-child(9), #tblOrderListTable td:nth-child(9) {
+            width: 85px !important;
+            text-align: center !important;
+        }
+
+        #tblOrderListTable th:nth-child(10), #tblOrderListTable td:nth-child(10) {
             width: 95px !important;
             text-align: center !important;
         }
@@ -385,10 +390,11 @@
                                             <th>PREV ISSUE PCS</th>
                                             <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
+                                            <th>FULL CLOSE</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblOrderListBody">
-                                        <tr><td colspan="9" class="text-center text-muted py-3">Loading production slip data...</td></tr>
+                                        <tr><td colspan="10" class="text-center text-muted py-3">Loading production slip data...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -408,10 +414,11 @@
                                             <th>PREV ISSUE PCS</th>
                                             <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
+                                            <th>STATUS</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblProductionReportBody">
-                                        <tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>
+                                        <tr><td colspan="9" class="text-center text-muted py-3">No items added for production yet.</td></tr>
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -420,6 +427,7 @@
                                             <td id="lblTotalIssuedPcs" class="text-center font-weight-bold text-secondary">0</td>
                                             <td id="lblTotalPendingPcs" class="text-center font-weight-bold text-danger">0</td>
                                             <td id="lblTotalPcs" class="text-center font-weight-bold text-primary">0</td>
+                                            <td id="lblTotalStatusShort" class="text-center font-weight-bold text-danger">0</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -582,6 +590,8 @@
                                             IssuedPCS: issuedOther,
                                             PendingPCS: pendPcs,
                                             AllottedPcs: curIssue,
+                                            ShortPCS: parseFloat(d.ShortPCS || 0),
+                                            IsClosed: (parseFloat(d.ShortPCS || 0) > 0 || !!d.IsClosed),
                                             IsChecked: true,
                                             IsExistingInChallan: true
                                         });
@@ -643,11 +653,26 @@
                 });
             }
 
+            function getCloseSlipCellHtml(idx, r) {
+                var maxVal = parseFloat(r.PendingPCS || r.PCS || 0);
+                var curVal = parseFloat(r.AllottedPcs !== undefined ? r.AllottedPcs : maxVal);
+                if (curVal >= maxVal) {
+                    return '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:10px;" title="Full quantity being issued">FULL</span>';
+                } else {
+                    var isClosed = !!r.IsClosed;
+                    var diff = maxVal - curVal;
+                    return '<label class="form-check-label d-inline-flex align-items-center gap-1 mb-0" style="cursor:pointer;" title="Check to fully close slip (' + diff + ' pcs will NOT be pending next time)">' +
+                        '<input type="checkbox" class="chkCloseSlip" data-idx="' + idx + '" ' + (isClosed ? 'checked' : '') + ' style="cursor:pointer; width:13px; height:13px;" /> ' +
+                        '<span class="badge ' + (isClosed ? 'bg-danger text-white' : 'bg-light text-muted border') + '" style="font-size:10px; padding:3px 5px;">' + (isClosed ? 'CLOSED' : 'Close') + '</span>' +
+                        '</label>';
+                }
+            }
+
             function renderSlipsTable(list) {
                 var $tbody = $('#tblOrderListBody').empty();
 
                 if (!list || list.length === 0) {
-                    $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No pending slips available.</td></tr>');
+                    $tbody.append('<tr><td colspan="10" class="text-center text-muted py-3">No pending slips available.</td></tr>');
                     $('#lblPendingCount').text('0 Slips');
                     renderSummaryTable();
                     return;
@@ -679,7 +704,7 @@
                         var groupTr = '<tr class="order-group-row">' +
                             '<td class="text-center"><input type="checkbox" class="chkGroupHeader" data-group="' + currentGroupHeader + '" /></td>' +
                             '<td class="group-slip font-monospace font-weight-bold" colspan="2">' + currentGroupHeader + '</td>' +
-                            '<td colspan="6"></td>' +
+                            '<td colspan="7"></td>' +
                             '</tr>';
                         $tbody.append(groupTr);
                     }
@@ -697,6 +722,7 @@
                         '<td class="text-center"><span class="badge bg-light text-secondary border px-2 py-1">' + (r.IssuedPCS || 0) + '</span></td>' +
                         '<td class="text-center font-weight-bold"><span class="badge bg-danger-subtle text-danger border px-2 py-1">' + (r.PendingPCS || r.PCS || 0) + '</span></td>' +
                         '<td class="text-center"><input type="number" class="txtProdInput txt-production" data-idx="' + idx + '" value="' + (r.AllottedPcs || r.PendingPCS || r.PCS || 0) + '" min="0" max="' + (r.PendingPCS || r.PCS || 0) + '" /></td>' +
+                        '<td class="text-center col-close-slip">' + getCloseSlipCellHtml(idx, r) + '</td>' +
                         '</tr>';
 
                     $tbody.append(tr);
@@ -712,6 +738,7 @@
                 var totalIssuedPcs = 0;
                 var totalPendingPcs = 0;
                 var totalInputPcs = 0;
+                var totalShortPcs = 0;
                 var checkedCount = 0;
 
                 $.each(allSlipsList, function (idx, item) {
@@ -720,12 +747,25 @@
                         var orderPcs = parseFloat(item.PCS || 0);
                         var issuedPcs = parseFloat(item.IssuedPCS || 0);
                         var pendingPcs = parseFloat(item.PendingPCS || orderPcs);
-                        var inputPcs = parseFloat(item.AllottedPcs || pendingPcs || 0);
+                        var inputPcs = parseFloat(item.AllottedPcs !== undefined ? item.AllottedPcs : pendingPcs);
 
                         totalOrderPcs += orderPcs;
                         totalIssuedPcs += issuedPcs;
                         totalPendingPcs += pendingPcs;
                         totalInputPcs += inputPcs;
+
+                        var statusHtml = '';
+                        var shortQty = 0;
+                        if (item.IsClosed && (inputPcs < pendingPcs)) {
+                            shortQty = pendingPcs - inputPcs;
+                            totalShortPcs += shortQty;
+                            statusHtml = '<span class="badge bg-danger text-white px-2 py-1">Closed (' + shortQty + ' Short)</span>';
+                        } else if (inputPcs >= pendingPcs) {
+                            statusHtml = '<span class="badge bg-success text-white px-2 py-1">Full</span>';
+                        } else {
+                            var rem = pendingPcs - inputPcs;
+                            statusHtml = '<span class="badge bg-light text-secondary border px-2 py-1">' + rem + ' Pending</span>';
+                        }
 
                         var tr = '<tr>' +
                             '<td class="text-center font-weight-bold">' + (item.SlipNo || '-') + '</td>' +
@@ -736,19 +776,21 @@
                             '<td class="text-center text-secondary">' + issuedPcs + '</td>' +
                             '<td class="text-center font-weight-bold text-danger">' + pendingPcs + '</td>' +
                             '<td class="rep-pcs text-center font-weight-bold text-primary">' + inputPcs + '</td>' +
+                            '<td class="text-center">' + statusHtml + '</td>' +
                             '</tr>';
                         $tbody.append(tr);
                     }
                 });
 
                 if (checkedCount === 0) {
-                    $tbody.append('<tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
+                    $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
                 }
 
                 $('#lblTotalOrderPcs').text(totalOrderPcs);
                 $('#lblTotalIssuedPcs').text(totalIssuedPcs);
                 $('#lblTotalPendingPcs').text(totalPendingPcs);
                 $('#lblTotalPcs').text(totalInputPcs);
+                $('#lblTotalStatusShort').text(totalShortPcs > 0 ? (totalShortPcs + ' Short') : '-');
             }
 
             function getColourMatchingHtml(r) {
@@ -808,6 +850,27 @@
                 renderSummaryTable();
             });
 
+            $(document).on('change', '.chkCloseSlip', function () {
+                var idx = $(this).data('idx');
+                var isClosed = $(this).is(':checked');
+                if (allSlipsList[idx]) {
+                    allSlipsList[idx].IsClosed = isClosed;
+                    var $badge = $(this).siblings('.badge');
+                    if (isClosed) {
+                        $badge.removeClass('bg-light text-muted border').addClass('bg-danger text-white').text('CLOSED');
+                        if (!allSlipsList[idx].IsChecked) {
+                            allSlipsList[idx].IsChecked = true;
+                            var $tr = $('tr[data-idx="' + idx + '"]');
+                            $tr.find('.chkRow').prop('checked', true);
+                            $tr.addClass('table-active');
+                        }
+                    } else {
+                        $badge.removeClass('bg-danger text-white').addClass('bg-light text-muted border').text('Close');
+                    }
+                    renderSummaryTable();
+                }
+            });
+
             $(document).on('input change', '.txtProdInput', function () {
                 var idx = $(this).data('idx');
                 var val = parseFloat($(this).val());
@@ -824,6 +887,12 @@
                         $(this).val(val);
                     }
                     allSlipsList[idx].AllottedPcs = val;
+
+                    var $closeCell = $('tr[data-idx="' + idx + '"]').find('.col-close-slip');
+                    if ($closeCell.length) {
+                        $closeCell.html(getCloseSlipCellHtml(idx, allSlipsList[idx]));
+                    }
+
                     if (allSlipsList[idx].IsChecked) {
                         renderSummaryTable();
                     }
@@ -890,12 +959,17 @@
                             hasValidationError = true;
                             return false;
                         }
+                        var isFullyClosed = !!(item.IsClosed || (inputPcs >= maxAllowed));
+                        var shortVal = (item.IsClosed && (inputPcs < maxAllowed)) ? (maxAllowed - inputPcs) : 0;
+
                         selectedItems.push({
                             ProductionOrderID: item.ProductionOrderID || 0,
                             ProductionOrderDetailID: item.ProductionOrderDetailID || 0,
                             ProductionOrderSubDetailID: item.ProductionOrderSubDetailID || 0,
                             SlipNo: item.SlipNo || "",
-                            PCS: inputPcs
+                            PCS: inputPcs,
+                            ShortPCS: shortVal,
+                            IsClosed: isFullyClosed
                         });
                     }
                 });

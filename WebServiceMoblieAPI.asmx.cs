@@ -3591,6 +3591,7 @@ namespace NikunjTextile
                     bool hasPTH_SlipNo = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "SlipNo");
                     bool hasPTH_POSD = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProductionOrderSubDetailID");
                     bool hasPTH_POD = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProductionOrderDetailID");
+                    bool hasPTH_ShortQty = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ShortQty");
 
                     if (hasPTH_Table && !hasPTH_SlipNo)
                     {
@@ -3632,12 +3633,14 @@ namespace NikunjTextile
                             }
                         }
 
+                        string issueSumExpr = hasPTH_ShortQty ? "(ISNULL(PTH.Qty, 0) + ISNULL(PTH.ShortQty, 0))" : "PTH.Qty";
+
                         issuedFromJobberPcsExpr = string.Format(@"ISNULL((
-                            SELECT SUM(PTH.Qty) 
+                            SELECT SUM({0}) 
                             FROM ProcessTransactionHistory PTH 
                             WHERE PTH.TransactionType = 'ISSUE'
-                              AND ({0})
-                        ), 0)", pthCondition);
+                              AND ({1})
+                        ), 0)", issueSumExpr, pthCondition);
 
                         receivedToJobberPcsExpr = string.Format(@"ISNULL((
                             SELECT SUM(PTH.Qty) 
@@ -4955,6 +4958,22 @@ namespace NikunjTextile
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
+                    try
+                    {
+                        using (SqlCommand cmdFix = new SqlCommand(@"
+                            UPDATE PTD 
+                            SET PTD.ShortPCS = 0,
+                                PTD.PendingPCS = PTD.IssuePCS - ISNULL(PTD.ReceivePCS, 0)
+                            FROM ProcessTransactionDetail PTD
+                            INNER JOIN ProcessTransactionMaster PTM ON PTD.ProcessTransactionID = PTM.ProcessTransactionID
+                            WHERE PTM.TransactionType = 'ISSUE' 
+                              AND ISNULL(PTD.ReceivePCS, 0) = 0 
+                              AND ISNULL(PTD.ShortPCS, 0) > 0;", con))
+                        {
+                            cmdFix.ExecuteNonQuery();
+                        }
+                    }
+                    catch { }
 
                     var secContext = GetLoggedInUserSecurityContext(con);
                     if (secContext.IsJobber && secContext.LoggedInJobberID > 0)
@@ -7829,6 +7848,9 @@ ORDER BY
                     bool hasPTH_SlipNo = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "SlipNo");
                     bool hasPTH_POSD = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProductionOrderSubDetailID");
                     bool hasPTH_POD = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProductionOrderDetailID");
+                    bool hasPTH_ShortQty = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ShortQty");
+                    bool hasPTH_ProcessID = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProcessID");
+                    bool hasPTH_TxnNo = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "ProcessTransactionNo");
 
                     if (hasPTH_Table && !hasPTH_SlipNo)
                     {
@@ -7841,6 +7863,36 @@ ORDER BY
                             }
                         }
                         catch { }
+                    }
+
+                    bool hasSOAC_Table = DoesTableExist(con, "SaleOrderAdditionalCharges");
+                    bool hasSO_Table = DoesTableExist(con, "SaleOrder");
+                    bool hasSOD_Table = DoesTableExist(con, "SaleOrderDetails");
+                    bool hasSOSD_Table = DoesTableExist(con, "SaleOrderSubDetails");
+                    bool hasPartyMaster = DoesTableExist(con, "PartyMaster");
+
+                    bool hasPOD_SaleOrderID = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderID");
+                    bool hasPOD_SalesOrderID = DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderID");
+                    bool hasPOM_SaleOrderID = DoesColumnExist(con, null, "ProductionOrderMaster", "SaleOrderID");
+                    bool hasPOM_SalesOrderID = DoesColumnExist(con, null, "ProductionOrderMaster", "SalesOrderID");
+                    bool hasPOD_SaleOrderDetailID = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderDetailID");
+                    bool hasPOD_SalesOrderDetailID = DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderDetailID");
+                    bool hasPOD_SubDetailID = DoesColumnExist(con, null, "ProductionOrderDetail", "SubDetailID");
+                    bool hasPOSD_SaleOrderSubDetailID = hasPOSD_Table && DoesColumnExist(con, null, "ProductionOrderSubDetail", "SaleOrderSubDetailID");
+
+                    bool hasSO_OrderNo = hasSO_Table && DoesColumnExist(con, null, "SaleOrder", "OrderNo");
+
+                    string pthQtySumExpr = hasPTH_ShortQty ? "(ISNULL(PTH.Qty, 0) + ISNULL(PTH.ShortQty, 0))" : "ISNULL(PTH.Qty, 0)";
+
+                    string buttaProcCondition = "1=1";
+                    if (hasPTH_ProcessID && buttaProcID > 0)
+                    {
+                        buttaProcCondition = "PTH.ProcessID = " + buttaProcID;
+                        if (hasPTH_TxnNo) buttaProcCondition = "(" + buttaProcCondition + " OR PTH.ProcessTransactionNo LIKE 'BC%')";
+                    }
+                    else if (hasPTH_TxnNo)
+                    {
+                        buttaProcCondition = "PTH.ProcessTransactionNo LIKE 'BC%'";
                     }
 
                     string issuedPcsExpr = "0";
@@ -7869,18 +7921,63 @@ ORDER BY
                             }
                         }
 
-                        bool hasPTH_TxnType = hasPTH_Table && DoesColumnExist(con, null, "ProcessTransactionHistory", "TransactionType");
-                        string pthQtyExpr = hasPTH_TxnType 
-                            ? "(CASE WHEN PTH.TransactionType = 'ISSUE' THEN PTH.Qty WHEN PTH.TransactionType IN ('RECEIVE', 'JOBBER_RECEIVE', 'RETURN_RECEIVE') THEN -PTH.Qty ELSE 0 END)" 
-                            : "PTH.Qty";
-
                         issuedPcsExpr = string.Format(@"ISNULL((
-                            SELECT SUM({2}) 
+                            SELECT SUM({0}) 
                             FROM ProcessTransactionHistory PTH 
-                            WHERE PTH.ProcessID = {0} 
+                            WHERE ({2})
                               AND ({1})
-                        ), 0)", buttaProcID, pthCondition, pthQtyExpr);
+                        ), 0)", pthQtySumExpr, pthCondition, buttaProcCondition);
                     }
+
+                    var addedSlips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                    List<string> matchConditions = new List<string>();
+
+                    if (hasPOD_SalesOrderID && hasPOD_SaleOrderID)
+                        matchConditions.Add("(POD.SalesOrderID > 0 AND SOAC.SaleOrderID = POD.SalesOrderID) OR (POD.SaleOrderID > 0 AND SOAC.SaleOrderID = POD.SaleOrderID)");
+                    else if (hasPOD_SalesOrderID)
+                        matchConditions.Add("(POD.SalesOrderID > 0 AND SOAC.SaleOrderID = POD.SalesOrderID)");
+                    else if (hasPOD_SaleOrderID)
+                        matchConditions.Add("(POD.SaleOrderID > 0 AND SOAC.SaleOrderID = POD.SaleOrderID)");
+
+                    if (hasPOM_SalesOrderID && hasPOM_SaleOrderID)
+                        matchConditions.Add("(POM.SalesOrderID > 0 AND SOAC.SaleOrderID = POM.SalesOrderID) OR (POM.SaleOrderID > 0 AND SOAC.SaleOrderID = POM.SaleOrderID)");
+                    else if (hasPOM_SalesOrderID)
+                        matchConditions.Add("(POM.SalesOrderID > 0 AND SOAC.SaleOrderID = POM.SalesOrderID)");
+                    else if (hasPOM_SaleOrderID)
+                        matchConditions.Add("(POM.SaleOrderID > 0 AND SOAC.SaleOrderID = POM.SaleOrderID)");
+
+                    if (hasSOD_Table && hasPOD_SalesOrderDetailID)
+                        matchConditions.Add("(POD.SalesOrderDetailID > 0 AND EXISTS (SELECT 1 FROM SaleOrderDetails SOD_X WHERE SOD_X.DetailID = POD.SalesOrderDetailID AND SOD_X.SaleOrderID = SOAC.SaleOrderID))");
+                    else if (hasSOD_Table && hasPOD_SaleOrderDetailID)
+                        matchConditions.Add("(POD.SaleOrderDetailID > 0 AND EXISTS (SELECT 1 FROM SaleOrderDetails SOD_X WHERE SOD_X.DetailID = POD.SaleOrderDetailID AND SOD_X.SaleOrderID = SOAC.SaleOrderID))");
+
+                    if (hasSOSD_Table && hasSOD_Table && hasPOD_SubDetailID)
+                        matchConditions.Add("(POD.SubDetailID > 0 AND EXISTS (SELECT 1 FROM SaleOrderSubDetails SOSD_X INNER JOIN SaleOrderDetails SOD_X ON SOSD_X.DetailID = SOD_X.DetailID WHERE SOSD_X.SubDetailID = POD.SubDetailID AND SOD_X.SaleOrderID = SOAC.SaleOrderID))");
+
+                    if (hasPOSD_Table && hasSOSD_Table && hasSOD_Table && hasPOSD_SaleOrderSubDetailID)
+                        matchConditions.Add("(POSD.SaleOrderSubDetailID > 0 AND EXISTS (SELECT 1 FROM SaleOrderSubDetails SOSD_X INNER JOIN SaleOrderDetails SOD_X ON SOSD_X.DetailID = SOD_X.DetailID WHERE SOSD_X.SubDetailID = POSD.SaleOrderSubDetailID AND SOD_X.SaleOrderID = SOAC.SaleOrderID))");
+
+                    string soNoRef = hasPOD_SalesOrderNo ? "POD.SalesOrderNo" : "''";
+                    string soOrderNoJoinMatch = hasSO_OrderNo ? "OR (SO_REF.OrderNo IS NOT NULL AND " + soNoRef + " = SO_REF.OrderNo)" : "";
+                    string soSlipNoJoinMatch = hasSO_OrderNo ? "OR (SO_REF.OrderNo IS NOT NULL AND " + slipNoExpr + " LIKE SO_REF.OrderNo + '-%')" : "";
+
+                    matchConditions.Add(string.Format(@"
+                        (
+                            ({0} <> '' AND (
+                                {0} = CAST(SOAC.SaleOrderID AS NVARCHAR(50))
+                                OR {0} = 'SO' + CAST(SOAC.SaleOrderID AS NVARCHAR(50))
+                                {2}
+                            ))
+                            OR
+                            ({1} <> '' AND (
+                                {1} LIKE 'SO' + CAST(SOAC.SaleOrderID AS NVARCHAR(50)) + '-%'
+                                OR {1} LIKE CAST(SOAC.SaleOrderID AS NVARCHAR(50)) + '-%'
+                                {3}
+                            ))
+                        )", soNoRef, slipNoExpr, soOrderNoJoinMatch, soSlipNoJoinMatch));
+
+                    string orderMatchSql = string.Join(" OR ", matchConditions);
 
                     string sql = string.Format(@"
                 SELECT 
@@ -7902,7 +7999,8 @@ ORDER BY
                     {10} AS SONumber,
                     {12} AS ColourMatchingID,
                     {13} AS PhotoPath,
-                    {16} AS Barcode
+                    {16} AS Barcode,
+                    ISNULL(SOAC_APPLY.SaleOrderID, 0) AS SaleOrderID
                 FROM ProductionOrderMaster POM
                 INNER JOIN ProductionOrderDetail POD ON POM.ProductionOrderID = POD.ProductionOrderID
                 {11}
@@ -7924,7 +8022,8 @@ ORDER BY
                         photoPathExpr,
                         extraJoins,
                         issuedPcsExpr,
-                        barcodeExpr
+                        barcodeExpr,
+                        orderMatchSql
                     );
 
                     if (jobberID > 0 && hasPOM_JobWorkerID)
@@ -7994,6 +8093,18 @@ ORDER BY
                                     rawSlip = soNo + "-01-" + (numId % 100).ToString("D2");
                                 }
 
+                                decimal totalPcs = dr["PCS"] != DBNull.Value ? Convert.ToDecimal(dr["PCS"]) : 0;
+                                decimal issuedPcs = dr["IssuedPCS"] != DBNull.Value ? Convert.ToDecimal(dr["IssuedPCS"]) : 0;
+                                if (issuedPcs < 0) issuedPcs = 0;
+                                decimal pendingPcs = totalPcs - issuedPcs;
+                                if (pendingPcs <= 0)
+                                {
+                                    itemIndex++;
+                                    continue;
+                                }
+
+                                addedSlips.Add(rawSlip);
+
                                 string rawPhoto = dr["PhotoPath"] != DBNull.Value ? dr["PhotoPath"].ToString().Trim() : "";
                                 string normalizedPhoto = "";
                                 if (!string.IsNullOrEmpty(rawPhoto))
@@ -8002,16 +8113,6 @@ ORDER BY
                                     if (clean.StartsWith("~/")) clean = clean.Substring(2);
                                     if (!clean.StartsWith("/")) clean = "/" + clean;
                                     normalizedPhoto = clean;
-                                }
-
-                                decimal totalPcs = dr["PCS"] != DBNull.Value ? Convert.ToDecimal(dr["PCS"]) : 0;
-                                decimal issuedPcs = dr["IssuedPCS"] != DBNull.Value ? Convert.ToDecimal(dr["IssuedPCS"]) : 0;
-                                if (issuedPcs < 0) issuedPcs = 0;
-                                decimal pendingPcs = totalPcs - issuedPcs;
-                                if (pendingPcs <= 0)
-                                {
-                                    // If issued cumulative history equals or exceeds order total, retain pendingPcs as totalPcs so slip remains actionable
-                                    pendingPcs = totalPcs;
                                 }
 
                                 list.Add(new JobberToProcessItemDto
@@ -8037,12 +8138,113 @@ ORDER BY
                                     IssuePCS = pendingPcs,
                                     Status = dr["Status"].ToString(),
                                     PhotoPath = normalizedPhoto,
-                                    SONumber = soNo
+                                    SONumber = soNo,
+                                    SaleOrderID = dr["SaleOrderID"] != DBNull.Value ? Convert.ToInt64(dr["SaleOrderID"]) : 0
                                 });
                                 itemIndex++;
                             }
                         }
                     }
+
+                    // 2. QUERY DIRECT SALE ORDERS IN SALEORDERADDITIONALCHARGES (IF NOT ALREADY LOADED AS PRODUCTION ORDERS)
+                    if (hasSO_Table && hasSOD_Table && hasSOAC_Table)
+                    {
+                        string soSlipExpr = "('SO' + CAST(ISNULL(SO.OrderNo, SO.SaleOrderID) AS NVARCHAR(50)) + '-' + RIGHT('00' + CAST(sod.DetailID AS NVARCHAR(10)), 2) + '-' + RIGHT('00' + CAST(" + (hasSOSD_Table ? "ISNULL(sods.SubDetailID, 1)" : "1") + @" AS NVARCHAR(10)), 2))";
+
+                        string soSql = @"
+                            SELECT 
+                                SO.SaleOrderID,
+                                sod.DetailID AS SaleOrderDetailID,
+                                " + (hasSOSD_Table ? "ISNULL(sods.SubDetailID, 0)" : "0") + @" AS SaleOrderSubDetailID,
+                                'SO' + CAST(ISNULL(SO.OrderNo, SO.SaleOrderID) AS NVARCHAR(50)) AS SONumber,
+                                CONVERT(VARCHAR(10), ISNULL(SO.OrderDate, GETDATE()), 103) AS OrderDate,
+                                " + (hasPartyMaster ? "ISNULL(PM.PartyName, 'M/S KSR HANDLOOMS PRIVATE LIMITED')" : "'M/S KSR HANDLOOMS PRIVATE LIMITED'") + @" AS PartyName,
+                                " + soSlipExpr + @" AS SlipNo,
+                                sod.DesignNo,
+                                " + (hasSOSD_Table ? "ISNULL(sods.ColourName, '')" : "''") + @" AS ColourMatchingName,
+                                " + (hasSOSD_Table ? "ISNULL(sods.ColourID, ISNULL(sod.DesignColorMatchingID, 0))" : "ISNULL(sod.DesignColorMatchingID, 0)") + @" AS ColourMatchingID,
+                                " + (hasSOSD_Table ? "ISNULL(sods.Qty, sod.Qty)" : "sod.Qty") + @" AS PCS,
+                                " + (hasDCMD_Table && hasDEFM_Table ? "ISNULL(NULLIF(DCMD.ColorMatchingPhoto, ''), ISNULL(DEFM.PhotoOfDesign, ''))" : (hasDCMD_Table ? "ISNULL(DCMD.ColorMatchingPhoto, '')" : (hasDEFM_Table ? "ISNULL(DEFM.PhotoOfDesign, '')" : "''"))) + @" AS PhotoPath,
+                                " + (hasPTH_Table ? @"ISNULL((
+                                    SELECT SUM(" + pthQtySumExpr + @")
+                                    FROM ProcessTransactionHistory PTH
+                                    WHERE PTH.SlipNo = " + soSlipExpr + @"
+                                      AND (" + buttaProcCondition + @")
+                                ), 0)" : "0") + @" AS IssuedPCS
+                            FROM SaleOrder SO
+                            INNER JOIN SaleOrderAdditionalCharges SOAC ON SO.SaleOrderID = SOAC.SaleOrderID
+                            INNER JOIN SaleOrderDetails sod ON SO.SaleOrderID = sod.SaleOrderID
+                            " + (hasSOSD_Table ? "LEFT JOIN SaleOrderSubDetails sods ON sod.DetailID = sods.DetailID" : "") + @"
+                            " + (hasPartyMaster ? "LEFT JOIN PartyMaster PM ON SO.PartyID = PM.PartyId" : "") + @"
+                            " + (hasDCMD_Table ? "LEFT JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingDetailsID = " + (hasSOSD_Table ? "ISNULL(sods.ColourID, sod.DesignColorMatchingID)" : "sod.DesignColorMatchingID") : "") + @"
+                            " + (hasDEFM_Table ? "LEFT JOIN DesignEntryFormMaster DEFM ON REPLACE(REPLACE(sod.DesignNo, ' ', ''), '-', '') = REPLACE(REPLACE(DEFM.DesignNo, ' ', ''), '-', '')" : "") + @"
+                            WHERE SOAC.SaleOrderID > 0
+                              AND (ISNULL(SOAC.ChargeRemark, '') <> '' OR ISNULL(SOAC.ChargeValue, 0) > 0)";
+
+                        if (!string.IsNullOrEmpty(slipNo)) soSql += " AND (" + soSlipExpr + " LIKE '%' + @SlipNo + '%')";
+
+                        soSql += " ORDER BY SO.SaleOrderID DESC, sod.DetailID ASC" + (hasSOSD_Table ? ", sods.SubDetailID ASC" : "");
+
+                        using (SqlCommand cmdSO = new SqlCommand(soSql, con))
+                        {
+                            if (!string.IsNullOrEmpty(slipNo)) cmdSO.Parameters.AddWithValue("@SlipNo", slipNo);
+
+                            using (SqlDataReader drSO = cmdSO.ExecuteReader())
+                            {
+                                while (drSO.Read())
+                                {
+                                    string sNo = drSO["SlipNo"] != DBNull.Value ? drSO["SlipNo"].ToString().Trim() : "";
+                                    if (string.IsNullOrEmpty(sNo)) continue;
+                                    if (addedSlips.Contains(sNo)) continue;
+
+                                    decimal totalPcs = drSO["PCS"] != DBNull.Value ? Convert.ToDecimal(drSO["PCS"]) : 0;
+                                    decimal issuedPcs = drSO["IssuedPCS"] != DBNull.Value ? Convert.ToDecimal(drSO["IssuedPCS"]) : 0;
+                                    decimal pendingPcs = totalPcs - issuedPcs;
+
+                                    if (pendingPcs <= 0) continue;
+
+                                    addedSlips.Add(sNo);
+
+                                    string rawPhoto = drSO["PhotoPath"] != DBNull.Value ? drSO["PhotoPath"].ToString().Trim() : "";
+                                    string normalizedPhoto = "";
+                                    if (!string.IsNullOrEmpty(rawPhoto))
+                                    {
+                                        string clean = rawPhoto.Replace("\\", "/");
+                                        if (clean.StartsWith("~/")) clean = clean.Substring(2);
+                                        if (!clean.StartsWith("/")) clean = "/" + clean;
+                                        normalizedPhoto = clean;
+                                    }
+
+                                    list.Add(new JobberToProcessItemDto
+                                    {
+                                        ProductionOrderID = 0L,
+                                        ProductionOrderDetailID = 0L,
+                                        ProductionOrderSubDetailID = 0L,
+                                        ProductionOrderNo = drSO["SONumber"].ToString(),
+                                        OrderDate = drSO["OrderDate"].ToString(),
+                                        JobberID = jobberID > 0 ? jobberID : 3L,
+                                        JobberName = "NIKUNJ TEXTILES",
+                                        PartyName = drSO["PartyName"].ToString(),
+                                        SlipNo = sNo,
+                                        MachineNumber = 1,
+                                        DesignNo = drSO["DesignNo"].ToString(),
+                                        ColourMatchingID = drSO["ColourMatchingID"] != DBNull.Value ? Convert.ToInt64(drSO["ColourMatchingID"]) : 0,
+                                        ColourMatchingName = drSO["ColourMatchingName"].ToString(),
+                                        ProductionPCS = totalPcs,
+                                        JobberStockPCS = totalPcs,
+                                        AlreadyIssuedPCS = issuedPcs,
+                                        PendingIssuePCS = pendingPcs,
+                                        IssuePCS = pendingPcs,
+                                        Status = "PENDING",
+                                        PhotoPath = normalizedPhoto,
+                                        SONumber = drSO["SONumber"].ToString(),
+                                        SaleOrderID = Convert.ToInt64(drSO["SaleOrderID"])
+                                    });
+                                }
+                            }
+                        }
+                    }
+
                     WriteJsonResponse(list);
                 }
             }
@@ -8202,6 +8404,26 @@ ORDER BY
                                 masterID = Convert.ToInt64(cmdM.ExecuteScalar());
                             }
 
+                            // Ensure ShortPCS and ShortQty columns exist
+                            try
+                            {
+                                if (!DoesColumnExist(con, trans, "ProcessTransactionDetail", "ShortPCS"))
+                                {
+                                    using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionDetail' AND COLUMN_NAME = 'ShortPCS') ALTER TABLE ProcessTransactionDetail ADD ShortPCS DECIMAL(18,2) NULL DEFAULT 0;", con, trans))
+                                    {
+                                        cmdA.ExecuteNonQuery();
+                                    }
+                                }
+                                if (!DoesColumnExist(con, trans, "ProcessTransactionHistory", "ShortQty"))
+                                {
+                                    using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionHistory' AND COLUMN_NAME = 'ShortQty') ALTER TABLE ProcessTransactionHistory ADD ShortQty DECIMAL(18,2) NULL DEFAULT 0;", con, trans))
+                                    {
+                                        cmdA.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                            catch { }
+
                             foreach (var item in items)
                             {
                                 if (item.PCS <= 0) continue;
@@ -8215,6 +8437,7 @@ ORDER BY
                                 long saleOrderDetailID = 0;
                                 long saleOrderSubDetailID = 0;
                                 long barcode = 0;
+                                decimal shortPcsVal = item.ShortPCS > 0 ? item.ShortPCS : 0;
 
                                 if (item.ProductionOrderDetailID > 0)
                                 {
@@ -8271,6 +8494,16 @@ ORDER BY
                                     }
                                     catch { }
                                 }
+                                else
+                                {
+                                    saleOrderID = item.SaleOrderID;
+                                    saleOrderDetailID = item.SaleOrderDetailID;
+                                    saleOrderSubDetailID = item.SaleOrderSubDetailID;
+                                    designNo = item.DesignNo ?? "";
+                                    colourMatchingName = item.ColourMatchingName ?? "";
+                                    colourMatchingID = (int)item.ColourMatchingID;
+                                    machineNumber = item.MachineNumber > 0 ? item.MachineNumber : 1;
+                                }
 
                                 if (string.IsNullOrEmpty(slipNo))
                                 {
@@ -8298,6 +8531,7 @@ ORDER BY
                                 IssuePCS, 
                                 ReceivePCS, 
                                 PendingPCS, 
+                                ShortPCS,
                                 Remark, 
                                 CompanyId, 
                                 CreatedByUserID, 
@@ -8323,6 +8557,7 @@ ORDER BY
                                 @IssuePCS, 
                                 0, 
                                 @IssuePCS, 
+                                @ShortPCS,
                                 @Remark, 
                                 @CompanyId, 
                                 @CreatedByUserID, 
@@ -8348,6 +8583,7 @@ ORDER BY
                                     cmdD.Parameters.AddWithValue("@MachineNumber", machineNumber);
                                     cmdD.Parameters.AddWithValue("@PCS", item.PCS);
                                     cmdD.Parameters.AddWithValue("@IssuePCS", item.PCS);
+                                    cmdD.Parameters.AddWithValue("@ShortPCS", shortPcsVal);
                                     cmdD.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
                                     cmdD.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
                                     cmdD.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
@@ -8366,6 +8602,7 @@ ORDER BY
                                 TransactionType, 
                                 TransactionDate, 
                                 Qty, 
+                                ShortQty,
                                 MachineNumber, 
                                 SlipNo, 
                                 Barcode, 
@@ -8386,6 +8623,7 @@ ORDER BY
                                 'ISSUE', 
                                 @TransactionDate, 
                                 @Qty, 
+                                @ShortQty, 
                                 @MachineNumber, 
                                 @SlipNo, 
                                 @Barcode, 
@@ -8406,6 +8644,7 @@ ORDER BY
                                     cmdH.Parameters.AddWithValue("@ProcessID", buttaProcID);
                                     cmdH.Parameters.AddWithValue("@TransactionDate", dateTxn);
                                     cmdH.Parameters.AddWithValue("@Qty", item.PCS);
+                                    cmdH.Parameters.AddWithValue("@ShortQty", shortPcsVal);
                                     cmdH.Parameters.AddWithValue("@MachineNumber", machineNumber);
                                     cmdH.Parameters.AddWithValue("@SlipNo", slipNo);
                                     cmdH.Parameters.AddWithValue("@Barcode", barcode);

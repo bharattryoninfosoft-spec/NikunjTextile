@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -37,6 +37,8 @@
         border-bottom: 1px solid #eee;
         font-size: 13px;
         transition: background 0.2s ease;
+        word-break: break-word;
+        line-height: 1.4;
     }
 
     .cm-head {
@@ -255,6 +257,31 @@
             });
         }
 
+        let yarnColorDict = {};
+
+        function loadYarnColors() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMaster',
+                data: "{}",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var list = (data.d && data.d.listYarnColorMaster) || data.listYarnColorMaster || [];
+                    if (Array.isArray(list)) {
+                        list.forEach(function (y) {
+                            if (y.YarnColorID && y.YarnColor) {
+                                yarnColorDict[String(y.YarnColorID)] = y.YarnColor;
+                            }
+                        });
+                        if (filteredData && filteredData.length > 0) {
+                            renderReport();
+                        }
+                    }
+                }
+            });
+        }
+
         // ================= INIT =================
         $(document).ready(function () {
 
@@ -264,6 +291,7 @@
             $("#aColorMatchingReport").addClass("current-page");
 
             FunctionIsLogin();
+            loadYarnColors();
 
             setActiveTab("tabAll");
             loadReport(1, '');
@@ -538,16 +566,41 @@
         }
 
         // ================= HELPERS =================
+        function resolveColorValue(val) {
+            if (!val || val === "0" || val === 0) return "";
+            var strVal = String(val).trim();
+            if (/^\d+$/.test(strVal) && yarnColorDict[strVal]) {
+                return yarnColorDict[strVal];
+            }
+            return strVal;
+        }
+
         function getWarp(r) {
-            return [r.Warp1, r.Warp2, r.Warp3, r.Warp4, r.Warp5]
-                .filter(x => x && x !== "0")
-                .join(', ');
+            if (r.WarpValues && String(r.WarpValues).trim()) {
+                var parts = String(r.WarpValues).split(',').map(function (p) { return resolveColorValue(p.trim()); }).filter(Boolean);
+                if (parts.length > 0) return parts.join(', ');
+            }
+            var arr = [];
+            for (var i = 1; i <= 10; i++) {
+                var v = r['Warp' + i];
+                var name = resolveColorValue(v);
+                if (name && name !== "0") arr.push(name);
+            }
+            return arr.join(', ');
         }
 
         function getFeeder(r) {
-            return [r.Feeder1, r.Feeder2, r.Feeder3, r.Feeder4, r.Feeder5]
-                .filter(x => x && x !== "0")
-                .join(', ');
+            if (r.FeederValues && String(r.FeederValues).trim()) {
+                var parts = String(r.FeederValues).split(',').map(function (p) { return resolveColorValue(p.trim()); }).filter(Boolean);
+                if (parts.length > 0) return parts.join(', ');
+            }
+            var arr = [];
+            for (var i = 1; i <= 30; i++) {
+                var v = r['Feeder' + i];
+                var name = resolveColorValue(v);
+                if (name && name !== "0") arr.push(name);
+            }
+            return arr.join(', ');
         }
     </script>
     }

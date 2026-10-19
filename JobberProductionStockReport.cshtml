@@ -1,0 +1,1557 @@
+@using System;
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Configuration;
+@using System.Collections.Generic;
+@using System.Web.Script.Serialization;
+
+@{
+    // Handler 1: Material Quality Wise Stock Report (Completely Independent of Production Orders)
+    // Direct from Yarn Inward (In-House Stock), Jobber Outward (Given to Jobber), and Jobber Inward (Accepted / Returned)
+    if (Request["handler"] == "GetMaterialReport" || Request["handler"] == "GetMaterialQualityStockReport")
+    {
+        Response.ContentType = "application/json";
+        Response.Clear();
+
+        try
+        {
+            string dateFrom = (Request["dateFrom"] ?? "").Trim();
+            string dateTo = (Request["dateTo"] ?? "").Trim();
+            string jobberIdStr = (Request["jobberId"] ?? "ALL").Trim();
+
+            long filterJobberId = 0;
+            long.TryParse(jobberIdStr, out filterJobberId);
+
+            Func<string, DateTime?> parseDate = (str) =>
+            {
+                if (string.IsNullOrWhiteSpace(str)) return null;
+                str = str.Trim();
+                DateTime dt;
+                string[] formats = new string[] {
+                    "yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy", "dd-MM-yyyy", "MM/dd/yyyy", "MM-dd-yyyy", "yyyy-MM-ddTHH:mm:ss"
+                };
+                if (DateTime.TryParseExact(str, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    return dt;
+                if (DateTime.TryParse(str, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    return dt;
+                if (DateTime.TryParse(str, out dt))
+                    return dt;
+                return null;
+            };
+
+            DateTime? parsedDateFrom = parseDate(dateFrom);
+            DateTime? parsedDateTo = parseDate(dateTo);
+
+            string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            // Structure to hold in-house stock: Key = "Material|Color"
+            var inHouseStockMap = new Dictionary<string, decimal>();
+
+            // Structure to hold outward & inward details
+            var transactionList = new List<Dictionary<string, object>>();
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                // 1. Query In-House Available Stock from Godown (YarnInwardDetail not yet outwarded)
+                try
+                {
+                    string inHouseSql = @"
+                    SELECT 
+                        ISNULL(YMM.YarnMaterial, 'Other') AS YarnMaterial,
+                        ISNULL(YCM.YarnColor, '') AS YarnColor,
+                        CAST(SUM(ISNULL(YID.NetWeight, 0)) AS DECIMAL(18,2)) AS InHouseQty
+                    FROM YarnInwardDetail YID
+                    INNER JOIN YarnInwardMaster YIM ON YID.YarnInwardID = YIM.YarnInwardID
+                    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YIM.YarnMaterialID
+                    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YIM.YarnColorID
+                    WHERE ISNULL(YID.BoxNo, '') <> ''
+                      AND NOT EXISTS (
+                          SELECT 1 FROM YARNOUTWARDScanMasterDetails YOSD WHERE YOSD.BarcodeNo = YID.BarcodeNo
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM JobberOutwardDetail JOD WHERE JOD.BarcodeNo = YID.BarcodeNo
+                      )
+                    GROUP BY YMM.YarnMaterial, YCM.YarnColor";
+
+                    using (SqlCommand cmdInHouse = new SqlCommand(inHouseSql, con))
+                    {
+                        using (SqlDataReader dr = cmdInHouse.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                string mat = dr["YarnMaterial"].ToString().Trim();
+                                string col = dr["YarnColor"].ToString().Trim();
+                                decimal qty = Convert.ToDecimal(dr["InHouseQty"]);
+                                string key = (mat + "|" + col).ToUpper();
+                                inHouseStockMap[key] = qty;
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                // 2. Query Jobber Outward Transactions (Given to Jobber) - from JobberOutwardMaster & JobberOutwardDetail
+                try
+                {
+                    string jobberOutwardSql = @"
+                    SELECT 
+                        'JOBBER' AS SourceType,
+                        JOM.JobberOutwardID AS OutwardID,
+                        CAST(ISNULL(JOM.OutwardListNo, '') AS VARCHAR(50)) AS ChallanNo,
+                        JOM.OutwardListDate AS OutwardDate,
+                        CONVERT(VARCHAR(10), JOM.OutwardListDate, 103) AS OutwardDateFormatted,
+                        ISNULL(JOM.PartyId, 0) AS JobberPartyID,
+                        ISNULL(PM.PartyName, ISNULL(JM.PartyName, 'Unknown Jobber')) AS JobberName,
+                        ISNULL(YMM.YarnMaterial, 'Unknown Material') AS YarnMaterial,
+                        ISNULL(YCM.YarnColor, '') AS YarnColor,
+                        CAST(ISNULL(JOD.NetWeight, 0) AS DECIMAL(18,2)) AS OutwardWeight,
+                        ISNULL(JOD.BarcodeNo, '') AS BarcodeNo,
+                        ISNULL(JOD.BoxNo, '') AS BoxNo
+                    FROM JobberOutwardMaster JOM
+                    INNER JOIN JobberOutwardDetail JOD ON JOD.JobberOutwardID = JOM.JobberOutwardID
+                    LEFT JOIN PartyMaster PM ON PM.PartyId = JOM.PartyId
+                    LEFT JOIN JobberMaster JM ON JM.Id = JOM.PartyId
+                    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = JOD.YarnMaterialID
+                    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = JOD.YarnColorID
+                    WHERE 1 = 1";
+
+                    if (filterJobberId > 0)
+                    {
+                        jobberOutwardSql += " AND (JOM.PartyId = @JobberID OR JM.Id = @JobberID)";
+                    }
+                    if (parsedDateFrom.HasValue)
+                    {
+                        jobberOutwardSql += " AND JOM.OutwardListDate >= @DateFrom";
+                    }
+                    if (parsedDateTo.HasValue)
+                    {
+                        jobberOutwardSql += " AND JOM.OutwardListDate <= @DateTo";
+                    }
+
+                    using (SqlCommand cmdJOM = new SqlCommand(jobberOutwardSql, con))
+                    {
+                        if (filterJobberId > 0)
+                        {
+                            cmdJOM.Parameters.AddWithValue("@JobberID", filterJobberId);
+                        }
+                        if (parsedDateFrom.HasValue)
+                        {
+                            cmdJOM.Parameters.AddWithValue("@DateFrom", parsedDateFrom.Value.Date);
+                        }
+                        if (parsedDateTo.HasValue)
+                        {
+                            cmdJOM.Parameters.AddWithValue("@DateTo", parsedDateTo.Value.Date.AddDays(1).AddTicks(-1));
+                        }
+
+                        using (SqlDataReader dr = cmdJOM.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                transactionList.Add(new Dictionary<string, object>
+                                {
+                                    { "SourceType", "JOBBER" },
+                                    { "OutwardID", dr["OutwardID"] },
+                                    { "ChallanNo", dr["ChallanNo"].ToString() },
+                                    { "OutwardDate", dr["OutwardDateFormatted"].ToString() },
+                                    { "JobberPartyID", dr["JobberPartyID"] },
+                                    { "JobberName", dr["JobberName"].ToString() },
+                                    { "YarnMaterial", dr["YarnMaterial"].ToString().Trim() },
+                                    { "YarnColor", dr["YarnColor"].ToString().Trim() },
+                                    { "OutwardWeight", Convert.ToDecimal(dr["OutwardWeight"]) },
+                                    { "BarcodeNo", dr["BarcodeNo"].ToString().Trim() }
+                                });
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                // 3. Query Admin / General Yarn Outward (YarnOutwardMaster + YarnOutwardScanMasterDetails)
+                try
+                {
+                    string adminOutwardSql = @"
+                    SELECT 
+                        'ADMIN' AS SourceType,
+                        YOM.YarnOutwardID AS OutwardID,
+                        CAST(ISNULL(YOM.OutwardListNo, '') AS VARCHAR(50)) AS ChallanNo,
+                        YOSM.ChallanDate AS OutwardDate,
+                        CONVERT(VARCHAR(10), YOSM.ChallanDate, 103) AS OutwardDateFormatted,
+                        ISNULL(YOM.PartyId, 0) AS JobberPartyID,
+                        ISNULL(PM.PartyName, ISNULL(JM.PartyName, 'Unknown Jobber')) AS JobberName,
+                        ISNULL(YMM.YarnMaterial, 'Unknown Material') AS YarnMaterial,
+                        ISNULL(YCM.YarnColor, '') AS YarnColor,
+                        CAST(ISNULL(YOSD.NetWeight, 0) AS DECIMAL(18,2)) AS OutwardWeight,
+                        ISNULL(YOSD.BarcodeNo, '') AS BarcodeNo
+                    FROM YarnOutwardMaster YOM
+                    INNER JOIN YarnOutwardScanMaster YOSM ON YOSM.YarnOutwardID = YOM.YarnOutwardID
+                    INNER JOIN YarnOutwardScanMasterDetails YOSD ON YOSD.YarnOutwardScanID = YOSM.YarnOutwardScanID
+                    LEFT JOIN PartyMaster PM ON PM.PartyId = YOM.PartyId
+                    LEFT JOIN JobberMaster JM ON JM.Id = YOM.PartyId
+                    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YOSD.YarnMaterial
+                    LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YOSD.YarnColour
+                    WHERE 1 = 1";
+
+                    if (filterJobberId > 0)
+                    {
+                        adminOutwardSql += " AND (YOM.PartyId = @JobberID OR JM.Id = @JobberID)";
+                    }
+                    if (parsedDateFrom.HasValue)
+                    {
+                        adminOutwardSql += " AND YOSM.ChallanDate >= @DateFrom";
+                    }
+                    if (parsedDateTo.HasValue)
+                    {
+                        adminOutwardSql += " AND YOSM.ChallanDate <= @DateTo";
+                    }
+
+                    using (SqlCommand cmdAOM = new SqlCommand(adminOutwardSql, con))
+                    {
+                        if (filterJobberId > 0)
+                        {
+                            cmdAOM.Parameters.AddWithValue("@JobberID", filterJobberId);
+                        }
+                        if (parsedDateFrom.HasValue)
+                        {
+                            cmdAOM.Parameters.AddWithValue("@DateFrom", parsedDateFrom.Value.Date);
+                        }
+                        if (parsedDateTo.HasValue)
+                        {
+                            cmdAOM.Parameters.AddWithValue("@DateTo", parsedDateTo.Value.Date.AddDays(1).AddTicks(-1));
+                        }
+
+                        using (SqlDataReader dr = cmdAOM.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                transactionList.Add(new Dictionary<string, object>
+                                {
+                                    { "SourceType", "ADMIN" },
+                                    { "OutwardID", dr["OutwardID"] },
+                                    { "ChallanNo", dr["ChallanNo"].ToString() },
+                                    { "OutwardDate", dr["OutwardDateFormatted"].ToString() },
+                                    { "JobberPartyID", dr["JobberPartyID"] },
+                                    { "JobberName", dr["JobberName"].ToString() },
+                                    { "YarnMaterial", dr["YarnMaterial"].ToString().Trim() },
+                                    { "YarnColor", dr["YarnColor"].ToString().Trim() },
+                                    { "OutwardWeight", Convert.ToDecimal(dr["OutwardWeight"]) },
+                                    { "BarcodeNo", dr["BarcodeNo"].ToString().Trim() }
+                                });
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                // 4. Query Jobber Inwards (Jobber ne accept kiya, return kiya)
+                var outwardInwardMap = new Dictionary<long, decimal>();
+                var barcodeInwardMap = new HashSet<string>();
+
+                try
+                {
+                    string inwardSql = @"
+                    SELECT 
+                        ISNULL(JIM.JobWorkOutwardId, 0) AS JobWorkOutwardId,
+                        ISNULL(JIM.TotalWeight, 0) AS TotalWeight,
+                        ISNULL(JIM.PendingWeight, 0) AS PendingWeight,
+                        ISNULL(JID.BarcodeNo, '') AS BarcodeNo,
+                        CAST(ISNULL(JID.NetWeight, 0) AS DECIMAL(18,2)) AS InwardWeight
+                    FROM JobberInwardMaster JIM
+                    LEFT JOIN JobberInwardDetail JID ON JID.JobberInwardID = JIM.JobberInwardId";
+
+                    using (SqlCommand cmdInw = new SqlCommand(inwardSql, con))
+                    {
+                        using (SqlDataReader dr = cmdInw.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                long oId = Convert.ToInt64(dr["JobWorkOutwardId"]);
+                                decimal tot = Convert.ToDecimal(dr["TotalWeight"]);
+                                decimal pnd = Convert.ToDecimal(dr["PendingWeight"]);
+                                decimal rec = tot - pnd;
+                                if (rec < 0) { rec = 0; }
+
+                                if (oId > 0 && !outwardInwardMap.ContainsKey(oId))
+                                {
+                                    outwardInwardMap[oId] = rec;
+                                }
+
+                                string bc = dr["BarcodeNo"].ToString().Trim();
+                                if (!string.IsNullOrEmpty(bc))
+                                {
+                                    barcodeInwardMap.Add(bc);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                // 5. Consolidate by Material Quality (YarnMaterial & YarnColor)
+                // Result structure: MaterialQuality | Particular | YarnColor | InHouseStock | GivenToJobber | AcceptedByJobber | ReturnedByJobber | BalanceWithJobber | Jobbers
+                var materialMap = new Dictionary<string, Dictionary<string, object>>();
+
+                // First seed with In-House Stock items so they appear even if nothing was given to jobbers yet
+                foreach (var kvp in inHouseStockMap)
+                {
+                    string[] parts = kvp.Key.Split('|');
+                    string mat = parts[0];
+                    string col = parts.Length > 1 ? parts[1] : "";
+                    string particular = (!string.IsNullOrEmpty(col) && !string.IsNullOrEmpty(mat))
+                        ? col + " - " + mat
+                        : (!string.IsNullOrEmpty(mat) ? mat : col);
+
+                    materialMap[kvp.Key] = new Dictionary<string, object>
+                    {
+                        { "MaterialQuality", mat },
+                        { "YarnColor", col },
+                        { "Particular", particular },
+                        { "InHouseStock", kvp.Value },
+                        { "GivenToJobber", 0m },
+                        { "AcceptedByJobber", 0m },
+                        { "ReturnedByJobber", 0m },
+                        { "BalanceWithJobber", 0m },
+                        { "Jobbers", new HashSet<string>() },
+                        { "Challans", new HashSet<string>() },
+                        { "ChallanCount", 0 }
+                    };
+                }
+
+                // Process Transactions
+                var detailedTransactionRows = new List<object>();
+
+                foreach (var tx in transactionList)
+                {
+                    string mat = tx["YarnMaterial"].ToString().Trim();
+                    string col = tx["YarnColor"].ToString().Trim();
+                    string particular = (!string.IsNullOrEmpty(col) && !string.IsNullOrEmpty(mat))
+                        ? col + " - " + mat
+                        : (!string.IsNullOrEmpty(mat) ? mat : col);
+
+                    string key = (mat + "|" + col).ToUpper();
+                    decimal outWt = Convert.ToDecimal(tx["OutwardWeight"]);
+                    string jobber = tx["JobberName"].ToString().Trim();
+                    string challan = tx["ChallanNo"].ToString().Trim();
+                    long outId = Convert.ToInt64(tx["OutwardID"]);
+                    string bc = tx["BarcodeNo"].ToString().Trim();
+
+                    // Check accepted / returned
+                    decimal acceptedWt = 0;
+                    decimal returnWt = 0;
+
+                    if (outwardInwardMap.ContainsKey(outId))
+                    {
+                        acceptedWt = outwardInwardMap[outId];
+                    }
+                    else if (!string.IsNullOrEmpty(bc) && barcodeInwardMap.Contains(bc))
+                    {
+                        acceptedWt = outWt;
+                    }
+
+                    if (acceptedWt > outWt)
+                    {
+                        returnWt = acceptedWt - outWt;
+                        acceptedWt = outWt;
+                    }
+
+                    decimal balanceWt = outWt - acceptedWt;
+                    if (balanceWt < 0) { balanceWt = 0; }
+
+                    string status = balanceWt <= 0 ? "Accepted" : "With Jobber";
+
+                    detailedTransactionRows.Add(new
+                    {
+                        SourceType = tx["SourceType"],
+                        ChallanNo = challan,
+                        OutwardDate = tx["OutwardDate"],
+                        JobberName = jobber,
+                        MaterialQuality = mat,
+                        YarnColor = col,
+                        Particular = particular,
+                        GivenWeight = outWt,
+                        AcceptedWeight = acceptedWt,
+                        ReturnWeight = returnWt,
+                        BalanceWeight = balanceWt,
+                        Status = status
+                    });
+
+                    if (!materialMap.ContainsKey(key))
+                    {
+                        materialMap[key] = new Dictionary<string, object>
+                        {
+                            { "MaterialQuality", mat },
+                            { "YarnColor", col },
+                            { "Particular", particular },
+                            { "InHouseStock", 0m },
+                            { "GivenToJobber", outWt },
+                            { "AcceptedByJobber", acceptedWt },
+                            { "ReturnedByJobber", returnWt },
+                            { "BalanceWithJobber", balanceWt },
+                            { "Jobbers", new HashSet<string> { jobber } },
+                            { "Challans", new HashSet<string> { challan } },
+                            { "ChallanCount", 1 }
+                        };
+                    }
+                    else
+                    {
+                        var mEntry = materialMap[key];
+                        mEntry["GivenToJobber"] = Convert.ToDecimal(mEntry["GivenToJobber"]) + outWt;
+                        mEntry["AcceptedByJobber"] = Convert.ToDecimal(mEntry["AcceptedByJobber"]) + acceptedWt;
+                        mEntry["ReturnedByJobber"] = Convert.ToDecimal(mEntry["ReturnedByJobber"]) + returnWt;
+                        mEntry["BalanceWithJobber"] = Convert.ToDecimal(mEntry["BalanceWithJobber"]) + balanceWt;
+                        mEntry["ChallanCount"] = Convert.ToInt32(mEntry["ChallanCount"]) + 1;
+                        ((HashSet<string>)mEntry["Jobbers"]).Add(jobber);
+                        ((HashSet<string>)mEntry["Challans"]).Add(challan);
+                    }
+                }
+
+                // If both Outward and In-House were empty, check ProductionOrderDetail as secondary fallback
+                if (materialMap.Count == 0)
+                {
+                    try
+                    {
+                        string fbProdSql = @"
+                        SELECT 
+                            ISNULL(NULLIF(pod.WeftQuality, ''), 'General Quality') AS YarnMaterial,
+                            ISNULL(NULLIF(pod.ColourMatchingName, ''), '') AS YarnColor,
+                            ISNULL(jm.PartyName, 'Jobber Assigned') AS JobberName,
+                            CAST(SUM(ISNULL(pod.PCS, 0)) AS DECIMAL(18,2)) AS OrderQty,
+                            CAST(SUM(ISNULL(pod.ProductionPCS, 0)) AS DECIMAL(18,2)) AS AllottedQty
+                        FROM ProductionOrderDetail pod
+                        LEFT JOIN ProductionOrderMaster pom ON pom.ProductionOrderID = pod.ProductionOrderID
+                        LEFT JOIN JobberMaster jm ON pom.JobWorkerID = jm.Id
+                        WHERE ISNULL(pod.IsActive, 1) = 1
+                        GROUP BY pod.WeftQuality, pod.ColourMatchingName, jm.PartyName";
+
+                        using (SqlCommand cmdFb = new SqlCommand(fbProdSql, con))
+                        {
+                            using (SqlDataReader dr = cmdFb.ExecuteReader())
+                            {
+                                while (dr.Read())
+                                {
+                                    string mat = dr["YarnMaterial"].ToString().Trim();
+                                    string col = dr["YarnColor"].ToString().Trim();
+                                    string particular = (!string.IsNullOrEmpty(col) && !string.IsNullOrEmpty(mat))
+                                        ? col + " - " + mat
+                                        : (!string.IsNullOrEmpty(mat) ? mat : col);
+
+                                    string key = (mat + "|" + col).ToUpper();
+                                    decimal allotted = Convert.ToDecimal(dr["AllottedQty"]);
+                                    string jName = dr["JobberName"].ToString().Trim();
+
+                                    materialMap[key] = new Dictionary<string, object>
+                                    {
+                                        { "MaterialQuality", mat },
+                                        { "YarnColor", col },
+                                        { "Particular", particular },
+                                        { "InHouseStock", 0m },
+                                        { "GivenToJobber", allotted },
+                                        { "AcceptedByJobber", 0m },
+                                        { "ReturnedByJobber", 0m },
+                                        { "BalanceWithJobber", allotted },
+                                        { "Jobbers", new HashSet<string> { jName } },
+                                        { "Challans", new HashSet<string> { "-" } },
+                                        { "ChallanCount", 1 }
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                // If a specific jobber is filtered, only show materials relevant to this jobber
+                if (filterJobberId > 0)
+                {
+                    var filteredMap = new Dictionary<string, Dictionary<string, object>>();
+                    foreach (var kvp in materialMap)
+                    {
+                        decimal given = Convert.ToDecimal(kvp.Value["GivenToJobber"]);
+                        decimal balance = Convert.ToDecimal(kvp.Value["BalanceWithJobber"]);
+                        if (given > 0 || balance > 0)
+                        {
+                            filteredMap[kvp.Key] = kvp.Value;
+                        }
+                    }
+                    materialMap = filteredMap;
+                }
+
+                // Prepare final list sorted by Material Quality
+                var materialReportList = new List<object>();
+                decimal grandTotalInHouse = 0;
+                decimal grandTotalGiven = 0;
+                decimal grandTotalAccepted = 0;
+                decimal grandTotalReturned = 0;
+                decimal grandTotalBalance = 0;
+
+                foreach (var kvp in materialMap)
+                {
+                    var m = kvp.Value;
+                    decimal inHouse = Math.Round(Convert.ToDecimal(m["InHouseStock"]), 2);
+                    decimal given = Math.Round(Convert.ToDecimal(m["GivenToJobber"]), 2);
+                    decimal accepted = Math.Round(Convert.ToDecimal(m["AcceptedByJobber"]), 2);
+                    decimal returned = Math.Round(Convert.ToDecimal(m["ReturnedByJobber"]), 2);
+                    decimal balance = Math.Round(Convert.ToDecimal(m["BalanceWithJobber"]), 2);
+
+                    grandTotalInHouse += inHouse;
+                    grandTotalGiven += given;
+                    grandTotalAccepted += accepted;
+                    grandTotalReturned += returned;
+                    grandTotalBalance += balance;
+
+                    materialReportList.Add(new
+                    {
+                        MaterialQuality = m["MaterialQuality"],
+                        YarnColor = m["YarnColor"],
+                        Particular = m["Particular"],
+                        InHouseStock = inHouse,
+                        GivenToJobber = given,
+                        AcceptedByJobber = accepted,
+                        ReturnedByJobber = returned,
+                        BalanceWithJobber = balance,
+                        Jobbers = string.Join(", ", (HashSet<string>)m["Jobbers"]),
+                        ChallanCount = m["ChallanCount"]
+                    });
+                }
+
+                materialReportList.Sort((a, b) =>
+                {
+                    dynamic da = a, db = b;
+                    return string.Compare(da.Particular.ToString(), db.Particular.ToString(), StringComparison.OrdinalIgnoreCase);
+                });
+
+                var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+                Response.Write(serializer.Serialize(new
+                {
+                    status = "success",
+                    data = materialReportList,
+                    detailedTransactions = detailedTransactionRows,
+                    kpi = new
+                    {
+                        inHouseStock = grandTotalInHouse,
+                        givenToJobber = grandTotalGiven,
+                        acceptedByJobber = grandTotalAccepted,
+                        returnedByJobber = grandTotalReturned,
+                        balanceWithJobber = grandTotalBalance,
+                        totalMaterials = materialReportList.Count
+                    }
+                }));
+            }
+        }
+        catch (Exception ex)
+        {
+            var serializer = new JavaScriptSerializer();
+            Response.Write(serializer.Serialize(new { status = "error", message = ex.Message }));
+        }
+
+        Response.End();
+        return;
+    }
+
+    // Handler 2: Production Order & Slip Level Report (Kept as secondary view)
+    if (Request["handler"] == "GetStockReport")
+    {
+        Response.ContentType = "application/json";
+        Response.Clear();
+
+        try
+        {
+            string dateFrom = (Request["dateFrom"] ?? "").Trim();
+            string dateTo = (Request["dateTo"] ?? "").Trim();
+            string jobberIdStr = (Request["jobberId"] ?? "ALL").Trim();
+            string statusFilter = (Request["statusFilter"] ?? "ALL").Trim();
+
+            long filterJobberId = 0;
+            long.TryParse(jobberIdStr, out filterJobberId);
+
+            Func<string, DateTime?> parseDate = (str) =>
+            {
+                if (string.IsNullOrWhiteSpace(str)) return null;
+                str = str.Trim();
+                DateTime dt;
+                string[] formats = new string[] {
+                    "yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy", "dd-MM-yyyy", "MM/dd/yyyy", "MM-dd-yyyy", "yyyy-MM-ddTHH:mm:ss"
+                };
+                if (DateTime.TryParseExact(str, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    return dt;
+                if (DateTime.TryParse(str, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    return dt;
+                if (DateTime.TryParse(str, out dt))
+                    return dt;
+                return null;
+            };
+
+            DateTime? parsedDtFrom = parseDate(dateFrom);
+            DateTime? parsedDtTo = parseDate(dateTo);
+
+            var list = new List<object>();
+            string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                string sql = @"
+                SELECT 
+                    pom.ProductionOrderID,
+                    ISNULL(pom.ProductionOrderNo, '') AS ProductionOrderNo,
+                    pom.ProductionOrderDate,
+                    CONVERT(VARCHAR(10), pom.ProductionOrderDate, 103) AS ProductionOrderDateFormatted,
+                    ISNULL(pom.JobWorkerID, 0) AS JobWorkerID,
+                    ISNULL(jm.PartyName, ISNULL(pom.JobWorkerName, 'Jobber Not Assigned')) AS JobWorkerName,
+                    pod.ProductionOrderDetailID,
+                    ISNULL(pod.SalesOrderID, 0) AS SalesOrderID,
+                    ISNULL(NULLIF(pod.SalesOrderNo, ''), ISNULL(so.OrderNo, '')) AS SalesOrderNo,
+                    pod.OrderDate,
+                    CONVERT(VARCHAR(10), pod.OrderDate, 103) AS OrderDateFormatted,
+                    ISNULL(pod.PartyID, ISNULL(so.PartyID, 0)) AS PartyID,
+                    ISNULL(NULLIF(pod.PartyName, ''), ISNULL(pm.PartyName, '')) AS PartyName,
+                    ISNULL(pod.SlipNo, '') AS SlipNo,
+                    ISNULL(pod.DesignNo, '') AS DesignNo,
+                    ISNULL(pod.ColourMatchingName, '') AS ColourMatchingName,
+                    CAST(ISNULL(NULLIF(sods.Qty, 0), ISNULL(NULLIF(sod.Qty, 0), pod.PCS)) AS DECIMAL(18,2)) AS StockBeforeProduction,
+                    CAST(ISNULL(pod.ProductionPCS, 0) AS DECIMAL(18,2)) AS AllottedToJobber,
+                    CAST(CASE 
+                        WHEN ISNULL(NULLIF(sods.Qty, 0), ISNULL(NULLIF(sod.Qty, 0), pod.PCS)) >= ISNULL(pod.ProductionPCS, 0)
+                        THEN ISNULL(NULLIF(sods.Qty, 0), ISNULL(NULLIF(sod.Qty, 0), pod.PCS)) - ISNULL(pod.ProductionPCS, 0)
+                        ELSE ISNULL(pod.PendingPCS, 0)
+                    END AS DECIMAL(18,2)) AS InHouseRemainingStock,
+                    CAST(ISNULL(recv.ReceivedPCS, 0) AS DECIMAL(18,2)) AS ReceivedFromJobber,
+                    CAST(CASE 
+                        WHEN (ISNULL(pod.ProductionPCS, 0) - ISNULL(recv.ReceivedPCS, 0)) > 0 
+                        THEN (ISNULL(pod.ProductionPCS, 0) - ISNULL(recv.ReceivedPCS, 0)) 
+                        ELSE 0 
+                    END AS DECIMAL(18,2)) AS StockWithJobber
+                FROM ProductionOrderMaster pom
+                INNER JOIN ProductionOrderDetail pod ON pom.ProductionOrderID = pod.ProductionOrderID AND ISNULL(pod.IsActive, 1) = 1
+                LEFT JOIN JobberMaster jm ON pom.JobWorkerID = jm.Id
+                LEFT JOIN SaleOrder so ON pod.SalesOrderID = so.SaleOrderID
+                LEFT JOIN PartyMaster pm ON ISNULL(pod.PartyID, so.PartyID) = pm.PartyID
+                LEFT JOIN SaleOrderDetails sod ON pod.SalesOrderDetailID = sod.DetailID
+                LEFT JOIN SaleOrderSubDetails sods ON pod.SubDetailID = sods.SubDetailID
+                OUTER APPLY (
+                    SELECT ISNULL(SUM(PTD.ReceivePCS), 0) AS ReceivedPCS
+                    FROM ProcessTransactionDetail PTD
+                    WHERE PTD.ProductionOrderDetailID = pod.ProductionOrderDetailID
+                      AND ISNULL(PTD.IsActive, 1) = 1
+                      AND PTD.ReceivePCS > 0
+                ) recv
+                WHERE ISNULL(pom.IsActive, 1) = 1";
+
+                if (filterJobberId > 0)
+                {
+                    sql += " AND (pom.JobWorkerID = @JobberID OR jm.Id = @JobberID)";
+                }
+                if (parsedDtFrom.HasValue)
+                {
+                    sql += " AND pom.ProductionOrderDate >= @DateFrom";
+                }
+                if (parsedDtTo.HasValue)
+                {
+                    sql += " AND pom.ProductionOrderDate <= @DateTo";
+                }
+
+                sql += " ORDER BY pom.ProductionOrderID DESC, pod.ProductionOrderDetailID ASC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    if (filterJobberId > 0)
+                    {
+                        cmd.Parameters.AddWithValue("@JobberID", filterJobberId);
+                    }
+                    if (parsedDtFrom.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@DateFrom", parsedDtFrom.Value.Date);
+                    }
+                    if (parsedDtTo.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@DateTo", parsedDtTo.Value.Date.AddDays(1).AddTicks(-1));
+                    }
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            decimal beforeStock = Convert.ToDecimal(dr["StockBeforeProduction"]);
+                            decimal allotted = Convert.ToDecimal(dr["AllottedToJobber"]);
+                            decimal inHouseBalance = Convert.ToDecimal(dr["InHouseRemainingStock"]);
+                            decimal receivedBack = Convert.ToDecimal(dr["ReceivedFromJobber"]);
+                            decimal withJobber = Convert.ToDecimal(dr["StockWithJobber"]);
+
+                            string status = "With Jobber";
+                            if (allotted > 0 && withJobber <= 0)
+                            {
+                                status = "Completed";
+                            }
+                            else if (receivedBack > 0 && withJobber > 0)
+                            {
+                                status = "Partially Received";
+                            }
+
+                            if (statusFilter == "WITH_JOBBER" && withJobber <= 0)
+                            {
+                                continue;
+                            }
+                            if (statusFilter == "COMPLETED" && status != "Completed")
+                            {
+                                continue;
+                            }
+                            if (statusFilter == "INHOUSE_PENDING" && inHouseBalance <= 0)
+                            {
+                                continue;
+                            }
+
+                            list.Add(new
+                            {
+                                ProductionOrderID = dr["ProductionOrderID"],
+                                ProductionOrderNo = dr["ProductionOrderNo"].ToString(),
+                                ProductionOrderDate = dr["ProductionOrderDateFormatted"].ToString(),
+                                JobWorkerID = dr["JobWorkerID"],
+                                JobWorkerName = dr["JobWorkerName"].ToString(),
+                                ProductionOrderDetailID = dr["ProductionOrderDetailID"],
+                                SalesOrderID = dr["SalesOrderID"],
+                                SalesOrderNo = dr["SalesOrderNo"].ToString(),
+                                OrderDate = dr["OrderDateFormatted"].ToString(),
+                                PartyID = dr["PartyID"],
+                                PartyName = dr["PartyName"].ToString(),
+                                SlipNo = dr["SlipNo"].ToString(),
+                                DesignNo = dr["DesignNo"].ToString(),
+                                ColourMatchingName = dr["ColourMatchingName"].ToString(),
+                                StockBeforeProduction = beforeStock,
+                                AllottedToJobber = allotted,
+                                InHouseRemainingStock = inHouseBalance,
+                                ReceivedFromJobber = receivedBack,
+                                StockWithJobber = withJobber,
+                                Status = status
+                            });
+                        }
+                    }
+                }
+            }
+
+            var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+            Response.Write(serializer.Serialize(new { status = "success", data = list }));
+        }
+        catch (Exception ex)
+        {
+            var serializer = new JavaScriptSerializer();
+            Response.Write(serializer.Serialize(new { status = "error", message = ex.Message }));
+        }
+
+        Response.End();
+        return;
+    }
+
+    // Handler 3: Jobber Dropdown List (Combined from JobberMaster and PartyMaster)
+    if (Request["handler"] == "GetJobbers")
+    {
+        Response.ContentType = "application/json";
+        Response.Clear();
+
+        try
+        {
+            var listJobbers = new List<object>();
+            string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                string sql = @"
+                SELECT DISTINCT Id, PartyName FROM (
+                    SELECT Id, PartyName FROM JobberMaster WHERE PartyName IS NOT NULL AND PartyName <> ''
+                    UNION
+                    SELECT PartyId AS Id, PartyName FROM PartyMaster WHERE (SundryParty = 3 OR SundryParty = 2) AND PartyName IS NOT NULL AND PartyName <> ''
+                ) tbl ORDER BY PartyName";
+
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            listJobbers.Add(new
+                            {
+                                Id = dr["Id"],
+                                Name = dr["PartyName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            var serializer = new JavaScriptSerializer();
+            Response.Write(serializer.Serialize(new { status = "success", jobbers = listJobbers }));
+        }
+        catch (Exception ex)
+        {
+            var serializer = new JavaScriptSerializer();
+            Response.Write(serializer.Serialize(new { status = "error", message = ex.Message }));
+        }
+
+        Response.End();
+        return;
+    }
+
+    Layout = "/_LayoutPage1.cshtml";
+}
+
+<style>
+    /* Standard Report Styling */
+    .kpi-stat-box {
+        border-radius: 8px;
+        padding: 10px 14px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        background: #ffffff;
+    }
+    .kpi-stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+    .kpi-stat-box .kpi-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .kpi-stat-box .kpi-number {
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1.1;
+        white-space: nowrap;
+    }
+    .kpi-stat-box .kpi-desc {
+        font-size: 0.7rem;
+        margin-top: 2px;
+        opacity: 0.85;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Filter Panel */
+    .filter-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .filter-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+    }
+
+    /* Navigation Tabs */
+    .report-tabs {
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 12px;
+    }
+    .report-tabs .nav-link {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 8px 16px;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .report-tabs .nav-link.active {
+        color: #1d4ed8;
+        border-bottom-color: #2563eb;
+        background: transparent;
+        font-weight: 700;
+    }
+
+    /* Table Scroll & Responsive Container */
+    .report-table-scroll {
+        max-height: 560px;
+        overflow-y: auto;
+        overflow-x: auto;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .report-table-scroll table {
+        font-size: 0.82rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+        width: 100%;
+        min-width: 1100px;
+    }
+    .report-table-scroll thead th {
+        background: #0f172a !important;
+        color: #f8fafc !important;
+        font-weight: 700;
+        font-size: 0.74rem;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        padding: 9px 12px;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        white-space: nowrap !important;
+    }
+    .report-table-scroll td {
+        padding: 7px 12px;
+        vertical-align: middle;
+        border-top: 1px solid #f1f5f9;
+        white-space: nowrap !important;
+    }
+    .report-table-scroll tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    .report-table-scroll tfoot td {
+        background: #f1f5f9 !important;
+        border-top: 2px solid #cbd5e1 !important;
+        font-weight: 700;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        padding: 9px 12px;
+        white-space: nowrap !important;
+    }
+
+    /* Status Badges */
+    .badge-with-jobber {
+        background: #fee2e2 !important;
+        color: #991b1b !important;
+        border: 1px solid #f87171 !important;
+        font-weight: 800 !important;
+        font-size: 0.74rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+    .badge-completed {
+        background: #f0fdf4 !important;
+        color: #15803d !important;
+        border: 1px solid #86efac !important;
+        font-weight: 800 !important;
+        font-size: 0.74rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+
+    /* Print Styles */
+    @@media print {
+        body * { visibility: hidden; }
+        #printArea, #printArea * { visibility: visible; }
+        #printArea { position: absolute; left: 0; top: 0; width: 100%; height: auto !important; }
+        .no-print { display: none !important; }
+        .report-table-scroll { overflow: visible !important; max-height: none !important; }
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container-fluid" id="printArea">
+
+        <!-- Top Header & Action Row -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="gap: 8px;">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="p-2 rounded-circle text-white d-inline-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e40af, #3b82f6); width: 36px; height: 36px;">
+                        <i class="fa fa-cubes"></i>
+                    </span>
+                    <div>
+                        <h4 class="mb-0 font-weight-bold fw-bold text-dark" style="letter-spacing: -0.3px;">Material Quality & Jobber Stock Report</h4>
+                        <small class="text-muted" style="font-size: 0.78rem;">In-House Stock, Issued to Jobber, Accepted by Jobber, Returned by Jobber & Pending Balance</small>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center flex-wrap no-print" style="gap: 6px;">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3 font-weight-bold" onclick="reloadAllReportData()">
+                    <i class="fa fa-refresh mr-1 me-1"></i> Refresh
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm px-3 font-weight-bold" onclick="exportToExcel()">
+                    <i class="fa fa-file-excel-o mr-1 me-1"></i> Excel
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm px-3 font-weight-bold" onclick="window.print()">
+                    <i class="fa fa-print mr-1 me-1"></i> Print / PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- 5 Key KPI Summary Stat Cards -->
+        <div class="row g-2 mb-3" id="reportKpiRow">
+            <!-- 1. In-House Stock -->
+            <div class="col-lg col-md-4 col-sm-6 col-12 mb-2">
+                <div class="kpi-stat-box" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                    <div class="kpi-label" style="color: #1e40af;">
+                        <i class="fa fa-home"></i> 1. In-House Stock
+                    </div>
+                    <div class="kpi-number" style="color: #1d4ed8;">
+                        <span id="kpiInHouseStock">0</span> <small style="font-size: 0.8rem; font-weight: 600;">KG</small>
+                    </div>
+                    <div class="kpi-desc" style="color: #3b82f6;">Available Godown Stock</div>
+                </div>
+            </div>
+
+            <!-- 2. Issued to Jobber -->
+            <div class="col-lg col-md-4 col-sm-6 col-12 mb-2">
+                <div class="kpi-stat-box" style="background: #f5f3ff; border: 1px solid #ddd6fe;">
+                    <div class="kpi-label" style="color: #5b21b6;">
+                        <i class="fa fa-paper-plane"></i> 2. Issued to Jobber
+                    </div>
+                    <div class="kpi-number" style="color: #6d28d9;">
+                        <span id="kpiGivenToJobber">0</span> <small style="font-size: 0.8rem; font-weight: 600;">KG</small>
+                    </div>
+                    <div class="kpi-desc" style="color: #8b5cf6;">Outward / Issued to Jobber</div>
+                </div>
+            </div>
+
+            <!-- 3. Accepted by Jobber -->
+            <div class="col-lg col-md-4 col-sm-6 col-12 mb-2">
+                <div class="kpi-stat-box" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                    <div class="kpi-label" style="color: #166534;">
+                        <i class="fa fa-check-circle"></i> 3. Accepted by Jobber
+                    </div>
+                    <div class="kpi-number" style="color: #15803d;">
+                        <span id="kpiAcceptedByJobber">0</span> <small style="font-size: 0.8rem; font-weight: 600;">KG</small>
+                    </div>
+                    <div class="kpi-desc" style="color: #22c55e;">Received & Accepted by Jobber</div>
+                </div>
+            </div>
+
+            <!-- 4. Returned by Jobber -->
+            <div class="col-lg col-md-6 col-sm-6 col-12 mb-2">
+                <div class="kpi-stat-box" style="background: #fffbeb; border: 1px solid #fde68a;">
+                    <div class="kpi-label" style="color: #92400e;">
+                        <i class="fa fa-undo"></i> 4. Returned by Jobber
+                    </div>
+                    <div class="kpi-number" style="color: #b45309;">
+                        <span id="kpiReturnedByJobber">0</span> <small style="font-size: 0.8rem; font-weight: 600;">KG</small>
+                    </div>
+                    <div class="kpi-desc" style="color: #d97706;">Return Inward from Jobber</div>
+                </div>
+            </div>
+
+            <!-- 5. Balance with Jobber -->
+            <div class="col-lg col-md-6 col-sm-12 col-12 mb-2">
+                <div class="kpi-stat-box" style="background: #fef2f2; border: 1px solid #fecaca;">
+                    <div class="kpi-label" style="color: #991b1b;">
+                        <i class="fa fa-balance-scale"></i> 5. Balance with Jobber
+                    </div>
+                    <div class="kpi-number" style="color: #dc2626;">
+                        <span id="kpiBalanceWithJobber">0</span> <small style="font-size: 0.8rem; font-weight: 600;">KG</small>
+                    </div>
+                    <div class="kpi-desc" style="color: #ef4444;">Pending Stock with Jobber</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="filter-card no-print">
+            <div class="row g-2 align-items-end">
+                <div class="col-lg-2 col-md-3 col-sm-6">
+                    <div class="filter-label">From Date</div>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm" />
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6">
+                    <div class="filter-label">To Date</div>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm" />
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6">
+                    <div class="filter-label">Jobber / Party</div>
+                    <select id="filterJobber" class="form-control form-control-sm">
+                        <option value="ALL">-- All Jobbers --</option>
+                    </select>
+                </div>
+                <div class="col-lg-4 col-md-12 col-sm-12 text-end">
+                    <button type="button" class="btn btn-primary btn-sm px-3 font-weight-bold me-1" onclick="reloadAllReportData()">
+                        <i class="fa fa-search mr-1 me-1"></i> Search
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="resetFilters()">
+                        <i class="fa fa-undo mr-1 me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav report-tabs no-print" id="stockReportTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="tab-jobber-summary" data-toggle="tab" data-bs-toggle="tab" href="#pane-jobber-summary" role="tab">
+                    <i class="fa fa-th-large mr-1 me-1"></i> Jobber-Wise Summary (<span id="countJobbersSummary">0</span>)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="tab-transactions" data-toggle="tab" data-bs-toggle="tab" href="#pane-transactions" role="tab">
+                    <i class="fa fa-list-alt mr-1 me-1"></i> Challan Wise Detailed Transactions (<span id="countTransactions">0</span>)
+                </a>
+            </li>
+        </ul>
+
+        <!-- Search input for table filtering -->
+        <div class="report-search-row d-flex justify-content-between align-items-center flex-wrap no-print" style="gap: 8px;">
+            <div class="input-group" style="width: 420px; max-width: 100%;">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-white border-right-0" style="border-radius: 8px 0 0 8px; border-color: #cbd5e1; color: #64748b;">
+                        <i class="fa fa-search"></i>
+                    </span>
+                </div>
+                <input type="text" id="tableQuickSearch" class="form-control border-left-0" placeholder="Filter by Jobber Name, Challan No, Material Quality, Yarn Color..." style="border-radius: 0 8px 8px 0; border-color: #cbd5e1; font-size: 0.85rem;" onkeyup="applyQuickSearch()">
+            </div>
+            <span id="tableShowingCount" class="badge px-3 py-2 font-weight-bold" style="font-size: 0.82rem; border-radius: 6px; background-color: #1e293b !important; color: #ffffff !important; border: 1px solid #334155;">
+                Showing 0 records
+            </span>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tab-content" id="stockReportTabContent">
+
+            <!-- TAB 1: Jobber-Wise Summary Table (Default Active) -->
+            <div class="tab-pane fade show active" id="pane-jobber-summary" role="tabpanel">
+                <div class="report-table-scroll shadow-sm">
+                    <table class="table table-hover table-striped mb-0" id="tblJobberSummary" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th>Jobber Name</th>
+                                <th class="text-center">Challan Count</th>
+                                <th class="text-right text-end" style="color: #c4b5fd !important;">Total Issued (KG)</th>
+                                <th class="text-right text-end" style="color: #86efac !important;">Total Accepted (KG)</th>
+                                <th class="text-right text-end" style="color: #fde047 !important;">Total Returned (KG)</th>
+                                <th class="text-right text-end" style="color: #fca5a5 !important; font-weight: 800;">Balance With Jobber (KG)</th>
+                                <th class="text-center">Accepted %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblJobberSummaryBody">
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="fa fa-spinner fa-spin mr-1 me-1"></i> Loading jobber summary...
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="tblJobberSummaryFoot">
+                            <tr>
+                                <td colspan="2" class="text-right text-end text-uppercase font-weight-bold" style="letter-spacing: 0.5px; vertical-align: middle;">Totals:</td>
+                                <td class="text-center font-weight-bold" style="vertical-align: middle;" id="ftJobberTotalCount">0</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #6d28d9 !important; font-size: 0.95rem; vertical-align: middle;" id="ftJobberGiven">0 KG</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #15803d !important; font-size: 0.95rem; vertical-align: middle;" id="ftJobberAccepted">0 KG</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #b45309 !important; font-size: 0.95rem; vertical-align: middle;" id="ftJobberReturned">0 KG</td>
+                                <td class="text-right text-end" style="vertical-align: middle;">
+                                    <span style="background: #fee2e2 !important; color: #991b1b !important; border: 1px solid #f87171 !important; font-weight: 800; font-size: 1rem; padding: 3px 12px; border-radius: 6px; display: inline-block;" id="ftJobberBalance">0 KG</span>
+                                </td>
+                                <td class="text-center font-weight-bold" style="vertical-align: middle;" id="ftJobberPercent">0%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: Detailed Challan & Transaction List -->
+            <div class="tab-pane fade" id="pane-transactions" role="tabpanel">
+                <div class="report-table-scroll shadow-sm">
+                    <table class="table table-hover table-striped mb-0" id="tblTransactions" style="min-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th class="text-center" style="width: 80px;">Source</th>
+                                <th class="text-center" style="width: 120px;">Challan No</th>
+                                <th class="text-center" style="width: 100px;">Date</th>
+                                <th style="width: 220px;">Jobber Name</th>
+                                <th style="width: 180px;">Material Quality</th>
+                                <th style="width: 150px;">Yarn Color</th>
+                                <th class="text-right text-end" style="width: 140px; color: #c4b5fd !important;">Issued (KG)</th>
+                                <th class="text-right text-end" style="width: 140px; color: #86efac !important;">Accepted (KG)</th>
+                                <th class="text-right text-end" style="width: 140px; color: #fde047 !important;">Returned (KG)</th>
+                                <th class="text-right text-end" style="width: 150px; color: #fca5a5 !important; font-weight: 800;">Balance (KG)</th>
+                                <th class="text-center" style="width: 110px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblTransactionsBody">
+                            <tr>
+                                <td colspan="12" class="text-center py-4 text-muted">
+                                    <i class="fa fa-spinner fa-spin mr-1 me-1"></i> Loading transaction history...
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="tblTransactionsFoot">
+                            <tr>
+                                <td colspan="7" class="text-right text-end text-uppercase font-weight-bold" style="vertical-align: middle;">TOTALS:</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #6d28d9 !important;" id="ftTxGiven">0 KG</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #15803d !important;" id="ftTxAccepted">0 KG</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #b45309 !important;" id="ftTxReturned">0 KG</td>
+                                <td class="text-right text-end font-weight-bold" style="color: #dc2626 !important;" id="ftTxBalance">0 KG</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var rawTransactionsData = [];
+        var filteredTransactionsData = [];
+
+        $(document).ready(function () {
+            // Ensure standard application layout
+             $('body').addClass('fullscreen');
+
+            // Set past 90 days date range default
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            var todayStr = yyyy + "-" + mm + "-" + dd;
+
+            var pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - 90);
+            var pdd = String(pastDate.getDate()).padStart(2, '0');
+            var pmm = String(pastDate.getMonth() + 1).padStart(2, '0');
+            var pyyyy = pastDate.getFullYear();
+            var pastStr = pyyyy + "-" + pmm + "-" + pdd;
+
+            $("#filterFromDate").val(pastStr);
+            $("#filterToDate").val(todayStr);
+
+            $(document).on("shown.bs.tab", "#stockReportTabs a", function () {
+                updateCounterBadge();
+            });
+
+            $(document).on("click", "#stockReportTabs a", function () {
+                setTimeout(function () {
+                    updateCounterBadge();
+                }, 100);
+            });
+
+            loadJobberDropdown();
+            reloadAllReportData();
+        });
+
+        function reloadAllReportData() {
+            loadMaterialReportData();
+        }
+
+        function loadJobberDropdown() {
+            $.ajax({
+                url: '/JobberProductionStockReport.cshtml?handler=GetJobbers',
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.status === 'success' && res.jobbers) {
+                        var $ddl = $("#filterJobber");
+                        $ddl.find('option:not(:first)').remove();
+                        res.jobbers.forEach(function (j) {
+                            $ddl.append($('<option>', { value: j.Id, text: j.Name }));
+                        });
+                    }
+                }
+            });
+        }
+
+        function loadMaterialReportData() {
+            $("#tblTransactionsBody").html('<tr><td colspan="12" class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin mr-1 me-1"></i> Loading transaction history...</td></tr>');
+            $("#tblJobberSummaryBody").html('<tr><td colspan="8" class="text-center py-4 text-muted"><i class="fa fa-spinner fa-spin mr-1 me-1"></i> Loading jobber summary...</td></tr>');
+
+            var fromDate = $("#filterFromDate").val();
+            var toDate = $("#filterToDate").val();
+            var jobberId = $("#filterJobber").val() || 'ALL';
+
+            $.ajax({
+                url: '/JobberProductionStockReport.cshtml?handler=GetMaterialReport',
+                type: 'POST',
+                data: {
+                    dateFrom: fromDate,
+                    dateTo: toDate,
+                    jobberId: jobberId
+                },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.status === 'success') {
+                        rawTransactionsData = res.detailedTransactions || [];
+
+                        if (res.kpi) {
+                            $("#kpiInHouseStock").text(formatNum(res.kpi.inHouseStock));
+                            $("#kpiGivenToJobber").text(formatNum(res.kpi.givenToJobber));
+                            $("#kpiAcceptedByJobber").text(formatNum(res.kpi.acceptedByJobber));
+                            $("#kpiReturnedByJobber").text(formatNum(res.kpi.returnedByJobber));
+                            $("#kpiBalanceWithJobber").text(formatNum(res.kpi.balanceWithJobber));
+                        }
+
+                        applyQuickSearch();
+                    } else {
+                        rawTransactionsData = [];
+                        renderJobberSummaryTable([]);
+                        renderTransactionsTable([]);
+                    }
+                },
+                error: function () {
+                    rawTransactionsData = [];
+                    $("#tblJobberSummaryBody").html('<tr><td colspan="8" class="text-center text-danger py-4"><i class="fa fa-exclamation-triangle mr-1 me-1"></i> Error loading report. Please retry.</td></tr>');
+                    $("#tblTransactionsBody").html('<tr><td colspan="12" class="text-center text-danger py-4"><i class="fa fa-exclamation-triangle mr-1 me-1"></i> Error loading transactions. Please retry.</td></tr>');
+                }
+            });
+        }
+
+        function applyQuickSearch() {
+            var q = ($("#tableQuickSearch").val() || '').trim().toLowerCase();
+
+            if (!q) {
+                filteredTransactionsData = rawTransactionsData.slice();
+            } else {
+                filteredTransactionsData = rawTransactionsData.filter(function (tx) {
+                    var ch = String(tx.ChallanNo || '').toLowerCase();
+                    var jb = String(tx.JobberName || '').toLowerCase();
+                    var mat = String(tx.MaterialQuality || '').toLowerCase();
+                    var col = String(tx.YarnColor || '').toLowerCase();
+                    var src = String(tx.SourceType || '').toLowerCase();
+                    var st = String(tx.Status || '').toLowerCase();
+                    return ch.indexOf(q) >= 0 || jb.indexOf(q) >= 0 || mat.indexOf(q) >= 0 || col.indexOf(q) >= 0 || src.indexOf(q) >= 0 || st.indexOf(q) >= 0;
+                });
+            }
+
+            $("#countTransactions").text(formatNum(filteredTransactionsData.length));
+
+            renderJobberSummaryTable(filteredTransactionsData);
+            renderTransactionsTable(filteredTransactionsData);
+            updateCounterBadge();
+        }
+
+        function renderJobberSummaryTable(txData) {
+            var tbody = $("#tblJobberSummaryBody");
+            tbody.empty();
+
+            var jobberMap = {};
+            (txData || []).forEach(function (tx) {
+                var jName = tx.JobberName || 'Unknown Jobber';
+                if (!jobberMap[jName]) {
+                    jobberMap[jName] = {
+                        name: jName,
+                        challanCount: 0,
+                        given: 0,
+                        accepted: 0,
+                        returned: 0,
+                        balance: 0
+                    };
+                }
+                jobberMap[jName].challanCount++;
+                jobberMap[jName].given += (parseFloat(tx.GivenWeight) || 0);
+                jobberMap[jName].accepted += (parseFloat(tx.AcceptedWeight) || 0);
+                jobberMap[jName].returned += (parseFloat(tx.ReturnWeight) || 0);
+                jobberMap[jName].balance += (parseFloat(tx.BalanceWeight) || 0);
+            });
+
+            var jobberList = Object.values(jobberMap);
+            $("#countJobbersSummary").text(jobberList.length);
+
+            if (jobberList.length === 0) {
+                tbody.html('<tr><td colspan="8" class="text-center py-4 text-muted"><i class="fa fa-info-circle mr-1 me-1"></i> No jobber summary data available.</td></tr>');
+                $("#ftJobberTotalCount").text('0');
+                $("#ftJobberGiven").text('0 KG');
+                $("#ftJobberAccepted").text('0 KG');
+                $("#ftJobberReturned").text('0 KG');
+                $("#ftJobberBalance").text('0 KG');
+                $("#ftJobberPercent").text('0%');
+                return;
+            }
+
+            var sumGiven = 0, sumAccepted = 0, sumReturned = 0, sumBalance = 0, sumCount = 0;
+
+            jobberList.forEach(function (j, idx) {
+                sumGiven += j.given;
+                sumAccepted += j.accepted;
+                sumReturned += j.returned;
+                sumBalance += j.balance;
+                sumCount += j.challanCount;
+
+                var pct = j.given > 0 ? Math.round((j.accepted / j.given) * 100) : 0;
+                var progressBadge = pct >= 100 
+                    ? '<span style="background: #dcfce7 !important; color: #15803d !important; border: 1px solid #86efac !important; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.78rem;">100%</span>'
+                    : (pct > 0 
+                        ? '<span style="background: #fef3c7 !important; color: #b45309 !important; border: 1px solid #fde68a !important; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.78rem;">' + pct + '%</span>'
+                        : '<span style="background: #fee2e2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 0.78rem;">0%</span>');
+
+                var balanceHtml = j.balance > 0
+                    ? '<span style="background: #fee2e2 !important; color: #991b1b !important; border: 1px solid #f87171 !important; font-weight: 800; font-size: 0.95rem; padding: 3px 10px; border-radius: 6px; display: inline-block;">' + formatNum(j.balance) + ' KG</span>'
+                    : '<span style="background: #f0fdf4 !important; color: #166534 !important; border: 1px solid #86efac !important; font-weight: 700; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; display: inline-block;"><i class="fa fa-check mr-1"></i> Nil</span>';
+
+                var html = '<tr>' +
+                    '<td class="text-center text-muted font-weight-bold" style="vertical-align:middle;">' + (idx + 1) + '</td>' +
+                    '<td class="font-weight-bold text-dark text-truncate" style="vertical-align:middle; font-size:0.92rem;" title="' + escapeHtml(j.name) + '">' +
+                        '<i class="fa fa-user-circle text-primary mr-2 me-2"></i>' + escapeHtml(j.name) +
+                    '</td>' +
+                    '<td class="text-center" style="vertical-align:middle;">' +
+                        '<span style="background: #dbeafe !important; color: #1e40af !important; border: 1px solid #93c5fd !important; font-weight: 800; font-size: 0.82rem; padding: 3px 12px; border-radius: 16px; display: inline-block;">' +
+                            j.challanCount + ' Challans' +
+                        '</span>' +
+                    '</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #6d28d9 !important; font-size: 0.92rem; vertical-align:middle;">' + formatNum(j.given) + ' KG</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #15803d !important; font-size: 0.92rem; vertical-align:middle;">' + formatNum(j.accepted) + ' KG</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #b45309 !important; font-size: 0.92rem; vertical-align:middle;">' + formatNum(j.returned) + ' KG</td>' +
+                    '<td class="text-right text-end" style="vertical-align:middle;">' + balanceHtml + '</td>' +
+                    '<td class="text-center" style="vertical-align:middle;">' + progressBadge + '</td>' +
+                    '</tr>';
+
+                tbody.append(html);
+            });
+
+            $("#ftJobberTotalCount").text(formatNum(sumCount));
+            $("#ftJobberGiven").text(formatNum(sumGiven) + ' KG');
+            $("#ftJobberAccepted").text(formatNum(sumAccepted) + ' KG');
+            $("#ftJobberReturned").text(formatNum(sumReturned) + ' KG');
+            $("#ftJobberBalance").text(formatNum(sumBalance) + ' KG');
+
+            var totalPct = sumGiven > 0 ? Math.round((sumAccepted / sumGiven) * 100) : 0;
+            $("#ftJobberPercent").text(totalPct + '%');
+        }
+
+        function renderTransactionsTable(data) {
+            var tbody = $("#tblTransactionsBody");
+            tbody.empty();
+
+            if (!data || data.length === 0) {
+                tbody.html('<tr><td colspan="12" class="text-center py-4 text-muted"><i class="fa fa-info-circle mr-1 me-1"></i> No challan transactions found.</td></tr>');
+                $("#ftTxGiven").text('0 KG');
+                $("#ftTxAccepted").text('0 KG');
+                $("#ftTxReturned").text('0 KG');
+                $("#ftTxBalance").text('0 KG');
+                return;
+            }
+
+            var sumGiven = 0, sumAccepted = 0, sumReturned = 0, sumBalance = 0;
+
+            data.forEach(function (tx, idx) {
+                var given = parseFloat(tx.GivenWeight) || 0;
+                var accepted = parseFloat(tx.AcceptedWeight) || 0;
+                var returned = parseFloat(tx.ReturnWeight) || 0;
+                var balance = parseFloat(tx.BalanceWeight) || 0;
+
+                sumGiven += given;
+                sumAccepted += accepted;
+                sumReturned += returned;
+                sumBalance += balance;
+
+                var badgeClass = tx.Status === 'Accepted' ? 'badge-completed' : 'badge-with-jobber';
+
+                var html = '<tr>' +
+                    '<td class="text-center text-muted font-weight-bold" style="vertical-align:middle;">' + (idx + 1) + '</td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="badge bg-secondary text-white">' + escapeHtml(tx.SourceType) + '</span></td>' +
+                    '<td class="text-center font-weight-bold" style="vertical-align:middle;"><span style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 700; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px;">' + escapeHtml(tx.ChallanNo) + '</span></td>' +
+                    '<td class="text-center text-muted small" style="vertical-align:middle;">' + escapeHtml(tx.OutwardDate) + '</td>' +
+                    '<td class="font-weight-bold text-dark text-truncate" style="vertical-align:middle;" title="' + escapeHtml(tx.JobberName) + '"><i class="fa fa-user-circle text-primary mr-1 me-1"></i>' + escapeHtml(tx.JobberName) + '</td>' +
+                    '<td class="font-weight-bold text-dark text-truncate" style="vertical-align:middle;">' + escapeHtml(tx.MaterialQuality) + '</td>' +
+                    '<td class="text-truncate" style="vertical-align:middle;">' + escapeHtml(tx.YarnColor || '-') + '</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #6d28d9 !important; vertical-align:middle;">' + formatNum(given) + ' KG</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #15803d !important; vertical-align:middle;">' + formatNum(accepted) + ' KG</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #b45309 !important; vertical-align:middle;">' + formatNum(returned) + ' KG</td>' +
+                    '<td class="text-right text-end font-weight-bold" style="color: #dc2626 !important; vertical-align:middle;">' + formatNum(balance) + ' KG</td>' +
+                    '<td class="text-center" style="vertical-align:middle;"><span class="' + badgeClass + '">' + escapeHtml(tx.Status) + '</span></td>' +
+                    '</tr>';
+
+                tbody.append(html);
+            });
+
+            $("#ftTxGiven").text(formatNum(sumGiven) + ' KG');
+            $("#ftTxAccepted").text(formatNum(sumAccepted) + ' KG');
+            $("#ftTxReturned").text(formatNum(sumReturned) + ' KG');
+            $("#ftTxBalance").text(formatNum(sumBalance) + ' KG');
+        }
+
+
+        function updateCounterBadge() {
+            var activeTab = $("#stockReportTabs .nav-link.active").attr("id") || 'tab-jobber-summary';
+            if (activeTab === 'tab-jobber-summary') {
+                var jobberCount = $("#countJobbersSummary").text() || '0';
+                $("#tableShowingCount").html('<i class="fa fa-users mr-1 me-1"></i> Showing ' + jobberCount + ' Jobbers');
+            } else {
+                var txCount = $("#countTransactions").text() || '0';
+                $("#tableShowingCount").html('<i class="fa fa-list mr-1 me-1"></i> Showing ' + txCount + ' Transactions');
+            }
+        }
+
+        function resetFilters() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            var todayStr = yyyy + "-" + mm + "-" + dd;
+
+            var pastDate = new Date();
+            pastDate.setDate(pastDate.getDate() - 90);
+            var pdd = String(pastDate.getDate()).padStart(2, '0');
+            var pmm = String(pastDate.getMonth() + 1).padStart(2, '0');
+            var pyyyy = pastDate.getFullYear();
+            var pastStr = pyyyy + "-" + pmm + "-" + pdd;
+
+            $("#filterFromDate").val(pastStr);
+            $("#filterToDate").val(todayStr);
+            $("#filterJobber").val('ALL');
+            $("#tableQuickSearch").val('');
+            reloadAllReportData();
+        }
+
+        function formatNum(val) {
+            return (val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function exportToExcel() {
+            var activeTab = $("#stockReportTabs .nav-link.active").attr("id") || 'tab-jobber-summary';
+            var csv = "";
+            var fileName = "";
+
+            if (activeTab === 'tab-jobber-summary') {
+                fileName = "Jobber_Wise_Material_Stock_Summary.csv";
+                csv = "SrNo,JobberName,ChallanCount,TotalIssuedKG,TotalAcceptedKG,TotalReturnedKG,BalanceWithJobberKG,AcceptedPct\n";
+                $("#tblJobberSummary tbody tr").each(function () {
+                    var cols = [];
+                    $(this).find('td').each(function () {
+                        cols.push('"' + $(this).text().trim().replace(/"/g, '""') + '"');
+                    });
+                    if (cols.length > 1) csv += cols.join(",") + "\n";
+                });
+            } else {
+                fileName = "Jobber_Challan_Transactions_Report.csv";
+                csv = "SrNo,Source,ChallanNo,Date,JobberName,MaterialQuality,YarnColor,IssuedKG,AcceptedKG,ReturnedKG,BalanceKG,Status\n";
+                $("#tblTransactions tbody tr").each(function () {
+                    var cols = [];
+                    $(this).find('td').each(function () {
+                        cols.push('"' + $(this).text().trim().replace(/"/g, '""') + '"');
+                    });
+                    if (cols.length > 1) csv += cols.join(",") + "\n";
+                });
+            }
+
+            var blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+}

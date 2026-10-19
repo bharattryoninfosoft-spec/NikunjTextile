@@ -147,6 +147,7 @@
     #tblOrderListTable th:nth-child(7), #tblOrderListTable td:nth-child(7) { width: 95px !important; text-align: center !important; }
     #tblOrderListTable th:nth-child(8), #tblOrderListTable td:nth-child(8) { width: 85px !important; text-align: center !important; }
     #tblOrderListTable th:nth-child(9), #tblOrderListTable td:nth-child(9) { width: 95px !important; text-align: center !important; }
+    #tblOrderListTable th:nth-child(10), #tblOrderListTable td:nth-child(10) { width: 95px !important; text-align: center !important; }
 
     #tblOrderListTable input[type="checkbox"] {
         width: 14px !important;
@@ -274,34 +275,22 @@
                                     <i class="fa fa-user-circle me-1"></i> Issue Details
                                 </div>
                                 <div class="field-wrapper">
-                                    <div class="field-placeholder">Processor Name <span class="text-danger">*</span></div>
-                                    <select id="ddlProcessor" class="select-single detail w-100">
-                                        <option value="">-- Select Processor --</option>
+                                    <div class="field-placeholder">Job Worker</div>
+                                    <select id="txtJobWorker" class="select-single detail w-100" data-live-search="true">
+                                        <option value="">-- Select Job Worker --</option>
                                     </select>
                                 </div>
                                 <div class="field-wrapper">
-                                    <div class="field-placeholder">Challan Date <span class="text-danger">*</span></div>
+                                    <div class="field-placeholder">Job Type</div>
+                                    <select id="ddlJobType" class="select-single detail w-100">
+                                        <option value="BORDER AND BUTTA CUTTING BOTH">BORDER AND BUTTA CUTTING BOTH</option>
+                                        <option value="ONLY BORDER">ONLY BORDER</option>
+                                        <option value="ONLY BUTTA">ONLY BUTTA</option>
+                                    </select>
+                                </div>
+                                <div class="field-wrapper mb-0">
+                                    <div class="field-placeholder">Challan Date</div>
                                     <input type="date" id="txtChallanDate" class="wl-input-sm w-100" />
-                                </div>
-                                <div class="field-wrapper">
-                                    <div class="field-placeholder">Challan No</div>
-                                    <input type="text" id="txtChallanNo" class="wl-input-sm w-100 bg-light" readonly placeholder="Auto (e.g. BC0001)" />
-                                </div>
-                                <div class="field-wrapper mb-2">
-                                    <div class="field-placeholder">Process Type <span class="text-danger">*</span></div>
-                                    <select id="ddlProcess" class="select-single detail w-100">
-                                        <option value="">-- Select Process Type --</option>
-                                    </select>
-                                </div>
-
-                                <!-- Background fields to preserve compatibility -->
-                                <div style="display: none;">
-                                    <select id="txtJobWorker"><option value="">-- Select Jobber --</option></select>
-                                    <select id="ddlJobType"><option value="BORDER AND BUTTA CUTTING BOTH">BORDER AND BUTTA CUTTING BOTH</option></select>
-                                    <input type="text" id="txtRemark" value="" />
-                                    <input type="text" id="txtBarcodeScan" value="" />
-                                    <select id="filterBarcode"><option value="">-- ALL --</option></select>
-                                    <input type="text" id="filterSONumber" value="" />
                                 </div>
                             </div>
 
@@ -353,10 +342,11 @@
                                             <th>PREV ISSUE PCS</th>
                                             <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
+                                            <th>FULL CLOSE</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblOrderListBody">
-                                        <tr><td colspan="9" class="text-center text-muted py-3">Loading production slip data...</td></tr>
+                                        <tr><td colspan="10" class="text-center text-muted py-3">Loading production slip data...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -376,10 +366,11 @@
                                             <th>PREV ISSUE PCS</th>
                                             <th>PENDING PCS</th>
                                             <th>ISSUE PCS</th>
+                                            <th>STATUS</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tblProductionReportBody">
-                                        <tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>
+                                        <tr><td colspan="9" class="text-center text-muted py-3">No items added for production yet.</td></tr>
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -388,6 +379,7 @@
                                             <td id="lblTotalIssuedPcs" class="text-center font-weight-bold text-secondary">0</td>
                                             <td id="lblTotalPendingPcs" class="text-center font-weight-bold text-danger">0</td>
                                             <td id="lblTotalPcs" class="text-center font-weight-bold text-primary">0</td>
+                                            <td id="lblTotalStatusShort" class="text-center font-weight-bold text-danger">-</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -465,38 +457,24 @@
         function loadDropdowns(callback) {
             $.ajax({
                 type: "POST",
-                url: "WebServiceNikunjTextile.asmx/GetGenericProcessFilterDropdowns",
+                url: "WebServiceNikunjTextile.asmx/GetProcessFilterDropdowns",
                 data: '{}',
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (res) {
                     var data = res.d || res;
                     if (data) {
-                        if (data.Processes && data.Processes.length > 0) {
-                            var $proc = $('#ddlProcess').empty().append('<option value="">-- Select Process Type --</option>');
-                            var defaultProcId = "";
-                            $.each(data.Processes, function (i, p) {
-                                $proc.append('<option value="' + p.ProcessID + '">' + p.ProcessName + '</option>');
-                                if (!defaultProcId && p.ProcessName && p.ProcessName.toUpperCase().indexOf('BUTTA') >= 0) {
-                                    defaultProcId = p.ProcessID;
-                                }
-                            });
-                            if ((!editId || parseInt(editId) <= 0) && defaultProcId) {
-                                $proc.val(defaultProcId);
-                            }
-                        }
                         if (data.Jobbers && data.Jobbers.length > 0) {
                             var $jobber = $('#txtJobWorker').empty();
+                            if (data.Jobbers.length > 1) {
+                                $jobber.append('<option value="">-- Select Job Worker --</option>');
+                            }
                             $.each(data.Jobbers, function (i, j) {
                                 $jobber.append('<option value="' + j.JobberID + '">' + j.JobberName + '</option>');
                             });
-                            $jobber.val(data.Jobbers[0].JobberID);
-                        }
-                        if (data.Processors && data.Processors.length > 0) {
-                            var $processor = $('#ddlProcessor').empty().append('<option value="">-- Select Processor --</option>');
-                            $.each(data.Processors, function (i, p) {
-                                $processor.append('<option value="' + p.JobberID + '">' + p.JobberName + '</option>');
-                            });
+                            if (data.Jobbers.length === 1) {
+                                $jobber.val(data.Jobbers[0].JobberID).prop('disabled', true);
+                            }
                         }
                         if (data.Designs && data.Designs.length > 0) {
                             var $des = $('#filterDesignNo').empty().append('<option value="">-- ALL --</option>');
@@ -510,12 +488,6 @@
                                 $mch.append('<option value="' + m.MachineNumber + '">Machine #' + m.MachineNumber + '</option>');
                             });
                         }
-                        if (data.Barcodes && data.Barcodes.length > 0) {
-                            var $bc = $('#filterBarcode').empty().append('<option value="">-- ALL --</option>');
-                            $.each(data.Barcodes, function (i, b) {
-                                $bc.append('<option value="' + b.Barcode + '">' + b.Barcode + '</option>');
-                            });
-                        }
                     }
                     if (callback) callback();
                 },
@@ -524,30 +496,6 @@
                 }
             });
         }
-
-        function loadNextChallanNo(pId) {
-            $.ajax({
-                type: "POST",
-                url: "WebServiceNikunjTextile.asmx/GetNextJobberToProcessChallanNo",
-                data: JSON.stringify({ processID: pId || 0 }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (res) {
-                    var r = res.d || res;
-                    if (r && r.ChallanNo) {
-                        $('#txtChallanNo').val(r.ChallanNo);
-                    }
-                }
-            });
-        }
-
-        $('#ddlProcess').change(function () {
-            var pId = parseInt($(this).val()) || 0;
-            if (!editId || parseInt(editId) <= 0) {
-                loadNextChallanNo(pId);
-            }
-            fetchAndMergePendingSlips();
-        });
 
         function initDataLoad() {
             allSlipsList = [];
@@ -562,9 +510,6 @@
                         var r = res.d || res;
                         if (r && r.Status && r.Master) {
                             if (r.Master.JobberID) $('#txtJobWorker').val(String(r.Master.JobberID));
-                            if (r.Master.ProcessID) $('#ddlProcess').val(String(r.Master.ProcessID));
-                            if (r.Master.ProcessorID) $('#ddlProcessor').val(String(r.Master.ProcessorID));
-                            if (r.Master.ProcessTransactionNo) $('#txtChallanNo').val(r.Master.ProcessTransactionNo);
                             $('#ddlJobType').val(r.Master.JobType || "BORDER AND BUTTA CUTTING BOTH");
                             if (r.Master.TransactionDate) $('#txtChallanDate').val(r.Master.TransactionDate);
                             $('#lblPageHeader').text('EDIT JOBBER TO PROCESS ISSUE (CHALLAN: ' + r.Master.ProcessTransactionNo + ')');
@@ -590,6 +535,8 @@
                                         IssuedPCS: issuedOther,
                                         PendingPCS: pendPcs,
                                         AllottedPcs: curIssue,
+                                        ShortPCS: d.ShortPCS || 0,
+                                        IsClosed: !!(d.IsClosed || d.ShortPCS > 0),
                                         IsChecked: true,
                                         IsExistingInChallan: true
                                     });
@@ -603,18 +550,20 @@
                     }
                 });
             } else {
-                loadNextChallanNo(0);
                 fetchAndMergePendingSlips();
             }
         }
 
         function fetchAndMergePendingSlips() {
-            var processId = parseInt($('#ddlProcess').val()) || 0;
+            var jobTypeVal = $('#ddlJobType').val() || '';
+            var procId = 0;
+            if (jobTypeVal === 'ONLY BUTTA') procId = 1;
+            else if (jobTypeVal === 'ONLY BORDER') procId = 2;
 
             var req = {
-                jobberID: 0,
-                processID: processId,
-                processorID: 0,
+                jobberID: parseInt($('#txtJobWorker').val()) || 0,
+                processID: procId,
+                processorID: parseInt($('#txtJobWorker').val()) || 0,
                 productionOrderID: 0,
                 slipNo: $('#filterSlipNo').val() || "",
                 soNumber: "",
@@ -638,7 +587,9 @@
                     } else {
                         allSlipsList = allSlipsList.filter(function (x) { return x.IsExistingInChallan; });
                     }
-                    if (Array.isArray(data)) {
+                    if (data && data.Status === false) {
+                        console.error("GetJobberToProcessData error:", data.Message);
+                    } else if (Array.isArray(data)) {
                         $.each(data, function (i, newItem) {
                             var exists = false;
                             $.each(allSlipsList, function (j, existingItem) {
@@ -664,11 +615,26 @@
             });
         }
 
+        function getCloseSlipCellHtml(idx, r) {
+            var maxVal = parseFloat(r.PendingPCS || r.PCS || 0);
+            var curVal = parseFloat(r.AllottedPcs !== undefined ? r.AllottedPcs : maxVal);
+            if (curVal >= maxVal) {
+                return '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:10px;" title="Full quantity being issued">FULL</span>';
+            } else {
+                var isClosed = !!r.IsClosed;
+                var diff = maxVal - curVal;
+                return '<label class="form-check-label d-inline-flex align-items-center gap-1 mb-0" style="cursor:pointer;" title="Check to fully close slip (' + diff + ' pcs will NOT be pending next time)">' +
+                    '<input type="checkbox" class="chkCloseSlip" data-idx="' + idx + '" ' + (isClosed ? 'checked' : '') + ' style="cursor:pointer; width:13px; height:13px;" /> ' +
+                    '<span class="badge ' + (isClosed ? 'bg-danger text-white' : 'bg-light text-muted border') + '" style="font-size:10px; padding:3px 5px;">' + (isClosed ? 'CLOSED' : 'Close') + '</span>' +
+                    '</label>';
+            }
+        }
+
         function renderSlipsTable(list) {
             var $tbody = $('#tblOrderListBody').empty();
 
             if (!list || list.length === 0) {
-                $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No pending slips available.</td></tr>');
+                $tbody.append('<tr><td colspan="10" class="text-center text-muted py-3">No pending slips available.</td></tr>');
                 $('#lblPendingCount').text('0 Slips Available');
                 renderSummaryTable();
                 return;
@@ -682,8 +648,8 @@
             var visibleCount = 0;
 
             $.each(list, function (idx, r) {
-                var slipNoVal = (r.SlipNo && r.SlipNo !== '-') ? r.SlipNo : ('SO14-01-' + String(idx + 1).padStart(2, '0'));
-                if (slipNoVal && slipNoVal.toUpperCase().indexOf('SO') !== 0) {
+                var slipNoVal = (r.SlipNo && r.SlipNo !== '-') ? r.SlipNo : ('SO' + (r.SaleOrderID || '14') + '-01-' + String(idx + 1).padStart(2, '0'));
+                if (slipNoVal && slipNoVal.toUpperCase().indexOf('SO') !== 0 && /^\d/.test(slipNoVal)) {
                     slipNoVal = 'SO' + slipNoVal;
                 }
                 r.SlipNo = slipNoVal;
@@ -700,7 +666,7 @@
                     var groupTr = '<tr class="order-group-row">' +
                         '<td class="text-center"><input type="checkbox" class="chkGroupHeader" data-group="' + currentGroupHeader + '" /></td>' +
                         '<td class="group-slip font-monospace font-weight-bold" colspan="2">' + currentGroupHeader + '</td>' +
-                        '<td colspan="6"></td>' +
+                        '<td colspan="7"></td>' +
                         '</tr>';
                     $tbody.append(groupTr);
                 }
@@ -718,6 +684,7 @@
                     '<td class="text-center"><span class="badge bg-light text-secondary border px-2 py-1">' + (r.IssuedPCS || 0) + '</span></td>' +
                     '<td class="text-center font-weight-bold"><span class="badge bg-danger-subtle text-danger border px-2 py-1">' + (r.PendingPCS || r.PCS || 0) + '</span></td>' +
                     '<td class="text-center"><input type="number" class="txtProdInput txt-production" data-idx="' + idx + '" value="' + (r.AllottedPcs || r.PendingPCS || r.PCS || 0) + '" min="0" max="' + (r.PendingPCS || r.PCS || 0) + '" /></td>' +
+                    '<td class="text-center col-close-slip">' + getCloseSlipCellHtml(idx, r) + '</td>' +
                     '</tr>';
 
                 $tbody.append(tr);
@@ -733,6 +700,7 @@
             var totalIssuedPcs = 0;
             var totalPendingPcs = 0;
             var totalInputPcs = 0;
+            var totalShortPcs = 0;
             var checkedCount = 0;
 
             $.each(allSlipsList, function (idx, item) {
@@ -741,12 +709,25 @@
                     var orderPcs = parseFloat(item.PCS || 0);
                     var issuedPcs = parseFloat(item.IssuedPCS || 0);
                     var pendingPcs = parseFloat(item.PendingPCS || orderPcs);
-                    var inputPcs = parseFloat(item.AllottedPcs || pendingPcs || 0);
+                    var inputPcs = parseFloat(item.AllottedPcs !== undefined && item.AllottedPcs !== null ? item.AllottedPcs : pendingPcs);
 
                     totalOrderPcs += orderPcs;
                     totalIssuedPcs += issuedPcs;
                     totalPendingPcs += pendingPcs;
                     totalInputPcs += inputPcs;
+
+                    var statusHtml = '';
+                    var shortQty = 0;
+                    if (item.IsClosed && (inputPcs < pendingPcs)) {
+                        shortQty = pendingPcs - inputPcs;
+                        totalShortPcs += shortQty;
+                        statusHtml = '<span class="badge bg-danger text-white px-2 py-1">Closed (' + shortQty + ' Short)</span>';
+                    } else if (inputPcs >= pendingPcs) {
+                        statusHtml = '<span class="badge bg-success text-white px-2 py-1">Full</span>';
+                    } else {
+                        var rem = pendingPcs - inputPcs;
+                        statusHtml = '<span class="badge bg-light text-secondary border px-2 py-1">' + rem + ' Pending</span>';
+                    }
 
                     var tr = '<tr>' +
                         '<td class="text-center font-weight-bold">' + (item.SlipNo || '-') + '</td>' +
@@ -757,19 +738,21 @@
                         '<td class="text-center text-secondary">' + issuedPcs + '</td>' +
                         '<td class="text-center font-weight-bold text-danger">' + pendingPcs + '</td>' +
                         '<td class="rep-pcs text-center font-weight-bold text-primary">' + inputPcs + '</td>' +
+                        '<td class="text-center">' + statusHtml + '</td>' +
                         '</tr>';
                     $tbody.append(tr);
                 }
             });
 
             if (checkedCount === 0) {
-                $tbody.append('<tr><td colspan="8" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
+                $tbody.append('<tr><td colspan="9" class="text-center text-muted py-3">No items added for production yet.</td></tr>');
             }
 
             $('#lblTotalOrderPcs').text(totalOrderPcs);
             $('#lblTotalIssuedPcs').text(totalIssuedPcs);
             $('#lblTotalPendingPcs').text(totalPendingPcs);
             $('#lblTotalPcs').text(totalInputPcs);
+            $('#lblTotalStatusShort').text(totalShortPcs > 0 ? (totalShortPcs + ' Short') : '-');
         }
 
         function getColourMatchingHtml(r) {
@@ -829,17 +812,49 @@
             renderSummaryTable();
         });
 
+        $(document).on('change', '.chkCloseSlip', function () {
+            var idx = $(this).data('idx');
+            var isClosed = $(this).is(':checked');
+            if (allSlipsList[idx]) {
+                allSlipsList[idx].IsClosed = isClosed;
+                var $badge = $(this).siblings('.badge');
+                if (isClosed) {
+                    $badge.removeClass('bg-light text-muted border').addClass('bg-danger text-white').text('CLOSED');
+                    if (!allSlipsList[idx].IsChecked) {
+                        allSlipsList[idx].IsChecked = true;
+                        var $tr = $('tr[data-idx="' + idx + '"]');
+                        $tr.find('.chkRow').prop('checked', true);
+                        $tr.addClass('table-active');
+                    }
+                } else {
+                    $badge.removeClass('bg-danger text-white').addClass('bg-light text-muted border').text('Close');
+                }
+                renderSummaryTable();
+            }
+        });
+
         $(document).on('input change', '.txtProdInput', function () {
             var idx = $(this).data('idx');
-            var val = parseFloat($(this).val()) || 0;
+            var val = parseFloat($(this).val());
+            if (isNaN(val)) val = 0;
+
             if (allSlipsList[idx]) {
                 var maxAvailable = parseFloat(allSlipsList[idx].PendingPCS || allSlipsList[idx].PCS || 0);
                 if (val > maxAvailable) {
                     showNotification('Entered Issue PCS (' + val + ') cannot exceed Order/Pending PCS (' + maxAvailable + ').', true);
                     val = maxAvailable;
                     $(this).val(val);
+                } else if (val < 0) {
+                    val = 0;
+                    $(this).val(val);
                 }
                 allSlipsList[idx].AllottedPcs = val;
+
+                var $closeCell = $('tr[data-idx="' + idx + '"]').find('.col-close-slip');
+                if ($closeCell.length) {
+                    $closeCell.html(getCloseSlipCellHtml(idx, allSlipsList[idx]));
+                }
+
                 if (allSlipsList[idx].IsChecked) {
                     renderSummaryTable();
                 }
@@ -895,6 +910,10 @@
             renderSlipsTable(allSlipsList);
         });
 
+        $('#ddlJobType, #txtJobWorker').change(function () {
+            fetchAndMergePendingSlips();
+        });
+
         $('#btnFilterReset').click(function () {
             $('#filterBarcode').val('');
             $('#filterSONumber').val('');
@@ -924,16 +943,9 @@
 
         // SAVE / UPDATE BUTTON HANDLER
         $('#btnAddForProduction').click(function () {
-            var jobberId = parseInt($('#txtJobWorker').val()) || 1;
-            var processId = parseInt($('#ddlProcess').val()) || 0;
-            var processorId = parseInt($('#ddlProcessor').val()) || 0;
-
-            if (processorId <= 0) {
-                showNotification('Please select Processor Name from the left panel.', true);
-                return;
-            }
-            if (processId <= 0) {
-                showNotification('Please select Process Type from the left panel.', true);
+            var jobberId = parseInt($('#txtJobWorker').val()) || 0;
+            if (jobberId <= 0) {
+                showNotification('Please select Job Worker from the left panel.', true);
                 return;
             }
 
@@ -956,12 +968,24 @@
                         return false;
                     }
 
+                    var isFullyClosed = !!(item.IsClosed || (issueQty >= maxQty));
+                    var shortVal = (item.IsClosed && (issueQty < maxQty)) ? (maxQty - issueQty) : 0;
+
                     selectedItems.push({
                         ProductionOrderID: item.ProductionOrderID || 0,
                         ProductionOrderDetailID: item.ProductionOrderDetailID || 0,
                         ProductionOrderSubDetailID: item.ProductionOrderSubDetailID || 0,
+                        SaleOrderID: item.SaleOrderID || 0,
+                        SaleOrderDetailID: item.SaleOrderDetailID || 0,
+                        SaleOrderSubDetailID: item.SaleOrderSubDetailID || 0,
+                        DesignNo: item.DesignNo || "",
+                        ColourMatchingID: item.ColourMatchingID || 0,
+                        ColourMatchingName: item.ColourMatchingName || "",
+                        MachineNumber: item.MachineNumber || 1,
                         SlipNo: item.SlipNo || "",
-                        PCS: issueQty
+                        PCS: issueQty,
+                        ShortPCS: shortVal,
+                        IsClosed: isFullyClosed
                     });
                 }
             });
@@ -979,13 +1003,18 @@
             var isEditMode = (editId && parseInt(editId) > 0);
             var targetUrl = isEditMode ? "WebServiceNikunjTextile.asmx/UpdateJobberToProcess" : "WebServiceNikunjTextile.asmx/SaveJobberToProcess";
 
+            var jobTypeVal = $('#ddlJobType').val() || "BORDER AND BUTTA CUTTING BOTH";
+            var procId = 0;
+            if (jobTypeVal === 'ONLY BUTTA') procId = 1;
+            else if (jobTypeVal === 'ONLY BORDER') procId = 2;
+
             var payload = {
                 jobberID: jobberId,
-                processID: processId,
-                processorID: processorId,
-                jobType: $('#ddlJobType').val() || "BORDER AND BUTTA CUTTING BOTH",
+                processID: procId,
+                processorID: jobberId,
+                jobType: jobTypeVal,
                 challanDate: $('#txtChallanDate').val() || todayStr,
-                remark: $('#txtRemark').val() || "",
+                remark: jobTypeVal,
                 items: selectedItems
             };
 
