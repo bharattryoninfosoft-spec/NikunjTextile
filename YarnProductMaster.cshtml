@@ -1,0 +1,1121 @@
+@using System
+@using System.Data
+@using System.Data.SqlClient
+@using System.Configuration
+@using System.Collections.Generic
+@using System.Web.Script.Serialization
+@{
+    Layout = "/_LayoutPage1.cshtml";
+
+    // Handle direct POST fallback requests if invoked directly
+    string action = Request["action"] ?? "";
+    if (Request.HttpMethod == "POST" && !string.IsNullOrEmpty(action))
+    {
+        Response.Clear();
+        Response.ContentType = "application/json; charset=utf-8";
+        string jsonResult = "";
+
+        try
+        {
+            if (action == "get_list")
+            {
+                jsonResult = GetYarnMasterListJson();
+            }
+            else if (action == "check_usage")
+            {
+                long id = 0;
+                long.TryParse(Request["id"], out id);
+                jsonResult = CheckRecordUsageJson(id);
+            }
+            else if (action == "get_dropdowns")
+            {
+                jsonResult = GetDropdownsJson();
+            }
+            else if (action == "update_record")
+            {
+                long id = 0;
+                long.TryParse(Request["id"], out id);
+                int companyPartyID = 0;
+                int.TryParse(Request["companyPartyID"], out companyPartyID);
+                int yarnMaterialID = 0;
+                int.TryParse(Request["yarnMaterialID"], out yarnMaterialID);
+                int yarnColorID = 0;
+                int.TryParse(Request["yarnColorID"], out yarnColorID);
+                string companyCode = (Request["companyCode"] ?? "").Trim();
+
+                jsonResult = UpdateYarnMasterRecordJson(id, companyPartyID, yarnMaterialID, yarnColorID, companyCode);
+            }
+            else
+            {
+                jsonResult = new JavaScriptSerializer().Serialize(new { status = false, message = "Unknown action requested." });
+            }
+        }
+        catch (Exception ex)
+        {
+            jsonResult = new JavaScriptSerializer().Serialize(new { status = false, message = "Server error: " + ex.Message });
+        }
+
+        Response.Write(jsonResult);
+        Response.End();
+        return;
+    }
+}
+
+@functions {
+    private string GetSqlConnectionString()
+    {
+        return ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+    }
+
+    private string GetYarnMasterListJson()
+    {
+        var list = new List<Dictionary<string, object>>();
+        string cs = GetSqlConnectionString();
+
+        using (SqlConnection con = new SqlConnection(cs))
+        {
+            con.Open();
+            try
+            {
+                using (SqlCommand setIso = new SqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;", con))
+                {
+                    setIso.CommandTimeout = 30;
+                    setIso.ExecuteNonQuery();
+                }
+            }
+            catch { }
+
+            string query = @"
+SELECT
+    YPD.YarnPODetailID,
+    YPM.YarnPOID,
+    ISNULL(YPM.PONo, '') AS YarnPONo,
+    ISNULL(YPM.CompanyPartyID, 0) AS CompanyPartyID,
+    ISNULL(PM.PartyName, '') AS Company,
+    ISNULL(YPD.YarnMaterialID, 0) AS YarnMaterialID,
+    ISNULL(YM.YarnMaterial, '') AS YarnMaterial,
+    ISNULL(YPD.YarnColorID, 0) AS YarnColorID,
+    ISNULL(YC.YarnColor, '') AS YarnColor,
+    ISNULL(YPD.CompanyCode, '') AS CompanyCode,
+    (
+        SELECT COUNT(1) 
+        FROM YarnInwardMaster YIM WITH (NOLOCK) 
+        WHERE YIM.YarnPODetailIDCompanyCode = YPD.YarnPODetailID
+    ) AS InwardMasterCount,
+    (
+        SELECT COUNT(1) 
+        FROM YarnInterchangeMaster YIC WITH (NOLOCK) 
+        WHERE YIC.YarnPODetailID = YPD.YarnPODetailID
+    ) AS InterChangeCount
+FROM YarnPODetails YPD WITH (NOLOCK)
+INNER JOIN YarnPOMaster YPM WITH (NOLOCK)
+    ON YPD.YarnPOID = YPM.YarnPOID
+LEFT JOIN PartyMaster PM WITH (NOLOCK)
+    ON YPM.CompanyPartyID = PM.PartyID
+LEFT JOIN yarnmaterialMaster YM WITH (NOLOCK)
+    ON YPD.YarnMaterialID = YM.YarnMaterialID
+LEFT JOIN YarnColorMaster YC WITH (NOLOCK)
+    ON YPD.YarnColorID = YC.YarnColorID
+ORDER BY
+    PM.PartyName,
+    YM.YarnMaterial,
+    YC.YarnColor,
+    YPD.YarnPODetailID DESC;";
+
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.CommandTimeout = 120;
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var row = new Dictionary<string, object>();
+                        long poDetailId = Convert.ToInt64(rdr["YarnPODetailID"]);
+                        int inwardCount = Convert.ToInt32(rdr["InwardMasterCount"]);
+                        int interChangeCount = Convert.ToInt32(rdr["InterChangeCount"]);
+
+                        bool isUsed = (inwardCount > 0 || interChangeCount > 0);
+                        string usageReason = "";
+                        if (inwardCount > 0 && interChangeCount > 0)
+                        {
+                            usageReason = "Used in Yarn Inward (" + inwardCount + " entries) and Yarn Inter Change (" + interChangeCount + " entries).";
+                        }
+                        else if (inwardCount > 0)
+                        {
+                            usageReason = "Used in Yarn Inward (" + inwardCount + " challan/inward record(s)).";
+                        }
+                        else if (interChangeCount > 0)
+                        {
+                            usageReason = "Used in Yarn Inter Change (" + interChangeCount + " record(s)).";
+                        }
+                        else
+                        {
+                            usageReason = "No transaction references. Verified safe to update.";
+                        }
+
+                        row["YarnPODetailID"] = poDetailId;
+                        row["YarnPOID"] = Convert.ToInt64(rdr["YarnPOID"]);
+                        row["YarnPONo"] = rdr["YarnPONo"].ToString();
+                        row["CompanyPartyID"] = Convert.ToInt32(rdr["CompanyPartyID"]);
+                        row["Company"] = rdr["Company"].ToString();
+                        row["YarnMaterialID"] = Convert.ToInt32(rdr["YarnMaterialID"]);
+                        row["YarnMaterial"] = rdr["YarnMaterial"].ToString();
+                        row["YarnColorID"] = Convert.ToInt32(rdr["YarnColorID"]);
+                        row["YarnColor"] = rdr["YarnColor"].ToString();
+                        row["CompanyCode"] = rdr["CompanyCode"].ToString();
+                        row["IsUsed"] = isUsed;
+                        row["CanUpdate"] = !isUsed;
+                        row["UsageStatus"] = isUsed ? "Blocked (In Use)" : "Editable (Unused)";
+                        row["UsageReason"] = usageReason;
+
+                        list.Add(row);
+                    }
+                }
+            }
+        }
+
+        var js = new JavaScriptSerializer();
+        js.MaxJsonLength = Int32.MaxValue;
+        return js.Serialize(new { status = true, data = list, total = list.Count });
+    }
+
+    private bool IsRecordUsedInDatabase(long yarnPODetailID, out List<string> reasons)
+    {
+        reasons = new List<string>();
+        string cs = GetSqlConnectionString();
+
+        using (SqlConnection con = new SqlConnection(cs))
+        {
+            con.Open();
+            try
+            {
+                using (SqlCommand setIso = new SqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;", con))
+                {
+                    setIso.CommandTimeout = 30;
+                    setIso.ExecuteNonQuery();
+                }
+            }
+            catch { }
+
+            // 1. Check YarnInwardMaster
+            using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM YarnInwardMaster WITH (NOLOCK) WHERE YarnPODetailIDCompanyCode = @ID", con))
+            {
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.AddWithValue("@ID", yarnPODetailID);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    reasons.Add("Yarn Inward Master: " + count + " record(s) linked to this PO detail");
+                }
+            }
+
+            // 2. Check YarnInwardDetail (Barcodes / Boxes created)
+            using (SqlCommand cmd = new SqlCommand(@"
+SELECT COUNT(1) 
+FROM YarnInwardDetail D WITH (NOLOCK)
+INNER JOIN YarnInwardMaster M WITH (NOLOCK) ON D.YarnInwardID = M.YarnInwardID
+WHERE M.YarnPODetailIDCompanyCode = @ID", con))
+            {
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.AddWithValue("@ID", yarnPODetailID);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    reasons.Add("Yarn Inward Detail (Barcodes/Boxes): " + count + " box(es) created");
+                }
+            }
+
+            // 3. Check YARNOUTWARDScanMasterDetails
+            using (SqlCommand cmd = new SqlCommand(@"
+SELECT COUNT(1)
+FROM YARNOUTWARDScanMasterDetails OSD WITH (NOLOCK)
+WHERE OSD.YarnInwardDetailID IN (
+    SELECT D.YarnInwardDetailID
+    FROM YarnInwardDetail D WITH (NOLOCK)
+    INNER JOIN YarnInwardMaster M WITH (NOLOCK) ON D.YarnInwardID = M.YarnInwardID
+    WHERE M.YarnPODetailIDCompanyCode = @ID
+)", con))
+            {
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.AddWithValue("@ID", yarnPODetailID);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    reasons.Add("Yarn Outward Scans: " + count + " scanned item(s) found");
+                }
+            }
+
+            // 4. Check YarnInterchangeMaster
+            using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM YarnInterchangeMaster WITH (NOLOCK) WHERE YarnPODetailID = @ID", con))
+            {
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.AddWithValue("@ID", yarnPODetailID);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    reasons.Add("Yarn Inter Change: " + count + " transaction(s) found");
+                }
+            }
+        }
+
+        return reasons.Count > 0;
+    }
+
+    private string CheckRecordUsageJson(long id)
+    {
+        if (id <= 0)
+        {
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Invalid YarnPODetailID specified." });
+        }
+
+        List<string> reasons;
+        bool isUsed = IsRecordUsedInDatabase(id, out reasons);
+
+        return new JavaScriptSerializer().Serialize(new {
+            status = true,
+            id = id,
+            isUsed = isUsed,
+            canUpdate = !isUsed,
+            reasons = reasons,
+            message = isUsed ? ("Record is currently in use: " + string.Join("; ", reasons)) : "Record is verified unused and safe to update."
+        });
+    }
+
+    private string GetDropdownsJson()
+    {
+        var companies = new List<Dictionary<string, object>>();
+        var materials = new List<Dictionary<string, object>>();
+        var colors = new List<Dictionary<string, object>>();
+        string cs = GetSqlConnectionString();
+
+        using (SqlConnection con = new SqlConnection(cs))
+        {
+            con.Open();
+
+            // Companies
+            using (SqlCommand cmd = new SqlCommand("SELECT PartyId, PartyName FROM PartyMaster WITH (NOLOCK) WHERE ISNULL(IsActive, 1) = 1 ORDER BY PartyName", con))
+            {
+                cmd.CommandTimeout = 60;
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var c = new Dictionary<string, object>();
+                        c["PartyId"] = Convert.ToInt32(rdr["PartyId"]);
+                        c["PartyName"] = rdr["PartyName"].ToString();
+                        companies.Add(c);
+                    }
+                }
+            }
+
+            // Materials
+            using (SqlCommand cmd = new SqlCommand("SELECT YarnMaterialID, YarnMaterial FROM yarnmaterialMaster WITH (NOLOCK) ORDER BY YarnMaterial", con))
+            {
+                cmd.CommandTimeout = 60;
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var m = new Dictionary<string, object>();
+                        m["YarnMaterialID"] = Convert.ToInt32(rdr["YarnMaterialID"]);
+                        m["YarnMaterial"] = rdr["YarnMaterial"].ToString();
+                        materials.Add(m);
+                    }
+                }
+            }
+
+            // Colors
+            using (SqlCommand cmd = new SqlCommand("SELECT YarnColorID, YarnColor FROM YarnColorMaster WITH (NOLOCK) ORDER BY YarnColor", con))
+            {
+                cmd.CommandTimeout = 60;
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        var col = new Dictionary<string, object>();
+                        col["YarnColorID"] = Convert.ToInt32(rdr["YarnColorID"]);
+                        col["YarnColor"] = rdr["YarnColor"].ToString();
+                        colors.Add(col);
+                    }
+                }
+            }
+        }
+
+        var js = new JavaScriptSerializer();
+        return js.Serialize(new { status = true, companies = companies, materials = materials, colors = colors });
+    }
+
+    private string UpdateYarnMasterRecordJson(long id, int companyPartyID, int yarnMaterialID, int yarnColorID, string companyCode)
+    {
+        // 1. Basic Parameter validation
+        if (id <= 0)
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Invalid record ID." });
+        if (companyPartyID <= 0)
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Please select a valid Company." });
+        if (yarnMaterialID <= 0)
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Please select a valid Yarn Material." });
+        if (yarnColorID <= 0)
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Please select a valid Yarn Color." });
+        if (string.IsNullOrWhiteSpace(companyCode))
+            return new JavaScriptSerializer().Serialize(new { status = false, message = "Company Code cannot be empty." });
+
+        // 2. MANDATORY SERVER-SIDE USAGE VALIDATION (Cannot be bypassed by direct POST)
+        List<string> reasons;
+        bool isUsed = IsRecordUsedInDatabase(id, out reasons);
+        if (isUsed)
+        {
+            return new JavaScriptSerializer().Serialize(new {
+                status = false,
+                isBlocked = true,
+                message = "UPDATE BLOCKED BY SERVER VALIDATION: This record is in active use: " + string.Join("; ", reasons)
+            });
+        }
+
+        // 3. Perform update safely in a transaction
+        string cs = GetSqlConnectionString();
+        using (SqlConnection con = new SqlConnection(cs))
+        {
+            con.Open();
+            using (SqlTransaction trans = con.BeginTransaction(IsolationLevel.RepeatableRead))
+            {
+                try
+                {
+                    long poId = 0;
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT YarnPOID FROM YarnPODetails WITH (UPDLOCK, ROWLOCK) WHERE YarnPODetailID = @ID", con, trans))
+                    {
+                        checkCmd.Parameters.AddWithValue("@ID", id);
+                        object result = checkCmd.ExecuteScalar();
+                        if (result == null || result == DBNull.Value)
+                        {
+                            trans.Rollback();
+                            return new JavaScriptSerializer().Serialize(new { status = false, message = "Record not found in YarnPODetails." });
+                        }
+                        poId = Convert.ToInt64(result);
+                    }
+
+                    string sqlUpdateDetails = @"
+UPDATE YarnPODetails 
+SET 
+    YarnMaterialID = @YarnMaterialID,
+    YarnColorID = @YarnColorID,
+    CompanyCode = @CompanyCode
+WHERE YarnPODetailID = @YarnPODetailID";
+
+                    using (SqlCommand cmdUpd = new SqlCommand(sqlUpdateDetails, con, trans))
+                    {
+                        cmdUpd.CommandTimeout = 60;
+                        cmdUpd.Parameters.AddWithValue("@YarnMaterialID", yarnMaterialID);
+                        cmdUpd.Parameters.AddWithValue("@YarnColorID", yarnColorID);
+                        cmdUpd.Parameters.AddWithValue("@CompanyCode", companyCode);
+                        cmdUpd.Parameters.AddWithValue("@YarnPODetailID", id);
+                        cmdUpd.ExecuteNonQuery();
+                    }
+
+                    string sqlUpdateMaster = @"
+UPDATE YarnPOMaster 
+SET CompanyPartyID = @CompanyPartyID 
+WHERE YarnPOID = @YarnPOID";
+
+                    using (SqlCommand cmdUpdMaster = new SqlCommand(sqlUpdateMaster, con, trans))
+                    {
+                        cmdUpdMaster.CommandTimeout = 60;
+                        cmdUpdMaster.Parameters.AddWithValue("@CompanyPartyID", companyPartyID);
+                        cmdUpdMaster.Parameters.AddWithValue("@YarnPOID", poId);
+                        cmdUpdMaster.ExecuteNonQuery();
+                    }
+
+                    trans.Commit();
+                    return new JavaScriptSerializer().Serialize(new { status = true, message = "Record updated successfully." });
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    return new JavaScriptSerializer().Serialize(new { status = false, message = "Database error: " + ex.Message });
+                }
+            }
+        }
+    }
+}
+
+<!-- Styling overrides to ensure badges and tags display with solid colors and high contrast -->
+<style>
+    .badge-status-editable {
+        background-color: #198754 !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        padding: 5px 12px !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+        white-space: nowrap !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .badge-status-inuse {
+        background-color: #dc3545 !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        padding: 5px 12px !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+        white-space: nowrap !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .company-code-pill {
+        display: inline-block;
+        font-weight: 600;
+        color: #1e3a8a;
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+    }
+
+    /* Modal Layout & Overlap Prevention */
+    #modalEditYarnMaster .modal-dialog {
+        max-width: 720px;
+        margin: 1.75rem auto;
+    }
+    #modalEditYarnMaster .modal-content {
+        border-radius: 8px;
+        overflow: hidden;
+        border: none;
+        display: flex;
+        flex-direction: column;
+    }
+    #modalEditYarnMaster .modal-body {
+        max-height: calc(85vh - 140px) !important;
+        overflow-y: auto !important;
+        padding: 1.25rem 1.5rem !important;
+        flex: 1 1 auto;
+    }
+    #modalEditYarnMaster .modal-footer {
+        padding: 0.75rem 1.5rem !important;
+        background-color: #f8fafc !important;
+        border-top: 1px solid #e2e8f0 !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    #modalEditYarnMaster .modal-footer .btn {
+        margin: 0 !important;
+    }
+</style>
+
+<!-- Content wrapper start -->
+<div class="content-wrapper">
+    <div id="notes"></div>
+
+    <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="padding: 1rem 1.25rem;">
+            <div>
+                <h4 class="mb-0 text-primary font-weight-bold">
+                    <i class="fa fa-cubes text-info mr-2"></i> Yarn Product Master
+                </h4>
+                <small class="text-muted">Manage & validate Company, Yarn Material, Yarn Color, and Company Code before updating.</small>
+            </div>
+            @*<div class="mt-2 mt-md-0">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadGridData()">
+                    <i class="fa fa-refresh mr-1" id="btnRefreshIcon"></i> Refresh List
+                </button>
+            </div>*@
+        </div>
+
+        <div class="card-body">
+            <!-- Filter & Status Summary Bar -->
+            <div class="row align-items-center mb-3">
+                <div class="col-md-3 col-12 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-light"><i class="fa fa-search"></i></span>
+                        </div>
+                        <input type="text" id="txtSearchGrid" class="form-control" placeholder="Search Company, Material, Color, Code..." onkeyup="onSearchGrid()" />
+                    </div>
+                </div>
+                <div class="col-md-3 col-12 mb-2 mb-md-0">
+                    <select id="ddlStatusFilter" class="form-control" onchange="onStatusFilterChange()">
+                        <option value="ALL">All Records</option>
+                        <option value="UNUSED">Editable (Unused Only)</option>
+                        <option value="USED">Blocked (In Use Only)</option>
+                    </select>
+                </div>
+                @*<div class="col-md-6 col-12 text-md-right text-center">
+                    <span class="badge" style="background-color: #6c757d !important; color: #ffffff !important; font-size: 12px; padding: 6px 12px; border-radius: 4px; margin-right: 6px; display: inline-block;">
+                        Total: <span id="lblTotalCount" class="font-weight-bold">0</span>
+                    </span>
+                    <span class="badge" style="background-color: #198754 !important; color: #ffffff !important; font-size: 12px; padding: 6px 12px; border-radius: 4px; margin-right: 6px; display: inline-block;">
+                        <i class="fa fa-check-circle mr-1"></i> Editable (Unused): <span id="lblUnusedCount" class="font-weight-bold">0</span>
+                    </span>
+                    <span class="badge" style="background-color: #dc3545 !important; color: #ffffff !important; font-size: 12px; padding: 6px 12px; border-radius: 4px; display: inline-block;">
+                        <i class="fa fa-ban mr-1"></i> Blocked (In Use): <span id="lblUsedCount" class="font-weight-bold">0</span>
+                    </span>
+                </div>*@
+            </div>
+
+            <!-- Table Grid -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover m-0" id="tblYarnMaster">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width: 50px; text-align: center;">Sr No</th>
+                            <th>Company</th>
+                            <th>Yarn Material</th>
+                            <th>Yarn Color</th>
+                            <th style="text-align: center;">Company Code</th>
+                            @*<th style="width: 160px; text-align: center;">Usage Status</th>
+                            <th>Usage Details / Block Reason</th>*@
+                            <th style="width: 140px; text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+                                <br />
+                                <span class="text-muted small mt-2 d-inline-block">Loading records and verifying usage...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination justify-content-center" id="divPaggination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Edit / Update Modal -->
+<div class="modal fade" id="modalEditYarnMaster" tabindex="-1" role="dialog" aria-labelledby="modalEditYarnMasterLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold" id="modalEditYarnMasterLabel">
+                    <i class="fa fa-pencil-square-o mr-1"></i> Edit Yarn Product Master Record
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close" onclick="$('#modalEditYarnMaster').modal('hide');"></button>
+            </div>
+            <div class="modal-body p-4" style="overflow-y: auto !important;">
+                <input type="hidden" id="editDetailID" value="0" />
+
+                <!-- Pre-Validation Live Banner -->
+                <div id="validationBanner" class="alert alert-info d-flex align-items-center mb-3 p-3" role="alert">
+                    <i class="fa fa-info-circle fa-2x mr-3 text-info" id="bannerIcon"></i>
+                    <div>
+                        <strong id="bannerTitle">Usage Validation:</strong>
+                        <div id="bannerText" class="small">Verifying whether this record is referenced in the database...</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Company -->
+                    <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label font-weight-bold small text-muted mb-1">Company (Party) <span class="text-danger">*</span></label>
+                        <select id="editCompanyID" class="form-control" required disabled></select>
+                    </div>
+
+                    <!-- Yarn Material -->
+                    <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label font-weight-bold small text-muted mb-1">Yarn Material <span class="text-danger">*</span></label>
+                        <select id="editYarnMaterialID" class="form-control" required disabled></select>
+                    </div>
+
+                    <!-- Yarn Color -->
+                    <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label font-weight-bold small text-muted mb-1">Yarn Color <span class="text-danger">*</span></label>
+                        <select id="editYarnColorID" class="form-control" required disabled></select>
+                    </div>
+
+                    <!-- Company Code -->
+                    <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label font-weight-bold small text-muted mb-1">Company Code <span class="text-danger">*</span></label>
+                        <input type="text" id="editCompanyCode" class="form-control" placeholder="Enter company code" required />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal" data-dismiss="modal" onclick="$('#modalEditYarnMaster').modal('hide');">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="btnSubmitUpdate" onclick="submitUpdateRecord()">
+                    <span id="btnUpdateSpinner" class="spinner-border spinner-border-sm mr-1 d-none" role="status"></span>
+                    <i class="fa fa-check mr-1" id="btnUpdateIcon"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $('body').addClass('fullscreen');
+        var masterDataList = [];
+        var filteredDataList = [];
+        var currentPage = 1;
+        var pageSize = 20;
+        var prevNo = 0;
+        var dropdownsLoaded = false;
+
+        $(document).ready(function () {
+            loadDropdowns();
+            loadGridData();
+        });
+
+        // 1. Fetch Dropdown options via WebServiceNikunjTextile
+        function loadDropdowns() {
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetYarnMasterValidationDropdowns",
+                dataType: "json",
+                success: function (res) {
+                    if (res && res.status) {
+                        populateDropdowns(res);
+                    }
+                },
+                error: function () {
+                    // Fallback to page POST
+                    $.ajax({
+                        type: "POST",
+                        url: "/YarnProductMaster",
+                        data: { action: "get_dropdowns" },
+                        dataType: "json",
+                        success: function (res) {
+                            if (res && res.status) populateDropdowns(res);
+                        }
+                    });
+                }
+            });
+        }
+
+        function populateDropdowns(res) {
+            var compHtml = "<option value=''>-- Select Company --</option>";
+            $.each(res.companies, function (i, c) {
+                compHtml += "<option value='" + c.PartyId + "'>" + escapeHtml(c.PartyName) + "</option>";
+            });
+            $("#editCompanyID").html(compHtml);
+
+            var matHtml = "<option value=''>-- Select Material --</option>";
+            $.each(res.materials, function (i, m) {
+                matHtml += "<option value='" + m.YarnMaterialID + "'>" + escapeHtml(m.YarnMaterial) + "</option>";
+            });
+            $("#editYarnMaterialID").html(matHtml);
+
+            var colHtml = "<option value=''>-- Select Color --</option>";
+            $.each(res.colors, function (i, col) {
+                colHtml += "<option value='" + col.YarnColorID + "'>" + escapeHtml(col.YarnColor) + "</option>";
+            });
+            $("#editYarnColorID").html(colHtml);
+
+            dropdownsLoaded = true;
+        }
+
+        // 2. Load Grid Records via WebServiceNikunjTextile
+        function loadGridData() {
+            $("#btnRefreshIcon").addClass("fa-spin");
+            $("#tblYarnMaster tbody").html("<tr><td colspan='8' class='text-center py-4'><i class='fa fa-spinner fa-spin fa-2x text-primary'></i><br/><span class='text-muted small mt-2 d-inline-block'>Loading records & verifying usage...</span></td></tr>");
+            $("#divPaggination").hide();
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetYarnMasterValidationList",
+                dataType: "json",
+                success: function (res) {
+                    $("#btnRefreshIcon").removeClass("fa-spin");
+                    if (res && res.status) {
+                        masterDataList = res.data || [];
+                        updateSummaryCounts();
+                        applyFilters();
+                    } else {
+                        fallbackLoadGridData();
+                    }
+                },
+                error: function () {
+                    fallbackLoadGridData();
+                }
+            });
+        }
+
+        function fallbackLoadGridData() {
+            $.ajax({
+                type: "POST",
+                url: "/YarnProductMaster",
+                data: { action: "get_list" },
+                dataType: "json",
+                success: function (res) {
+                    $("#btnRefreshIcon").removeClass("fa-spin");
+                    if (res && res.status) {
+                        masterDataList = res.data || [];
+                        updateSummaryCounts();
+                        applyFilters();
+                    } else {
+                        $("#tblYarnMaster tbody").html("<tr><td colspan='8' class='text-center text-danger py-4'>Failed to load data: " + (res ? res.message : "Unknown error") + "</td></tr>");
+                    }
+                },
+                error: function () {
+                    $("#btnRefreshIcon").removeClass("fa-spin");
+                    $("#tblYarnMaster tbody").html("<tr><td colspan='8' class='text-center text-danger py-4'>Server communication error. Please try again.</td></tr>");
+                }
+            });
+        }
+
+        function updateSummaryCounts() {
+            var total = masterDataList.length;
+            var used = 0;
+            var unused = 0;
+            $.each(masterDataList, function (i, r) {
+                if (r.IsUsed) used++;
+                else unused++;
+            });
+
+            $("#lblTotalCount").text(total);
+            $("#lblUsedCount").text(used);
+            $("#lblUnusedCount").text(unused);
+        }
+
+        function onSearchGrid() {
+            applyFilters();
+        }
+
+        function onStatusFilterChange() {
+            applyFilters();
+        }
+
+        function applyFilters() {
+            var search = ($("#txtSearchGrid").val() || "").trim().toLowerCase();
+            var statusFilter = $("#ddlStatusFilter").val();
+
+            filteredDataList = masterDataList.filter(function (item) {
+                if (statusFilter === "UNUSED" && item.IsUsed) return false;
+                if (statusFilter === "USED" && !item.IsUsed) return false;
+
+                if (search) {
+                    var comp = (item.Company || "").toLowerCase();
+                    var mat = (item.YarnMaterial || "").toLowerCase();
+                    var col = (item.YarnColor || "").toLowerCase();
+                    var code = (item.CompanyCode || "").toLowerCase();
+                    var reason = (item.UsageReason || "").toLowerCase();
+                    if (!comp.includes(search) && !mat.includes(search) && !col.includes(search) && !code.includes(search) && !reason.includes(search)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            currentPage = 1;
+            prevNo = 0;
+            renderPagedTable();
+        }
+
+        function renderPagedTable() {
+            var totalRecords = filteredDataList.length;
+            if (totalRecords === 0) {
+                $("#tblYarnMaster tbody").html("<tr><td colspan='8' class='text-center text-muted py-4'>No matching records found.</td></tr>");
+                $("#divPaggination").hide();
+                return;
+            }
+
+            var totalPages = Math.ceil(totalRecords / pageSize);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            var startIndex = (currentPage - 1) * pageSize;
+            var endIndex = Math.min(startIndex + pageSize, totalRecords);
+            var pageItems = filteredDataList.slice(startIndex, endIndex);
+
+            var html = "";
+            $.each(pageItems, function (idx, item) {
+                var srNo = startIndex + idx + 1;
+                var statusBadge = item.CanUpdate
+                    ? "<span class='badge-status-editable'><i class='fa fa-check mr-1'></i> Editable</span>"
+                    : "<span class='badge-status-inuse'><i class='fa fa-ban mr-1'></i> In Use</span>";
+
+                var compCodeHtml = (item.CompanyCode && item.CompanyCode.trim() !== "")
+                    ? "<span class='company-code-pill'>" + escapeHtml(item.CompanyCode) + "</span>"
+                    : "<span class='text-muted' style='font-style: italic;'>-</span>";
+
+                var actionBtn = "";
+                if (item.CanUpdate) {
+                    actionBtn = "<button type='button' class='btn btn-sm btn-outline-primary' onclick='openEditModal(" + item.YarnPODetailID + ")' title='Edit record'>" +
+                                "<i class='fa fa-pencil mr-1'></i> Edit" +
+                                "</button>";
+                } else {
+                    actionBtn = "<button type='button' class='btn btn-sm btn-outline-secondary' disabled title='Update blocked: Record is in use elsewhere.'>" +
+                                "<i class='fa fa-lock mr-1'></i> Blocked" +
+                                "</button>";
+                }
+
+                // actionBtn += "&nbsp;<button type='button' class='btn btn-sm btn-link text-info p-0 ml-1' onclick='verifyUsageLive(" + item.YarnPODetailID + ")' title='Run live database verification'>" +
+                //              "<i class='fa fa-search'></i>" +
+                //              "</button>";
+
+                html += "<tr>";
+                html += "<td style='text-align: center;' class='font-weight-bold text-muted'>" + srNo + "</td>";
+                html += "<td><strong>" + escapeHtml(item.Company) + "</strong></td>";
+                html += "<td>" + escapeHtml(item.YarnMaterial) + "</td>";
+                html += "<td>" + escapeHtml(item.YarnColor) + "</td>";
+                html += "<td style='text-align: center;'>" + compCodeHtml + "</td>";
+                // html += "<td style='text-align: center;'>" + statusBadge + "</td>";
+                // html += "<td class='small " + (item.IsUsed ? "text-danger" : "text-success") + "'>" + escapeHtml(item.UsageReason) + "</td>";
+                html += "<td style='text-align: center; white-space: nowrap;'>" + actionBtn + "</td>";
+                html += "</tr>";
+            });
+
+            $("#tblYarnMaster tbody").html(html);
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) {
+                $('#divPaggination').hide();
+                return;
+            }
+
+            var temp = "";
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > 10) {
+                startPage = prevNo + 1;
+                endPage = Math.min(prevNo + 10, totalPages);
+
+                if (prevNo > 0) {
+                    temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationPrev()'>Previous</a></li>";
+                }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+                if (i === currentPage) {
+                    temp += "<li class='page-item active' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                } else {
+                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+
+            if (totalPages > 10 && endPage < totalPages) {
+                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
+            }
+
+            $('#divPaggination').html(temp).show();
+        }
+
+        function funcationPaggination(pageNo) {
+            currentPage = pageNo;
+            renderPagedTable();
+        }
+
+        function funcationPagginationNext() {
+            prevNo = prevNo + 10;
+            currentPage = prevNo + 1;
+            renderPagedTable();
+        }
+
+        function funcationPagginationPrev() {
+            prevNo = Math.max(0, prevNo - 10);
+            currentPage = prevNo + 1;
+            renderPagedTable();
+        }
+
+        // 3. Live On-Demand Verification
+        function verifyUsageLive(id) {
+            Swal.fire({
+                title: 'Verifying Usage...',
+                text: 'Inspecting all database references for Record #' + id + '...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/CheckUsage",
+                data: { id: id },
+                dataType: "json",
+                success: function (res) {
+                    Swal.close();
+                    if (res && res.status) {
+                        if (res.isUsed) {
+                            var reasonsHtml = "<div class='text-left mt-2'><ul class='mb-0'>";
+                            $.each(res.reasons, function (i, r) {
+                                reasonsHtml += "<li>" + escapeHtml(r) + "</li>";
+                            });
+                            reasonsHtml += "</ul></div>";
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Update Blocked (In Use)',
+                                html: 'This record cannot be updated because it is referenced in the database:' + reasonsHtml
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Verified Safe (Unused)',
+                                text: 'No database references found. This record is permitted to be updated.'
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Validation Notice',
+                            text: res ? res.message : 'Unable to complete validation.'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.close();
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to verify usage with server.' });
+                }
+            });
+        }
+
+        // 4. Open Edit Modal (with Pre-Validation)
+        function openEditModal(id) {
+            var record = masterDataList.find(x => x.YarnPODetailID === id);
+            if (!record) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Record not found.' });
+                return;
+            }
+
+            $("#editDetailID").val(record.YarnPODetailID);
+            $("#editCompanyID").val(record.CompanyPartyID);
+            $("#editYarnMaterialID").val(record.YarnMaterialID);
+            $("#editYarnColorID").val(record.YarnColorID);
+            $("#editCompanyCode").val(record.CompanyCode);
+
+            // Set Initial Validation Banner State
+            $("#validationBanner").removeClass("alert-success alert-danger alert-info alert-warning").addClass("alert-info");
+            $("#bannerIcon").removeClass("fa-check-circle fa-ban fa-exclamation-triangle").addClass("fa-spinner fa-spin");
+            $("#bannerTitle").text("Pre-Validating Usage: ");
+            $("#bannerText").text("Checking database dependencies...");
+            $("#btnSubmitUpdate").prop("disabled", true);
+
+            $("#modalEditYarnMaster").modal("show");
+
+            // Perform live pre-validation check
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/CheckUsage",
+                data: { id: id },
+                dataType: "json",
+                success: function (res) {
+                    if (res && res.status) {
+                        if (res.isUsed) {
+                            $("#validationBanner").removeClass("alert-info alert-success").addClass("alert-danger");
+                            $("#bannerIcon").removeClass("fa-spinner fa-spin fa-check-circle").addClass("fa-ban text-danger");
+                            $("#bannerTitle").text("Update Blocked: ");
+                            $("#bannerText").html("Record is currently in use: " + escapeHtml(res.reasons.join(", ")));
+                            $("#btnSubmitUpdate").prop("disabled", true);
+                        } else {
+                            $("#validationBanner").removeClass("alert-info alert-danger").addClass("alert-success");
+                            $("#bannerIcon").removeClass("fa-spinner fa-spin fa-ban").addClass("fa-check-circle text-success");
+                            $("#bannerTitle").text("Validation Passed: ");
+                            $("#bannerText").text("No database dependencies found. You may safely update this record.");
+                            $("#btnSubmitUpdate").prop("disabled", false);
+                        }
+                    } else {
+                        $("#validationBanner").removeClass("alert-info alert-success").addClass("alert-warning");
+                        $("#bannerIcon").removeClass("fa-spinner fa-spin").addClass("fa-exclamation-triangle text-warning");
+                        $("#bannerTitle").text("Validation Error: ");
+                        $("#bannerText").text(res ? res.message : "Validation check failed. Update is blocked.");
+                        $("#btnSubmitUpdate").prop("disabled", true);
+                    }
+                },
+                error: function () {
+                    $("#validationBanner").removeClass("alert-info alert-success").addClass("alert-danger");
+                    $("#bannerIcon").removeClass("fa-spinner fa-spin").addClass("fa-ban text-danger");
+                    $("#bannerTitle").text("Validation Communication Error: ");
+                    $("#bannerText").text("Could not verify with server. Update blocked for safety.");
+                    $("#btnSubmitUpdate").prop("disabled", true);
+                }
+            });
+        }
+
+        // 5. Submit Update (Server-Enforced)
+        function submitUpdateRecord() {
+            var id = $("#editDetailID").val();
+            var companyPartyID = $("#editCompanyID").val();
+            var yarnMaterialID = $("#editYarnMaterialID").val();
+            var yarnColorID = $("#editYarnColorID").val();
+            var companyCode = ($("#editCompanyCode").val() || "").trim();
+
+            if (!companyPartyID) {
+                Swal.fire({ icon: 'warning', title: 'Required Field', text: 'Please select a Company.' });
+                return;
+            }
+            if (!yarnMaterialID) {
+                Swal.fire({ icon: 'warning', title: 'Required Field', text: 'Please select a Yarn Material.' });
+                return;
+            }
+            if (!yarnColorID) {
+                Swal.fire({ icon: 'warning', title: 'Required Field', text: 'Please select a Yarn Color.' });
+                return;
+            }
+            if (!companyCode) {
+                Swal.fire({ icon: 'warning', title: 'Required Field', text: 'Company Code cannot be empty.' });
+                return;
+            }
+
+            $("#btnSubmitUpdate").prop("disabled", true);
+            $("#btnUpdateSpinner").removeClass("d-none");
+            $("#btnUpdateIcon").addClass("d-none");
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/UpdateRecord",
+                data: {
+                    id: id,
+                    companyPartyID: companyPartyID,
+                    yarnMaterialID: yarnMaterialID,
+                    yarnColorID: yarnColorID,
+                    companyCode: companyCode
+                },
+                dataType: "json",
+                success: function (res) {
+                    $("#btnSubmitUpdate").prop("disabled", false);
+                    $("#btnUpdateSpinner").addClass("d-none");
+                    $("#btnUpdateIcon").removeClass("d-none");
+
+                    if (res && res.status) {
+                        $("#modalEditYarnMaster").modal("hide");
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: res.message || 'Record has been updated successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        loadGridData();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Update Blocked / Failed',
+                            text: res ? res.message : 'Server rejected the update.'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    $("#btnSubmitUpdate").prop("disabled", false);
+                    $("#btnUpdateSpinner").addClass("d-none");
+                    $("#btnUpdateIcon").removeClass("d-none");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Request Failed',
+                        text: 'An error occurred while updating the record.'
+                    });
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+}

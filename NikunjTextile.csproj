@@ -3381,6 +3381,7 @@
     <Content Include="PhotoOfDesign\yhaypzWhatsApp Image 2025-07-09 at 21.46.47_51bd2e89.jpg" />
     <Content Include="PhotoOfDesign\ywjnqy475770d0-905d-4bd3-ab4f-15f2426fc678.jfif" />
     <Content Include="PhotoOfDesign\zvyetfPC=065 %2845%29.png" />
+    <Content Include="Reports\PurchaseOrder.html" />
     <Content Include="SqlServerTypes\readme.htm" />
     <Content Include="vendor\apex\apexcharts.min.js" />
     <Content Include="vendor\apex\custom\analytics\byChannelGraph.js" />
@@ -3651,6 +3652,9 @@
       <DependentUpon>SaleBillImageWise.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Reports\SaleOrder%2817-08-2026%29.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Reports\SaleOrder.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -3679,12 +3683,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SaleorderReportNEW.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Reports\WEAVELANE PRODUCTION SLIP.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>WEAVELANE PRODUCTION SLIP.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SaleOrderAdditionalCharges.Designer.cs">
@@ -3751,6 +3749,7 @@
     <Content Include="ItemMaster.cshtml" />
     <Content Include="ListSaleOrderEntry.cshtml" />
     <Content Include="UserPermission.cshtml" />
+    <Content Include="MobileUserMenuPermission.cshtml" />
     <Content Include="PendingPOReport.cshtml" />
     <Content Include="YarnInterChangeReport.cshtml" />
     <Content Include="ColorMatchingValidationReport.cshtml" />
@@ -3800,6 +3799,7 @@
     <Content Include="JobberToProcess.cshtml" />
     <Content Include="JobberToProcessList.cshtml" />
     <Content Include="JobberToProcessPrint.cshtml" />
+    <Content Include="JobberProductionStockReport.cshtml" />
     <None Include="packages.config" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\.signature.p7s" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\BouncyCastle.Cryptography.2.6.2.nupkg" />
@@ -5128,6 +5128,8 @@
       <DependentUpon>SaleOrderAdditionalCharges.xsd</DependentUpon>
     </Content>
     <Content Include="ReceiveJobberToButtaCutting.cshtml" />
+    <Content Include="Reports\GetProductionOrderYarnTotal.rpt" />
+    <None Include="Reports\SaleOrder%2817-08-2026%29.rpt" />
     <None Include="SaleOrderAdditionalCharges.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>SaleOrderAdditionalCharges.Designer.cs</LastGenOutput>
@@ -5176,9 +5178,11 @@
     <Content Include="YarnOutWardChallanDetails.cshtml" />
     <Content Include="YarnOutWardScanDetails.cshtml" />
     <Content Include="YarnOutWardScan.cshtml" />
+    <Content Include="YarnOutWardScanPrint.cshtml" />
     <Content Include="YarnOutWardChallanNEW.cshtml" />
     <Content Include="JobberYarnInward.cshtml" />
     <Content Include="CreateJobberOutWard.cshtml" />
+    <Content Include="YarnProductMaster.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AadharUpload\" />
@@ -5234,10 +5238,6 @@
     <EmbeddedResource Include="Reports\SaleorderReportNEW.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>SaleorderReportNEW.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Reports\WEAVELANE PRODUCTION SLIP.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>WEAVELANE PRODUCTION SLIP.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

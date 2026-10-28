@@ -6325,7 +6325,7 @@
                                 );
 
                         }
-                        $(document).on("click.productionOrder", "#btnAddForProduction", function () {
+                        $(document).on("click.productionOrder", "#btnAddForProduction", function () {                      
 
                             if (
                                 isProductionViewMode
@@ -6380,8 +6380,7 @@
                              * DETAILS
                              */
 
-                            var detailList =
-                                [];
+                            var detailList = [];
 
 
                             /*
@@ -6602,19 +6601,12 @@
                              * VALIDATION
                              */
 
-                            if (
-                                detailList.length === 0
-                            ) {
-
+                            if (!detailList || detailList.length === 0) {
                                 alert(
                                     "Please enter Production greater than 0."
                                 );
-
                                 return;
-
                             }
-
-
                             /*
                              * TOTAL
                              */

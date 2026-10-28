@@ -796,6 +796,549 @@ namespace NikunjTextile
             Context.Response.SuppressContent = true;
             HttpContext.Current.ApplicationInstance.CompleteRequest();
         }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void YarnOutwardScanReport(List<long> yarnOutwardID)
+        {
+            try
+            {
+                var result = GenerateCrystalPdfReportCommon(yarnOutwardID, "~/Reports/YarnOutwardScanReport.rpt", "YarnOutwardScan", "@YarnOutwardID", FetchYarnOutwardScanDataSet);
+                WriteJsonResponse(result);
+            }
+            catch (Exception ex)
+            {
+                WriteJsonResponse(new { Code = 500, Message = ex.Message, Data = new object[0] });
+            }
+        }
+        private DataSet FetchYarnOutwardScanDataSet(SqlConnection con, long id)
+        {
+            DataSet ds = new DataSet();
+            using (SqlCommand cmd = new SqlCommand("SPR_GetYarnOutwardScanReport", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@YarnOutwardID", SqlDbType.BigInt).Value = id;
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable("SPR_GetYarnOutwardScanReport");
+                    da.Fill(dt);
+                    ds.Tables.Add(dt);
+
+                    DataTable dtCopy = dt.Copy();
+                    dtCopy.TableName = "SPR_GetYarnOutwardScanReport;1";
+                    ds.Tables.Add(dtCopy);
+                }
+            }
+            return ds;
+        }
+        private object GenerateCrystalPdfReportCommon<TId>(List<TId> idList, string rptRelativePath, string pdfPrefix, string parameterName, Func<SqlConnection, TId, DataSet> fetchDataSetFunc)
+        {
+            if (idList == null || idList.Count == 0)
+            {
+                return new { Code = 400, Message = "No item selected.", Data = new object[0] };
+            }
+
+            List<string> individualPdfFiles = new List<string>();
+
+            try
+            {
+                string generatedFolder = HttpContext.Current.Server.MapPath("~/GeneratedPDF/");
+                if (!Directory.Exists(generatedFolder))
+                {
+                    Directory.CreateDirectory(generatedFolder);
+                }
+
+                string fileName = $"{pdfPrefix}_Merged_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid():N}.pdf";
+                string pdfPath = System.IO.Path.Combine(generatedFolder, fileName);
+                string reportPath = HttpContext.Current.Server.MapPath(rptRelativePath);
+
+                if (!File.Exists(reportPath))
+                {
+                    throw new Exception($"Report file not found : {reportPath}");
+                }
+
+                string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    foreach (TId currentId in idList)
+                    {
+                        DataSet ds = fetchDataSetFunc(con, currentId);
+
+                        if (ds == null || ds.Tables.Count == 0)
+                        {
+                            throw new Exception(
+                                $"No DataSet data found for ID : {currentId}"
+                            );
+                        }
+
+                        ReportDocument report = new ReportDocument();
+
+                        try
+                        {
+                            // =====================================================
+                            // 1. LOAD REPORT
+                            // =====================================================
+
+                            report.Load(
+                                reportPath,
+                                OpenReportMethod.OpenReportByTempCopy
+                            );
+
+                            // =====================================================
+                            // 2. APPLY DATABASE LOGIN
+                            // =====================================================
+
+                            SetCrystalDatabaseLogin(
+                                report,
+                                connectionString
+                            );
+
+                            // =====================================================
+                            // 3. MAIN REPORT DATA
+                            // =====================================================
+
+                            report.SetDataSource(ds);
+
+                            // =====================================================
+                            // 4. FIND SUBREPORTS
+                            // IMPORTANT:
+                            // Do NOT use foreach on section.ReportObjects
+                            // =====================================================
+
+                            for (
+                                int sectionIndex = 0;
+                                sectionIndex < report.ReportDefinition.Sections.Count;
+                                sectionIndex++)
+                            {
+                                CrystalDecisions.CrystalReports.Engine.Section section =
+                                    report.ReportDefinition.Sections[sectionIndex];
+
+                                if (section == null)
+                                    continue;
+
+                                for (
+                                    int objectIndex = 0;
+                                    objectIndex < section.ReportObjects.Count;
+                                    objectIndex++)
+                                {
+                                    ReportObject obj = null;
+
+                                    try
+                                    {
+                                        obj = section.ReportObjects[objectIndex];
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine(
+                                            "ReportObject read error [" +
+                                            sectionIndex +
+                                            "," +
+                                            objectIndex +
+                                            "] : " +
+                                            ex.ToString()
+                                        );
+
+                                        continue;
+                                    }
+
+                                    if (!(obj is SubreportObject))
+                                        continue;
+
+                                    SubreportObject subObj =
+                                        (SubreportObject)obj;
+
+                                    try
+                                    {
+                                        // =================================================
+                                        // OPEN SUBREPORT
+                                        // =================================================
+
+                                        ReportDocument subReport =
+                                            report.OpenSubreport(
+                                                subObj.SubreportName
+                                            );
+
+                                        // =================================================
+                                        // APPLY DATABASE LOGIN
+                                        // =================================================
+
+                                        SetCrystalDatabaseLogin(
+                                            subReport,
+                                            connectionString
+                                        );
+
+                                        // =================================================
+                                        // SET SUBREPORT DATA
+                                        // =================================================
+
+                                        subReport.SetDataSource(ds);
+
+                                        // =================================================
+                                        // SET SUBREPORT PARAMETER
+                                        // =================================================
+
+                                        if (!string.IsNullOrEmpty(parameterName))
+                                        {
+                                            SetReportParameterValues(
+                                                subReport,
+                                                parameterName,
+                                                currentId
+                                            );
+                                        }
+                                    }
+                                    catch (Exception subEx)
+                                    {
+                                        throw new Exception(
+                                            "Subreport binding failed. " +
+                                            "Subreport : " +
+                                            subObj.SubreportName +
+                                            " | ID : " +
+                                            currentId +
+                                            " | Error : " +
+                                            subEx.Message,
+                                            subEx
+                                        );
+                                    }
+                                }
+                            }
+
+                            // =====================================================
+                            // 5. MAIN REPORT PARAMETER
+                            // =====================================================
+
+                            if (!string.IsNullOrEmpty(parameterName))
+                            {
+                                SetReportParameterValues(
+                                    report,
+                                    parameterName,
+                                    currentId
+                                );
+                            }
+
+                            // =====================================================
+                            // IMPORTANT:
+                            // DO NOT USE report.Refresh()
+                            // =====================================================
+
+                            // report.Refresh();   <-- REMOVE
+
+                            // =====================================================
+                            // 6. EXPORT PDF
+                            // =====================================================
+
+                            string singlePdfName =
+                                $"{pdfPrefix}_{currentId}_{Guid.NewGuid():N}.pdf";
+
+                            string singlePdfPath =
+                               System.IO.Path.Combine(
+                                    generatedFolder,
+                                    singlePdfName
+                                );
+
+                            report.ExportToDisk(
+                                ExportFormatType.PortableDocFormat,
+                                singlePdfPath
+                            );
+
+                            // =====================================================
+                            // 7. CHECK PDF
+                            // =====================================================
+
+                            if (File.Exists(singlePdfPath))
+                            {
+                                individualPdfFiles.Add(
+                                    singlePdfPath
+                                );
+                            }
+                            else
+                            {
+                                throw new Exception(
+                                    $"PDF was not generated for ID : {currentId}"
+                                );
+                            }
+
+                            // If exporting ProductionOrder, also append GetProductionOrderYarnTotal.rpt report pages
+                            if (pdfPrefix == "ProductionOrder")
+                            {
+                                try
+                                {
+                                    // 1. Export GetProductionOrderYarnTotal.rpt
+                                    string yarnReportPath = HttpContext.Current.Server.MapPath("~/Reports/GetProductionOrderYarnTotal.rpt");
+                                    if (File.Exists(yarnReportPath))
+                                    {
+                                        ReportDocument yarnRpt = new ReportDocument();
+                                        try
+                                        {
+                                            yarnRpt.Load(yarnReportPath, OpenReportMethod.OpenReportByTempCopy);
+                                            DataSet yarnDs = new DataSet();
+
+                                            if (ds.Tables.Contains("GetProductionOrderQualityYarn"))
+                                            {
+                                                DataTable dtQYarn = ds.Tables["GetProductionOrderQualityYarn"].Copy();
+                                                yarnDs.Tables.Add(dtQYarn);
+
+                                                DataTable dtQYarn1 = dtQYarn.Copy();
+                                                dtQYarn1.TableName = "GetProductionOrderQualityYarn;1";
+                                                yarnDs.Tables.Add(dtQYarn1);
+                                            }
+
+                                            if (ds.Tables.Contains("GetProductionOrderYarnTotal"))
+                                            {
+                                                DataTable dtYarn = ds.Tables["GetProductionOrderYarnTotal"].Copy();
+                                                yarnDs.Tables.Add(dtYarn);
+
+                                                DataTable dtYarn1 = dtYarn.Copy();
+                                                dtYarn1.TableName = "GetProductionOrderYarnTotal;1";
+                                                yarnDs.Tables.Add(dtYarn1);
+                                            }
+
+                                            if (ds.Tables.Contains("GetProductionOrderQuality"))
+                                            {
+                                                DataTable dtM = ds.Tables["GetProductionOrderQuality"].Copy();
+                                                yarnDs.Tables.Add(dtM);
+
+                                                DataTable dtM1 = dtM.Copy();
+                                                dtM1.TableName = "GetProductionOrderQuality;1";
+                                                yarnDs.Tables.Add(dtM1);
+                                            }
+
+                                            if (ds.Tables.Contains("ProductionOrderMaster"))
+                                            {
+                                                DataTable dtPom = ds.Tables["ProductionOrderMaster"].Copy();
+                                                yarnDs.Tables.Add(dtPom);
+                                            }
+
+                                            yarnRpt.SetDataSource(yarnDs);
+                                            foreach (CrystalDecisions.CrystalReports.Engine.Table tbl in yarnRpt.Database.Tables)
+                                            {
+                                                if (yarnDs.Tables.Contains(tbl.Name))
+                                                {
+                                                    try { tbl.SetDataSource(yarnDs.Tables[tbl.Name]); } catch { }
+                                                }
+                                            }
+
+                                            for (int sIdx = 0; sIdx < yarnRpt.ReportDefinition.Sections.Count; sIdx++)
+                                            {
+                                                CrystalDecisions.CrystalReports.Engine.Section sec = yarnRpt.ReportDefinition.Sections[sIdx];
+                                                if (sec == null) continue;
+                                                for (int oIdx = 0; oIdx < sec.ReportObjects.Count; oIdx++)
+                                                {
+                                                    ReportObject rObj = sec.ReportObjects[oIdx];
+                                                    if (rObj is SubreportObject sObj)
+                                                    {
+                                                        try
+                                                        {
+                                                            ReportDocument subDoc = yarnRpt.OpenSubreport(sObj.SubreportName);
+                                                            subDoc.SetDataSource(yarnDs);
+                                                            foreach (CrystalDecisions.CrystalReports.Engine.Table sTbl in subDoc.Database.Tables)
+                                                            {
+                                                                if (yarnDs.Tables.Contains(sTbl.Name))
+                                                                {
+                                                                    try { sTbl.SetDataSource(yarnDs.Tables[sTbl.Name]); } catch { }
+                                                                }
+                                                            }
+                                                            SetReportParameterValues(subDoc, "@ProductionOrderID", currentId);
+                                                        }
+                                                        catch { }
+                                                    }
+                                                }
+                                            }
+
+                                            SetReportParameterValues(yarnRpt, "@ProductionOrderID", currentId);
+
+                                            string yarnPdfName = $"YarnTotal_{currentId}_{Guid.NewGuid():N}.pdf";
+                                            string yarnPdfPath = System.IO.Path.Combine(generatedFolder, yarnPdfName);
+                                            yarnRpt.ExportToDisk(ExportFormatType.PortableDocFormat, yarnPdfPath);
+
+                                            if (File.Exists(yarnPdfPath))
+                                            {
+                                                individualPdfFiles.Add(yarnPdfPath);
+                                            }
+                                        }
+                                        catch (Exception exYarnRpt)
+                                        {
+                                            System.Diagnostics.Debug.WriteLine("GetProductionOrderYarnTotal.rpt export error: " + exYarnRpt.Message);
+                                        }
+                                        finally
+                                        {
+                                            try { yarnRpt.Close(); } catch { }
+                                            try { yarnRpt.Dispose(); } catch { }
+                                        }
+                                    }
+                                }
+                                catch (Exception exYarnFetch)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("GetProductionOrderYarnTotal export error: " + exYarnFetch.Message);
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                report.Close();
+                            }
+                            catch
+                            {
+                            }
+
+                            try
+                            {
+                                report.Dispose();
+                            }
+                            catch
+                            {
+                            }
+
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
+                    }
+                }
+
+                if (individualPdfFiles.Count == 0)
+                {
+                    return new { Code = 400, Message = "No PDF generated.", Data = new object[0] };
+                }
+
+                using (Document document = new Document())
+                {
+                    using (FileStream fs = new FileStream(pdfPath, FileMode.Create))
+                    {
+                        using (PdfCopy copy = new PdfCopy(document, fs))
+                        {
+                            document.Open();
+                            foreach (string file in individualPdfFiles)
+                            {
+                                using (PdfReader reader = new PdfReader(file))
+                                {
+                                    copy.AddDocument(reader);
+                                }
+                            }
+                            document.Close();
+                        }
+                    }
+                }
+
+                foreach (string file in individualPdfFiles)
+                {
+                    try { if (File.Exists(file)) File.Delete(file); } catch { }
+                }
+
+                string filePath = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + "/GeneratedPDF/" + fileName + "?v=" + DateTime.Now.Ticks;
+                return new
+                {
+                    Code = 200,
+                    Message = "Success",
+                    Data = new object[]
+                    {
+                        new
+                        {
+                            FilePath = filePath
+                        }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                foreach (string file in individualPdfFiles)
+                {
+                    try { if (File.Exists(file)) File.Delete(file); } catch { }
+                }
+                return new { Code = 500, Message = ex.ToString(), Data = new object[0] };
+            }
+        }
+        private void SetReportParameterValues(ReportDocument rpt, string paramName, object val)
+        {
+            if (rpt == null || string.IsNullOrWhiteSpace(paramName))
+                return;
+
+            string cleanName = paramName.StartsWith("@") ? paramName.Substring(1) : paramName;
+            string atName = "@" + cleanName;
+            try
+            {
+                rpt.SetParameterValue(paramName, val);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                rpt.SetParameterValue(cleanName, val);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                rpt.SetParameterValue(atName, val);
+            }
+            catch
+            {
+            }
+            try
+            {
+                if (rpt.DataDefinition != null &&
+                    rpt.DataDefinition.ParameterFields != null)
+                {
+                    foreach (ParameterFieldDefinition pfd
+                             in rpt.DataDefinition.ParameterFields)
+                    {
+                        try
+                        {
+                            string name = pfd.Name;
+
+                            bool isMatch =
+                                name.Equals(
+                                    paramName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.Equals(
+                                    cleanName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.Equals(
+                                    atName,
+                                    StringComparison.OrdinalIgnoreCase)
+                                ||
+                                name.IndexOf(
+                                    "ProductionOrderSubDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0
+                                ||
+                                name.IndexOf(
+                                    "SubDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0
+                                ||
+                                name.IndexOf(
+                                    "ProductionOrderDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0
+                                ||
+                                name.IndexOf(
+                                    "OrderDetailID",
+                                    StringComparison.OrdinalIgnoreCase) >= 0;
+
+                            if (isMatch)
+                            {
+                                rpt.SetParameterValue(name, val);
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore individual parameter errors
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore parameter collection errors
+            }
+        }
         #region Sale Order Entry API
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -2813,6 +3356,18 @@ namespace NikunjTextile
                             daDetail.Fill(ds, "SaleOrderDetails");
                         }
 
+                        using (SqlDataAdapter daAdd =
+                            new SqlDataAdapter("SPR_GetSaleOrderAdditionalCharges", con))
+                        {
+                            daAdd.SelectCommand.CommandType =
+                                CommandType.StoredProcedure;
+
+                            daAdd.SelectCommand.Parameters.AddWithValue(
+                                "@SaleOrderID", orderId);
+
+                            daAdd.Fill(ds, "SaleOrderAdditionalCharges");
+                        }
+
                         if (!ds.Tables.Contains("SaleOrderMaster") ||
                             ds.Tables["SaleOrderMaster"].Rows.Count == 0)
                         {
@@ -2823,6 +3378,11 @@ namespace NikunjTextile
                             ds.Tables["SaleOrderDetails"].Rows.Count == 0)
                         {
                             continue;
+                        }
+
+                        if (!ds.Tables.Contains("SaleOrderAdditionalCharges"))
+                        {
+                            ds.Tables.Add(new DataTable("SaleOrderAdditionalCharges"));
                         }
 
                         Microsoft.Reporting.WebForms.LocalReport report = new Microsoft.Reporting.WebForms.LocalReport();
@@ -2850,6 +3410,11 @@ namespace NikunjTextile
                             new Microsoft.Reporting.WebForms.ReportDataSource(
                                 "SaleOrderDetails",
                                 ds.Tables["SaleOrderDetails"]));
+
+                        report.DataSources.Add(
+                            new Microsoft.Reporting.WebForms.ReportDataSource(
+                                "SaleOrderAdditionalCharges",
+                                ds.Tables["SaleOrderAdditionalCharges"]));
 
                         report.Refresh();
 
@@ -9286,6 +9851,153 @@ ORDER BY
             {
                 WriteJsonResponse(new GenericApiResponse(false, ex.Message));
             }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void MobileUserMenuPermission(int UserId = 0)
+        {
+            try
+            {
+                if (UserId <= 0)
+                {
+                    string reqUser = HttpContext.Current.Request["UserId"] ?? HttpContext.Current.Request["userid"];
+                    int.TryParse(reqUser, out UserId);
+                }
+
+                if (UserId <= 0)
+                {
+                    WriteJsonResponse(new
+                    {
+                        Code = 400,
+                        Message = "UserId is required and must be greater than 0.",
+                        TotalMenus = 0,
+                        TotalSubMenus = 0,
+                        Data = new object[0]
+                    });
+                    return;
+                }
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                DataTable dt = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    string query = @"
+                        SELECT 
+                            MM.Menu_Id,
+                            MM.Menu_Name,
+                            MM.Menu_Icon,
+                            MM.Menu_OrderNo,
+                            ISNULL(MM.Controller, '') AS MenuController,
+                            ISNULL(MM.Action, '') AS MenuAction,
+                            SM.SubMenu_Id,
+                            SM.SubMenu_Name,
+                            SM.SubMenu_Icon,
+                            SM.SubMenu_OrderNo,
+                            ISNULL(SM.Controller, '') AS SubMenuController,
+                            ISNULL(SM.Action, '') AS SubMenuAction,
+                            ISNULL(MUMP.[View], 0) AS [View],
+                            ISNULL(MUMP.[Add], 0) AS [Add],
+                            ISNULL(MUMP.[Edit], 0) AS [Edit],
+                            ISNULL(MUMP.[Delete], 0) AS [Delete]
+                        FROM MobileMenuMaster MM
+                        INNER JOIN MobileSubMenuMaster SM 
+                            ON MM.Menu_Id = SM.Menu_Id
+                        INNER JOIN MobileUserMenuPermission MUMP 
+                            ON MM.Menu_Id = MUMP.Menu_Id
+                            AND SM.SubMenu_Id = MUMP.SubMenu_Id
+                        WHERE 
+                            MUMP.User_Id = @UserId
+                            AND MM.IsActive = 1
+                            AND SM.IsActive = 1
+                            AND (
+                                ISNULL(MUMP.[View], 0) = 1 
+                                OR ISNULL(MUMP.[Add], 0) = 1 
+                                OR ISNULL(MUMP.[Edit], 0) = 1 
+                                OR ISNULL(MUMP.[Delete], 0) = 1
+                            )
+                        ORDER BY 
+                            MM.Menu_OrderNo,
+                            SM.SubMenu_OrderNo";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            da.Fill(dt);
+                        }
+                    }
+                }
+
+                var menuList = dt.AsEnumerable()
+                    .GroupBy(x => new
+                    {
+                        Menu_Id = Convert.ToInt32(x["Menu_Id"]),
+                        Menu_Name = x["Menu_Name"].ToString().Trim(),
+                        Menu_Icon = x["Menu_Icon"] != DBNull.Value ? x["Menu_Icon"].ToString().Trim() : "",
+                        Menu_OrderNo = x["Menu_OrderNo"] != DBNull.Value ? Convert.ToInt32(x["Menu_OrderNo"]) : 0,
+                        Controller = x["MenuController"] != DBNull.Value ? x["MenuController"].ToString().Trim() : "",
+                        Action = x["MenuAction"] != DBNull.Value ? x["MenuAction"].ToString().Trim() : ""
+                    })
+                    .Select(m => new
+                    {
+                        Menu_Id = m.Key.Menu_Id,
+                        Menu_Name = m.Key.Menu_Name,
+                        Menu_Icon = m.Key.Menu_Icon,
+                        Menu_OrderNo = m.Key.Menu_OrderNo,
+                        Controller = m.Key.Controller,
+                        Action = m.Key.Action,
+                        SubMenusCount = m.Count(),
+                        SubMenus = m.Select(s => new
+                        {
+                            SubMenu_Id = Convert.ToInt32(s["SubMenu_Id"]),
+                            SubMenu_Name = s["SubMenu_Name"].ToString().Trim(),
+                            SubMenu_Icon = s["SubMenu_Icon"] != DBNull.Value ? s["SubMenu_Icon"].ToString().Trim() : "",
+                            SubMenu_OrderNo = s["SubMenu_OrderNo"] != DBNull.Value ? Convert.ToInt32(s["SubMenu_OrderNo"]) : 0,
+                            Controller = s["SubMenuController"] != DBNull.Value ? s["SubMenuController"].ToString().Trim() : "",
+                            Action = s["SubMenuAction"] != DBNull.Value ? s["SubMenuAction"].ToString().Trim() : "",
+                            View = Convert.ToBoolean(s["View"]),
+                            Add = Convert.ToBoolean(s["Add"]),
+                            Edit = Convert.ToBoolean(s["Edit"]),
+                            Delete = Convert.ToBoolean(s["Delete"])
+                        }).ToList()
+                    }).ToList();
+
+                int totalSubMenus = menuList.Sum(m => m.SubMenusCount);
+
+                var response = new
+                {
+                    Code = 200,
+                    Message = menuList.Count > 0 ? "Success" : "No menu permissions found for this user",
+                    TotalMenus = menuList.Count,
+                    TotalSubMenus = totalSubMenus,
+                    Data = menuList
+                };
+
+                WriteJsonResponse(response);
+            }
+            catch (Exception ex)
+            {
+                WriteJsonResponse(new
+                {
+                    Code = 500,
+                    Message = ex.Message,
+                    TotalMenus = 0,
+                    TotalSubMenus = 0,
+                    Data = new object[0]
+                });
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void MobileUserMenuPermissionAPI(int UserId = 0)
+        {
+            MobileUserMenuPermission(UserId);
         }
         #endregion
     }

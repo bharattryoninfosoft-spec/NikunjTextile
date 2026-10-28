@@ -293,42 +293,54 @@
                     <div class="row gutters g-2 mb-3">
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterParty" class="form-control" placeholder="Search Party" />
+                                <select id="filterParty" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All Party Name</option>
+                                </select>
                                 <div class="field-placeholder">Party Name</div>
                             </div>
                         </div>
 
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterJobber" class="form-control" placeholder="Search Jobber" />
+                                <select id="filterJobber" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All Jobber / Job Worker</option>
+                                </select>
                                 <div class="field-placeholder">Jobber / Job Worker</div>
                             </div>
                         </div>
 
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterSO" class="form-control" placeholder="Search SO No" />
+                                <select id="filterSO" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All SO Number</option>
+                                </select>
                                 <div class="field-placeholder">SO Number</div>
                             </div>
                         </div>
 
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterSlipNo" class="form-control" placeholder="Search Slip No" />
+                                <select id="filterSlipNo" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All Slip No</option>
+                                </select>
                                 <div class="field-placeholder">Slip No</div>
                             </div>
                         </div>
 
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterDesignNo" class="form-control" placeholder="Search Design No" />
+                                <select id="filterDesignNo" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All Design No</option>
+                                </select>
                                 <div class="field-placeholder">Design No</div>
                             </div>
                         </div>
 
                         <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
                             <div class="field-wrapper">
-                                <input type="text" id="filterColour" class="form-control" placeholder="Search Colour" />
+                                <select id="filterColour" class="form-control select-single detail" style="height: 38px; font-size: 0.8rem;">
+                                    <option value="">All Colour Matching</option>
+                                </select>
                                 <div class="field-placeholder">Colour Matching</div>
                             </div>
                         </div>
@@ -421,12 +433,13 @@
                             <div class="fw-semibold text-secondary fs-7" id="lblShowingInfo">
                                 Showing 0 to 0 of 0 slips
                             </div>
-                            <div class="d-flex align-items-center gap-1">
+                            <div class="d-flex align-items-center gap-1" style="display: none !important;">
                                 <span class="fs-7 text-muted">Per page:</span>
-                                <select id="ddlPageSize" class="form-select form-select-sm" style="width: 70px; height: 28px; padding: 2px 6px; font-size: 0.775rem;">
+                                <select id="ddlPageSize" class="form-select form-select-sm no-select2" style="width: 70px; height: 28px; padding: 2px 6px; font-size: 0.775rem;">
                                     <option value="10">10</option>
-                                    <option value="15" selected="selected">15</option>
+                                    <option value="15">15</option>
                                     <option value="25">25</option>
+                                    <option value="30" selected="selected">30</option>
                                     <option value="50">50</option>
                                     <option value="100">100</option>
                                 </select>
@@ -434,7 +447,7 @@
                         </div>
 
                         <!-- Pagination Controls -->
-                        <div class="pagination-container">
+                        <div class="pagination-container" style="display: none !important;">
                             <button type="button" id="btnFirstPage" class="pagination-btn" title="First Page">&laquo;</button>
                             <button type="button" id="btnPrevPage" class="pagination-btn" title="Previous Page">&lsaquo;</button>
                             <span id="paginationNumbers" class="d-inline-flex gap-1"></span>
@@ -485,13 +498,15 @@
 
     <script type="text/javascript">
         $('body').addClass('fullscreen');
-        var allPendingData = [];
-        var allAllottedData = [];
-        var allCompletedData = [];
-        var filteredSlipData = [];
         var currentTab = "pending";
-        var currentPage = 1;
-        var pageSize = 15;
+        var currentPageIndex = 1;
+        var pageSize = 30;
+        var totalRecordsForTab = 0;
+        var currentGrandTotalPcs = 0;
+        var loadedCount = 0;
+        var isLoadingData = false;
+        var hasMoreData = true;
+        var currentSlipData = [];
 
         function getTodayDateString() {
             var now = new Date();
@@ -520,29 +535,48 @@
                 $("#btnGeneratePDF").show();
                 $("#btnBulkSave").hide();
             }
-            applyFilters();
+            loadProductionOrderSlips(true);
         }
 
         $(document).ready(function () {
-            loadProductionOrderSlips();
+            // Bind filter dropdown data directly on page load (fast roundtrip)
+            loadFilterDropdownsDirectly();
+
+            // Load initial 30 slips for the active tab (Pending)
+            loadProductionOrderSlips(true);
+
+            // Infinite scroll on table container: fetch next 30 rows on scroll down
+            $(".production-list-table-container").off("scroll.infiniteload").on("scroll.infiniteload", function () {
+                var container = this;
+                if (container.scrollTop + container.clientHeight >= container.scrollHeight - 80) {
+                    if (!isLoadingData && hasMoreData) {
+                        currentPageIndex++;
+                        loadProductionOrderSlips(false);
+                    }
+                }
+            });
 
             $("#btnSearch").on("click", function () {
-                applyFilters();
+                loadProductionOrderSlips(true);
             });
 
             $("#btnReset").on("click", function () {
-                $("#filterParty").val("");
-                $("#filterJobber").val("");
-                $("#filterSO").val("");
-                $("#filterSlipNo").val("");
-                $("#filterDesignNo").val("");
-                $("#filterColour").val("");
+                $("#filterParty").val("").trigger("change");
+                $("#filterJobber").val("").trigger("change");
+                $("#filterSO").val("").trigger("change");
+                $("#filterSlipNo").val("").trigger("change");
+                $("#filterDesignNo").val("").trigger("change");
+                $("#filterColour").val("").trigger("change");
                 $("#filterDate").val("");
-                applyFilters();
+                loadProductionOrderSlips(true);
             });
 
+            var filterTimer = null;
             $("#filterParty, #filterJobber, #filterSO, #filterSlipNo, #filterDesignNo, #filterColour, #filterDate").on("keyup change", function () {
-                applyFilters();
+                clearTimeout(filterTimer);
+                filterTimer = setTimeout(function () {
+                    loadProductionOrderSlips(true);
+                }, 350);
             });
 
             $(document).on("change", ".row-input-pcs", function () {
@@ -661,38 +695,76 @@
             return selectedIds;
         }
 
-        function loadProductionOrderSlips() {
+        function loadProductionOrderSlips(reset) {
+            if (reset) {
+                currentPageIndex = 1;
+                loadedCount = 0;
+                hasMoreData = true;
+                currentSlipData = [];
+                $(".production-list-table-container").scrollTop(0);
+                $("#selectAllSlip").prop("checked", false);
+                renderTableHeader();
+                var colSpan = (currentTab === 'pending') ? 17 : (currentTab === 'allotted' ? 16 : 14);
+                $("#tblJobProductionOrderListBody").html('<tr><td colspan="' + colSpan + '" class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin me-2"></i> Loading ' + currentTab + ' slips...</td></tr>');
+            }
+
+            if (isLoadingData) return;
+            isLoadingData = true;
+
+            var payload = {
+                tab: currentTab,
+                pageIndex: currentPageIndex,
+                pageSize: pageSize,
+                party: $.trim($("#filterParty").val() || ""),
+                jobber: $.trim($("#filterJobber").val() || ""),
+                so: $.trim($("#filterSO").val() || ""),
+                slipNo: $.trim($("#filterSlipNo").val() || ""),
+                designNo: $.trim($("#filterDesignNo").val() || ""),
+                colour: $.trim($("#filterColour").val() || ""),
+                filterDate: $.trim($("#filterDate").val() || "")
+            };
+
             $.ajax({
                 type: "POST",
                 url: "WebServiceNikunjTextile.asmx/jobproductionorderList",
+                data: JSON.stringify(payload),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
+                    isLoadingData = false;
                     var data = response && response.d !== undefined ? response.d : response;
                     if (typeof data === "string") {
                         try { data = JSON.parse(data); } catch (e) { console.error(e); }
                     }
 
-                    if (data && data.PendingList !== undefined) {
-                        allPendingData = data.PendingList || [];
-                        allAllottedData = data.AllottedList || [];
-                        allCompletedData = data.CompletedList || [];
-                    } else if (Array.isArray(data)) {
-                        allPendingData = $.grep(data, function (item) { return !item.IsCompleted; });
-                        allAllottedData = [];
-                        allCompletedData = $.grep(data, function (item) { return !!item.IsCompleted; });
-                    } else {
-                        allPendingData = [];
-                        allAllottedData = [];
-                        allCompletedData = [];
-                    }
+                    if (data) {
+                        if (data.PendingCount !== undefined) $("#lblPendingBadge").text(data.PendingCount);
+                        if (data.AllottedCount !== undefined) $("#lblAllottedBadge").text(data.AllottedCount);
+                        if (data.CompletedCount !== undefined) $("#lblCompletedBadge").text(data.CompletedCount);
 
-                    applyFilters();
+                        totalRecordsForTab = data.TotalRecords !== undefined ? data.TotalRecords : 0;
+                        currentGrandTotalPcs = data.TotalPcs !== undefined ? data.TotalPcs : 0;
+
+                        var list = data.DataList || (currentTab === 'allotted' ? data.AllottedList : (currentTab === 'completed' ? data.CompletedList : data.PendingList)) || [];
+
+                        if (reset) {
+                            currentSlipData = list;
+                            renderTableInitial(list, totalRecordsForTab, currentGrandTotalPcs);
+                        } else {
+                            currentSlipData = currentSlipData.concat(list);
+                            appendTableBatch(list, totalRecordsForTab, currentGrandTotalPcs);
+                        }
+
+                        hasMoreData = (list.length >= pageSize && loadedCount < totalRecordsForTab);
+                    }
                 },
                 error: function (xhr) {
+                    isLoadingData = false;
                     console.error("Error loading job production order slips:", xhr.responseText);
-                    $("#tblJobProductionOrderListBody").html('<tr><td colspan="17" class="text-center text-danger py-4">Failed to load job production order slips.</td></tr>');
-                    renderPagination(0);
+                    if (reset) {
+                        var colSpan = (currentTab === 'pending') ? 17 : (currentTab === 'allotted' ? 16 : 14);
+                        $("#tblJobProductionOrderListBody").html('<tr><td colspan="' + colSpan + '" class="text-center text-danger py-4">Failed to load job production order slips.</td></tr>');
+                    }
                 }
             });
         }
@@ -733,64 +805,150 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
-        function applyFilters() {
-            var party = $.trim($("#filterParty").val()).toLowerCase();
-            var jobber = $.trim($("#filterJobber").val()).toLowerCase();
-            var so = $.trim($("#filterSO").val()).toLowerCase();
-            var slip = $.trim($("#filterSlipNo").val()).toLowerCase();
-            var design = $.trim($("#filterDesignNo").val()).toLowerCase();
-            var colour = $.trim($("#filterColour").val()).toLowerCase();
-            var filterDateVal = $("#filterDate").val();
-
-            var filterDateObj = filterDateVal ? new Date(filterDateVal + "T00:00:00") : null;
-
-            var targetData = allPendingData;
-            if (currentTab === "allotted") {
-                targetData = allAllottedData;
-            } else if (currentTab === "completed") {
-                targetData = allCompletedData;
-            }
-
-            var filtered = $.grep(targetData, function (item) {
-                var formattedSO = formatSONumber(item.SalesOrderNo);
-                var mParty = !party || String(item.PartyName || "").toLowerCase().indexOf(party) >= 0;
-                var mJobber = !jobber || String(item.JobWorkerName || item.PartyName || "").toLowerCase().indexOf(jobber) >= 0;
-                var mSO = !so || String(item.SalesOrderNo || "").toLowerCase().indexOf(so) >= 0 || formattedSO.toLowerCase().indexOf(so) >= 0;
-                var mSlip = !slip || String(item.SlipNo || "").toLowerCase().indexOf(slip) >= 0;
-                var mDesign = !design || String(item.DesignNo || "").toLowerCase().indexOf(design) >= 0;
-                var mColour = !colour || String(item.ColourMatchingName || "").toLowerCase().indexOf(colour) >= 0;
-
-                var mDate = true;
-                if (filterDateObj) {
-                    var itemDate = parseDDMMYYYY(item.ProductionDate || item.OrderDate);
-                    if (itemDate) {
-                        mDate = (itemDate.getFullYear() === filterDateObj.getFullYear() &&
-                                 itemDate.getMonth() === filterDateObj.getMonth() &&
-                                 itemDate.getDate() === filterDateObj.getDate());
-                    } else {
-                        mDate = false;
-                    }
+        function loadFilterDropdownsDirectly() {
+            try {
+                var cached = sessionStorage.getItem("cached_JobProductionOrderFilterDropdowns");
+                if (cached) {
+                    var parsed = JSON.parse(cached);
+                    applyDirectFilterDropdowns(parsed);
                 }
+            } catch (e) { }
 
-                return mParty && mJobber && mSO && mSlip && mDesign && mColour && mDate;
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/GetJobProductionOrderFilterDropdowns",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    var data = response && response.d !== undefined ? response.d : response;
+                    if (typeof data === "string") {
+                        try { data = JSON.parse(data); } catch (e) { }
+                    }
+                    if (data) {
+                        try {
+                            sessionStorage.setItem("cached_JobProductionOrderFilterDropdowns", JSON.stringify(data));
+                        } catch (e) { }
+                        applyDirectFilterDropdowns(data);
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Direct filter load error:", xhr.responseText);
+                }
             });
-
-            $("#lblPendingBadge").text(allPendingData.length);
-            $("#lblAllottedBadge").text(allAllottedData.length);
-            $("#lblCompletedBadge").text(allCompletedData.length);
-
-            filteredSlipData = filtered;
-
-            currentPage = 1;
-            renderTable(filteredSlipData);
         }
 
-        function renderTable(data) {
-            var $thead = $("#tblJobProductionOrderListHead");
-            var $tbody = $("#tblJobProductionOrderListBody");
-            $tbody.empty();
-            $("#selectAllSlip").prop("checked", false);
+        function applyDirectFilterDropdowns(data) {
+            if (!data) return;
+            if (data.PartyList) populateDropdownFromList("#filterParty", data.PartyList, "Party Name");
+            if (data.JobberList) populateDropdownFromList("#filterJobber", data.JobberList, "Jobber / Job Worker");
+            if (data.SOList) populateDropdownFromList("#filterSO", data.SOList, "SO Number");
+            if (data.SlipList) populateDropdownFromList("#filterSlipNo", data.SlipList, "Slip No");
+            if (data.DesignList) populateDropdownFromList("#filterDesignNo", data.DesignList, "Design No");
+            if (data.ColourList) populateDropdownFromList("#filterColour", data.ColourList, "Colour Matching");
 
+            if (typeof window.initAllSelect2 === "function") {
+                window.initAllSelect2();
+            }
+        }
+
+        function populateDropdownFromList(selector, list, defaultLabel) {
+            var $ddl = $(selector);
+            var currentVal = $ddl.val();
+            var map = {};
+            var uniqueValues = [];
+
+            $.each(list, function (i, raw) {
+                if (raw !== null && raw !== undefined) {
+                    var valStr = $.trim(String(raw));
+                    if (valStr && valStr !== "--" && !map[valStr.toLowerCase()]) {
+                        map[valStr.toLowerCase()] = true;
+                        uniqueValues.push(valStr);
+                    }
+                }
+            });
+
+            uniqueValues.sort(function (a, b) {
+                return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
+            $ddl.empty();
+            $ddl.append($('<option>', { value: '', text: 'All ' + defaultLabel }));
+
+            $.each(uniqueValues, function (i, val) {
+                $ddl.append($('<option>', { value: val, text: val }));
+            });
+
+            if (currentVal && map[currentVal.toLowerCase()]) {
+                $ddl.val(currentVal);
+            } else {
+                $ddl.val('');
+            }
+
+            if ($ddl.data("select2")) {
+                $ddl.trigger("change.select2");
+            }
+        }
+
+        function populateFilterDropdowns() {
+            var allData = [].concat(allPendingData || [], allAllottedData || [], allCompletedData || []);
+
+            populateSingleDropdown("#filterParty", allData, function (item) { return item.PartyName; }, "Party Name");
+            populateSingleDropdown("#filterJobber", allData, function (item) { return item.JobWorkerName || item.PartyName; }, "Jobber / Job Worker");
+            populateSingleDropdown("#filterSO", allData, function (item) { return formatSONumber(item.SalesOrderNo); }, "SO Number");
+            populateSingleDropdown("#filterSlipNo", allData, function (item) { return item.SlipNo; }, "Slip No");
+            populateSingleDropdown("#filterDesignNo", allData, function (item) { return item.DesignNo; }, "Design No");
+            populateSingleDropdown("#filterColour", allData, function (item) { return item.ColourMatchingName; }, "Colour Matching");
+
+            if (typeof window.initAllSelect2 === "function") {
+                window.initAllSelect2();
+            }
+        }
+
+        function populateSingleDropdown(selector, dataList, valueExtractor, defaultLabel) {
+            var $ddl = $(selector);
+            var currentVal = $ddl.val();
+            var map = {};
+            var uniqueValues = [];
+
+            $.each(dataList, function (i, item) {
+                var raw = valueExtractor(item);
+                if (raw !== null && raw !== undefined) {
+                    var valStr = $.trim(String(raw));
+                    if (valStr && valStr !== "--" && !map[valStr.toLowerCase()]) {
+                        map[valStr.toLowerCase()] = true;
+                        uniqueValues.push(valStr);
+                    }
+                }
+            });
+
+            uniqueValues.sort(function (a, b) {
+                return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
+            $ddl.empty();
+            $ddl.append($('<option>', { value: '', text: 'All ' + defaultLabel }));
+
+            $.each(uniqueValues, function (i, val) {
+                $ddl.append($('<option>', { value: val, text: val }));
+            });
+
+            if (currentVal && map[currentVal.toLowerCase()]) {
+                $ddl.val(currentVal);
+            } else {
+                $ddl.val('');
+            }
+
+            if ($ddl.data("select2")) {
+                $ddl.trigger("change.select2");
+            }
+        }
+
+        function applyFilters() {
+            loadProductionOrderSlips(true);
+        }
+
+        function renderTableHeader() {
+            var $thead = $("#tblJobProductionOrderListHead");
             if (currentTab === 'pending') {
                 $thead.html('<tr>' +
                     '<th class="text-center" style="width: 38px;"><input id="selectAllSlip" type="checkbox" /></th>' +
@@ -848,210 +1006,219 @@
                     '<th class="text-center" style="width: 100px;">ACTION</th>' +
                 '</tr>');
             }
+        }
 
-            var totalRecords = data ? data.length : 0;
+        function renderTableInitial(list, totalRecords, totalPcs) {
+            var $tbody = $("#tblJobProductionOrderListBody");
+            $tbody.empty();
+            loadedCount = 0;
+
             var colSpan = (currentTab === 'pending') ? 17 : (currentTab === 'allotted' ? 16 : 14);
 
-            if (!data || totalRecords === 0) {
+            if (!list || list.length === 0) {
                 $tbody.html('<tr><td colspan="' + colSpan + '" class="text-center text-muted py-4">No ' + currentTab + ' records found matching filters.</td></tr>');
                 $("#lblTotalCount").text(0);
                 if ($("#lblTotalCountSummary").length) $("#lblTotalCountSummary").text(0);
                 $("#lblTotalPcs").text(0);
                 $("#lblShowingInfo").text("Showing 0 to 0 of 0 slips");
-                renderPagination(0);
                 return;
             }
 
-            var grandTotalPcs = 0;
-            $.each(data, function (i, item) {
-                var p = (currentTab === 'allotted') ? (item.SubDetailPCS !== undefined ? item.SubDetailPCS : item.PCS) : ((currentTab === 'completed') ? (item.CompletedPCS !== undefined ? item.CompletedPCS : item.PCS) : item.PCS);
-                grandTotalPcs += parseFloat(p || 0);
-            });
+            appendTableBatch(list, totalRecords, totalPcs);
+        }
 
-            var totalPages = Math.ceil(totalRecords / pageSize) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
-            var startIndex = (currentPage - 1) * pageSize;
-            var endIndex = Math.min(startIndex + pageSize, totalRecords);
-            var pageData = data.slice(startIndex, endIndex);
+        function appendTableBatch(list, totalRecords, totalPcs) {
+            if (!list || list.length === 0) return;
 
             var defaultDate = getTodayDateString();
             var rows = "";
 
-            $.each(pageData, function (idx, item) {
-                var actualIndex = startIndex + idx;
-                var detailId = parseInt(item.ProductionOrderDetailID || item.productionOrderDetailID || item.Id || item.id || 0, 10);
-                var orderId = parseInt(item.ProductionOrderID || item.productionOrderID || 0, 10);
-                var pcs = parseFloat(item.PCS || 0);
-                var jobRate = parseFloat(item.JobRate || 0);
-                var displaySO = formatSONumber(item.SalesOrderNo);
-
-                var panaRepeat = parseFloat(item.PanaRepeat || 0);
-                var totalPcs = parseFloat(item.PCS || 0);
-                var completedPcs = parseFloat(item.CompletedPCS !== undefined ? item.CompletedPCS : (item.completedPCS !== undefined ? item.completedPCS : 0)) || 0;
-                var remainingPcs = item.RemainingPCS !== undefined ? parseFloat(item.RemainingPCS) : (item.remainingPCS !== undefined ? parseFloat(item.remainingPCS) : Math.max(0, totalPcs - completedPcs));
-
-                var totalRepeats = 0;
-                var repeatVal = '--';
-                if (panaRepeat > 0) {
-                    var calcR = totalPcs / panaRepeat;
-                    if (calcR > 0) {
-                        totalRepeats = (calcR % 1 === 0) ? calcR : parseFloat(calcR.toFixed(2));
-                        repeatVal = totalRepeats;
-                    } else {
-                        repeatVal = panaRepeat;
-                    }
-                } else if (item.Repeat !== undefined && item.Repeat !== null && item.Repeat !== '') {
-                    repeatVal = item.Repeat;
-                    var parsedR = parseFloat(item.Repeat);
-                    if (!isNaN(parsedR) && parsedR > 0) {
-                        totalRepeats = parsedR;
-                    }
-                }
-
-                var noOfMachines = parseInt(item.NoOfMachines || item.noOfMachines || 0, 10);
-
-                if (currentTab === 'pending') {
-                    var maxRepeatInput = 0;
-                    var pcsMin = 1;
-                    var pcsStep = 1;
-                    var defaultInputVal = '';
-
-                    if (panaRepeat > 0) {
-                        var remainingRepeats = remainingPcs / panaRepeat;
-                        maxRepeatInput = (remainingRepeats % 1 === 0) ? remainingRepeats : parseFloat(remainingRepeats.toFixed(2));
-                        pcsMin = (maxRepeatInput >= 1) ? 1 : maxRepeatInput;
-                        pcsStep = 1;
-                        defaultInputVal = maxRepeatInput;
-                    } else {
-                        maxRepeatInput = remainingPcs;
-                        pcsMin = '0.01';
-                        pcsStep = '0.01';
-                        defaultInputVal = remainingPcs;
-                    }
-
-                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                    var imgSrc = '';
-                    if (photoPath) {
-                        photoPath = photoPath.replace(/\\/g, '/');
-                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                        else imgSrc = photoPath;
-                    }
-                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
-
-                    rows += '<tr>' +
-                        '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + detailId + '" data-detailid="' + detailId + '" data-orderid="' + orderId + '" /></td>' +
-                        '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
-                        '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
-                        '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
-                        '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
-                        '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        colourTd +
-                        '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
-                        '<td class="text-end fw-bold text-info">' + completedPcs.toFixed(2) + '</td>' +
-                        '<td class="text-end fw-bold text-danger">' + remainingPcs.toFixed(2) + '</td>' +
-                        '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
-                        '<td class="text-center fw-bold text-info">' + repeatVal + '</td>' +
-                        '<td class="p-1"><input type="date" id="rowDate_' + detailId + '" class="form-control form-control-sm row-input-date" value="' + defaultDate + '" /></td>' +
-                        '<td class="p-1"><input type="number" id="rowMachineNo_' + detailId + '" class="form-control form-control-sm row-input-machine" placeholder="No" min="1" ' + (noOfMachines > 0 ? ('max="' + noOfMachines + '" ') : '') + 'step="1" data-detailid="' + detailId + '" data-noofmachines="' + noOfMachines + '" /></td>' +
-                        '<td class="p-1"><input type="number" id="rowPCS_' + detailId + '" class="form-control form-control-sm row-input-pcs" placeholder="' + (panaRepeat > 0 ? 'Repeat' : 'PCS') + '" min="' + pcsMin + '" max="' + maxRepeatInput + '" step="' + pcsStep + '" value="' + defaultInputVal + '" data-detailid="' + detailId + '" data-orderpcs="' + totalPcs + '" data-panarepeat="' + panaRepeat + '" data-maxrepeat="' + maxRepeatInput + '" data-completedpcs="' + completedPcs + '" data-remainingpcs="' + remainingPcs + '" /></td>' +
-                    '</tr>';
-                } else if (currentTab === 'allotted') {
-                    var subDetailId = item.ProductionOrderSubDetailID || detailId;
-                    var allottedPcs = item.SubDetailPCS !== undefined ? parseFloat(item.SubDetailPCS) : completedPcs;
-                    var prodDate = item.ProductionDate || item.OrderDate || '--';
-                    var machineNo = item.MachineNumber || '--';
-
-                    var allottedRepeatVal = repeatVal;
-                    if (panaRepeat > 0 && allottedPcs > 0) {
-                        var calcSubR = allottedPcs / panaRepeat;
-                        allottedRepeatVal = (calcSubR % 1 === 0) ? calcSubR : parseFloat(calcSubR.toFixed(2));
-                    }
-
-                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                    var imgSrc = '';
-                    if (photoPath) {
-                        photoPath = photoPath.replace(/\\/g, '/');
-                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                        else imgSrc = photoPath;
-                    }
-                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
-
-                    rows += '<tr>' +
-                        '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + subDetailId + '" data-detailid="' + detailId + '" /></td>' +
-                        '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
-                        '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
-                        '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
-                        '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
-                        '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        colourTd +
-                        '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
-                        '<td class="text-end fw-bold text-info">' + allottedPcs.toFixed(2) + '</td>' +
-                        '<td class="text-center fw-semibold text-secondary">' + escapeHtml(prodDate) + '</td>' +
-                        '<td class="text-center fw-bold text-primary">' + escapeHtml(machineNo) + '</td>' +
-                        '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
-                        '<td class="text-center fw-bold text-info">' + allottedRepeatVal + '</td>' +
-                        '<td class="text-center p-1">' +
-                            '<button type="button" class="btn btn-sm btn-outline-primary me-1" title="Print Slip" onclick="ExportProductionSlipPDF([' + subDetailId + '])">' +
-                                '<i class="fa fa-print me-1"></i> Print' +
-                            '</button>' +
-                            '<button type="button" class="btn btn-sm btn-outline-danger" title="Delete Sub Detail Entry" onclick="deleteSubDetailRow(' + subDetailId + ')">' +
-                                '<i class="fa fa-trash"></i>' +
-                            '</button>' +
-                        '</td>' +
-                    '</tr>';
-                } else {
-                    var completedSubIdsStr = (item.SubDetailIDs && $.trim(item.SubDetailIDs) !== '') ? $.trim(item.SubDetailIDs) : String(detailId);
-                    var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                    var imgSrc = '';
-                    if (photoPath) {
-                        photoPath = photoPath.replace(/\\/g, '/');
-                        if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                        else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                        else imgSrc = photoPath;
-                    }
-                    var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                    var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
-
-                    rows += '<tr>' +
-                        '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + completedSubIdsStr + '" data-detailid="' + detailId + '" /></td>' +
-                        '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
-                        '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
-                        '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
-                        '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
-                        '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
-                        '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
-                        colourTd +
-                        '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
-                        '<td class="text-end fw-bold text-success">' + completedPcs.toFixed(2) + '</td>' +
-                        '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
-                        '<td class="text-center fw-bold text-info">' + repeatVal + '</td>' +
-                        '<td class="text-center p-1">' +
-                            '<button type="button" class="btn btn-sm btn-outline-primary" title="Print Slip" onclick="ExportProductionSlipPDF([' + completedSubIdsStr + '])">' +
-                                '<i class="fa fa-print me-1"></i> Print' +
-                            '</button>' +
-                        '</td>' +
-                    '</tr>';
-                }
+            $.each(list, function (idx, item) {
+                var actualIndex = loadedCount + idx;
+                rows += buildRowHtml(item, actualIndex, defaultDate);
             });
 
-            $tbody.html(rows);
+            $("#tblJobProductionOrderListBody").append(rows);
+            loadedCount += list.length;
+
             $("#lblTotalCount").text(totalRecords);
             if ($("#lblTotalCountSummary").length) $("#lblTotalCountSummary").text(totalRecords);
-            $("#lblTotalPcs").text(grandTotalPcs.toFixed(2));
-            $("#lblShowingInfo").text("Showing " + (startIndex + 1) + " to " + endIndex + " of " + totalRecords + " slips");
+            $("#lblTotalPcs").text(parseFloat(totalPcs || 0).toFixed(2));
 
-            renderPagination(totalPages);
+            if (loadedCount < totalRecords) {
+                $("#lblShowingInfo").html("Showing 1 to " + loadedCount + " of " + totalRecords + " slips <span class='text-primary ms-1'>(Scroll down for more)</span>");
+            } else {
+                $("#lblShowingInfo").text("Showing all " + totalRecords + " slips");
+            }
+
+            var totalChk = $("#tblJobProductionOrderListBody .chk-select-slip").length;
+            var checkedChk = $("#tblJobProductionOrderListBody .chk-select-slip:checked").length;
+            $("#selectAllSlip").prop("checked", totalChk > 0 && totalChk === checkedChk);
+        }
+
+        function buildRowHtml(item, actualIndex, defaultDate) {
+            var detailId = parseInt(item.ProductionOrderDetailID || item.productionOrderDetailID || item.Id || item.id || 0, 10);
+            var orderId = parseInt(item.ProductionOrderID || item.productionOrderID || 0, 10);
+            var pcs = parseFloat(item.PCS || 0);
+            var jobRate = parseFloat(item.JobRate || 0);
+            var displaySO = formatSONumber(item.SalesOrderNo);
+
+            var panaRepeat = parseFloat(item.PanaRepeat || 0);
+            var totalPcs = parseFloat(item.PCS || 0);
+            var completedPcs = parseFloat(item.CompletedPCS !== undefined ? item.CompletedPCS : (item.completedPCS !== undefined ? item.completedPCS : 0)) || 0;
+            var remainingPcs = item.RemainingPCS !== undefined ? parseFloat(item.RemainingPCS) : (item.remainingPCS !== undefined ? parseFloat(item.remainingPCS) : Math.max(0, totalPcs - completedPcs));
+
+            var totalRepeats = 0;
+            var repeatVal = '--';
+            if (panaRepeat > 0) {
+                var calcR = totalPcs / panaRepeat;
+                if (calcR > 0) {
+                    totalRepeats = (calcR % 1 === 0) ? calcR : parseFloat(calcR.toFixed(2));
+                    repeatVal = totalRepeats;
+                } else {
+                    repeatVal = panaRepeat;
+                }
+            } else if (item.Repeat !== undefined && item.Repeat !== null && item.Repeat !== '') {
+                repeatVal = item.Repeat;
+                var parsedR = parseFloat(item.Repeat);
+                if (!isNaN(parsedR) && parsedR > 0) {
+                    totalRepeats = parsedR;
+                }
+            }
+
+            var noOfMachines = parseInt(item.NoOfMachines || item.noOfMachines || 0, 10);
+
+            if (currentTab === 'pending') {
+                var maxRepeatInput = 0;
+                var pcsMin = 1;
+                var pcsStep = 1;
+                var defaultInputVal = '';
+
+                if (panaRepeat > 0) {
+                    var remainingRepeats = remainingPcs / panaRepeat;
+                    maxRepeatInput = (remainingRepeats % 1 === 0) ? remainingRepeats : parseFloat(remainingRepeats.toFixed(2));
+                    pcsMin = (maxRepeatInput >= 1) ? 1 : maxRepeatInput;
+                    pcsStep = 1;
+                    defaultInputVal = maxRepeatInput;
+                } else {
+                    maxRepeatInput = remainingPcs;
+                    pcsMin = '0.01';
+                    pcsStep = '0.01';
+                    defaultInputVal = remainingPcs;
+                }
+
+                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                var imgSrc = '';
+                if (photoPath) {
+                    photoPath = photoPath.replace(/\\/g, '/');
+                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                    else imgSrc = photoPath;
+                }
+                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
+                return '<tr>' +
+                    '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + detailId + '" data-detailid="' + detailId + '" data-orderid="' + orderId + '" /></td>' +
+                    '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
+                    '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
+                    '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
+                    '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
+                    '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
+                    colourTd +
+                    '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
+                    '<td class="text-end fw-bold text-info">' + completedPcs.toFixed(2) + '</td>' +
+                    '<td class="text-end fw-bold text-danger">' + remainingPcs.toFixed(2) + '</td>' +
+                    '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
+                    '<td class="text-center fw-bold text-info">' + repeatVal + '</td>' +
+                    '<td class="p-1"><input type="date" id="rowDate_' + detailId + '" class="form-control form-control-sm row-input-date" value="' + defaultDate + '" /></td>' +
+                    '<td class="p-1"><input type="number" id="rowMachineNo_' + detailId + '" class="form-control form-control-sm row-input-machine" placeholder="No" min="1" ' + (noOfMachines > 0 ? ('max="' + noOfMachines + '" ') : '') + 'step="1" data-detailid="' + detailId + '" data-noofmachines="' + noOfMachines + '" /></td>' +
+                    '<td class="p-1"><input type="number" id="rowPCS_' + detailId + '" class="form-control form-control-sm row-input-pcs" placeholder="' + (panaRepeat > 0 ? 'Repeat' : 'PCS') + '" min="' + pcsMin + '" max="' + maxRepeatInput + '" step="' + pcsStep + '" value="' + defaultInputVal + '" data-detailid="' + detailId + '" data-orderpcs="' + totalPcs + '" data-panarepeat="' + panaRepeat + '" data-maxrepeat="' + maxRepeatInput + '" data-completedpcs="' + completedPcs + '" data-remainingpcs="' + remainingPcs + '" /></td>' +
+                '</tr>';
+            } else if (currentTab === 'allotted') {
+                var subDetailId = item.ProductionOrderSubDetailID || detailId;
+                var allottedPcs = item.SubDetailPCS !== undefined ? parseFloat(item.SubDetailPCS) : completedPcs;
+                var prodDate = item.ProductionDate || item.OrderDate || '--';
+                var machineNo = item.MachineNumber || '--';
+
+                var allottedRepeatVal = repeatVal;
+                if (panaRepeat > 0 && allottedPcs > 0) {
+                    var calcSubR = allottedPcs / panaRepeat;
+                    allottedRepeatVal = (calcSubR % 1 === 0) ? calcSubR : parseFloat(calcSubR.toFixed(2));
+                }
+
+                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                var imgSrc = '';
+                if (photoPath) {
+                    photoPath = photoPath.replace(/\\/g, '/');
+                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                    else imgSrc = photoPath;
+                }
+                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
+                return '<tr>' +
+                    '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + subDetailId + '" data-detailid="' + detailId + '" /></td>' +
+                    '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
+                    '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
+                    '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
+                    '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
+                    '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
+                    colourTd +
+                    '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
+                    '<td class="text-end fw-bold text-info">' + allottedPcs.toFixed(2) + '</td>' +
+                    '<td class="text-center fw-semibold text-secondary">' + escapeHtml(prodDate) + '</td>' +
+                    '<td class="text-center fw-bold text-primary">' + escapeHtml(machineNo) + '</td>' +
+                    '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
+                    '<td class="text-center fw-bold text-info">' + allottedRepeatVal + '</td>' +
+                    '<td class="text-center p-1">' +
+                        '<button type="button" class="btn btn-sm btn-outline-primary me-1" title="Print Slip" onclick="ExportProductionSlipPDF([' + subDetailId + '])">' +
+                            '<i class="fa fa-print me-1"></i> Print' +
+                        '</button>' +
+                        '<button type="button" class="btn btn-sm btn-outline-danger" title="Delete Sub Detail Entry" onclick="deleteSubDetailRow(' + subDetailId + ')">' +
+                            '<i class="fa fa-trash"></i>' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            } else {
+                var completedSubIdsStr = (item.SubDetailIDs && $.trim(item.SubDetailIDs) !== '') ? $.trim(item.SubDetailIDs) : String(detailId);
+                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+                var imgSrc = '';
+                if (photoPath) {
+                    photoPath = photoPath.replace(/\\/g, '/');
+                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                    else imgSrc = photoPath;
+                }
+                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
+
+                return '<tr>' +
+                    '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + completedSubIdsStr + '" data-detailid="' + detailId + '" /></td>' +
+                    '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
+                    '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
+                    '<td><strong class="text-secondary">' + escapeHtml(item.JobWorkerName || item.PartyName || '--') + '</strong></td>' +
+                    '<td class="text-center fw-semibold text-primary">' + escapeHtml(displaySO) + '</td>' +
+                    '<td class="text-center"><span class="slip-code-badge">' + escapeHtml(item.SlipNo || '--') + '</span></td>' +
+                    '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
+                    colourTd +
+                    '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
+                    '<td class="text-end fw-bold text-success">' + completedPcs.toFixed(2) + '</td>' +
+                    '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
+                    '<td class="text-center fw-bold text-info">' + repeatVal + '</td>' +
+                    '<td class="text-center p-1">' +
+                        '<button type="button" class="btn btn-sm btn-outline-primary" title="Print Slip" onclick="ExportProductionSlipPDF([' + completedSubIdsStr + '])">' +
+                            '<i class="fa fa-print me-1"></i> Print' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            }
         }
 
         function showToast(type, title, msg) {
@@ -1351,7 +1518,7 @@
                         }
 
                         if (res && res.Status) {
-                            loadProductionOrderSlips();
+                            loadProductionOrderSlips(true);
                             if (typeof Swal !== 'undefined') {
                                 Swal.fire({
                                     icon: 'success',
@@ -1406,7 +1573,7 @@
                         }
                         if (res && res.Status) {
                             if (typeof toastr !== 'undefined') toastr.success(res.Message || "Sub-detail record deleted successfully.");
-                            loadProductionOrderSlips();
+                            loadProductionOrderSlips(true);
                         } else {
                             var errorMsg = (res ? res.Message : '') || 'Failed to delete record.';
                             if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
@@ -1535,7 +1702,7 @@
         }
 
         function openPrintModal(index) {
-            var item = filteredSlipData[index];
+            var item = currentSlipData[index];
             if (!item) return;
 
             var displaySO = formatSONumber(item.SalesOrderNo);

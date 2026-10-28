@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -972,6 +972,54 @@
             CompanyAddParty = true;
         }
 
+        var existingCompanyColorCode = null;
+
+        function checkCompanyColorCode() {
+            var companyId = parseInt($("#ddlCompany").val()) || 0;
+            var matId = parseInt($("#yarnMaterialEntry").val()) || 0;
+            var colorId = parseInt($("#YarnColorEntry").val()) || 0;
+
+            if (companyId > 0 && matId > 0 && colorId > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/GetCompanyYarnColorCode',
+                    data: {
+                        CompanyPartyID: companyId,
+                        YarnMaterialID: matId,
+                        YarnColorID: colorId
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        var res = (typeof response === 'string') ? JSON.parse(response) : response;
+                        if (res && res.Exists && res.CompanyCode) {
+                            existingCompanyColorCode = res.CompanyCode.trim();
+                            $("#CompanyCodeEntry").val(existingCompanyColorCode).prop("readonly", true).css("background-color", "#e9ecef");
+                            Toast.fire({ icon: 'info', title: 'Company Color Code: ' + existingCompanyColorCode });
+                        } else {
+                            existingCompanyColorCode = null;
+                            if (parseInt($("#editingRowId").val() || "0") === 0) {
+                                $("#CompanyCodeEntry").val("").prop("readonly", false).css("background-color", "#fff");
+                            }
+                        }
+                    },
+                    error: function () {
+                        existingCompanyColorCode = null;
+                        if (parseInt($("#editingRowId").val() || "0") === 0) {
+                            $("#CompanyCodeEntry").val("").prop("readonly", false).css("background-color", "#fff");
+                        }
+                    }
+                });
+            } else {
+                existingCompanyColorCode = null;
+                if (parseInt($("#editingRowId").val() || "0") === 0) {
+                    if (companyId <= 0) {
+                        $("#CompanyCodeEntry").val("");
+                    }
+                    $("#CompanyCodeEntry").prop("readonly", false).css("background-color", "#fff");
+                }
+            }
+        }
+
         function YarnColorChangeEntry() {
             var yarnColors = ArrayYarnColor[0];
             var val = parseInt($("#YarnColorEntry").val());
@@ -981,6 +1029,7 @@
             } else {
                 $("#tdYarnColorEntry").css("background-color", "#eee");
             }
+            checkCompanyColorCode();
         }
 
         function YarnYarnMaterialEntry() {
@@ -995,6 +1044,7 @@
                 }
             }
             calculationYarnEntry();
+            checkCompanyColorCode();
         }
 
         function calculationYarnEntry() {
@@ -1032,6 +1082,23 @@
                 Toast.fire({
                     icon: 'warning',
                     title: 'Please select Yarn Material, Yarn Color, Quantity, and Rate.'
+                });
+                return;
+            }
+
+            if (existingCompanyColorCode && code !== "" && code.toUpperCase() !== existingCompanyColorCode.toUpperCase()) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'This Company already has Color Code "' + existingCompanyColorCode + '" for this Material and Color. Different code is not allowed.'
+                });
+                return;
+            }
+
+            var duplicateItem = addedItemsArray.find(x => x.YarnMaterialID == matId && x.YarnColorID == colorId && x.RowId !== editingId);
+            if (duplicateItem) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'This Yarn Material and Color is already added in the table.'
                 });
                 return;
             }
@@ -1179,6 +1246,8 @@
         function resetSingleEntryRow() {
             $("#editingRowId").val("0");
             $("#editingPODetailID").val("0");
+            existingCompanyColorCode = null;
+            $("#CompanyCodeEntry").prop("readonly", false).css("background-color", "#fff");
             $("#yarnMaterialEntry, #YarnColorEntry").val("0").trigger('change');
             $("#tdYarnColorEntry").css("background-color", "#eee");
             $("#CompanyCodeEntry, #QtyEntry, #RateEntry, #AmountEntry").val("");
@@ -1288,6 +1357,19 @@
 
             if (addedItemsArray.length === 0) {
                 return Toast.fire({ icon: 'warning', title: 'Please add at least one item to the table.' });
+            }
+
+            // Check for duplicate YarnMaterialID + YarnColorID in the table
+            var seenKeys = {};
+            for (var k = 0; k < addedItemsArray.length; k++) {
+                var itemKey = addedItemsArray[k].YarnMaterialID + "_" + addedItemsArray[k].YarnColorID;
+                if (seenKeys[itemKey]) {
+                    return Toast.fire({
+                        icon: 'warning',
+                        title: 'Duplicate items found in table for Material: ' + addedItemsArray[k].YarnMaterialName + ', Color: ' + addedItemsArray[k].YarnColorName
+                    });
+                }
+                seenKeys[itemKey] = true;
             }
 
             var PODate = document.getElementById("PODate");
@@ -1577,6 +1659,7 @@
                 $("#CompanyGST").val(PartyDetail.GSTIN);
                 $("#CompanyAddress").val(PartyDetail.BillingAddress);
             }
+            checkCompanyColorCode();
         }
 
         function OnChangeGown(abc) {
@@ -1595,9 +1678,11 @@
                     $("#select2-ddlCompany-container").html($("#ddlCompany").find('option:selected').text());
                     $("#CompanyGST").val($("#SupplierGST").val());
                     $("#CompanyAddress").val($("#SupplierAddress").val());
+                    checkCompanyColorCode();
                 }
             } else {
                 $('#ddlCompany').removeAttr('disabled');
+                checkCompanyColorCode();
             }
         }
 

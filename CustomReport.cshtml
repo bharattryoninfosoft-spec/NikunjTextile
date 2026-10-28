@@ -66,7 +66,7 @@ SELECT
     COALESCE(PM_Bill.PartyName, CM.CompanyName, '') AS CompanyName,
     COALESCE(PM_Ship.PartyName, '') AS PartyName,
     YIM.ChallanNo,
-    CONVERT(VARCHAR(10), YIM.YarnInwardDate, 120) AS YarnInwardDate
+    CONVERT(VARCHAR(10), YIM.YarnInwardDate, 105) AS YarnInwardDate
 FROM ActiveBoxes AB
 INNER JOIN YarnInwardMaster YIM ON AB.YarnInwardID = YIM.YarnInwardID
 LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = AB.CurrentLocationID
@@ -90,10 +90,6 @@ WHERE UPPER(RTRIM(LTRIM(GLM.LocationTitle))) = UPPER(RTRIM(LTRIM(@LocationTitle)
                     {
                         rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YCM.YarnColor, '')))) = UPPER(RTRIM(LTRIM(@YarnColor)))";
                     }
-                    if (!string.IsNullOrEmpty(yarnColorCode))
-                    {
-                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YCM.YarnColorCode, '')))) = UPPER(RTRIM(LTRIM(@YarnColorCode)))";
-                    }
                 }
 
                 string orderBy = @"
@@ -107,20 +103,9 @@ ORDER BY
                     cmd.Parameters.AddWithValue("@LocationTitle", locationTitle);
                     cmd.Parameters.AddWithValue("@YarnMaterial", yarnMaterial);
                     cmd.Parameters.AddWithValue("@YarnColor", yarnColor);
-                    cmd.Parameters.AddWithValue("@YarnColorCode", yarnColorCode);
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
-                }
-
-                if (dt.Rows.Count == 0 && !allInLocation)
-                {
-                    using (SqlCommand cmdFallback = new SqlCommand(baseQuery + orderBy, con))
-                    {
-                        cmdFallback.Parameters.AddWithValue("@LocationTitle", locationTitle);
-                        SqlDataAdapter da = new SqlDataAdapter(cmdFallback);
-                        da.Fill(dt);
-                    }
                 }
 
                 foreach (DataRow dr in dt.Rows)
@@ -191,6 +176,10 @@ ORDER BY
         font-size: 0.82rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border: none !important;
+        vertical-align: middle;
     }
     #tblBoxDetailsList tbody td {
         font-size: 0.88rem;
@@ -534,24 +523,23 @@ ORDER BY
 
                                     <div id="boxTableWrapper" class="table-responsive d-none" style="max-height: 440px; overflow-y: auto;">
                                         <table class="table table-hover table-striped mb-0 align-middle" id="tblBoxDetailsList" style="font-size: 0.86rem; border-collapse: separate; border-spacing: 0;">
-                                            <thead class="sticky-top" style="top: 0; z-index: 10; background: #0f172a; color: #f8fafc;">
+                                            <thead class="sticky-top" style="top: 0; z-index: 10; background: #0f172a !important; color: #ffffff !important;">
                                                 <tr>
-                                                    <th class="text-center py-2" style="width: 45px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px;">#</th>
-                                                    <th class="text-center py-2" style="width: 140px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Box No</th>
-                                                    <th class="text-center py-2" style="width: 160px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Barcode No</th>
-                                                    <th class="text-right text-end py-2" style="width: 135px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Net Weight (kg)</th>
-                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Material</th>
-                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Color (Code)</th>
-                                                    <th class="text-center py-2" style="width: 110px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Inward Date</th>
-                                                    <th class="text-center py-2" style="width: 100px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Challan No</th>
+                                                    <th class="text-center py-2" style="width: 50px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">SR</th>
+                                                    <th class="text-center py-2" style="width: 110px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Date</th>
+                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Material</th>
+                                                    <th class="py-2" style="border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Color</th>
+                                                    <th class="text-right text-end py-2" style="width: 135px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Net Weight</th>
+                                                    <th class="text-center py-2" style="width: 140px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Box Number</th>
+                                                    <th class="text-center py-2" style="width: 160px; border: none; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; color: #ffffff !important; background-color: #0f172a !important;">Barcode</th>
                                                 </tr>
                                             </thead>
                                             <tbody style="background: #ffffff;"></tbody>
                                             <tfoot class="sticky-bottom font-weight-bold fw-bold" style="bottom: 0; background: #f8fafc; border-top: 2px solid #cbd5e1; box-shadow: 0 -2px 6px rgba(0,0,0,0.03);">
                                                 <tr>
-                                                    <td colspan="3" class="text-right text-end text-muted text-uppercase py-2" style="font-size: 0.8rem; letter-spacing: 0.5px; vertical-align: middle;">Total:</td>
+                                                    <td colspan="4" class="text-right text-end text-muted text-uppercase py-2" style="font-size: 0.8rem; letter-spacing: 0.5px; vertical-align: middle;">Total:</td>
                                                     <td class="text-right text-end font-weight-bold fw-bold text-success py-2" id="tfootTotalWeight" style="font-size: 1.05rem; vertical-align: middle;">0.00 kg</td>
-                                                    <td colspan="4" class="text-muted py-2" style="vertical-align: middle;">
+                                                    <td colspan="2" class="text-muted py-2" style="vertical-align: middle;">
                                                         <span class="badge badge-light px-2 py-1 border" style="background:#ffffff; color:#334155; font-size:0.82rem; font-weight: 600;">
                                                             <i class="fa fa-cubes text-primary mr-1 me-1"></i><span id="tfootTotalBoxes">0</span> Boxes
                                                         </span>
@@ -1596,6 +1584,19 @@ ORDER BY
             });
         }
 
+        function formatBoxDate(dStr) {
+            if (!dStr) return '-';
+            var s = String(dStr).trim();
+            var m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (m) {
+                var yyyy = m[1];
+                var mm = m[2].length === 1 ? '0' + m[2] : m[2];
+                var dd = m[3].length === 1 ? '0' + m[3] : m[3];
+                return dd + '-' + mm + '-' + yyyy;
+            }
+            return s;
+        }
+
         function renderBoxTable(boxes) {
             var tbody = $("#tblBoxDetailsList tbody");
             tbody.empty();
@@ -1608,13 +1609,14 @@ ORDER BY
                 var barcode = String(b.BarcodeNo || '').toLowerCase();
                 var mat = String(b.YarnMaterial || '').toLowerCase();
                 var col = String(b.YarnColor || '').toLowerCase();
-                return boxNo.indexOf(filterText) >= 0 || barcode.indexOf(filterText) >= 0 || mat.indexOf(filterText) >= 0 || col.indexOf(filterText) >= 0;
+                var dt = formatBoxDate(b.YarnInwardDate).toLowerCase();
+                return boxNo.indexOf(filterText) >= 0 || barcode.indexOf(filterText) >= 0 || mat.indexOf(filterText) >= 0 || col.indexOf(filterText) >= 0 || dt.indexOf(filterText) >= 0;
             });
 
             $("#boxFilterCount").text(filtered.length + ' / ' + (boxes ? boxes.length : 0) + ' boxes');
 
             if (filtered.length === 0) {
-                tbody.html('<tr><td colspan="8" class="text-center py-4 text-muted"><i class="fa fa-info-circle me-1"></i> No matching boxes found.</td></tr>');
+                tbody.html('<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fa fa-info-circle me-1"></i> No matching boxes found.</td></tr>');
                 $("#tfootTotalWeight").html('0.00 <small class="font-weight-normal fw-normal">kg</small>');
                 $("#tfootTotalBoxes").text(0);
                 $("#boxTableWrapper").removeClass("d-none");
@@ -1628,13 +1630,12 @@ ORDER BY
 
                 var rowHtml = '<tr>' +
                     '<td class="text-center text-muted font-weight-bold fw-bold py-2" style="vertical-align:middle;">' + (idx + 1) + '</td>' +
-                    '<td class="text-center py-2" style="vertical-align:middle;"><span class="badge badge-light border px-2 py-1" style="font-size:0.88rem; font-weight:700; color:#1e293b; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05); border-color:#cbd5e1 !important;"><i class="fa fa-cube text-primary mr-1 me-1"></i>' + (b.BoxNo || '-') + '</span></td>' +
-                    '<td class="text-center font-monospace py-2" style="vertical-align:middle; font-size:0.85rem; color:#475569; letter-spacing:0.5px;">' + (b.BarcodeNo || '-') + '</td>' +
-                    '<td class="text-right text-end font-weight-bold fw-bold text-success py-2" style="vertical-align:middle; font-size:0.95rem;">' + wt.toFixed(2) + ' <small class="text-muted" style="font-size:0.75rem; font-weight:normal;">kg</small></td>' +
+                    '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + formatBoxDate(b.YarnInwardDate) + '</td>' +
                     '<td class="py-2" style="vertical-align:middle; font-weight:500; color:#334155;">' + (b.YarnMaterial || '-') + '</td>' +
                     '<td class="py-2" style="vertical-align:middle; color:#334155;">' + (b.YarnColor || '-') + (b.YarnColorCode ? ' <span class="badge badge-dark px-2 py-1 ml-1 ms-1" style="background:#1e293b; color:#fff; font-size:0.72rem; letter-spacing:0.3px;">' + b.YarnColorCode + '</span>' : '') + '</td>' +
-                    '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + (b.YarnInwardDate || '-') + '</td>' +
-                    '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + (b.ChallanNo || '-') + '</td>' +
+                    '<td class="text-right text-end font-weight-bold fw-bold text-success py-2" style="vertical-align:middle; font-size:0.95rem;">' + wt.toFixed(2) + ' <small class="text-muted" style="font-size:0.75rem; font-weight:normal;">kg</small></td>' +
+                    '<td class="text-center py-2" style="vertical-align:middle;"><span class="badge badge-light border px-2 py-1" style="font-size:0.88rem; font-weight:700; color:#1e293b; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05); border-color:#cbd5e1 !important;"><i class="fa fa-cube text-primary mr-1 me-1"></i>' + (b.BoxNo || '-') + '</span></td>' +
+                    '<td class="text-center font-monospace py-2" style="vertical-align:middle; font-size:0.85rem; color:#475569; letter-spacing:0.5px;">' + (b.BarcodeNo || '-') + '</td>' +
                     '</tr>';
                 tbody.append(rowHtml);
             });
@@ -1676,9 +1677,9 @@ ORDER BY
                 return;
             }
             var loc = $("#modalLocTitle").text().trim() || 'Location';
-            var csv = "SrNo,BoxNo,BarcodeNo,NetWeight(kg),Material,Color,ColorCode,InwardDate,ChallanNo\n";
+            var csv = "SR,Date,Material,Color,ColorCode,NetWeight(kg),BoxNumber,Barcode\n";
             activeList.forEach(function (b, i) {
-                csv += (i + 1) + ',"' + (b.BoxNo || '') + '","' + (b.BarcodeNo || '') + '",' + (parseFloat(b.NetWeight) || 0).toFixed(2) + ',"' + (b.YarnMaterial || '') + '","' + (b.YarnColor || '') + '","' + (b.YarnColorCode || '') + '","' + (b.YarnInwardDate || '') + '","' + (b.ChallanNo || '') + '"\n';
+                csv += (i + 1) + ',"' + formatBoxDate(b.YarnInwardDate) + '","' + (b.YarnMaterial || '') + '","' + (b.YarnColor || '') + '","' + (b.YarnColorCode || '') + '",' + (parseFloat(b.NetWeight) || 0).toFixed(2) + ',"' + (b.BoxNo || '') + '","' + (b.BarcodeNo || '') + '"\n';
             });
             var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             var link = document.createElement("a");

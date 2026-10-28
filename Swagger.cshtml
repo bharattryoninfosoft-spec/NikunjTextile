@@ -388,7 +388,7 @@
 
     <header class="custom-topbar">
         <div class="custom-topbar-brand">
-            <span class="custom-topbar-badge">49 APIs</span>
+            <span class="custom-topbar-badge">51 APIs</span>
             <span class="custom-topbar-title">WeaveLane - WebServiceMoblieAPI Swagger UI</span>
         </div>
         <div class="custom-topbar-links">
@@ -421,6 +421,7 @@
             ],
             tags: [
                 { name: "Authentication", description: "User credentials verification and login" },
+                { name: "User Permissions", description: "Mobile user menu and submenu permissions" },
                 { name: "Jobber To Process", description: "Issuing lots/slips from Jobber to Processor with item breakdown" },
                 { name: "Process Receive", description: "Receiving finished/processed materials from Processor" },
                 { name: "Process Stock & Issue Back", description: "Processor stock reports and returning lots back to Jobber" },
@@ -452,6 +453,78 @@
                             }
                         },
                         responses: { "200": { description: "Successful Login Response" } }
+                    }
+                },
+                "/MobileUserMenuPermission": {
+                    post: {
+                        tags: ["User Permissions"],
+                        summary: "Get Mobile User Menu Permissions",
+                        description: "Fetches permitted mobile menus and submenus for a given user ID with view, add, edit, and delete permission rights.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            UserId: { type: "integer", example: 1, description: "User ID" }
+                                        },
+                                        required: ["UserId"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            "200": {
+                                description: "Successful response returning permitted menus and submenus",
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object",
+                                            properties: {
+                                                Code: { type: "integer", example: 200 },
+                                                Message: { type: "string", example: "Success" },
+                                                TotalMenus: { type: "integer", example: 2 },
+                                                TotalSubMenus: { type: "integer", example: 2 },
+                                                Data: {
+                                                    type: "array",
+                                                    items: {
+                                                        type: "object",
+                                                        properties: {
+                                                            Menu_Id: { type: "integer", example: 1 },
+                                                            Menu_Name: { type: "string", example: "Transaction" },
+                                                            Menu_Icon: { type: "string", example: "bi bi-receipt" },
+                                                            Menu_OrderNo: { type: "integer", example: 1 },
+                                                            Controller: { type: "string", example: "" },
+                                                            Action: { type: "string", example: "" },
+                                                            SubMenusCount: { type: "integer", example: 1 },
+                                                            SubMenus: {
+                                                                type: "array",
+                                                                items: {
+                                                                    type: "object",
+                                                                    properties: {
+                                                                        SubMenu_Id: { type: "integer", example: 1 },
+                                                                        SubMenu_Name: { type: "string", example: "SaleOrder" },
+                                                                        SubMenu_Icon: { type: "string", example: "bi bi-cart-check" },
+                                                                        SubMenu_OrderNo: { type: "integer", example: 1 },
+                                                                        Controller: { type: "string", example: "" },
+                                                                        Action: { type: "string", example: "" },
+                                                                        View: { type: "boolean", example: true },
+                                                                        Add: { type: "boolean", example: true },
+                                                                        Edit: { type: "boolean", example: false },
+                                                                        Delete: { type: "boolean", example: false }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "/GetGenericProcessFilterDropdowns": {
@@ -1314,6 +1387,37 @@
                             }
                         },
                         responses: { "200": { description: "Save confirmation" } }
+                    }
+                },
+                "/YarnOutwardScanReport": {
+                    post: {
+                        tags: ["Yarn Outward Scan"],
+                        summary: "Generate Yarn Outward Scan Report PDF",
+                        description: "Generates merged Crystal Report PDF for selected yarn outward scan IDs and returns download path.",
+                        requestBody: {
+                            required: true,
+                            content: {
+                                "application/json": {
+                                    schema: {
+                                        type: "object",
+                                        properties: {
+                                            yarnOutwardID: {
+                                                type: "array",
+                                                items: { type: "integer", format: "int64" },
+                                                example: [1, 2],
+                                                description: "List of Yarn Outward IDs"
+                                            }
+                                        },
+                                        required: ["yarnOutwardID"]
+                                    }
+                                }
+                            }
+                        },
+                        responses: {
+                            "200": {
+                                description: "PDF generation result with FilePath and Status"
+                            }
+                        }
                     }
                 },
                 "/GetSaleOrderListAPI": {

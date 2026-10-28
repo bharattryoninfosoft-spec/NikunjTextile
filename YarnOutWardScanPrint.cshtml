@@ -1,0 +1,744 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yarn Outward Scan Challan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #52525b;
+            font-family: Arial, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            color: #000000;
+            margin: 0;
+            padding: 20px 10px;
+        }
+
+        /* Iframe Mode Adaptations */
+        body.is-iframe {
+            background-color: #ffffff !important;
+            padding: 8px !important;
+        }
+
+        body.is-iframe .no-print-bar {
+            display: none !important;
+        }
+
+        /* Top Action Bar (Print / PDF buttons) */
+        .no-print-bar {
+            width: 800px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* PAGES CONTAINER */
+        #printContainerPages {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        /* INDIVIDUAL BILL PAGE (A4 PROPORTIONED) */
+        .bill-outer-container {
+            width: 800px;
+            margin: 0 auto 25px auto;
+            background: #ffffff;
+            border: 2px solid #000000;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            padding: 0;
+            position: relative;
+            box-sizing: border-box;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        .bill-outer-container:last-child {
+            margin-bottom: 0;
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        /* Top Company Header */
+        .company-header-block {
+            text-align: center;
+            padding: 10px 14px 8px 14px;
+            border-bottom: 1.5px solid #000000;
+        }
+
+        .company-name-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .company-address-line {
+            font-size: 9px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #111;
+            margin-bottom: 2px;
+        }
+
+        .company-contact-line {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        /* Continuation Header for Page 2+ */
+        .continuation-header-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            background-color: #f8fafc;
+            border-bottom: 1.5px solid #000000;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* Sub-Header: Party Info (Left) & Challan Meta (Right) */
+        .bill-info-row {
+            display: flex;
+            width: 100%;
+            border-bottom: 1.5px solid #000000;
+            min-height: 65px;
+        }
+
+        .bill-info-left {
+            width: 65%;
+            padding: 8px 12px;
+            border-right: 1.5px solid #000000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .bill-info-right {
+            width: 35%;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .party-name-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .party-address-text {
+            font-size: 9.5px;
+            line-height: 1.35;
+            color: #222;
+            margin-top: 3px;
+        }
+
+        .party-contact-text {
+            font-size: 9px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 3px;
+        }
+
+        .order-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .order-meta-table td {
+            padding: 2.5px 0;
+            vertical-align: middle;
+        }
+
+        .order-meta-table td.colon {
+            width: 12px;
+            text-align: center;
+        }
+
+        /* YARN OUTWARD TABLE (100% WIDTH, ACCURATE 8 COLUMNS) */
+        .challan-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5px;
+            table-layout: fixed;
+        }
+
+        .challan-table th {
+            background-color: #0c1b30 !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #0c1b30;
+            padding: 6px 3px;
+            font-size: 9px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .challan-table td {
+            border: 1px solid #cbd5e1;
+            padding: 4.5px 6px;
+            vertical-align: middle;
+            line-height: 1.3;
+        }
+
+        .challan-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .col-center {
+            text-align: center;
+        }
+
+        .col-right {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .col-left {
+            text-align: left;
+        }
+
+        /* Table Total Row */
+        .total-row td {
+            font-weight: 800;
+            font-size: 10px;
+            border-top: 1.5px solid #000000 !important;
+            border-bottom: 1.5px solid #000000 !important;
+            background-color: #f1f5f9 !important;
+            padding: 6px 8px;
+            white-space: nowrap;
+        }
+
+        /* Terms & Conditions and Authorized Signature */
+        .terms-signature-row {
+            display: flex;
+            width: 100%;
+            font-size: 8.5px;
+            min-height: 90px;
+            border-top: 1.5px solid #000000;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .terms-col {
+            width: 60%;
+            padding: 8px 12px;
+            border-right: 1.5px solid #000000;
+            line-height: 1.45;
+        }
+
+        .signature-col {
+            width: 40%;
+            padding: 8px 14px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            white-space: nowrap;
+        }
+
+        .page-counter-footer {
+            text-align: center;
+            font-size: 9px;
+            padding: 4px;
+            color: #111;
+            font-weight: 600;
+            background: #fafafa;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* PRINT STYLES FOR BROWSER PRINT (CTRL+P / Print Button) */
+        @@media print {
+            @@page {
+                size: A4 portrait;
+                margin: 5mm;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .no-print-bar {
+                display: none !important;
+            }
+
+            #printContainerPages {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .bill-outer-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                border: 1.5px solid #000000 !important;
+                box-shadow: none !important;
+                margin: 0 auto 0 auto !important;
+                padding: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            .bill-outer-container:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+
+            .challan-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .challan-table th {
+                background-color: #0c1b30 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .challan-table tbody tr:nth-child(even) {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .terms-signature-row {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ACTION BUTTONS BAR (Excluded from print & iframe) -->
+    <div class="no-print-bar">
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" onclick="window.print()">
+                <i class="fa fa-print me-1"></i> Print
+            </button>
+            <button type="button" class="btn btn-danger btn-sm px-3 fw-bold" onclick="downloadPdf()">
+                <i class="fa fa-file-pdf-o me-1"></i> Download PDF
+            </button>
+        </div>
+        <button type="button" class="btn btn-light btn-sm px-3 border" onclick="window.close()">
+            <i class="fa fa-times me-1"></i> Close
+        </button>
+    </div>
+
+    <!-- MAIN PAGES CONTAINER (Populated dynamically for single or multi-page) -->
+    <div id="printContainerPages">
+        <div id="printLoading" class="text-center py-5 bg-white border">
+            <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+            <p class="mt-2 text-muted fw-bold">Loading Yarn Outward Scan Details...</p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Detect iframe embedding
+        var isIframe = (window.self !== window.top);
+        if (isIframe) {
+            $('body').addClass('is-iframe');
+        }
+
+        // Global functions for parent window / iframe integration
+        window.printDocument = function () {
+            window.print();
+        };
+
+        window.downloadDocumentPdf = function () {
+            downloadPdf();
+        };
+
+        function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0].toLowerCase() === sParam.toLowerCase()) {
+                    return decodeURIComponent(sParameterName[1]);
+                }
+            }
+            return null;
+        }
+
+        function formatDisplayDate(dateStr) {
+            if (!dateStr) return '';
+            if (typeof dateStr === 'string' && dateStr.indexOf('/Date(') > -1) {
+                var ts = parseInt(dateStr.replace(/[^0-9]/g, ''));
+                var d = new Date(ts);
+                var dd = ('0' + d.getDate()).slice(-2);
+                var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+                var yyyy = d.getFullYear();
+                return dd + '-' + mm + '-' + yyyy;
+            }
+            if (typeof dateStr === 'string' && (dateStr.indexOf('T') > -1 || dateStr.indexOf('-') > -1)) {
+                var clean = dateStr.split('T')[0];
+                var parts = clean.split('-');
+                if (parts.length === 3 && parts[0].length === 4) {
+                    return parts[2] + '-' + parts[1] + '-' + parts[0];
+                }
+            }
+            return dateStr;
+        }
+
+        var companyData = {
+            CompanyName: "WEAVELANE",
+            Address: "D25/8, HOJIWALA INDUSTRIAL ESTATE, ROAD NO 15, BHATIA GAM, SACHINE PALASANA ROAD, SURAT - 394230",
+            Mobile: "9662027682",
+            GSTIN: "24AAAFW8406G1Z6"
+        };
+
+        var currentDocNo = "Challan";
+
+        // Load Default Company Info
+        function loadCompanyInfo(callback) {
+            $.ajax({
+                type: "GET",
+                url: '/WebServiceNikunjTextile.asmx/getCompanyMasterDefault',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (res && res.listCompanyMaster && res.listCompanyMaster.length > 0) {
+                        var c = res.listCompanyMaster[0];
+                        if (c.CompanyName) companyData.CompanyName = c.CompanyName;
+                        if (c.Address) companyData.Address = c.Address;
+                        if (c.GSTIN) companyData.GSTIN = c.GSTIN;
+                        if (c.MobileNo || c.PhoneNo) companyData.Mobile = c.MobileNo || c.PhoneNo;
+                    }
+                    if (callback) callback();
+                },
+                error: function () {
+                    if (callback) callback();
+                }
+            });
+        }
+
+        // Load Outward Scan Data
+        function loadDocumentData(id, status) {
+            var formData = new FormData();
+            formData.append('YarnOutwardID', id);
+
+            var endpoint = '/WebServiceNikunjTextile.asmx/UpdateYarnOutwardScan';
+            if (status && status.toLowerCase() === 'pending') {
+                endpoint = '/WebServiceNikunjTextile.asmx/GetYarnOutwardScan';
+            }
+
+            $.ajax({
+                type: "POST",
+                url: endpoint,
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    var list = [];
+                    if (Array.isArray(res)) {
+                        list = res;
+                    } else if (res && res.d) {
+                        try {
+                            list = typeof res.d === 'string' ? JSON.parse(res.d) : res.d;
+                        } catch (e) {
+                            list = [];
+                        }
+                    }
+
+                    if (list && list.length > 0) {
+                        buildReportPages(list);
+                    } else {
+                        tryFallbackOutwardDetails(id);
+                    }
+                },
+                error: function () {
+                    tryFallbackOutwardDetails(id);
+                }
+            });
+        }
+
+        function tryFallbackOutwardDetails(id) {
+            var formData = new FormData();
+            formData.append('YarnOutwardID', id);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getYarnOutwardDetails',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (res && res.listYarnOutwardMaster && res.listYarnOutwardMaster.length > 0) {
+                        var master = res.listYarnOutwardMaster[0];
+                        var list = [];
+                        if (master.listYarnOutwardDetail && master.listYarnOutwardDetail.length > 0) {
+                            $.each(master.listYarnOutwardDetail, function (i, d) {
+                                list.push({
+                                    PartyName: master.PartyName,
+                                    Address: master.Address,
+                                    ChallanNo: master.OutwardListNo,
+                                    ChallanDate: master.OutwardListDates,
+                                    YarnMaterial: d.YarnMaterial || 'Yarn Material',
+                                    YarnColor: d.YarnColor || 'Color',
+                                    YarnColorCode: d.YarnColorCode || '',
+                                    LocationTitle: d.LocationTitle || '-',
+                                    BoxNo: d.NoOfBox || (i + 1),
+                                    BarcodeNo: d.BarcodeNo || '-',
+                                    NetWeight: d.NetWeight || d.Weight || 0
+                                });
+                            });
+                        }
+                        buildReportPages(list);
+                    } else {
+                        $("#printContainerPages").html('<div class="alert alert-warning m-4">No records found for the specified ID (' + id + ').</div>');
+                    }
+                },
+                error: function () {
+                    $("#printContainerPages").html('<div class="alert alert-danger m-4">Error loading document. Please check the ID.</div>');
+                }
+            });
+        }
+
+        // DYNAMIC SINGLE & MULTI-PAGE REPORT BUILDER
+        function buildReportPages(list) {
+            var first = list[0] || {};
+            var challanNo = first.ChallanNo || first.OutwardListNo || first.YarnOutwardID || '-';
+            currentDocNo = challanNo;
+            var challanDate = formatDisplayDate(first.ChallanDate || first.OutwardListDates || first.DateAndTime);
+
+            var partyName = (first.PartyName || '-').toUpperCase();
+            if (!partyName.startsWith("M/S")) {
+                partyName = "M/S " + partyName;
+            }
+            var partyAddress = first.Address || 'SURAT, GUJARAT';
+
+            // Calculate overall totals
+            var totalBoxes = list.length;
+            var totalNetWeight = 0;
+            $.each(list, function (i, v) {
+                totalNetWeight += parseFloat(v.NetWeight) || 0;
+            });
+
+            // Pagination Chunking:
+            // Single page capacity (with header + footer): <= 22 items
+            // Multi page: Page 1 (<= 20 items), Middle pages (<= 25 items), Last page (<= 20 items + footer)
+            var pages = [];
+            var itemsCopy = list.slice();
+
+            if (itemsCopy.length <= 22) {
+                // SINGLE PAGE REPORT
+                pages.push(itemsCopy);
+            } else {
+                // MULTI PAGE REPORT
+                // Page 1
+                pages.push(itemsCopy.splice(0, 20));
+
+                while (itemsCopy.length > 0) {
+                    if (itemsCopy.length <= 20) {
+                        pages.push(itemsCopy.splice(0, itemsCopy.length));
+                    } else {
+                        pages.push(itemsCopy.splice(0, 25));
+                    }
+                }
+            }
+
+            var totalPages = pages.length;
+            var container = $("#printContainerPages");
+            container.empty();
+
+            var globalSr = 1;
+
+            $.each(pages, function (pIndex, pageItems) {
+                var pageNum = pIndex + 1;
+                var isFirstPage = (pageNum === 1);
+                var isLastPage = (pageNum === totalPages);
+
+                var pageDiv = $('<div class="bill-outer-container bill-page"></div>');
+
+                // 1. HEADER SECTION
+                if (isFirstPage) {
+                    // Full Company Header on Page 1
+                    var headerHtml = `
+                        <div class="company-header-block">
+                            <div class="company-name-title">${companyData.CompanyName}</div>
+                            <div class="company-address-line">${companyData.Address}</div>
+                            <div class="company-contact-line">
+                                MOBILE NO : ${companyData.Mobile} | GSTIN : ${companyData.GSTIN}
+                            </div>
+                        </div>
+                        <div class="bill-info-row">
+                            <div class="bill-info-left">
+                                <div class="party-name-title">${partyName}</div>
+                                <div class="party-address-text">${partyAddress}</div>
+                            </div>
+                            <div class="bill-info-right">
+                                <table class="order-meta-table">
+                                    <tr><td>Challan No</td><td class="colon">:</td><td>${challanNo}</td></tr>
+                                    <tr><td>Challan Date</td><td class="colon">:</td><td>${challanDate}</td></tr>
+                                </table>
+                            </div>
+                        </div>`;
+                    pageDiv.append(headerHtml);
+                } else {
+                    // Continuation Header on Page 2+
+                    var contHtml = `
+                        <div class="continuation-header-block">
+                            <div><strong>${companyData.CompanyName}</strong> &mdash; Yarn Outward Scan Challan (Contd.)</div>
+                            <div>Challan No: <strong>${challanNo}</strong> | Date: <strong>${challanDate}</strong></div>
+                            <div>Party: <strong>${partyName}</strong></div>
+                        </div>`;
+                    pageDiv.append(contHtml);
+                }
+
+                // 2. ITEMS TABLE
+                var tableHtml = `
+                    <table class="challan-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 4%;">#</th>
+                                <th style="width: 12%;">MATERIAL</th>
+                                <th style="width: 15%;">COLOR</th>
+                                <th style="width: 11%;">COLOR CODE</th>
+                                <th style="width: 10%;">LOCATION</th>
+                                <th style="width: 11%;">BOX NO</th>
+                                <th style="width: 23%;">BARCODE</th>
+                                <th style="width: 14%;">NET WT (KG)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>`;
+
+                var tableElem = $(tableHtml);
+                var tbody = tableElem.find('tbody');
+
+                $.each(pageItems, function (idx, item) {
+                    var wt = parseFloat(item.NetWeight) || 0;
+                    var material = item.YarnMaterial || item.CompanyName || '-';
+                    var color = item.YarnColor || item.YarnColour || '-';
+                    var colorCode = item.YarnColorCode || item.Code || '-';
+                    var location = item.LocationTitle || item.Location || '-';
+                    var boxNo = item.BoxNo || item.boxNo || '-';
+                    var barcode = item.BarcodeNo || '-';
+
+                    var rowHtml = `
+                        <tr>
+                            <td class="col-center text-muted fw-bold">${globalSr}</td>
+                            <td class="col-left fw-bold">${material}</td>
+                            <td class="col-left">${color}</td>
+                            <td class="col-center">${colorCode}</td>
+                            <td class="col-center">${location}</td>
+                            <td class="col-center fw-bold">${boxNo}</td>
+                            <td class="col-center">${barcode}</td>
+                            <td class="col-right fw-bold">${wt.toFixed(2)}</td>
+                        </tr>`;
+                    tbody.append(rowHtml);
+                    globalSr++;
+                });
+
+                // 3. TABLE FOOTER / TOTALS (Only on the last page)
+                if (isLastPage) {
+                    var tfootHtml = `
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="5" style="text-align: right; padding-right: 12px;">Total</td>
+                                <td class="col-center">${totalBoxes} Boxes</td>
+                                <td></td>
+                                <td class="col-right">${totalNetWeight.toFixed(2)} kg</td>
+                            </tr>
+                        </tfoot>`;
+                    tableElem.append(tfootHtml);
+                }
+
+                pageDiv.append(tableElem);
+
+                // 4. TERMS & SIGNATURE (Only on the last page)
+                if (isLastPage) {
+                    var termsHtml = `
+                        <div class="terms-signature-row">
+                            <div class="terms-col">
+                                <div style="font-weight: bold; margin-bottom: 3px;">Terms and Conditions:</div>
+                                1. Any claim or dispute arising from any cause will not be entertained once the goods are delivered.<br />
+                                2. We are not responsible for any loss or damage during transit.<br />
+                                3. Subject to SURAT Jurisdiction only.
+                            </div>
+                            <div class="signature-col">
+                                <div style="font-weight: 800; font-size: 9.5px;">For, <span>${companyData.CompanyName}</span></div>
+                                <div style="font-weight: 800; font-size: 9px; padding-bottom: 4px;">Authorised Signature</div>
+                            </div>
+                        </div>`;
+                    pageDiv.append(termsHtml);
+                }
+
+                // 5. PAGE NUMBER FOOTER
+                var pageFooterHtml = `
+                    <div class="page-counter-footer">
+                        Page ${pageNum} of ${totalPages} ${(!isLastPage ? '(Continued on next page)' : '')}
+                    </div>`;
+                pageDiv.append(pageFooterHtml);
+
+                container.append(pageDiv);
+            });
+        }
+
+        // PERFECT FULL-WIDTH PDF EXPORT (Supports single & multi-page cleanly)
+        function downloadPdf() {
+            var element = document.getElementById('printContainerPages');
+
+            var opt = {
+                margin: 5,
+                filename: 'YarnOutwardChallan_' + currentDocNo + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    width: 800,
+                    windowWidth: 800,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Initialize page
+        $(document).ready(function () {
+            loadCompanyInfo(function () {
+                var id = getUrlParameter('id');
+                var status = getUrlParameter('status') || 'Completed';
+
+                if (id) {
+                    loadDocumentData(id, status);
+                } else {
+                    $("#printContainerPages").html('<div class="alert alert-danger m-4">No Document ID provided in URL (?id=...).</div>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
