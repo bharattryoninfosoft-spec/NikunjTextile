@@ -27,46 +27,69 @@
 
                 string baseQuery = @"
 WITH LatestInterchange AS (
-    SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
-    FROM (
-        SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
-               ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) as rn
-        FROM YarnInterchangeMaster
-        WHERE YarnInwardDetailID IS NOT NULL
-    ) sub WHERE rn = 1
+SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
+FROM (
+SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
+       ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) as rn
+FROM YarnInterchangeMaster
+WHERE YarnInwardDetailID IS NOT NULL
+) sub WHERE rn = 1
 ),
 ActiveBoxes AS (
-    SELECT 
-        YID.YarnInwardDetailID,
-        YID.BoxNo,
-        YID.BarcodeNo,
-        CAST(ISNULL(YID.NetWeight, 0) AS DECIMAL(18,2)) AS NetWeight,
-        YID.YarnInwardID,
-        COALESCE(NULLIF(LI.GodownLocationID, 0), NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) AS CurrentLocationID,
-        COALESCE(LI.YarnMaterialID, YIM.YarnMaterialID) AS CurrentMaterialID,
-        COALESCE(LI.YarnColorID, YIM.YarnColorID) AS CurrentColorID
-    FROM YarnInwardDetail YID
-    INNER JOIN YarnInwardMaster YIM ON YID.YarnInwardID = YIM.YarnInwardID
-    LEFT JOIN LatestInterchange LI ON YID.YarnInwardDetailID = LI.YarnInwardDetailID
-    WHERE ISNULL(YID.BoxNo, '') <> ''
-      AND NOT EXISTS (
-          SELECT 1 FROM YARNOUTWARDScanMasterDetails YOSD WHERE YOSD.BarcodeNo = YID.BarcodeNo
-      )
+SELECT
+YID.YarnInwardDetailID,
+YID.BoxNo,
+YID.BarcodeNo,
+CAST(ISNULL(YID.NetWeight, 0) AS DECIMAL(18,2)) AS NetWeight,
+YID.YarnInwardID,
+
+COALESCE(
+    NULLIF(LI.GodownLocationID, 0),
+    YID.GodownLocationID
+) AS CurrentLocationID,
+
+COALESCE(
+    LI.YarnMaterialID,
+    YIM.YarnMaterialID
+) AS CurrentMaterialID,
+
+COALESCE(
+    LI.YarnColorID,
+    YIM.YarnColorID
+) AS CurrentColorID
+
+FROM YarnInwardDetail YID
+INNER JOIN YarnInwardMaster YIM
+ON YIM.YarnInwardID = YID.YarnInwardID
+
+LEFT JOIN LatestInterchange LI
+ON LI.YarnInwardDetailID = YID.YarnInwardDetailID
+
+WHERE
+ISNULL(YID.BoxNo, '') <> ''
+AND YID.BarcodeNo IS NOT NULL
+AND ISNULL(YID.IsScanStutas, 0) <> 1
+
+AND NOT EXISTS (
+    SELECT 1
+    FROM YARNOUTWARDScanMasterDetails YOSD
+    WHERE YOSD.BarcodeNo = YID.BarcodeNo
 )
-SELECT 
-    AB.YarnInwardDetailID,
-    AB.BoxNo,
-    AB.BarcodeNo,
-    AB.NetWeight,
-    GLM.LocationTitle,
-    GM.GodownTitle,
-    YMM.YarnMaterial,
-    YCM.YarnColor,
-    YCM.YarnColorCode,
-    COALESCE(PM_Bill.PartyName, CM.CompanyName, '') AS CompanyName,
-    COALESCE(PM_Ship.PartyName, '') AS PartyName,
-    YIM.ChallanNo,
-    CONVERT(VARCHAR(10), YIM.YarnInwardDate, 105) AS YarnInwardDate
+)
+SELECT
+AB.YarnInwardDetailID,
+AB.BoxNo,
+AB.BarcodeNo,
+AB.NetWeight,
+GLM.LocationTitle,
+GM.GodownTitle,
+YMM.YarnMaterial,
+YCM.YarnColor,
+COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '') AS YarnColorCode,
+COALESCE(PM_Company.PartyName, PM_Bill.PartyName, '') AS CompanyName,
+COALESCE(PM_Ship.PartyName, '') AS PartyName,
+YIM.ChallanNo,
+CONVERT(VARCHAR(10), YIM.YarnInwardDate, 105) AS YarnInwardDate
 FROM ActiveBoxes AB
 INNER JOIN YarnInwardMaster YIM ON AB.YarnInwardID = YIM.YarnInwardID
 LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = AB.CurrentLocationID
@@ -74,35 +97,60 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
 LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = AB.CurrentMaterialID
 LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = AB.CurrentColorID
 LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
-LEFT JOIN CompanyMaster CM ON CM.CompanyId = YIM.CompanyId
+LEFT JOIN YarnPODetails YPD ON YPD.YarnPODetailID = YIM.YarnPODetailIDCompanyCode
+LEFT JOIN PartyMaster PM_Company ON PM_Company.PartyId = YPM.CompanyPartyID
 LEFT JOIN PartyMaster PM_Bill ON PM_Bill.PartyId = YPM.BillToPartyID
 LEFT JOIN PartyMaster PM_Ship ON PM_Ship.PartyId = YPM.ShippedToPartyID
-WHERE UPPER(RTRIM(LTRIM(GLM.LocationTitle))) = UPPER(RTRIM(LTRIM(@LocationTitle)))";
+WHERE UPPER(RTRIM(LTRIM(GLM.LocationTitle))) = UPPER(RTRIM(LTRIM(@LocationTitle)))
+AND (@GodownTitle = '' OR UPPER(RTRIM(LTRIM(ISNULL(GM.GodownTitle, '')))) = UPPER(RTRIM(LTRIM(@GodownTitle))))";
 
+                // Row-only mode must match the report row; All-in-Location mode
+                // intentionally filters only by location/godown and active-stock rules.
                 string rowFilter = "";
                 if (!allInLocation)
                 {
-                    if (!string.IsNullOrEmpty(yarnMaterial))
+                    if (!string.IsNullOrWhiteSpace(yarnMaterial))
                     {
-                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YMM.YarnMaterial, '')))) = UPPER(RTRIM(LTRIM(@YarnMaterial)))";
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(ISNULL(YMM.YarnMaterial, '')))) = UPPER(LTRIM(RTRIM(@YarnMaterial)))";
                     }
-                    if (!string.IsNullOrEmpty(yarnColor))
+
+                    if (!string.IsNullOrWhiteSpace(yarnColor))
                     {
-                        rowFilter += " AND UPPER(RTRIM(LTRIM(ISNULL(YCM.YarnColor, '')))) = UPPER(RTRIM(LTRIM(@YarnColor)))";
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(ISNULL(YCM.YarnColor, '')))) = UPPER(LTRIM(RTRIM(@YarnColor)))";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(yarnColorCode))
+                    {
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '')))) = UPPER(LTRIM(RTRIM(@YarnColorCode)))";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(companyName))
+                    {
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(COALESCE(PM_Company.PartyName, PM_Bill.PartyName, '')))) = UPPER(LTRIM(RTRIM(@CompanyName)))";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(partyName))
+                    {
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(COALESCE(PM_Ship.PartyName, '')))) = UPPER(LTRIM(RTRIM(@PartyName)))";
                     }
                 }
 
                 string orderBy = @"
-ORDER BY 
-    CASE WHEN ISNUMERIC(AB.BoxNo) = 1 THEN CAST(AB.BoxNo AS BIGINT) ELSE 999999999 END,
-    AB.BoxNo";
+ORDER BY
+CASE WHEN TRY_CONVERT(BIGINT, AB.BoxNo) IS NOT NULL THEN 0 ELSE 1 END,
+TRY_CONVERT(BIGINT, AB.BoxNo),
+AB.BoxNo";
 
                 DataTable dt = new DataTable();
                 using (SqlCommand cmd = new SqlCommand(baseQuery + rowFilter + orderBy, con))
                 {
-                    cmd.Parameters.AddWithValue("@LocationTitle", locationTitle);
-                    cmd.Parameters.AddWithValue("@YarnMaterial", yarnMaterial);
-                    cmd.Parameters.AddWithValue("@YarnColor", yarnColor);
+                    cmd.Parameters.Add("@LocationTitle", SqlDbType.NVarChar, 200).Value = locationTitle;
+                    cmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar, 200).Value = godownTitle;
+                    cmd.Parameters.Add("@YarnMaterial", SqlDbType.NVarChar, 200).Value = yarnMaterial;
+                    cmd.Parameters.Add("@YarnColor", SqlDbType.NVarChar, 200).Value = yarnColor;
+                    cmd.Parameters.Add("@YarnColorCode", SqlDbType.NVarChar, 50).Value = yarnColorCode;
+                    cmd.Parameters.Add("@CompanyName", SqlDbType.NVarChar, 200).Value = companyName;
+                    cmd.Parameters.Add("@PartyName", SqlDbType.NVarChar, 200).Value = partyName;
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     da.Fill(dt);
@@ -159,17 +207,20 @@ ORDER BY
         letter-spacing: 0.3px;
         box-shadow: 0 1px 3px rgba(13, 110, 253, 0.25);
     }
-    .btn-box-details:hover {
-        background-color: #0b5ed7 !important;
-        transform: translateY(-1px) scale(1.05);
-        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.35) !important;
-    }
+
+        .btn-box-details:hover {
+            background-color: #0b5ed7 !important;
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.35) !important;
+        }
+
     .box-count-cell {
         cursor: pointer;
     }
-    .box-count-cell:hover {
-        background-color: rgba(13, 110, 253, 0.05) !important;
-    }
+
+        .box-count-cell:hover {
+            background-color: rgba(13, 110, 253, 0.05) !important;
+        }
 
     /* Modal Table Styling */
     #tblBoxDetailsList thead th {
@@ -181,6 +232,7 @@ ORDER BY
         border: none !important;
         vertical-align: middle;
     }
+
     #tblBoxDetailsList tbody td {
         font-size: 0.88rem;
     }
@@ -215,44 +267,44 @@ ORDER BY
         text-align: right;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        display: inline-block;
-        min-width: 32px;
-        padding: 4px 10px;
-        margin: 0 2px;
-        text-align: center;
-        text-decoration: none !important;
-        cursor: pointer;
-        color: #0d6efd !important;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        background: #fff;
-        font-size: 0.85rem;
-        transition: all 0.15s ease-in-out;
-    }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            display: inline-block;
+            min-width: 32px;
+            padding: 4px 10px;
+            margin: 0 2px;
+            text-align: center;
+            text-decoration: none !important;
+            cursor: pointer;
+            color: #0d6efd !important;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 0.85rem;
+            transition: all 0.15s ease-in-out;
+        }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        background: #e9ecef !important;
-        border-color: #0d6efd !important;
-        color: #0a58ca !important;
-    }
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: #e9ecef !important;
+                border-color: #0d6efd !important;
+                color: #0a58ca !important;
+            }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-        background: #0d6efd !important;
-        border-color: #0d6efd !important;
-        color: #ffffff !important;
-        font-weight: 600;
-    }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+                background: #0d6efd !important;
+                border-color: #0d6efd !important;
+                color: #ffffff !important;
+                font-weight: 600;
+            }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
-        color: #6c757d !important;
-        background: #f8f9fa !important;
-        border-color: #dee2e6 !important;
-        cursor: not-allowed;
-        opacity: 0.65;
-    }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+                color: #6c757d !important;
+                background: #f8f9fa !important;
+                border-color: #dee2e6 !important;
+                cursor: not-allowed;
+                opacity: 0.65;
+            }
 </style>
 <div class="content-wrapper">
     <div class="container-fluid">
@@ -1035,7 +1087,7 @@ ORDER BY
                 var lower = key.toLowerCase();
                 var isWeight = lower.indexOf('weight') >= 0 || lower.indexOf('wt') >= 0;
                 var isBox = (lower.indexOf('box') >= 0 || lower.indexOf('stock') >= 0 || lower.indexOf('qty') >= 0 || lower.indexOf('pcs') >= 0 || lower.indexOf('count') >= 0)
-                            && lower.indexOf('color') < 0 && lower.indexOf('code') < 0;
+                    && lower.indexOf('color') < 0 && lower.indexOf('code') < 0;
 
                 if (isWeight || isBox) {
                     metricKeys.push(key);
@@ -1128,7 +1180,7 @@ ORDER BY
                 dataType: "json",
 
                 success: function (res) {
-                    
+
                     var data = res.d;
                     if (typeof data === "string") {
                         data = JSON.parse(data);
@@ -1257,12 +1309,22 @@ ORDER BY
                         lengthChange: false,
                         info: true
                     });
+                },
+                error: function (xhr) {
+                    if ($.fn.DataTable.isDataTable('#reportTable')) {
+                        $('#reportTable').DataTable().clear().destroy();
+                    }
+                    $('#reportTable').html(
+                        '<thead><tr><th>Message</th></tr></thead>' +
+                        '<tbody><tr><td>Unable to load Yarn Stock Report. Please check the connection and try again.</td></tr></tbody>'
+                    );
+                    console.error('GetYarnReport failed:', xhr.responseText || xhr.statusText);
                 }
 
             });
         }
         $("#btnSaveFilterFinal").click(function () {
-            
+
             var filterName = $("#txtFilterName").val().trim();
 
             if (filterName === "") {
@@ -1348,15 +1410,15 @@ ORDER BY
                     data.forEach(function (item) {
 
                         var row = `<tr>
-                        <td>${i}</td>
-                        <td>${item.FilterName}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary applyFilterBtn"
-                                data-json='${item.FilterJson.replace(/'/g, "&apos;")}'>
-                                Apply
-                            </button>
-                        </td>
-                    </tr>`;
+                            <td>${i}</td>
+                            <td>${item.FilterName}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary applyFilterBtn"
+                                    data-json='${item.FilterJson.replace(/'/g, "&apos;")}'>
+                                    Apply
+                                </button>
+                            </td>
+                        </tr>`;
 
                         tbody.append(row);
                         i++;
@@ -1473,13 +1535,13 @@ ORDER BY
             $("#modalLocTitle").text(locTitle || 'Location');
             $("#modalLocSubTitle").text('Boxes and weights inside ' + (locTitle || 'this location'));
 
-            var locText = locTitle || '-';
-            if (gdnTitle) locText += ' <span class="text-muted fw-normal">(' + gdnTitle + ')</span>';
+            var locText = escapeBoxHtml(locTitle || '-');
+            if (gdnTitle) locText += ' <span class="text-muted fw-normal">(' + escapeBoxHtml(gdnTitle) + ')</span>';
             $("#boxModalLocationInfo").html(locText);
 
-            var matText = mat || '-';
-            if (color) matText += ' / ' + color;
-            if (code) matText += ' <span class="badge bg-secondary">' + code + '</span>';
+            var matText = escapeBoxHtml(mat || '-');
+            if (color) matText += ' / ' + escapeBoxHtml(color);
+            if (code) matText += ' <span class="badge bg-secondary">' + escapeBoxHtml(code) + '</span>';
             $("#boxModalMaterialInfo").html(matText);
 
             $("#boxModalTotalBoxes").text(boxes);
@@ -1532,7 +1594,7 @@ ORDER BY
                 dataType: 'json',
                 success: function (res) {
                     $("#boxLoadingSpinner").addClass("d-none");
-                    if (res && res.status === 'success' && res.data) {
+                    if (res && res.status === 'success' && Array.isArray(res.data)) {
                         if (!allInLocation) {
                             rowBoxesCache = res.data;
                             $("#countRowOnly").text(res.data.length);
@@ -1541,8 +1603,11 @@ ORDER BY
                             $("#countAllLocBadge").text('(' + res.data.length + ')');
                         }
                         renderBoxTable(res.data);
+                        if (res.data.length === 0) {
+                            $("#boxErrorMsg").removeClass("d-none").text('No active boxes matched these filters. Try All in Location or verify the color code/company/party mapping.');
+                        }
                     } else {
-                        $("#boxErrorMsg").removeClass("d-none").text((res && res.message) ? res.message : 'No boxes found for this location.');
+                        $("#boxErrorMsg").removeClass("d-none").text((res && res.message) ? res.message : 'Unable to load box details.');
                     }
                 },
                 error: function () {
@@ -1582,6 +1647,15 @@ ORDER BY
                     });
                 }
             });
+        }
+
+        function escapeBoxHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function formatBoxDate(dStr) {
@@ -1631,11 +1705,11 @@ ORDER BY
                 var rowHtml = '<tr>' +
                     '<td class="text-center text-muted font-weight-bold fw-bold py-2" style="vertical-align:middle;">' + (idx + 1) + '</td>' +
                     '<td class="text-center text-muted small py-2" style="vertical-align:middle;">' + formatBoxDate(b.YarnInwardDate) + '</td>' +
-                    '<td class="py-2" style="vertical-align:middle; font-weight:500; color:#334155;">' + (b.YarnMaterial || '-') + '</td>' +
-                    '<td class="py-2" style="vertical-align:middle; color:#334155;">' + (b.YarnColor || '-') + (b.YarnColorCode ? ' <span class="badge badge-dark px-2 py-1 ml-1 ms-1" style="background:#1e293b; color:#fff; font-size:0.72rem; letter-spacing:0.3px;">' + b.YarnColorCode + '</span>' : '') + '</td>' +
+                    '<td class="py-2" style="vertical-align:middle; font-weight:500; color:#334155;">' + escapeBoxHtml(b.YarnMaterial || '-') + '</td>' +
+                    '<td class="py-2" style="vertical-align:middle; color:#334155;">' + escapeBoxHtml(b.YarnColor || '-') + (b.YarnColorCode ? ' <span class="badge badge-dark px-2 py-1 ml-1 ms-1" style="background:#1e293b; color:#fff; font-size:0.72rem; letter-spacing:0.3px;">' + escapeBoxHtml(b.YarnColorCode) + '</span>' : '') + '</td>' +
                     '<td class="text-right text-end font-weight-bold fw-bold text-success py-2" style="vertical-align:middle; font-size:0.95rem;">' + wt.toFixed(2) + ' <small class="text-muted" style="font-size:0.75rem; font-weight:normal;">kg</small></td>' +
-                    '<td class="text-center py-2" style="vertical-align:middle;"><span class="badge badge-light border px-2 py-1" style="font-size:0.88rem; font-weight:700; color:#1e293b; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05); border-color:#cbd5e1 !important;"><i class="fa fa-cube text-primary mr-1 me-1"></i>' + (b.BoxNo || '-') + '</span></td>' +
-                    '<td class="text-center font-monospace py-2" style="vertical-align:middle; font-size:0.85rem; color:#475569; letter-spacing:0.5px;">' + (b.BarcodeNo || '-') + '</td>' +
+                    '<td class="text-center py-2" style="vertical-align:middle;"><span class="badge badge-light border px-2 py-1" style="font-size:0.88rem; font-weight:700; color:#1e293b; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.05); border-color:#cbd5e1 !important;"><i class="fa fa-cube text-primary mr-1 me-1"></i>' + escapeBoxHtml(b.BoxNo || '-') + '</span></td>' +
+                    '<td class="text-center font-monospace py-2" style="vertical-align:middle; font-size:0.85rem; color:#475569; letter-spacing:0.5px;">' + escapeBoxHtml(b.BarcodeNo || '-') + '</td>' +
                     '</tr>';
                 tbody.append(rowHtml);
             });
@@ -1691,5 +1765,5 @@ ORDER BY
         });
     </script>
 
-    }
+}
 
