@@ -34267,6 +34267,7 @@ ORDER BY
                         {
                             var existingDetailIds = new HashSet<int>();
                             var existingSubDetails = new Dictionary<int, HashSet<int>>();
+                            var detailDict = new Dictionary<int, Dictionary<string, object>>();
 
                             if (model.SaleOrderID > 0)
                             {
@@ -34275,13 +34276,12 @@ ORDER BY
                                 // 1. Read existing master, details, and subdetails within transaction (locking with UPDLOCK)
                                 var oldMaster = new Dictionary<string, object>();
                                 var detailsList = new List<Dictionary<string, object>>();
-                                var detailDict = new Dictionary<int, Dictionary<string, object>>();
 
                                 using (SqlCommand cmdOld = new SqlCommand(@"
                                     SELECT SO.SaleOrderID, SO.OrderNo, SO.OrderDate, SO.PartyID, SO.BrokerID, 
                                            SO.TransportID, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, 
                                            SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount, SO.Remark,
-                                           D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate,
+                                           D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate, D.DesignColorMatchingID,
                                            SD.SubDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark AS SubRemark
                                     FROM dbo.SaleOrder SO WITH (UPDLOCK, HOLDLOCK)
                                     LEFT JOIN dbo.SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
@@ -34336,6 +34336,7 @@ ORDER BY
                                                         { "Rate", rdrOld["Rate"] },
                                                         { "Amount", rdrOld["Amount"] },
                                                         { "BrokerRate", rdrOld["BrokerRate"] },
+                                                        { "DesignColorMatchingID", rdrOld["DesignColorMatchingID"] },
                                                         { "SubDetails", new List<Dictionary<string, object>>() }
                                                     };
                                                     detailDict[detailId] = currentDetail;
@@ -34550,9 +34551,87 @@ ORDER BY
                                         if (arr.Length > 0) int.TryParse(arr[0], out designId);
                                         if (arr.Length > 1) int.TryParse(arr[1], out designColorMatchingId);
                                     }
+                                    if (designColorMatchingId == 0 && d.DesignColorMatchingID > 0)
+                                    {
+                                        designColorMatchingId = d.DesignColorMatchingID;
+                                    }
 
                                     if (d.DetailID > 0)
                                     {
+                                        // Production-linked detail immutability enforcement
+                                        if (detailDict.TryGetValue(d.DetailID, out var oldDet))
+                                        {
+                                            string oldDesignId = Convert.ToString(oldDet["DesignID"]) ?? "";
+                                            int oldColorMatchingId = SafeInt(oldDet["DesignColorMatchingID"]);
+                                            string oldDesignNo = Convert.ToString(oldDet["DesignNo"]) ?? "";
+                                            string oldItemType = Convert.ToString(oldDet["ItemType"]) ?? "";
+                                            int oldNoOfColours = SafeInt(oldDet["NoOfColours"]);
+                                            decimal oldQty = SafeDecimal(oldDet["Qty"]);
+                                            string oldUnit = Convert.ToString(oldDet["Unit"]) ?? "";
+                                            decimal oldRate = SafeDecimal(oldDet["Rate"]);
+                                            decimal oldBrokerRate = SafeDecimal(oldDet["BrokerRate"]);
+                                            decimal oldAmount = SafeDecimal(oldDet["Amount"]);
+
+                                            string newDesignId = designId > 0 ? designId.ToString() : (Convert.ToString(d.DesignID) ?? "");
+                                            string newDesignNo = d.DesignNo ?? "";
+                                            string newItemType = d.ItemType ?? "";
+                                            int newNoOfColours = SafeInt(d.NoOfColours);
+                                            decimal newQty = SafeDecimal(d.Qty);
+                                            string newUnit = d.Unit ?? "";
+                                            decimal newRate = SafeDecimal(d.Rate);
+                                            decimal newBrokerRate = SafeDecimal(d.BrokerRate);
+                                            decimal newAmount = SafeDecimal(d.Amount);
+
+                                            bool isDetailModified = (oldDesignId.Trim() != newDesignId.Trim()) ||
+                                                                    (oldColorMatchingId != designColorMatchingId) ||
+                                                                    (oldDesignNo.Trim() != newDesignNo.Trim()) ||
+                                                                    (oldItemType.Trim() != newItemType.Trim()) ||
+                                                                    (oldNoOfColours != newNoOfColours) ||
+                                                                    (oldQty != newQty) ||
+                                                                    (oldUnit.Trim() != newUnit.Trim()) ||
+                                                                    (oldRate != newRate) ||
+                                                                    (oldBrokerRate != newBrokerRate) ||
+                                                                    (oldAmount != newAmount);
+
+                                            if (isDetailModified)
+                                            {
+                                                int prodCount = 0;
+                                                string depTable = null;
+
+                                                using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                                {
+                                                    cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
+                                                    prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                    if (prodCount > 0) depTable = "ProductionOrderDetail";
+                                                }
+
+                                                if (prodCount == 0)
+                                                {
+                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderDetailID = @DetailID", con, trans))
+                                                    {
+                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.Int).Value = d.DetailID;
+                                                        prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                        if (prodCount > 0) depTable = "ProcessTransactionDetail";
+                                                    }
+                                                }
+
+                                                if (prodCount == 0)
+                                                {
+                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM weavelanesoftDB.ProductionData WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                                    {
+                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
+                                                        prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                        if (prodCount > 0) depTable = "ProductionData";
+                                                    }
+                                                }
+
+                                                if (prodCount > 0)
+                                                {
+                                                    throw new InvalidOperationException($"Cannot modify production-linked line item DetailID {d.DetailID}: already referenced by {prodCount} record(s) in {depTable}. Production-relevant fields (Design, Quantity, Rate, Amount, Colours) cannot be structurally changed.");
+                                                }
+                                            }
+                                        }
+
                                         // In-place UPDATE
                                         detailId = d.DetailID;
                                         using (SqlCommand cmdUpdDet = new SqlCommand(@"
@@ -34660,6 +34739,71 @@ ORDER BY
                                             s.DetailID = detailId;
                                             if (s.SubDetailID > 0)
                                             {
+                                                // Production-linked subdetail immutability enforcement
+                                                if (detailDict.TryGetValue(detailId, out var parentOldDet))
+                                                {
+                                                    var oldSubsList = parentOldDet["SubDetails"] as List<Dictionary<string, object>>;
+                                                    if (oldSubsList != null)
+                                                    {
+                                                        var oldSub = oldSubsList.FirstOrDefault(x => SafeInt(x["SubDetailID"]) == s.SubDetailID);
+                                                    if (oldSub != null)
+                                                    {
+                                                        int oldColourId = SafeInt(oldSub["ColourID"]);
+                                                        string oldColourName = Convert.ToString(oldSub["ColourName"]) ?? "";
+                                                        decimal oldSubQty = SafeDecimal(oldSub["Qty"]);
+                                                        string oldSubUnit = Convert.ToString(oldSub["Unit"]) ?? "";
+
+                                                        int newColourId = SafeInt(s.ColourID);
+                                                        string newColourName = s.ColourName ?? "";
+                                                        decimal newSubQty = SafeDecimal(s.Qty);
+                                                        string newSubUnit = s.Unit ?? "";
+
+                                                        bool isSubModified = (oldColourId != newColourId) ||
+                                                                             (oldColourName.Trim() != newColourName.Trim()) ||
+                                                                             (oldSubQty != newSubQty) ||
+                                                                             (oldSubUnit.Trim() != newSubUnit.Trim());
+
+                                                        if (isSubModified)
+                                                        {
+                                                            int subProdCount = 0;
+                                                            string subDepTable = null;
+
+                                                            using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
+                                                            {
+                                                                cmdChk.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
+                                                                subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                                if (subProdCount > 0) subDepTable = "ProductionOrderDetail";
+                                                            }
+
+                                                            if (subProdCount == 0)
+                                                            {
+                                                                using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
+                                                                {
+                                                                    cmdChk.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
+                                                                    subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                                    if (subProdCount > 0) subDepTable = "ProcessTransactionDetail";
+                                                                }
+                                                            }
+
+                                                            if (subProdCount == 0)
+                                                            {
+                                                                using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM weavelanesoftDB.ProductionData WHERE SubDetailID = @SubDetailID", con, trans))
+                                                                {
+                                                                    cmdChk.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
+                                                                    subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                                    if (subProdCount > 0) subDepTable = "ProductionData";
+                                                                }
+                                                            }
+
+                                                            if (subProdCount > 0)
+                                                            {
+                                                                throw new InvalidOperationException($"Cannot modify production-linked SubDetailID {s.SubDetailID} (DetailID {detailId}): already referenced by {subProdCount} record(s) in {subDepTable}. Production-relevant fields (Colour, Quantity, Unit) cannot be structurally changed.");
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                }
+
                                                 // In-place UPDATE
                                                 using (SqlCommand cmdUpdSub = new SqlCommand(@"
                                                     UPDATE dbo.SaleOrderSubDetails
@@ -34687,6 +34831,21 @@ ORDER BY
                                             }
                                             else
                                             {
+                                                // Adding a new subdetail to an existing detail: verify parent detail is not production-linked
+                                                if (d.DetailID > 0)
+                                                {
+                                                    int parentProdCount = 0;
+                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                                    {
+                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
+                                                        parentProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
+                                                    }
+                                                    if (parentProdCount > 0)
+                                                    {
+                                                        throw new InvalidOperationException($"Cannot add new sub-items to production-linked line item DetailID {d.DetailID}: already referenced by {parentProdCount} record(s) in ProductionOrderDetail.");
+                                                    }
+                                                }
+
                                                 // New SubDetail INSERT
                                                 using (SqlCommand cmdInsSub = new SqlCommand(@"
                                                     INSERT INTO dbo.SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
