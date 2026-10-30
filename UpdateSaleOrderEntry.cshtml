@@ -3147,6 +3147,7 @@
                 // Collect Colors (SubDetails)
                 $("#itemTableBody tr").not(".no-data").each(function () {
                     let row = $(this);
+                    let subDetailId = parseInt(row.attr("data-subdetailid")) || 0;
                     let colorId = row.attr("data-colorid");
                     let colorName = row.find("td:eq(4)").text().trim();
                     let qtyInput = row.find(".sub-qty-input");
@@ -3159,11 +3160,15 @@
 
                     if (uniqueMap[colorId]) {
                         uniqueMap[colorId].Qty += qty;
+                        if (!uniqueMap[colorId].SubDetailID && subDetailId) {
+                            uniqueMap[colorId].SubDetailID = subDetailId;
+                        }
                         if (remark && !uniqueMap[colorId].Remark.includes(remark)) {
                             uniqueMap[colorId].Remark += ', ' + remark;
                         }
                     } else {
                         uniqueMap[colorId] = {
+                            SubDetailID: subDetailId,
                             ColorMatchingID: colorId,
                             ColorMatchingName: colorName,
                             Qty: qty,
@@ -3210,6 +3215,7 @@
 
                 if (isEditMode && currentViewIndex !== -1) {
                     let old = SaleOrderDetails[currentViewIndex];
+                    obj.DetailID = old.DetailID || 0;
                     obj.Rate = old.Rate;
                     obj.BrokerRate = old.BrokerRate;
                     obj.Amount = (obj.TotalQty * obj.BrokerRate) + calculatedAddAmount;
@@ -3638,7 +3644,8 @@
                     let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
 
                     rows += `
-                    <tr data-colorid="${item.ColorMatchingID}"
+                    <tr data-subdetailid="${item.SubDetailID || 0}"
+                        data-colorid="${item.ColorMatchingID}"
                         data-colorgroupid="${item.ColorGroupId || ""}"
                         data-rate="${saleRate}"
                         data-img="${item.ImageUrl || ""}">
@@ -3813,6 +3820,7 @@
 
                 // 🔥 Corrected Rate and Amount Calculation Logic for SaleOrderDetails
                 SaleOrderDetails.forEach((item) => {
+                    item.DetailID = item.DetailID || 0;
                     item.ItemType = item.TypeId || "";
                     if (!item.SubDetails) {
                         item.SubDetails = [];
@@ -3826,6 +3834,7 @@
 
                     let rowQty = 0;
                     item.SubDetails.forEach(sub => {
+                        sub.SubDetailID = sub.SubDetailID || 0;
                         sub.ColourID = sub.ColorMatchingID || 0;
                         sub.ColourName = sub.ColorMatchingName || "";
                         sub.Unit = sub.Unit || item.Unit || "PCS";
@@ -4036,6 +4045,7 @@
 
                             // 🔥 Map Items & Images correctly
                             SaleOrderDetails = (d.Details || []).map(item => ({
+                                DetailID: item.DetailID || 0,
                                 DesignId: item.DesignId,
                                 DesignNo: item.DesignName || item.DesignNo,
                                 TypeId: item.ItemType,
@@ -4050,8 +4060,9 @@
                                 Rate: item.Rate,
                                 BrokerRate: item.BrokerRate,
                                 Amount: item.Amount,
-                                ImageUrl: item.ImageUrl || "", // 🔥 Maps the color matching photo correctly
+                                ImageUrl: item.ImageUrl || "",
                                 SubDetails: (item.SubDetails || []).map(sub => ({
+                                    SubDetailID: sub.SubDetailID || 0,
                                     ColorMatchingID: sub.ColourID,
                                     ColorMatchingName: sub.ColourName,
                                     Qty: sub.Qty,

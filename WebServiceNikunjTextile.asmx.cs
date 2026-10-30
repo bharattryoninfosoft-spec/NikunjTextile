@@ -34250,220 +34250,297 @@ ORDER BY
             if (model == null)
                 return new { success = false, message = "Invalid data" };
 
+            int userAccountId = GetCookieValue();
+            var (financialYearId, companyId) = GetDefaultIds();
+
             try
             {
-                int userAccountId = GetCookieValue();
-                var (financialYearId, companyId) = GetDefaultIds();
-
                 using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString))
                 {
                     con.Open();
                     using (SqlTransaction trans = con.BeginTransaction())
                     {
+                        object oldRecord = null;
+                        int saleOrderId = 0;
+
                         try
                         {
-                            int saleOrderId;
-                            object oldRecord = null;
+                            var existingDetailIds = new HashSet<int>();
+                            var existingSubDetails = new Dictionary<int, HashSet<int>>();
 
                             if (model.SaleOrderID > 0)
                             {
-                                try
-                                {
-                                    var oldMaster = new Dictionary<string, object>();
-                                    var detailsList = new List<Dictionary<string, object>>();
-                                    var detailDict = new Dictionary<int, Dictionary<string, object>>();
+                                saleOrderId = model.SaleOrderID;
 
-                                    using (SqlCommand cmdOld = new SqlCommand(@"
-                                        SELECT SO.SaleOrderID, SO.OrderNo, SO.OrderDate, SO.PartyID, SO.BrokerID, 
-                                               SO.TransportID, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, 
-                                               SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount, SO.Remark,
-                                               D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate,
-                                               SD.SubDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark AS SubRemark
-                                        FROM dbo.SaleOrder SO
-                                        LEFT JOIN dbo.SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
-                                        LEFT JOIN dbo.SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
-                                        WHERE SO.SaleOrderID = @SaleOrderID
-                                        ORDER BY D.DetailID, SD.SubDetailID", con, trans))
+                                // 1. Read existing master, details, and subdetails within transaction (locking with UPDLOCK)
+                                var oldMaster = new Dictionary<string, object>();
+                                var detailsList = new List<Dictionary<string, object>>();
+                                var detailDict = new Dictionary<int, Dictionary<string, object>>();
+
+                                using (SqlCommand cmdOld = new SqlCommand(@"
+                                    SELECT SO.SaleOrderID, SO.OrderNo, SO.OrderDate, SO.PartyID, SO.BrokerID, 
+                                           SO.TransportID, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, 
+                                           SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount, SO.Remark,
+                                           D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate,
+                                           SD.SubDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark AS SubRemark
+                                    FROM dbo.SaleOrder SO WITH (UPDLOCK, HOLDLOCK)
+                                    LEFT JOIN dbo.SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
+                                    LEFT JOIN dbo.SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
+                                    WHERE SO.SaleOrderID = @SaleOrderID
+                                    ORDER BY D.DetailID, SD.SubDetailID", con, trans))
+                                {
+                                    cmdOld.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                    using (SqlDataReader rdrOld = cmdOld.ExecuteReader())
                                     {
-                                        cmdOld.Parameters.AddWithValue("@SaleOrderID", model.SaleOrderID);
-                                        using (SqlDataReader rdrOld = cmdOld.ExecuteReader())
+                                        while (rdrOld.Read())
                                         {
-                                            while (rdrOld.Read())
+                                            if (oldMaster.Count == 0)
                                             {
-                                                if (oldMaster.Count == 0)
+                                                oldMaster["SaleOrderID"] = rdrOld["SaleOrderID"];
+                                                oldMaster["OrderNo"] = rdrOld["OrderNo"];
+                                                oldMaster["OrderDate"] = rdrOld["OrderDate"] != DBNull.Value ? Convert.ToDateTime(rdrOld["OrderDate"]).ToString("yyyy-MM-dd") : null;
+                                                oldMaster["PartyID"] = rdrOld["PartyID"];
+                                                oldMaster["BrokerID"] = rdrOld["BrokerID"];
+                                                oldMaster["TransportID"] = rdrOld["TransportID"];
+                                                oldMaster["TotalQty"] = rdrOld["TotalQty"];
+                                                oldMaster["TotalAmount"] = rdrOld["TotalAmount"];
+                                                oldMaster["DiscountPercent"] = rdrOld["DiscountPercent"];
+                                                oldMaster["DiscountAmount"] = rdrOld["DiscountAmount"];
+                                                oldMaster["GSTPercent"] = rdrOld["GSTPercent"];
+                                                oldMaster["GSTAmount"] = rdrOld["GSTAmount"];
+                                                oldMaster["InvoiceAmount"] = rdrOld["InvoiceAmount"];
+                                                oldMaster["Remark"] = rdrOld["Remark"];
+                                                oldMaster["Details"] = detailsList;
+                                            }
+
+                                            if (rdrOld["DetailID"] != DBNull.Value)
+                                            {
+                                                int detailId = Convert.ToInt32(rdrOld["DetailID"]);
+                                                existingDetailIds.Add(detailId);
+                                                if (!existingSubDetails.ContainsKey(detailId))
                                                 {
-                                                    oldMaster["SaleOrderID"] = rdrOld["SaleOrderID"];
-                                                    oldMaster["OrderNo"] = rdrOld["OrderNo"];
-                                                    oldMaster["OrderDate"] = rdrOld["OrderDate"] != DBNull.Value ? Convert.ToDateTime(rdrOld["OrderDate"]).ToString("yyyy-MM-dd") : null;
-                                                    oldMaster["PartyID"] = rdrOld["PartyID"];
-                                                    oldMaster["BrokerID"] = rdrOld["BrokerID"];
-                                                    oldMaster["TransportID"] = rdrOld["TransportID"];
-                                                    oldMaster["TotalQty"] = rdrOld["TotalQty"];
-                                                    oldMaster["TotalAmount"] = rdrOld["TotalAmount"];
-                                                    oldMaster["DiscountPercent"] = rdrOld["DiscountPercent"];
-                                                    oldMaster["DiscountAmount"] = rdrOld["DiscountAmount"];
-                                                    oldMaster["GSTPercent"] = rdrOld["GSTPercent"];
-                                                    oldMaster["GSTAmount"] = rdrOld["GSTAmount"];
-                                                    oldMaster["InvoiceAmount"] = rdrOld["InvoiceAmount"];
-                                                    oldMaster["Remark"] = rdrOld["Remark"];
-                                                    oldMaster["Details"] = detailsList;
+                                                    existingSubDetails[detailId] = new HashSet<int>();
                                                 }
 
-                                                if (rdrOld["DetailID"] != DBNull.Value)
+                                                if (!detailDict.TryGetValue(detailId, out var currentDetail))
                                                 {
-                                                    int detailId = Convert.ToInt32(rdrOld["DetailID"]);
-                                                    if (!detailDict.TryGetValue(detailId, out var currentDetail))
+                                                    currentDetail = new Dictionary<string, object>
                                                     {
-                                                        currentDetail = new Dictionary<string, object>
-                                                        {
-                                                            { "DetailID", detailId },
-                                                            { "DesignID", rdrOld["DesignID"] },
-                                                            { "DesignNo", rdrOld["DesignNo"] },
-                                                            { "ItemType", rdrOld["ItemType"] },
-                                                            { "NoOfColours", rdrOld["NoOfColours"] },
-                                                            { "Qty", rdrOld["DetailQty"] },
-                                                            { "Unit", rdrOld["DetailUnit"] },
-                                                            { "Rate", rdrOld["Rate"] },
-                                                            { "Amount", rdrOld["Amount"] },
-                                                            { "BrokerRate", rdrOld["BrokerRate"] },
-                                                            { "SubDetails", new List<Dictionary<string, object>>() }
-                                                        };
-                                                        detailDict[detailId] = currentDetail;
-                                                        detailsList.Add(currentDetail);
-                                                    }
+                                                        { "DetailID", detailId },
+                                                        { "DesignID", rdrOld["DesignID"] },
+                                                        { "DesignNo", rdrOld["DesignNo"] },
+                                                        { "ItemType", rdrOld["ItemType"] },
+                                                        { "NoOfColours", rdrOld["NoOfColours"] },
+                                                        { "Qty", rdrOld["DetailQty"] },
+                                                        { "Unit", rdrOld["DetailUnit"] },
+                                                        { "Rate", rdrOld["Rate"] },
+                                                        { "Amount", rdrOld["Amount"] },
+                                                        { "BrokerRate", rdrOld["BrokerRate"] },
+                                                        { "SubDetails", new List<Dictionary<string, object>>() }
+                                                    };
+                                                    detailDict[detailId] = currentDetail;
+                                                    detailsList.Add(currentDetail);
+                                                }
 
-                                                    if (rdrOld["SubDetailID"] != DBNull.Value)
+                                                if (rdrOld["SubDetailID"] != DBNull.Value)
+                                                {
+                                                    int subId = Convert.ToInt32(rdrOld["SubDetailID"]);
+                                                    existingSubDetails[detailId].Add(subId);
+
+                                                    var subList = (List<Dictionary<string, object>>)currentDetail["SubDetails"];
+                                                    subList.Add(new Dictionary<string, object>
                                                     {
-                                                        var subList = (List<Dictionary<string, object>>)currentDetail["SubDetails"];
-                                                        subList.Add(new Dictionary<string, object>
-                                                        {
-                                                            { "SubDetailID", rdrOld["SubDetailID"] },
-                                                            { "ColourID", rdrOld["ColourID"] },
-                                                            { "ColourName", rdrOld["ColourName"] },
-                                                            { "Qty", rdrOld["SubQty"] },
-                                                            { "Unit", rdrOld["SubUnit"] },
-                                                            { "Remark", rdrOld["SubRemark"] }
-                                                        });
+                                                        { "SubDetailID", subId },
+                                                        { "ColourID", rdrOld["ColourID"] },
+                                                        { "ColourName", rdrOld["ColourName"] },
+                                                        { "Qty", rdrOld["SubQty"] },
+                                                        { "Unit", rdrOld["SubUnit"] },
+                                                        { "Remark", rdrOld["SubRemark"] }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (oldMaster.Count == 0)
+                                {
+                                    throw new InvalidOperationException($"Sale Order #{saleOrderId} not found.");
+                                }
+
+                                oldRecord = oldMaster;
+
+                                // 2. Validate submitted DetailIDs and SubDetailIDs belong to this order
+                                if (model.Details != null)
+                                {
+                                    foreach (var d in model.Details)
+                                    {
+                                        if (d.DetailID > 0)
+                                        {
+                                            if (!existingDetailIds.Contains(d.DetailID))
+                                            {
+                                                throw new InvalidOperationException($"DetailID {d.DetailID} does not belong to SaleOrderID {saleOrderId}.");
+                                            }
+                                            if (d.SubDetails != null)
+                                            {
+                                                foreach (var s in d.SubDetails)
+                                                {
+                                                    if (s.SubDetailID > 0 && !existingSubDetails[d.DetailID].Contains(s.SubDetailID))
+                                                    {
+                                                        throw new InvalidOperationException($"SubDetailID {s.SubDetailID} does not belong to DetailID {d.DetailID}.");
                                                     }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (d.SubDetails != null && d.SubDetails.Any(s => s.SubDetailID > 0))
+                                            {
+                                                throw new InvalidOperationException("New detail items cannot specify an existing SubDetailID.");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // 3. Update Master Record
+                                using (SqlCommand cmdUpdMaster = new SqlCommand(@"
+                                    UPDATE dbo.SaleOrder SET 
+                                        OrderNo = @OrderNo, 
+                                        OrderDate = @OrderDate, 
+                                        PartyID = @PartyID, 
+                                        BrokerID = @BrokerID,
+                                        MarkupPercent = @MarkupPercent,
+                                        TransportID = @TransportID,
+                                        TotalQty = @TotalQty,
+                                        TotalAmount = @TotalAmount,
+                                        DiscountPercent = @DiscountPercent,
+                                        DiscountAmount = @DiscountAmount,
+                                        GSTPercent = @GSTPercent,
+                                        GSTAmount = @GSTAmount,
+                                        InvoiceAmount = @InvoiceAmount,
+                                        Remark = @Remark,                              
+                                        RoundOff = @RoundOff
+                                    WHERE SaleOrderID = @SaleOrderID", con, trans))
+                                {
+                                    AddParams(cmdUpdMaster, model, userAccountId, financialYearId, companyId);
+                                    cmdUpdMaster.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                    int rowsMaster = cmdUpdMaster.ExecuteNonQuery();
+                                    if (rowsMaster == 0)
+                                    {
+                                        throw new InvalidOperationException($"Failed to update SaleOrder #{saleOrderId}: record not found.");
+                                    }
+                                }
+
+                                // 4. Check dependencies on removed details and subdetails before deletion
+                                var submittedDetailIds = new HashSet<int>(model.Details?.Where(x => x.DetailID > 0).Select(x => x.DetailID) ?? Enumerable.Empty<int>());
+                                var removedDetailIds = existingDetailIds.Where(id => !submittedDetailIds.Contains(id)).ToList();
+
+                                foreach (int remDetailId in removedDetailIds)
+                                {
+                                    // Check ProductionOrderDetail
+                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                    {
+                                        cmdDep.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = remDetailId;
+                                        int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                        if (count > 0)
+                                        {
+                                            throw new InvalidOperationException($"Cannot delete line item DetailID {remDetailId}: referenced by {count} ProductionOrderDetail record(s).");
+                                        }
+                                    }
+                                    // Check ProcessTransactionDetail
+                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderDetailID = @DetailID", con, trans))
+                                    {
+                                        cmdDep.Parameters.Add("@DetailID", SqlDbType.Int).Value = remDetailId;
+                                        int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                        if (count > 0)
+                                        {
+                                            throw new InvalidOperationException($"Cannot delete line item DetailID {remDetailId}: referenced by {count} ProcessTransactionDetail record(s).");
+                                        }
+                                    }
+                                    // Check weavelanesoftDB.ProductionData
+                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM weavelanesoftDB.ProductionData WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                    {
+                                        cmdDep.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = remDetailId;
+                                        int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                        if (count > 0)
+                                        {
+                                            throw new InvalidOperationException($"Cannot delete line item DetailID {remDetailId}: referenced by {count} ProductionData record(s).");
+                                        }
+                                    }
+                                    // Check subdetails of removed detail
+                                    if (existingSubDetails.ContainsKey(remDetailId))
+                                    {
+                                        foreach (int subId in existingSubDetails[remDetailId])
+                                        {
+                                            using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
+                                            {
+                                                cmdDep.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = subId;
+                                                int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                                if (count > 0)
+                                                {
+                                                    throw new InvalidOperationException($"Cannot delete sub-item SubDetailID {subId} of DetailID {remDetailId}: referenced by {count} ProcessTransactionDetail record(s).");
+                                                }
+                                            }
+                                            using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
+                                            {
+                                                cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = subId;
+                                                int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                                if (count > 0)
+                                                {
+                                                    throw new InvalidOperationException($"Cannot delete sub-item SubDetailID {subId} of DetailID {remDetailId}: referenced by {count} ProductionOrderDetail record(s).");
                                                 }
                                             }
                                         }
                                     }
 
-                                    if (oldMaster.Count > 0)
+                                    // Safely delete unreferenced subdetails and detail
+                                    using (SqlCommand cmdDelSub = new SqlCommand("DELETE FROM dbo.SaleOrderSubDetails WHERE DetailID = @DetailID", con, trans))
                                     {
-                                        oldRecord = oldMaster;
+                                        cmdDelSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = remDetailId;
+                                        cmdDelSub.ExecuteNonQuery();
+                                    }
+                                    using (SqlCommand cmdDelDet = new SqlCommand("DELETE FROM dbo.SaleOrderDetails WHERE DetailID = @DetailID AND SaleOrderID = @SaleOrderID", con, trans))
+                                    {
+                                        cmdDelDet.Parameters.Add("@DetailID", SqlDbType.Int).Value = remDetailId;
+                                        cmdDelDet.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                        cmdDelDet.ExecuteNonQuery();
                                     }
                                 }
-                                catch { }
                             }
-
-                            using (SqlCommand cmd = new SqlCommand())
+                            else
                             {
-                                cmd.Connection = con;
-                                cmd.Transaction = trans;
+                                // INSERT New Master
+                                string nextOrderNo = GetNextOrderNo(con, trans);
+                                model.OrderNo = nextOrderNo;
 
-                                if (model.SaleOrderID == 0)
+                                using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.SaleOrder (
+                                        DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent, 
+                                        TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
+                                        GSTPercent, GSTAmount, InvoiceAmount, Remark, UserAccountId, 
+                                        FinancialYearID, CompanyId, RoundOff, CreatedDateTime, CreatedByUserID
+                                    )
+                                    VALUES (
+                                        GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, 
+                                        @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
+                                        @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark, @UserAccountId, 
+                                        @FinancialYearID, @CompanyId, @RoundOff, GETDATE(), @CreatedByUserID
+                                    );
+                                    SELECT SCOPE_IDENTITY();", con, trans))
                                 {
-                                    string nextOrderNo = GetNextOrderNo(con, trans);
-                                    model.OrderNo = nextOrderNo;
-
-                                    cmd.CommandText = @"INSERT INTO SaleOrder (
-                                                                        DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent, 
-                                                                        TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                                                                        GSTPercent, GSTAmount, InvoiceAmount, Remark, UserAccountId, 
-                                                                        FinancialYearID, CompanyId, RoundOff, CreatedDateTime, CreatedByUserID
-                                                                    )
-                                                                    VALUES (
-                                                                        GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, 
-                                                                        @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                                                                        @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark, @UserAccountId, 
-                                                                        @FinancialYearID, @CompanyId, @RoundOff, GETDATE(), @CreatedByUserID
-                                                                    );
-                                                                    SELECT SCOPE_IDENTITY();";
                                     AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     cmd.Parameters.Add("@CreatedByUserID", SqlDbType.Int).Value = userAccountId;
                                     saleOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                                     model.SaleOrderID = saleOrderId;
                                 }
-                                else
-                                {
-                                    saleOrderId = model.SaleOrderID;
-                                    cmd.CommandText = @"UPDATE SaleOrder SET OrderNo=@OrderNo, OrderDate=@OrderDate, PartyID=@PartyID, BrokerID=@BrokerID,
-                                 MarkupPercent=@MarkupPercent,
-                                 TransportID=@TransportID,
-                                 TotalQty=@TotalQty,
-                                 TotalAmount=@TotalAmount,
-                                 DiscountPercent=@DiscountPercent,
-                                 DiscountAmount=@DiscountAmount,
-                                 GSTPercent=@GSTPercent,
-                                 GSTAmount=@GSTAmount,
-                                 InvoiceAmount=@InvoiceAmount,
-                                 Remark=@Remark,                              
-                                 RoundOff=@RoundOff
-                                 WHERE SaleOrderID=@SaleOrderID";
-                                    AddParams(cmd, model, userAccountId, financialYearId, companyId);
-                                    cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
-
-                                    cmd.ExecuteNonQuery();
-
-                                    // 🔥 DELETE OLD ADDITIONAL CHARGES
-                                    new SqlCommand("DELETE FROM SaleOrderAdditionalCharges WHERE SaleOrderID=@id", con, trans)
-                                    {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
-
-                                    // 🔥 DELETE OLD SUB DETAILS
-                                    new SqlCommand(@"
-                                 DELETE FROM SaleOrderSubDetails 
-                                 WHERE DetailID IN (
-                                     SELECT DetailID FROM SaleOrderDetails WHERE SaleOrderID=@id
-                                 )", con, trans)
-                                    {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
-
-                                    // 🔥 DELETE OLD DETAILS
-                                    new SqlCommand(@"
-                                 DELETE FROM SaleOrderDetails WHERE SaleOrderID=@id",
-                                         con, trans)
-                                    {
-                                        Parameters = { new SqlParameter("@id", saleOrderId) }
-                                    }.ExecuteNonQuery();
-                                }
                             }
 
-                            // ===============================
-                            // ✅ INSERT ADDITIONAL CHARGES
-                            // ===============================
-                            if (model.AdditionalCharges?.Any() == true)
-                            {
-                                foreach (var ac in model.AdditionalCharges)
-                                {
-                                    using (SqlCommand cmdAdd = new SqlCommand(@"
-                                 INSERT INTO SaleOrderAdditionalCharges (SaleOrderID, ChargeRemark, ChargeValue, TotalCalculatedAmount, CreatedDateTime, CreatedByUserID)
-                                 VALUES (@SaleOrderID, @ChargeRemark, @ChargeValue, @TotalCalculatedAmount, GETDATE(), @CreatedByUserID)", con, trans))
-                                    {
-                                        cmdAdd.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
-                                        cmdAdd.Parameters.AddWithValue("@ChargeRemark", ac.ChargeRemark ?? "");
-                                        cmdAdd.Parameters.AddWithValue("@ChargeValue", SafeDecimal(ac.ChargeValue));
-                                        cmdAdd.Parameters.AddWithValue("@TotalCalculatedAmount", SafeDecimal(ac.TotalCalculatedAmount));
-                                        cmdAdd.Parameters.AddWithValue("@CreatedByUserID", userAccountId);
-                                        cmdAdd.ExecuteNonQuery();
-                                    }
-                                }
-                            }
-
-                            // ===============================
-                            // ✅ INSERT DETAILS + SUBDETAILS
-                            // ===============================
+                            // 5. In-Place Update or Insert of Details and SubDetails
                             if (model.Details?.Any() == true)
                             {
                                 foreach (var d in model.Details)
                                 {
                                     int detailId;
                                     string designIdValue = Convert.ToString(d.DesignID);
-
                                     int designId = 0;
                                     int designColorMatchingId = 0;
 
@@ -34474,53 +34551,193 @@ ORDER BY
                                         if (arr.Length > 1) int.TryParse(arr[1], out designColorMatchingId);
                                     }
 
-                                    using (SqlCommand cmdDetail = new SqlCommand(@"
-                                 INSERT INTO SaleOrderDetails
-                                 (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount, DesignColorMatchingID, BrokerRate)
-                                 VALUES
-                                 (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount, @DesignColorMatchingID, @BrokerRate);
-                                 SELECT SCOPE_IDENTITY();", con, trans))
+                                    if (d.DetailID > 0)
                                     {
-                                        cmdDetail.Parameters.AddWithValue("@SaleOrderID", saleOrderId);
-                                        cmdDetail.Parameters.AddWithValue("@DesignID", designId);
-                                        cmdDetail.Parameters.AddWithValue("@DesignNo", d.DesignNo ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@ItemType", d.ItemType ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@NoOfColours", SafeInt(d.NoOfColours));
-                                        cmdDetail.Parameters.AddWithValue("@Qty", SafeDecimal(d.Qty));
-                                        cmdDetail.Parameters.AddWithValue("@Unit", d.Unit ?? "");
-                                        cmdDetail.Parameters.AddWithValue("@Rate", SafeDecimal(d.Rate));
-                                        cmdDetail.Parameters.AddWithValue("@Amount", SafeDecimal(d.Amount));
-                                        cmdDetail.Parameters.AddWithValue("@DesignColorMatchingID", designColorMatchingId);
-                                        cmdDetail.Parameters.AddWithValue("@BrokerRate", SafeDecimal(d.BrokerRate));
-                                        detailId = Convert.ToInt32(cmdDetail.ExecuteScalar());
-                                        d.DetailID = detailId;
-                                        d.SaleOrderID = saleOrderId;
+                                        // In-place UPDATE
+                                        detailId = d.DetailID;
+                                        using (SqlCommand cmdUpdDet = new SqlCommand(@"
+                                            UPDATE dbo.SaleOrderDetails
+                                            SET DesignID = @DesignID,
+                                                DesignNo = @DesignNo,
+                                                ItemType = @ItemType,
+                                                NoOfColours = @NoOfColours,
+                                                Qty = @Qty,
+                                                Unit = @Unit,
+                                                Rate = @Rate,
+                                                Amount = @Amount,
+                                                DesignColorMatchingID = @DesignColorMatchingID,
+                                                BrokerRate = @BrokerRate
+                                            WHERE DetailID = @DetailID AND SaleOrderID = @SaleOrderID", con, trans))
+                                        {
+                                            cmdUpdDet.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                            cmdUpdDet.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                            cmdUpdDet.Parameters.Add("@DesignID", SqlDbType.NVarChar, 50).Value = (object)designId.ToString() ?? DBNull.Value;
+                                            cmdUpdDet.Parameters.Add("@DesignNo", SqlDbType.NVarChar, 50).Value = (object)d.DesignNo ?? DBNull.Value;
+                                            cmdUpdDet.Parameters.Add("@ItemType", SqlDbType.NVarChar, 50).Value = (object)d.ItemType ?? DBNull.Value;
+                                            cmdUpdDet.Parameters.Add("@NoOfColours", SqlDbType.Int).Value = SafeInt(d.NoOfColours);
+                                            cmdUpdDet.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(d.Qty);
+                                            cmdUpdDet.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)d.Unit ?? DBNull.Value;
+                                            cmdUpdDet.Parameters.Add("@Rate", SqlDbType.Decimal).Value = SafeDecimal(d.Rate);
+                                            cmdUpdDet.Parameters.Add("@Amount", SqlDbType.Decimal).Value = SafeDecimal(d.Amount);
+                                            cmdUpdDet.Parameters.Add("@DesignColorMatchingID", SqlDbType.Int).Value = designColorMatchingId;
+                                            cmdUpdDet.Parameters.Add("@BrokerRate", SqlDbType.Decimal).Value = SafeDecimal(d.BrokerRate);
+
+                                            int rowsDet = cmdUpdDet.ExecuteNonQuery();
+                                            if (rowsDet == 0)
+                                            {
+                                                throw new InvalidOperationException($"Failed to update DetailID {detailId}: record not found for SaleOrderID {saleOrderId}.");
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // New Detail INSERT
+                                        using (SqlCommand cmdInsDet = new SqlCommand(@"
+                                            INSERT INTO dbo.SaleOrderDetails
+                                            (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount, DesignColorMatchingID, BrokerRate)
+                                            VALUES
+                                            (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount, @DesignColorMatchingID, @BrokerRate);
+                                            SELECT SCOPE_IDENTITY();", con, trans))
+                                        {
+                                            cmdInsDet.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                            cmdInsDet.Parameters.Add("@DesignID", SqlDbType.NVarChar, 50).Value = (object)designId.ToString() ?? DBNull.Value;
+                                            cmdInsDet.Parameters.Add("@DesignNo", SqlDbType.NVarChar, 50).Value = (object)d.DesignNo ?? DBNull.Value;
+                                            cmdInsDet.Parameters.Add("@ItemType", SqlDbType.NVarChar, 50).Value = (object)d.ItemType ?? DBNull.Value;
+                                            cmdInsDet.Parameters.Add("@NoOfColours", SqlDbType.Int).Value = SafeInt(d.NoOfColours);
+                                            cmdInsDet.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(d.Qty);
+                                            cmdInsDet.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)d.Unit ?? DBNull.Value;
+                                            cmdInsDet.Parameters.Add("@Rate", SqlDbType.Decimal).Value = SafeDecimal(d.Rate);
+                                            cmdInsDet.Parameters.Add("@Amount", SqlDbType.Decimal).Value = SafeDecimal(d.Amount);
+                                            cmdInsDet.Parameters.Add("@DesignColorMatchingID", SqlDbType.Int).Value = designColorMatchingId;
+                                            cmdInsDet.Parameters.Add("@BrokerRate", SqlDbType.Decimal).Value = SafeDecimal(d.BrokerRate);
+
+                                            detailId = Convert.ToInt32(cmdInsDet.ExecuteScalar());
+                                            d.DetailID = detailId;
+                                        }
+                                    }
+                                    d.SaleOrderID = saleOrderId;
+
+                                    // SubDetails handling for this detail
+                                    var existingSubsForDetail = (d.DetailID > 0 && existingSubDetails.ContainsKey(detailId))
+                                        ? existingSubDetails[detailId]
+                                        : new HashSet<int>();
+
+                                    var submittedSubIds = new HashSet<int>(d.SubDetails?.Where(s => s.SubDetailID > 0).Select(s => s.SubDetailID) ?? Enumerable.Empty<int>());
+                                    var removedSubIds = existingSubsForDetail.Where(sid => !submittedSubIds.Contains(sid)).ToList();
+
+                                    foreach (int remSubId in removedSubIds)
+                                    {
+                                        using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
+                                        {
+                                            cmdDep.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = remSubId;
+                                            int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                            if (count > 0)
+                                            {
+                                                throw new InvalidOperationException($"Cannot delete SubDetailID {remSubId}: referenced by {count} ProcessTransactionDetail record(s).");
+                                            }
+                                        }
+                                        using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
+                                        {
+                                            cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = remSubId;
+                                            int count = Convert.ToInt32(cmdDep.ExecuteScalar());
+                                            if (count > 0)
+                                            {
+                                                throw new InvalidOperationException($"Cannot delete SubDetailID {remSubId}: referenced by {count} ProductionOrderDetail record(s).");
+                                            }
+                                        }
+                                        using (SqlCommand cmdDelSub = new SqlCommand("DELETE FROM dbo.SaleOrderSubDetails WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
+                                        {
+                                            cmdDelSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = remSubId;
+                                            cmdDelSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                            cmdDelSub.ExecuteNonQuery();
+                                        }
                                     }
 
-                                    // 🔹 SUB DETAILS
                                     if (d.SubDetails?.Any() == true)
                                     {
                                         foreach (var s in d.SubDetails)
                                         {
                                             s.DetailID = detailId;
-                                            using (SqlCommand cmdSub = new SqlCommand(@" INSERT INTO SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
-                                         VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark)", con, trans))
+                                            if (s.SubDetailID > 0)
                                             {
-                                                cmdSub.Parameters.AddWithValue("@DetailID", detailId);
-                                                cmdSub.Parameters.AddWithValue("@ColourID", SafeInt(s.ColourID));
-                                                cmdSub.Parameters.AddWithValue("@ColourName", s.ColourName ?? "");
-                                                cmdSub.Parameters.AddWithValue("@Qty", SafeDecimal(s.Qty));
-                                                cmdSub.Parameters.AddWithValue("@Unit", s.Unit ?? "");
-                                                cmdSub.Parameters.AddWithValue("@Remark", s.Remark ?? "");
-                                                cmdSub.ExecuteNonQuery();
+                                                // In-place UPDATE
+                                                using (SqlCommand cmdUpdSub = new SqlCommand(@"
+                                                    UPDATE dbo.SaleOrderSubDetails
+                                                    SET ColourID = @ColourID,
+                                                        ColourName = @ColourName,
+                                                        Qty = @Qty,
+                                                        Unit = @Unit,
+                                                        Remark = @Remark
+                                                    WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
+                                                {
+                                                    cmdUpdSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
+                                                    cmdUpdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                                    cmdUpdSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = SafeInt(s.ColourID);
+                                                    cmdUpdSub.Parameters.Add("@ColourName", SqlDbType.NVarChar, 100).Value = (object)s.ColourName ?? DBNull.Value;
+                                                    cmdUpdSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(s.Qty);
+                                                    cmdUpdSub.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)s.Unit ?? DBNull.Value;
+                                                    cmdUpdSub.Parameters.Add("@Remark", SqlDbType.NVarChar, 255).Value = (object)s.Remark ?? DBNull.Value;
+
+                                                    int rowsSub = cmdUpdSub.ExecuteNonQuery();
+                                                    if (rowsSub == 0)
+                                                    {
+                                                        throw new InvalidOperationException($"Failed to update SubDetailID {s.SubDetailID}: record not found for DetailID {detailId}.");
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // New SubDetail INSERT
+                                                using (SqlCommand cmdInsSub = new SqlCommand(@"
+                                                    INSERT INTO dbo.SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
+                                                    VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark);
+                                                    SELECT SCOPE_IDENTITY();", con, trans))
+                                                {
+                                                    cmdInsSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                                    cmdInsSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = SafeInt(s.ColourID);
+                                                    cmdInsSub.Parameters.Add("@ColourName", SqlDbType.NVarChar, 100).Value = (object)s.ColourName ?? DBNull.Value;
+                                                    cmdInsSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(s.Qty);
+                                                    cmdInsSub.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)s.Unit ?? DBNull.Value;
+                                                    cmdInsSub.Parameters.Add("@Remark", SqlDbType.NVarChar, 255).Value = (object)s.Remark ?? DBNull.Value;
+
+                                                    s.SubDetailID = Convert.ToInt32(cmdInsSub.ExecuteScalar());
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
 
+                            // 6. Delete and Reinsert unreferenced Additional Charges
+                            using (SqlCommand cmdDelChg = new SqlCommand("DELETE FROM dbo.SaleOrderAdditionalCharges WHERE SaleOrderID = @id", con, trans))
+                            {
+                                cmdDelChg.Parameters.Add("@id", SqlDbType.Int).Value = saleOrderId;
+                                cmdDelChg.ExecuteNonQuery();
+                            }
+
+                            if (model.AdditionalCharges?.Any() == true)
+                            {
+                                foreach (var ac in model.AdditionalCharges)
+                                {
+                                    using (SqlCommand cmdAdd = new SqlCommand(@"
+                                        INSERT INTO dbo.SaleOrderAdditionalCharges (SaleOrderID, ChargeRemark, ChargeValue, TotalCalculatedAmount, CreatedDateTime, CreatedByUserID)
+                                        VALUES (@SaleOrderID, @ChargeRemark, @ChargeValue, @TotalCalculatedAmount, GETDATE(), @CreatedByUserID)", con, trans))
+                                    {
+                                        cmdAdd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                                        cmdAdd.Parameters.Add("@ChargeRemark", SqlDbType.NVarChar, 255).Value = (object)ac.ChargeRemark ?? "";
+                                        cmdAdd.Parameters.Add("@ChargeValue", SqlDbType.Decimal).Value = SafeDecimal(ac.ChargeValue);
+                                        cmdAdd.Parameters.Add("@TotalCalculatedAmount", SqlDbType.Decimal).Value = SafeDecimal(ac.TotalCalculatedAmount);
+                                        cmdAdd.Parameters.Add("@CreatedByUserID", SqlDbType.Int).Value = userAccountId;
+                                        cmdAdd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+
+                            // 7. Atomic Transactional Audit Logging
                             string auditAction = (oldRecord == null) ? "CREATE" : "UPDATE";
-                            AuditLogHelper.Log(
+                            AuditLogHelper.LogTransactional(
+                                conn: con,
+                                tran: trans,
                                 module: "Sale Order",
                                 action: auditAction,
                                 tableName: "SaleOrder",
@@ -34528,8 +34745,9 @@ ORDER BY
                                 description: $"{auditAction} Sale Order #{model.OrderNo} (Amount: {model.InvoiceAmount})",
                                 oldValue: oldRecord,
                                 newValue: model,
-                                existingConn: con,
-                                existingTran: trans
+                                status: "Success",
+                                customUserId: userAccountId,
+                                customUserName: null
                             );
 
                             trans.Commit();
@@ -34537,15 +34755,24 @@ ORDER BY
                         }
                         catch (Exception ex)
                         {
-                            trans.Rollback();
-                            return new { success = false, message = ex.Message };
+                            try
+                            {
+                                trans.Rollback();
+                            }
+                            catch { }
+
+                            AuditLogHelper.LogError("Sale Order", "SaveSaleOrder", ex, $"SaleOrderID: {model?.SaleOrderID}, OrderNo: {model?.OrderNo}");
+
+                            return new { success = false, message = "Error saving Sale Order: " + ex.Message };
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                return new { success = false, message = ex.Message };
+                AuditLogHelper.LogError("Sale Order", "SaveSaleOrder", ex, $"SaleOrderID: {model?.SaleOrderID}, OrderNo: {model?.OrderNo}");
+
+                return new { success = false, message = "Error saving Sale Order: " + ex.Message };
             }
         }
         private void AddParams(SqlCommand cmd, SaleOrderModel model, int userId, int fyId, int companyId)
@@ -34553,8 +34780,8 @@ ORDER BY
             cmd.Parameters.Add("@OrderNo", SqlDbType.NVarChar).Value = model.OrderNo ?? "";
             cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = model.OrderDate;
             cmd.Parameters.Add("@PartyID", SqlDbType.Int).Value = SafeInt(model.PartyID);
-            cmd.Parameters.Add("@BrokerID", SqlDbType.NVarChar).Value = (model.BrokerID);
-            cmd.Parameters.Add("@TransportID", SqlDbType.NVarChar).Value = (model.TransportID);
+            cmd.Parameters.Add("@BrokerID", SqlDbType.NVarChar).Value = (object)model.BrokerID ?? "";
+            cmd.Parameters.Add("@TransportID", SqlDbType.NVarChar).Value = (object)model.TransportID ?? "";
             cmd.Parameters.Add("@MarkupPercent", SqlDbType.Decimal).Value = SafeDecimal(model.MarkupPercent);
             cmd.Parameters.Add("@TotalQty", SqlDbType.Decimal).Value = SafeDecimal(model.TotalQty);
             cmd.Parameters.Add("@TotalAmount", SqlDbType.Decimal).Value = SafeDecimal(model.TotalAmount);
@@ -34563,14 +34790,14 @@ ORDER BY
             cmd.Parameters.Add("@GSTPercent", SqlDbType.Decimal).Value = SafeDecimal(model.GSTPercent);
             cmd.Parameters.Add("@GSTAmount", SqlDbType.Decimal).Value = SafeDecimal(model.GSTAmount);
             cmd.Parameters.Add("@InvoiceAmount", SqlDbType.Decimal).Value = SafeDecimal(model.InvoiceAmount);
-            cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = model.Remark ?? "";
+            cmd.Parameters.Add("@Remark", SqlDbType.NVarChar).Value = (object)model.Remark ?? "";
             cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = userId;
             cmd.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = fyId;
             cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
-            cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = model.DiscountType;
-            cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = model.AdditionalRemark;
-            cmd.Parameters.Add("@AdditionalValue", SqlDbType.NVarChar).Value = model.AdditionalValue;
-            cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = model.RoundOff;
+            cmd.Parameters.Add("@DiscountType", SqlDbType.NVarChar).Value = (object)model.DiscountType ?? DBNull.Value;
+            cmd.Parameters.Add("@AdditionalRemark", SqlDbType.NVarChar).Value = (object)model.AdditionalRemark ?? DBNull.Value;
+            cmd.Parameters.Add("@AdditionalValue", SqlDbType.Decimal).Value = SafeDecimal(model.AdditionalValue);
+            cmd.Parameters.Add("@RoundOff", SqlDbType.Decimal).Value = SafeDecimal(model.RoundOff);
         }
         private string GetNextOrderNo(SqlConnection con, SqlTransaction tran)
         {
