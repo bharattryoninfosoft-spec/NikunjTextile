@@ -1,4 +1,4 @@
-using CrystalDecisions.CrystalReports.Engine;
+﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using iText.Forms.Xfdf;
 using iText.Kernel.Geom;
@@ -228,7 +228,10 @@ namespace NikunjTextile
             Context.Response.Write(js.Serialize(response));
             Context.Response.Flush();
             Context.Response.SuppressContent = true;
-            HttpContext.Current.ApplicationInstance.CompleteRequest();
+            if (HttpContext.Current != null && HttpContext.Current.ApplicationInstance != null)
+            {
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -631,7 +634,10 @@ namespace NikunjTextile
 
             Context.Response.Flush();
             Context.Response.SuppressContent = true;
-            HttpContext.Current.ApplicationInstance.CompleteRequest();
+            if (HttpContext.Current != null && HttpContext.Current.ApplicationInstance != null)
+            {
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -668,30 +674,43 @@ namespace NikunjTextile
                     }
 
                     int YarnOutwardScanID = model.YarnOutwardScanID;
+                    bool isNewScan = (YarnOutwardScanID == 0);
+                    string allocatedChallanNo = "";
 
                     // INSERT MASTER
                     if (YarnOutwardScanID == 0)
                     {
+                        var allocation = YarnScanChallanHelper.AllocateNextChallanNo(con, tran);
+                        allocatedChallanNo = allocation.ChallanNo;
+
                         SqlCommand cmdInsert = new SqlCommand(@"
                 INSERT INTO YARNOUTWARDScanMaster
                 (DateAndTime,YarnOutwardID,ChallanNo,ChallanDate,TotalBox,TotalWeight,UserAccountId,FinancialYearID,CompanyId)
                 VALUES
-                (GETDATE(),@YarnOutwardID,@ChallanNo,@ChallanDate,@TotalBox,@TotalWeight,@UserAccountId,
-                (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
-                (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1))
+                (GETDATE(),@YarnOutwardID,@ChallanNo,@ChallanDate,@TotalBox,@TotalWeight,@UserAccountId,@FinancialYearID,@CompanyId)
                 SELECT SCOPE_IDENTITY()", con, tran);
 
-                        cmdInsert.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
-                        cmdInsert.Parameters.AddWithValue("@ChallanNo", model.ChallanNo ?? "");
-                        cmdInsert.Parameters.AddWithValue("@ChallanDate", (object)model.ChallanDate ?? DBNull.Value);
-                        cmdInsert.Parameters.AddWithValue("@TotalBox", model.TotalBox);
-                        cmdInsert.Parameters.AddWithValue("@TotalWeight", model.TotalWeight);
-                        cmdInsert.Parameters.AddWithValue("@UserAccountId", model.UserId > 0 ? model.UserId : 1);
+                        cmdInsert.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
+                        cmdInsert.Parameters.Add("@ChallanNo", SqlDbType.NVarChar, 50).Value = allocation.ChallanNo;
+                        cmdInsert.Parameters.Add("@ChallanDate", SqlDbType.Date).Value = (object)model.ChallanDate ?? DBNull.Value;
+                        cmdInsert.Parameters.Add("@TotalBox", SqlDbType.Int).Value = model.TotalBox;
+                        cmdInsert.Parameters.Add("@TotalWeight", SqlDbType.Decimal).Value = model.TotalWeight;
+                        cmdInsert.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = model.UserId > 0 ? model.UserId : 1;
+                        cmdInsert.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = allocation.FinancialYearID;
+                        cmdInsert.Parameters.Add("@CompanyId", SqlDbType.Int).Value = allocation.CompanyId;
 
                         YarnOutwardScanID = Convert.ToInt32(cmdInsert.ExecuteScalar());
                     }
                     else
                     {
+                        // Preserve existing ChallanNo on UPDATE
+                        using (SqlCommand cmdGetExisting = new SqlCommand(@"SELECT ChallanNo FROM YARNOUTWARDScanMaster WHERE YarnOutwardScanID = @YarnOutwardScanID", con, tran))
+                        {
+                            cmdGetExisting.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            object existingChallanObj = cmdGetExisting.ExecuteScalar();
+                            allocatedChallanNo = existingChallanObj != null ? existingChallanObj.ToString().Trim() : "";
+                        }
+
                         // Reset IsScanStutas on old inward details before removing them
                         SqlCommand getOldCmd = new SqlCommand(
                             "SELECT YarnInwardDetailID FROM YARNOUTWARDScanMasterDetails WHERE YarnOutwardScanID = @YarnOutwardScanID",
@@ -717,14 +736,13 @@ namespace NikunjTextile
 
                         SqlCommand cmdUpdate = new SqlCommand(@"
                 UPDATE YARNOUTWARDScanMaster
-                SET ChallanNo=@ChallanNo,ChallanDate=@ChallanDate,TotalBox=@TotalBox,TotalWeight=@TotalWeight
+                SET ChallanDate=@ChallanDate,TotalBox=@TotalBox,TotalWeight=@TotalWeight
                 WHERE YarnOutwardScanID=@YarnOutwardScanID", con, tran);
 
-                        cmdUpdate.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
-                        cmdUpdate.Parameters.AddWithValue("@ChallanNo", model.ChallanNo ?? "");
-                        cmdUpdate.Parameters.AddWithValue("@ChallanDate", (object)model.ChallanDate ?? DBNull.Value);
-                        cmdUpdate.Parameters.AddWithValue("@TotalBox", model.TotalBox);
-                        cmdUpdate.Parameters.AddWithValue("@TotalWeight", model.TotalWeight);
+                        cmdUpdate.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                        cmdUpdate.Parameters.Add("@ChallanDate", SqlDbType.Date).Value = (object)model.ChallanDate ?? DBNull.Value;
+                        cmdUpdate.Parameters.Add("@TotalBox", SqlDbType.Int).Value = model.TotalBox;
+                        cmdUpdate.Parameters.Add("@TotalWeight", SqlDbType.Decimal).Value = model.TotalWeight;
 
                         cmdUpdate.ExecuteNonQuery();
 
@@ -771,6 +789,22 @@ namespace NikunjTextile
                     cmdUpdateMaster.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
                     cmdUpdateMaster.ExecuteNonQuery();
 
+                    // Atomic AuditLog entry inside the exact same connection and transaction
+                    AuditLogHelper.LogTransactional(
+                        conn: con,
+                        tran: tran,
+                        module: "Yarn Outward Scan Mobile API",
+                        action: isNewScan ? "CREATE" : "UPDATE",
+                        tableName: "YARNOUTWARDScanMaster",
+                        recordId: YarnOutwardScanID.ToString(),
+                        description: $"{(isNewScan ? "Created" : "Updated")} Yarn Outward Scan #{YarnOutwardScanID} ChallanNo '{allocatedChallanNo}' via Mobile API",
+                        oldValue: null,
+                        newValue: new { YarnOutwardScanID, YarnOutwardID, ChallanNo = allocatedChallanNo, model.TotalBox, model.TotalWeight },
+                        status: "Success",
+                        customUserId: model.UserId > 0 ? (long?)model.UserId : null,
+                        customUserName: null
+                    );
+
                     tran.Commit();
 
                     Context.Response.Write(js.Serialize(new
@@ -783,8 +817,17 @@ namespace NikunjTextile
             }
             catch (Exception ex)
             {
-                if (tran != null)
-                    tran.Rollback();
+                if (tran != null && tran.Connection != null)
+                {
+                    try { tran.Rollback(); } catch { }
+                }
+
+                AuditLogHelper.LogError(
+                    module: "Yarn Outward Scan Mobile API",
+                    methodName: "SaveYarnoutwardScanMasterAPI",
+                    ex: ex
+                );
+
                 Context.Response.Write(js.Serialize(new
                 {
                     Code = 500,
@@ -794,7 +837,10 @@ namespace NikunjTextile
             }
             Context.Response.Flush();
             Context.Response.SuppressContent = true;
-            HttpContext.Current.ApplicationInstance.CompleteRequest();
+            if (HttpContext.Current != null && HttpContext.Current.ApplicationInstance != null)
+            {
+                HttpContext.Current.ApplicationInstance.CompleteRequest();
+            }
         }
 
         [WebMethod]

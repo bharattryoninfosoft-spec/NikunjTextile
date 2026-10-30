@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using iText.IO.Font.Constants;
@@ -31459,20 +31459,8 @@ FROM
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = 120;
-
-                cmd.CommandText = @"SELECT  COUNT(*) + 1 AS ChallanNo FROM YARNOUTWARDScanMaster WITH (NOLOCK)";
                 con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                while (rdr.Read())
-                {
-                    ChallanNo = Convert.ToInt32(rdr["ChallanNo"]);
-
-                }
+                ChallanNo = YarnScanChallanHelper.GetPreviewNextChallanNo(con);
             }
 
 
@@ -31799,7 +31787,14 @@ END
 
                 while (rdr.Read())
                 {
-                    ChallanNo = Convert.ToInt32(rdr["YarnOutwardID"]);
+                    if (rdr["ChallanNo"] != DBNull.Value)
+                    {
+                        int parsedChallan;
+                        if (int.TryParse(rdr["ChallanNo"].ToString().Trim(), out parsedChallan))
+                        {
+                            ChallanNo = parsedChallan;
+                        }
+                    }
                     YarnOutwardScanID = Convert.ToInt32(rdr["YarnOutwardScanID"]);
                     if (rdr["ChallanDate"] != DBNull.Value)
                     {
@@ -32031,16 +32026,24 @@ ORDER BY D.YarnOutwardScanDetailID;";
 
                     if (!string.IsNullOrEmpty(encYarnOutwardID))
                     {
-                        string lastCharacter = encYarnOutwardID.Substring(encYarnOutwardID.Length - 6);
-
-                        if (lastCharacter != "%3d%3d")
+                        int parsedOutwardId;
+                        if (int.TryParse(encYarnOutwardID, out parsedOutwardId))
                         {
-                            string InvoiceId = HttpContext.Current.Request.Params["YarnOutwardID"].Replace("==", "") + "%3d%3d";
-                            YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                            YarnOutwardID = parsedOutwardId;
                         }
                         else
                         {
-                            YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(HttpContext.Current.Request.Params["YarnOutwardID"])));
+                            string lastCharacter = encYarnOutwardID.Length >= 6 ? encYarnOutwardID.Substring(encYarnOutwardID.Length - 6) : "";
+
+                            if (lastCharacter != "%3d%3d")
+                            {
+                                string InvoiceId = encYarnOutwardID.Replace("==", "") + "%3d%3d";
+                                YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                            }
+                            else
+                            {
+                                YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(encYarnOutwardID)));
+                            }
                         }
                     }
 
@@ -32051,51 +32054,44 @@ ORDER BY D.YarnOutwardScanDetailID;";
                         UserAccountId = Convert.ToInt32(Context.Request.Cookies["UserIDs"].Value.Split('=')[1]);
                     }
 
+                    bool isNewScan = (YarnOutwardScanID == 0);
+                    string allocatedChallanNo = "";
+
                     // INSERT OR UPDATE MASTER
                     if (YarnOutwardScanID == 0)
                     {
-                        using (SqlCommand cmdNext = new SqlCommand(@"
-                          SELECT
-                                CompanyId,
-                                FinancialYearID,
-                                MAX(TRY_CONVERT(INT, ChallanNo)) AS CurrentMaxChallanNo,
-                                ISNULL(MAX(TRY_CONVERT(INT, ChallanNo)), 0) + 1 AS NextChallanNo
-                            FROM dbo.YARNOUTWARDScanMaster
-                            WHERE CompanyId = (
-                                SELECT CompanyId
-                                FROM dbo.CompanyMaster
-                                WHERE is_default = 1
-                            )
-                            AND FinancialYearID = (
-                                SELECT FinancialYearID
-                                FROM dbo.FinancialYearMaster
-                                WHERE IsDefault = 1
-                            )
-                            GROUP BY CompanyId, FinancialYearID;", con, tran))
-                        {
-                            ChallanNo = Convert.ToString(cmdNext.ExecuteScalar());
-                        }
+                        var allocation = YarnScanChallanHelper.AllocateNextChallanNo(con, tran);
+                        allocatedChallanNo = allocation.ChallanNo;
+
                         SqlCommand cmdInsert = new SqlCommand(@"
                 INSERT INTO YARNOUTWARDScanMaster
                 (DateAndTime,YarnOutwardID,ChallanNo,ChallanDate,TotalBox,TotalWeight,UserAccountId,FinancialYearID,CompanyId)
                 VALUES
-                (GETDATE(),@YarnOutwardID,@ChallanNo,@ChallanDate,@TotalBox,@TotalWeight,@UserAccountId,
-                 (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1),
-                 (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1))
+                (GETDATE(),@YarnOutwardID,@ChallanNo,@ChallanDate,@TotalBox,@TotalWeight,@UserAccountId,@FinancialYearID,@CompanyId)
                 SELECT SCOPE_IDENTITY()", con, tran);
 
                         cmdInsert.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
-                        cmdInsert.Parameters.Add("@ChallanNo", SqlDbType.VarChar).Value = ChallanNo ?? "";
+                        cmdInsert.Parameters.Add("@ChallanNo", SqlDbType.NVarChar, 50).Value = allocation.ChallanNo;
                         cmdInsert.Parameters.Add("@ChallanDate", SqlDbType.Date).Value =
                             string.IsNullOrEmpty(ChallanDate) ? (object)DBNull.Value : Convert.ToDateTime(ChallanDate);
                         cmdInsert.Parameters.Add("@TotalBox", SqlDbType.Int).Value = Convert.ToInt32(TotalBox);
                         cmdInsert.Parameters.Add("@TotalWeight", SqlDbType.Decimal).Value = Convert.ToDecimal(TotalWeight);
                         cmdInsert.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = UserAccountId;
+                        cmdInsert.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = allocation.FinancialYearID;
+                        cmdInsert.Parameters.Add("@CompanyId", SqlDbType.Int).Value = allocation.CompanyId;
 
                         YarnOutwardScanID = Convert.ToInt32(cmdInsert.ExecuteScalar());
                     }
                     else
                     {
+                        // Preserve existing ChallanNo on UPDATE
+                        using (SqlCommand cmdGetExisting = new SqlCommand(@"SELECT ChallanNo FROM YARNOUTWARDScanMaster WHERE YarnOutwardScanID = @YarnOutwardScanID", con, tran))
+                        {
+                            cmdGetExisting.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            object existingChallanObj = cmdGetExisting.ExecuteScalar();
+                            allocatedChallanNo = existingChallanObj != null ? existingChallanObj.ToString().Trim() : "";
+                        }
+
                         SqlCommand getOldIsscandata = new SqlCommand(
                         @"SELECT YarnInwardDetailID  FROM YARNOUTWARDScanMasterDetails  WHERE YarnOutwardScanID = @YarnOutwardScanID", con, tran);
                         getOldIsscandata.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
@@ -32135,8 +32131,6 @@ ORDER BY D.YarnOutwardScanDetailID;";
                             con, tran);
                         cmdDelete.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
                         cmdDelete.ExecuteNonQuery();
-
-
                     }
 
                     int i = 0;
@@ -32175,7 +32169,25 @@ ORDER BY D.YarnOutwardScanDetailID;";
             UPDATE YARNOUTWARDMaster  SET IsScanStutas = 1 WHERE YarnOutwardID = @YarnOutwardID", con, tran);
                     cmdUpdateMaster.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
                     cmdUpdateMaster.ExecuteNonQuery();
+
+                    // Atomic AuditLog entry inside the exact same connection and transaction
+                    AuditLogHelper.LogTransactional(
+                        conn: con,
+                        tran: tran,
+                        module: "Yarn Outward Scan",
+                        action: isNewScan ? "CREATE" : "UPDATE",
+                        tableName: "YARNOUTWARDScanMaster",
+                        recordId: YarnOutwardScanID.ToString(),
+                        description: $"{(isNewScan ? "Created" : "Updated")} Yarn Outward Scan #{YarnOutwardScanID} ChallanNo '{allocatedChallanNo}'",
+                        oldValue: null,
+                        newValue: new { YarnOutwardScanID, YarnOutwardID, ChallanNo = allocatedChallanNo, TotalBox, TotalWeight },
+                        status: "Success",
+                        customUserId: UserAccountId > 0 ? (long?)UserAccountId : null,
+                        customUserName: null
+                    );
+
                     tran.Commit();
+                    comman.id = YarnOutwardScanID;
                     comman.Code = 201;
                     comman.Message = "Yarn Outward saved successfully.";
                 }
@@ -32184,8 +32196,14 @@ ORDER BY D.YarnOutwardScanDetailID;";
             {
                 if (tran != null && tran.Connection != null)
                 {
-                    tran.Rollback();
+                    try { tran.Rollback(); } catch { }
                 }
+
+                AuditLogHelper.LogError(
+                    module: "Yarn Outward Scan",
+                    methodName: "SaveYarnoutwardScanMaster",
+                    ex: ex
+                );
 
                 comman.Code = 500;
                 comman.Message = ex.Message;
