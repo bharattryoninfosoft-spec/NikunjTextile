@@ -6166,164 +6166,257 @@ ORDER BY UAM.UserAccountId DESC; ";
         public void insertGodownMaster()
         {
             DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            //Int64 EmployeeId, CourierDetailId;
-            var request = HttpContext.Current.Request;
-            string employeeExpenseDate = DateTime.Now.ToString("yyyy-MM-dd");
-
             CommanResponse comman = new CommanResponse();
             GodownMaster ilist = new GodownMaster();
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            js.MaxJsonLength = Int32.MaxValue;
 
             ilist.DateAndTime = Convert.ToDateTime(dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            string UserAccountId = Context.Request.Cookies["UserIDs"].Value.Split('=')[1];
-            string CompanyId = Context.Request.Cookies["CompanyID"].Value.Split('=')[1];
-            string FinancialYearID = Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1];
-            ilist.GodownArray = HttpContext.Current.Request.Params["GodownArray"];
+            string UserAccountId = "";
+            string CompanyId = "";
+            string FinancialYearID = "";
 
-            if (UserAccountId == "" && CompanyId == "" && FinancialYearID == "")
+            if (Context.Request.Cookies["UserIDs"] != null)
+            {
+                string cookieVal = Context.Request.Cookies["UserIDs"].Value ?? "";
+                UserAccountId = cookieVal.Contains("=") ? cookieVal.Split('=')[1] : cookieVal;
+            }
+
+            if (Context.Request.Cookies["CompanyID"] != null)
+            {
+                string cookieVal = Context.Request.Cookies["CompanyID"].Value ?? "";
+                CompanyId = cookieVal.Contains("=") ? cookieVal.Split('=')[1] : cookieVal;
+            }
+
+            if (Context.Request.Cookies["FinacialYearDefaultID"] != null)
+            {
+                string cookieVal = Context.Request.Cookies["FinacialYearDefaultID"].Value ?? "";
+                FinancialYearID = cookieVal.Contains("=") ? cookieVal.Split('=')[1] : cookieVal;
+            }
+
+            long companyIdVal = 0;
+            long userAccountIdVal = 0;
+            Int64.TryParse(CompanyId, out companyIdVal);
+            Int64.TryParse(UserAccountId, out userAccountIdVal);
+
+            if (companyIdVal <= 0 || userAccountIdVal <= 0 || string.IsNullOrWhiteSpace(FinancialYearID))
             {
                 comman.Code = 500;
                 comman.Message = "Please Re-Login your Account.";
+                Context.Response.Write(js.Serialize(comman));
+                return;
             }
-            else
+
+            ilist.GodownArray = HttpContext.Current.Request.Params["GodownArray"];
+            if (string.IsNullOrWhiteSpace(ilist.GodownArray))
             {
-                var myDetails = JsonConvert.DeserializeObject<GodownMaster>(ilist.GodownArray);
-                string Tdt = dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss");
+                comman.Code = 500;
+                comman.Message = "Invalid Godown Data.";
+                Context.Response.Write(js.Serialize(comman));
+                return;
+            }
 
+            GodownMaster myDetails = null;
+            try
+            {
+                myDetails = JsonConvert.DeserializeObject<GodownMaster>(ilist.GodownArray);
+            }
+            catch { }
 
-                try
+            if (myDetails == null)
+            {
+                comman.Code = 500;
+                comman.Message = "Invalid Godown Data.";
+                Context.Response.Write(js.Serialize(comman));
+                return;
+            }
+
+            string GodownTitle = (myDetails.GodownTitle ?? "").Trim().ToUpper();
+            string GodownAddress = (myDetails.GodownAddress ?? "").Trim().ToUpper();
+            string GSTIN = (myDetails.GSTIN ?? "").Trim().ToUpper();
+            long partyIdVal = 0;
+            Int64.TryParse(Convert.ToString(myDetails.PartyId), out partyIdVal);
+
+            if (string.IsNullOrWhiteSpace(GodownTitle))
+            {
+                comman.Code = 500;
+                comman.Message = "Please enter Godown Title.";
+                Context.Response.Write(js.Serialize(comman));
+                return;
+            }
+
+            try
+            {
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
                 {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-                    using (SqlConnection con = new SqlConnection(cs))
+                    con.Open();
+                    using (SqlTransaction transaction = con.BeginTransaction())
                     {
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = con;
-                        cmd.CommandType = System.Data.CommandType.Text;
-                        cmd.CommandText = " select * from GodownMaster where GodownTitle = '" + myDetails.GodownTitle.ToUpper() + "' AND CompanyId = " + CompanyId + "";
-                        con.Open();
-                        SqlDataReader rdr = cmd.ExecuteReader();
+                        try
+                        {
+                            // 1. Parameterized duplicate check within this company
+                            string checkSql = @"
+                                SELECT COUNT(1) 
+                                FROM GodownMaster 
+                                WHERE CompanyId = @CompanyId 
+                                  AND UPPER(LTRIM(RTRIM(GodownTitle))) = @GodownTitle";
 
-                        if (rdr.HasRows)
-                        {
-                            comman.Code = 500;
-                            comman.Message = "This Godown Title ALready Exists.";
-                        }
-                        else
-                        {
-                            rdr.Close();
+                            using (SqlCommand checkCmd = new SqlCommand(checkSql, con, transaction))
+                            {
+                                checkCmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = companyIdVal;
+                                checkCmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar, 200).Value = GodownTitle;
+
+                                int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                                if (exists > 0)
+                                {
+                                    transaction.Rollback();
+                                    comman.Code = 500;
+                                    comman.Message = "This Godown Title ALready Exists.";
+                                    Context.Response.Write(js.Serialize(comman));
+                                    return;
+                                }
+                            }
+
+                            // 2. If IsDefault == 1, update existing default godowns for this company
                             if (myDetails.IsDefault == 1)
                             {
-                                cmd.CommandText = "update GodownMaster set IsDefault = '0' ";
-                                //con.Open();
-                                cmd.ExecuteNonQuery();
-                                //con.Close();
-                            }
-                            Int64 id = 0;
-                            string sql = @"INSERT INTO GodownMaster(DateAndTime,GodownTitle,GodownAddress,IsActive,IsDefault,CompanyId,UserAccountId,GSTIN,PartyId)
-                                    OUTPUT INSERTED.GodownID VALUES(@DateAndTime,@GodownTitle,@GodownAddress,@IsActive,@IsDefault,@CompanyId,@UserAccountId,@GSTIN,@PartyId)";
-
-                            using (SqlCommand sqlCommand = new SqlCommand(sql, con))
-                            {
-                                sqlCommand.Parameters.AddWithValue("@DateAndTime", dateTime_Indian);
-
-                                sqlCommand.Parameters.AddWithValue("@GodownTitle",
-                                    myDetails.GodownTitle.ToUpper());
-
-                                sqlCommand.Parameters.AddWithValue("@GodownAddress",
-                                    myDetails.GodownAddress.ToUpper());
-
-                                sqlCommand.Parameters.AddWithValue("@IsActive",
-                                    myDetails.IsActive);
-
-                                sqlCommand.Parameters.AddWithValue("@IsDefault",
-                                    myDetails.IsDefault);
-
-                                sqlCommand.Parameters.AddWithValue("@CompanyId",
-                                    CompanyId);
-
-                                sqlCommand.Parameters.AddWithValue("@UserAccountId",
-                                    UserAccountId);
-
-                                sqlCommand.Parameters.AddWithValue("@GSTIN",
-                                    myDetails.GSTIN);
-                                sqlCommand.Parameters.AddWithValue("@PartyId",
-                                    myDetails.PartyId);
-
-                                id = Convert.ToInt64(sqlCommand.ExecuteScalar());
-                            }
-
-                            //con.Close();
-                            if (id > 0)
-                            {
-                                if (myDetails.listGodownLocationMaster.Count > 0)
+                                string updateDefaultSql = @"
+                                    UPDATE GodownMaster 
+                                    SET IsDefault = '0' 
+                                    WHERE CompanyId = @CompanyId";
+                                using (SqlCommand updateDefaultCmd = new SqlCommand(updateDefaultSql, con, transaction))
                                 {
-                                    foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
-                                    {
-                                        string sqls = @"INSERT INTO GodownLocationMaster (DateandTime,SrNo,LocationTitle,GodownID)
-                                            VALUES (@DateandTime,@SrNo,@LocationTitle,@GodownID)";
-                                        using (SqlCommand cmds = new SqlCommand(sqls, con))
-                                        {
-                                            cmds.Parameters.AddWithValue("@DateandTime", dateTime_Indian);
-                                            cmds.Parameters.AddWithValue("@SrNo", each.SrNo);
-                                            cmds.Parameters.AddWithValue("@LocationTitle", each.LocationTitle.ToUpper());
-                                            cmds.Parameters.AddWithValue("@GodownID", id);
-                                            cmds.ExecuteNonQuery();
-                                        }
-                                    }
+                                    updateDefaultCmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = companyIdVal;
+                                    updateDefaultCmd.ExecuteNonQuery();
                                 }
-
-                                con.Close();
-
-                                AuditLogHelper.Log(
-                                    module: "Godown Master",
-                                    action: "CREATE",
-                                    tableName: "GodownMaster",
-                                    recordId: id.ToString(),
-                                    description: $"Created Godown '{myDetails.GodownTitle}'",
-                                    newValue: myDetails
-                                );
-
-                                comman.id = Convert.ToInt32(id);
-
-                                comman.Code = 200;
-
-                                comman.Message = "Record has been saved successfully";
                             }
-                            else
+
+                            // 3. Insert Master record and retrieve generated identity
+                            long newGodownId = 0;
+                            string insertMasterSql = @"
+                                INSERT INTO GodownMaster (DateAndTime, GodownTitle, GodownAddress, IsActive, IsDefault, CompanyId, UserAccountId, GSTIN, PartyId)
+                                OUTPUT INSERTED.GodownID
+                                VALUES (@DateAndTime, @GodownTitle, @GodownAddress, @IsActive, @IsDefault, @CompanyId, @UserAccountId, @GSTIN, @PartyId)";
+
+                            using (SqlCommand insertMasterCmd = new SqlCommand(insertMasterSql, con, transaction))
                             {
+                                insertMasterCmd.Parameters.Add("@DateAndTime", SqlDbType.DateTime).Value = dateTime_Indian;
+                                insertMasterCmd.Parameters.Add("@GodownTitle", SqlDbType.NVarChar, 200).Value = GodownTitle;
+                                insertMasterCmd.Parameters.Add("@GodownAddress", SqlDbType.NVarChar, 1000).Value = GodownAddress;
+                                insertMasterCmd.Parameters.Add("@IsActive", SqlDbType.TinyInt).Value = (byte)myDetails.IsActive;
+                                insertMasterCmd.Parameters.Add("@IsDefault", SqlDbType.TinyInt).Value = (byte)myDetails.IsDefault;
+                                insertMasterCmd.Parameters.Add("@CompanyId", SqlDbType.BigInt).Value = companyIdVal;
+                                insertMasterCmd.Parameters.Add("@UserAccountId", SqlDbType.BigInt).Value = userAccountIdVal;
+                                insertMasterCmd.Parameters.Add("@GSTIN", SqlDbType.NVarChar, 50).Value = GSTIN;
+                                insertMasterCmd.Parameters.Add("@PartyId", SqlDbType.BigInt).Value = partyIdVal;
+
+                                object insertedObj = insertMasterCmd.ExecuteScalar();
+                                if (insertedObj != null && insertedObj != DBNull.Value)
+                                {
+                                    newGodownId = Convert.ToInt64(insertedObj);
+                                }
+                            }
+
+                            if (newGodownId <= 0)
+                            {
+                                transaction.Rollback();
                                 comman.Code = 500;
                                 comman.Message = "Problem has been occurred while submitting your data.";
-
+                                Context.Response.Write(js.Serialize(comman));
+                                return;
                             }
+
+                            // 4. Insert Child Locations atomically
+                            if (myDetails.listGodownLocationMaster != null && myDetails.listGodownLocationMaster.Count > 0)
+                            {
+                                int srNo = 1;
+                                foreach (GodownLocationMaster each in myDetails.listGodownLocationMaster)
+                                {
+                                    string locationTitle = (each.LocationTitle ?? "").Trim().ToUpper();
+                                    if (string.IsNullOrWhiteSpace(locationTitle))
+                                        continue;
+
+                                    string insertLocSql = @"
+                                        INSERT INTO GodownLocationMaster (DateandTime, SrNo, LocationTitle, GodownID)
+                                        VALUES (@DateandTime, @SrNo, @LocationTitle, @GodownID)";
+
+                                    using (SqlCommand insertLocCmd = new SqlCommand(insertLocSql, con, transaction))
+                                    {
+                                        insertLocCmd.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTime_Indian;
+                                        insertLocCmd.Parameters.Add("@SrNo", SqlDbType.Int).Value = each.SrNo > 0 ? each.SrNo : srNo;
+                                        insertLocCmd.Parameters.Add("@LocationTitle", SqlDbType.NVarChar, 200).Value = locationTitle;
+                                        insertLocCmd.Parameters.Add("@GodownID", SqlDbType.Int).Value = (int)newGodownId;
+
+                                        int locRows = insertLocCmd.ExecuteNonQuery();
+                                        if (locRows <= 0)
+                                        {
+                                            throw new Exception("Failed to insert Godown Location record.");
+                                        }
+                                    }
+                                    srNo++;
+                                }
+                            }
+
+                            // 5. Atomic success AuditLog insertion inside the exact same connection and transaction
+                            AuditLogHelper.LogTransactional(
+                                conn: con,
+                                tran: transaction,
+                                module: "Godown Master",
+                                action: "CREATE",
+                                tableName: "GodownMaster",
+                                recordId: newGodownId.ToString(),
+                                description: $"Created Godown #{newGodownId} '{GodownTitle}'",
+                                oldValue: null,
+                                newValue: myDetails,
+                                status: "Success",
+                                customUserId: userAccountIdVal,
+                                customUserName: null
+                            );
+
+                            // 6. Commit transaction
+                            transaction.Commit();
+
+                            comman.id = Convert.ToInt32(newGodownId);
+                            comman.Code = 200;
+                            comman.Message = "Record has been saved successfully";
                         }
-
-
-
-                        cmd.Dispose();
-                        con.Close();
-
+                        catch
+                        {
+                            try
+                            {
+                                transaction.Rollback();
+                            }
+                            catch
+                            {
+                            }
+                            throw;
+                        }
                     }
-                }
-                catch (SqlException ex)
-                {
-
-                    if (ex.Number == 2601 || ex.Number == 2627)
-                    {
-                        comman.Code = 405;
-                        comman.Message = "This Invoice No is already exists.";
-
-                    }
-                    else
-                    {
-                        comman.Code = 410;
-                        comman.Message = "Problem has been occurred while submitting your data.";
-
-                    }
-
                 }
             }
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
+            catch (SqlException ex)
+            {
+                AuditLogHelper.LogError("Godown Master", "insertGodownMaster", ex, ilist.GodownArray);
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    comman.Code = 405;
+                    comman.Message = "This Godown or Location already exists.";
+                }
+                else
+                {
+                    comman.Code = 410;
+                    comman.Message = "Problem has been occurred while submitting your data.";
+                }
+            }
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Godown Master", "insertGodownMaster", ex, ilist.GodownArray);
+                comman.Code = 410;
+                comman.Message = "Problem has been occurred while submitting your data.";
+            }
+
             Context.Response.Write(js.Serialize(comman));
         }
         //[WebMethod]
