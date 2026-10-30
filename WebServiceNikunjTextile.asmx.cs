@@ -6256,10 +6256,10 @@ ORDER BY UAM.UserAccountId DESC; ";
                     {
                         try
                         {
-                            // 1. Parameterized duplicate check within this company
+                            // 1. Parameterized duplicate check within this company with transaction-safe concurrency locking
                             string checkSql = @"
                                 SELECT COUNT(1) 
-                                FROM GodownMaster 
+                                FROM GodownMaster WITH (UPDLOCK, HOLDLOCK)
                                 WHERE CompanyId = @CompanyId 
                                   AND UPPER(LTRIM(RTRIM(GodownTitle))) = @GodownTitle";
 
