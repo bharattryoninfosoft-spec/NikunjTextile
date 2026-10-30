@@ -195,7 +195,8 @@ namespace NikunjTextile.Class
             int? customUserId = null,
             string customUserName = null,
             SqlConnection existingConn = null,
-            SqlTransaction existingTran = null)
+            SqlTransaction existingTran = null,
+            bool skipErrorLog = false)
         {
             try
             {
@@ -282,7 +283,7 @@ namespace NikunjTextile.Class
                                (action != null && (action.IndexOf("ERROR", StringComparison.OrdinalIgnoreCase) >= 0 || action.IndexOf("FAIL", StringComparison.OrdinalIgnoreCase) >= 0)) ||
                                (description != null && (description.IndexOf("Exception", StringComparison.OrdinalIgnoreCase) >= 0 || description.IndexOf("Failed", StringComparison.OrdinalIgnoreCase) >= 0));
 
-                if (isError)
+                if (isError && !skipErrorLog)
                 {
                     try
                     {
@@ -317,6 +318,7 @@ namespace NikunjTextile.Class
                     }
                     catch (Exception errLogEx)
                     {
+                        System.Diagnostics.Trace.TraceError("ErrorLog write exception: " + errLogEx);
                         System.Diagnostics.Debug.WriteLine("ErrorLog write exception: " + errLogEx.Message);
                     }
                 }
@@ -324,6 +326,7 @@ namespace NikunjTextile.Class
             catch (Exception helperEx)
             {
                 // Failsafe catch block: Logging failure must never break business logic execution
+                System.Diagnostics.Trace.TraceError("AuditLogHelper Exception: " + helperEx);
                 System.Diagnostics.Debug.WriteLine("AuditLogHelper Exception: " + helperEx.Message);
             }
         }
@@ -857,11 +860,13 @@ namespace NikunjTextile.Class
                     description: $"Exception in {methodName}: {ex?.Message}",
                     status: "Error",
                     errorMessage: ex?.Message,
-                    ex: ex
+                    ex: ex,
+                    skipErrorLog: true
                 );
             }
             catch (Exception helperEx)
             {
+                System.Diagnostics.Trace.TraceError("LogError Exception: " + helperEx);
                 System.Diagnostics.Debug.WriteLine("LogError Exception: " + helperEx.Message);
             }
         }
