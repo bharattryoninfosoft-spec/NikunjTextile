@@ -35,7 +35,7 @@
                             <div id="dropzone-sm">
                                 <div class="row gutters">
                                     <div class="col-12">
-                                        <select class="form-control" style="min-height: 35px;" id="ExistingDesignNo" onchange="getDesignNo(this)">
+                                        <select class="form-control no-select2" style="min-height: 35px;" id="ExistingDesignNo" onchange="getDesignNo(this)">
                                         </select>
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
 
                             <div class="col-12">
                                 <div class="field-wrapper" style=" margin-top: 0;">
-                                    <select id="warnquality" class="form-control" title="Select Warp Qoulity" onfocusout="validate(this)">
+                                    <select id="warnquality" class="form-control no-select2" title="Select Warp Qoulity" onfocusout="validate(this)">
                                     </select>
                                     <div class="field-placeholder">Warp Pattern<sup style="color:red;">*</sup></div>
                                     <div class="warnquality-valid-feedback valid-feedback">Looks good!</div>
@@ -152,7 +152,7 @@
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                             <!-- Field wrapper start -->
                                             <div class="field-wrapper">
-                                                <select id="yarnquality1" name="yarnquality1" title="Yarn Material" class="form-control" onfocusout="validate(this)">
+                                                <select id="yarnquality1" name="yarnquality1" title="Yarn Material" class="form-control no-select2" onfocusout="validate(this)">
                                                 </select>
                                                 <div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>
                                                 <div class="yarnquality1-valid-feedback valid-feedback">Looks good!</div>
@@ -165,7 +165,7 @@
                                         <!--<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">-->
                                         <!-- Field wrapper start -->
                                         <!--<div class="field-wrapper">
-                                            <select id="yarncolor1" name="yarncolor1" title="Yarn Color" class="form-control" onfocusout="validate(this)">
+                                            <select id="yarncolor1" name="yarncolor1" title="Yarn Color" class="form-control no-select2" onfocusout="validate(this)">
                                             </select>
                                             <div class="field-placeholder">Yarn Color<sup style="color:red;">*</sup></div>
                                             <div class="yarncolor1-valid-feedback valid-feedback">Looks good!</div>
@@ -281,7 +281,7 @@
                                 <!--Designer-->
                                 <div class="col-xl-6">
                                     <div class="field-wrapper" style=" margin-top: 0;">
-                                        <select id="DesignerID" name="DesignerID" title="DesignerID" class="form-control" onfocusout="validate(this)" onchange="changeDesigner(this)">
+                                        <select id="DesignerID" name="DesignerID" title="DesignerID" class="form-control no-select2" onfocusout="validate(this)" onchange="changeDesigner(this)">
                                         </select>
                                         <div class="field-placeholder">Designer<sup style="color:red;">*</sup></div>
                                         <div class="DesignerID-valid-feedback valid-feedback">Looks good!</div>
@@ -293,7 +293,7 @@
                                 <!--Sketcher-->
                                 <div class="col-xl-6">
                                     <div class="field-wrapper" style=" margin-top: 0;">
-                                        <select id="Sketcher" name="Sketcher" title="Sketcher" class="form-control" onfocusout="validate(this)">
+                                        <select id="Sketcher" name="Sketcher" title="Sketcher" class="form-control no-select2" onfocusout="validate(this)">
                                         </select>
                                         <div class="field-placeholder">Sketcher</div>
                                         @*<div class="Sketcher-valid-feedback valid-feedback">Looks good!</div>
@@ -379,7 +379,7 @@
                                 <!--Type-->
                                 <div class="col-xl-6">
                                     <div class="field-wrapper" style=" margin-top: 0;">
-                                        <select id="type" name="type" title="type" class="form-control" onfocusout="validate(this)">
+                                        <select id="type" name="type" title="type" class="form-control no-select2" onfocusout="validate(this)">
                                         </select>
                                         <div class="field-placeholder">Type<sup style="color:red;">*</sup></div>
                                         <div class="type-valid-feedback valid-feedback">Looks good!</div>
@@ -391,7 +391,7 @@
                                 <!--Material-->
                                 <div class="col-xl-6">
                                     <div class="field-wrapper" style=" margin-top: 0;">
-                                        <select id="DesignCategory" name="DesignCategory" title="DesignCategory" class="form-control" onfocusout="validate(this)">
+                                        <select id="DesignCategory" name="DesignCategory" title="DesignCategory" class="form-control no-select2" onfocusout="validate(this)">
                                         </select>
                                         <div class="field-placeholder">Design Category<sup style="color:red;">*</sup></div>
                                         <div class="DesignCategory-valid-feedback valid-feedback">Looks good!</div>
@@ -476,8 +476,8 @@
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper" style=" margin-top: 0;">
-                                                    @*<select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control"  onfocusout="validate(this)">*@
-                                                    <select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control" onfocusout="validate(this)">
+                                                    @*<select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control no-select2"  onfocusout="validate(this)">*@
+                                                    <select id="yarnMaterial1" name="yarnMaterial1" title="Yarn Material 1" class="form-control no-select2" onfocusout="validate(this)">
                                                     </select>
                                                     <div class="field-placeholder">Yarn Material<sup style="color:red;">*</sup></div>
                                                     <div class="yarnMaterial1-valid-feedback valid-feedback">Looks good!</div>
@@ -489,7 +489,7 @@
                                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                                 <!-- Field wrapper start -->
                                                 <div class="field-wrapper" style=" margin-top: 0;">
-                                                    <select id="DesignSpecification1" name="DesignSpecification1" title="Design Specification 1" class="form-control" onfocusout="validate(this)">
+                                                    <select id="DesignSpecification1" name="DesignSpecification1" title="Design Specification 1" class="form-control no-select2" onfocusout="validate(this)">
                                                     </select>
                                                     <div class="field-placeholder">Design Specification<sup style="color:red;">*</sup></div>
                                                     <div class="DesignSpecification1-valid-feedback valid-feedback">Looks good!</div>
@@ -586,27 +586,21 @@
         $('body').addClass('fullscreen');
         var currentPagePermission = {};
 
-        function initSelect2() {
-            setTimeout(function () {
-                $('select').not('.no-select2, .swal2-select, .swal-select, .swal2-container select, .swal-container select').each(function () {
-                    var $el = $(this);
-                    if ($el.data('select2')) {
-                        $el.select2('destroy');
-                    }
-                    $el.select2({
-                        width: '100%'
-                    });
-                });
-            }, 100);
-        }
-
         $(document).on('change', 'select', function () {
             if (typeof validate === 'function' && this.id) {
                 validate(this);
             }
         });
 
+        // Keep all dropdowns on this page as native HTML select elements.
         $(document).ready(function () {
+            setTimeout(function () {
+                $('select').each(function () {
+                    if ($(this).data('select2')) {
+                        $(this).select2('destroy');
+                    }
+                });
+            }, 300);
             var permission = getCookie("PagePermission");
             if (permission != null && permission != "") {
                 var currentPagePermission = JSON.parse(permission);
@@ -617,7 +611,6 @@
             FunctionIsLogin();
             getDesignNoForm();
             getDesignEntryForm();
-            initSelect2();
         });
         var notes = $('#notes').notify({
             removeIcon: '<i class="icon-close"></i>'
@@ -825,9 +818,8 @@
                                 $('#ExistingDesignNo').append(tempDesignNo);
 
                             }
-                                             initSelect2();   
-                                             }
-}
+                        }
+                    }
 
                 },
                 error: function (request, status, error) {
@@ -954,7 +946,7 @@
                                     tempWarnQuality += '<div class="row gutters">';
                                     tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     tempWarnQuality += '<div class="field-wrapper">';
-                                    tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control" onfocusout="validate(this)">';
+                                    tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWarnQuality += '<option value=""> Select Yarn Material </option>';
 
 
@@ -981,7 +973,7 @@
 
                                     //tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     //tempWarnQuality += '<div class="field-wrapper">';
-                                    //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control" onfocusout="validate(this)">';
+                                    //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control no-select2" onfocusout="validate(this)">';
                                     //tempWarnQuality += '<option value=""> Select Yarn Color </option>';
                                     //for (var c = 0; c < ArrayYarnColor[0].length; c++) {
                                     //    if (ArrayYarnColor[0][c].YarnColorID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnColorID) {
@@ -1032,7 +1024,7 @@
 
                                     tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     tempWarnQuality += '<div class="field-wrapper">';
-                                    tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control" onfocusout="validate(this)">';
+                                    tempWarnQuality += '<select id="yarnquality' + WarSrNo + '" name="yarnquality' + WarSrNo + '" title="Yarn Material" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWarnQuality += '<option value=""> Select Yarn Material </option>';
 
                                     for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
@@ -1055,7 +1047,7 @@
 
                                     //tempWarnQuality += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     //tempWarnQuality += '<div class="field-wrapper">';
-                                    //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control" onfocusout="validate(this)">';
+                                    //tempWarnQuality += '<select id="yarncolor' + WarSrNo + '" name="yarncolor' + WarSrNo + '" title="Yarn Color" class="form-control no-select2" onfocusout="validate(this)">';
                                     //tempWarnQuality += '<option value=""> Select Yarn Color </option>';
                                     //for (var c = 0; c < ArrayYarnColor[0].length; c++) {
                                     //    if (ArrayYarnColor[0][c].YarnColorID == response.listDesignEntryForm[i].listDesignFormWarpData[j].YarnColorID) {
@@ -1140,7 +1132,7 @@
 
                                     tempWeftData += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
-                                    tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                                    tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWeftData += '<option value=""> Select Yarn Material </option>';
                                     //alert(ArrayYarnMaterial[0].length);
                                     for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
@@ -1166,7 +1158,7 @@
                                     tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
                                     //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
 
-                                    tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                                    tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWeftData += '<option value=""> Select Yarn Material </option>';
                                     //alert(ArrayDesignSpecification[0].length);
                                     for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
@@ -1229,7 +1221,7 @@
 
                                     tempWeftData += '<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">';
                                     tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
-                                    tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                                    tempWeftData += '<select id="yarnMaterial' + WeftSrNo + '" name="yarnMaterial' + WeftSrNo + '" title="Yarn Material ' + WeftSrNo + '" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWeftData += '<option value=""> Select Yarn Material </option>';
                                     //alert(ArrayYarnMaterial[0].length);
                                     for (var q = 0; q < ArrayYarnMaterial[0].length; q++) {
@@ -1255,7 +1247,7 @@
                                     tempWeftData += '<div class="field-wrapper" style=" margin-top: 0;">';
                                     //tempWeftData += '<input type="tel" id="DesignSpecification' + WeftSrNo + '" name="Design Specification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" value="' + response.listDesignEntryForm[i].listDesignEntryWeftData[k].DesignSpecification + '"  class="form-control clear-field" onfocusout="validate(this)" >';
 
-                                    tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control" onfocusout="validate(this)">';
+                                    tempWeftData += '<select id="DesignSpecification' + WeftSrNo + '" name="DesignSpecification' + WeftSrNo + '" title="Design Specification ' + WeftSrNo + '" class="form-control no-select2" onfocusout="validate(this)">';
                                     tempWeftData += '<option value=""> Select Yarn Material </option>';
                                     //alert(ArrayDesignSpecification[0].length);
                                     for (var q = 0; q < ArrayDesignSpecification[0].length; q++) {
@@ -1498,7 +1490,6 @@
                                 $('#yarnquality1').append(templistYarnMaterialMaster);
                             }
                         }
-                        initSelect2();
                     }
 
                 },
@@ -1579,7 +1570,7 @@
                     tempWarpData += "<div class='row gutters'>";
                     tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                     tempWarpData += "<div class='field-wrapper'>";
-                    tempWarpData += "<select id='yarnquality2' name='yarnquality2' title='Yarn Material' class='form-control' onfocusout='validate(this)'>";
+                    tempWarpData += "<select id='yarnquality2' name='yarnquality2' title='Yarn Material' class='form-control no-select2' onfocusout='validate(this)'>";
                     tempWarpData += "<option value='' selected> Select Yarn Material </option>";
 
 
@@ -1599,7 +1590,7 @@
 
                     //tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                     //tempWarpData += "<div class='field-wrapper'>";
-                    //tempWarpData += "<select id='yarncolor2' name='yarncolor2' title='Yarn Color' class='form-control' onfocusout='validate(this)'>";
+                    //tempWarpData += "<select id='yarncolor2' name='yarncolor2' title='Yarn Color' class='form-control no-select2' onfocusout='validate(this)'>";
                     //tempWarpData += "<option value='' selected> Select Yarn Colode </option>";
 
                     //for (var i = 0; i < ArrayYarnColor[0].length; i++) {
@@ -1702,7 +1693,7 @@
                     tempWarpData += "<div class='row gutters'>";
                     tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                     tempWarpData += "<div class='field-wrapper'>";
-                    tempWarpData += "<select id='yarnquality" + no + "' name='yarnquality" + no + "' title='Yarn Material' class='form-control' onfocusout='validate(this)'>";
+                    tempWarpData += "<select id='yarnquality" + no + "' name='yarnquality" + no + "' title='Yarn Material' class='form-control no-select2' onfocusout='validate(this)'>";
                     tempWarpData += "<option value='' selected> Select Yarn Material </option>";
 
 
@@ -1721,7 +1712,7 @@
 
                     //tempWarpData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                     //tempWarpData += "<div class='field-wrapper'>";
-                    //tempWarpData += "<select id='yarncolor" + no + "' name='yarncolor" + no + "' title='Yarn Color' class='form-control' onfocusout='validate(this)'>";
+                    //tempWarpData += "<select id='yarncolor" + no + "' name='yarncolor" + no + "' title='Yarn Color' class='form-control no-select2' onfocusout='validate(this)'>";
                     //tempWarpData += "<option value='' selected> Select Yarn Colode </option>";
 
                     //for (var i = 0; i < ArrayYarnColor[0].length; i++) {
@@ -1842,7 +1833,7 @@
 
                     tempWeftData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                     tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
-                    tempWeftData += "<select id='yarnMaterial2' name='yarnMaterial2' title='Yarn Material 2' class='form-control' onfocusout='validate(this)'>";
+                    tempWeftData += "<select id='yarnMaterial2' name='yarnMaterial2' title='Yarn Material 2' class='form-control no-select2' onfocusout='validate(this)'>";
                     tempWeftData += "<option value=' '> Select Yarn Material </option>";
 
                     for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
@@ -1860,7 +1851,7 @@
                     tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
                     //tempWeftData += "<input type='text' id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control clear-field' onfocusout='validate(this)' >";
 
-                    tempWeftData += "<select id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control' onfocusout='validate(this)'>";
+                    tempWeftData += "<select id='DesignSpecification2' name='DesignSpecification2' title='Design Specification 2' class='form-control no-select2' onfocusout='validate(this)'>";
                     tempWeftData += "<option value=' '> Select Design Specification </option>";
                     for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
                         tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";
@@ -1971,7 +1962,7 @@
 
                         tempWeftData += "<div class='col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12'>";
                         tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
-                        tempWeftData += "<select id='yarnMaterial" + no + "' name='yarnMaterial" + no + "' title='Yarn Material " + no + "' class='form-control' onfocusout='validate(this)'>";
+                        tempWeftData += "<select id='yarnMaterial" + no + "' name='yarnMaterial" + no + "' title='Yarn Material " + no + "' class='form-control no-select2' onfocusout='validate(this)'>";
                         tempWeftData += "<option value=' '> Select Yarn Material </option>";
 
                         for (var i = 0; i < ArrayYarnMaterial[0].length; i++) {
@@ -1991,7 +1982,7 @@
                         tempWeftData += "<div class='field-wrapper' style='margin-top: 0;'>";
                         //tempWeftData += "<input type='text' id='DesignSpecification" + no + "' name='DesignSpecification" + no + "' title='Design Specification " + no + "' class='form-control clear-field' onfocusout='validate(this)' >";
 
-                        tempWeftData += "<select id='DesignSpecification" + no + "' name='DesignSpecification2' title='Design Specification " + no + "' class='form-control' onfocusout='validate(this)'>";
+                        tempWeftData += "<select id='DesignSpecification" + no + "' name='DesignSpecification2' title='Design Specification " + no + "' class='form-control no-select2' onfocusout='validate(this)'>";
                         tempWeftData += "<option value=' '> Select Design Specification </option>";
                         for (var i = 0; i < ArrayDesignSpecification[0].length; i++) {
                             tempWeftData += "<option value='" + ArrayDesignSpecification[0][i].DesignSpecificationID + "'> " + ArrayDesignSpecification[0][i].DesignSpecification + " </option>";

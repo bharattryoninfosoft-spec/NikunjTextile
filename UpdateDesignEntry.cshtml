@@ -342,7 +342,7 @@
                                         <input type="text" id="Remark" class="form-control" title="Remark">
                                         <div class="field-placeholder">Remark</div>
                                         @*<div class="Remark-valid-feedback valid-feedback">Looks good!</div>
-                <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
+                                            <div class="Remark-invalid-feedback invalid-feedback">Mention Remark</div>*@
                                     </div>
                                 </div>
 
@@ -613,21 +613,48 @@
 @section Scripts{
 
     <script>
-        $('body').addClass('fullscreen');
+        // This view must use native HTML select elements, even if the shared layout
+        // initializes Select2 globally. Keep this page-specific cleanup in place.
+        (function () {
+            function removeSelect2FromPage() {
+                if (!window.jQuery) return;
 
-        function initSelect2() {
-            setTimeout(function () {
-                $('select').not('.no-select2, .swal2-select, .swal-select, .swal2-container select, .swal-container select').each(function () {
-                    var $el = $(this);
-                    if ($el.data('select2')) {
-                        $el.select2('destroy');
+                $('select.select2-hidden-accessible, select').each(function () {
+                    var $select = $(this);
+                    if ($.fn.select2 && $select.data('select2')) {
+                        try { $select.select2('destroy'); } catch (e) { /* already destroyed */ }
                     }
-                    $el.select2({
-                        width: '100%'
-                    });
+                    $select.removeClass('select2-hidden-accessible')
+                        .removeAttr('data-select2-id')
+                        .removeAttr('aria-hidden')
+                        .removeAttr('tabindex');
                 });
-            }, 100);
-        }
+
+                $('.select2-container').remove();
+            }
+
+            $(document).ready(function () {
+                removeSelect2FromPage();
+
+                // AJAX-generated Warp/Weft rows may be inserted after page load.
+                // Also catch a shared-layout script attempting to reinitialize Select2.
+                if (window.MutationObserver) {
+                    var select2Observer = new MutationObserver(function () {
+                        if ($('select.select2-hidden-accessible, .select2-container').length) {
+                            removeSelect2FromPage();
+                        }
+                    });
+                    select2Observer.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['class']
+                    });
+                }
+            });
+        })();
+
+        $('body').addClass('fullscreen');
 
         $(document).on('change', 'select', function () {
             if (typeof validate === 'function' && this.id) {
@@ -647,7 +674,6 @@
             FunctionIsLogin();
 
             getDesignEntryForm();
-            initSelect2();
 
             //getDefaultCompany();
 
@@ -807,7 +833,7 @@
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
         }
-         
+
         function validate(code) {
             console.log(code.id);
 
