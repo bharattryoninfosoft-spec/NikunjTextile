@@ -329,6 +329,81 @@ namespace NikunjTextile.Class
         }
         #endregion
 
+        #region Strict Transactional Audit Logging
+        /// <summary>
+        /// Strictly writes an audit record within an active SqlTransaction.
+        /// Guaranteed atomicity: never falls back to an independent connection, does not suppress exceptions.
+        /// If writing the audit record fails, the exception is thrown back to the caller to ensure complete transaction rollback.
+        /// </summary>
+        public static void LogTransactional(
+            SqlConnection conn,
+            SqlTransaction tran,
+            string module,
+            string action,
+            string tableName = null,
+            string recordId = null,
+            string description = null,
+            object oldValue = null,
+            object newValue = null,
+            string status = "Success",
+            string errorMessage = null,
+            Exception ex = null,
+            int? customUserId = null,
+            string customUserName = null)
+        {
+            if (conn == null)
+                throw new ArgumentNullException(nameof(conn), "SqlConnection cannot be null for transactional audit logging.");
+
+            if (tran == null)
+                throw new ArgumentNullException(nameof(tran), "SqlTransaction cannot be null for transactional audit logging.");
+
+            if (conn.State != ConnectionState.Open)
+                throw new InvalidOperationException("SqlConnection must be in an Open state for transactional audit logging.");
+
+            if (tran.Connection == null)
+                throw new InvalidOperationException("SqlTransaction is no longer active or associated with a connection.");
+
+            EnsureAuditTablesExist();
+
+            HttpContext context = HttpContext.Current;
+
+            int? userId = customUserId ?? GetCurrentUserId(context);
+            string userName = customUserName ?? GetCurrentUserName(context);
+            string ipAddress = GetClientIP(context);
+            string userAgent = ParseUserAgent(context?.Request?.UserAgent);
+            string requestUrl = context?.Request?.Url?.ToString();
+            string pageName = context?.Request?.Path;
+            string sessionId = context?.Session?.SessionID;
+
+            string jsonOld = SerializeObject(oldValue);
+            string jsonNew = SerializeObject(newValue);
+            string exDetails = ex != null ? $"{ex.Message}\n{ex.StackTrace}" : null;
+
+            const string query = @"
+                INSERT INTO dbo.AuditLog
+                (
+                    LogDateTime, UserAccountID, UserName, ModuleName, PageName, ActionName,
+                    TableName, RecordID, Description, OldValue, NewValue, RequestURL,
+                    IPAddress, UserAgent, Status, ErrorMessage, ExceptionDetails, SessionID
+                )
+                VALUES
+                (
+                    SYSDATETIME(), @UserAccountID, @UserName, @ModuleName, @PageName, @ActionName,
+                    @TableName, @RecordID, @Description, @OldValue, @NewValue, @RequestURL,
+                    @IPAddress, @UserAgent, @Status, @ErrorMessage, @ExceptionDetails, @SessionID
+                );";
+
+            // Execute strictly within the active connection and transaction.
+            // NO try-catch wrapper, NO fallback to independent connection.
+            using (SqlCommand cmd = new SqlCommand(query, conn, tran))
+            {
+                AddParameters(cmd, userId, userName, module, pageName, action, tableName, recordId,
+                    description, jsonOld, jsonNew, requestUrl, ipAddress, userAgent, status, errorMessage, exDetails, sessionId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        #endregion
+
         #region Login / Logout Logging
         /// <summary>
         /// Logs user login attempts (Success/Failed) to LoginHistory and main AuditLog.
