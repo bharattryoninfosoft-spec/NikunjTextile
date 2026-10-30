@@ -332,8 +332,9 @@ namespace NikunjTextile.Class
         #region Strict Transactional Audit Logging
         /// <summary>
         /// Strictly writes an audit record within an active SqlTransaction.
-        /// Guaranteed atomicity: never falls back to an independent connection, does not suppress exceptions.
-        /// If writing the audit record fails, the exception is thrown back to the caller to ensure complete transaction rollback.
+        /// Guaranteed atomicity: never falls back to an independent connection, does not suppress exceptions, does not perform DDL table creation.
+        /// Validates that conn and tran belong to the same active transaction.
+        /// If writing the audit record fails, the exception is thrown directly back to the caller to ensure complete transaction rollback.
         /// </summary>
         public static void LogTransactional(
             SqlConnection conn,
@@ -348,7 +349,7 @@ namespace NikunjTextile.Class
             string status = "Success",
             string errorMessage = null,
             Exception ex = null,
-            int? customUserId = null,
+            long? customUserId = null,
             string customUserName = null)
         {
             if (conn == null)
@@ -363,11 +364,29 @@ namespace NikunjTextile.Class
             if (tran.Connection == null)
                 throw new InvalidOperationException("SqlTransaction is no longer active or associated with a connection.");
 
-            EnsureAuditTablesExist();
+            if (!object.ReferenceEquals(tran.Connection, conn))
+                throw new InvalidOperationException("SqlTransaction does not belong to the supplied SqlConnection.");
+
+            if (string.IsNullOrWhiteSpace(module))
+                throw new ArgumentException("ModuleName is required for transactional audit logging.", nameof(module));
+
+            if (string.IsNullOrWhiteSpace(action))
+                throw new ArgumentException("ActionName is required for transactional audit logging.", nameof(action));
 
             HttpContext context = HttpContext.Current;
 
-            int? userId = customUserId ?? GetCurrentUserId(context);
+            int? userId = null;
+            if (customUserId.HasValue)
+            {
+                if (customUserId.Value > int.MaxValue || customUserId.Value < int.MinValue)
+                    throw new ArgumentOutOfRangeException(nameof(customUserId), $"customUserId {customUserId.Value} exceeds the Int32 capacity of AuditLog.UserAccountID.");
+                userId = (int)customUserId.Value;
+            }
+            else
+            {
+                userId = GetCurrentUserId(context);
+            }
+
             string userName = customUserName ?? GetCurrentUserName(context);
             string ipAddress = GetClientIP(context);
             string userAgent = ParseUserAgent(context?.Request?.UserAgent);
@@ -393,12 +412,28 @@ namespace NikunjTextile.Class
                     @IPAddress, @UserAgent, @Status, @ErrorMessage, @ExceptionDetails, @SessionID
                 );";
 
-            // Execute strictly within the active connection and transaction.
-            // NO try-catch wrapper, NO fallback to independent connection.
+            // Execute strictly within the caller's active connection and transaction.
+            // NO EnsureAuditTablesExist() DDL call, NO independent connection fallback, NO exception suppression.
             using (SqlCommand cmd = new SqlCommand(query, conn, tran))
             {
-                AddParameters(cmd, userId, userName, module, pageName, action, tableName, recordId,
-                    description, jsonOld, jsonNew, requestUrl, ipAddress, userAgent, status, errorMessage, exDetails, sessionId);
+                cmd.Parameters.Add("@UserAccountID", SqlDbType.Int).Value = (object)userId ?? DBNull.Value;
+                cmd.Parameters.Add("@UserName", SqlDbType.NVarChar).Value = (object)userName ?? DBNull.Value;
+                cmd.Parameters.Add("@ModuleName", SqlDbType.NVarChar).Value = (object)module ?? DBNull.Value;
+                cmd.Parameters.Add("@PageName", SqlDbType.NVarChar).Value = (object)pageName ?? DBNull.Value;
+                cmd.Parameters.Add("@ActionName", SqlDbType.NVarChar).Value = (object)action ?? DBNull.Value;
+                cmd.Parameters.Add("@TableName", SqlDbType.NVarChar).Value = (object)tableName ?? DBNull.Value;
+                cmd.Parameters.Add("@RecordID", SqlDbType.NVarChar).Value = (object)recordId ?? DBNull.Value;
+                cmd.Parameters.Add("@Description", SqlDbType.NVarChar).Value = (object)description ?? DBNull.Value;
+                cmd.Parameters.Add("@OldValue", SqlDbType.NVarChar, -1).Value = (object)jsonOld ?? DBNull.Value;
+                cmd.Parameters.Add("@NewValue", SqlDbType.NVarChar, -1).Value = (object)jsonNew ?? DBNull.Value;
+                cmd.Parameters.Add("@RequestURL", SqlDbType.NVarChar).Value = (object)requestUrl ?? DBNull.Value;
+                cmd.Parameters.Add("@IPAddress", SqlDbType.NVarChar).Value = (object)ipAddress ?? DBNull.Value;
+                cmd.Parameters.Add("@UserAgent", SqlDbType.NVarChar).Value = (object)userAgent ?? DBNull.Value;
+                cmd.Parameters.Add("@Status", SqlDbType.NVarChar).Value = (object)status ?? "Success";
+                cmd.Parameters.Add("@ErrorMessage", SqlDbType.NVarChar, -1).Value = (object)errorMessage ?? DBNull.Value;
+                cmd.Parameters.Add("@ExceptionDetails", SqlDbType.NVarChar, -1).Value = (object)exDetails ?? DBNull.Value;
+                cmd.Parameters.Add("@SessionID", SqlDbType.NVarChar).Value = (object)sessionId ?? DBNull.Value;
+
                 cmd.ExecuteNonQuery();
             }
         }
