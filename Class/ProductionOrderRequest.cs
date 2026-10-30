@@ -293,46 +293,86 @@ namespace NikunjTextile.Class
 
             if (productionOrderDetailId > 0)
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT IsActive FROM dbo.ProductionOrderDetail WITH (UPDLOCK, HOLDLOCK) WHERE ProductionOrderDetailID = @DetailID", con, tran))
+                using (SqlCommand cmd = new SqlCommand("SELECT ProductionOrderID, IsActive FROM dbo.ProductionOrderDetail WITH (UPDLOCK, HOLDLOCK) WHERE ProductionOrderDetailID = @DetailID", con, tran))
                 {
                     cmd.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = productionOrderDetailId;
-                    object val = cmd.ExecuteScalar();
-                    if (val == null || val == DBNull.Value)
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        throw new InvalidOperationException(string.Format("Production Order Detail {0} does not exist.", productionOrderDetailId));
-                    }
-                    if (!Convert.ToBoolean(val))
-                    {
-                        throw new InvalidOperationException(string.Format("Production Order Detail {0} is inactive or has been deleted. Downstream operation cannot proceed.", productionOrderDetailId));
+                        if (!dr.Read())
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order Detail {0} does not exist.", productionOrderDetailId));
+                        }
+                        long actualOrderId = dr["ProductionOrderID"] != DBNull.Value ? Convert.ToInt64(dr["ProductionOrderID"]) : 0;
+                        bool isDetailActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]);
+
+                        if (productionOrderId > 0 && actualOrderId > 0 && actualOrderId != productionOrderId)
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order Detail {0} does not belong to Production Order {1} (belongs to {2}).", productionOrderDetailId, productionOrderId, actualOrderId));
+                        }
+                        if (!isDetailActive)
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order Detail {0} is inactive or has been deleted. Downstream operation cannot proceed.", productionOrderDetailId));
+                        }
                     }
                 }
             }
             else if (!string.IsNullOrWhiteSpace(slipNo))
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 IsActive FROM dbo.ProductionOrderDetail WITH (UPDLOCK, HOLDLOCK) WHERE SlipNo = @SlipNo", con, tran))
+                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 ProductionOrderID, IsActive FROM dbo.ProductionOrderDetail WITH (UPDLOCK, HOLDLOCK) WHERE SlipNo = @SlipNo", con, tran))
                 {
                     cmd.Parameters.Add("@SlipNo", SqlDbType.VarChar, 100).Value = slipNo.Trim();
-                    object val = cmd.ExecuteScalar();
-                    if (val != null && val != DBNull.Value && !Convert.ToBoolean(val))
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        throw new InvalidOperationException(string.Format("Production Order Detail for Slip '{0}' is inactive or has been deleted. Downstream operation cannot proceed.", slipNo.Trim()));
+                        if (dr.Read())
+                        {
+                            long actualOrderId = dr["ProductionOrderID"] != DBNull.Value ? Convert.ToInt64(dr["ProductionOrderID"]) : 0;
+                            bool isDetailActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]);
+
+                            if (productionOrderId > 0 && actualOrderId > 0 && actualOrderId != productionOrderId)
+                            {
+                                throw new InvalidOperationException(string.Format("Production Order Detail for Slip '{0}' does not belong to Production Order {1}.", slipNo.Trim(), productionOrderId));
+                            }
+                            if (!isDetailActive)
+                            {
+                                throw new InvalidOperationException(string.Format("Production Order Detail for Slip '{0}' is inactive or has been deleted. Downstream operation cannot proceed.", slipNo.Trim()));
+                            }
+                        }
                     }
                 }
             }
 
             if (productionOrderSubDetailId > 0)
             {
-                using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(IsActive, 1) FROM dbo.ProductionOrderSubDetail WITH (UPDLOCK, HOLDLOCK) WHERE ProductionOrderSubDetailID = @SubDetailID", con, tran))
+                using (SqlCommand cmd = new SqlCommand("SELECT ProductionOrderID, ProductionOrderDetailID, ISNULL(IsActive, 1) AS IsActive FROM dbo.ProductionOrderSubDetail WITH (UPDLOCK, HOLDLOCK) WHERE ProductionOrderSubDetailID = @SubDetailID", con, tran))
                 {
                     cmd.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = productionOrderSubDetailId;
-                    object val = cmd.ExecuteScalar();
-                    if (val == null || val == DBNull.Value)
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        throw new InvalidOperationException(string.Format("Production Order SubDetail {0} does not exist.", productionOrderSubDetailId));
-                    }
-                    if (!Convert.ToBoolean(val))
-                    {
-                        throw new InvalidOperationException(string.Format("Production Order SubDetail {0} is inactive or has been deleted. Downstream operation cannot proceed.", productionOrderSubDetailId));
+                        if (!dr.Read())
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order SubDetail {0} does not exist.", productionOrderSubDetailId));
+                        }
+                        long actualOrderId = dr["ProductionOrderID"] != DBNull.Value ? Convert.ToInt64(dr["ProductionOrderID"]) : 0;
+                        long actualDetailId = dr["ProductionOrderDetailID"] != DBNull.Value ? Convert.ToInt64(dr["ProductionOrderDetailID"]) : 0;
+                        bool isSubActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]);
+
+                        if (actualOrderId <= 0 && actualDetailId > 0)
+                        {
+                            actualOrderId = ResolveProductionOrderId(con, tran, 0, actualDetailId);
+                        }
+
+                        if (productionOrderId > 0 && actualOrderId > 0 && actualOrderId != productionOrderId)
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order SubDetail {0} does not belong to Production Order {1} (belongs to {2}).", productionOrderSubDetailId, productionOrderId, actualOrderId));
+                        }
+                        if (productionOrderDetailId > 0 && actualDetailId > 0 && actualDetailId != productionOrderDetailId)
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order SubDetail {0} does not belong to Production Order Detail {1} (belongs to {2}).", productionOrderSubDetailId, productionOrderDetailId, actualDetailId));
+                        }
+                        if (!isSubActive)
+                        {
+                            throw new InvalidOperationException(string.Format("Production Order SubDetail {0} is inactive or has been deleted. Downstream operation cannot proceed.", productionOrderSubDetailId));
+                        }
                     }
                 }
             }

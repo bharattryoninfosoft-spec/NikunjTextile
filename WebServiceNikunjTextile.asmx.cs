@@ -44137,21 +44137,7 @@ ORDER BY ProductionOrderDetailID ASC;";
                                 return result;
                             }
 
-                            // 5. Soft-deactivate SubDetails (if any inactive ones remain)
-                            const string softDeleteSubDetailSql = @"
-                            UPDATE dbo.ProductionOrderSubDetail 
-                            SET IsActive = 0, DateandTime = GETDATE()
-                            WHERE (ProductionOrderID = @ProductionOrderID 
-                                   OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))
-                              AND IsActive <> 0;";
-
-                            using (SqlCommand cmdSoftSub = new SqlCommand(softDeleteSubDetailSql, con, tran))
-                            {
-                                cmdSoftSub.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
-                                cmdSoftSub.ExecuteNonQuery();
-                            }
-
-                            // 6. Soft-deactivate Details
+                            // 5. Soft-deactivate Details
                             const string softDeleteDetailSql = @"
                             UPDATE dbo.ProductionOrderDetail 
                             SET IsActive = 0, DateandTime = GETDATE()
@@ -44163,7 +44149,7 @@ ORDER BY ProductionOrderDetailID ASC;";
                                 cmdSoftDetail.ExecuteNonQuery();
                             }
 
-                            // 7. Soft-deactivate Master
+                            // 6. Soft-deactivate Master
                             const string softDeleteMasterSql = @"
                             UPDATE dbo.ProductionOrderMaster 
                             SET IsActive = 0, DateandTime = GETDATE()
