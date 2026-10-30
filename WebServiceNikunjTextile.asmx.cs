@@ -43979,230 +43979,225 @@ ORDER BY ProductionOrderDetailID ASC;";
 
             /*
              * ================================================================
-             * DELETE PRODUCTION ORDER
+             * DELETE PRODUCTION ORDER (PROTECTED SOFT-DELETE)
              * ================================================================
              *
-             * Hard delete:
-             *
-             * Delete details and master records physically from DB.
+             * Soft delete:
+             * Sets IsActive = 0 on Master, Detail, and SubDetail.
+             * Blocked if active machine allotments or downstream transactions exist.
+             * Protected by transaction-bound application lock sp_getapplock.
+             * Atomically logs to AuditLog inside the same transaction.
              */
             [WebMethod]
             [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-            public ProductionOrderDeleteResponse DeleteProductionOrder(
-                long ProductionOrderID)
+            public ProductionOrderDeleteResponse DeleteProductionOrder(long ProductionOrderID)
             {
-                var result =
-                    new ProductionOrderDeleteResponse
-                    {
-                        Success = false,
-                        Message = "",
-                        ProductionOrderID =
-                            ProductionOrderID
-                    };
+                var result = new ProductionOrderDeleteResponse
+                {
+                    Success = false,
+                    Message = "",
+                    ProductionOrderID = ProductionOrderID
+                };
 
                 if (ProductionOrderID <= 0)
                 {
-                    result.Message =
-                        "Invalid Production Order ID.";
-
+                    result.Message = "Invalid Production Order ID.";
                     return result;
                 }
 
-                string connectionString =
-                    ConfigurationManager
-                        .ConnectionStrings["sqlconnstr"]
-                        .ConnectionString;
+                string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
-                using (SqlConnection con =
-                       new SqlConnection(connectionString))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
 
-                    using (SqlTransaction tran =
-                           con.BeginTransaction(
-                               IsolationLevel.ReadCommitted))
+                    using (SqlTransaction tran = con.BeginTransaction(IsolationLevel.ReadCommitted))
                     {
                         try
                         {
-                            EnsureProductionOrderSubDetailTableExists(con, tran);
+                            // 1. Acquire transaction-bound exclusive application lock
+                            ProductionOrderLockHelper.AcquireOrderLock(con, tran, ProductionOrderID);
 
-                            /*
-                             * Check master.
-                             */
-                            const string checkSql = @"
-SELECT COUNT(1)
-FROM ProductionOrderMaster
-WHERE ProductionOrderID = @ProductionOrderID;";
+                            // 2. Check master existence and current active status
+                            string prodOrderNo = "";
+                            bool isMasterActive = false;
+                            const string checkMasterSql = @"
+                            SELECT ProductionOrderNo, IsActive
+                            FROM dbo.ProductionOrderMaster WITH (UPDLOCK, HOLDLOCK)
+                            WHERE ProductionOrderID = @ProductionOrderID;";
 
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       checkSql,
-                                       con,
-                                       tran))
+                            using (SqlCommand cmdMaster = new SqlCommand(checkMasterSql, con, tran))
                             {
-                                cmd.Parameters.Add(
-                                    "@ProductionOrderID",
-                                    SqlDbType.BigInt
-                                ).Value =
-                                    ProductionOrderID;
-
-                                int exists =
-                                    Convert.ToInt32(
-                                        cmd.ExecuteScalar());
-
-                                if (exists == 0)
+                                cmdMaster.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                using (SqlDataReader dr = cmdMaster.ExecuteReader())
                                 {
-                                    tran.Rollback();
-
-                                    result.Message =
-                                        "Production Order not found or already deleted.";
-
-                                    return result;
-                                }
-                            }
-
-                            /*
-                             * Check if any ACTIVE subdetail allocations exist in ProductionOrderSubDetail
-                             */
-                            const string checkActiveSubSql = @"
-SELECT COUNT(1)
-FROM ProductionOrderSubDetail
-WHERE (ProductionOrderID = @ProductionOrderID 
-       OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))
-  AND ISNULL(IsActive, 1) = 1;";
-
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       checkActiveSubSql,
-                                       con,
-                                       tran))
-                            {
-                                cmd.Parameters.Add(
-                                    "@ProductionOrderID",
-                                    SqlDbType.BigInt
-                                ).Value =
-                                    ProductionOrderID;
-
-                                int activeSubCount =
-                                    Convert.ToInt32(
-                                        cmd.ExecuteScalar());
-
-                                /*
-                                 * Check downstream transaction dependencies: Jobber Outward, Butta Cutting, Process Transactions
-                                 */
-                                int downstreamCount = 0;
-                                try
-                                {
-                                    using (SqlCommand cmdDown = new SqlCommand(@"
-                                SELECT 
-                                    (SELECT COUNT(1) FROM JobberOutwardDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID)) +
-                                    (SELECT COUNT(1) FROM ProcessTransactionDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID))
-                            ", con, tran))
+                                    if (dr.Read())
                                     {
-                                        cmdDown.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
-                                        downstreamCount = Convert.ToInt32(cmdDown.ExecuteScalar());
+                                        prodOrderNo = dr["ProductionOrderNo"] != DBNull.Value ? dr["ProductionOrderNo"].ToString().Trim() : "";
+                                        isMasterActive = dr["IsActive"] != DBNull.Value && Convert.ToBoolean(dr["IsActive"]);
+                                    }
+                                    else
+                                    {
+                                        tran.Rollback();
+                                        result.Message = "Production Order not found or already deleted.";
+                                        return result;
                                     }
                                 }
-                                catch { }
+                            }
 
-                                if (activeSubCount > 0 || downstreamCount > 0)
+                            if (!isMasterActive)
+                            {
+                                tran.Rollback();
+                                result.Message = "Production Order is already inactive.";
+                                return result;
+                            }
+
+                            // 3. Check for active machine allotments in ProductionOrderSubDetail
+                            int activeSubCount = 0;
+                            const string checkActiveSubSql = @"
+                            SELECT COUNT(1)
+                            FROM dbo.ProductionOrderSubDetail WITH (UPDLOCK, HOLDLOCK)
+                            WHERE (ProductionOrderID = @ProductionOrderID 
+                                   OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))
+                              AND ISNULL(IsActive, 1) = 1;";
+
+                            using (SqlCommand cmdSub = new SqlCommand(checkActiveSubSql, con, tran))
+                            {
+                                cmdSub.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                activeSubCount = Convert.ToInt32(cmdSub.ExecuteScalar());
+                            }
+
+                            if (activeSubCount > 0)
+                            {
+                                tran.Rollback();
+                                result.Success = false;
+                                result.Message = string.Format("Cannot delete Production Order '{0}' because it has {1} active machine allotment(s) in ProductionOrderSubDetail.", prodOrderNo, activeSubCount);
+                                return result;
+                            }
+
+                            // 4. Check downstream dependencies across all 3 paths in all 5 downstream tables
+                            int ptdCount = 0;
+                            int pthCount = 0;
+                            int pdCount = 0;
+                            int pcdCount = 0;
+                            int pslCount = 0;
+
+                            const string checkDownstreamSql = @"
+                            SELECT 
+                                (SELECT COUNT(1) FROM dbo.ProcessTransactionDetail 
+                                 WHERE ProductionOrderID = @ProductionOrderID 
+                                    OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID)
+                                    OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM dbo.ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))) AS PTD_Count,
+                                (SELECT COUNT(1) FROM dbo.ProcessTransactionHistory 
+                                 WHERE ProductionOrderID = @ProductionOrderID 
+                                    OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID)
+                                    OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM dbo.ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))) AS PTH_Count,
+                                (SELECT COUNT(1) FROM weavelanesoftDB.ProductionData 
+                                 WHERE ProductionOrderID = @ProductionOrderID 
+                                    OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID)
+                                    OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM dbo.ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))) AS PD_Count,
+                                (SELECT COUNT(1) FROM weavelanesoftDB.ProcessChallanDetail 
+                                 WHERE ProductionOrderID = @ProductionOrderID 
+                                    OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID)
+                                    OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM dbo.ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))) AS PCD_Count,
+                                (SELECT COUNT(1) FROM weavelanesoftDB.ProcessStockLedger 
+                                 WHERE ProductionOrderID = @ProductionOrderID 
+                                    OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID)
+                                    OR ProductionOrderSubDetailID IN (SELECT ProductionOrderSubDetailID FROM dbo.ProductionOrderSubDetail WHERE ProductionOrderID = @ProductionOrderID OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))) AS PSL_Count;";
+
+                            using (SqlCommand cmdDown = new SqlCommand(checkDownstreamSql, con, tran))
+                            {
+                                cmdDown.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                using (SqlDataReader drDown = cmdDown.ExecuteReader())
                                 {
-                                    tran.Rollback();
-
-                                    result.Success = false;
-                                    result.Message =
-                                        "This record cannot be deleted because it is already associated with existing transactions or related records.";
-
-                                    return result;
+                                    if (drDown.Read())
+                                    {
+                                        ptdCount = Convert.ToInt32(drDown["PTD_Count"]);
+                                        pthCount = Convert.ToInt32(drDown["PTH_Count"]);
+                                        pdCount = Convert.ToInt32(drDown["PD_Count"]);
+                                        pcdCount = Convert.ToInt32(drDown["PCD_Count"]);
+                                        pslCount = Convert.ToInt32(drDown["PSL_Count"]);
+                                    }
                                 }
                             }
 
-                            /*
-                             * Delete inactive subdetails (IsActive = 0) from ProductionOrderSubDetail
-                             */
-                            const string deleteSubDetailSql = @"
-DELETE FROM ProductionOrderSubDetail
-WHERE ProductionOrderID = @ProductionOrderID 
-   OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID);";
-
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       deleteSubDetailSql,
-                                       con,
-                                       tran))
+                            int totalDownstream = ptdCount + pthCount + pdCount + pcdCount + pslCount;
+                            if (totalDownstream > 0)
                             {
-                                cmd.Parameters.Add(
-                                    "@ProductionOrderID",
-                                    SqlDbType.BigInt
-                                ).Value =
-                                    ProductionOrderID;
+                                tran.Rollback();
+                                List<string> depReasons = new List<string>();
+                                if (ptdCount > 0) depReasons.Add(string.Format("{0} Process Transaction Detail(s)", ptdCount));
+                                if (pthCount > 0) depReasons.Add(string.Format("{0} Process Transaction History record(s)", pthCount));
+                                if (pdCount > 0) depReasons.Add(string.Format("{0} Production Data entry/entries", pdCount));
+                                if (pcdCount > 0) depReasons.Add(string.Format("{0} Process Challan Detail(s)", pcdCount));
+                                if (pslCount > 0) depReasons.Add(string.Format("{0} Process Stock Ledger record(s)", pslCount));
 
-                                cmd.ExecuteNonQuery();
+                                result.Success = false;
+                                result.Message = string.Format("Cannot delete Production Order '{0}' because dependent records exist: {1}.", prodOrderNo, string.Join(", ", depReasons));
+                                return result;
                             }
 
+                            // 5. Soft-deactivate SubDetails (if any inactive ones remain)
+                            const string softDeleteSubDetailSql = @"
+                            UPDATE dbo.ProductionOrderSubDetail 
+                            SET IsActive = 0, DateandTime = GETDATE()
+                            WHERE (ProductionOrderID = @ProductionOrderID 
+                                   OR ProductionOrderDetailID IN (SELECT ProductionOrderDetailID FROM dbo.ProductionOrderDetail WHERE ProductionOrderID = @ProductionOrderID))
+                              AND IsActive <> 0;";
 
-                            /*
-                             * Delete details first.
-                             */
-                            const string detailDeleteSql = @"
-DELETE FROM ProductionOrderDetail
-WHERE ProductionOrderID = @ProductionOrderID;";
-
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       detailDeleteSql,
-                                       con,
-                                       tran))
+                            using (SqlCommand cmdSoftSub = new SqlCommand(softDeleteSubDetailSql, con, tran))
                             {
-                                cmd.Parameters.Add(
-                                    "@ProductionOrderID",
-                                    SqlDbType.BigInt
-                                ).Value =
-                                    ProductionOrderID;
-
-                                cmd.ExecuteNonQuery();
+                                cmdSoftSub.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                cmdSoftSub.ExecuteNonQuery();
                             }
 
+                            // 6. Soft-deactivate Details
+                            const string softDeleteDetailSql = @"
+                            UPDATE dbo.ProductionOrderDetail 
+                            SET IsActive = 0, DateandTime = GETDATE()
+                            WHERE ProductionOrderID = @ProductionOrderID AND IsActive = 1;";
 
-                            /*
-                             * Delete master.
-                             */
-                            const string masterDeleteSql = @"
-DELETE FROM ProductionOrderMaster
-WHERE ProductionOrderID = @ProductionOrderID;";
-
-                            using (SqlCommand cmd =
-                                   new SqlCommand(
-                                       masterDeleteSql,
-                                       con,
-                                       tran))
+                            using (SqlCommand cmdSoftDetail = new SqlCommand(softDeleteDetailSql, con, tran))
                             {
-                                cmd.Parameters.Add(
-                                    "@ProductionOrderID",
-                                    SqlDbType.BigInt
-                                ).Value =
-                                    ProductionOrderID;
-
-                                int affected =
-                                    cmd.ExecuteNonQuery();
-
-                                if (affected <= 0)
-                                {
-                                    tran.Rollback();
-
-                                    result.Message =
-                                        "Production Order could not be deleted.";
-
-                                    return result;
-                                }
+                                cmdSoftDetail.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                cmdSoftDetail.ExecuteNonQuery();
                             }
+
+                            // 7. Soft-deactivate Master
+                            const string softDeleteMasterSql = @"
+                            UPDATE dbo.ProductionOrderMaster 
+                            SET IsActive = 0, DateandTime = GETDATE()
+                            WHERE ProductionOrderID = @ProductionOrderID AND IsActive = 1;";
+
+                            int affectedMaster = 0;
+                            using (SqlCommand cmdSoftMaster = new SqlCommand(softDeleteMasterSql, con, tran))
+                            {
+                                cmdSoftMaster.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt).Value = ProductionOrderID;
+                                affectedMaster = cmdSoftMaster.ExecuteNonQuery();
+                            }
+
+                            if (affectedMaster <= 0)
+                            {
+                                tran.Rollback();
+                                result.Message = "Production Order could not be deactivated.";
+                                return result;
+                            }
+
+                            // 8. Transaction-bound AuditLog
+                            AuditLogHelper.LogTransactional(
+                                conn: con,
+                                tran: tran,
+                                module: "Production Order",
+                                action: "DELETE",
+                                tableName: "ProductionOrderMaster",
+                                recordId: ProductionOrderID.ToString(),
+                                description: string.Format("Soft-deleted Production Order #{0} (ID: {1})", prodOrderNo, ProductionOrderID)
+                            );
 
                             tran.Commit();
 
                             result.Success = true;
-                            result.Message =
-                                "Production Order deleted successfully.";
-
+                            result.Message = "Production Order deleted successfully.";
                             return result;
                         }
                         catch (Exception ex)
@@ -44211,13 +44206,16 @@ WHERE ProductionOrderID = @ProductionOrderID;";
                             {
                                 tran.Rollback();
                             }
-                            catch
+                            catch { }
+
+                            try
                             {
+                                AuditLogHelper.LogError("Production Order", "DeleteProductionOrder", ex, "ProductionOrderID=" + ProductionOrderID);
                             }
+                            catch { }
 
                             result.Success = false;
-                            result.Message = ex.Message;
-
+                            result.Message = "Error deleting Production Order: " + ex.Message;
                             return result;
                         }
                     }
@@ -47160,133 +47158,152 @@ ORDER BY
                         con.Open();
                         EnsureProductionOrderSubDetailTableExists(con);
 
-                        if (createdByUserID > 0)
+                        using (SqlTransaction tran = con.BeginTransaction(IsolationLevel.ReadCommitted))
                         {
-                            using (SqlCommand cmdUser = new SqlCommand("SELECT TOP 1 CompanyId FROM UserAccountMaster WHERE UserAccountId = @UserAccountId", con))
+                            try
                             {
-                                cmdUser.Parameters.AddWithValue("@UserAccountId", createdByUserID);
-                                object resComp = cmdUser.ExecuteScalar();
-                                if (resComp != null && resComp != DBNull.Value)
+                                // Acquire application lock on ProductionOrder and validate active status
+                                ProductionOrderLockHelper.AcquireOrderLock(con, tran, productionOrderID);
+                                ProductionOrderLockHelper.ValidateOrderAndDetailActive(con, tran, productionOrderID, productionOrderDetailID);
+
+                                if (createdByUserID > 0)
                                 {
-                                    long.TryParse(resComp.ToString(), out companyId);
+                                    using (SqlCommand cmdUser = new SqlCommand("SELECT TOP 1 CompanyId FROM UserAccountMaster WHERE UserAccountId = @UserAccountId", con, tran))
+                                    {
+                                        cmdUser.Parameters.AddWithValue("@UserAccountId", createdByUserID);
+                                        object resComp = cmdUser.ExecuteScalar();
+                                        if (resComp != null && resComp != DBNull.Value)
+                                        {
+                                            long.TryParse(resComp.ToString(), out companyId);
+                                        }
+                                    }
+                                }
+
+                                DateTime parsedDate = DateTime.Now;
+                                if (!string.IsNullOrEmpty(productionDate))
+                                {
+                                    DateTime.TryParse(productionDate, out parsedDate);
+                                }
+
+                                // Check total order PCS for validation
+                                decimal maxOrderPCS = 0;
+                                using (SqlCommand cmdMax = new SqlCommand("SELECT TOP 1 ISNULL(ProductionPCS, PCS) FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @DetailID", con, tran))
+                                {
+                                    cmdMax.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
+                                    object resMax = cmdMax.ExecuteScalar();
+                                    if (resMax != null && resMax != DBNull.Value)
+                                    {
+                                        decimal.TryParse(resMax.ToString(), out maxOrderPCS);
+                                    }
+                                }
+
+                                // Check existing total assigned PCS for this detail
+                                decimal existingPCS = 0;
+                                using (SqlCommand cmdSum = new SqlCommand("SELECT ISNULL(SUM(PCS), 0) FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ISNULL(IsActive, 1) = 1", con, tran))
+                                {
+                                    cmdSum.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
+                                    object resSum = cmdSum.ExecuteScalar();
+                                    if (resSum != null && resSum != DBNull.Value)
+                                    {
+                                        decimal.TryParse(resSum.ToString(), out existingPCS);
+                                    }
+                                }
+
+                                // Check maximum allowed machine number for Jobber
+                                int maxJobberMachines = 0;
+                                using (SqlCommand cmdJobber = new SqlCommand(@"
+                                SELECT TOP 1 ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
+                                FROM ProductionOrderDetail POD
+                                LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                                LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
+                                LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
+                                WHERE POD.ProductionOrderDetailID = @DetailID OR POM.ProductionOrderID = @OrderID", con, tran))
+                                {
+                                    cmdJobber.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
+                                    cmdJobber.Parameters.AddWithValue("@OrderID", productionOrderID);
+                                    object resJ = cmdJobber.ExecuteScalar();
+                                    if (resJ != null && resJ != DBNull.Value)
+                                    {
+                                        int.TryParse(resJ.ToString(), out maxJobberMachines);
+                                    }
+                                }
+
+                                if (maxJobberMachines > 0 && machineNumber > maxJobberMachines)
+                                {
+                                    tran.Rollback();
+                                    return new
+                                    {
+                                        Status = false,
+                                        Message = string.Format("Machine No ({0}) cannot exceed Jobber Machine count ({1})!", machineNumber, maxJobberMachines)
+                                    };
+                                }
+
+                                if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
+                                {
+                                    tran.Rollback();
+                                    decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
+                                    return new
+                                    {
+                                        Status = false,
+                                        Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
+                                    };
+                                }
+
+                                string insertSql = @"
+                                INSERT INTO ProductionOrderSubDetail
+                                (
+                                    ProductionOrderID,
+                                    ProductionOrderDetailID,
+                                    ProductionDate,
+                                    MachineNumber,
+                                    PCS,
+                                    CreatedByUserID,
+                                    CompanyId,
+                                    DateandTime,
+                                    IsActive
+                                )
+                                VALUES
+                                (
+                                    @ProductionOrderID,
+                                    @ProductionOrderDetailID,
+                                    @ProductionDate,
+                                    @MachineNumber,
+                                    @PCS,
+                                    @CreatedByUserID,
+                                    @CompanyId,
+                                    GETDATE(),
+                                    1
+                                );
+                                SELECT SCOPE_IDENTITY();";
+
+                                using (SqlCommand cmd = new SqlCommand(insertSql, con, tran))
+                                {
+                                    cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
+                                    cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
+                                    cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
+                                    cmd.Parameters.AddWithValue("@MachineNumber", machineNumber);
+                                    cmd.Parameters.AddWithValue("@PCS", pcs);
+                                    cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
+                                    cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
+
+                                    object newIdObj = cmd.ExecuteScalar();
+                                    long newId = Convert.ToInt64(newIdObj);
+
+                                    tran.Commit();
+
+                                    return new
+                                    {
+                                        Status = true,
+                                        Message = "Machine Details saved successfully!",
+                                        ProductionOrderSubDetailID = newId
+                                    };
                                 }
                             }
-                        }
-
-                        DateTime parsedDate = DateTime.Now;
-                        if (!string.IsNullOrEmpty(productionDate))
-                        {
-                            DateTime.TryParse(productionDate, out parsedDate);
-                        }
-
-                        // Check total order PCS for validation
-                        decimal maxOrderPCS = 0;
-                        using (SqlCommand cmdMax = new SqlCommand("SELECT TOP 1 ISNULL(ProductionPCS, PCS) FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @DetailID", con))
-                        {
-                            cmdMax.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
-                            object resMax = cmdMax.ExecuteScalar();
-                            if (resMax != null && resMax != DBNull.Value)
+                            catch
                             {
-                                decimal.TryParse(resMax.ToString(), out maxOrderPCS);
+                                try { tran.Rollback(); } catch { }
+                                throw;
                             }
-                        }
-
-                        // Check existing total assigned PCS for this detail
-                        decimal existingPCS = 0;
-                        using (SqlCommand cmdSum = new SqlCommand("SELECT ISNULL(SUM(PCS), 0) FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ISNULL(IsActive, 1) = 1", con))
-                        {
-                            cmdSum.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
-                            object resSum = cmdSum.ExecuteScalar();
-                            if (resSum != null && resSum != DBNull.Value)
-                            {
-                                decimal.TryParse(resSum.ToString(), out existingPCS);
-                            }
-                        }
-
-                        // Check maximum allowed machine number for Jobber
-                        int maxJobberMachines = 0;
-                        using (SqlCommand cmdJobber = new SqlCommand(@"
-                        SELECT TOP 1 ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
-                        FROM ProductionOrderDetail POD
-                        LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
-                        LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
-                        LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
-                        WHERE POD.ProductionOrderDetailID = @DetailID OR POM.ProductionOrderID = @OrderID", con))
-                        {
-                            cmdJobber.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
-                            cmdJobber.Parameters.AddWithValue("@OrderID", productionOrderID);
-                            object resJ = cmdJobber.ExecuteScalar();
-                            if (resJ != null && resJ != DBNull.Value)
-                            {
-                                int.TryParse(resJ.ToString(), out maxJobberMachines);
-                            }
-                        }
-
-                        if (maxJobberMachines > 0 && machineNumber > maxJobberMachines)
-                        {
-                            return new
-                            {
-                                Status = false,
-                                Message = string.Format("Machine No ({0}) cannot exceed Jobber Machine count ({1})!", machineNumber, maxJobberMachines)
-                            };
-                        }
-
-                        if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
-                        {
-                            decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
-                            return new
-                            {
-                                Status = false,
-                                Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
-                            };
-                        }
-
-                        string insertSql = @"
-                        INSERT INTO ProductionOrderSubDetail
-                        (
-                            ProductionOrderID,
-                            ProductionOrderDetailID,
-                            ProductionDate,
-                            MachineNumber,
-                            PCS,
-                            CreatedByUserID,
-                            CompanyId,
-                            DateandTime,
-                            IsActive
-                        )
-                        VALUES
-                        (
-                            @ProductionOrderID,
-                            @ProductionOrderDetailID,
-                            @ProductionDate,
-                            @MachineNumber,
-                            @PCS,
-                            @CreatedByUserID,
-                            @CompanyId,
-                            GETDATE(),
-                            1
-                        );
-                        SELECT SCOPE_IDENTITY();";
-
-                        using (SqlCommand cmd = new SqlCommand(insertSql, con))
-                        {
-                            cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
-                            cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
-                            cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
-                            cmd.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                            cmd.Parameters.AddWithValue("@PCS", pcs);
-                            cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
-                            cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
-
-                            object newIdObj = cmd.ExecuteScalar();
-                            long newId = Convert.ToInt64(newIdObj);
-
-                            return new
-                            {
-                                Status = true,
-                                Message = "Machine Details saved successfully!",
-                                ProductionOrderSubDetailID = newId
-                            };
                         }
                     }
                 }
@@ -49076,9 +49093,16 @@ ORDER BY
 
                         DateTime dateTxn = string.IsNullOrEmpty(challanDate) ? DateTime.Now : DateTime.Parse(challanDate);
 
-                        // 1. Insert Master: dbo.ProcessTransactionMaster
-                        long masterID = 0;
-                        string sqlMaster = @"
+                        using (SqlTransaction tran = con.BeginTransaction(IsolationLevel.ReadCommitted))
+                        {
+                            try
+                            {
+                                // Acquire application lock and validate ProductionOrder active status
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, tran, items);
+
+                                // 1. Insert Master: dbo.ProcessTransactionMaster
+                                long masterID = 0;
+                                string sqlMaster = @"
                     INSERT INTO ProcessTransactionMaster 
                     (
                         ProcessTransactionNo, 
@@ -49113,272 +49137,281 @@ ORDER BY
                     );
                     SELECT SCOPE_IDENTITY();";
 
-                        using (SqlCommand cmdM = new SqlCommand(sqlMaster, con))
-                        {
-                            cmdM.Parameters.AddWithValue("@ProcessTransactionNo", txnNo);
-                            cmdM.Parameters.AddWithValue("@ProcessID", buttaProcID);
-                            cmdM.Parameters.AddWithValue("@TransactionDate", dateTxn);
-                            cmdM.Parameters.AddWithValue("@FromPartyID", fromPartyID);
-                            cmdM.Parameters.AddWithValue("@FromPartyName", fromPartyName);
-                            cmdM.Parameters.AddWithValue("@ToPartyID", jobberID);
-                            cmdM.Parameters.AddWithValue("@ToPartyName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
-                            cmdM.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
-                            cmdM.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
-                            cmdM.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
-
-                            masterID = Convert.ToInt64(cmdM.ExecuteScalar());
-                        }
-
-                        // 2. Insert Details & History: dbo.ProcessTransactionDetail & dbo.ProcessTransactionHistory
-                        try
-                        {
-                            if (!DoesColumnExist(con, null, "ProcessTransactionDetail", "ShortPCS"))
-                            {
-                                using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionDetail' AND COLUMN_NAME = 'ShortPCS') ALTER TABLE ProcessTransactionDetail ADD ShortPCS DECIMAL(18,2) NULL DEFAULT 0;", con))
+                                using (SqlCommand cmdM = new SqlCommand(sqlMaster, con, tran))
                                 {
-                                    cmdA.ExecuteNonQuery();
-                                }
-                            }
-                            if (!DoesColumnExist(con, null, "ProcessTransactionHistory", "ShortQty"))
-                            {
-                                using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionHistory' AND COLUMN_NAME = 'ShortQty') ALTER TABLE ProcessTransactionHistory ADD ShortQty DECIMAL(18,2) NULL DEFAULT 0;", con))
-                                {
-                                    cmdA.ExecuteNonQuery();
-                                }
-                            }
-                        }
-                        catch { }
+                                    cmdM.Parameters.AddWithValue("@ProcessTransactionNo", txnNo);
+                                    cmdM.Parameters.AddWithValue("@ProcessID", buttaProcID);
+                                    cmdM.Parameters.AddWithValue("@TransactionDate", dateTxn);
+                                    cmdM.Parameters.AddWithValue("@FromPartyID", fromPartyID);
+                                    cmdM.Parameters.AddWithValue("@FromPartyName", fromPartyName);
+                                    cmdM.Parameters.AddWithValue("@ToPartyID", jobberID);
+                                    cmdM.Parameters.AddWithValue("@ToPartyName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
+                                    cmdM.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
+                                    cmdM.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
+                                    cmdM.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
 
-                        foreach (var item in items)
-                        {
-                            string slipNo = item.SlipNo ?? "";
-                            string designNo = "";
-                            string colourMatchingName = "";
-                            int colourMatchingID = 0;
-                            int machineNumber = 1;
-                            long saleOrderID = 0;
-                            long saleOrderDetailID = 0;
-                            long saleOrderSubDetailID = 0;
-                            long barcode = 0;
-                            decimal shortPcsVal = item.ShortPCS > 0 ? item.ShortPCS : 0;
+                                    masterID = Convert.ToInt64(cmdM.ExecuteScalar());
+                                }
 
-                            if (item.ProductionOrderDetailID > 0)
-                            {
+                                // 2. Insert Details & History: dbo.ProcessTransactionDetail & dbo.ProcessTransactionHistory
                                 try
                                 {
-                                    bool hasPOD_ColourName = DoesColumnExist(con, null, "ProductionOrderDetail", "ColourMatchingName");
-                                    bool hasPOD_ColourID = DoesColumnExist(con, null, "ProductionOrderDetail", "ColourMatchingID");
-                                    bool hasPOD_Colour = DoesColumnExist(con, null, "ProductionOrderDetail", "ColourMatching");
-                                    bool hasPOD_SOID = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderID") || DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderID");
-                                    bool hasPOD_SODetID = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderDetailID") || DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderDetailID");
-                                    bool hasPOSD_SOSTDetID = DoesTableExist(con, "ProductionOrderSubDetail") && DoesColumnExist(con, null, "ProductionOrderSubDetail", "SaleOrderSubDetailID");
-                                    bool hasPOSD_Barcode = DoesTableExist(con, "ProductionOrderSubDetail") && DoesColumnExist(con, null, "ProductionOrderSubDetail", "Barcode");
-                                    bool hasPOD_Barcode = DoesColumnExist(con, null, "ProductionOrderDetail", "Barcode");
-
-                                    string colourNameExpr = hasPOD_ColourName ? "ISNULL(POD.ColourMatchingName, '')" : (hasPOD_Colour ? "ISNULL(POD.ColourMatching, '')" : "''");
-                                    string colourIDExpr = hasPOD_ColourID ? "ISNULL(POD.ColourMatchingID, 0)" : "0";
-                                    string soIDExpr = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderID") ? "ISNULL(POD.SaleOrderID, 0)" : (DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderID") ? "ISNULL(POD.SalesOrderID, 0)" : "0");
-                                    string soDetIDExpr = DoesColumnExist(con, null, "ProductionOrderDetail", "SaleOrderDetailID") ? "ISNULL(POD.SaleOrderDetailID, 0)" : (DoesColumnExist(con, null, "ProductionOrderDetail", "SalesOrderDetailID") ? "ISNULL(POD.SalesOrderDetailID, 0)" : "0");
-                                    string soSubDetIDExpr = hasPOSD_SOSTDetID ? "ISNULL(POSD.SaleOrderSubDetailID, 0)" : "0";
-                                    string barcodeExpr = hasPOSD_Barcode ? "ISNULL(POSD.Barcode, 0)" : (hasPOD_Barcode ? "ISNULL(POD.Barcode, 0)" : "0");
-
-                                    string queryInfo = string.Format(@"
-                                SELECT TOP 1
-                                    ISNULL(POD.DesignNo, '') AS DesignNo,
-                                    {0} AS ColourMatchingName,
-                                    {1} AS ColourMatchingID,
-                                    ISNULL(POSD.MachineNumber, 1) AS MachineNumber,
-                                    {2} AS SaleOrderID,
-                                    {3} AS SaleOrderDetailID,
-                                    {4} AS SaleOrderSubDetailID,
-                                    {5} AS Barcode
-                                FROM ProductionOrderDetail POD
-                                LEFT JOIN ProductionOrderSubDetail POSD ON POD.ProductionOrderDetailID = POSD.ProductionOrderDetailID
-                                WHERE POD.ProductionOrderDetailID = @PODID",
-                                        colourNameExpr, colourIDExpr, soIDExpr, soDetIDExpr, soSubDetIDExpr, barcodeExpr);
-
-                                    using (SqlCommand cmdI = new SqlCommand(queryInfo, con))
+                                    if (!DoesColumnExist(con, tran, "ProcessTransactionDetail", "ShortPCS"))
                                     {
-                                        cmdI.Parameters.AddWithValue("@PODID", item.ProductionOrderDetailID);
-                                        using (SqlDataReader dr = cmdI.ExecuteReader())
+                                        using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionDetail' AND COLUMN_NAME = 'ShortPCS') ALTER TABLE ProcessTransactionDetail ADD ShortPCS DECIMAL(18,2) NULL DEFAULT 0;", con, tran))
                                         {
-                                            if (dr.Read())
-                                            {
-                                                designNo = dr["DesignNo"].ToString();
-                                                colourMatchingName = dr["ColourMatchingName"].ToString();
-                                                colourMatchingID = Convert.ToInt32(dr["ColourMatchingID"]);
-                                                machineNumber = Convert.ToInt32(dr["MachineNumber"]);
-                                                saleOrderID = Convert.ToInt64(dr["SaleOrderID"]);
-                                                saleOrderDetailID = Convert.ToInt64(dr["SaleOrderDetailID"]);
-                                                saleOrderSubDetailID = Convert.ToInt64(dr["SaleOrderSubDetailID"]);
-                                                barcode = Convert.ToInt64(dr["Barcode"]);
-                                            }
+                                            cmdA.ExecuteNonQuery();
+                                        }
+                                    }
+                                    if (!DoesColumnExist(con, tran, "ProcessTransactionHistory", "ShortQty"))
+                                    {
+                                        using (SqlCommand cmdA = new SqlCommand("IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ProcessTransactionHistory' AND COLUMN_NAME = 'ShortQty') ALTER TABLE ProcessTransactionHistory ADD ShortQty DECIMAL(18,2) NULL DEFAULT 0;", con, tran))
+                                        {
+                                            cmdA.ExecuteNonQuery();
                                         }
                                     }
                                 }
                                 catch { }
+
+                                foreach (var item in items)
+                                {
+                                    string slipNo = item.SlipNo ?? "";
+                                    string designNo = "";
+                                    string colourMatchingName = "";
+                                    int colourMatchingID = 0;
+                                    int machineNumber = 1;
+                                    long saleOrderID = 0;
+                                    long saleOrderDetailID = 0;
+                                    long saleOrderSubDetailID = 0;
+                                    long barcode = 0;
+                                    decimal shortPcsVal = item.ShortPCS > 0 ? item.ShortPCS : 0;
+
+                                    if (item.ProductionOrderDetailID > 0)
+                                    {
+                                        try
+                                        {
+                                            bool hasPOD_ColourName = DoesColumnExist(con, tran, "ProductionOrderDetail", "ColourMatchingName");
+                                            bool hasPOD_ColourID = DoesColumnExist(con, tran, "ProductionOrderDetail", "ColourMatchingID");
+                                            bool hasPOD_Colour = DoesColumnExist(con, tran, "ProductionOrderDetail", "ColourMatching");
+                                            bool hasPOD_SOID = DoesColumnExist(con, tran, "ProductionOrderDetail", "SaleOrderID") || DoesColumnExist(con, tran, "ProductionOrderDetail", "SalesOrderID");
+                                            bool hasPOD_SODetID = DoesColumnExist(con, tran, "ProductionOrderDetail", "SaleOrderDetailID") || DoesColumnExist(con, tran, "ProductionOrderDetail", "SalesOrderDetailID");
+                                            bool hasPOSD_SOSTDetID = DoesTableExist(con, "ProductionOrderSubDetail") && DoesColumnExist(con, tran, "ProductionOrderSubDetail", "SaleOrderSubDetailID");
+                                            bool hasPOSD_Barcode = DoesTableExist(con, "ProductionOrderSubDetail") && DoesColumnExist(con, tran, "ProductionOrderSubDetail", "Barcode");
+                                            bool hasPOD_Barcode = DoesColumnExist(con, tran, "ProductionOrderDetail", "Barcode");
+
+                                            string colourNameExpr = hasPOD_ColourName ? "ISNULL(POD.ColourMatchingName, '')" : (hasPOD_Colour ? "ISNULL(POD.ColourMatching, '')" : "''");
+                                            string colourIDExpr = hasPOD_ColourID ? "ISNULL(POD.ColourMatchingID, 0)" : "0";
+                                            string soIDExpr = DoesColumnExist(con, tran, "ProductionOrderDetail", "SaleOrderID") ? "ISNULL(POD.SaleOrderID, 0)" : (DoesColumnExist(con, tran, "ProductionOrderDetail", "SalesOrderID") ? "ISNULL(POD.SalesOrderID, 0)" : "0");
+                                            string soDetIDExpr = DoesColumnExist(con, tran, "ProductionOrderDetail", "SaleOrderDetailID") ? "ISNULL(POD.SaleOrderDetailID, 0)" : (DoesColumnExist(con, tran, "ProductionOrderDetail", "SalesOrderDetailID") ? "ISNULL(POD.SalesOrderDetailID, 0)" : "0");
+                                            string soSubDetIDExpr = hasPOSD_SOSTDetID ? "ISNULL(POSD.SaleOrderSubDetailID, 0)" : "0";
+                                            string barcodeExpr = hasPOSD_Barcode ? "ISNULL(POSD.Barcode, 0)" : (hasPOD_Barcode ? "ISNULL(POD.Barcode, 0)" : "0");
+
+                                            string queryInfo = string.Format(@"
+                                        SELECT TOP 1
+                                            ISNULL(POD.DesignNo, '') AS DesignNo,
+                                            {0} AS ColourMatchingName,
+                                            {1} AS ColourMatchingID,
+                                            ISNULL(POSD.MachineNumber, 1) AS MachineNumber,
+                                            {2} AS SaleOrderID,
+                                            {3} AS SaleOrderDetailID,
+                                            {4} AS SaleOrderSubDetailID,
+                                            {5} AS Barcode
+                                        FROM ProductionOrderDetail POD
+                                        LEFT JOIN ProductionOrderSubDetail POSD ON POD.ProductionOrderDetailID = POSD.ProductionOrderDetailID
+                                        WHERE POD.ProductionOrderDetailID = @PODID",
+                                                colourNameExpr, colourIDExpr, soIDExpr, soDetIDExpr, soSubDetIDExpr, barcodeExpr);
+
+                                            using (SqlCommand cmdI = new SqlCommand(queryInfo, con, tran))
+                                            {
+                                                cmdI.Parameters.AddWithValue("@PODID", item.ProductionOrderDetailID);
+                                                using (SqlDataReader dr = cmdI.ExecuteReader())
+                                                {
+                                                    if (dr.Read())
+                                                    {
+                                                        designNo = dr["DesignNo"].ToString();
+                                                        colourMatchingName = dr["ColourMatchingName"].ToString();
+                                                        colourMatchingID = Convert.ToInt32(dr["ColourMatchingID"]);
+                                                        machineNumber = Convert.ToInt32(dr["MachineNumber"]);
+                                                        saleOrderID = Convert.ToInt64(dr["SaleOrderID"]);
+                                                        saleOrderDetailID = Convert.ToInt64(dr["SaleOrderDetailID"]);
+                                                        saleOrderSubDetailID = Convert.ToInt64(dr["SaleOrderSubDetailID"]);
+                                                        barcode = Convert.ToInt64(dr["Barcode"]);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch { }
+                                    }
+
+                                    // Detail Insert
+                                    long detailID = 0;
+                                    string sqlDetail = @"
+                                INSERT INTO ProcessTransactionDetail 
+                                (
+                                    ProcessTransactionID, 
+                                    ProductionOrderID, 
+                                    ProductionOrderDetailID, 
+                                    ProductionOrderSubDetailID, 
+                                    SaleOrderID,
+                                    SaleOrderDetailID,
+                                    SaleOrderSubDetailID,
+                                    SlipNo, 
+                                    Barcode,
+                                    DesignNo, 
+                                    ColourMatchingID,
+                                    ColourMatchingName, 
+                                    MachineNumber, 
+                                    PCS, 
+                                    IssuePCS, 
+                                    ReceivePCS, 
+                                    PendingPCS, 
+                                    ShortPCS,
+                                    Remark, 
+                                    CompanyId, 
+                                    CreatedByUserID, 
+                                    CreatedDateTime, 
+                                    IsActive
+                                )
+                                VALUES 
+                                (
+                                    @MasterID, 
+                                    @ProdOrderID, 
+                                    @ProdOrderDetailID, 
+                                    @ProdOrderSubDetailID, 
+                                    @SaleOrderID,
+                                    @SaleOrderDetailID,
+                                    @SaleOrderSubDetailID,
+                                    @SlipNo, 
+                                    @Barcode,
+                                    @DesignNo, 
+                                    @ColourMatchingID, 
+                                    @ColourMatchingName, 
+                                    @MachineNumber, 
+                                    @PCS, 
+                                    @IssuePCS, 
+                                    0, 
+                                    @IssuePCS, 
+                                    @ShortPCS,
+                                    @Remark, 
+                                    @CompanyId, 
+                                    @CreatedByUserID, 
+                                    GETDATE(), 
+                                    1
+                                );
+                                SELECT SCOPE_IDENTITY();";
+
+                                    using (SqlCommand cmdD = new SqlCommand(sqlDetail, con, tran))
+                                    {
+                                        cmdD.Parameters.AddWithValue("@MasterID", masterID);
+                                        cmdD.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
+                                        cmdD.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
+                                        cmdD.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
+                                        cmdD.Parameters.AddWithValue("@SaleOrderID", saleOrderID);
+                                        cmdD.Parameters.AddWithValue("@SaleOrderDetailID", saleOrderDetailID);
+                                        cmdD.Parameters.AddWithValue("@SaleOrderSubDetailID", saleOrderSubDetailID);
+                                        cmdD.Parameters.AddWithValue("@SlipNo", slipNo);
+                                        cmdD.Parameters.AddWithValue("@Barcode", barcode);
+                                        cmdD.Parameters.AddWithValue("@DesignNo", designNo);
+                                        cmdD.Parameters.AddWithValue("@ColourMatchingID", colourMatchingID);
+                                        cmdD.Parameters.AddWithValue("@ColourMatchingName", colourMatchingName);
+                                        cmdD.Parameters.AddWithValue("@MachineNumber", machineNumber);
+                                        cmdD.Parameters.AddWithValue("@PCS", item.PCS);
+                                        cmdD.Parameters.AddWithValue("@IssuePCS", item.PCS);
+                                        cmdD.Parameters.AddWithValue("@ShortPCS", shortPcsVal);
+                                        cmdD.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
+                                        cmdD.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
+                                        cmdD.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
+
+                                        detailID = Convert.ToInt64(cmdD.ExecuteScalar());
+                                    }
+
+                                    // History Insert
+                                    string sqlHistory = @"
+                                INSERT INTO ProcessTransactionHistory 
+                                (
+                                    ProcessTransactionDetailID, 
+                                    ProductionOrderID, 
+                                    ProductionOrderDetailID, 
+                                    ProductionOrderSubDetailID, 
+                                    ProcessID, 
+                                    TransactionType, 
+                                    TransactionDate, 
+                                    Qty, 
+                                    ShortQty,
+                                    MachineNumber, 
+                                    SlipNo, 
+                                    Barcode, 
+                                    JobberID, 
+                                    JobberName, 
+                                    Remark, 
+                                    CompanyId, 
+                                    CreatedByUserID, 
+                                    CreatedDateTime
+                                )
+                                VALUES 
+                                (
+                                    @DetailID, 
+                                    @ProdOrderID, 
+                                    @ProdOrderDetailID, 
+                                    @ProdOrderSubDetailID, 
+                                    @ProcessID, 
+                                    'ISSUE', 
+                                    @TransactionDate, 
+                                    @Qty, 
+                                    @ShortQty,
+                                    @MachineNumber, 
+                                    @SlipNo, 
+                                    @Barcode, 
+                                    @JobberID, 
+                                    @JobberName, 
+                                    @Remark, 
+                                    @CompanyId, 
+                                    @CreatedByUserID, 
+                                    GETDATE()
+                                );";
+
+                                    using (SqlCommand cmdH = new SqlCommand(sqlHistory, con, tran))
+                                    {
+                                        cmdH.Parameters.AddWithValue("@DetailID", detailID);
+                                        cmdH.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
+                                        cmdH.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
+                                        cmdH.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
+                                        cmdH.Parameters.AddWithValue("@ProcessID", buttaProcID);
+                                        cmdH.Parameters.AddWithValue("@TransactionDate", dateTxn);
+                                        cmdH.Parameters.AddWithValue("@Qty", item.PCS);
+                                        cmdH.Parameters.AddWithValue("@ShortQty", shortPcsVal);
+                                        cmdH.Parameters.AddWithValue("@MachineNumber", machineNumber);
+                                        cmdH.Parameters.AddWithValue("@SlipNo", slipNo);
+                                        cmdH.Parameters.AddWithValue("@Barcode", barcode);
+                                        cmdH.Parameters.AddWithValue("@JobberID", jobberID);
+                                        cmdH.Parameters.AddWithValue("@JobberName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
+                                        cmdH.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
+                                        cmdH.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
+                                        cmdH.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
+
+                                        cmdH.ExecuteNonQuery();
+                                    }
+                                }
+
+                                AuditLogHelper.Log(
+                                    module: "Jobber To Butta Cutting",
+                                    action: "CREATE",
+                                    tableName: "ProcessTransactionMaster",
+                                    recordId: masterID.ToString(),
+                                    description: $"Created Butta Cutting Allotment #{txnNo}",
+                                    existingConn: con,
+                                    existingTran: tran
+                                );
+
+                                tran.Commit();
+                                return new { Status = true, TransactionNo = txnNo, Message = "Butta Cutting Allotment Saved Successfully!" };
                             }
-
-                            // Detail Insert
-                            long detailID = 0;
-                            string sqlDetail = @"
-                        INSERT INTO ProcessTransactionDetail 
-                        (
-                            ProcessTransactionID, 
-                            ProductionOrderID, 
-                            ProductionOrderDetailID, 
-                            ProductionOrderSubDetailID, 
-                            SaleOrderID,
-                            SaleOrderDetailID,
-                            SaleOrderSubDetailID,
-                            SlipNo, 
-                            Barcode,
-                            DesignNo, 
-                            ColourMatchingID,
-                            ColourMatchingName, 
-                            MachineNumber, 
-                            PCS, 
-                            IssuePCS, 
-                            ReceivePCS, 
-                            PendingPCS, 
-                            ShortPCS,
-                            Remark, 
-                            CompanyId, 
-                            CreatedByUserID, 
-                            CreatedDateTime, 
-                            IsActive
-                        )
-                        VALUES 
-                        (
-                            @MasterID, 
-                            @ProdOrderID, 
-                            @ProdOrderDetailID, 
-                            @ProdOrderSubDetailID, 
-                            @SaleOrderID,
-                            @SaleOrderDetailID,
-                            @SaleOrderSubDetailID,
-                            @SlipNo, 
-                            @Barcode,
-                            @DesignNo, 
-                            @ColourMatchingID,
-                            @ColourMatchingName, 
-                            @MachineNumber, 
-                            @PCS, 
-                            @IssuePCS, 
-                            0, 
-                            @IssuePCS, 
-                            @ShortPCS,
-                            @Remark, 
-                            @CompanyId, 
-                            @CreatedByUserID, 
-                            GETDATE(), 
-                            1
-                        );
-                        SELECT SCOPE_IDENTITY();";
-
-                            using (SqlCommand cmdD = new SqlCommand(sqlDetail, con))
+                            catch
                             {
-                                cmdD.Parameters.AddWithValue("@MasterID", masterID);
-                                cmdD.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
-                                cmdD.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
-                                cmdD.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
-                                cmdD.Parameters.AddWithValue("@SaleOrderID", saleOrderID);
-                                cmdD.Parameters.AddWithValue("@SaleOrderDetailID", saleOrderDetailID);
-                                cmdD.Parameters.AddWithValue("@SaleOrderSubDetailID", saleOrderSubDetailID);
-                                cmdD.Parameters.AddWithValue("@SlipNo", slipNo);
-                                cmdD.Parameters.AddWithValue("@Barcode", barcode);
-                                cmdD.Parameters.AddWithValue("@DesignNo", designNo);
-                                cmdD.Parameters.AddWithValue("@ColourMatchingID", colourMatchingID);
-                                cmdD.Parameters.AddWithValue("@ColourMatchingName", colourMatchingName);
-                                cmdD.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                                cmdD.Parameters.AddWithValue("@PCS", item.PCS);
-                                cmdD.Parameters.AddWithValue("@IssuePCS", item.PCS);
-                                cmdD.Parameters.AddWithValue("@ShortPCS", shortPcsVal);
-                                cmdD.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
-                                cmdD.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
-                                cmdD.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
-
-                                detailID = Convert.ToInt64(cmdD.ExecuteScalar());
-                            }
-
-                            // History Insert
-                            string sqlHistory = @"
-                        INSERT INTO ProcessTransactionHistory 
-                        (
-                            ProcessTransactionDetailID, 
-                            ProductionOrderID, 
-                            ProductionOrderDetailID, 
-                            ProductionOrderSubDetailID, 
-                            ProcessID, 
-                            TransactionType, 
-                            TransactionDate, 
-                            Qty, 
-                            ShortQty,
-                            MachineNumber, 
-                            SlipNo, 
-                            Barcode,
-                            JobberID, 
-                            JobberName, 
-                            Remark, 
-                            CompanyId, 
-                            CreatedByUserID, 
-                            CreatedDateTime
-                        )
-                        VALUES 
-                        (
-                            @DetailID, 
-                            @ProdOrderID, 
-                            @ProdOrderDetailID, 
-                            @ProdOrderSubDetailID, 
-                            @ProcessID, 
-                            'ISSUE', 
-                            @TransactionDate, 
-                            @Qty, 
-                            @ShortQty,
-                            @MachineNumber, 
-                            @SlipNo, 
-                            @Barcode, 
-                            @JobberID, 
-                            @JobberName, 
-                            @Remark, 
-                            @CompanyId, 
-                            @CreatedByUserID, 
-                            GETDATE()
-                        );";
-
-                            using (SqlCommand cmdH = new SqlCommand(sqlHistory, con))
-                            {
-                                cmdH.Parameters.AddWithValue("@DetailID", detailID);
-                                cmdH.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
-                                cmdH.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
-                                cmdH.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
-                                cmdH.Parameters.AddWithValue("@ProcessID", buttaProcID);
-                                cmdH.Parameters.AddWithValue("@TransactionDate", dateTxn);
-                                cmdH.Parameters.AddWithValue("@Qty", item.PCS);
-                                cmdH.Parameters.AddWithValue("@ShortQty", shortPcsVal);
-                                cmdH.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                                cmdH.Parameters.AddWithValue("@SlipNo", slipNo);
-                                cmdH.Parameters.AddWithValue("@Barcode", barcode);
-                                cmdH.Parameters.AddWithValue("@JobberID", jobberID);
-                                cmdH.Parameters.AddWithValue("@JobberName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
-                                cmdH.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
-                                cmdH.Parameters.AddWithValue("@CompanyId", secContext.CompanyId);
-                                cmdH.Parameters.AddWithValue("@CreatedByUserID", secContext.UserAccountId);
-
-                                cmdH.ExecuteNonQuery();
+                                try { tran.Rollback(); } catch { }
+                                throw;
                             }
                         }
-
-                        AuditLogHelper.Log(
-                            module: "Jobber To Butta Cutting",
-                            action: "CREATE",
-                            tableName: "ProcessTransactionMaster",
-                            recordId: masterID.ToString(),
-                            description: $"Created Butta Cutting Allotment #{txnNo}",
-                            existingConn: con
-                        );
-
-                        return new { Status = true, TransactionNo = txnNo, Message = "Butta Cutting Allotment Saved Successfully!" };
                     }
                 }
                 catch (Exception ex)
@@ -49729,6 +49762,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, tran, items);
                                 long refProcessID = 0;
                                 long origFromPartyID = 0;
                                 string origFromPartyName = "";
@@ -50146,8 +50180,15 @@ ORDER BY
 
                         DateTime dateTxn = string.IsNullOrEmpty(challanDate) ? DateTime.Now : DateTime.Parse(challanDate);
 
-                        // 1. Update Master
-                        string sqlMaster = @"
+                        using (SqlTransaction tran = con.BeginTransaction(IsolationLevel.ReadCommitted))
+                        {
+                            try
+                            {
+                                // Acquire application lock and validate ProductionOrder active status
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, tran, items);
+
+                                // 1. Update Master
+                                string sqlMaster = @"
                     UPDATE ProcessTransactionMaster 
                     SET 
                         TransactionDate = @TransactionDate,
@@ -50157,135 +50198,144 @@ ORDER BY
                         UpdatedDateTime = GETDATE()
                     WHERE ProcessTransactionID = @ID";
 
-                        using (SqlCommand cmdM = new SqlCommand(sqlMaster, con))
-                        {
-                            cmdM.Parameters.AddWithValue("@TransactionDate", dateTxn);
-                            cmdM.Parameters.AddWithValue("@ToPartyID", jobberID);
-                            cmdM.Parameters.AddWithValue("@ToPartyName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
-                            cmdM.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
-                            cmdM.Parameters.AddWithValue("@ID", processTransactionID);
-                            cmdM.ExecuteNonQuery();
-                        }
+                                using (SqlCommand cmdM = new SqlCommand(sqlMaster, con, tran))
+                                {
+                                    cmdM.Parameters.AddWithValue("@TransactionDate", dateTxn);
+                                    cmdM.Parameters.AddWithValue("@ToPartyID", jobberID);
+                                    cmdM.Parameters.AddWithValue("@ToPartyName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
+                                    cmdM.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
+                                    cmdM.Parameters.AddWithValue("@ID", processTransactionID);
+                                    cmdM.ExecuteNonQuery();
+                                }
 
-                        // 2. Delete existing history and details for this Master
-                        using (SqlCommand cmdDelH = new SqlCommand(@"
+                                // 2. Delete existing history and details for this Master
+                                using (SqlCommand cmdDelH = new SqlCommand(@"
                     DELETE FROM ProcessTransactionHistory 
                     WHERE ProcessTransactionDetailID IN (
                         SELECT ProcessTransactionDetailID FROM ProcessTransactionDetail WHERE ProcessTransactionID = @ID
-                    )", con))
-                        {
-                            cmdDelH.Parameters.AddWithValue("@ID", processTransactionID);
-                            cmdDelH.ExecuteNonQuery();
-                        }
-
-                        using (SqlCommand cmdDelD = new SqlCommand("DELETE FROM ProcessTransactionDetail WHERE ProcessTransactionID = @ID", con))
-                        {
-                            cmdDelD.Parameters.AddWithValue("@ID", processTransactionID);
-                            cmdDelD.ExecuteNonQuery();
-                        }
-
-                        // 3. Insert updated details and history
-                        if (items != null)
-                        {
-                            foreach (var item in items)
-                            {
-                                string slipNo = item.SlipNo ?? "";
-                                string designNo = "";
-                                string colourMatchingName = "";
-                                int colourMatchingID = 0;
-                                int machineNumber = 1;
-
-                                if (item.ProductionOrderDetailID > 0)
+                    )", con, tran))
                                 {
-                                    try
+                                    cmdDelH.Parameters.AddWithValue("@ID", processTransactionID);
+                                    cmdDelH.ExecuteNonQuery();
+                                }
+
+                                using (SqlCommand cmdDelD = new SqlCommand("DELETE FROM ProcessTransactionDetail WHERE ProcessTransactionID = @ID", con, tran))
+                                {
+                                    cmdDelD.Parameters.AddWithValue("@ID", processTransactionID);
+                                    cmdDelD.ExecuteNonQuery();
+                                }
+
+                                // 3. Insert updated details and history
+                                if (items != null)
+                                {
+                                    foreach (var item in items)
                                     {
-                                        using (SqlCommand cmdI = new SqlCommand("SELECT TOP 1 DesignNo, ColourMatchingName, ColourMatchingID, ISNULL(MachineNumber, 1) AS MachineNumber FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @PODID", con))
+                                        string slipNo = item.SlipNo ?? "";
+                                        string designNo = "";
+                                        string colourMatchingName = "";
+                                        int colourMatchingID = 0;
+                                        int machineNumber = 1;
+
+                                        if (item.ProductionOrderDetailID > 0)
                                         {
-                                            cmdI.Parameters.AddWithValue("@PODID", item.ProductionOrderDetailID);
-                                            using (SqlDataReader dr = cmdI.ExecuteReader())
+                                            try
                                             {
-                                                if (dr.Read())
+                                                using (SqlCommand cmdI = new SqlCommand("SELECT TOP 1 DesignNo, ColourMatchingName, ColourMatchingID, ISNULL(MachineNumber, 1) AS MachineNumber FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @PODID", con, tran))
                                                 {
-                                                    designNo = dr["DesignNo"].ToString();
-                                                    colourMatchingName = dr["ColourMatchingName"].ToString();
-                                                    colourMatchingID = dr["ColourMatchingID"] != DBNull.Value ? Convert.ToInt32(dr["ColourMatchingID"]) : 0;
+                                                    cmdI.Parameters.AddWithValue("@PODID", item.ProductionOrderDetailID);
+                                                    using (SqlDataReader dr = cmdI.ExecuteReader())
+                                                    {
+                                                        if (dr.Read())
+                                                        {
+                                                            designNo = dr["DesignNo"].ToString();
+                                                            colourMatchingName = dr["ColourMatchingName"].ToString();
+                                                            colourMatchingID = dr["ColourMatchingID"] != DBNull.Value ? Convert.ToInt32(dr["ColourMatchingID"]) : 0;
+                                                        }
+                                                    }
                                                 }
                                             }
+                                            catch { }
+                                        }
+
+                                        long companyIdVal = secContext.CompanyId;
+                                        long userIdVal = secContext.UserAccountId;
+                                        decimal shortPcsVal = item.ShortPCS > 0 ? item.ShortPCS : 0;
+
+                                        string sqlDetail = @"
+                                    INSERT INTO ProcessTransactionDetail 
+                                    (
+                                        ProcessTransactionID, ProductionOrderID, ProductionOrderDetailID, ProductionOrderSubDetailID,
+                                        SlipNo, DesignNo, ColourMatchingID, ColourMatchingName, MachineNumber, PCS, IssuePCS, ReceivePCS, ShortPCS, PendingPCS, Remark, CompanyId, CreatedByUserID, CreatedDateTime, IsActive
+                                    )
+                                    VALUES 
+                                    (
+                                        @MasterID, @ProdOrderID, @ProdOrderDetailID, @ProdOrderSubDetailID,
+                                        @SlipNo, @DesignNo, @ColourMatchingID, @ColourMatchingName, @MachineNumber, @PCS, @IssuePCS, 0, @ShortPCS, @IssuePCS, @Remark, @CompanyId, @CreatedByUserID, GETDATE(), 1
+                                    );
+                                    SELECT SCOPE_IDENTITY();";
+
+                                        long detailID = 0;
+                                        using (SqlCommand cmdD = new SqlCommand(sqlDetail, con, tran))
+                                        {
+                                            cmdD.Parameters.AddWithValue("@MasterID", processTransactionID);
+                                            cmdD.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
+                                            cmdD.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
+                                            cmdD.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
+                                            cmdD.Parameters.AddWithValue("@SlipNo", slipNo);
+                                            cmdD.Parameters.AddWithValue("@DesignNo", designNo);
+                                            cmdD.Parameters.AddWithValue("@ColourMatchingID", colourMatchingID);
+                                            cmdD.Parameters.AddWithValue("@ColourMatchingName", colourMatchingName);
+                                            cmdD.Parameters.AddWithValue("@MachineNumber", machineNumber);
+                                            cmdD.Parameters.AddWithValue("@PCS", item.PCS);
+                                            cmdD.Parameters.AddWithValue("@IssuePCS", item.PCS);
+                                            cmdD.Parameters.AddWithValue("@ShortPCS", shortPcsVal);
+                                            cmdD.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
+                                            cmdD.Parameters.AddWithValue("@CompanyId", companyIdVal);
+                                            cmdD.Parameters.AddWithValue("@CreatedByUserID", userIdVal);
+
+                                            detailID = Convert.ToInt64(cmdD.ExecuteScalar());
+                                        }
+
+                                        string sqlHistory = @"
+                                    INSERT INTO ProcessTransactionHistory 
+                                    (
+                                        ProcessTransactionDetailID, ProductionOrderID, ProductionOrderDetailID, ProductionOrderSubDetailID,
+                                        ProcessID, TransactionType, TransactionDate, Qty, ShortQty, MachineNumber, SlipNo, JobberID, JobberName, Remark, CompanyId, CreatedByUserID, CreatedDateTime
+                                    )
+                                    VALUES 
+                                    (
+                                        @DetailID, @ProdOrderID, @ProdOrderDetailID, @ProdOrderSubDetailID,
+                                        2, 'ISSUE', @TransactionDate, @Qty, @ShortQty, @MachineNumber, @SlipNo, @JobberID, @JobberName, @Remark, @CompanyId, @CreatedByUserID, GETDATE()
+                                    );";
+
+                                        using (SqlCommand cmdH = new SqlCommand(sqlHistory, con, tran))
+                                        {
+                                            cmdH.Parameters.AddWithValue("@DetailID", detailID);
+                                            cmdH.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
+                                            cmdH.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
+                                            cmdH.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
+                                            cmdH.Parameters.AddWithValue("@TransactionDate", dateTxn);
+                                            cmdH.Parameters.AddWithValue("@Qty", item.PCS);
+                                            cmdH.Parameters.AddWithValue("@ShortQty", shortPcsVal);
+                                            cmdH.Parameters.AddWithValue("@MachineNumber", machineNumber);
+                                            cmdH.Parameters.AddWithValue("@SlipNo", slipNo);
+                                            cmdH.Parameters.AddWithValue("@JobberID", jobberID);
+                                            cmdH.Parameters.AddWithValue("@JobberName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
+                                            cmdH.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
+                                            cmdH.ExecuteNonQuery();
                                         }
                                     }
-                                    catch { }
                                 }
 
-                                long companyIdVal = secContext.CompanyId;
-                                long userIdVal = secContext.UserAccountId;
-
-                                decimal shortPcsVal = item.ShortPCS > 0 ? item.ShortPCS : 0;
-                                string sqlDetail = @"
-                            INSERT INTO ProcessTransactionDetail 
-                            (
-                                ProcessTransactionID, ProductionOrderID, ProductionOrderDetailID, ProductionOrderSubDetailID,
-                                SlipNo, DesignNo, ColourMatchingID, ColourMatchingName, MachineNumber, PCS, IssuePCS, ReceivePCS, PendingPCS, ShortPCS, Remark, CompanyId, CreatedByUserID, CreatedDateTime, IsActive
-                            )
-                            VALUES 
-                            (
-                                @MasterID, @ProdOrderID, @ProdOrderDetailID, @ProdOrderSubDetailID,
-                                @SlipNo, @DesignNo, @ColourMatchingID, @ColourMatchingName, @MachineNumber, @PCS, @IssuePCS, 0, @IssuePCS, @ShortPCS, @Remark, @CompanyId, @CreatedByUserID, GETDATE(), 1
-                            );
-                            SELECT SCOPE_IDENTITY();";
-
-                                long detailID = 0;
-                                using (SqlCommand cmdD = new SqlCommand(sqlDetail, con))
-                                {
-                                    cmdD.Parameters.AddWithValue("@MasterID", processTransactionID);
-                                    cmdD.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
-                                    cmdD.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
-                                    cmdD.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
-                                    cmdD.Parameters.AddWithValue("@SlipNo", slipNo);
-                                    cmdD.Parameters.AddWithValue("@DesignNo", designNo);
-                                    cmdD.Parameters.AddWithValue("@ColourMatchingID", colourMatchingID);
-                                    cmdD.Parameters.AddWithValue("@ColourMatchingName", colourMatchingName);
-                                    cmdD.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                                    cmdD.Parameters.AddWithValue("@PCS", item.PCS);
-                                    cmdD.Parameters.AddWithValue("@IssuePCS", item.PCS);
-                                    cmdD.Parameters.AddWithValue("@ShortPCS", shortPcsVal);
-                                    cmdD.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BUTTA CUTTING ISSUE" : jobType);
-                                    cmdD.Parameters.AddWithValue("@CompanyId", companyIdVal);
-                                    cmdD.Parameters.AddWithValue("@CreatedByUserID", userIdVal);
-                                    detailID = Convert.ToInt64(cmdD.ExecuteScalar());
-                                }
-
-                                string sqlHistory = @"
-                            INSERT INTO ProcessTransactionHistory 
-                            (
-                                ProcessTransactionDetailID, ProductionOrderID, ProductionOrderDetailID, ProductionOrderSubDetailID,
-                                ProcessID, TransactionType, TransactionDate, Qty, ShortQty, MachineNumber, SlipNo, JobberID, JobberName, Remark, CompanyId, CreatedByUserID, CreatedDateTime
-                            )
-                            VALUES 
-                            (
-                                @DetailID, @ProdOrderID, @ProdOrderDetailID, @ProdOrderSubDetailID,
-                                2, 'ISSUE', @TransactionDate, @Qty, @ShortQty, @MachineNumber, @SlipNo, @JobberID, @JobberName, @Remark, @CompanyId, @CreatedByUserID, GETDATE()
-                            );";
-
-                                using (SqlCommand cmdH = new SqlCommand(sqlHistory, con))
-                                {
-                                    cmdH.Parameters.AddWithValue("@DetailID", detailID);
-                                    cmdH.Parameters.AddWithValue("@ProdOrderID", item.ProductionOrderID);
-                                    cmdH.Parameters.AddWithValue("@ProdOrderDetailID", item.ProductionOrderDetailID);
-                                    cmdH.Parameters.AddWithValue("@ProdOrderSubDetailID", item.ProductionOrderSubDetailID);
-                                    cmdH.Parameters.AddWithValue("@TransactionDate", dateTxn);
-                                    cmdH.Parameters.AddWithValue("@Qty", item.PCS);
-                                    cmdH.Parameters.AddWithValue("@ShortQty", shortPcsVal);
-                                    cmdH.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                                    cmdH.Parameters.AddWithValue("@SlipNo", slipNo);
-                                    cmdH.Parameters.AddWithValue("@JobberID", jobberID);
-                                    cmdH.Parameters.AddWithValue("@JobberName", string.IsNullOrEmpty(jobberName) ? "JOBBER" : jobberName);
-                                    cmdH.Parameters.AddWithValue("@Remark", string.IsNullOrEmpty(jobType) ? "BORDER AND BUTTA CUTTING BOTH" : jobType);
-                                    cmdH.ExecuteNonQuery();
-                                }
+                                tran.Commit();
+                                return new { Status = true, Message = "Challan updated successfully." };
+                            }
+                            catch
+                            {
+                                try { tran.Rollback(); } catch { }
+                                throw;
                             }
                         }
-
-                        return new { Status = true, Message = "Challan updated successfully." };
                     }
                 }
                 catch (Exception ex)
@@ -51143,6 +51193,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                                 long companyIdVal = secContext.CompanyId;
                                 long userIdVal = secContext.UserAccountId;
 
@@ -51703,6 +51754,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                                 // 1. Update Master
                                 string sqlMaster = @"
                             UPDATE ProcessTransactionMaster 
@@ -52443,6 +52495,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                                 long companyIdVal = secContext.CompanyId;
                                 long userIdVal = secContext.UserAccountId;
 
@@ -53324,6 +53377,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                                 // SERVER-SIDE CONCURRENCY & STOCK VALIDATION
                                 foreach (var item in items)
                                 {
@@ -54424,6 +54478,7 @@ ORDER BY
                         {
                             try
                             {
+                                ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                                 // SERVER-SIDE CONCURRENCY & PENDING RECEIVE VALIDATION
                                 foreach (var item in items)
                                 {

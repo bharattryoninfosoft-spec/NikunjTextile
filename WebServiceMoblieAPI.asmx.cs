@@ -4627,6 +4627,7 @@ namespace NikunjTextile
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             long companyIdVal = secContext.CompanyId;
                             long userIdVal = secContext.UserAccountId;
 
@@ -5189,6 +5190,7 @@ namespace NikunjTextile
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             string sqlMaster = @"
                         UPDATE ProcessTransactionMaster 
                         SET 
@@ -5976,6 +5978,7 @@ namespace NikunjTextile
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             long companyIdVal = secContext.CompanyId;
                             long userIdVal = secContext.UserAccountId;
 
@@ -6590,6 +6593,7 @@ WHERE PTM.TransactionType = 'RECEIVE'
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             foreach (var item in items)
                             {
                                 if (item.IssueBackPCS <= 0) continue;
@@ -7391,6 +7395,7 @@ ORDER BY
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             foreach (var item in items)
                             {
                                 if (item.ReceivePCS <= 0) continue;
@@ -8923,6 +8928,7 @@ ORDER BY
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, trans, items);
                             string txnNo = "";
                             using (SqlCommand cmdSeq = new SqlCommand("SELECT ISNULL(MAX(ProcessTransactionID), 0) + 1 FROM ProcessTransactionMaster WHERE ProcessID = @ProcessID OR ProcessTransactionNo LIKE 'BC%'", con, trans))
                             {
@@ -9450,6 +9456,7 @@ ORDER BY
                     {
                         try
                         {
+                            ProductionOrderLockHelper.CoordinateAndValidate(con, tran, items);
                             long refProcessID = 0;
                             long origFromPartyID = 0;
                             string origFromPartyName = "";
