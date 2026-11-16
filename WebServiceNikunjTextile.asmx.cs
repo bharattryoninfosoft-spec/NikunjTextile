@@ -40705,9 +40705,16 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
             ilist.SearchRequirementNo = HttpContext.Current.Request.Params["SearchRequirementNo"];
             ilist.startFrom = HttpContext.Current.Request.Params["startFrom"];
 
-            if (ilist.SearchRequirementNo != "")
+            if (!string.IsNullOrEmpty(ilist.SearchRequirementNo))
             {
-                ilist.SearchRequirementNo = " and (YOM.OutwardListNo LIKE '%" + ilist.SearchRequirementNo + "%' OR PM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or PM.MobileNo LIKE '%" + ilist.SearchRequirementNo + "%'  ) ";
+                if (Status == "Pending")
+                {
+                    ilist.SearchRequirementNo = " and (YOM.OutwardListNo LIKE '%" + ilist.SearchRequirementNo + "%' OR PM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or PM.MobileNo LIKE '%" + ilist.SearchRequirementNo + "%' or JM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or JM.MobileNumber LIKE '%" + ilist.SearchRequirementNo + "%') ";
+                }
+                else
+                {
+                    ilist.SearchRequirementNo = " and (YOM.OutwardListNo LIKE '%" + ilist.SearchRequirementNo + "%' OR YSM.ChallanNo LIKE '%" + ilist.SearchRequirementNo + "%' OR PM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or PM.MobileNo LIKE '%" + ilist.SearchRequirementNo + "%' or JM.PartyName LIKE '%" + ilist.SearchRequirementNo + "%' or JM.MobileNumber LIKE '%" + ilist.SearchRequirementNo + "%') ";
+                }
             }
 
 
@@ -40727,7 +40734,9 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
                                     SELECT
                                         ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID DESC) AS row_num,
                                         YOM.YarnOutwardID,
+                                        CAST(0 AS INT) AS YarnOutwardScanID,
                                         YOM.OutwardListNo,
+                                        CAST(0 AS INT) AS ChallanNo,
                                         YOM.DateAndTime,
                                         UM.UserAccountId,
                                         CASE
@@ -40745,7 +40754,7 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
                                             ELSE PM.MobileNo
                                         END AS MobileNo,
 
-                                        ISNULL(YD.TotalNoOfBox, 0) AS TotalNoOfBox,
+                                        Rem.PendingBoxes AS TotalNoOfBox,
 
                                         CAST(ISNULL(UM.UserAccountId, 0) AS VARCHAR(20))
                                         + '|'
@@ -40761,17 +40770,17 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
                                             ) AS VARCHAR(20)
                                         ) AS GeneratedLink
 
-                                    FROM YarnOutwardMaster YOM
+                                    FROM YarnOutwardMaster YOM WITH (NOLOCK)
 
-                                    LEFT JOIN PartyMaster PM
+                                    LEFT JOIN PartyMaster PM WITH (NOLOCK)
                                         ON YOM.PartyId = PM.PartyId
                                         AND ISNULL(YOM.SundryPartyID, 0) <> 3
 
-                                    LEFT JOIN JobberMaster JM
+                                    LEFT JOIN JobberMaster JM WITH (NOLOCK)
                                         ON YOM.PartyId = JM.Id
                                         AND YOM.SundryPartyID = 3
 
-                                    LEFT JOIN UserAccountMaster UM
+                                    LEFT JOIN UserAccountMaster UM WITH (NOLOCK)
                                         ON (
                                             YOM.SundryPartyID = 3
                                             AND UM.PartyId = JM.Id
@@ -40781,21 +40790,26 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
                                             AND UM.PartyId = PM.PartyId
                                         )
 
-                                    LEFT JOIN GodownMaster GM
+                                    LEFT JOIN GodownMaster GM WITH (NOLOCK)
                                         ON YOM.GodownID = GM.GodownID
 
-                                    LEFT JOIN
+                                    CROSS APPLY
                                     (
-                                        SELECT
-                                            YarnOutwardID,
-                                            SUM(NoOfBox) AS TotalNoOfBox
-                                        FROM YarnOutwardDetail
-                                        GROUP BY YarnOutwardID
-                                    ) YD
-                                        ON YOM.YarnOutwardID = YD.YarnOutwardID
+                                        SELECT 
+                                            ISNULL((SELECT SUM(NoOfBox) FROM YarnOutwardDetail WITH (NOLOCK) WHERE YarnOutwardID = YOM.YarnOutwardID), 0)
+                                            - ISNULL(
+                                                (
+                                                    SELECT COUNT(*)
+                                                    FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                                                    INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK)
+                                                        ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                                                    WHERE YOSM.YarnOutwardID = YOM.YarnOutwardID
+                                                ), 0
+                                            ) AS PendingBoxes
+                                    ) Rem
 
                                     WHERE
-                                        YOM.IsScanStutas = 0
+                                        Rem.PendingBoxes > 0
                                         AND YOM.FinancialYearID =
                                         (
                                             SELECT FinancialYearID
@@ -40829,9 +40843,13 @@ LEFT JOIN GodownMaster GM ON GM.GodownID = GLM.GodownID
                         {
                             YarnOutwardMaster condition = new YarnOutwardMaster();
                             condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"].ToString());
+                            int scanColIdx = -1;
+                            try { scanColIdx = rdr.GetOrdinal("YarnOutwardScanID"); } catch { }
+                            condition.YarnOutwardScanID = (scanColIdx != -1 && rdr[scanColIdx] != DBNull.Value) ? Convert.ToInt32(rdr[scanColIdx]) : 0;
                             condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
                             condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
                             condition.OutwardListNo = rdr["OutwardListNo"].ToString();
+                            condition.ChallanNo = rdr["ChallanNo"] == DBNull.Value ? 0 : (int.TryParse(rdr["ChallanNo"].ToString(), out int cNo) ? cNo : 0);
                             condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                             condition.MobileNo = rdr["MobileNo"].ToString();
                             condition.BoxNo = rdr["TotalNoOfBox"].ToString();
@@ -40859,12 +40877,14 @@ FROM
 (
     SELECT
         ROW_NUMBER() OVER (
-            ORDER BY YOM.YarnOutwardID DESC
+            ORDER BY YSM.YarnOutwardScanID DESC
         ) AS row_num,
 
         YOM.YarnOutwardID,
+        YSM.YarnOutwardScanID,
         YOM.OutwardListNo,
-        YOM.DateAndTime,
+        YSM.ChallanNo,
+        ISNULL(YSM.ChallanDate, YSM.DateAndTime) AS DateAndTime,
 
         CASE
             WHEN YOM.SundryPartyID = 3 THEN JM.PartyName
@@ -40876,7 +40896,7 @@ FROM
             ELSE PM.MobileNo
         END AS MobileNo,
 
-        ISNULL(YD.TotalNoOfBox, 0) AS TotalNoOfBox,
+        ISNULL(YSM.TotalBox, 0) AS TotalNoOfBox,
 
         CAST(ISNULL(UM.UserAccountId, 0) AS VARCHAR(20))
         + '|'
@@ -40892,17 +40912,20 @@ FROM
             ) AS VARCHAR(20)
         ) AS GeneratedLink
 
-    FROM YarnOutwardMaster YOM
+    FROM YARNOUTWARDScanMaster YSM WITH (NOLOCK)
 
-    LEFT JOIN PartyMaster PM
+    INNER JOIN YarnOutwardMaster YOM WITH (NOLOCK)
+        ON YOM.YarnOutwardID = YSM.YarnOutwardID
+
+    LEFT JOIN PartyMaster PM WITH (NOLOCK)
         ON YOM.PartyId = PM.PartyId
         AND ISNULL(YOM.SundryPartyID, 0) <> 3
 
-    LEFT JOIN JobberMaster JM
+    LEFT JOIN JobberMaster JM WITH (NOLOCK)
         ON YOM.PartyId = JM.Id
         AND YOM.SundryPartyID = 3
 
-    LEFT JOIN UserAccountMaster UM
+    LEFT JOIN UserAccountMaster UM WITH (NOLOCK)
         ON (
             YOM.SundryPartyID = 3
             AND UM.PartyId = JM.Id
@@ -40912,42 +40935,38 @@ FROM
             AND UM.PartyId = PM.PartyId
         )
 
-    LEFT JOIN GodownMaster GM
+    LEFT JOIN GodownMaster GM WITH (NOLOCK)
         ON YOM.GodownID = GM.GodownID
 
-    LEFT JOIN
-    (
-        SELECT
-            YarnOutwardID,
-            SUM(NoOfBox) AS TotalNoOfBox
-        FROM YarnOutwardDetail
-        GROUP BY YarnOutwardID
-    ) YD
-        ON YOM.YarnOutwardID = YD.YarnOutwardID
-
     WHERE
-        YOM.IsScanStutas = 1
-        AND YOM.FinancialYearID = (
+        (YSM.FinancialYearID = (
             SELECT FinancialYearID
             FROM FinancialYearMaster
             WHERE IsDefault = 1
-        )
-        AND YOM.CompanyId = (
+        ) OR YOM.FinancialYearID = (
+            SELECT FinancialYearID
+            FROM FinancialYearMaster
+            WHERE IsDefault = 1
+        ))
+        AND (YSM.CompanyId = (
             SELECT CompanyId
             FROM CompanyMaster
             WHERE is_default = 1
-        )
+        ) OR YOM.CompanyId = (
+            SELECT CompanyId
+            FROM CompanyMaster
+            WHERE is_default = 1
+        ))
         " + ilist.SearchRequirementNo + @"
-        AND YOM.UserAccountId = "
-                        + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @"
+        AND (YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @" OR YSM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @")
 
-                ) A
-                WHERE A.row_num BETWEEN "
-                    + (Convert.ToInt32(ilist.startFrom) + 1) + @"
-                    AND "
-                    + (Convert.ToInt32(ilist.startFrom) + 30) + @"
+) A
+WHERE A.row_num BETWEEN "
+    + (Convert.ToInt32(ilist.startFrom) + 1) + @"
+    AND "
+    + (Convert.ToInt32(ilist.startFrom) + 30) + @"
 
-                ORDER BY A.YarnOutwardID DESC";
+ORDER BY A.row_num ASC";
 
                     con.Open();
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -40958,9 +40977,13 @@ FROM
                         {
                             YarnOutwardMaster condition = new YarnOutwardMaster();
                             condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"].ToString());
+                            int scanColIdx = -1;
+                            try { scanColIdx = rdr.GetOrdinal("YarnOutwardScanID"); } catch { }
+                            condition.YarnOutwardScanID = (scanColIdx != -1 && rdr[scanColIdx] != DBNull.Value) ? Convert.ToInt32(rdr[scanColIdx]) : 0;
                             condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"].ToString());
                             condition.DateAndTimes = Convert.ToDateTime(rdr["DateandTime"].ToString()).ToString("dd-MM-yyyy");
                             condition.OutwardListNo = rdr["OutwardListNo"].ToString();
+                            condition.ChallanNo = rdr["ChallanNo"] == DBNull.Value ? 0 : (int.TryParse(rdr["ChallanNo"].ToString(), out int cNo) ? cNo : 0);
                             condition.PartyName = rdr["PartyName"].ToString().ToUpper();
                             condition.MobileNo = rdr["MobileNo"].ToString();
                             condition.BoxNo = rdr["TotalNoOfBox"].ToString();
@@ -41006,17 +41029,14 @@ FROM
             string SearchString = "";
             if (!string.IsNullOrEmpty(searchInput))
             {
-                SearchString = " and (YOM.OutwardListNo LIKE '%" + searchInput + "%' OR PM.PartyName LIKE '%" + searchInput + "%' or PM.MobileNo LIKE '%" + searchInput + "%' or JM.PartyName LIKE '%" + searchInput + "%' or JM.MobileNumber LIKE '%" + searchInput + "%') ";
-            }
-
-            string scanStatusCondition = "";
-            if (status == "Pending")
-            {
-                scanStatusCondition = " AND YOM.IsScanStutas = 0 ";
-            }
-            else if (status == "Completed")
-            {
-                scanStatusCondition = " AND YOM.IsScanStutas = 1 ";
+                if (status == "Pending")
+                {
+                    SearchString = " and (YOM.OutwardListNo LIKE '%" + searchInput + "%' OR PM.PartyName LIKE '%" + searchInput + "%' or PM.MobileNo LIKE '%" + searchInput + "%' or JM.PartyName LIKE '%" + searchInput + "%' or JM.MobileNumber LIKE '%" + searchInput + "%') ";
+                }
+                else
+                {
+                    SearchString = " and (YOM.OutwardListNo LIKE '%" + searchInput + "%' OR YSM.ChallanNo LIKE '%" + searchInput + "%' OR PM.PartyName LIKE '%" + searchInput + "%' or PM.MobileNo LIKE '%" + searchInput + "%' or JM.PartyName LIKE '%" + searchInput + "%' or JM.MobileNumber LIKE '%" + searchInput + "%') ";
+                }
             }
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
@@ -41026,19 +41046,53 @@ FROM
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.CommandText = @"    
-                                    select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination from (
-	                                select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num, 
-	                                YOM.YarnOutwardID from YarnOutwardMaster YOM
-	                                LEFT JOIN PartyMaster PM ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
-	                                LEFT JOIN JobberMaster JM ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
-	                                where YOM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)
-		                                and YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
-                                            AND YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @" 
-                                        " + scanStatusCondition + @"
-                                        " + SearchString + @"
-                                ) as t1 
-                                ";
+                if (status == "Pending")
+                {
+                    cmd.CommandText = @"    
+                        select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination from (
+                            select ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID desc ) row_num, 
+                            YOM.YarnOutwardID from YarnOutwardMaster YOM WITH (NOLOCK)
+                            LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+                            LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+                            CROSS APPLY
+                            (
+                                SELECT 
+                                    ISNULL((SELECT SUM(NoOfBox) FROM YarnOutwardDetail WITH (NOLOCK) WHERE YarnOutwardID = YOM.YarnOutwardID), 0)
+                                    - ISNULL(
+                                        (
+                                            SELECT COUNT(*)
+                                            FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                                            INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK)
+                                                ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                                            WHERE YOSM.YarnOutwardID = YOM.YarnOutwardID
+                                        ), 0
+                                    ) AS PendingBoxes
+                            ) Rem
+                            where Rem.PendingBoxes > 0
+                                and YOM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)
+                                and YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
+                                and YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @" 
+                                " + SearchString + @"
+                        ) as t1";
+                }
+                else
+                {
+                    cmd.CommandText = @"    
+                        select COUNT(*) as Total, CAST(ceiling(CAST(COUNT(*) AS DECIMAL(7,2) ) / CAST(30 AS DECIMAL(7,2) )) AS DECIMAL(7,0)) as Paggination from (
+                            select ROW_NUMBER() OVER (ORDER BY YSM.YarnOutwardScanID desc ) row_num, 
+                            YSM.YarnOutwardScanID from YARNOUTWARDScanMaster YSM WITH (NOLOCK)
+                            INNER JOIN YarnOutwardMaster YOM WITH (NOLOCK) ON YOM.YarnOutwardID = YSM.YarnOutwardID
+                            LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+                            LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+                            where (YSM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1)
+                                   or YOM.FinancialYearID = (select FinancialYearID from FinancialYearMaster where IsDefault = 1))
+                                and (YSM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1)
+                                     or YOM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1))
+                                and (YOM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @" 
+                                     or YSM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + @")
+                                " + SearchString + @"
+                        ) as t1";
+                }
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -41179,10 +41233,29 @@ FROM
                     LEFT JOIN GodownLocationMaster GLM WITH (NOLOCK)
                         ON GLM.GodownLocationID = YOD.GodownLocationID
 
-                    -- Generate one row per box
+                    -- Remaining boxes after deducting already scanned boxes
                     CROSS APPLY
                     (
-                        SELECT TOP (ISNULL(YOD.NoOfBox, 0))
+                        SELECT 
+                            ISNULL(YOD.NoOfBox, 0) - ISNULL(
+                                (
+                                    SELECT COUNT(*)
+                                    FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                                    INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK)
+                                        ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                                    WHERE YOSM.YarnOutwardID = YOD.YarnOutwardID
+                                      AND TRY_CAST(YOSD.YarnMaterial AS INT) = YOD.YarnMaterialID
+                                      AND TRY_CAST(YOSD.YarnColour AS INT) = YOD.YarnColorID
+                                      AND YOSD.GodownLocationID = YOD.GodownLocationID
+                                      AND (ISNULL(YOD.YarnCompanyID, 0) = 0 OR YOSD.YarnCompany = YOD.YarnCompanyID)
+                                ), 0
+                            ) AS RemainingBoxes
+                    ) Rem
+
+                    -- Generate one row per remaining box
+                    CROSS APPLY
+                    (
+                        SELECT TOP (CASE WHEN Rem.RemainingBoxes > 0 THEN Rem.RemainingBoxes ELSE 0 END)
                             ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
                         FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) a(n)
                         CROSS JOIN (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) b(n)
@@ -41191,6 +41264,7 @@ FROM
                     ) N
 
                     WHERE YOD.YarnOutwardID = @YarnOutwardID
+                      AND Rem.RemainingBoxes > 0
 
                     ORDER BY
                         YOD.YarnOutwardDetailID,
@@ -41199,80 +41273,122 @@ FROM
                 cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
 
                 con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                while (rdr.Read())
+                using (SqlDataReader rdr = cmd.ExecuteReader())
                 {
-                    YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                    while (rdr.Read())
+                    {
+                        YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
 
-                    yarnOutward.PartyId =
-                        rdr["PartyId"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(rdr["PartyId"]);
+                        yarnOutward.PartyId =
+                            rdr["PartyId"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(rdr["PartyId"]);
 
-                    yarnOutward.PartyName =
-                        rdr["PartyName"] == DBNull.Value
-                            ? ""
-                            : rdr["PartyName"].ToString();
+                        yarnOutward.PartyName =
+                            rdr["PartyName"] == DBNull.Value
+                                ? ""
+                                : rdr["PartyName"].ToString();
 
-                    yarnOutward.CompanyId =
-                        rdr["YarnCompanyId"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(rdr["YarnCompanyId"]);
+                        yarnOutward.CompanyId =
+                            rdr["YarnCompanyId"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(rdr["YarnCompanyId"]);
 
-                    yarnOutward.CompanyName =
-                        rdr["YarnCompany"] == DBNull.Value
-                            ? ""
-                            : rdr["YarnCompany"].ToString();
+                        yarnOutward.CompanyName =
+                            rdr["YarnCompany"] == DBNull.Value
+                                ? ""
+                                : rdr["YarnCompany"].ToString();
 
-                    yarnOutward.Address =
-                        rdr["Address"] == DBNull.Value
-                            ? ""
-                            : rdr["Address"].ToString();
+                        yarnOutward.Address =
+                            rdr["Address"] == DBNull.Value
+                                ? ""
+                                : rdr["Address"].ToString();
 
-                    yarnOutward.YarnMaterialID =
-                        rdr["YarnMaterialID"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(rdr["YarnMaterialID"]);
+                        yarnOutward.YarnMaterialID =
+                            rdr["YarnMaterialID"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(rdr["YarnMaterialID"]);
 
-                    yarnOutward.YarnMaterial =
-                        rdr["YarnMaterial"] == DBNull.Value
-                            ? ""
-                            : rdr["YarnMaterial"].ToString();
+                        yarnOutward.YarnMaterial =
+                            rdr["YarnMaterial"] == DBNull.Value
+                                ? ""
+                                : rdr["YarnMaterial"].ToString();
 
-                    yarnOutward.YarnColorID =
-                        rdr["YarnColorID"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(rdr["YarnColorID"]);
+                        yarnOutward.YarnColorID =
+                            rdr["YarnColorID"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(rdr["YarnColorID"]);
 
-                    yarnOutward.YarnColor =
-                        rdr["YarnColour"] == DBNull.Value
-                            ? ""
-                            : rdr["YarnColour"].ToString();
+                        yarnOutward.YarnColor =
+                            rdr["YarnColour"] == DBNull.Value
+                                ? ""
+                                : rdr["YarnColour"].ToString();
 
-                    yarnOutward.YarnColorCode =
-                        rdr["Code"] == DBNull.Value
-                            ? ""
-                            : rdr["Code"].ToString();
+                        yarnOutward.YarnColorCode =
+                            rdr["Code"] == DBNull.Value
+                                ? ""
+                                : rdr["Code"].ToString();
 
-                    yarnOutward.GodownLocationID =
-                        rdr["GodownLocationID"] == DBNull.Value
-                            ? 0
-                            : Convert.ToInt32(rdr["GodownLocationID"]);
+                        yarnOutward.GodownLocationID =
+                            rdr["GodownLocationID"] == DBNull.Value
+                                ? 0
+                                : Convert.ToInt32(rdr["GodownLocationID"]);
 
-                    yarnOutward.LocationTitle =
-                        rdr["Location"] == DBNull.Value
-                            ? ""
-                            : rdr["Location"].ToString();
+                        yarnOutward.LocationTitle =
+                            rdr["Location"] == DBNull.Value
+                                ? ""
+                                : rdr["Location"].ToString();
 
-                    yarnOutward.BoxNo =
-                        rdr["BoxNo"] == DBNull.Value
-                            ? ""
-                            : rdr["BoxNo"].ToString();
+                        yarnOutward.BoxNo =
+                            rdr["BoxNo"] == DBNull.Value
+                                ? ""
+                                : rdr["BoxNo"].ToString();
 
-                    yarnOutward.ChallanNo = ChallanNo;
+                        yarnOutward.ChallanNo = ChallanNo;
 
-                    listPartyMaster.Add(yarnOutward);
+                        listPartyMaster.Add(yarnOutward);
+                    }
+                }
+
+                // If all boxes were already scanned, fetch header info so the page still shows Party, Address, ChallanNo
+                if (listPartyMaster.Count == 0 && YarnOutwardID > 0)
+                {
+                    using (SqlCommand cmdHeader = new SqlCommand(@"
+                        SELECT TOP 1
+                            CASE
+                                WHEN YM.SundryPartyID = 3 THEN JM.Id
+                                ELSE PM.PartyId
+                            END AS PartyId,
+                            CASE
+                                WHEN YM.SundryPartyID = 3 THEN JM.PartyName
+                                ELSE PM.PartyName
+                            END AS PartyName,
+                            CASE
+                                WHEN YM.SundryPartyID = 3 THEN JM.BillingAddress
+                                ELSE PM.BillingAddress
+                            END AS Address
+                        FROM YarnOutwardMaster YM WITH (NOLOCK)
+                        LEFT JOIN PartyMaster PM WITH (NOLOCK)
+                            ON PM.PartyId = YM.PartyId
+                        LEFT JOIN JobberMaster JM WITH (NOLOCK)
+                            ON JM.Id = YM.PartyId
+                        WHERE YM.YarnOutwardID = @YarnOutwardID", con))
+                    {
+                        cmdHeader.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+                        using (SqlDataReader hdrRdr = cmdHeader.ExecuteReader())
+                        {
+                            if (hdrRdr.Read())
+                            {
+                                YarnOutwardMaster headerOnly = new YarnOutwardMaster();
+                                headerOnly.PartyId = hdrRdr["PartyId"] == DBNull.Value ? 0 : Convert.ToInt32(hdrRdr["PartyId"]);
+                                headerOnly.PartyName = hdrRdr["PartyName"] == DBNull.Value ? "" : hdrRdr["PartyName"].ToString();
+                                headerOnly.Address = hdrRdr["Address"] == DBNull.Value ? "" : hdrRdr["Address"].ToString();
+                                headerOnly.ChallanNo = ChallanNo;
+                                headerOnly.YarnMaterialID = 0;
+                                listPartyMaster.Add(headerOnly);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -41427,6 +41543,7 @@ FROM
                 }
             }
 
+            int inputID = YarnOutwardID;
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(cs))
             {
@@ -41435,13 +41552,20 @@ FROM
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = 120;
 
-                cmd.CommandText = @"select YarnOutwardID, ChallanNo, YarnOutwardScanID, ChallanDate from YARNOUTWARDScanMaster WITH (NOLOCK) WHERE YarnOutwardID = @YarnOutwardID;";
-                cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+                cmd.CommandText = @"
+SELECT TOP 1 YarnOutwardID, ChallanNo, YarnOutwardScanID, ChallanDate 
+FROM YARNOUTWARDScanMaster WITH (NOLOCK) 
+WHERE YarnOutwardScanID = @InputID 
+   OR (YarnOutwardID = @InputID AND NOT EXISTS (SELECT 1 FROM YARNOUTWARDScanMaster WHERE YarnOutwardScanID = @InputID))
+ORDER BY CASE WHEN YarnOutwardScanID = @InputID THEN 0 ELSE 1 END, YarnOutwardScanID DESC;";
+                cmd.Parameters.AddWithValue("@InputID", inputID);
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
+                if (rdr.Read())
                 {
+                    YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
+                    YarnOutwardScanID = Convert.ToInt32(rdr["YarnOutwardScanID"]);
                     if (rdr["ChallanNo"] != DBNull.Value)
                     {
                         int parsedChallan;
@@ -41450,7 +41574,6 @@ FROM
                             ChallanNo = parsedChallan;
                         }
                     }
-                    YarnOutwardScanID = Convert.ToInt32(rdr["YarnOutwardScanID"]);
                     if (rdr["ChallanDate"] != DBNull.Value)
                     {
                         ChallanDate = rdr.GetDateTime(rdr.GetOrdinal("ChallanDate"));
@@ -41538,9 +41661,9 @@ LEFT JOIN YarnColorMaster YCM WITH (NOLOCK)
 LEFT JOIN GodownLocationMaster GLM WITH (NOLOCK)
     ON GLM.GodownLocationID = D.GodownLocationID
 
-WHERE M.YarnOutwardID = @YarnOutwardID
+WHERE M.YarnOutwardScanID = @YarnOutwardScanID
 ORDER BY D.YarnOutwardScanDetailID;";
-                cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
+                cmd.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
 
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -41548,6 +41671,8 @@ ORDER BY D.YarnOutwardScanDetailID;";
                 while (rdr.Read())
                 {
                     YarnOutwardMaster yarnOutward = new YarnOutwardMaster();
+                    yarnOutward.YarnOutwardID = YarnOutwardID;
+                    yarnOutward.YarnOutwardScanID = YarnOutwardScanID;
                     yarnOutward.NetWeight = rdr["NetWeight"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["NetWeight"]);
                     yarnOutward.PartyId = rdr["PartyId"] == DBNull.Value ? 0 : Convert.ToInt32(rdr["PartyId"]);
                     yarnOutward.PartyName = rdr["PartyName"]?.ToString() ?? "";
@@ -41576,81 +41701,178 @@ ORDER BY D.YarnOutwardScanDetailID;";
 
             Context.Response.Write(js.Serialize(listPartyMaster));
         }
+
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateBoxWeight(string BoxNo, string YarnOutwardID)
         {
-            string abc = YarnOutwardID;
-            int YarnOutwardid = 0;
-            string lastCharacter = abc.Substring(abc.Length - 6);
-
-            if (lastCharacter != "%3d%3d")
-            {
-                string InvoiceId = YarnOutwardID.Replace("==", "") + "%3d%3d";
-                YarnOutwardid = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
-            }
-            else
-            {
-                YarnOutwardid = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(YarnOutwardID)));
-            }
-
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            YarnInwardDetail yarnOutward = new YarnInwardDetail();
-            CommanResponse comman = new CommanResponse();
+
+          UpdateBoxWeightResponse response = new   UpdateBoxWeightResponse();
             JavaScriptSerializer js = new JavaScriptSerializer();
-            using (SqlConnection con = new SqlConnection(cs))
+
+            try
             {
-                SqlCommand cmd = new SqlCommand(@"
-                          IF EXISTS (SELECT 1 FROM YARNOUTWARDScanMasterDetails D
-                INNER JOIN YARNOUTWARDScanMaster M ON M.YarnOutwardScanID = D.YarnOutwardScanID  WHERE D.BarcodeNo = @BarcodeNo  AND M.YarnOutwardID <> @YarnOutwardID
-                            )
-                            BEGIN
-                                SELECT 'EXIST' AS Status
-                            END
-                            ELSE
-                            BEGIN
-                                SELECT 'NOT EXIST' AS Status,
-                                       YarnInwardDetailID,
-                                       BoxNo,
-                                       NetWeight,
-                                       BarcodeNo,
-                                       GodownLocationID,
-                                       YarnInwardID
-                                FROM YarnInwardDetail
-                                WHERE BarcodeNo = @BarcodeNo
-                            END
-                        ", con);
+                string abc = YarnOutwardID ?? "";
+                int YarnOutwardid = 0;
 
-                cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
-                cmd.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardid);
-                con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-
-                if (rdr.Read())
+                if (!string.IsNullOrEmpty(abc))
                 {
-                    if (rdr["Status"] != DBNull.Value && rdr["Status"].ToString() == "EXIST")
+                    if (abc.Length >= 6 && abc.Substring(abc.Length - 6) == "%3d%3d")
                     {
-                        comman.Code = 410;
-                        comman.Message = $"This Box {BoxNo} already scanned.";
-                        js.MaxJsonLength = Int32.MaxValue;
-                        Context.Response.Write(js.Serialize(comman));
-                        return;
+                        YarnOutwardid = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(abc)));
                     }
                     else
                     {
-                        comman.Code = 201;
-                        yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
-                        yarnOutward.BoxNo = rdr["BoxNo"].ToString();
-                        yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
-                        yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
-                        yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
-                        yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                        int parsedId;
+
+                        if (int.TryParse(abc, out parsedId))
+                        {
+                            YarnOutwardid = parsedId;
+                        }
+                        else
+                        {
+                            string InvoiceId = abc.Replace("==", "") + "%3d%3d";
+                            YarnOutwardid = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(InvoiceId)));
+                        }
+                    }
+                }
+
+                int currentScanID = 0;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"
+                SELECT TOP 1 YarnOutwardScanID
+                FROM YARNOUTWARDScanMaster WITH (NOLOCK)
+                WHERE YarnOutwardScanID = @ID
+                   OR (
+                       YarnOutwardID = @ID
+                       AND NOT EXISTS (
+                           SELECT 1
+                           FROM YARNOUTWARDScanMaster
+                           WHERE YarnOutwardScanID = @ID
+                       )
+                   )
+                ORDER BY CASE
+                    WHEN YarnOutwardScanID = @ID THEN 0
+                    ELSE 1
+                END, YarnOutwardScanID DESC;", con))
+                    {
+                        cmd.Parameters.AddWithValue("@ID", YarnOutwardid);
+
+                        con.Open();
+
+                        object result = cmd.ExecuteScalar();
+
+                        if (result != null && result != DBNull.Value)
+                        {
+                            currentScanID = Convert.ToInt32(result);
+                        }
+                    }
+                }
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM YarnInwardDetail
+                    WHERE BarcodeNo = @BarcodeNo
+                )
+                BEGIN
+                    SELECT 'INVALID' AS Status;
+                END
+                ELSE IF EXISTS (
+                    SELECT 1
+                    FROM YARNOUTWARDScanMasterDetails D
+                    WHERE D.BarcodeNo = @BarcodeNo
+                      AND (@CurrentScanID = 0
+                           OR D.YarnOutwardScanID <> @CurrentScanID)
+                )
+                OR EXISTS (
+                    SELECT 1
+                    FROM YarnInwardDetail YID
+                    WHERE YID.BarcodeNo = @BarcodeNo
+                      AND ISNULL(YID.IsScanStutas, 0) = 1
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM YARNOUTWARDScanMasterDetails D
+                          WHERE D.BarcodeNo = @BarcodeNo
+                            AND D.YarnOutwardScanID = @CurrentScanID
+                      )
+                )
+                BEGIN
+                    SELECT 'EXIST' AS Status;
+                END
+                ELSE
+                BEGIN
+                    SELECT
+                        'SUCCESS' AS Status,
+                        YarnInwardDetailID,
+                        BoxNo,
+                        NetWeight,
+                        BarcodeNo,
+                        GodownLocationID,
+                        YarnInwardID
+                    FROM YarnInwardDetail
+                    WHERE BarcodeNo = @BarcodeNo;
+                END
+            ", con))
+                    {
+                        cmd.Parameters.AddWithValue("@BarcodeNo", (BoxNo ?? "").Trim());
+                        cmd.Parameters.AddWithValue("@CurrentScanID", currentScanID);
+
+                        con.Open();
+
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            if (rdr.Read())
+                            {
+                                string status = rdr["Status"].ToString();
+
+                                if (status == "EXIST")
+                                {
+                                    response.Code = 410;
+                                    response.Message = "This Box " + BoxNo + " already scanned.";
+                                }
+                                else if (status == "INVALID")
+                                {
+                                    response.Code = 404;
+                                    response.Message = "This Box " + BoxNo + " not found.";
+                                }
+                                else
+                                {
+                                    response.Code = 200;
+                                    response.Message = "Box found successfully.";
+                                    response.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
+                                    response.BoxNo = rdr["BoxNo"].ToString();
+                                    response.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
+                                    response.BarcodeNo = rdr["BarcodeNo"].ToString();
+                                    response.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
+                                    response.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                                }
+                            }
+                            else
+                            {
+                                response.Code = 404;
+                                response.Message = "Box not found.";
+                            }
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                response.Code = 500;
+                response.Message = ex.Message;
+            }
+
             js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(yarnOutward));
+            Context.Response.ContentType = "application/json";
+            Context.Response.Write(js.Serialize(response));
         }
+
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -41698,6 +41920,19 @@ ORDER BY D.YarnOutwardScanDetailID;";
                             else
                             {
                                 YarnOutwardID = Convert.ToInt32(Decrypt(HttpUtility.UrlDecode(encYarnOutwardID)));
+                            }
+                        }
+                    }
+
+                    if (YarnOutwardScanID > 0)
+                    {
+                        using (SqlCommand cmdGetRealOutwardID = new SqlCommand("SELECT YarnOutwardID FROM YARNOUTWARDScanMaster WITH (NOLOCK) WHERE YarnOutwardScanID = @ScanID", con, tran))
+                        {
+                            cmdGetRealOutwardID.Parameters.Add("@ScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            object realOutwardObj = cmdGetRealOutwardID.ExecuteScalar();
+                            if (realOutwardObj != null && realOutwardObj != DBNull.Value)
+                            {
+                                YarnOutwardID = Convert.ToInt32(realOutwardObj);
                             }
                         }
                     }
@@ -41791,6 +42026,25 @@ ORDER BY D.YarnOutwardScanDetailID;";
                     int i = 0;
                     while (Context.Request.Form["Details[" + i + "].BarcodeNo"] != null)
                     {
+                        string currentBarcode = (Context.Request.Form["Details[" + i + "].BarcodeNo"] ?? "").Trim();
+                        using (SqlCommand cmdCheckBarcode = new SqlCommand(@"
+                            SELECT COUNT(*) 
+                            FROM YARNOUTWARDScanMasterDetails WITH (NOLOCK)
+                            WHERE BarcodeNo = @BarcodeNo AND YarnOutwardScanID <> @YarnOutwardScanID", con, tran))
+                        {
+                            cmdCheckBarcode.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = currentBarcode;
+                            cmdCheckBarcode.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            int countExisting = Convert.ToInt32(cmdCheckBarcode.ExecuteScalar());
+                            if (countExisting > 0)
+                            {
+                                tran.Rollback();
+                                comman.Code = 410;
+                                comman.Message = $"Box {currentBarcode} already scanned in another Challan.";
+                                Context.Response.Write(js.Serialize(comman));
+                                return;
+                            }
+                        }
+
                         SqlCommand cmdDetail = new SqlCommand(@"
                 INSERT INTO YARNOUTWARDScanMasterDetails
                 (DateAndTime,YarnOutwardScanID,YarnMaterial,YarnColour,GodownLocationID,PartyID,
@@ -41821,7 +42075,13 @@ ORDER BY D.YarnOutwardScanDetailID;";
                     }
 
                     SqlCommand cmdUpdateMaster = new SqlCommand(@"
-            UPDATE YARNOUTWARDMaster  SET IsScanStutas = 1 WHERE YarnOutwardID = @YarnOutwardID", con, tran);
+            DECLARE @TotalRequired INT = 0;
+            DECLARE @TotalScanned INT = 0;
+            SELECT @TotalRequired = ISNULL(SUM(NoOfBox), 0) FROM YarnOutwardDetail WHERE YarnOutwardID = @YarnOutwardID;
+            SELECT @TotalScanned = COUNT(*) FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK) ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                WHERE YOSM.YarnOutwardID = @YarnOutwardID;
+            UPDATE YARNOUTWARDMaster SET IsScanStutas = CASE WHEN @TotalScanned >= @TotalRequired AND @TotalRequired > 0 THEN 1 ELSE 0 END WHERE YarnOutwardID = @YarnOutwardID;", con, tran);
                     cmdUpdateMaster.Parameters.Add("@YarnOutwardID", SqlDbType.Int).Value = YarnOutwardID;
                     cmdUpdateMaster.ExecuteNonQuery();
 
@@ -59026,7 +59286,6 @@ WHERE M.YarnPODetailIDCompanyCode = @ID", con))
             Context.Response.Write(js.Serialize(new { status = true, companies = companies, materials = materials, colors = colors }));
             Context.Response.End();
         }
-
         #endregion
 
 

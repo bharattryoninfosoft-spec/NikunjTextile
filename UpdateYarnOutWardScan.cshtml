@@ -785,61 +785,77 @@
                     return;
                 }
 
+
                 $.ajax({
                     type: "POST",
                     url: "/WebServiceNikunjTextile.asmx/UpdateBoxWeight",
-                    data: { BoxNo: BarcodeNo, YarnOutwardID: YarnOutwardID },
+                    data: {
+                        BoxNo: BarcodeNo,
+                        YarnOutwardID: YarnOutwardID
+                    },
                     dataType: "json",
 
                     success: function (response) {
-                        if (response.Code == 410) {
-                            notes.show("This Box " + BarcodeNo + " already scanned", {
-                                type: 'danger'
+
+                        response = response.d || response;
+
+                        console.log("UpdateBoxWeight Response:", response);
+
+                        if (response.Code == 410 || response.Code == 404) {
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-right',
+                                icon: 'error',
+                                title: response.Message,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
                             });
+
                             var boxInput = row.find(".BarcodeNo");
+
                             boxInput.val('');
                             boxNoCell.text('');
                             weightCell.text(0);
                             row.find(".YarnInwardDetailID").text('');
+
                             boxInput.focus().select();
+
                             calculateTotals();
                             checkInputs();
+
+                            return;
                         }
-                        else {
-                            var weight = response.NetWeight || 0;
-                            var inwardId = response.YarnInwardDetailID || 0;
-                            var boxNo = response.BoxNo || 0;
-                            weightCell.text(weight);
-                            boxNoCell.text(boxNo);
-                            row.find(".YarnInwardDetailID").text(inwardId);
-                            if (inwardId == "0" || inwardId == "") {
-                                notes.show("This Box " + BarcodeNo + " invalid", {
-                                    type: 'danger'
-                                });
-                                var boxInput = row.find(".BarcodeNo");
-                                boxInput.val('');
-                                boxNoCell.text('');
-                                weightCell.text(0);
-                                row.find(".YarnInwardDetailID").text('');
-                                boxInput.focus().select();
-                                calculateTotals();
-                                checkInputs();
-                                return false;
-                            }
+
+                        if (response.Code == 200) {
+
+                            weightCell.text(response.NetWeight || 0);
+                            boxNoCell.text(response.BoxNo || '');
+
+                            row.find(".YarnInwardDetailID").text(
+                                response.YarnInwardDetailID
+                            );
+
                             calculateTotals();
                             checkInputs();
+
                             row.next().find(".BarcodeNo").focus();
                         }
                     },
 
-                    error: function () {
+                    error: function (xhr) {
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
                             text: 'Box not found'
                         });
+
+                        console.log(xhr.responseText);
                     }
                 });
+
             }
         });
         function calculateTotals() {

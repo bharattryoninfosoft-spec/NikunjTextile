@@ -231,6 +231,7 @@
                                     <tr style="background-color:#1273eb;">
                                         <th style="color:white">Sr No</th>
                                         <th style="color:white">Outward <br> List No</th>
+                                        <th style="color:white">Challan <br> No</th>
                                         <th style="color:white">Outward <br> Date</th>
                                         <th style="color:white">Party</th>
                                         <th style="color:white">Party <br> Mobile No</th>
@@ -393,6 +394,9 @@
                         temp += "<tr>";
                         temp += "<td>" + srno++ + "</td>";
                         temp += "<td>" + response.listYarnOutwardMaster[i].OutwardListNo + "</td>";
+                        if (currentTab != "Pending") {
+                            temp += "<td>" + (response.listYarnOutwardMaster[i].ChallanNo && response.listYarnOutwardMaster[i].ChallanNo != 0 ? response.listYarnOutwardMaster[i].ChallanNo : '-') + "</td>";
+                        }
                         temp += "<td>" + response.listYarnOutwardMaster[i].DateAndTimes + "</td>";
                         temp += "<td>" + response.listYarnOutwardMaster[i].PartyName + "</td>";
                         temp += "<td>" + response.listYarnOutwardMaster[i].MobileNo + "</td>";
@@ -406,7 +410,7 @@
                         else {
                             temp += "<td style='text-align:center'>";
                             // Edit Button
-                            temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Edit' onclick='showEditRecords(" + response.listYarnOutwardMaster[i].YarnOutwardID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
+                            temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='Edit' onclick='showEditRecords(" + (response.listYarnOutwardMaster[i].YarnOutwardScanID && response.listYarnOutwardMaster[i].YarnOutwardScanID != 0 ? response.listYarnOutwardMaster[i].YarnOutwardScanID : response.listYarnOutwardMaster[i].YarnOutwardID) + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
                             // Generated Link Button
                             temp += "<a href='javascript:void(0);' onclick=CopyJobberLink('" + response.listYarnOutwardMaster[i].GeneratedLink + "') data-toggle='tooltip' title='Copy Jobber Inward Link'><i class='icon-copy text-success'></i></a>&nbsp;&nbsp;&nbsp;";
                             // PDF Button

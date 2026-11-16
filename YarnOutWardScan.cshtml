@@ -502,26 +502,18 @@
         var TotalExistingOutwardStockAry = "";
 
         function checkInputs() {
-            var isValid = true;
+            var hasAtLeastOneFilled = false;
 
             $("#tblYarnOutwardBody tr").each(function () {
-                $(this).find("input").each(function () {
-                    if ($(this).val().trim() === "") {
-                        isValid = false;
-                        return false;
-                    }
-                });
-
-                if (!isValid) {
+                var barcode = ($(this).find(".BarcodeNo").val() || "").trim();
+                var inwardId = ($(this).find(".YarnInwardDetailID").text() || "").trim();
+                if (barcode !== "" && inwardId !== "" && inwardId !== "0") {
+                    hasAtLeastOneFilled = true;
                     return false;
                 }
             });
 
-            if (isValid) {
-                $("#savebtn").prop("disabled", false);
-            } else {
-                $("#savebtn").prop("disabled", true);
-            }
+            $("#savebtn").prop("disabled", !hasAtLeastOneFilled);
         }
 
         function ViewRecordQueryString(DecryptID) {
@@ -685,7 +677,19 @@
                     }
                     var tbody = $("#tblYarnOutwardBody");
                     tbody.empty();
-                    $.each(response, function (i, v) {
+
+                    var validItems = (response || []).filter(function (v) {
+                        return v.YarnMaterialID && parseInt(v.YarnMaterialID) > 0;
+                    });
+
+                    if (validItems.length === 0) {
+                        tbody.append(`<tr><td colspan="8" class="text-center text-success py-4 fs-6 fw-bold"><i class="bi bi-check-circle me-2"></i>All boxes for this outward have already been scanned.</td></tr>`);
+                        $("#savebtn").prop("disabled", true);
+                        calculateTotals();
+                        return;
+                    }
+
+                    $.each(validItems, function (i, v) {
                         var row = `<tr>
                                     <td hidden class="YarnMaterialID">${v.YarnMaterialID}</td>
                                     <td hidden class="YarnColorID">${v.YarnColorID}</td>
@@ -705,6 +709,7 @@
                                     </tr>`;
                         tbody.append(row);
                     });
+                    calculateTotals();
                 },
                 error: function (request, status, error) {
                     console.log(error);
@@ -727,6 +732,8 @@
             var boxNoCell = row.find(".Boxon");
             if (BarcodeNo === "") {
                 weightCell.text(0);
+                row.find(".YarnInwardDetailID").text('');
+                row.find(".Boxon").text('');
                 calculateTotals();
                 return;
             }
@@ -842,18 +849,19 @@
             var totalWeight = 0;
 
             $("#tblYarnOutwardBody tr").each(function () {
-                var box = $(this).find(".BarcodeNo").val();
+                var barcode = ($(this).find(".BarcodeNo").val() || "").trim();
+                var inwardId = ($(this).find(".YarnInwardDetailID").text() || "").trim();
                 var weight = parseFloat($(this).find(".weight").text()) || 0;
 
-                if (box != "") {
+                if (barcode !== "" && inwardId !== "" && inwardId !== "0") {
                     totalBox++;
+                    totalWeight += weight;
                 }
-
-                totalWeight += weight;
             });
 
             $("#totalBox").text(totalBox);
             $("#totalWeight").text(totalWeight.toFixed(2));
+            checkInputs();
         }
 
         var currentRow;
@@ -988,49 +996,76 @@
             formData.append("PartyId", $("#PartyId").val());
             formData.append("ChallanNo", $("#ChallanNo").val());
             formData.append("ChallanDate", $("#ChallanDate").val());
-            formData.append("TotalBox", $("#totalBox").text());
-            formData.append("TotalWeight", $("#totalWeight").text());
 
-            var isValid = true;
-            var rowNo = 0;
-
-            $("#tblYarnOutwardBody tr").each(function (i) {
+            // Check if any row has an unvalidated barcode
+            var unvalidatedRow = 0;
+            $("#tblYarnOutwardBody tr").each(function (idx) {
                 var row = $(this);
-                var YarnMaterialID = row.find(".YarnMaterialID").text();
-                var YarnColorID = row.find(".YarnColorID").text();
-                var GodownLocationID = row.find(".GodownLocationID").text();
-                var BarcodeNo = row.find(".BarcodeNo").val();
-                var Boxon = row.find(".Boxon").text();
-                var NetWeight = row.find(".weight").text();
-                var YarnInwardDetailID = row.find(".YarnInwardDetailID").text();
-                var YarnCompany = row.find(".CompanyId").text();
-                rowNo = i + 1;
-
-                if (BarcodeNo == "" || BarcodeNo == null) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'warning',
-                        title: "Please fill BoxNo in Row " + rowNo,
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-
-                    isValid = false;
+                var BarcodeNo = (row.find(".BarcodeNo").val() || "").trim();
+                var YarnInwardDetailID = (row.find(".YarnInwardDetailID").text() || "").trim();
+                if (BarcodeNo !== "" && (YarnInwardDetailID === "" || YarnInwardDetailID === "0")) {
+                    unvalidatedRow = idx + 1;
                     return false;
                 }
-
-                formData.append("Details[" + i + "].YarnMaterialID", YarnMaterialID);
-                formData.append("Details[" + i + "].YarnColorID", YarnColorID);
-                formData.append("Details[" + i + "].GodownLocationID", GodownLocationID);
-                formData.append("Details[" + i + "].BoxNo", Boxon);
-                formData.append("Details[" + i + "].BarcodeNo", BarcodeNo);
-                formData.append("Details[" + i + "].NetWeight", NetWeight);
-                formData.append("Details[" + i + "].YarnInwardDetailID", YarnInwardDetailID);
-                formData.append("Details[" + i + "].YarnCompany", YarnCompany);
             });
 
-            if (!isValid) return;
+            if (unvalidatedRow > 0) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: "Please press Enter or Tab on Barcode in Row " + unvalidatedRow + " to validate",
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+                return;
+            }
+
+            var detailIndex = 0;
+            var totalFilledWeight = 0;
+
+            $("#tblYarnOutwardBody tr").each(function () {
+                var row = $(this);
+                var BarcodeNo = (row.find(".BarcodeNo").val() || "").trim();
+                var YarnInwardDetailID = (row.find(".YarnInwardDetailID").text() || "").trim();
+
+                // Only include filled/scanned boxes
+                if (BarcodeNo !== "" && YarnInwardDetailID !== "" && YarnInwardDetailID !== "0") {
+                    var YarnMaterialID = row.find(".YarnMaterialID").text();
+                    var YarnColorID = row.find(".YarnColorID").text();
+                    var GodownLocationID = row.find(".GodownLocationID").text();
+                    var Boxon = row.find(".Boxon").text();
+                    var NetWeight = parseFloat(row.find(".weight").text()) || 0;
+                    var YarnCompany = row.find(".CompanyId").text();
+
+                    formData.append("Details[" + detailIndex + "].YarnMaterialID", YarnMaterialID);
+                    formData.append("Details[" + detailIndex + "].YarnColorID", YarnColorID);
+                    formData.append("Details[" + detailIndex + "].GodownLocationID", GodownLocationID);
+                    formData.append("Details[" + detailIndex + "].BoxNo", Boxon);
+                    formData.append("Details[" + detailIndex + "].BarcodeNo", BarcodeNo);
+                    formData.append("Details[" + detailIndex + "].NetWeight", NetWeight);
+                    formData.append("Details[" + detailIndex + "].YarnInwardDetailID", YarnInwardDetailID);
+                    formData.append("Details[" + detailIndex + "].YarnCompany", YarnCompany);
+
+                    totalFilledWeight += NetWeight;
+                    detailIndex++;
+                }
+            });
+
+            if (detailIndex === 0) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: "Please scan or enter at least one Box Barcode to save",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+                return;
+            }
+
+            formData.append("TotalBox", detailIndex);
+            formData.append("TotalWeight", totalFilledWeight.toFixed(2));
 
             $.ajax({
                 type: "POST",
