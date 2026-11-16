@@ -559,8 +559,10 @@
             }
         }
 
+
         function showRecords(id) {
             clearAll();
+
             $("#edit-id").val(id);
             $("#saveViewbtn").hide();
             $("#savebtn").hide();
@@ -569,31 +571,37 @@
 
             $.ajax({
                 type: "GET",
-                url: '/WebServiceNikunjTextile.asmx/getYarnColorMasterById?id=' + id,
-                data: "{ 'id':'" + id + "' }",
+                url: '/WebServiceNikunjTextile.asmx/getYarnColorMasterById',
+                data: { id: id },
                 dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 200 || response.Code == "200") {
-                        $("#YarnColor").val(response.listYarnColorMaster[0].YarnColor);
-                        $("#YarnColorCode").val(response.listYarnColorMaster[0].YarnColorCode);
 
-                        var colorCode = "#" + response.listYarnColorMaster[0].YarnColorCode;
+                success: function (response) {
+
+                    if (response.Code == 200 &&
+                        response.listYarnColorMaster &&
+                        response.listYarnColorMaster.length > 0) {
+
+                        var data = response.listYarnColorMaster[0];
+
+                        $("#YarnColor").val(data.YarnColor);
+                        $("#YarnColorCode").val(data.YarnColorCode);
+
+                        var colorCode = data.YarnColorCode
+                            ? "#" + data.YarnColorCode.replace(/^#/, '')
+                            : "transparent";
+
                         $("#divModelBody").css("background-color", colorCode);
 
-                        if (response.listYarnColorMaster[0].IsActive == "1") {
-                            $("#IsActive").prop('checked', true);
-                        } else {
-                            $("#IsActive").prop('checked', false);
-                        }
+                        $("#IsActive").prop('checked', data.IsActive == 1);
+
                     } else {
                         Toast.fire({
                             icon: 'error',
-                            title: response.Message
+                            title: response.Message || 'Record not found.'
                         });
                     }
                 },
+
                 error: function (request, status, error) {
                     Toast.fire({
                         icon: 'error',
@@ -602,6 +610,8 @@
                 }
             });
         }
+
+
 
         function functionYarnDelete(id) {
             Swal.fire({
@@ -632,22 +642,24 @@
                                 });
                                 displayData(0);
                             } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Problem has been occurred while deleting Yarn Color.'
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Cannot Delete Yarn Color',
+                                    text: response.Message || 'Problem occurred while deleting Yarn Color.'
                                 });
                             }
                         },
                         error: function (error) {
                             Toast.fire({
                                 icon: 'error',
-                                title: 'Problem has been occurred while deleting Yarn Color.'
+                                title: 'Problem occurred while deleting Yarn Color.'
                             });
                         }
                     });
                 }
             });
         }
+
 
         function onPostUp(QueueNo) {
             var down = $("#PostUp_" + QueueNo + "").val();

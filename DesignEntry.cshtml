@@ -59,6 +59,11 @@
     .dataTables_length {
         display: none !important;
     }
+    .action-disabled {
+        pointer-events: none;
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
 </style>
 
 <!-- Content wrapper start -->
@@ -379,15 +384,22 @@
                     var dataTable = $('#copy-print-csv');
                     var temp = "";
                     var srno = parseInt(rowStart) + parseInt(1);
+                    for (var i = 0; i < response.listDesignEntryForm.length; i++) {
 
+                        var id = response.listDesignEntryForm[i].DesignEntryFormID;
+
+                        checkDesignColorMatchingPermission(id);
+                    }
                     for (var i = 0; i < response.listDesignEntryForm.length; i++) {
                         temp += "<tr><td>" + srno++ + "</td>";
                         temp += "<td><div class='actions'>";
 
-                        temp += "<a href='javascript:void(0);' class='EditBtn' data-toggle='tooltip' title='Edit' onclick='showEditRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
-                        temp += "<a href='javascript:void(0);' class='ViewBtn' data-toggle='tooltip' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='fa fa-eye text-secondary'></i></a>&nbsp;&nbsp;&nbsp;";
-                        temp += "<a href='javascript:void(0);' class='DeleteBtn' data-toggle='tooltip' title='Delete' onclick='functionUserDelete(" + response.listDesignEntryForm[i].DesignEntryFormID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        var designID = response.listDesignEntryForm[i].DesignEntryFormID;
 
+                        temp += "<a href='javascript:void(0);' id='editBtn_" + designID +
+                            "' class='EditBtn action-disabled' title='Edit' onclick='showEditRecords(" + designID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' class='ViewBtn' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + designID + ")'><i class='fa fa-eye text-secondary'></i></a>&nbsp;&nbsp;&nbsp;";
+                        temp += "<a href='javascript:void(0);' id='deleteBtn_" + designID + "' class='DeleteBtn action-disabled' title='Delete' onclick='functionUserDelete(" + designID + ")'><i class='icon-x-circle text-danger'></i></a>";
                         temp += "</div></td>";
                         temp += "<td>" + response.listDesignEntryForm[i].DesignDates + "</td>";
                         temp += "<td>" + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + "</td>";
@@ -659,6 +671,40 @@
             window.print();
             document.body.innerHTML = originalContents;
             location.reload();
+        }
+
+        function checkDesignColorMatchingPermission(id) {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/CheckDesignColorMatchingDetails',
+                data: JSON.stringify({ id: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+
+                success: function (response) {
+
+                    // ASMX response handling
+                    response = response.d ? response.d : response;
+
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+
+                    if (response.Code == 200 && response.CanEditDelete == true) {
+                        $("#editBtn_" + id).removeClass("action-disabled");
+                        $("#deleteBtn_" + id).removeClass("action-disabled");
+                    }
+                    else {
+                        $("#editBtn_" + id).addClass("action-disabled");
+                        $("#deleteBtn_" + id).addClass("action-disabled");
+                    }
+                },
+
+                error: function (request, status, error) {
+                    console.log("Unable to check Design Color Matching Details: " + id);
+                    console.log(request.responseText);
+                }
+            });
         }
     </script>
 }

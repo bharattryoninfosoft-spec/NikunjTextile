@@ -112,11 +112,11 @@ namespace NikunjTextile.Class
         /// Guaranteed to be transaction-bound, concurrency-safe, and never produce duplicates.
         /// </summary>
         public static ChallanAllocationResult AllocateNextChallanNo(
-            SqlConnection con,
-            SqlTransaction tran,
-            int? explicitCompanyId = null,
-            int? explicitFinancialYearId = null,
-            int timeoutMs = 15000)
+              SqlConnection con,
+              SqlTransaction tran,
+              int? explicitCompanyId = null,
+              int? explicitFinancialYearId = null,
+              int timeoutMs = 15000)
         {
             if (con == null) throw new ArgumentNullException(nameof(con));
             if (tran == null) throw new ArgumentNullException(nameof(tran));

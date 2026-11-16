@@ -345,6 +345,7 @@
                 }
             });
         }
+
         function checkEdit() {
             var id = $("#edit-id").val();
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
@@ -359,7 +360,7 @@
             formData.append('TypeID', id);
             formData.append('Type', Type);
             formData.append('IsActive', IsActive);
-            formData.append('UnitId', UnitId);
+            formData.append('UnitId', UnitId || '');
 
             $.ajax({
                 type: "POST",
@@ -368,21 +369,57 @@
                 dataType: 'json',
                 contentType: false,
                 processData: false,
+
                 success: function (response) {
-                    if (response.Code == 201) {
+
+                    var result = response.d || response;
+
+                    if (typeof result === "string") {
+                        try {
+                            result = JSON.parse(result);
+                        } catch (e) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Invalid server response.'
+                            });
+                            return;
+                        }
+                    }
+
+                    if (result.Code == 201) {
                         clearAll();
-                        Swal.fire({ icon: 'success', title: 'Updated!', text: response.Message, timer: 2000, showConfirmButton: false });
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: result.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
                         displayData(0);
                         $("#cancelbtn").click();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error!', text: response.Message });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Cannot Update!',
+                            text: result.Message
+                        });
                     }
                 },
-                error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error!', text: 'An error occurred while updating.' });
+
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while updating.'
+                    });
                 }
             });
         }
+
         function showRecords(id) {
             clearAll();
             $("#edit-id").val(id);
@@ -410,6 +447,7 @@
                 }
             });
         }
+
         function functionTypeDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -421,6 +459,7 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
+
                     var formData = new FormData();
                     formData.append('TypeID', id);
 
@@ -431,18 +470,56 @@
                         dataType: 'json',
                         contentType: false,
                         processData: false,
+
                         success: function (response) {
-                            if (response.Code == 200) {
-                                Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Type deleted successfully.', timer: 2000, showConfirmButton: false });
-                                displayData(0);
-                            } else {
-                                Swal.fire({ icon: 'error', title: 'Error!', text: response.Message || 'Problem occurred while deleting Type.' });
+
+                            var result = response.d || response;
+
+                            if (typeof result === "string") {
+                                try {
+                                    result = JSON.parse(result);
+                                } catch (e) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: 'Invalid server response.'
+                                    });
+                                    return;
+                                }
                             }
+
+                            if (result.Code == 200) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: result.Message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+
+                                displayData(0);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Cannot Delete!',
+                                    text: result.Message || 'Problem occurred while deleting Type.'
+                                });
+                            }
+                        },
+
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'An error occurred while deleting Type.'
+                            });
                         }
                     });
                 }
             });
         }
+
         function validate(code) {
             code.value = code.value.replace(/\s+/g, ' ').trim();
             var errorMessageValid = "." + code.id + "-valid-feedback";

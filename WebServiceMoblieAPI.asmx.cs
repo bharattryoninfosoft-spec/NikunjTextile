@@ -1,5 +1,6 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using CrystalDecisions.Shared.Json;
 using iText.Forms.Xfdf;
 using iText.Kernel.Geom;
 using iText.Layout.Element;
@@ -270,8 +271,7 @@ namespace NikunjTextile
                     cmd.Connection = con;
                     cmd.CommandType = CommandType.Text;
 
-                    cmd.CommandText = @"SELECT ISNULL(MAX(ChallanNo),0) + 1 AS ChallanNo FROM YARNOUTWARDScanMaster";
-
+                    cmd.CommandText = @"SELECT ISNULL(MAX(TRY_CONVERT(INT, ChallanNo)), 0) + 1 AS ChallanNo FROM dbo.YARNOUTWARDScanMaster WITH (NOLOCK)";
                     con.Open();
                     SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -290,56 +290,70 @@ namespace NikunjTextile
                         cmd.Connection = con;
                         cmd.CommandType = CommandType.Text;
 
-                        cmd.CommandText = @"SELECT                            
-                            CASE 
-                                WHEN YM.SundryPartyID = 3 THEN JM.Id 
-                                ELSE PM.PartyId 
-                            END AS PartyId,
-                            CASE 
-                                WHEN YM.SundryPartyID = 3 THEN JM.PartyName 
-                                ELSE PM.PartyName 
-                            END AS PartyName,
-                            PM1.PartyId AS YarnCompanyId,
-                            PM1.PartyName AS YarnCompany,
-                            CASE 
-                                WHEN YM.SundryPartyID = 3 THEN JM.BillingAddress 
-                                ELSE PM.BillingAddress 
-                            END AS Address,
-                            YMM.YarnMaterialID AS YarnMaterialID,
-                            YMM.YarnMaterial AS YarnMaterial,
-                            YCM.YarnColorID AS YarnColorID,
-                            YCM.YarnColor AS YarnColour,
-                            ISNULL(YPM.CompanyCode, YCM.YarnColorCode) AS Code,
-                            GLM.GodownLocationID,
-                            GLM.LocationTitle AS Location,
-                            N.BoxNo
-                            FROM YarnOutwardDetail YOD
-                            INNER JOIN YarnOutwardMaster YM 
-                                ON YM.YarnOutwardID = YOD.YarnOutwardID
-                            LEFT JOIN PartyMaster PM 
-                                ON YOD.BillToPartyID = PM.PartyId
-                            LEFT JOIN JobberMaster JM 
-                                ON YM.PartyId = JM.Id
-                            LEFT JOIN PartyMaster PM1 
-                                ON YOD.YarnCompanyID = PM1.PartyId
-                            LEFT JOIN YarnMaterialMaster YMM  
-                                ON YMM.YarnMaterialID = YOD.YarnMaterialID
-                            LEFT JOIN YarnColorMaster YCM  
-                                ON YCM.YarnColorID = YOD.YarnColorID
-                            LEFT JOIN (
-                                SELECT YarnColorID, MAX(CompanyCode) AS CompanyCode 
-                                FROM YarnPODetails GROUP BY YarnColorID
-                            ) YPM ON YPM.YarnColorID = YOD.YarnColorID
-                            LEFT JOIN GodownLocationMaster GLM  
-                                ON GLM.GodownLocationID = YOD.GodownLocationID
+                        cmd.CommandText = @"  SELECT
+                                CASE
+                                    WHEN YM.SundryPartyID = 3 THEN JM.Id
+                                    ELSE PM.PartyId
+                                END AS PartyId,
+
+                                CASE
+                                    WHEN YM.SundryPartyID = 3 THEN JM.PartyName
+                                    ELSE PM.PartyName
+                                END AS PartyName,
+
+                                PM1.PartyId AS YarnCompanyId,
+                                PM1.PartyName AS YarnCompany,
+
+                                CASE
+                                    WHEN YM.SundryPartyID = 3 THEN JM.BillingAddress
+                                    ELSE PM.BillingAddress
+                                END AS Address,
+
+                                YMM.YarnMaterialID,
+                                YMM.YarnMaterial,
+                                YCM.YarnColorID,
+                                YCM.YarnColor AS YarnColour,
+                                YPM.CompanyCode AS Code,
+
+                                GLM.GodownLocationID,
+                                GLM.LocationTitle AS Location,
+                                N.BoxNo
+
+                            FROM YarnOutwardDetail YOD WITH (NOLOCK)
+
+                            INNER JOIN YarnOutwardMaster YM WITH (NOLOCK) ON YM.YarnOutwardID = YOD.YarnOutwardID
+                            -- Normal billing party
+                            LEFT JOIN PartyMaster PM WITH (NOLOCK) ON PM.PartyId = YOD.BillToPartyID
+                            -- Jobber party
+                            LEFT JOIN JobberMaster JM WITH (NOLOCK) ON JM.Id = YM.PartyId
+                            -- Yarn company
+                            LEFT JOIN PartyMaster PM1 WITH (NOLOCK) ON PM1.PartyId = YOD.YarnCompanyID
+                            LEFT JOIN YarnMaterialMaster YMM WITH (NOLOCK) ON YMM.YarnMaterialID = YOD.YarnMaterialID
+                            LEFT JOIN YarnColorMaster YCM WITH (NOLOCK) ON YCM.YarnColorID = YOD.YarnColorID
+                            -- Yarn material + color wise company code
+                            OUTER APPLY
+                            (
+                                SELECT TOP 1 YPD.CompanyCode
+                                FROM YarnPODetails YPD WITH (NOLOCK)
+                                WHERE YPD.YarnMaterialID = YOD.YarnMaterialID
+                                  AND YPD.YarnColorID = YOD.YarnColorID
+                                ORDER BY YPD.YarnPODetailID DESC
+                            ) YPM
+
+                            LEFT JOIN GodownLocationMaster GLM WITH (NOLOCK) ON GLM.GodownLocationID = YOD.GodownLocationID
+                            -- Generate one row per box
                             CROSS APPLY
                             (
-                                SELECT TOP (YOD.NoOfBox)
-                                ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
-                                FROM master..spt_values
+                                SELECT TOP (ISNULL(YOD.NoOfBox, 0))
+                                    ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
+                                FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) a(n)
+                                CROSS JOIN (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) b(n)
+                                CROSS JOIN (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) c(n)
+                                CROSS JOIN (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) d(n)
                             ) N
+
                             WHERE YOD.YarnOutwardID = @YarnOutwardID
-                            ORDER BY YOD.YarnOutwardDetailID, N.BoxNo";
+                            ORDER BY YOD.YarnOutwardDetailID,N.BoxNo;";
 
                         cmd.Parameters.AddWithValue("@YarnOutwardID", parsedOutwardId);
 
@@ -499,144 +513,132 @@ namespace NikunjTextile
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void GetBoxWeightAPI(string BoxNo, int YarnMaterial = 0, int YarnColour = 0, int GodownLocationID = 0, int YarnCompany = 0)
         {
-            Context.Response.Clear();
-            Context.Response.ContentType = "application/json";
-
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
             YarnInwardDetail yarnOutward = new YarnInwardDetail();
+            CommanResponse comman = new CommanResponse();
             JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-
-            try
+            using (SqlConnection con = new SqlConnection(cs))
             {
-                using (SqlConnection con = new SqlConnection(cs))
+                SqlCommand cmd = new SqlCommand(@"
+                    IF EXISTS (
+                        SELECT 1 
+                        FROM YARNOUTWARDScanMasterDetails YOSD
+                        WHERE YOSD.BarcodeNo = @BarcodeNo
+                    )
+                    BEGIN
+                        SELECT 
+                            'EXIST' AS Status,
+                            NULL AS YarnInwardDetailID,
+                            NULL AS BoxNo,
+                            NULL AS NetWeight,
+                            NULL AS BarcodeNo,
+                            NULL AS GodownLocationID,
+                            NULL AS YarnInwardID
+                    END
+                    ELSE
+                    BEGIN
+                        SELECT 
+                            'OK' AS Status,
+                            YID.YarnInwardDetailID,
+                            YID.BoxNo,
+                            YID.NetWeight,
+                            YID.BarcodeNo,
+                            ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) AS GodownLocationID,
+                            GLM.LocationTitle,
+                            YID.YarnInwardID,
+                            YIM.YarnMaterialID,
+                            YMM.YarnMaterial,
+                            YIM.YarnColorID,
+                            YCM.YarnColor,
+                            YCM.YarnColorCode,
+                            ISNULL(PM.PartyId, JM.Id) AS PartyId,
+                            ISNULL(PM.PartyName, JM.PartyName) AS PartyName
+                        FROM YarnInwardDetail YID
+                        INNER JOIN YarnInwardMaster YIM ON YIM.YarnInwardID = YID.YarnInwardID
+                        LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
+                        LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.CompanyPartyID AND ISNULL(PM.SundryParty, 0) <> 3
+                        LEFT JOIN JobberMaster JM ON JM.Id = YPM.CompanyPartyID AND PM.SundryParty = 3
+                        LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YIM.YarnMaterialID
+                        LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YIM.YarnColorID
+                        LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID)
+                        WHERE YID.BarcodeNo = @BarcodeNo
+                          AND YIM.YarnMaterialID = @YarnMaterial
+                          AND YIM.YarnColorID = @YarnColour
+                          AND ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) = @GodownLocationID
+                          AND (
+                              (PM.SundryParty = 3 AND JM.Id = @YarnCompany)
+                              OR
+                              (ISNULL(PM.SundryParty, 0) <> 3 AND PM.PartyId = @YarnCompany)
+                              OR
+                              YPM.CompanyPartyID = @YarnCompany
+                              OR
+                              YPM.BillToPartyID = @YarnCompany
+                              OR
+                              (@YarnCompany <= 0)
+                          )
+                          AND ISNULL(YID.IsScanStutas, 0) <> 1
+                    END
+                ", con);
+
+                cmd.Parameters.AddWithValue("@BarcodeNo", BoxNo);
+                cmd.Parameters.AddWithValue("@YarnMaterial", YarnMaterial);
+                cmd.Parameters.AddWithValue("@YarnColour", YarnColour);
+                cmd.Parameters.AddWithValue("@GodownLocationID", GodownLocationID);
+                cmd.Parameters.AddWithValue("@YarnCompany", YarnCompany);
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                if (rdr.Read())
                 {
-                    SqlCommand cmd = new SqlCommand(@"
-                           IF EXISTS (
-                                SELECT 1 
-                                FROM YARNOUTWARDScanMasterDetails YOSD
-                                LEFT JOIN YarnInwardDetail YID ON YOSD.YarnInwardDetailID = YID.YarnInwardDetailID
-                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
-                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
-                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-                                WHERE YOSD.BarcodeNo = @BarcodeNo
-                                  AND (@YarnMaterial = 0 OR YOSD.YarnMaterial = @YarnMaterial)
-                                  AND (@YarnColour = 0 OR YOSD.YarnColour = @YarnColour)
-                                  AND (@GodownLocationID = 0 OR YOSD.GodownLocationID = @GodownLocationID)
-                                  AND (@YarnCompany = 0 OR YOSD.YarnCompany = @YarnCompany)
-                            )
-                            BEGIN
-                                SELECT 
-                                    'EXIST' AS Status,
-                                    NULL AS YarnInwardDetailID,
-                                    NULL AS BoxNo,
-                                    NULL AS NetWeight,
-                                    NULL AS BarcodeNo,
-                                    NULL AS GodownLocationID,
-                                    NULL AS LocationTitle,
-                                    NULL AS YarnInwardID,
-                                    NULL AS YarnMaterialID,
-                                    NULL AS YarnMaterial,
-                                    NULL AS YarnColorID,
-                                    NULL AS YarnColor,
-                                    NULL AS YarnColorCode,
-                                    NULL AS PartyId,
-                                    NULL AS PartyName
-                            END
-                            ELSE
-                            BEGIN
-                                SELECT 
-                                    'OK' AS Status,
-                                    YID.YarnInwardDetailID,
-                                    YID.BoxNo,
-                                    YID.NetWeight,
-                                    YID.BarcodeNo,
-                                    GLM.GodownLocationID,
-                                    GLM.LocationTitle,
-                                    YID.YarnInwardID,
-                                    YMM.YarnMaterialID,
-                                    YMM.YarnMaterial,
-                                    YCM.YarnColorID,
-                                    YCM.YarnColor,
-                                    YCM.YarnColorCode,
-                                    PM.PartyId,
-                                    PM.PartyName
-                                FROM YarnInwardDetail YID
-                                LEFT JOIN YarnInwardMaster YM ON YM.YarnInwardID = YID.YarnInwardID
-                                LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YM.YarnPOID
-                                LEFT JOIN PartyMaster PM ON PM.PartyId = YPM.BillToPartyID
-                                LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = YM.YarnMaterialID
-                                LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = YM.YarnColorID
-                                LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = YID.GodownLocationID
-                                WHERE YID.BarcodeNo = @BarcodeNo                                
-                            END
-                        ", con);
-
-                    cmd.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = BoxNo ?? "";
-                    cmd.Parameters.Add("@YarnMaterial", SqlDbType.Int).Value = YarnMaterial;
-                    cmd.Parameters.Add("@YarnColour", SqlDbType.Int).Value = YarnColour;
-                    cmd.Parameters.Add("@GodownLocationID", SqlDbType.Int).Value = GodownLocationID;
-                    cmd.Parameters.Add("@YarnCompany", SqlDbType.Int).Value = YarnCompany;             
-
-                    con.Open();
-
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    if (rdr["Status"] != DBNull.Value && rdr["Status"].ToString() == "EXIST")
                     {
-                        if (rdr.Read())
+
+                        var response = new
                         {
-                            if (rdr["Status"].ToString() == "EXIST")
-                            {
-                                Context.Response.Write(js.Serialize(new
-                                {
-                                    Code = 410,
-                                    Message = $"This Box {BoxNo} already scanned.",
-                                    Data = (object)null
-                                }));
-                            }
-                            else
-                            {
-                                yarnOutward.YarnInwardDetailID = rdr["YarnInwardDetailID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnInwardDetailID"]) : 0;
-                                yarnOutward.BoxNo = rdr["BoxNo"]?.ToString();
-                                yarnOutward.NetWeight = rdr["NetWeight"] != DBNull.Value ? Convert.ToDecimal(rdr["NetWeight"]) : 0;
-                                yarnOutward.BarcodeNo = rdr["BarcodeNo"]?.ToString();
-                                yarnOutward.GodownLocationID = rdr["GodownLocationID"] != DBNull.Value ? Convert.ToInt32(rdr["GodownLocationID"]) : 0;
-                                yarnOutward.YarnInwardID = rdr["YarnInwardID"] != DBNull.Value ? Convert.ToInt32(rdr["YarnInwardID"]) : 0;
-                                Context.Response.Write(js.Serialize(new
-                                {
-                                    Code = 200,
-                                    Message = "Success",
-                                    Data = yarnOutward
-                                }));
-                            }
-                        }
-                        else
+                            Code =  410,
+                            Message = $"This Box {BoxNo} already scanned.",
+                            Data = ""
+                        };
+                        HttpContext.Current.ApplicationInstance.CompleteRequest();
+                        js.MaxJsonLength = Int32.MaxValue;
+                        Context.Response.Write(js.Serialize(response));
+                        return;                      
+                    }
+                    else
+                    {
+                        
+                        yarnOutward.YarnInwardDetailID = Convert.ToInt32(rdr["YarnInwardDetailID"]);
+                        yarnOutward.BoxNo = rdr["BoxNo"].ToString();
+                        yarnOutward.NetWeight = Convert.ToDecimal(rdr["NetWeight"]);
+                        yarnOutward.BarcodeNo = rdr["BarcodeNo"].ToString();
+                        yarnOutward.GodownLocationID = Convert.ToInt32(rdr["GodownLocationID"]);
+                        yarnOutward.YarnInwardID = Convert.ToInt32(rdr["YarnInwardID"]);
+                        var response = new
                         {
-                            Context.Response.Write(js.Serialize(new
-                            {
-                                Code = 404,
-                                Message = "Box not found.",
-                                Data = (object)null
-                            }));
-                        }
+                            Code = comman.Code=200,
+                            Message = "Success",
+                            Data = yarnOutward
+                        };
+                          HttpContext.Current.ApplicationInstance.CompleteRequest();
+                        js.MaxJsonLength = Int32.MaxValue;
+                        Context.Response.Write(js.Serialize(response));
+                        return;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Context.Response.Write(js.Serialize(new
+                else
                 {
-                    Code = 500,
-                    Message = ex.Message,
-                    Data = (object)null
-                }));
-            }
-
-            Context.Response.Flush();
-            Context.Response.SuppressContent = true;
-            if (HttpContext.Current != null && HttpContext.Current.ApplicationInstance != null)
-            {
-                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                    var response = new
+                    {
+                        Code = 404,
+                       Message = "This Box {BoxNo} invalid",
+                       Data = ""
+                    };
+                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                    js.MaxJsonLength = Int32.MaxValue;
+                    Context.Response.Write(js.Serialize(response));
+                    return;
+                    
+                }
             }
         }
         [WebMethod]
@@ -2341,6 +2343,10 @@ namespace NikunjTextile
                         try
                         {
                             int saleOrderId = 0;
+                            if (model.SaleOrderID > 0)
+                            {
+                                SaleOrderLockHelper.AcquireOrderLock(con, trans, model.SaleOrderID);
+                            }
 
                             using (SqlCommand cmd = new SqlCommand())
                             {
@@ -2935,6 +2941,22 @@ namespace NikunjTextile
             JavaScriptSerializer js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
 
+            if (SaleOrderID <= 0)
+            {
+                var errResp = new ApiResponse<bool>
+                {
+                    Code = 400,
+                    success = false,
+                    Message = "Invalid Sale Order ID.",
+                    Data = false
+                };
+                Context.Response.Write(js.Serialize(errResp));
+                Context.Response.Flush();
+                Context.Response.SuppressContent = true;
+                try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
+                return new ApiResponse<bool>();
+            }
+
             try
             {
                 string conStr = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
@@ -2947,69 +2969,146 @@ namespace NikunjTextile
                     {
                         try
                         {
-                            // PRE-FLIGHT DEPENDENCY CHECK
-                            int depCount = 0;
-                            using (SqlCommand cmdCheck = new SqlCommand(@"
-                                SELECT COUNT(1) FROM dbo.ProductionOrderDetail 
-                                WHERE (SalesOrderID = @ID OR SaleOrderID = @ID) AND ISNULL(IsActive, 1) = 1", con, trans))
+                            // 1. Acquire transaction-bound exclusive lock on SaleOrder
+                            SaleOrderLockHelper.AcquireOrderLock(con, trans, SaleOrderID);
+
+                            // 2. Verify existence and acquire UPDLOCK
+                            string orderNo = null;
+                            using (SqlCommand cmdExist = new SqlCommand("SELECT OrderNo FROM dbo.SaleOrder WITH (UPDLOCK, HOLDLOCK) WHERE SaleOrderID = @ID", con, trans))
                             {
-                                cmdCheck.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
-                                try
+                                cmdExist.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
+                                object val = cmdExist.ExecuteScalar();
+                                if (val == null || val == DBNull.Value)
                                 {
-                                    depCount = Convert.ToInt32(cmdCheck.ExecuteScalar());
+                                    trans.Rollback();
+                                    var notFoundResp = new ApiResponse<bool>
+                                    {
+                                        Code = 404,
+                                        success = false,
+                                        Message = "Sale Order not found or already deleted.",
+                                        Data = false
+                                    };
+                                    Context.Response.Write(js.Serialize(notFoundResp));
+                                    Context.Response.Flush();
+                                    Context.Response.SuppressContent = true;
+                                    try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
+                                    return new ApiResponse<bool>();
                                 }
-                                catch { }
+                                orderNo = val.ToString();
                             }
 
-                            if (depCount > 0)
+                            // 3. Multi-path downstream dependency checks (do NOT filter by IsActive)
+                            int podCount = 0;
+                            using (SqlCommand cmdPod = new SqlCommand(@"
+                                SELECT COUNT(1) FROM dbo.ProductionOrderDetail 
+                                WHERE (SalesOrderID = @ID 
+                                       OR SalesOrderDetailID IN (SELECT DetailID FROM dbo.SaleOrderDetails WHERE SaleOrderID = @ID)
+                                       OR SubDetailID IN (
+                                           SELECT SD.SubDetailID 
+                                           FROM dbo.SaleOrderSubDetails SD 
+                                           INNER JOIN dbo.SaleOrderDetails D ON SD.DetailID = D.DetailID 
+                                           WHERE D.SaleOrderID = @ID
+                                       ))", con, trans))
+                            {
+                                cmdPod.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
+                                podCount = Convert.ToInt32(cmdPod.ExecuteScalar());
+                            }
+
+                            int pdataCount = 0;
+                            using (SqlCommand cmdPd = new SqlCommand(@"
+                                SELECT COUNT(1) FROM weavelanesoftDB.ProductionData
+                                WHERE (SalesOrderID = @ID 
+                                       OR SalesOrderDetailID IN (SELECT DetailID FROM dbo.SaleOrderDetails WHERE SaleOrderID = @ID)
+                                       OR SubDetailID IN (
+                                           SELECT SD.SubDetailID 
+                                           FROM dbo.SaleOrderSubDetails SD 
+                                           INNER JOIN dbo.SaleOrderDetails D ON SD.DetailID = D.DetailID 
+                                           WHERE D.SaleOrderID = @ID
+                                       ))", con, trans))
+                            {
+                                cmdPd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
+                                pdataCount = Convert.ToInt32(cmdPd.ExecuteScalar());
+                            }
+
+                            int ptdCount = 0;
+                            using (SqlCommand cmdPtd = new SqlCommand(@"
+                                SELECT COUNT(1) FROM dbo.ProcessTransactionDetail
+                                WHERE (SaleOrderID = @ID 
+                                       OR SaleOrderDetailID IN (SELECT DetailID FROM dbo.SaleOrderDetails WHERE SaleOrderID = @ID)
+                                       OR SaleOrderSubDetailID IN (
+                                           SELECT SD.SubDetailID 
+                                           FROM dbo.SaleOrderSubDetails SD 
+                                           INNER JOIN dbo.SaleOrderDetails D ON SD.DetailID = D.DetailID 
+                                           WHERE D.SaleOrderID = @ID
+                                       ))", con, trans))
+                            {
+                                cmdPtd.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
+                                ptdCount = Convert.ToInt32(cmdPtd.ExecuteScalar());
+                            }
+
+                            if (podCount > 0 || pdataCount > 0 || ptdCount > 0)
                             {
                                 trans.Rollback();
+                                List<string> reasons = new List<string>();
+                                if (podCount > 0) reasons.Add(string.Format("ProductionOrderDetail ({0} record{1})", podCount, podCount > 1 ? "s" : ""));
+                                if (pdataCount > 0) reasons.Add(string.Format("ProductionData ({0} record{1})", pdataCount, pdataCount > 1 ? "s" : ""));
+                                if (ptdCount > 0) reasons.Add(string.Format("ProcessTransactionDetail ({0} record{1})", ptdCount, ptdCount > 1 ? "s" : ""));
+
                                 var blockResp = new ApiResponse<bool>
                                 {
                                     Code = 400,
                                     success = false,
-                                    Message = "This record cannot be deleted because it is already associated with existing transactions or related records.",
+                                    Message = "Cannot delete Sale Order: dependent records exist in " + string.Join(", ", reasons) + ".",
                                     Data = false
                                 };
                                 Context.Response.Write(js.Serialize(blockResp));
                                 Context.Response.Flush();
                                 Context.Response.SuppressContent = true;
-                                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                                try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
                                 return new ApiResponse<bool>();
                             }
 
-                            // 1. DELETE ADDITIONAL CHARGES
-                            using (SqlCommand cmdAdd = new SqlCommand("DELETE FROM SaleOrderAdditionalCharges WHERE SaleOrderID = @ID", con, trans))
-                            {
-                                cmdAdd.Parameters.AddWithValue("@ID", SaleOrderID);
-                                cmdAdd.ExecuteNonQuery();
-                            }
-
-                            // 2. DELETE SUB DETAILS
+                            // 4. Physical Deletions (SubDetails -> Details -> Master)
+                            // (Rely on engine FK cascade for SaleOrderAdditionalCharges)
                             using (SqlCommand cmdSub = new SqlCommand(@"
                                 DELETE SD 
-                                FROM SaleOrderSubDetails SD
-                                INNER JOIN SaleOrderDetails D ON SD.DetailID = D.DetailID
-                                WHERE D.SaleOrderID = @ID
-                            ", con, trans))
+                                FROM dbo.SaleOrderSubDetails SD
+                                INNER JOIN dbo.SaleOrderDetails D ON SD.DetailID = D.DetailID
+                                WHERE D.SaleOrderID = @ID", con, trans))
                             {
-                                cmdSub.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdSub.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
                                 cmdSub.ExecuteNonQuery();
                             }
 
-                            // 3. DELETE DETAILS
-                            using (SqlCommand cmdDetails = new SqlCommand("DELETE FROM SaleOrderDetails WHERE SaleOrderID = @ID", con, trans))
+                            using (SqlCommand cmdDetails = new SqlCommand("DELETE FROM dbo.SaleOrderDetails WHERE SaleOrderID = @ID", con, trans))
                             {
-                                cmdDetails.Parameters.AddWithValue("@ID", SaleOrderID);
+                                cmdDetails.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
                                 cmdDetails.ExecuteNonQuery();
                             }
 
-                            // 4. DELETE MASTER
-                            using (SqlCommand cmdMaster = new SqlCommand("DELETE FROM SaleOrder WHERE SaleOrderID = @ID", con, trans))
+                            int affectedMaster = 0;
+                            using (SqlCommand cmdMaster = new SqlCommand("DELETE FROM dbo.SaleOrder WHERE SaleOrderID = @ID", con, trans))
                             {
-                                cmdMaster.Parameters.AddWithValue("@ID", SaleOrderID);
-                                cmdMaster.ExecuteNonQuery();
+                                cmdMaster.Parameters.Add("@ID", SqlDbType.Int).Value = SaleOrderID;
+                                affectedMaster = cmdMaster.ExecuteNonQuery();
                             }
+
+                            if (affectedMaster != 1)
+                            {
+                                throw new InvalidOperationException(string.Format("Expected to delete exactly 1 master row, but {0} rows were affected.", affectedMaster));
+                            }
+
+                            // 5. Transactional Audit Logging
+                            AuditLogHelper.LogTransactional(
+                                conn: con,
+                                tran: trans,
+                                module: "Sale Order",
+                                action: "DELETE",
+                                tableName: "SaleOrder",
+                                recordId: SaleOrderID.ToString(),
+                                description: string.Format("Deleted Sale Order ID #{0} (OrderNo: {1})", SaleOrderID, orderNo ?? ""),
+                                oldValue: null
+                            );
 
                             trans.Commit();
 
@@ -3023,12 +3122,13 @@ namespace NikunjTextile
                             Context.Response.Write(js.Serialize(response));
                             Context.Response.Flush();
                             Context.Response.SuppressContent = true;
-                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
                             return new ApiResponse<bool>();
                         }
                         catch (Exception ex)
                         {
-                            trans.Rollback();
+                            try { trans.Rollback(); } catch { }
+                            AuditLogHelper.LogError("Sale Order", "DeleteSaleOrderAPI", ex, "SaleOrderID=" + SaleOrderID);
                             var errResp = new ApiResponse<bool>
                             {
                                 Code = 400,
@@ -3039,7 +3139,7 @@ namespace NikunjTextile
                             Context.Response.Write(js.Serialize(errResp));
                             Context.Response.Flush();
                             Context.Response.SuppressContent = true;
-                            HttpContext.Current.ApplicationInstance.CompleteRequest();
+                            try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
                             return new ApiResponse<bool>();
                         }
                     }
@@ -3047,6 +3147,7 @@ namespace NikunjTextile
             }
             catch (Exception ex)
             {
+                AuditLogHelper.LogError("Sale Order", "DeleteSaleOrderAPI", ex, "SaleOrderID=" + SaleOrderID);
                 var errResp = new ApiResponse<bool>
                 {
                     Code = 400,
@@ -3057,11 +3158,10 @@ namespace NikunjTextile
                 Context.Response.Write(js.Serialize(errResp));
                 Context.Response.Flush();
                 Context.Response.SuppressContent = true;
-                HttpContext.Current.ApplicationInstance.CompleteRequest();
+                try { HttpContext.Current.ApplicationInstance.CompleteRequest(); } catch { }
                 return new ApiResponse<bool>();
             }
         }
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public ApiResponse<List<ColorMatchingDetailModel>> GetColorMatchingDetailsAPI(int designColorMatchingFormID, int colorGroupID)

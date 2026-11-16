@@ -288,6 +288,7 @@
         });
     }
 
+
     function checkEdit() {
         if (!validate(document.getElementById('Sketcher'))) return;
 
@@ -303,21 +304,60 @@
             dataType: 'json',
             contentType: false,
             processData: false,
+
             success: function (response) {
+
+                // Handle ASMX wrapped response if applicable
+                if (response.d) {
+                    response = typeof response.d === "string"
+                        ? JSON.parse(response.d)
+                        : response.d;
+                }
+
                 if (response.Code == 201) {
                     clearAll();
-                    showAlert("Success", response.Message || "Record updated successfully.", "success");
+
+                    showAlert(
+                        "Success",
+                        response.Message || "Record updated successfully.",
+                        "success"
+                    );
+
                     displayData(0);
                     $("#cancelbtn").click();
-                } else {
-                    showAlert("Warning", response.Message || "Update failed.", "warning");
+                }
+                else {
+                    showAlert(
+                        "Warning",
+                        response.Message || "Update failed.",
+                        "warning"
+                    );
                 }
             },
-            error: function () {
-                showAlert("Error", "Error processing request.", "error");
+
+            error: function (xhr) {
+                var message = "Error processing request.";
+
+                try {
+                    var response = JSON.parse(xhr.responseText);
+
+                    if (response.d) {
+                        response = typeof response.d === "string"
+                            ? JSON.parse(response.d)
+                            : response.d;
+                    }
+
+                    message = response.Message || message;
+                }
+                catch (e) {
+                    // Default error message
+                }
+
+                showAlert("Error", message, "error");
             }
         });
     }
+
 
     function showRecords(id) {
         clearAll();
@@ -347,7 +387,9 @@
         });
     }
 
+
     function functionYarnDelete(id) {
+
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -357,9 +399,27 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
+
             if (result.isConfirmed) {
+
                 var formData = new FormData();
                 formData.append('SketcherID', id);
+
+                function parseResponse(response) {
+                    if (response && response.d !== undefined) {
+                        response = response.d;
+                    }
+
+                    if (typeof response === "string") {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            return null;
+                        }
+                    }
+
+                    return response;
+                }
 
                 $.ajax({
                     type: "POST",
@@ -368,21 +428,65 @@
                     dataType: 'json',
                     contentType: false,
                     processData: false,
+
                     success: function (response) {
+
+                        response = parseResponse(response);
+
+                        if (!response) {
+                            showAlert("Error", "Invalid server response.", "error");
+                            return;
+                        }
+
                         if (response.Code == 200) {
-                            showAlert("Deleted!", "Sketcher deleted successfully.", "success");
+
+                            showAlert(
+                                "Deleted!",
+                                response.Message || "Sketcher deleted successfully.",
+                                "success"
+                            );
+
                             displayData(0);
-                        } else {
-                            showAlert("Failed", "Problem occurred while deleting Sketcher.", "error");
+                        }
+                        else if (response.Code == 409) {
+
+                            showAlert(
+                                "Cannot Delete",
+                                response.Message || "This Sketcher is already used in another record.",
+                                "warning"
+                            );
+                        }
+                        else {
+
+                            showAlert(
+                                "Failed",
+                                response.Message || "Problem occurred while deleting Sketcher.",
+                                "error"
+                            );
                         }
                     },
-                    error: function () {
-                        showAlert("Error", "Problem occurred while deleting Sketcher.", "error");
+
+                    error: function (xhr) {
+
+                        var response = null;
+
+                        try {
+                            response = parseResponse(JSON.parse(xhr.responseText));
+                        } catch (e) {
+                            response = null;
+                        }
+
+                        var message = response && response.Message
+                            ? response.Message
+                            : "Problem occurred while deleting Sketcher.";
+
+                        showAlert("Error", message, "error");
                     }
                 });
             }
         });
     }
+
 
     function validate(code) {
         code.value = code.value.replace(/\s+/g, ' ').trim();

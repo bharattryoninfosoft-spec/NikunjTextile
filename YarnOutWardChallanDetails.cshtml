@@ -40,7 +40,14 @@
     <div id="notes"></div>
     <div class="card-header-lg">
 
-        <a href="YarnOutWardChallannew" id="ADDYarnOutWardChallannew" style="float:right;" class="btn btn-primary">Add Yarn Outward List</a>
+        <button type="button"
+                id="ADDYarnOutWardChallannew"
+                style="float:right;"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#yarnOutwardTypeModal">
+            Add Yarn Outward List
+        </button>
         <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
@@ -296,7 +303,43 @@
 
 </div>
 <!-- Content wrapper end -->
+<div class="modal fade" id="yarnOutwardTypeModal"
+     tabindex="-1"
+     aria-labelledby="yarnOutwardTypeModalLabel"
+     aria-hidden="true">
 
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="yarnOutwardTypeModalLabel">
+                    Select Yarn Outward Type
+                </h5>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <button type="button"
+                        class="btn btn-primary m-2"
+                        onclick="window.location.href='/YarnOutWardChallannew'">
+                    Jobber Yarn Outward Challan
+                </button>
+
+                <button type="button"
+                        class="btn btn-success m-2"
+                        onclick="window.location.href='/YarnOutWardSundryParty'">
+                    Party Yarn Outward Challan
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 @section Scripts{
     <script>
         var currentPagePermission = {};
@@ -413,7 +456,7 @@
                             "data-toggle='tooltip' " +
                             "data-placement='top' " +
                             "title='Edit' " +
-                            "onclick='showEditRecords(" + response.listYarnOutwardMaster[i].YarnOutwardID + ")'>" +
+                            "onclick='showEditRecords(" + response.listYarnOutwardMaster[i].YarnOutwardID + ", " + response.listYarnOutwardMaster[i].SundryParty + ")'>" +
                             "<i class='icon-edit1 text-info'></i>" +
                             "</a>&nbsp;&nbsp;&nbsp;";
 
@@ -469,9 +512,7 @@
                     var permission = getCookie("PagePermission");
                     if (permission != null && permission != "") {
                         var currentPagePermission = JSON.parse(permission);
-                        if (currentPagePermission.Add == false) {
-                            $("#ADDYarnOutWardChallannew").hide();
-                        }
+                        if (currentPagePermission.Add == false) { $("#ADDYarnOutWardChallannew").hide(); }
                         if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
                         if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
                         if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
@@ -595,7 +636,7 @@
             });
         }
 
-        function showEditRecords(id) {
+        function showEditRecords(id, sundryParty) {
             var DecryptID = "";
             $.ajax({
                 type: "GET",
@@ -606,7 +647,11 @@
                 processData: false,
                 success: function (response) {
                     DecryptID = response.listEncryptDecrypt[0].DecryptID;
-                    window.location.href = '/UpdateYarnOutWardChallanNew?id=' + response.listEncryptDecrypt[0].DecryptID;
+                    if (sundryParty == "1" || sundryParty == "2") {
+                        window.location.href = '/YarnOutWardSundryParty?id=' + DecryptID;
+                    } else {
+                        window.location.href = '/UpdateYarnOutWardChallanNew?id=' + DecryptID;
+                    }
                 },
                 error: function (request, status, error) {
                 }

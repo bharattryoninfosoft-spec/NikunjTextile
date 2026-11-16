@@ -1,4 +1,4 @@
-@{
+﻿@{
     // Server-Side Authentication Guard: Prevent direct access to any page without login
     var userCookie = Request.Cookies["UserIDs"];
     bool isAuthenticated = false;
@@ -353,6 +353,7 @@
                 "/yarnoutwardchallan": "/yarnoutwardchallandetails",
                 "/yarnoutwardchallannew": "/yarnoutwardchallandetails",
                 "/updateyarnoutwardchallannew": "/yarnoutwardchallandetails",
+                "/updateyarnoutwardsundryparty": "/yarnoutwardsundryparty",
                 "/updateyarnoutwardscan": "/yarnoutwardscandetails",
                 "/yarnoutwardscan": "/yarnoutwardscandetails",
                 "/updateyarnpo": "/createyarnpo",
@@ -458,9 +459,9 @@
                                 url = '/' + sub.Controller;
                             }
                             // CURRENT PAGE
-                            var currentPage = window.location.pathname.toLowerCase().replace("/", "");
+                            var currentPage = window.location.pathname.toLowerCase().replace(/^\//, "").replace(/\.cshtml$/i, "");
                             // MENU PAGE
-                            var menuPage = sub.Controller.toLowerCase().replace("/", "");
+                            var menuPage = (sub.Controller || "").toLowerCase().replace(/^\//, "").replace(/\.cshtml$/i, "");
                             // STORE CURRENT PAGE PERMISSION
                             if (currentPage == menuPage) {
                                 console.log("Permission Set :", sub);

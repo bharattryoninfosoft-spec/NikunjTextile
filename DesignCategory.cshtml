@@ -413,156 +413,186 @@
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
             var DesignCategory = $('#DesignCategory').val();
 
-            if (validate(document.getElementById('DesignCategory')) == false) {
-                validate(document.getElementById('DesignCategory'));
+            if (!validate(document.getElementById('DesignCategory'))) {
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('DesignCategory', DesignCategory);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                            $("#cancelbtn").click();
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('DesignCategory', DesignCategory);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    var result = response.d || response;
+
+                    if (typeof result === "string") {
+                        result = JSON.parse(result);
+                    }
+
+                    if (result.Code == 201) {
+                        clearAll();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: result.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'An error occurred while saving DesignCategory.'
+                            text: result.Message
                         });
                     }
-                });
-            }
+                },
+
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while saving Design Category.'
+                    });
+                }
+            });
         }
 
         function checkSave() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
             var DesignCategory = $('#DesignCategory').val();
 
-            if (validate(document.getElementById('DesignCategory')) == false) {
-                validate(document.getElementById('DesignCategory'));
+            if (!validate(document.getElementById('DesignCategory'))) {
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('DesignCategory', DesignCategory);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('DesignCategory', DesignCategory);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertDesignCategoryMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    var result = response.d || response;
+
+                    if (typeof result === "string") {
+                        result = JSON.parse(result);
+                    }
+
+                    if (result.Code == 201) {
+                        clearAll();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: result.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'An error occurred while saving DesignCategory.'
+                            text: result.Message
                         });
                     }
-                });
-            }
+                },
+
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while saving Design Category.'
+                    });
+                }
+            });
         }
+
+
 
         function checkEdit() {
             var id = $("#edit-id").val();
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
             var DesignCategory = $('#DesignCategory').val();
 
-            if (validate(document.getElementById('DesignCategory')) == false) {
-                validate(document.getElementById('DesignCategory'));
+            if (!validate(document.getElementById('DesignCategory'))) {
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('DesignCategoryID', id);
-                formData.append('DesignCategory', DesignCategory);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/EditDesignCategoryMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            $('#DesignCategory').val('');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Updated!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                            $("#cancelbtn").click();
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('DesignCategoryID', id);
+            formData.append('DesignCategory', DesignCategory);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditDesignCategoryMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    response = response.d || response;
+
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+
+                    if (response.Code == 201) {
+                        clearAll();
+                        $('#DesignCategory').val('');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: response.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while updating DesignCategory.'
+                            title: 'Error!',
+                            text: response.Message || 'Unable to update Design Category.'
                         });
                     }
-                });
-            }
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while updating Design Category.'
+                    });
+                }
+            });
         }
+
 
         function showRecords(id) {
             clearAll();
@@ -602,17 +632,20 @@
             });
         }
 
+
         function functionYarnDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Do you really want to delete this DesignCategory record?",
+                text: "Do you really want to delete this Design Category record?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
+
                 if (result.isConfirmed) {
+
                     var formData = new FormData();
                     formData.append('DesignCategoryID', id);
 
@@ -623,36 +656,46 @@
                         dataType: 'json',
                         contentType: false,
                         processData: false,
+
                         success: function (response) {
+                            response = response.d || response;
+
+                            if (typeof response === "string") {
+                                response = JSON.parse(response);
+                            }
+
                             if (response.Code == 200) {
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted!',
-                                    text: 'DesignCategory deleted successfully.',
+                                    text: response.Message || 'Design Category deleted successfully.',
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
+
                                 displayData(0);
                             }
                             else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error',
-                                    text: 'Problem occurred while deleting DesignCategory.'
+                                    title: 'Cannot Delete!',
+                                    text: response.Message || 'Problem occurred while deleting Design Category.'
                                 });
                             }
                         },
-                        error: function (error) {
+
+                        error: function (xhr, status, error) {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
-                                text: 'Problem occurred while deleting DesignCategory.'
+                                title: 'Error!',
+                                text: 'Problem occurred while deleting Design Category.'
                             });
                         }
                     });
                 }
             });
         }
+
 
         function onPostUp(QueueNo) {
             var down = $("#PostUp_" + QueueNo).val();

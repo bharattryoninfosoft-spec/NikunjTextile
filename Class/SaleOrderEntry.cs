@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace NikunjTextile.Class
 {
@@ -274,5 +276,139 @@ namespace NikunjTextile.Class
         public string ChargeRemark { get; set; }
         public decimal ChargeValue { get; set; }
         public decimal TotalCalculatedAmount { get; set; }
+    }
+
+    public static class SaleOrderLockHelper
+    {
+        public static void AcquireOrderLock(SqlConnection con, SqlTransaction tran, long saleOrderId, int timeoutMs = 10000)
+        {
+            if (saleOrderId <= 0) return;
+            string resourceName = "SaleOrder_Lock_" + saleOrderId;
+            using (SqlCommand cmdLock = new SqlCommand("sp_getapplock", con, tran))
+            {
+                cmdLock.CommandType = CommandType.StoredProcedure;
+                cmdLock.Parameters.AddWithValue("@Resource", resourceName);
+                cmdLock.Parameters.AddWithValue("@LockMode", "Exclusive");
+                cmdLock.Parameters.AddWithValue("@LockOwner", "Transaction");
+                cmdLock.Parameters.AddWithValue("@LockTimeout", timeoutMs);
+
+                SqlParameter returnParam = new SqlParameter();
+                returnParam.Direction = ParameterDirection.ReturnValue;
+                cmdLock.Parameters.Add(returnParam);
+
+                cmdLock.ExecuteNonQuery();
+
+                int result = Convert.ToInt32(returnParam.Value);
+                if (result < 0)
+                {
+                    throw new InvalidOperationException(string.Format("Failed to acquire application lock for Sale Order {0} (Result: {1}). The order may be in use by another transaction.", saleOrderId, result));
+                }
+            }
+        }
+
+        public static void AcquireOrderLocks(SqlConnection con, SqlTransaction tran, IEnumerable<long> saleOrderIds, int timeoutMs = 10000)
+        {
+            if (saleOrderIds == null) return;
+            var sorted = saleOrderIds.Where(id => id > 0).Distinct().OrderBy(id => id).ToList();
+            foreach (var id in sorted)
+            {
+                AcquireOrderLock(con, tran, id, timeoutMs);
+            }
+        }
+
+        public static long ResolveSaleOrderId(SqlConnection con, SqlTransaction tran, long saleOrderId, long detailId = 0, long subDetailId = 0)
+        {
+            if (saleOrderId > 0) return saleOrderId;
+
+            if (detailId > 0)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 SaleOrderID FROM dbo.SaleOrderDetails WITH (NOLOCK) WHERE DetailID = @ID", con, tran))
+                {
+                    cmd.Parameters.Add("@ID", SqlDbType.BigInt).Value = detailId;
+                    object val = cmd.ExecuteScalar();
+                    if (val != null && val != DBNull.Value) return Convert.ToInt64(val);
+                }
+            }
+
+            if (subDetailId > 0)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 D.SaleOrderID FROM dbo.SaleOrderSubDetails SD WITH (NOLOCK) INNER JOIN dbo.SaleOrderDetails D WITH (NOLOCK) ON SD.DetailID = D.DetailID WHERE SD.SubDetailID = @ID", con, tran))
+                {
+                    cmd.Parameters.Add("@ID", SqlDbType.BigInt).Value = subDetailId;
+                    object val = cmd.ExecuteScalar();
+                    if (val != null && val != DBNull.Value) return Convert.ToInt64(val);
+                }
+            }
+
+            return 0;
+        }
+
+        public static void ValidateOrderAndDetailActive(SqlConnection con, SqlTransaction tran, long saleOrderId, long saleOrderDetailId = 0, long saleOrderSubDetailId = 0)
+        {
+            if (saleOrderId <= 0 && saleOrderDetailId <= 0 && saleOrderSubDetailId <= 0) return;
+
+            if (saleOrderId <= 0)
+            {
+                saleOrderId = ResolveSaleOrderId(con, tran, saleOrderId, saleOrderDetailId, saleOrderSubDetailId);
+            }
+
+            if (saleOrderId > 0)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT SaleOrderID FROM dbo.SaleOrder WITH (UPDLOCK, HOLDLOCK) WHERE SaleOrderID = @OrderID", con, tran))
+                {
+                    cmd.Parameters.Add("@OrderID", SqlDbType.Int).Value = (int)saleOrderId;
+                    object val = cmd.ExecuteScalar();
+                    if (val == null || val == DBNull.Value)
+                    {
+                        throw new InvalidOperationException(string.Format("Sale Order {0} does not exist or has been deleted.", saleOrderId));
+                    }
+                }
+            }
+
+            if (saleOrderDetailId > 0)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT SaleOrderID FROM dbo.SaleOrderDetails WITH (UPDLOCK, HOLDLOCK) WHERE DetailID = @DetailID", con, tran))
+                {
+                    cmd.Parameters.Add("@DetailID", SqlDbType.Int).Value = (int)saleOrderDetailId;
+                    object val = cmd.ExecuteScalar();
+                    if (val == null || val == DBNull.Value)
+                    {
+                        throw new InvalidOperationException(string.Format("Sale Order Detail {0} does not exist or has been deleted.", saleOrderDetailId));
+                    }
+                    long actualOrderId = Convert.ToInt64(val);
+                    if (saleOrderId > 0 && actualOrderId > 0 && actualOrderId != saleOrderId)
+                    {
+                        throw new InvalidOperationException(string.Format("Sale Order Detail {0} does not belong to Sale Order {1} (belongs to {2}).", saleOrderDetailId, saleOrderId, actualOrderId));
+                    }
+                }
+            }
+
+            if (saleOrderSubDetailId > 0)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT SD.DetailID, D.SaleOrderID FROM dbo.SaleOrderSubDetails SD WITH (UPDLOCK, HOLDLOCK) INNER JOIN dbo.SaleOrderDetails D WITH (UPDLOCK, HOLDLOCK) ON SD.DetailID = D.DetailID WHERE SD.SubDetailID = @SubDetailID", con, tran))
+                {
+                    cmd.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = (int)saleOrderSubDetailId;
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (!dr.Read())
+                        {
+                            throw new InvalidOperationException(string.Format("Sale Order SubDetail {0} does not exist or has been deleted.", saleOrderSubDetailId));
+                        }
+                        long actualDetailId = dr["DetailID"] != DBNull.Value ? Convert.ToInt64(dr["DetailID"]) : 0;
+                        long actualOrderId = dr["SaleOrderID"] != DBNull.Value ? Convert.ToInt64(dr["SaleOrderID"]) : 0;
+
+                        if (saleOrderDetailId > 0 && actualDetailId > 0 && actualDetailId != saleOrderDetailId)
+                        {
+                            throw new InvalidOperationException(string.Format("Sale Order SubDetail {0} does not belong to Detail {1} (belongs to {2}).", saleOrderSubDetailId, saleOrderDetailId, actualDetailId));
+                        }
+
+                        if (saleOrderId > 0 && actualOrderId > 0 && actualOrderId != saleOrderId)
+                        {
+                            throw new InvalidOperationException(string.Format("Sale Order SubDetail {0} does not belong to Sale Order {1} (belongs to {2}).", saleOrderSubDetailId, saleOrderId, actualOrderId));
+                        }
+                    }
+                }
+            }
+        }
     }
 }

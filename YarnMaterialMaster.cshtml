@@ -537,6 +537,7 @@
             $(".valid-feedback").hide();
         }
 
+
         function checkSaveView() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
 
@@ -546,59 +547,75 @@
             var HSNCode = $('#HSNSACCOde').val();
             var GSTSLABId = $('#GSTSLABId').val();
 
-            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+            if (
+                validate(document.getElementById('YarnMaterial')) == false ||
+                validate(document.getElementById('ServiceUnit')) == false ||
+                validate(document.getElementById('HSNSACCOde')) == false ||
+                validate(document.getElementById('GSTSLABId')) == false
+            ) {
                 validate(document.getElementById('YarnMaterial'));
                 validate(document.getElementById('ServiceUnit'));
                 validate(document.getElementById('HSNSACCOde'));
                 validate(document.getElementById('GSTSLABId'));
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('YarnMaterial', YarnMaterial);
-                formData.append('Denier', Denier);
-                formData.append('UnitId', UnitId);
-                formData.append('HSNCode', HSNCode);
-                formData.append('GSTSLABId', GSTSLABId);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                            $("#cancelbtn").click();
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('YarnMaterial', YarnMaterial);
+            formData.append('Denier', Denier);
+            formData.append('UnitId', UnitId);
+            formData.append('HSNCode', HSNCode);
+            formData.append('GSTSLABId', GSTSLABId);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    response = response.d || response;
+
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+
+                    if (response.Code == 201) {
+                        clearAll();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while saving Yarn Material.'
+                            title: 'Error!',
+                            text: response.Message || 'Unable to save Yarn Material.'
                         });
                     }
-                });
-            }
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while saving Yarn Material.'
+                    });
+                }
+            });
         }
+
 
         function checkSave() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
@@ -609,58 +626,75 @@
             var HSNCode = $('#HSNSACCOde').val();
             var GSTSLABId = $('#GSTSLABId').val();
 
-            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+            if (
+                validate(document.getElementById('YarnMaterial')) == false ||
+                validate(document.getElementById('ServiceUnit')) == false ||
+                validate(document.getElementById('HSNSACCOde')) == false ||
+                validate(document.getElementById('GSTSLABId')) == false
+            ) {
                 validate(document.getElementById('YarnMaterial'));
                 validate(document.getElementById('ServiceUnit'));
                 validate(document.getElementById('HSNSACCOde'));
                 validate(document.getElementById('GSTSLABId'));
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('YarnMaterial', YarnMaterial);
-                formData.append('Denier', Denier);
-                formData.append('UnitId', UnitId);
-                formData.append('HSNCode', HSNCode);
-                formData.append('GSTSLABId', GSTSLABId);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('YarnMaterial', YarnMaterial);
+            formData.append('Denier', Denier);
+            formData.append('UnitId', UnitId);
+            formData.append('HSNCode', HSNCode);
+            formData.append('GSTSLABId', GSTSLABId);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/insertYarnMaterialMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    response = response.d || response;
+
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+
+                    if (response.Code == 201) {
+                        clearAll();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while saving Yarn Material.'
+                            title: 'Error!',
+                            text: response.Message || 'Unable to save Yarn Material.'
                         });
                     }
-                });
-            }
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while saving Yarn Material.'
+                    });
+                }
+            });
         }
+
+
 
         function checkEdit() {
             var id = $("#edit-id").val();
@@ -672,62 +706,80 @@
             var HSNCode = $('#HSNSACCOde').val();
             var GSTSLABId = $('#GSTSLABId').val();
 
-            if (validate(document.getElementById('YarnMaterial')) == false || validate(document.getElementById('ServiceUnit')) == false || validate(document.getElementById('HSNSACCOde')) == false || validate(document.getElementById('GSTSLABId')) == false) {
+            if (
+                validate(document.getElementById('YarnMaterial')) == false ||
+                validate(document.getElementById('ServiceUnit')) == false ||
+                validate(document.getElementById('HSNSACCOde')) == false ||
+                validate(document.getElementById('GSTSLABId')) == false
+            ) {
                 validate(document.getElementById('YarnMaterial'));
                 validate(document.getElementById('ServiceUnit'));
                 validate(document.getElementById('HSNSACCOde'));
                 validate(document.getElementById('GSTSLABId'));
+                return;
             }
-            else {
-                var formData = new FormData();
-                formData.append('YarnMaterialID', id);
-                formData.append('YarnMaterial', YarnMaterial);
-                formData.append('Denier', Denier);
-                formData.append('UnitId', UnitId);
-                formData.append('HSNCode', HSNCode);
-                formData.append('GSTSLABId', GSTSLABId);
-                formData.append('IsActive', IsActive);
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/EditYarnMaterialMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            $('#YarnMaterial').val('');
-                            $('#Denier').val('');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Updated!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                            $("#cancelbtn").click();
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
+            var formData = new FormData();
+            formData.append('YarnMaterialID', id);
+            formData.append('YarnMaterial', YarnMaterial);
+            formData.append('Denier', Denier);
+            formData.append('UnitId', UnitId);
+            formData.append('HSNCode', HSNCode);
+            formData.append('GSTSLABId', GSTSLABId);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditYarnMaterialMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+
+                    var result = response.d || response;
+
+                    if (typeof result === "string") {
+                        result = JSON.parse(result);
+                    }
+
+                    if (result.Code == 201) {
+                        clearAll();
+
+                        $('#YarnMaterial').val('');
+                        $('#Denier').val('');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: result.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while updating Yarn Material.'
+                            title: 'Cannot Update!',
+                            text: result.Message || 'Problem occurred while updating Yarn Material.'
                         });
                     }
-                });
-            }
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while updating Yarn Material.'
+                    });
+                }
+            });
         }
+
 
         function showRecords(id) {
             clearAll();
@@ -774,6 +826,7 @@
             });
         }
 
+
         function functionYarnDelete(id) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -784,7 +837,9 @@
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
+
                 if (result.isConfirmed) {
+
                     var formData = new FormData();
                     formData.append('YarnMaterialID', id);
 
@@ -795,29 +850,40 @@
                         dataType: 'json',
                         contentType: false,
                         processData: false,
+
                         success: function (response) {
-                            if (response.Code == 200) {
+
+                            var result = response.d || response;
+
+                            if (typeof result === "string") {
+                                result = JSON.parse(result);
+                            }
+
+                            if (result.Code == 200) {
+
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted!',
-                                    text: 'Yarn Material deleted successfully.',
+                                    text: result.Message,
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
+
                                 displayData(0);
                             }
                             else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error',
-                                    text: 'Problem occurred while deleting Yarn Material.'
+                                    title: 'Cannot Delete!',
+                                    text: result.Message || 'Problem occurred while deleting Yarn Material.'
                                 });
                             }
                         },
-                        error: function (error) {
+
+                        error: function (xhr, status, error) {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
+                                title: 'Error!',
                                 text: 'Problem occurred while deleting Yarn Material.'
                             });
                         }
@@ -825,6 +891,7 @@
                 }
             });
         }
+
 
         function onPostUp(QueueNo) {
             var down = $("#PostUp_" + QueueNo).val();

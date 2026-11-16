@@ -416,38 +416,118 @@
         }
         function checkManualDuplicate(inputElement) {
             validate(inputElement);
-            var typedVal = $(inputElement).val().trim().toUpperCase();
+
+            var typedVal = ($(inputElement).val() || "").trim().toUpperCase();
+
             if (typedVal === "") return;
 
             var isDuplicate = false;
+
             $('#tableItemData input[id^="GodownLocation"]').each(function () {
-                // Check against other inputs in the table, excluding the current input element itself
-                if (this !== inputElement && $(this).val().trim().toUpperCase() === typedVal) {
+                if (this === inputElement) return;
+
+                var existingVal = ($(this).val() || "").trim().toUpperCase();
+
+                if (existingVal !== "" && existingVal === typedVal) {
                     isDuplicate = true;
-                    return false; // break loop
+                    return false;
                 }
             });
 
             if (isDuplicate) {
-                Toast.fire({ icon: 'error', title: 'Location "' + typedVal + '" already exists in the table!' });
-                $(inputElement).val("").addClass("is-invalid").removeClass("is-valid");
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Location "' + typedVal + '" already exists in the table!'
+                });
+
+                $(inputElement)
+                    .val("")
+                    .addClass("is-invalid")
+                    .removeClass("is-valid")
+                    .focus();
+            } else {
+                $(inputElement)
+                    .removeClass("is-invalid")
+                    .addClass("is-valid");
             }
         }
 
         function deleteLocationData(abc) {
-            var GodownID = "#GodownLocationID" + abc;
-            var val = $(GodownID).val();
+            var locationId = $("#GodownLocationID" + abc).val() || "0";
 
-            if (val && val != "0") {
-                var DeleteArray = $("#txtDeleteLocationArray").val();
-                $("#txtDeleteLocationArray").val(DeleteArray + val + ",");
+            // New location: directly remove
+            if (locationId === "0") {
+                removeGodownLocationRow(abc, locationId);
+                return;
             }
 
+            var formData = new FormData();
+            formData.append("GodownLocationID", locationId);
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/CheckGodownLocationDependency",
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    response = response.d || response;
+
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+
+                    if (response.Code === 200) {
+                        removeGodownLocationRow(abc, locationId);
+                    } else {
+                        Toast.fire({
+                            icon: "error",
+                            title: response.Message || "This location is already in use."
+                        });
+                    }
+                },
+
+                error: function () {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Unable to check Godown Location dependency."
+                    });
+                }
+            });
+        }
+
+        function removeGodownLocationRow(abc, locationId) {
+
+            // Existing database location ID ko delete list mein add karo
+            if (locationId && locationId !== "0") {
+                var deleteArray = $("#txtDeleteLocationArray").val() || "";
+                var deletedIds = deleteArray.split(",").filter(Boolean);
+
+                if (!deletedIds.includes(locationId.toString())) {
+                    deletedIds.push(locationId.toString());
+                }
+
+                $("#txtDeleteLocationArray").val(
+                    deletedIds.join(",") + ","
+                );
+            }
+
+            // Remove location row
             $("#trLocation" + abc).remove();
-            var ColorArray = $("#txtLocationArray").val();
-            if (ColorArray) {
-                $("#txtLocationArray").val(ColorArray.replace(abc + "|", ''));
-            }
+
+            // Update location array
+            var locationArray = $("#txtLocationArray").val() || "";
+            var locationIds = locationArray.split("|").filter(Boolean);
+
+            locationIds = locationIds.filter(function (id) {
+                return id !== abc.toString();
+            });
+
+            $("#txtLocationArray").val(
+                locationIds.length > 0 ? locationIds.join("|") + "|" : ""
+            );
         }
 
         function clearAll() {
@@ -684,40 +764,77 @@
                 }
             });
         }
+         function functionYarnDelete(id) {
+             Swal.fire({
+                 title: 'Are you sure?',
+                 text: "You want to delete this Godown / Warehouse!",
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#d33',
+                 cancelButtonColor: '#3085d6',
+                 confirmButtonText: 'Yes, delete it!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     var formData = new FormData();
+                     formData.append('GodownID', id);
 
-        function functionYarnDelete(id) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to delete this Godown / Warehouse!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    var formData = new FormData();
-                    formData.append('GodownID', id);
+                     $.ajax({
+                         type: "POST",
+                         url: '/WebServiceNikunjTextile.asmx/DeleteGodownMaster',
+                         data: formData,
+                         dataType: 'json',
+                         contentType: false,
+                         processData: false,
 
-                    $.ajax({
-                        type: "POST",
-                        url: '/WebServiceNikunjTextile.asmx/DeleteGodownMaster',
-                        data: formData,
-                        dataType: 'json',
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            if (response.Code == 200) {
-                                Toast.fire({ icon: 'success', title: 'Godown Deleted successfully.' });
-                                displayData($("#rowStartCount").val());
-                            } else {
-                                Toast.fire({ icon: 'error', title: response.Message || 'Error deleting Godown.' });
-                            }
-                        }
-                    });
-                }
-            });
-        }
+                         success: function (response) {
+                             response = response.d || response;
+
+                             if (typeof response === "string") {
+                                 response = JSON.parse(response);
+                             }
+
+                             if (response.Code == 200) {
+                                 Toast.fire({
+                                     icon: 'success',
+                                     title: response.Message || 'Godown deleted successfully.'
+                                 });
+
+                                 displayData($("#rowStartCount").val());
+                             } else {
+                                 Toast.fire({
+                                     icon: 'error',
+                                     title: response.Message || 'Error deleting Godown.'
+                                 });
+                             }
+                         },
+
+                         error: function (xhr, status, error) {
+                             var errorMessage = 'Problem occurred while deleting Godown.';
+
+                             try {
+                                 var response = JSON.parse(xhr.responseText);
+                                 response = response.d || response;
+
+                                 if (typeof response === "string") {
+                                     response = JSON.parse(response);
+                                 }
+
+                                 if (response.Message) {
+                                     errorMessage = response.Message;
+                                 }
+                             } catch (e) {
+                                 // Keep default error message
+                             }
+
+                             Toast.fire({
+                                 icon: 'error',
+                                 title: errorMessage
+                             });
+                         }
+                     });
+                 }
+             });
+         }
 
         function functionYarnActive(abc) {
             Swal.fire({

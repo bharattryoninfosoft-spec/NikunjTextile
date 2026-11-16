@@ -534,54 +534,80 @@
                 }
             });
         }
+function checkEdit() {
+    if (!validateForm()) return;
 
-        function checkEdit() {
-            if (!validateForm()) return;
+    var id = $("#edit-id").val();
 
-            var id = $("#edit-id").val();
-            var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var DesignerCode = $('#DesignerCode').val();
-            var DesignerName = $('#DesignerName').val();
-            var Address = $('#Address').val();
-            var BankName = $('#BankName').val();
-            var BankAcNo = $('#BankAcNo').val();
-            var IFSCCode = $('#IFSCCode').val();
-            var AadharUpload = $('#AadharUpload')[0].files[0];
+    if (!id || parseInt(id) <= 0) {
+        Swal.fire('Error', 'Invalid Designer ID.', 'error');
+        return;
+    }
 
-            var formData = new FormData();
-            formData.append('DesignerID', id);
-            formData.append('DesignerCode', DesignerCode);
-            formData.append('DesignerName', DesignerName);
-            formData.append('Address', Address);
-            formData.append('BankName', BankName);
-            formData.append('BankAcNo', BankAcNo);
-            formData.append('IFSCCode', IFSCCode);
-            formData.append('AadharUpload', AadharUpload);
-            formData.append('IsActive', IsActive);
+    var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
+    var DesignerCode = $('#DesignerCode').val();
+    var DesignerName = $('#DesignerName').val();
+    var Address = $('#Address').val();
+    var BankName = $('#BankName').val();
+    var BankAcNo = $('#BankAcNo').val();
+    var IFSCCode = $('#IFSCCode').val();
+    var AadharUpload = $('#AadharUpload')[0].files[0];
 
-            $.ajax({
-                type: "POST",
-                url: '/WebServiceNikunjTextile.asmx/EditDesignerMaster',
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response.Code == 201 || response.Code == 200) {
-                        clearAll();
-                        showToast('success', response.Message || 'Designer updated successfully.');
-                        displayData(0);
-                        $("#cancelbtn").click();
-                    }
-                    else {
-                        Swal.fire('Error', response.Message || 'Failed to update Designer.', 'error');
-                    }
-                },
-                error: function (error) {
-                    Swal.fire('Error', 'An error occurred while updating Designer.', 'error');
+    var formData = new FormData();
+    formData.append('DesignerID', id);
+    formData.append('DesignerCode', DesignerCode);
+    formData.append('DesignerName', DesignerName);
+    formData.append('Address', Address);
+    formData.append('BankName', BankName);
+    formData.append('BankAcNo', BankAcNo);
+    formData.append('IFSCCode', IFSCCode);
+
+    if (AadharUpload && AadharUpload.size > 0) {
+        formData.append('AadharUpload', AadharUpload);
+    }
+
+    formData.append('IsActive', IsActive);
+
+    $.ajax({
+        type: "POST",
+        url: '/WebServiceNikunjTextile.asmx/EditDesignerMaster',
+        data: formData,
+        dataType: 'json',
+        contentType: false,
+        processData: false,
+
+        success: function (response) {
+            if (response && (response.Code == 201 || response.Code == 200)) {
+                clearAll();
+                showToast('success', response.Message || 'Designer updated successfully.');
+                displayData(0);
+                $("#cancelbtn").click();
+            }
+            else {
+                Swal.fire(
+                    'Error',
+                    response && response.Message ? response.Message : 'Failed to update Designer.',
+                    'warning'
+                );
+            }
+        },
+
+        error: function (xhr) {
+            var message = 'An error occurred while updating Designer.';
+
+            try {
+                var response = JSON.parse(xhr.responseText);
+                if (response && response.Message) {
+                    message = response.Message;
                 }
-            });
+            } catch (e) { }
+
+            Swal.fire('Error', message, 'error');
         }
+    });
+}
+
+
 
         function showRecords(id) {
             clearAll();
@@ -626,6 +652,11 @@
         }
 
         function functionYarnDelete(id) {
+            if (!id || parseInt(id) <= 0) {
+                Swal.fire("Error", "Invalid Designer ID.", "error");
+                return;
+            }
+
             Swal.fire({
                 title: "Are you sure?",
                 text: "You want to delete this Designer!",
@@ -637,6 +668,7 @@
                 cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
+
                     var formData = new FormData();
                     formData.append('DesignerID', id);
 
@@ -647,17 +679,41 @@
                         dataType: 'json',
                         contentType: false,
                         processData: false,
+
                         success: function (response) {
-                            if (response.Code == 200 || response.Code == 201) {
-                                Swal.fire("Deleted!", "Designer deleted successfully.", "success");
+
+                            if (response && (response.Code == 200 || response.Code == 201)) {
+
+                                Swal.fire(
+                                    "Deleted!",
+                                    response.Message || "Designer deleted successfully.",
+                                    "success"
+                                );
+
                                 displayData(0);
                             }
                             else {
-                                Swal.fire("Error", response.Message || "Problem occurred while deleting Designer.", "error");
+                                Swal.fire(
+                                    "Cannot Delete!",
+                                    response && response.Message
+                                        ? response.Message
+                                        : "Problem occurred while deleting Designer.",
+                                    "warning"
+                                );
                             }
                         },
-                        error: function (error) {
-                            Swal.fire("Error", "Problem occurred while deleting Designer.", "error");
+
+                        error: function (xhr) {
+                            var message = "Problem occurred while deleting Designer.";
+
+                            try {
+                                var response = JSON.parse(xhr.responseText);
+                                if (response && response.Message) {
+                                    message = response.Message;
+                                }
+                            } catch (e) { }
+
+                            Swal.fire("Error", message, "error");
                         }
                     });
                 }

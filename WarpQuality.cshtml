@@ -486,49 +486,59 @@
 
             if (validate(document.getElementById('WarpQuality')) == false) {
                 validate(document.getElementById('WarpQuality'));
-            } else {
-                var formData = new FormData();
-                formData.append('WarpQualityID', id);
-                formData.append('WarpQuality', WarpQuality);
-                formData.append('IsActive', IsActive);
+                return;
+            }
 
-                $.ajax({
-                    type: "POST",
-                    url: '/WebServiceNikunjTextile.asmx/EditWarpQualityMaster',
-                    data: formData,
-                    dataType: 'json',
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        if (response.Code == 201) {
-                            clearAll();
-                            $('#WarpQuality').val('');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Updated!',
-                                text: response.Message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            displayData(0);
-                            $("#cancelbtn").click();
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.Message
-                            });
-                        }
-                    },
-                    error: function (error) {
+            var formData = new FormData();
+            formData.append('WarpQualityID', id);
+            formData.append('WarpQuality', WarpQuality);
+            formData.append('IsActive', IsActive);
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/EditWarpQualityMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+
+                success: function (response) {
+                    var result = response.d || response;
+
+                    if (typeof result === "string") {
+                        result = JSON.parse(result);
+                    }
+
+                    if (result.Code == 201) {
+                        clearAll();
+                        $('#WarpQuality').val('');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: result.Message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        displayData(0);
+                        $("#cancelbtn").click();
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'An unexpected error occurred.'
+                            text: result.Message
                         });
                     }
-                });
-            }
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred.'
+                    });
+                }
+            });
         }
 
         function showRecords(id) {
@@ -589,25 +599,33 @@
                         dataType: 'json',
                         contentType: false,
                         processData: false,
+
                         success: function (response) {
-                            if (response.Code == 200) {
+                            var result = response.d || response;
+
+                            if (typeof result === "string") {
+                                result = JSON.parse(result);
+                            }
+
+                            if (result.Code == 200) {
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted!',
-                                    text: 'Warp Quality deleted successfully.',
+                                    text: result.Message,
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
+
                                 displayData(0);
                             } else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error',
-                                    text: 'Problem occurred while deleting Warp Quality.'
+                                    title: 'Cannot Delete',
+                                    text: result.Message
                                 });
                             }
                         },
-                        error: function (error) {
+                        error: function (xhr) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',

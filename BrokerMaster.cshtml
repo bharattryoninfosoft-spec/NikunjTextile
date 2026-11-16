@@ -1414,89 +1414,62 @@
         function deleteBroker(id) {
 
             Swal.fire({
-
                 title: "Are you sure?",
-
-                text:
-                    "You want to delete this broker!",
-
+                text: "You want to delete this broker!",
                 icon: "warning",
-
                 showCancelButton: true,
-
                 confirmButtonColor: "#d33",
-
                 cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
 
-                confirmButtonText:
-                    "Yes, delete it!",
+                if (result.isConfirmed) {
 
-                cancelButtonText:
-                    "Cancel"
+                    $.ajax({
+                        url: '/WebServiceNikunjTextile.asmx/DeleteBroker',
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            BrokerId: id
+                        }),
 
-            })
-                .then((result) => {
+                        success: function (res) {
 
-                    if (result.isConfirmed) {
+                            var message = res.d || res;
 
-                        $.ajax({
+                            if (message === "success") {
 
-                            url:
-                                '/WebServiceNikunjTextile.asmx/DeleteBroker',
+                                Swal.fire(
+                                    "Deleted!",
+                                    "Broker removed successfully.",
+                                    "success"
+                                );
 
-                            type: 'POST',
+                                LoadBrokerList();
 
-                            contentType:
-                                'application/json; charset=utf-8',
-
-                            dataType: 'json',
-
-                            data: JSON.stringify({
-                                BrokerId: id
-                            }),
-
-                            success: function (res) {
-
-                                if (res.d === "success") {
-
-                                    Swal.fire(
-                                        "Deleted!",
-                                        "Broker removed successfully.",
-                                        "success"
-                                    );
-
-
-                                    LoadBrokerList();
-
-                                }
-                                else {
-
-                                    Swal.fire(
-                                        "Error",
-                                        res.d,
-                                        "error"
-                                    );
-
-                                }
-
-                            },
-
-                            error: function (err) {
+                            } else {
 
                                 Swal.fire(
                                     "Error",
-                                    "Failed to delete record.",
+                                    message,
                                     "error"
                                 );
-
                             }
+                        },
 
-                        });
+                        error: function (xhr, status, error) {
 
-                    }
-
-                });
-
+                            Swal.fire(
+                                "Error",
+                                "Failed to delete record.",
+                                "error"
+                            );
+                        }
+                    });
+                }
+            });
         }
 
 

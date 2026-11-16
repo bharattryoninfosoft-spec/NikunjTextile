@@ -256,11 +256,21 @@
             $(".invalid-feedback, .valid-feedback").hide();
         }
 
+
         function checkSaveView() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var DesignSpecification = $('#DesignSpecification').val();
+            var DesignSpecification = ($('#DesignSpecification').val() || '').trim();
 
             if (!validate(document.getElementById('DesignSpecification'))) {
+                return;
+            }
+
+            if (!DesignSpecification) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation',
+                    text: 'Please enter Design Specification.'
+                });
                 return;
             }
 
@@ -275,27 +285,73 @@
                 dataType: 'json',
                 contentType: false,
                 processData: false,
+
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
-                        Toast.fire({ icon: 'success', title: response.Message || 'Record saved successfully.' });
+
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.Message || 'Design Specification saved successfully.'
+                        });
+
                         displayData(0);
                         $("#cancelbtn").click();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to save record.' });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.Code == 409 ? 'Duplicate Entry' : 'Error',
+                            text: response.Message || 'Failed to save Design Specification.'
+                        });
                     }
                 },
-                error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred while saving.' });
+
+                error: function (xhr) {
+                    var errorMessage = 'An unexpected error occurred while saving Design Specification.';
+
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+
+                        if (response.Message) {
+                            errorMessage = response.Message;
+                        }
+                        else if (response.Message === undefined && response.d) {
+                            var responseData = typeof response.d === 'string'
+                                ? JSON.parse(response.d)
+                                : response.d;
+
+                            errorMessage = responseData.Message || errorMessage;
+                        }
+                    }
+                    catch (e) {
+                        // Keep default error message
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
                 }
             });
         }
+
 
         function checkSave() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var DesignSpecification = $('#DesignSpecification').val();
+            var DesignSpecification = ($('#DesignSpecification').val() || '').trim();
 
             if (!validate(document.getElementById('DesignSpecification'))) {
+                return;
+            }
+
+            if (!DesignSpecification) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation',
+                    text: 'Please enter Design Specification.'
+                });
                 return;
             }
 
@@ -310,20 +366,57 @@
                 dataType: 'json',
                 contentType: false,
                 processData: false,
+
                 success: function (response) {
                     if (response.Code == 201) {
                         clearAll();
-                        Toast.fire({ icon: 'success', title: response.Message || 'Record saved successfully.' });
+
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.Message || 'Design Specification saved successfully.'
+                        });
+
                         displayData(0);
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.Message || 'Failed to save record.' });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.Code == 409 ? 'Duplicate Entry' : 'Error',
+                            text: response.Message || 'Failed to save Design Specification.'
+                        });
                     }
                 },
-                error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred while saving.' });
+
+                error: function (xhr) {
+                    var errorMessage = 'An unexpected error occurred while saving Design Specification.';
+
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+
+                        if (response.Message) {
+                            errorMessage = response.Message;
+                        }
+                        else if (response.Message === undefined && response.d) {
+                            var responseData = typeof response.d === 'string'
+                                ? JSON.parse(response.d)
+                                : response.d;
+
+                            errorMessage = responseData.Message || errorMessage;
+                        }
+                    }
+                    catch (e) {
+                        // Keep default error message
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
                 }
             });
         }
+
 
         function checkEdit() {
             var id = $("#edit-id").val();

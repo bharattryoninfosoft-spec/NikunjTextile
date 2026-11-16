@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -713,6 +713,7 @@
         }
 
         $(document).on("keydown", ".BarcodeNo", function (e) {
+            debugger;
             var currentInput = $(this);
             var row = currentInput.closest("tr");
 
@@ -768,44 +769,56 @@
                     },
                     dataType: "json",
                     success: function (response) {
+                        if (typeof response === "string") {
+                            try { response = JSON.parse(response); } catch (e) { }
+                        }
+
                         if (response.Code == 410) {
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'warning',
-                                title: "This Box " + BarcodeNo + " already scanned",
+                                title: response.Message || ("This Box " + BarcodeNo + " already scanned"),
                                 showConfirmButton: false,
                                 timer: 2000
                             });
 
                             currentInput.val('');
+                            weightCell.text(0);
+                            boxNoCell.text('');
+                            row.find(".YarnInwardDetailID").text('');
+                            calculateTotals();
+                            currentInput.focus().select();
+                            return;
+                        }
+
+                        if (response.Code == 404 || !response.YarnInwardDetailID || response.YarnInwardDetailID == 0) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: response.Message || ("This Box " + BarcodeNo + " invalid"),
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+
+                            currentInput.val('');
+                            weightCell.text(0);
+                            boxNoCell.text('');
+                            row.find(".YarnInwardDetailID").text('');
+                            calculateTotals();
                             currentInput.focus().select();
                             return;
                         }
 
                         var weight = response.NetWeight || 0;
                         var inwardId = response.YarnInwardDetailID || 0;
-                        var boxNo = response.BoxNo || 0;
+                        var boxNo = response.BoxNo || BarcodeNo;
 
+                        currentInput.val(response.BarcodeNo || BarcodeNo);
                         weightCell.text(weight);
                         boxNoCell.text(boxNo);
                         row.find(".YarnInwardDetailID").text(inwardId);
-
-                        if (inwardId == "0" || inwardId == "") {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: "This Box " + boxNo + " invalid",
-                                showConfirmButton: false,
-                                timer: 2000
-                            });
-
-                            currentInput.val('');
-                            currentInput.focus().select();
-                            calculateTotals();
-                            return;
-                        }
 
                         calculateTotals();
                         row.next().find(".BarcodeNo").focus();
@@ -902,19 +915,46 @@
 
         $(document).on("change", ".selectBox", function () {
             if ($(this).is(":checked")) {
+
                 var barcode = $(this).data("barcode");
                 var boxno = $(this).data("boxno");
                 var weight = $(this).data("weight");
                 var YarnInwardDetailID = $(this).data("yarninwarddetailid");
 
+                // Duplicate Barcode Check
+                var isDuplicate = false;
+
+                $(".BarcodeNo").each(function () {
+                    if ($(this).val().trim() === String(barcode).trim()) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                });
+
+                if (isDuplicate) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: "Box No " + barcode + " already entered",
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                    $(this).prop("checked", false);
+                    return;
+                }
+
                 currentRow.find(".BarcodeNo").val(barcode);
                 currentRow.find(".Boxon").text(boxno);
                 currentRow.find(".weight").text(weight);
                 currentRow.find(".YarnInwardDetailID").text(YarnInwardDetailID);
+
                 calculateTotals();
 
                 $("#yarnBoxModal").modal("hide");
                 currentRow.next().find(".BarcodeNo").focus();
+
                 checkInputs();
             }
         });

@@ -5183,6 +5183,7 @@
     <Content Include="JobberYarnInward.cshtml" />
     <Content Include="CreateJobberOutWard.cshtml" />
     <Content Include="YarnProductMaster.cshtml" />
+    <Content Include="YarnOutWardSundryParty.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AadharUpload\" />

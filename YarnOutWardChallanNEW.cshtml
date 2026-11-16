@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
@@ -1075,13 +1075,14 @@
                                            data-colorcode="${normalize(item.CompanyColourCode)}" 
                                            data-detailid="${reqDetailId}" 
                                            data-reqid="${reqId}" 
+                                           data-reqboxes="${item.NoofBoxes}" 
                                            class="row-checkbox" 
                                            value="${reqDetailId}">REQ - ${reqId}</td>
                                 <td>${item.PartyName || item.CompanyName || ''}</td>
                                 <td>${item.YarnMaterial || ''}</td>
                                 <td>${item.YarnColor || ''}</td>
                                 <td>${item.CompanyColourCode || ''}</td>
-                                <td>${item.NoofBoxes}</td>
+                                <td class="text-center font-weight-bold pending-box-cell" data-boxes="${item.NoofBoxes}">${item.NoofBoxes}</td>
                             </tr>
                         `);
 
@@ -1148,6 +1149,7 @@
             }
 
             let checkedKeys = {};
+            let checkedCodeKeys = {};
             let checkedShortKeys = {};
             checkedBoxes.each(function () {
                 let chk = $(this);
@@ -1156,8 +1158,11 @@
                 let col = chk.data("colorid");
                 let code = normalize(chk.data("colorcode"));
                 if (key) checkedKeys[key] = true;
-                if (mat && col && code) checkedKeys[`${mat}|${col}|${code}`] = true;
-                if (mat && col) checkedShortKeys[`${mat}|${col}`] = true;
+                if (mat && col && code) {
+                    checkedCodeKeys[`${mat}|${col}|${code}`] = true;
+                } else if (mat && col) {
+                    checkedShortKeys[`${mat}|${col}`] = true;
+                }
             });
 
             let visibleCount = 0;
@@ -1171,7 +1176,11 @@
                 let shortKey = (mat && col) ? `${mat}|${col}` : "";
                 let codeKey = (mat && col && code) ? `${mat}|${col}|${code}` : "";
 
-                if (checkedKeys[key] || (codeKey && checkedKeys[codeKey]) || (shortKey && checkedShortKeys[shortKey])) {
+                let isMatch = (key && checkedKeys[key]) || 
+                              (codeKey && checkedCodeKeys[codeKey]) || 
+                              (!code && shortKey && checkedShortKeys[shortKey]);
+
+                if (isMatch) {
                     visibleCount++;
                     row.show().addClass("table-success");
                 } else {
@@ -1190,16 +1199,18 @@
         }
 
         function applyCheckboxVisibility() {
-            let outwardMap = {};
+            let stockMap = {};
 
             $(".txtStockInput").each(function () {
+                let stock = parseInt($(this).data("stock")) || 0;
                 let key = normalize($(this).data("key"));
-                if (key) outwardMap[key] = true;
                 let mat = $(this).data("materialid");
                 let col = $(this).data("colorid");
                 let code = normalize($(this).data("colorcode"));
-                if (mat && col && code) outwardMap[`${mat}|${col}|${code}`] = true;
-                if (mat && col) outwardMap[`${mat}|${col}`] = true;
+
+                if (key) stockMap[key] = (stockMap[key] || 0) + stock;
+                if (mat && col && code) stockMap[`${mat}|${col}|${code}`] = (stockMap[`${mat}|${col}|${code}`] || 0) + stock;
+                if (mat && col) stockMap[`${mat}|${col}`] = (stockMap[`${mat}|${col}`] || 0) + stock;
             });
 
             let tbody = $("#pendingYarnTable tbody");
@@ -1217,14 +1228,35 @@
                 let shortKey = (mat && col) ? `${mat}|${col}` : "";
                 let codeKey = (mat && col && code) ? `${mat}|${col}|${code}` : "";
 
-                let isMatch = outwardMap[key] || (codeKey && outwardMap[codeKey]) || (shortKey && outwardMap[shortKey]) || checkbox.is(":checked");
+                let gStock = 0;
+                if (key && stockMap[key] !== undefined) {
+                    gStock = stockMap[key];
+                } else if (code && codeKey && stockMap[codeKey] !== undefined) {
+                    gStock = stockMap[codeKey];
+                } else if (!code && shortKey && stockMap[shortKey] !== undefined) {
+                    gStock = stockMap[shortKey];
+                }
+
+                let reqBoxes = parseInt(checkbox.data("reqboxes")) || parseInt(row.find(".pending-box-cell").data("boxes")) || parseInt(row.find("td:eq(5)").text()) || 0;
+                checkbox.data("reqboxes", reqBoxes);
+                checkbox.data("godownstock", gStock);
+
+                let isMatch = gStock > 0 || checkbox.is(":checked");
 
                 if (isMatch) {
                     checkbox.prop("disabled", false);
+                    row.find(".pending-box-cell").html(`
+                        <span class="font-weight-bold text-dark">${reqBoxes}</span>
+                        <br/><span class="badge" style="font-size: 10px; background-color: #d1e7dd; color: #0f5132;" title="Godown Available Stock: ${gStock} Boxes">Godown: ${gStock}</span>
+                    `);
                     matchedRows.push(row);
                 } else {
                     checkbox.prop("disabled", true);
                     checkbox.prop("checked", false);
+                    row.find(".pending-box-cell").html(`
+                        <span class="text-muted font-weight-bold">${reqBoxes}</span>
+                        <br/><span class="badge" style="font-size: 10px; background-color: #f8d7da; color: #842029;" title="No Stock Available in Selected Godown">Stock: 0</span>
+                    `);
                     unmatchedRows.push(row);
                 }
             });
@@ -1457,10 +1489,25 @@
         $(document).on("change", ".row-checkbox", function () {
             let currentChk = $(this);
             let key = normalize(currentChk.data("key"));
+            let mat = currentChk.data("materialid");
+            let col = currentChk.data("colorid");
+            let code = normalize(currentChk.data("colorcode"));
+            let codeKey = (mat && col && code) ? `${mat}|${col}|${code}` : "";
+            let shortKey = (mat && col) ? `${mat}|${col}` : "";
 
             let inputs = $(".txtStockInput").filter(function () {
-                let inpKey = normalize($(this).data("key"));
-                return inpKey === key;
+                let inp = $(this);
+                let inpKey = normalize(inp.data("key"));
+                let inpMat = inp.data("materialid");
+                let inpCol = inp.data("colorid");
+                let inpCode = normalize(inp.data("colorcode"));
+                let inpCodeKey = (inpMat && inpCol && inpCode) ? `${inpMat}|${inpCol}|${inpCode}` : "";
+                let inpShortKey = (inpMat && inpCol) ? `${inpMat}|${inpCol}` : "";
+
+                if (key && inpKey === key) return true;
+                if (code && codeKey && inpCodeKey === codeKey) return true;
+                if (!code && shortKey && inpShortKey === shortKey) return true;
+                return false;
             });
 
             let maxCapacity = 0;
@@ -1472,12 +1519,23 @@
             $(".row-checkbox:checked").not(currentChk).each(function () {
                 let chk = $(this);
                 let chkKey = normalize(chk.data("key"));
-                if (chkKey === key) {
-                    selectedStock += parseInt(chk.closest("tr").find("td:eq(5)").text()) || 0;
+                let chkMat = chk.data("materialid");
+                let chkCol = chk.data("colorid");
+                let chkCode = normalize(chk.data("colorcode"));
+                let chkCodeKey = (chkMat && chkCol && chkCode) ? `${chkMat}|${chkCol}|${chkCode}` : "";
+                let chkShortKey = (chkMat && chkCol) ? `${chkMat}|${chkCol}` : "";
+
+                let matches = false;
+                if (key && chkKey === key) matches = true;
+                else if (code && codeKey && chkCodeKey === codeKey) matches = true;
+                else if (!code && shortKey && chkShortKey === shortKey) matches = true;
+
+                if (matches) {
+                    selectedStock += parseInt(chk.data("reqboxes")) || parseInt(chk.closest("tr").find(".pending-box-cell").data("boxes")) || parseInt(chk.closest("tr").find("td:eq(5)").text()) || 0;
                 }
             });
 
-            let currentStock = parseInt(currentChk.closest("tr").find("td:eq(5)").text()) || 0;
+            let currentStock = parseInt(currentChk.data("reqboxes")) || parseInt(currentChk.closest("tr").find(".pending-box-cell").data("boxes")) || parseInt(currentChk.closest("tr").find("td:eq(5)").text()) || 0;
 
             if (currentChk.is(":checked")) {
                 let tempTotal = selectedStock + currentStock;
@@ -1485,10 +1543,44 @@
 
                 if (usableTemp <= selectedStock) {
                     currentChk.prop("checked", false);
+                    let rowTr = currentChk.closest("tr");
+                    let reqText = currentChk.parent().text().trim();
+                    let partyText = rowTr.find("td:eq(1)").text().trim();
+                    let matText = rowTr.find("td:eq(2)").text().trim();
+                    let colText = rowTr.find("td:eq(3)").text().trim();
+                    let codeText = rowTr.find("td:eq(4)").text().trim();
+
+                    let reasonDetail = "";
+                    if (maxCapacity <= 0) {
+                        reasonDetail = `<div class="alert alert-danger py-1 px-2 mb-2 text-start" style="font-size: 13px;">
+                            <strong>No Stock:</strong> Selected godown has <strong>0 boxes</strong> available in stock for this yarn.
+                        </div>`;
+                    } else {
+                        reasonDetail = `<div class="alert alert-warning py-1 px-2 mb-2 text-start" style="font-size: 13px;">
+                            <strong>Fully Allocated:</strong> Godown stock (${maxCapacity} boxes) is already fully allocated to previously checked requirements.
+                        </div>`;
+                    }
+
                     Swal.fire({
                         icon: "warning",
-                        title: "Limit Reached",
-                        text: "Stock already fully allocated!"
+                        title: "Cannot Allocate Stock",
+                        html: `
+                            <div style="font-size: 13px; text-align: left;">
+                                ${reasonDetail}
+                                <table class="table table-sm table-bordered mb-2">
+                                    <tr><th style="width: 42%;">Requirement</th><td><strong>${reqText}</strong></td></tr>
+                                    <tr><th>Party</th><td>${partyText}</td></tr>
+                                    <tr><th>Yarn Material</th><td>${matText}</td></tr>
+                                    <tr><th>Yarn Color</th><td>${colText}</td></tr>
+                                    <tr><th>Color Code</th><td>${codeText || '-'}</td></tr>
+                                    <tr><th>Required Boxes</th><td><span class="badge bg-primary text-white" style="font-size: 12px;">${currentStock} Boxes</span></td></tr>
+                                    <tr><th>Godown Stock</th><td><span class="badge bg-info text-white" style="font-size: 12px;">${maxCapacity} Boxes</span></td></tr>
+                                    <tr><th>Already Allocated</th><td><span class="badge bg-secondary text-white" style="font-size: 12px;">${selectedStock} Boxes</span></td></tr>
+                                    <tr><th>Remaining Available</th><td><span class="badge bg-danger text-white" style="font-size: 12px;">${Math.max(0, maxCapacity - selectedStock)} Boxes</span></td></tr>
+                                </table>
+                            </div>
+                        `,
+                        confirmButtonText: "OK"
                     });
                     return;
                 }
@@ -1498,8 +1590,19 @@
             $(".row-checkbox:checked").each(function () {
                 let chk = $(this);
                 let chkKey = normalize(chk.data("key"));
-                if (chkKey === key) {
-                    let stock = parseInt(chk.closest("tr").find("td:eq(5)").text()) || 0;
+                let chkMat = chk.data("materialid");
+                let chkCol = chk.data("colorid");
+                let chkCode = normalize(chk.data("colorcode"));
+                let chkCodeKey = (chkMat && chkCol && chkCode) ? `${chkMat}|${chkCol}|${chkCode}` : "";
+                let chkShortKey = (chkMat && chkCol) ? `${chkMat}|${chkCol}` : "";
+
+                let matches = false;
+                if (key && chkKey === key) matches = true;
+                else if (code && codeKey && chkCodeKey === codeKey) matches = true;
+                else if (!code && shortKey && chkShortKey === shortKey) matches = true;
+
+                if (matches) {
+                    let stock = parseInt(chk.data("reqboxes")) || parseInt(chk.closest("tr").find(".pending-box-cell").data("boxes")) || parseInt(chk.closest("tr").find("td:eq(5)").text()) || 0;
                     let detailId = parseInt(chk.data("detailid")) || parseInt(chk.data("reqid")) || parseInt(chk.val()) || 0;
                     selectedData.push({
                         id: detailId,
@@ -1509,6 +1612,8 @@
             });
 
             globalYarnMap[key] = selectedData;
+            if (codeKey) globalYarnMap[codeKey] = selectedData;
+            if (!code && shortKey) globalYarnMap[shortKey] = selectedData;
 
             let totalStock = selectedData.reduce((sum, x) => sum + x.stock, 0);
             let usableStock = Math.min(totalStock, maxCapacity);

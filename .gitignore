@@ -92,3 +92,4 @@ TestResults/
 coverage/
 coverage*.xml
 coverage*.json
+scratch/

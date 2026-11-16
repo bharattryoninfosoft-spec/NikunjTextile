@@ -301,9 +301,10 @@
             $(".valid-feedback").hide();
         }
 
+
         function checkSaveView() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var ColorGroup = $('#ColorGroup').val();
+            var ColorGroup = ($('#ColorGroup').val() || "").trim();
 
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
@@ -321,25 +322,33 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (response.Code == 201) {
+                    if (response && response.Code == 201) {
                         clearAll();
                         showToast('success', response.Message || 'Color Group added successfully.');
                         displayData(0);
                         $("#cancelbtn").click();
                     }
                     else {
-                        Swal.fire('Error', response.Message, 'error');
+                        Swal.fire(
+                            'Error',
+                            response?.Message || 'Problem occurred while saving Color Group.',
+                            'error'
+                        );
                     }
                 },
-                error: function (error) {
-                    Swal.fire('Error', 'An error occurred while saving Color Group.', 'error');
+                error: function (xhr) {
+                    Swal.fire(
+                        'Error',
+                        'An error occurred while saving Color Group.',
+                        'error'
+                    );
                 }
             });
         }
 
         function checkSave() {
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var ColorGroup = $('#ColorGroup').val();
+            var ColorGroup = ($('#ColorGroup').val() || "").trim();
 
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
@@ -357,25 +366,39 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (response.Code == 201) {
+                    if (response && response.Code == 201) {
                         clearAll();
                         showToast('success', response.Message || 'Color Group added successfully.');
                         displayData(0);
                     }
                     else {
-                        Swal.fire('Error', response.Message, 'error');
+                        Swal.fire(
+                            'Error',
+                            response?.Message || 'Problem occurred while saving Color Group.',
+                            'error'
+                        );
                     }
                 },
-                error: function (error) {
-                    Swal.fire('Error', 'An error occurred while saving Color Group.', 'error');
+                error: function (xhr) {
+                    Swal.fire(
+                        'Error',
+                        'An error occurred while saving Color Group.',
+                        'error'
+                    );
                 }
             });
         }
 
+
         function checkEdit() {
-            var id = $("#edit-id").val();
+            var id = ($("#edit-id").val() || "").trim();
             var IsActive = $("#IsActive").is(':checked') ? "1" : "0";
-            var ColorGroup = $('#ColorGroup').val();
+            var ColorGroup = ($('#ColorGroup').val() || "").trim();
+
+            if (!id) {
+                Swal.fire('Error', 'Invalid Color Group ID.', 'error');
+                return;
+            }
 
             if (validate(document.getElementById('ColorGroup')) == false) {
                 return;
@@ -393,22 +416,38 @@
                 dataType: 'json',
                 contentType: false,
                 processData: false,
+
                 success: function (response) {
-                    if (response.Code == 201) {
+                    if (response && response.Code == 201) {
                         clearAll();
-                        showToast('success', response.Message || 'Color Group updated successfully.');
+
+                        showToast(
+                            'success',
+                            response.Message || 'Color Group updated successfully.'
+                        );
+
                         displayData(0);
                         $("#cancelbtn").click();
                     }
                     else {
-                        Swal.fire('Error', response.Message, 'error');
+                        Swal.fire(
+                            'Error',
+                            response?.Message || 'Problem occurred while updating Color Group.',
+                            'error'
+                        );
                     }
                 },
-                error: function (error) {
-                    Swal.fire('Error', 'An error occurred while updating Color Group.', 'error');
+
+                error: function (xhr) {
+                    Swal.fire(
+                        'Error',
+                        'An error occurred while updating Color Group.',
+                        'error'
+                    );
                 }
             });
         }
+
 
         function showRecords(id) {
             clearAll();
@@ -445,6 +484,7 @@
             });
         }
 
+
         function functionYarnDelete(id) {
             Swal.fire({
                 title: "Are you sure?",
@@ -456,33 +496,51 @@
                 confirmButtonText: "Yes, delete it!",
                 cancelButtonText: "Cancel"
             }).then((result) => {
-                if (result.isConfirmed) {
-                    var formData = new FormData();
-                    formData.append('ColorGroupID', id);
 
-                    $.ajax({
-                        type: "POST",
-                        url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
-                        data: formData,
-                        dataType: 'json',
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            if (response.Code == 200) {
-                                Swal.fire("Deleted!", "Color Group deleted successfully.", "success");
-                                displayData(0);
-                            }
-                            else {
-                                Swal.fire("Error", "Problem occurred while deleting Color Group.", "error");
-                            }
-                        },
-                        error: function (error) {
-                            Swal.fire("Error", "Problem occurred while deleting Color Group.", "error");
+                if (!result.isConfirmed) return;
+
+                var formData = new FormData();
+                formData.append('ColorGroupID', id);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/WebServiceNikunjTextile.asmx/DeleteColorGroupMaster',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+
+                    success: function (response) {
+                        if (response && response.Code == 200) {
+
+                            Swal.fire(
+                                "Deleted!",
+                                response.Message || "Color Group deleted successfully.",
+                                "success"
+                            );
+
+                            displayData(0);
                         }
-                    });
-                }
+                        else {
+                            Swal.fire(
+                                "Cannot Delete Color Group",
+                                response?.Message || "Problem occurred while deleting Color Group.",
+                                "warning"
+                            );
+                        }
+                    },
+
+                    error: function (xhr) {
+                        Swal.fire(
+                            "Error",
+                            "An error occurred while deleting Color Group.",
+                            "error"
+                        );
+                    }
+                });
             });
         }
+
 
         function validate(code) {
             code.value = code.value.replace(/\s+/g, ' ').trim();

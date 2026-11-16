@@ -3231,69 +3231,65 @@
             return true;
 
         }
-       function deleteYarnData(rowNo) {
+
+        function deleteYarnData(rowNo) {
 
             Swal.fire({
-
                 icon: "warning",
-
                 title: "Delete Yarn Data?",
-
                 text: "Are you sure you want to delete this row?",
-
                 showCancelButton: true,
-
                 confirmButtonText: "Yes, Delete",
-
-                cancelButtonText: "Cancel"
-
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#d33"
             }).then(function (result) {
 
                 if (!result.isConfirmed) {
                     return;
                 }
 
+                var rowId = String(rowNo);
 
-                $("#trMatching" + rowNo)
-                    .remove();
+                // Remove selected row from UI
+                $("#trMatching" + rowId).remove();
 
+                // Get existing Yarn Details Array
+                var existingData = $("#txtYarnDetailsArray").val() || "";
 
-                var arr =
-                    $("#txtYarnDetailsArray")
-                        .val()
-                        .split("|")
-                        .filter(function (x) {
+                // Remove only selected row number
+                var arr = existingData
+                    .split("|")
+                    .map(function (x) {
+                        return x.trim();
+                    })
+                    .filter(function (x) {
+                        return x !== "" && x !== rowId;
+                    });
 
-                            return (
-                                x !== "" &&
-                                x != rowNo
-                            );
+                // Update hidden field
+                $("#txtYarnDetailsArray").val(
+                    arr.length > 0 ? arr.join("|") + "|" : ""
+                );
 
-                        });
-
-
-                $("#txtYarnDetailsArray")
-                    .val(
-                        arr.length > 0
-                            ? arr.join("|") + "|"
-                            : ""
-                    );
-
-
-                if (
-                    editingYarnRowNo ==
-                    rowNo
-                ) {
+                // Reset input if deleted row was currently editing
+                if (String(editingYarnRowNo) === rowId) {
 
                     editingYarnRowNo = 0;
 
                     resetYarnInput();
-
                 }
 
-            });
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: "Yarn data row removed successfully.",
+                    timer: 1200,
+                    showConfirmButton: false
+                });
 
+            });
         }
+
        function resetYarnInput() {
 
             $("#yarnMaterial1")

@@ -420,22 +420,22 @@ namespace NikunjTextile.Class
             using (SqlCommand cmd = new SqlCommand(query, conn, tran))
             {
                 cmd.Parameters.Add("@UserAccountID", SqlDbType.Int).Value = (object)userId ?? DBNull.Value;
-                cmd.Parameters.Add("@UserName", SqlDbType.NVarChar).Value = (object)userName ?? DBNull.Value;
-                cmd.Parameters.Add("@ModuleName", SqlDbType.NVarChar).Value = (object)module ?? DBNull.Value;
-                cmd.Parameters.Add("@PageName", SqlDbType.NVarChar).Value = (object)pageName ?? DBNull.Value;
-                cmd.Parameters.Add("@ActionName", SqlDbType.NVarChar).Value = (object)action ?? DBNull.Value;
-                cmd.Parameters.Add("@TableName", SqlDbType.NVarChar).Value = (object)tableName ?? DBNull.Value;
-                cmd.Parameters.Add("@RecordID", SqlDbType.NVarChar).Value = (object)recordId ?? DBNull.Value;
-                cmd.Parameters.Add("@Description", SqlDbType.NVarChar).Value = (object)description ?? DBNull.Value;
+                cmd.Parameters.Add("@UserName", SqlDbType.NVarChar, 200).Value = (object)userName ?? DBNull.Value;
+                cmd.Parameters.Add("@ModuleName", SqlDbType.NVarChar, 100).Value = (object)module ?? DBNull.Value;
+                cmd.Parameters.Add("@PageName", SqlDbType.NVarChar, 500).Value = (object)pageName ?? DBNull.Value;
+                cmd.Parameters.Add("@ActionName", SqlDbType.NVarChar, 100).Value = (object)action ?? DBNull.Value;
+                cmd.Parameters.Add("@TableName", SqlDbType.NVarChar, 200).Value = (object)tableName ?? DBNull.Value;
+                cmd.Parameters.Add("@RecordID", SqlDbType.NVarChar, -1).Value = (object)recordId ?? DBNull.Value;
+                cmd.Parameters.Add("@Description", SqlDbType.NVarChar, -1).Value = (object)description ?? DBNull.Value;
                 cmd.Parameters.Add("@OldValue", SqlDbType.NVarChar, -1).Value = (object)jsonOld ?? DBNull.Value;
                 cmd.Parameters.Add("@NewValue", SqlDbType.NVarChar, -1).Value = (object)jsonNew ?? DBNull.Value;
-                cmd.Parameters.Add("@RequestURL", SqlDbType.NVarChar).Value = (object)requestUrl ?? DBNull.Value;
-                cmd.Parameters.Add("@IPAddress", SqlDbType.NVarChar).Value = (object)ipAddress ?? DBNull.Value;
-                cmd.Parameters.Add("@UserAgent", SqlDbType.NVarChar).Value = (object)userAgent ?? DBNull.Value;
-                cmd.Parameters.Add("@Status", SqlDbType.NVarChar).Value = (object)status ?? "Success";
+                cmd.Parameters.Add("@RequestURL", SqlDbType.NVarChar, 1000).Value = (object)requestUrl ?? DBNull.Value;
+                cmd.Parameters.Add("@IPAddress", SqlDbType.NVarChar, 100).Value = (object)ipAddress ?? DBNull.Value;
+                cmd.Parameters.Add("@UserAgent", SqlDbType.NVarChar, 1000).Value = (object)userAgent ?? DBNull.Value;
+                cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = (object)status ?? "Success";
                 cmd.Parameters.Add("@ErrorMessage", SqlDbType.NVarChar, -1).Value = (object)errorMessage ?? DBNull.Value;
                 cmd.Parameters.Add("@ExceptionDetails", SqlDbType.NVarChar, -1).Value = (object)exDetails ?? DBNull.Value;
-                cmd.Parameters.Add("@SessionID", SqlDbType.NVarChar).Value = (object)sessionId ?? DBNull.Value;
+                cmd.Parameters.Add("@SessionID", SqlDbType.NVarChar, 200).Value = (object)sessionId ?? DBNull.Value;
 
                 cmd.ExecuteNonQuery();
             }

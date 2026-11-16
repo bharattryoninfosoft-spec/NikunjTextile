@@ -1314,6 +1314,7 @@
         var ArrayYarnMaterial = [];
         var ArrayDesignSpecification = [];
         var DesingerArrayDetail;
+        var ArraySketcherMaster = [];
         function getDesignEntryForm() {
 
             var formData = new FormData();
@@ -1327,21 +1328,23 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    //console.log(response);
+                    console.log(response);
                     //alert(response.Code);
 
                     if (response.Code == "200") {
 
-
+                        debugger;
                         ArrayYarnQuality.push(response.listYarnQualityMaster);
                         ArrayYarnColor.push(response.listYarnColorMaster);
                         ArrayYarnMaterial.push(response.listYarnMaterialMaster);
                         ArrayDesignSpecification.push(response.listDesignSpecificationMaster);
+                        ArraySketcherMaster.push(response.listSketcherMaster);
 
 
                         console.log(ArrayYarnQuality);
                         console.log(ArrayYarnColor);
                         console.log(ArrayYarnMaterial);
+                        console.log(ArraySketcherMaster);
 
 
                         //Design No
@@ -1397,17 +1400,17 @@
 
 
                         //Sketcher
-                        // if (response.listSketcherMaster.length > 0) {
-                        //     var templistSketcherMaster = "";
-                        //     templistSketcherMaster = "<option value='' selected> Select Sketcher </option>";
-                        //     $('#Sketcher').append(templistSketcherMaster);
-                        //     for (var i = 0; i < response.listSketcherMaster.length; i++) {
+                        if (response.listSketcherMaster.length > 0) {
+                            var templistSketcherMaster = "";
+                            templistSketcherMaster = "<option value='' selected> Select Sketcher </option>";
+                            $('#Sketcher').append(templistSketcherMaster);
+                            for (var i = 0; i < response.listSketcherMaster.length; i++) {
 
-                        //         templistSketcherMaster = "<option value='" + response.listSketcherMaster[i].SketcherID + "'> " + response.listSketcherMaster[i].Sketcher + " </option>";
-                        //         $('#Sketcher').append(templistSketcherMaster);
+                                templistSketcherMaster = "<option value='" + response.listSketcherMaster[i].SketcherID + "'> " + response.listSketcherMaster[i].Sketcher + " </option>";
+                                $('#Sketcher').append(templistSketcherMaster);
 
-                        //     }
-                        // }
+                            }
+                        }
 
 
 

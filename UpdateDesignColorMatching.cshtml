@@ -1114,23 +1114,12 @@
             getDesignEntryForm();
             getYarnColor();
         });
-
         var notes = $('#notes').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
-
-
         var notess = $('#notess').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
-
-
-
-
-
-
-
-
         function getDefaultCompany() {
             $.ajax({
                 type: "GET",
@@ -1160,7 +1149,6 @@
                 }
             });
         }
-
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -1179,7 +1167,6 @@
                 }
             });
         }
-
         function logout() {
             $.ajax({
                 type: "POST",
@@ -1195,9 +1182,6 @@
                 }
             });
         }
-
-
-
         function clearAll() {
             getDefaultCompany();
             $("#savebtn").show();
@@ -1213,7 +1197,6 @@
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
         }
-
         function validate(code) {
             //alert(code);
             //alert(code.id + "  " + code.value);
@@ -1248,9 +1231,6 @@
                     return true;
                 }
         }
-
-
-
         function getDesignEntryForm() {
 
             var formData = new FormData();
@@ -1311,11 +1291,7 @@
             });
 
         }
-
-
-
         var ArrayYarnColor = [];
-
         function getYarnColor() {
 
             var formData = new FormData();
@@ -1364,10 +1340,6 @@
 
 
         }
-
-
-
-
         function getCookieDesignNo(designNo) {
             //alert(designNo);
 
@@ -2292,10 +2264,6 @@
 
 
         }
-
-
-
-
         function getDesignNo(designNo) {
             //alert(designNo);
 
@@ -3594,10 +3562,6 @@
 
 
         }
-
-
-
-
         function getExistingDesignNo(abc) {
             //alert(abc.value);
             var DesignEntryFormID = abc.value.split("|")[0];
@@ -4453,8 +4417,6 @@
 
 
         }
-
-
         function AddColorMatchingData() {
 
             var DesignNo = $("#DesignNo").val();
@@ -4626,8 +4588,6 @@
 
 
         }
-
-
         function AddDuplicateColorMatchingData() {
 
             if (DesignNo == "") {
@@ -4835,10 +4795,6 @@
 
             mergerAllMatchingID();
         }
-
-
-
-
         //Warp Matching
         function WarpMatchingChange(abc) {
             const warpLength = +$("#warpLength").val();
@@ -4888,7 +4844,6 @@
             //CheckWarpDuplicates(ColorMatchingArray);
             mergerAllMatchingID();
         }
-
         function onchangeCHKWarp() {
 
             const txtColorData = $("#txtColorArray").val().slice(0, -1).split('|');
@@ -4934,11 +4889,6 @@
             //CheckWarpDuplicates(ColorMatchingArray);
             mergerAllMatchingID();
         }
-
-
-
-
-
         function CheckWarpDuplicates(ColorMatchingArray) {
             // ✅ Check Duplicates
 
@@ -4965,14 +4915,7 @@
 
 
         }
-
-
-
-
-
-
-
-        //Weft Feeder Matching
+                //Weft Feeder Matching
         function WeftMatchingChange(abc) {
             const [rowNo, DDlNo] = abc.split('_');
             const weftLength = +$("#weftLength").val();
@@ -5010,7 +4953,6 @@
             //CheckWeftDuplicates(ColorMatchingArray);
             mergerAllMatchingID();
         }
-
         function onchangeCHKWeft() {
             const txtColorData = $("#txtColorArray").val().slice(0, -1).split('|');
             const weftLength = +$("#weftLength").val();
@@ -5081,7 +5023,6 @@
             //CheckWeftDuplicates(ColorMatchingArray);
             mergerAllMatchingID();
         }
-
         function CheckWeftDuplicates(ColorMatchingArray) {
             // ✅ Check Duplicates
 
@@ -5108,9 +5049,6 @@
 
 
         }
-
-
-
         function mergerAllMatchingID() {
             //alert("Helllo");
             const ColorMatchingArray = [];
@@ -5136,8 +5074,6 @@
             //console.log(ColorMatchingArray);
             CheckDuplicatesArray(ColorMatchingArray);
         }
-
-
         function CheckDuplicatesArray(ColorMatchingArray) {
             // ✅ Check Duplicates
 
@@ -5164,9 +5100,6 @@
 
 
         }
-
-
-
         function deleteColorMatchingData(abc) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -5201,295 +5134,6 @@
                 }
             });
         }
-
-
-
-        //function checkSave() {
-        //    const txtColorData = $("#txtColorArray").val().slice(0, -1).split('|');
-        //    const ColorArray = $("#txtColorArray").val();
-        //    const warpLength = $("#warpLength").val();
-        //    const weftLength = $("#weftLength").val();
-        //    const ColorMatchingArray = [];
-        //    var DesignNo = $("#DesignNo").val();
-        //    var WarpCheckBox = "";
-        //    var WeftCheckBox = "";
-
-
-        //    var TruOrFalse = "0";
-        //    var IsMatchingIdFound = "0";
-
-        //    for (var i = 0; i < txtColorData.length; i++) {
-
-
-        //        var no = parseInt(txtColorData[(txtColorData.length - 1)]);
-
-
-        //        for (var i = 0; i < warpLength; i++) {
-        //            var Sno = parseInt(i) + parseInt(1);
-        //            var Matching = "MatchingWarp" + no + Sno;
-
-        //            var MG = document.getElementById(Matching);
-
-        //            if (validate(MG) == false) {
-        //                validate(MG);
-        //                TruOrFalse = parseInt(TruOrFalse) + parseInt(1);
-        //            }
-        //            else {
-        //                TruOrFalse = parseInt(TruOrFalse) + parseInt(0);
-        //            }
-
-
-        //            var chkwarp = "#chkwarp" + Sno;
-
-        //            if ($(chkwarp).is(':checked')) {
-        //                WarpCheckBox += "1|"
-        //            } else {
-        //                WarpCheckBox += "0|"
-        //            }
-
-        //        }
-
-
-        //        for (var j = 0; j < weftLength; j++) {
-        //            var Sno = parseInt(j) + parseInt(1);
-        //            var Matching = "MatchingWeft" + no + Sno;
-
-        //            var MG = document.getElementById(Matching);
-
-        //            if (validate(MG) == false) {
-        //                validate(MG);
-        //                TruOrFalse = parseInt(TruOrFalse) + parseInt(1);
-        //            }
-        //            else {
-        //                TruOrFalse = parseInt(TruOrFalse) + parseInt(0);
-        //            }
-
-        //            var chkwarp = "#chkweft" + Sno;
-
-        //            if ($(chkwarp).is(':checked')) {
-        //                WeftCheckBox += "1|"
-        //            } else {
-        //                WeftCheckBox += "0|"
-        //            }
-
-        //        }
-        //    }
-
-
-
-
-        //    if (TruOrFalse == 0) {
-
-        //        var AllMatId = 0;
-
-        //        for (var i = 0; i < txtColorData.length; i++) {
-
-
-        //            var no = parseInt(txtColorData[(txtColorData.length - 1)]);
-
-
-        //            var rowNo = i + 1;
-        //            var matchingID = "#matching" + txtColorData[i] + "ID";
-        //            var matchingWeftID = "#matchingWeft" + txtColorData[i] + "ID";
-        //            //matchingWeft3ID
-        //            var marchingDDLValue = $(matchingID).html() + "/" + $(matchingWeftID).html();
-
-        //            //alert(marchingDDLValue);
-
-        //            var MatId = "Matching " + rowNo;
-        //            var MATVALUE = marchingDDLValue;
-
-        //            let myObject = {}; // Empty object literal
-        //            myObject[MatId] = MATVALUE;
-        //            ColorMatchingArray.push(myObject);
-
-
-
-        //            $("#spanDuplicate").html('');
-        //            var arr = ColorMatchingArray;
-        //            console.log(arr);
-        //            var seen = {};
-        //            $.each(arr, function (i, obj) {
-        //                var value = Object.values(obj)[0];   // Get the string (e.g., "BLACK/FIROZI")
-        //                var key = Object.keys(obj)[0];       // Get the key (e.g., "Matching 1")
-
-        //                if (seen[value]) {
-        //                    console.log("Duplicate Found:", seen[value], "and", key);
-        //                    $("#spanDuplicate").append(
-        //                        `<div>Duplicate Found: ${seen[value]} and ${key}</div>`
-        //                    );
-        //                    //alert("Matching");
-
-        //                    AllMatId = 0;
-
-        //                    return;
-        //                } else {
-        //                    seen[value] = key;
-        //                    AllMatId = 1;
-        //                }
-        //            });
-
-
-        //        }
-
-
-        //        if (AllMatId == 1) {
-
-
-        //            var WarpArray = "";
-        //            var FeederArray = "";
-
-
-        //            var WarpFeederArray = "";
-
-        //            for (var i = 0; i < txtColorData.length; i++) {
-
-        //                var MatchingNo = txtColorData[i];
-
-        //                var WarpMatID = "#matching" + MatchingNo + "ID";
-        //                var WarpMatchingID = $(WarpMatID).html();
-
-
-
-        //                WarpFeederArray += "{";
-        //                WarpFeederArray += '"MatchingNo": "' + MatchingNo + '",';
-        //                WarpFeederArray += '"WarpMatchingID": "' + WarpMatchingID + '",';
-
-        //                for (var wa = 0; wa < warpLength; wa++) {
-        //                    var Sno = parseInt(wa) + parseInt(1);
-        //                    var Matching = "#MatchingWarp" + MatchingNo + Sno;
-
-        //                    var MG = $(Matching).val();
-        //                    var warp = "Warp" + Sno;
-
-        //                    WarpFeederArray += '"' + warp + '": "' + MG + '",';
-        //                }
-
-        //                var WeftMatID = "#matchingWeft" + MatchingNo + "ID";
-        //                var FeederMatchingID = $(WeftMatID).html();
-
-        //                WarpFeederArray += '"FeederMatchingID": "' + FeederMatchingID + '",';
-
-        //                for (var we = 0; we < weftLength; we++) {
-        //                    var Sno = parseInt(we) + parseInt(1);
-        //                    var Matching = "#MatchingWeft" + MatchingNo + Sno;
-
-        //                    var MG = $(Matching).val();
-        //                    var weft = "Feeder" + Sno;
-
-        //                    if (Sno == weftLength) {
-        //                        WarpFeederArray += '"' + weft + '": "' + MG + '"';
-        //                    }
-        //                    else {
-        //                        WarpFeederArray += '"' + weft + '": "' + MG + '",';
-        //                    }
-
-
-
-
-
-
-        //                }
-
-        //                WarpFeederArray += '},';
-
-
-        //            }
-
-
-
-
-        //            //console.log(WarpFeederArray);
-
-        //            var DesignColorMatchingArray = '';
-
-        //            DesignColorMatchingArray += '{';
-        //            DesignColorMatchingArray += '"DesignEntryFormID":"' + DesignNo + '", ';
-        //            DesignColorMatchingArray += '"TotalWarp":"' + warpLength + '",';
-        //            DesignColorMatchingArray += '"TotalWeft":"' + weftLength + '",';
-        //            DesignColorMatchingArray += '"ColorArray":"' + ColorArray + '",';
-        //            DesignColorMatchingArray += '"WarpCheckBox":"' + WarpCheckBox.slice(0, -1) + '",';
-        //            DesignColorMatchingArray += '"WeftCheckBox":"' + WeftCheckBox.slice(0, -1) + '",';
-        //            DesignColorMatchingArray += '"listDesignColorMatchingDetails": [' + WarpFeederArray.slice(0, -1) + ']';
-        //            DesignColorMatchingArray += '}';
-
-        //            console.log(DesignColorMatchingArray);
-
-
-
-
-        //            var formData = new FormData();
-        //            formData.append('ColorFormArray', DesignColorMatchingArray);
-
-        //            $.ajax({
-        //                type: "POST",
-        //                url: '/WebServiceNikunjTextile.asmx/insertDesignColorMatchingFormMaster',
-        //                data: formData,
-        //                dataType: 'json',
-        //                contentType: false,
-        //                processData: false,
-        //                success: function (response) {
-
-        //                    if (response.Code == 200) {
-
-        //                        notes.show("Color Matching Created Successfully.", {
-        //                            type: 'success',
-        //                            //title: 'Yeehh..!',
-        //                            //icon: '<i class="icon-sentiment_satisfied"></i>'
-        //                        });
-
-        //                        //InvoiceClearAll();
-        //                        window.location.href = 'ColorMatching';
-        //                    }
-        //                    else {
-
-        //                        notes.show(response.Message, {
-        //                            type: 'danger',
-        //                            //title: 'Yeehh..!',
-        //                            //icon: '<i class="icon-sentiment_satisfied"></i>'
-        //                        });
-
-
-        //                    }
-        //                },
-        //                error: function (error) {
-        //                    notes.show("Problem has been occurred while submitting your data.", {
-        //                        type: 'danger',
-        //                        //title: 'Yeehh..!',
-        //                        //icon: '<i class="icon-sentiment_satisfied"></i>'
-        //                    });
-
-        //                }
-        //            });
-
-
-
-
-
-        //        }
-
-
-
-
-        //    }
-        //    else {
-        //        notes.show('Please fill all fields', {
-        //            type: 'danger',
-        //            //title: 'Opps.!',
-        //            //icon: '<i class="icon-alert-triangle"></i>'
-        //        });
-        //    }
-
-        //    console.log(ColorMatchingArray);
-
-
-
-
-
-
-        //}
-
-
         function checkSave() {
             const txtColorData = $("#txtColorArray").val().slice(0, -1).split('|');
             const ColorArray = $("#txtColorArray").val();
@@ -5614,12 +5258,6 @@
                 }
             });
         }
-
-
-
-
-
-
         function checkUpdate() {
             Swal.fire({
                 title: 'Update Color Matching?',
