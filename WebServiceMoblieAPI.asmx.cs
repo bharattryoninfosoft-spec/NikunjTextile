@@ -132,91 +132,213 @@ namespace NikunjTextile
 
             string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
-            int scanStatus = Status == "Pending" ? 0 : 1;
-
             int startRow = ((pageNumber - 1) * pageSize) + 1;
             int endRow = pageNumber * pageSize;
-
             string searchQuery = "";
-
-            if (!string.IsNullOrEmpty(SearchRequirementNo))
-            {
-                searchQuery = " AND (YOM.OutwardListNo LIKE '%" + SearchRequirementNo + "%' " +
-                              " OR PM.PartyName LIKE '%" + SearchRequirementNo + "%' " +
-                              " OR PM.MobileNo LIKE '%" + SearchRequirementNo + "%')";
-            }
-
             int totalRecords = 0;
 
-            using (SqlConnection con = new SqlConnection(cs))
+            if (Status == "Pending")
             {
-                con.Open();
+                if (!string.IsNullOrEmpty(SearchRequirementNo))
+                {
+                    searchQuery = " AND (YOM.OutwardListNo LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR PM.PartyName LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR PM.MobileNo LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR JM.PartyName LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR JM.MobileNumber LIKE '%" + SearchRequirementNo + "%')";
+                }
 
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = CommandType.Text;
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
 
-                cmd.CommandText = @"
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.Text;
+
+                    cmd.CommandText = @"
         SELECT * FROM (
             SELECT ROW_NUMBER() OVER (ORDER BY YOM.YarnOutwardID DESC) row_num,
             YOM.YarnOutwardID,
+            CAST(0 AS INT) AS YarnOutwardScanID,
             YOM.OutwardListNo,
+            CAST(0 AS INT) AS ChallanNo,
             YOM.DateAndTime,
-            PM.PartyName,
-            PM.MobileNo,
-            ISNULL(YD.TotalNoOfBox,0) AS TotalNoOfBox
-            FROM YarnOutwardMaster YOM
-            LEFT JOIN PartyMaster PM ON YOM.PartyId = PM.PartyId
-            LEFT JOIN (
-                SELECT YarnOutwardID, SUM(NoOfBox) AS TotalNoOfBox
-                FROM YarnOutwardDetail
-                GROUP BY YarnOutwardID
-            ) YD ON YOM.YarnOutwardID = YD.YarnOutwardID
-            WHERE YOM.IsScanStutas = @ScanStatus
+            CASE WHEN YOM.SundryPartyID = 3 THEN JM.PartyName ELSE PM.PartyName END AS PartyName,
+            CASE WHEN YOM.SundryPartyID = 3 THEN JM.MobileNumber ELSE PM.MobileNo END AS MobileNo,
+            Rem.PendingBoxes AS TotalNoOfBox
+            FROM YarnOutwardMaster YOM WITH (NOLOCK)
+            LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+            LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+            CROSS APPLY
+            (
+                SELECT 
+                    ISNULL((SELECT SUM(NoOfBox) FROM YarnOutwardDetail WITH (NOLOCK) WHERE YarnOutwardID = YOM.YarnOutwardID), 0)
+                    - ISNULL(
+                        (
+                            SELECT COUNT(*)
+                            FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                            INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK)
+                                ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                            WHERE YOSM.YarnOutwardID = YOM.YarnOutwardID
+                        ), 0
+                    ) AS PendingBoxes
+            ) Rem
+            WHERE Rem.PendingBoxes > 0
             AND YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
             AND YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
-            AND YOM.GodownManagerUserAccountId=@GodownManagerUserAccountId
+            AND (YOM.GodownManagerUserAccountId = @GodownManagerUserAccountId OR YOM.UserAccountId = @GodownManagerUserAccountId)
             " + searchQuery + @"
         ) A
         WHERE row_num BETWEEN @StartRow AND @EndRow
         ORDER BY YarnOutwardID DESC";
 
-                cmd.Parameters.AddWithValue("@ScanStatus", scanStatus);
-                cmd.Parameters.AddWithValue("@StartRow", startRow);
-                cmd.Parameters.AddWithValue("@EndRow", endRow);
-                cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
+                    cmd.Parameters.AddWithValue("@StartRow", startRow);
+                    cmd.Parameters.AddWithValue("@EndRow", endRow);
+                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
 
-                SqlDataReader rdr = cmd.ExecuteReader();
+                    SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
+                    while (rdr.Read())
+                    {
+                        ListYarnOutwardMasterAPI condition = new ListYarnOutwardMasterAPI();
+                        condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
+                        condition.YarnOutwardScanID = 0;
+                        condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
+                        condition.ChallanNo = 0;
+                        condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
+                        condition.DateAndTimes = Convert.ToDateTime(rdr["DateAndTime"]).ToString("dd-MM-yyyy");
+                        condition.PartyName = rdr["PartyName"]?.ToString().ToUpper() ?? "";
+                        condition.MobileNo = rdr["MobileNo"]?.ToString() ?? "";
+                        condition.BoxNo = rdr["TotalNoOfBox"]?.ToString() ?? "0";
+                        listUser.Add(condition);
+                    }
+                    rdr.Close();
+
+                    SqlCommand countCmd = new SqlCommand();
+                    countCmd.Connection = con;
+                    countCmd.CommandText = @"
+                        SELECT COUNT(*) 
+                        FROM YarnOutwardMaster YOM WITH (NOLOCK)
+                        LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+                        LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+                        CROSS APPLY
+                        (
+                            SELECT 
+                                ISNULL((SELECT SUM(NoOfBox) FROM YarnOutwardDetail WITH (NOLOCK) WHERE YarnOutwardID = YOM.YarnOutwardID), 0)
+                                - ISNULL(
+                                    (
+                                        SELECT COUNT(*)
+                                        FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                                        INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK)
+                                            ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                                        WHERE YOSM.YarnOutwardID = YOM.YarnOutwardID
+                                    ), 0
+                                ) AS PendingBoxes
+                        ) Rem
+                        WHERE Rem.PendingBoxes > 0
+                        AND YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
+                        AND YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                        AND (YOM.GodownManagerUserAccountId = @GodownManagerUserAccountId OR YOM.UserAccountId = @GodownManagerUserAccountId)
+                        " + searchQuery;
+
+                    countCmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
+                    totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
+                    con.Close();
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(SearchRequirementNo))
                 {
-                    ListYarnOutwardMasterAPI condition = new ListYarnOutwardMasterAPI();
-
-                    condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
-                    condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
-                    condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
-                    condition.DateAndTimes = Convert.ToDateTime(rdr["DateAndTime"]).ToString("dd-MM-yyyy");
-                    condition.PartyName = rdr["PartyName"].ToString().ToUpper();
-                    condition.MobileNo = rdr["MobileNo"].ToString();
-                    condition.BoxNo = rdr["TotalNoOfBox"].ToString();
-                    listUser.Add(condition);
+                    searchQuery = " AND (YOM.OutwardListNo LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR YSM.ChallanNo LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR PM.PartyName LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR PM.MobileNo LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR JM.PartyName LIKE '%" + SearchRequirementNo + "%' " +
+                                  " OR JM.MobileNumber LIKE '%" + SearchRequirementNo + "%')";
                 }
 
-                rdr.Close();
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
 
-                SqlCommand countCmd = new SqlCommand();
-                countCmd.Connection = con;
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.Text;
 
-                countCmd.CommandText = @"SELECT COUNT(*) 
-                                 FROM YarnOutwardMaster YOM
-                                 LEFT JOIN PartyMaster PM ON YOM.PartyId = PM.PartyId
-                                 WHERE YOM.IsScanStutas = @ScanStatus " + searchQuery;
+                    cmd.CommandText = @"
+        SELECT * FROM (
+            SELECT ROW_NUMBER() OVER (ORDER BY YSM.YarnOutwardScanID DESC) row_num,
+            YOM.YarnOutwardID,
+            YSM.YarnOutwardScanID,
+            YOM.OutwardListNo,
+            YSM.ChallanNo,
+            ISNULL(YSM.ChallanDate, YSM.DateAndTime) AS DateAndTime,
+            CASE WHEN YOM.SundryPartyID = 3 THEN JM.PartyName ELSE PM.PartyName END AS PartyName,
+            CASE WHEN YOM.SundryPartyID = 3 THEN JM.MobileNumber ELSE PM.MobileNo END AS MobileNo,
+            ISNULL(YSM.TotalBox, 0) AS TotalNoOfBox
+            FROM YARNOUTWARDScanMaster YSM WITH (NOLOCK)
+            INNER JOIN YarnOutwardMaster YOM WITH (NOLOCK) ON YOM.YarnOutwardID = YSM.YarnOutwardID
+            LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+            LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+            WHERE (YSM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
+                   OR YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1))
+              AND (YSM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                   OR YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1))
+              AND (YOM.GodownManagerUserAccountId = @GodownManagerUserAccountId OR YOM.UserAccountId = @GodownManagerUserAccountId OR YSM.UserAccountId = @GodownManagerUserAccountId)
+            " + searchQuery + @"
+        ) A
+        WHERE row_num BETWEEN @StartRow AND @EndRow
+        ORDER BY row_num ASC";
 
-                countCmd.Parameters.AddWithValue("@ScanStatus", scanStatus);
+                    cmd.Parameters.AddWithValue("@StartRow", startRow);
+                    cmd.Parameters.AddWithValue("@EndRow", endRow);
+                    cmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
 
-                totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
+                    SqlDataReader rdr = cmd.ExecuteReader();
 
-                con.Close();
+                    while (rdr.Read())
+                    {
+                        ListYarnOutwardMasterAPI condition = new ListYarnOutwardMasterAPI();
+                        condition.YarnOutwardID = Convert.ToInt32(rdr["YarnOutwardID"]);
+                        int scanColIdx = -1;
+                        try { scanColIdx = rdr.GetOrdinal("YarnOutwardScanID"); } catch { }
+                        condition.YarnOutwardScanID = (scanColIdx != -1 && rdr[scanColIdx] != DBNull.Value) ? Convert.ToInt32(rdr[scanColIdx]) : 0;
+
+                        condition.OutwardListNo = Convert.ToInt32(rdr["OutwardListNo"]);
+                        int cNoColIdx = -1;
+                        try { cNoColIdx = rdr.GetOrdinal("ChallanNo"); } catch { }
+                        condition.ChallanNo = (cNoColIdx != -1 && rdr[cNoColIdx] != DBNull.Value && int.TryParse(rdr[cNoColIdx].ToString(), out int cn)) ? cn : 0;
+
+                        condition.DateAndTime = Convert.ToDateTime(rdr["DateAndTime"]);
+                        condition.DateAndTimes = Convert.ToDateTime(rdr["DateAndTime"]).ToString("dd-MM-yyyy");
+                        condition.PartyName = rdr["PartyName"]?.ToString().ToUpper() ?? "";
+                        condition.MobileNo = rdr["MobileNo"]?.ToString() ?? "";
+                        condition.BoxNo = rdr["TotalNoOfBox"]?.ToString() ?? "0";
+                        listUser.Add(condition);
+                    }
+                    rdr.Close();
+
+                    SqlCommand countCmd = new SqlCommand();
+                    countCmd.Connection = con;
+                    countCmd.CommandText = @"
+                        SELECT COUNT(*)
+                        FROM YARNOUTWARDScanMaster YSM WITH (NOLOCK)
+                        INNER JOIN YarnOutwardMaster YOM WITH (NOLOCK) ON YOM.YarnOutwardID = YSM.YarnOutwardID
+                        LEFT JOIN PartyMaster PM WITH (NOLOCK) ON YOM.PartyId = PM.PartyId AND ISNULL(YOM.SundryPartyID, 0) <> 3
+                        LEFT JOIN JobberMaster JM WITH (NOLOCK) ON YOM.PartyId = JM.Id AND YOM.SundryPartyID = 3
+                        WHERE (YSM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
+                               OR YOM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1))
+                          AND (YSM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)
+                               OR YOM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1))
+                          AND (YOM.GodownManagerUserAccountId = @GodownManagerUserAccountId OR YOM.UserAccountId = @GodownManagerUserAccountId OR YSM.UserAccountId = @GodownManagerUserAccountId)
+                        " + searchQuery;
+
+                    countCmd.Parameters.AddWithValue("@GodownManagerUserAccountId", UserId);
+                    totalRecords = Convert.ToInt32(countCmd.ExecuteScalar());
+                    con.Close();
+                }
             }
 
             int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -341,10 +463,27 @@ namespace NikunjTextile
                             ) YPM
 
                             LEFT JOIN GodownLocationMaster GLM WITH (NOLOCK) ON GLM.GodownLocationID = YOD.GodownLocationID
-                            -- Generate one row per box
+                            -- Remaining boxes after deducting already scanned boxes
                             CROSS APPLY
                             (
-                                SELECT TOP (ISNULL(YOD.NoOfBox, 0))
+                                SELECT 
+                                    ISNULL(YOD.NoOfBox, 0) - ISNULL(
+                                        (
+                                            SELECT COUNT(*)
+                                            FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                                            INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK) ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                                            WHERE YOSM.YarnOutwardID = YOD.YarnOutwardID
+                                              AND TRY_CAST(YOSD.YarnMaterial AS INT) = YOD.YarnMaterialID
+                                              AND TRY_CAST(YOSD.YarnColour AS INT) = YOD.YarnColorID
+                                              AND TRY_CAST(YOSD.GodownLocationID AS INT) = YOD.GodownLocationID
+                                        ), 0
+                                    ) AS PendingBoxCount
+                            ) RemBox
+
+                            -- Generate only remaining rows
+                            CROSS APPLY
+                            (
+                                SELECT TOP (CASE WHEN RemBox.PendingBoxCount > 0 THEN RemBox.PendingBoxCount ELSE 0 END)
                                     ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS BoxNo
                                 FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) a(n)
                                 CROSS JOIN (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) b(n)
@@ -353,7 +492,8 @@ namespace NikunjTextile
                             ) N
 
                             WHERE YOD.YarnOutwardID = @YarnOutwardID
-                            ORDER BY YOD.YarnOutwardDetailID,N.BoxNo;";
+                              AND RemBox.PendingBoxCount > 0
+                            ORDER BY YOD.YarnOutwardDetailID, N.BoxNo;";
 
                         cmd.Parameters.AddWithValue("@YarnOutwardID", parsedOutwardId);
 
@@ -676,6 +816,18 @@ namespace NikunjTextile
                     }
 
                     int YarnOutwardScanID = model.YarnOutwardScanID;
+                    if (YarnOutwardScanID > 0)
+                    {
+                        using (SqlCommand cmdGetRealOutwardID = new SqlCommand("SELECT YarnOutwardID FROM YARNOUTWARDScanMaster WITH (NOLOCK) WHERE YarnOutwardScanID = @ScanID", con, tran))
+                        {
+                            cmdGetRealOutwardID.Parameters.Add("@ScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            object realOutwardObj = cmdGetRealOutwardID.ExecuteScalar();
+                            if (realOutwardObj != null && realOutwardObj != DBNull.Value)
+                            {
+                                YarnOutwardID = Convert.ToInt32(realOutwardObj);
+                            }
+                        }
+                    }
                     bool isNewScan = (YarnOutwardScanID == 0);
                     string allocatedChallanNo = "";
 
@@ -759,6 +911,34 @@ namespace NikunjTextile
                     // INSERT DETAILS
                     foreach (var item in model.Details)
                     {
+                        string currentBarcode = (item.BarcodeNo ?? "").Trim();
+                        using (SqlCommand cmdCheckBarcode = new SqlCommand(@"
+                            SELECT COUNT(*) 
+                            FROM YARNOUTWARDScanMasterDetails WITH (NOLOCK)
+                            WHERE BarcodeNo = @BarcodeNo AND YarnOutwardScanID <> @YarnOutwardScanID", con, tran))
+                        {
+                            cmdCheckBarcode.Parameters.Add("@BarcodeNo", SqlDbType.VarChar).Value = currentBarcode;
+                            cmdCheckBarcode.Parameters.Add("@YarnOutwardScanID", SqlDbType.Int).Value = YarnOutwardScanID;
+                            int countExisting = Convert.ToInt32(cmdCheckBarcode.ExecuteScalar());
+                            if (countExisting > 0)
+                            {
+                                tran.Rollback();
+                                Context.Response.Write(js.Serialize(new
+                                {
+                                    Code = 410,
+                                    Message = $"Box {currentBarcode} already scanned in another Challan.",
+                                    success = false
+                                }));
+                                Context.Response.Flush();
+                                Context.Response.SuppressContent = true;
+                                if (HttpContext.Current != null && HttpContext.Current.ApplicationInstance != null)
+                                {
+                                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                                }
+                                return;
+                            }
+                        }
+
                         SqlCommand cmdDetail = new SqlCommand(@"
                  INSERT INTO YARNOUTWARDScanMasterDetails
                 (DateAndTime,YarnOutwardScanID,YarnMaterial,YarnColour,GodownLocationID,PartyID,
@@ -786,7 +966,13 @@ namespace NikunjTextile
                     }
 
                     SqlCommand cmdUpdateMaster = new SqlCommand(@"
-            UPDATE YARNOUTWARDMaster  SET IsScanStutas = 1 WHERE YarnOutwardID = @YarnOutwardID", con, tran);
+            DECLARE @TotalRequired INT = 0;
+            DECLARE @TotalScanned INT = 0;
+            SELECT @TotalRequired = ISNULL(SUM(NoOfBox), 0) FROM YarnOutwardDetail WHERE YarnOutwardID = @YarnOutwardID;
+            SELECT @TotalScanned = COUNT(*) FROM YARNOUTWARDScanMasterDetails YOSD WITH (NOLOCK)
+                INNER JOIN YARNOUTWARDScanMaster YOSM WITH (NOLOCK) ON YOSM.YarnOutwardScanID = YOSD.YarnOutwardScanID
+                WHERE YOSM.YarnOutwardID = @YarnOutwardID;
+            UPDATE YARNOUTWARDMaster SET IsScanStutas = CASE WHEN @TotalScanned >= @TotalRequired AND @TotalRequired > 0 THEN 1 ELSE 0 END WHERE YarnOutwardID = @YarnOutwardID;", con, tran);
 
                     cmdUpdateMaster.Parameters.AddWithValue("@YarnOutwardID", YarnOutwardID);
                     cmdUpdateMaster.ExecuteNonQuery();

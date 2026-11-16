@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace NikunjTextile.Class.API
@@ -29,7 +29,9 @@ namespace NikunjTextile.Class.API
     public class ListYarnOutwardMasterAPI
     {
         public int YarnOutwardID { get; set; }
+        public int YarnOutwardScanID { get; set; }
         public int OutwardListNo { get; set; }
+        public int ChallanNo { get; set; }
         public DateTime DateAndTime { get; set; }
         public string DateAndTimes { get; set; }
         public string PartyName { get; set; }
