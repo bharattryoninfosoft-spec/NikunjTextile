@@ -638,10 +638,15 @@
                     }
                     var dataTable = $('#copy-print-csv');
                     var temp = "";
-
+                  
                     var srno = parseInt(rowStart) + parseInt(1);
                     for (var i = 0; i < response.listDesignColorMatchingForm.length; i++) {
+                        var colorPhoto = response.listDesignColorMatchingForm[i].ColorMatchingPhoto;
 
+                        var canEditDelete = (
+                            colorPhoto == null ||
+                            colorPhoto.trim() == ""
+                        );
                         temp += "<tr><td>" + srno++ + "</td>";
                         //temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
                         temp += "<td><div class='actions'>";
@@ -649,13 +654,15 @@
                         // EDIT
                   
                         temp += "<a href='javascript:void(0);' " +
-                            "class='EditBtn' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='Edit' " +
-                                "onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
-                                "<i class='icon-edit1 text-info'></i>" +
-                                "</a>&nbsp;&nbsp;&nbsp;";
+                            "class='EditBtn " + (canEditDelete ? "" : "disabled-action") + "' " +
+                            "data-toggle='tooltip' " +
+                            "title='" + (canEditDelete ? "Edit" : "Cannot Edit - Photo Available") + "' " +
+                            (canEditDelete
+                                ? "onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'"
+                                : "aria-disabled='true' style='pointer-events:none; opacity:0.3;'") +
+                            ">" +
+                            "<i class='icon-edit1 text-info'></i>" +
+                            "</a>&nbsp;&nbsp;&nbsp;";
                    
 
                         temp += "<a href='javascript:void(0);' " +
@@ -671,13 +678,15 @@
                       
 
                         temp += "<a href='javascript:void(0);' " +
-                            "class='DeleteBtn' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='Delete' " +
-                                "onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
-                                "<i class='icon-x-circle text-danger'></i>" +
-                                "</a>";
+                            "class='DeleteBtn " + (canEditDelete ? "" : "disabled-action") + "' " +
+                            "data-toggle='tooltip' " +
+                            "title='" + (canEditDelete ? "Delete" : "Cannot Delete - Photo Available") + "' " +
+                            (canEditDelete
+                                ? "onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'"
+                                : "aria-disabled='true' style='pointer-events:none; opacity:0.3;'") +
+                            ">" +
+                            "<i class='icon-x-circle text-danger'></i>" +
+                            "</a>";
                    
 
                         temp += "</div></td>";

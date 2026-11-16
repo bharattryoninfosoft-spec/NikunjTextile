@@ -368,7 +368,7 @@
                 dataType: "json",
                 success: function (res) {
                     let data = res.d;
-
+                    console.log("GetSaleOrderList", data);
                     if (data.success) {
                         SaleOrderList = data.Data;
                         FilteredSaleOrderList = [...SaleOrderList];
@@ -466,9 +466,24 @@
                 let encodedId = btoa(row.SaleOrderID);
                 let actionHtml = '';
 
-                actionHtml += `<i class="fa fa-edit text-primary edit me-2" data-id="${encodedId}" title="Edit"></i>`;
-                actionHtml += `<i class="fa fa-eye text-dark view me-2" data-id="${encodedId}" title="View"></i>`;
-                actionHtml += `<i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}" title="Delete"></i>`;
+                if (parseInt(row.isEdite) === 0) {
+                    // EDIT ENABLED
+                    actionHtml += `<i class="fa fa-edit text-primary edit me-2" data-id="${encodedId}" title="Edit" style="cursor:pointer;"></i>`;
+
+                } else {
+                    // EDIT DISABLED
+                    actionHtml += `<i class="fa fa-edit text-muted me-2" title="Edit Disabled - Production Order Created" style="opacity:0.3; cursor:not-allowed;"></i>`;
+                }
+                // VIEW ALWAYS ENABLED
+                actionHtml += `<i class="fa fa-eye text-dark view me-2" data-id="${encodedId}" title="View" style="cursor:pointer;"></i>`;
+                if (parseInt(row.isEdite) === 0) {
+                    // DELETE ENABLED
+                    actionHtml += `<i class="fa fa-trash text-danger delete" data-id="${row.SaleOrderID}" title="Delete" style="cursor:pointer;"></i>`;
+
+                } else {
+                    // DELETE DISABLED
+                    actionHtml += `<i class="fa fa-trash text-muted" title="Delete Disabled - Production Order Created" style="opacity:0.3; cursor:not-allowed;"></i>`;
+                }
 
                 let tr = `
                         <tr>

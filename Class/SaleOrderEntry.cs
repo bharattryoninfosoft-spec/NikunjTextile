@@ -109,6 +109,7 @@ namespace NikunjTextile.Class
         public decimal AdditionalValue { get; set; }
         public List<SaleOrderDetailVM> Details { get; set; } = new List<SaleOrderDetailVM>();
         public List<SaleOrderAdditionalChargeModel> AdditionalCharges { get; set; }
+        public int isEdite { get; set; }
     }
 
     public class SaleOrderDetailVM

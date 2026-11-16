@@ -8907,6 +8907,12 @@ ORDER BY
                 INNER JOIN ProductionOrderDetail POD ON POM.ProductionOrderID = POD.ProductionOrderID
                 {11}
                 {14}
+	                OUTER APPLY
+					(
+						SELECT TOP 1 SO.SaleOrderID
+						FROM SaleOrder SO
+						WHERE SO.OrderNo = POD.SalesOrderNo
+					) SOAC_APPLY
                 WHERE 1 = 1",
                         posdSubDetailIdExpr,
                         orderDateExpr,

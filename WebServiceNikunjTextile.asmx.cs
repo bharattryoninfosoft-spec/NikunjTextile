@@ -23048,21 +23048,58 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                 cmd.Connection = con;
                 cmd.CommandType = System.Data.CommandType.Text;
                 //cmd.CommandText = "select PM.* from PartyMaster PM LEFT JOIN CompanyMaster CM ON PM.CompanyId = CM.CompanyId where CM.is_default = '1' and PM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and PM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) order by PM.PartyId desc OFFSET " + ilist.startFrom.ToString() + " ROWS FETCH NEXT 10 ROWS ONLY";
-                cmd.CommandText = "SELECT * FROM  ( " +
-                    " select ROW_NUMBER() OVER (ORDER BY DCM.DesignColorMatchingFormID desc ) row_num,  " +
-                    " DCM.*, DEFM.PhotoOfDesign, DEFM.DesignerID, DEFM.DesignerCode, DEFM.DesignNo, DEFM.PickOnLoom," +
-                    " DEFM.TotalCard, DEFM.ReedOnLoom, DCMD.MatchingID, DCMD.WarpMatchingID, DCMD.FeederMatchingID" +
-                    " from DesignColorMatchingFormMaster DCM" +
-                    " LEFT JOIN DesignEntryFormMaster DEFM ON DEFM.DesignEntryFormID = DCM.DesignEntryFormID" +
-                    " LEFT JOIN (" +
-                    " SELECT  DesignColorMatchingFormID, STRING_AGG(MatchingID, ', ') AS MatchingID," +
-                    " STRING_AGG(WarpMatchingID, ', ') AS WarpMatchingID, STRING_AGG(FeederMatchingID, ', ') AS FeederMatchingID " +
-                    " FROM  DesignColorMatchingDetails " +
-                    " GROUP BY  DesignColorMatchingFormID" +
-                    " ) DCMD ON DCMD.DesignColorMatchingFormID =DCM.DesignColorMatchingFormID " +
-                    " where DCM.CompanyId = " + Context.Request.Cookies["CompanyID"].Value.Split('=')[1] + " and DCM.FinancialYearID = " + Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1] + " " +
-                    " " + ilist.SearchDesignNo + " " +
-                    " ) as t1  WHERE t1.row_num between " + (Convert.ToInt32(ilist.startFrom) + 1) + " and " + (Convert.ToInt32(ilist.startFrom) + 30) + "  order by t1.DesignColorMatchingFormID desc   ";
+                cmd.CommandText = @"SELECT *
+FROM
+(
+    SELECT
+        ROW_NUMBER() OVER (
+            ORDER BY DCM.DesignColorMatchingFormID DESC
+        ) AS row_num,
+
+        DCM.*,
+        DEFM.PhotoOfDesign,
+        DEFM.DesignerID,
+        DEFM.DesignerCode,
+        DEFM.DesignNo,
+        DEFM.PickOnLoom,
+        DEFM.TotalCard,
+        DEFM.ReedOnLoom,
+
+        DCMD.MatchingID,
+        DCMD.WarpMatchingID,
+        DCMD.FeederMatchingID,
+        DCMD.ColorMatchingPhoto
+
+    FROM DesignColorMatchingFormMaster DCM
+
+    LEFT JOIN DesignEntryFormMaster DEFM
+        ON DEFM.DesignEntryFormID = DCM.DesignEntryFormID
+
+    LEFT JOIN
+    (
+        SELECT
+            DesignColorMatchingFormID,
+            STRING_AGG(MatchingID, ', ') AS MatchingID,
+            STRING_AGG(WarpMatchingID, ', ') AS WarpMatchingID,
+            STRING_AGG(FeederMatchingID, ', ') AS FeederMatchingID,
+            STRING_AGG(ColorMatchingPhoto, ', ') AS ColorMatchingPhoto
+
+        FROM DesignColorMatchingDetails
+        GROUP BY DesignColorMatchingFormID
+
+    ) DCMD
+        ON DCMD.DesignColorMatchingFormID = DCM.DesignColorMatchingFormID
+
+    WHERE DCM.CompanyId = " + Context.Request.Cookies["CompanyID"].Value.Split('=')[1] +
+       " AND DCM.FinancialYearID = " + Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1] +
+       ilist.SearchDesignNo + @"
+
+) AS t1
+
+WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
+   " AND " + (Convert.ToInt32(ilist.startFrom) + 30) +
+   " ORDER BY t1.DesignColorMatchingFormID DESC";
+
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -23087,6 +23124,7 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                         condition.MatchingID = rdr["MatchingID"].ToString().ToUpper();
                         condition.WarpMatchingID = rdr["WarpMatchingID"].ToString().ToUpper();
                         condition.FeederMatchingID = rdr["FeederMatchingID"].ToString();
+                        condition.ColorMatchingPhoto = rdr["ColorMatchingPhoto"].ToString();
                         listUser.Add(condition);
                     }
                 }
@@ -29579,15 +29617,7 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                         FROM (
                             SELECT YPD.YarnColorID, YPD.CompanyCode AS YarnColorCode 
                             FROM YarnPODetails YPD WITH (NOLOCK)
-                            WHERE (@yarnColorId = 0 OR YPD.YarnColorID = @yarnColorId) AND ISNULL(YPD.CompanyCode, '') <> ''
-                            UNION
-                            SELECT YRD.YarnColorID, YRD.CompanyColourCode AS YarnColorCode 
-                            FROM YarnRequirementDetail YRD WITH (NOLOCK)
-                            WHERE (@yarnColorId = 0 OR YRD.YarnColorID = @yarnColorId) AND ISNULL(YRD.CompanyColourCode, '') <> ''
-                            UNION
-                            SELECT YCM.YarnColorID, YCM.YarnColorCode 
-                            FROM YarnColorMaster YCM WITH (NOLOCK)
-                            WHERE (@yarnColorId = 0 OR YCM.YarnColorID = @yarnColorId) AND ISNULL(YCM.YarnColorCode, '') <> ''
+                            WHERE (@yarnColorId = 0 OR YPD.YarnColorID = @yarnColorId) AND ISNULL(YPD.CompanyCode, '') <> ''                          
                         ) Codes
                         WHERE Codes.YarnColorCode IS NOT NULL AND Codes.YarnColorCode <> ''
                         ORDER BY YarnColorCode";
@@ -44116,6 +44146,15 @@ ORDER BY
                                   SELECT
     SO.SaleOrderID,
     SO.OrderNo,
+        CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM ProductionOrderDetail POD
+                WHERE POD.SalesOrderNo = SO.OrderNo
+            )
+			        THEN 1
+			        ELSE 0
+		        END AS isEdite,
     CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,
 
     ISNULL(PM.PartyName, '') AS PartyName,
@@ -44379,7 +44418,8 @@ ORDER BY
                                     BrokerName = rdr["BrokerName"]?.ToString() ?? "",
                                     TransportName = rdr["TransportName"]?.ToString() ?? "",
                                     TotalQty = rdr["TotalQty"] != DBNull.Value ? Convert.ToDecimal(rdr["TotalQty"]) : 0,
-                                    InvoiceAmount = rdr["FinalInvoiceAmount"] != DBNull.Value ? Convert.ToDecimal(rdr["FinalInvoiceAmount"]) : 0
+                                    InvoiceAmount = rdr["FinalInvoiceAmount"] != DBNull.Value ? Convert.ToDecimal(rdr["FinalInvoiceAmount"]) : 0,
+                                    isEdite = Convert.ToInt32(rdr["isEdite"])
                                 });
                             }
 
