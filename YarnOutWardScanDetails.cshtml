@@ -414,7 +414,7 @@
                             // Generated Link Button
                             temp += "<a href='javascript:void(0);' onclick=CopyJobberLink('" + response.listYarnOutwardMaster[i].GeneratedLink + "') data-toggle='tooltip' title='Copy Jobber Inward Link'><i class='icon-copy text-success'></i></a>&nbsp;&nbsp;&nbsp;";
                             // PDF Button
-                            temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='PDF / Print Challan' onclick='openYarnOutwardScanPdf(" + response.listYarnOutwardMaster[i].YarnOutwardID + ", this)'><i class='fa fa-file-pdf-o text-danger' style='font-size:1.15rem;'></i></a>";
+                            temp += "<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='PDF / Print Challan' onclick='openYarnOutwardScanPdf(" + (response.listYarnOutwardMaster[i].YarnOutwardScanID && response.listYarnOutwardMaster[i].YarnOutwardScanID != 0 ? response.listYarnOutwardMaster[i].YarnOutwardScanID : response.listYarnOutwardMaster[i].YarnOutwardID) + ", this)'><i class='fa fa-file-pdf-o text-danger' style='font-size:1.15rem;'></i></a>";
                             temp += "</td>";
                         }
                         temp += "</tr>";

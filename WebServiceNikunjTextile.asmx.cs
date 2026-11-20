@@ -41297,6 +41297,17 @@ ORDER BY A.row_num ASC";
                       AND Rem.RemainingBoxes > 0
 
                     ORDER BY
+                        CASE 
+                            WHEN CHARINDEX('-', GLM.LocationTitle) > 0 
+                            THEN LEFT(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) - 1)
+                            ELSE ISNULL(GLM.LocationTitle, '')
+                        END ASC,
+                        CASE 
+                            WHEN CHARINDEX('-', GLM.LocationTitle) > 0 AND TRY_CAST(SUBSTRING(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) + 1, 50) AS INT) IS NOT NULL
+                            THEN TRY_CAST(SUBSTRING(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) + 1, 50) AS INT)
+                            ELSE 0 
+                        END ASC,
+                        ISNULL(GLM.LocationTitle, '') ASC,
                         YOD.YarnOutwardDetailID,
                         N.BoxNo;";
 
@@ -41583,11 +41594,11 @@ ORDER BY A.row_num ASC";
                 cmd.CommandTimeout = 120;
 
                 cmd.CommandText = @"
-SELECT TOP 1 YarnOutwardID, ChallanNo, YarnOutwardScanID, ChallanDate 
-FROM YARNOUTWARDScanMaster WITH (NOLOCK) 
-WHERE YarnOutwardScanID = @InputID 
-   OR (YarnOutwardID = @InputID AND NOT EXISTS (SELECT 1 FROM YARNOUTWARDScanMaster WHERE YarnOutwardScanID = @InputID))
-ORDER BY CASE WHEN YarnOutwardScanID = @InputID THEN 0 ELSE 1 END, YarnOutwardScanID DESC;";
+                        SELECT TOP 1 YarnOutwardID, ChallanNo, YarnOutwardScanID, ChallanDate 
+                        FROM YARNOUTWARDScanMaster WITH (NOLOCK) 
+                        WHERE YarnOutwardScanID = @InputID 
+                           OR (YarnOutwardID = @InputID AND NOT EXISTS (SELECT 1 FROM YARNOUTWARDScanMaster WHERE YarnOutwardScanID = @InputID))
+                        ORDER BY CASE WHEN YarnOutwardScanID = @InputID THEN 0 ELSE 1 END, YarnOutwardScanID DESC;";
                 cmd.Parameters.AddWithValue("@InputID", inputID);
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -41692,7 +41703,19 @@ LEFT JOIN GodownLocationMaster GLM WITH (NOLOCK)
     ON GLM.GodownLocationID = D.GodownLocationID
 
 WHERE M.YarnOutwardScanID = @YarnOutwardScanID
-ORDER BY D.YarnOutwardScanDetailID;";
+ORDER BY
+    CASE 
+        WHEN CHARINDEX('-', GLM.LocationTitle) > 0 
+        THEN LEFT(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) - 1)
+        ELSE ISNULL(GLM.LocationTitle, '')
+    END ASC,
+    CASE 
+        WHEN CHARINDEX('-', GLM.LocationTitle) > 0 AND TRY_CAST(SUBSTRING(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) + 1, 50) AS INT) IS NOT NULL
+        THEN TRY_CAST(SUBSTRING(GLM.LocationTitle, CHARINDEX('-', GLM.LocationTitle) + 1, 50) AS INT)
+        ELSE 0 
+    END ASC,
+    ISNULL(GLM.LocationTitle, '') ASC,
+    D.YarnOutwardScanDetailID;";
                 cmd.Parameters.AddWithValue("@YarnOutwardScanID", YarnOutwardScanID);
 
                 con.Open();
@@ -42488,7 +42511,6 @@ ORDER BY
             }
         }
         [WebMethod]
-
         public string GetMaterial()
         {
             Context.Response.Clear();
@@ -42534,7 +42556,6 @@ ORDER BY
 
             return new JavaScriptSerializer().Serialize(data);
         }
-
         [WebMethod]
         public string GetColor()
         {
@@ -42639,8 +42660,7 @@ ORDER BY
             return new JavaScriptSerializer().Serialize(data);
         }
         [WebMethod]
-
-            public string GetYarnColorCode()
+        public string GetYarnColorCode()
             {
                 Context.Response.Clear();
                 Context.Response.ContentType = "application/json";
@@ -42710,7 +42730,6 @@ ORDER BY
 
                 return new JavaScriptSerializer().Serialize(data);
             }
-
         [WebMethod]
         public string GetBoxNo()
         {
@@ -46114,7 +46133,6 @@ ORDER BY
             }
             return count > 0;
         }
-
         [WebMethod]
         public string SavePermission(List<PermissionModel> permissions)
         {
@@ -46139,7 +46157,6 @@ ORDER BY
             WHERE User_Id = @UserId
             AND Menu_Id = @MenuId
         ", con);
-
                 del.Parameters.AddWithValue("@UserId", userId);
                 del.Parameters.AddWithValue("@MenuId", menuId);
 
@@ -47285,6 +47302,11 @@ WHERE ProductionOrderID = @ProductionOrderID
                                     ToDecimalValue(
                                         dr["TotalPendingPcs"]),
 
+                                TotalShortPcs =
+                                    HasColumn(dr, "TotalShortPCS")
+                                        ? ToDecimalValue(dr["TotalShortPCS"])
+                                        : 0m,
+
                                 TotalAmount =
                                     ToDecimalValue(
                                         dr["TotalAmount"]),
@@ -47414,6 +47436,14 @@ ORDER BY ProductionOrderDetailID ASC;";
                                     PendingPCS =
                                         ToDecimalValue(
                                             dr["PendingPCS"]),
+
+                                    ShortPCS =
+                                        HasColumn(dr, "ShortPCS")
+                                            ? ToDecimalValue(dr["ShortPCS"])
+                                            : 0m,
+
+                                    IsClosed =
+                                        HasColumn(dr, "ShortPCS") && ToDecimalValue(dr["ShortPCS"]) > 0m,
 
                                     SalesRate =
                                         ToDecimalValue(
@@ -48032,28 +48062,26 @@ ORDER BY CompanyId;";
                         if (!currentUserAccountId.HasValue)
                         {
                             tran.Rollback();
-                            result.Message =
-                                "UserAccountId could not be found from UserIDs cookie.";
+                            result.Message ="UserAccountId could not be found from UserIDs cookie.";
                             return result;
                         }
 
                         if (!currentCompanyId.HasValue)
                         {
                             tran.Rollback();
-                            result.Message =
-                                "Default CompanyId could not be found from CompanyMaster.";
+                            result.Message = "Default CompanyId could not be found from CompanyMaster.";
                             return result;
                         }
 
                         long productionOrderID = request.ProductionOrderID;
                         bool isInsert = productionOrderID <= 0;
-
                         decimal totalPcs = 0m;
                         decimal totalProductionPcs = 0m;
                         decimal totalPendingPcs = 0m;
                         decimal totalAmount = 0m;
 
                         // NORMALIZE DETAILS AND CALCULATE TOTALS
+                        decimal totalShortPcs = 0m;
                         foreach (ProductionOrderDetailRequest d
                                  in request.listProductionOrderDetail)
                         {
@@ -48067,10 +48095,23 @@ ORDER BY CompanyId;";
                                 Math.Min(d.ProductionPCS, d.PCS)
                             );
 
-                            d.PendingPCS = Math.Max(
-                                0m,
-                                d.PCS - d.ProductionPCS
-                            );
+                            if (d.IsClosed && d.ProductionPCS < d.PCS)
+                            {
+                                d.ShortPCS = Math.Max(0m, d.PCS - d.ProductionPCS);
+                                d.PendingPCS = 0m;
+                            }
+                            else
+                            {
+                                d.ShortPCS = Math.Max(0m, d.ShortPCS);
+                                if (d.ShortPCS > 0m)
+                                {
+                                    d.PendingPCS = Math.Max(0m, d.PCS - d.ProductionPCS - d.ShortPCS);
+                                }
+                                else
+                                {
+                                    d.PendingPCS = Math.Max(0m, d.PCS - d.ProductionPCS);
+                                }
+                            }
 
                             d.JobRate = request.JobRate;
 
@@ -48083,6 +48124,7 @@ ORDER BY CompanyId;";
                             totalPcs += d.PCS;
                             totalProductionPcs += d.ProductionPCS;
                             totalPendingPcs += d.PendingPCS;
+                            totalShortPcs += d.ShortPCS;
                             totalAmount += d.Amount;
                         }
 
@@ -48136,6 +48178,9 @@ ORDER BY CompanyId;";
 
                         bool hasJobberAcceptD = DoesColumnExist(
                             con, tran, "ProductionOrderDetail", "JobberAccept");
+
+                        bool hasShortPcsD = DoesColumnExist(
+                            con, tran, "ProductionOrderDetail", "ShortPCS");
 
                         // INSERT / UPDATE MASTER
                         if (isInsert)
@@ -48391,6 +48436,62 @@ WHERE ProductionOrderID = @ProductionOrderID
                                 d.Barcode = GenerateUniqueBarcode(con, tran);
                             }
 
+                            // PREVENT PRODUCTION PCS CHANGE WHEN MACHINE SUBDETAIL EXISTS
+                            if (!isInsert && detailID > 0)
+                            {
+                                const string checkProductionSql = @"
+                                    SELECT
+                                        ISNULL(D.ProductionPCS, 0) AS ExistingProductionPCS,
+                                        CASE WHEN EXISTS
+                                        (
+                                            SELECT 1
+                                            FROM dbo.ProductionOrderSubDetail S WITH (UPDLOCK, HOLDLOCK)
+                                            WHERE S.ProductionOrderDetailID = D.ProductionOrderDetailID
+                                              AND S.ProductionOrderID = D.ProductionOrderID
+                                              AND ISNULL(S.IsActive, 1) = 1
+                                        )
+                                        THEN 1 ELSE 0 END AS HasSubDetail
+                                    FROM dbo.ProductionOrderDetail D WITH (UPDLOCK, HOLDLOCK)
+                                    WHERE D.ProductionOrderDetailID = @ProductionOrderDetailID
+                                      AND D.ProductionOrderID = @ProductionOrderID
+                                      AND D.IsActive = 1;";
+
+                                using (SqlCommand checkProduction =
+                                       new SqlCommand(checkProductionSql, con, tran))
+                                {
+                                    checkProduction.Parameters.Add("@ProductionOrderDetailID", SqlDbType.BigInt)
+                                        .Value = detailID;
+
+                                    checkProduction.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt)
+                                        .Value = productionOrderID;
+
+                                    using (SqlDataReader dr = checkProduction.ExecuteReader())
+                                    {
+                                        if (dr.Read())
+                                        {
+                                            decimal existingProductionPCS =
+                                                Convert.ToDecimal(dr["ExistingProductionPCS"]);
+
+                                            bool hasSubDetail =
+                                                Convert.ToInt32(dr["HasSubDetail"]) == 1;
+
+                                            if (hasSubDetail &&
+                                                existingProductionPCS != d.ProductionPCS)
+                                            {
+                                                dr.Close();
+                                                tran.Rollback();
+
+                                                result.Success = false;
+                                                result.Message =
+                                                    "Production PCS cannot be changed because machine production details already exist.";
+
+                                                return result;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             // UPDATE EXISTING DETAIL
                             if (detailID > 0)
                             {
@@ -48438,6 +48539,7 @@ SET
     PCS = @PCS,
     ProductionPCS = @ProductionPCS,
     PendingPCS = @PendingPCS,
+    " + (hasShortPcsD ? "ShortPCS = @ShortPCS, " : "") + @"
     SalesRate = @SalesRate,
     JobRate = @JobRate,
     Amount = @Amount,
@@ -48542,6 +48644,7 @@ INSERT INTO ProductionOrderDetail
     PCS,
     ProductionPCS,
     PendingPCS,
+    " + (hasShortPcsD ? "ShortPCS, " : "") + @"
     SalesRate,
     JobRate,
     Amount,
@@ -48579,6 +48682,7 @@ VALUES
     @PCS,
     @ProductionPCS,
     @PendingPCS,
+    " + (hasShortPcsD ? "@ShortPCS, " : "") + @"
     @SalesRate,
     @JobRate,
     @Amount,
@@ -48685,6 +48789,30 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID
                                         result.DeletedDetails++;
                                     }
                                 }
+
+                                const string deactivateSubSql = @"
+UPDATE ProductionOrderSubDetail
+SET
+    IsActive = 0,
+    DateandTime = GETDATE()
+WHERE ProductionOrderDetailID = @ProductionOrderDetailID
+  AND ProductionOrderID = @ProductionOrderID;";
+
+                                using (SqlCommand cmdSub =
+                                       new SqlCommand(deactivateSubSql, con, tran))
+                                {
+                                    cmdSub.Parameters.Add(
+                                        "@ProductionOrderDetailID",
+                                        SqlDbType.BigInt
+                                    ).Value = oldID;
+
+                                    cmdSub.Parameters.Add(
+                                        "@ProductionOrderID",
+                                        SqlDbType.BigInt
+                                    ).Value = productionOrderID;
+
+                                    cmdSub.ExecuteNonQuery();
+                                }
                             }
                         }
 
@@ -48702,7 +48830,7 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID
                         }
 
                         // COMMIT MASTER + DETAILS TOGETHER
-                        tran.Commit();
+                        tran.Commit();               
 
                         result.Success = true;
                         result.ProductionOrderID = productionOrderID;
@@ -49257,6 +49385,12 @@ WHERE CompanyId = @CompanyId
                 d.PendingPCS;
 
             cmd.Parameters.Add(
+                "@ShortPCS",
+                SqlDbType.Decimal
+            ).Value =
+                d.ShortPCS;
+
+            cmd.Parameters.Add(
                 "@SalesRate",
                 SqlDbType.Decimal
             ).Value =
@@ -49625,9 +49759,9 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
 SELECT 
     CASE 
         WHEN @SubDetailID IS NOT NULL AND @SubDetailID > 0 THEN
-            ISNULL(sods.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0)
+            ISNULL(sods.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0)
         ELSE
-            ISNULL(sod.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0)
+            ISNULL(sod.Qty, 0) - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0)
     END AS RemainingPendingPcs
 FROM SaleOrderDetails sod
 LEFT JOIN SaleOrderSubDetails sods ON (sods.SubDetailID = @SubDetailID)
@@ -49635,7 +49769,8 @@ LEFT JOIN (
     SELECT 
         ISNULL(pod.SubDetailID, 0) AS SubDetailID,
         pod.SalesOrderDetailID,
-        ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs
+        ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs,
+        ISNULL(SUM(ISNULL(pod.ShortPCS, 0)), 0) AS AlreadyShortPcs
     FROM ProductionOrderDetail pod
     INNER JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
     WHERE ISNULL(pod.IsActive, 1) = 1 AND ISNULL(pom.IsActive, 1) = 1
@@ -50711,75 +50846,138 @@ ORDER BY
                                 }
                             }
 
-                            if (maxJobberMachines > 0 && machineNumber > maxJobberMachines)
+                            int finalMachineNumber = machineNumber > 0 ? machineNumber : 1;
+                            if (maxJobberMachines > 0 && finalMachineNumber > maxJobberMachines)
                             {
-                                tran.Rollback();
-                                return new
-                                {
-                                    Status = false,
-                                    Message = string.Format("Machine No ({0}) cannot exceed Jobber Machine count ({1})!", machineNumber, maxJobberMachines)
-                                };
+                                finalMachineNumber = 1;
                             }
 
-                            if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
+                            // Check if an active SubDetail already exists for this detail
+                            long existingSubDetailId = 0;
+                            using (SqlCommand cmdExist = new SqlCommand("SELECT TOP 1 ProductionOrderSubDetailID FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ISNULL(IsActive, 1) = 1 ORDER BY ProductionOrderSubDetailID ASC", con, tran))
                             {
-                                tran.Rollback();
-                                decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
-                                return new
+                                cmdExist.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
+                                object resExist = cmdExist.ExecuteScalar();
+                                if (resExist != null && resExist != DBNull.Value)
                                 {
-                                    Status = false,
-                                    Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
-                                };
+                                    long.TryParse(resExist.ToString(), out existingSubDetailId);
+                                }
                             }
 
-                            string insertSql = @"
-                                INSERT INTO ProductionOrderSubDetail
-                                (
-                                    ProductionOrderID,
-                                    ProductionOrderDetailID,
-                                    ProductionDate,
-                                    MachineNumber,
-                                    PCS,
-                                    CreatedByUserID,
-                                    CompanyId,
-                                    DateandTime,
-                                    IsActive
-                                )
-                                VALUES
-                                (
-                                    @ProductionOrderID,
-                                    @ProductionOrderDetailID,
-                                    @ProductionDate,
-                                    @MachineNumber,
-                                    @PCS,
-                                    @CreatedByUserID,
-                                    @CompanyId,
-                                    GETDATE(),
-                                    1
-                                );
-                                SELECT SCOPE_IDENTITY();";
-
-                            using (SqlCommand cmd = new SqlCommand(insertSql, con, tran))
+                            if (existingSubDetailId > 0)
                             {
-                                cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
-                                cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
-                                cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
-                                cmd.Parameters.AddWithValue("@MachineNumber", machineNumber);
-                                cmd.Parameters.AddWithValue("@PCS", pcs);
-                                cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
-                                cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
-
-                                object newIdObj = cmd.ExecuteScalar();
-                                long newId = Convert.ToInt64(newIdObj);
-
-                                tran.Commit();
-
-                                return new
+                                // Check other assigned PCS (excluding current sub detail)
+                                decimal otherPCS = 0;
+                                using (SqlCommand cmdSum = new SqlCommand("SELECT ISNULL(SUM(PCS), 0) FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ProductionOrderSubDetailID <> @SubID AND ISNULL(IsActive, 1) = 1", con, tran))
                                 {
-                                    Status = true,
-                                    Message = "Machine Details saved successfully!",
-                                    ProductionOrderSubDetailID = newId
-                                };
+                                    cmdSum.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
+                                    cmdSum.Parameters.AddWithValue("@SubID", existingSubDetailId);
+                                    object resSum = cmdSum.ExecuteScalar();
+                                    if (resSum != null && resSum != DBNull.Value)
+                                    {
+                                        decimal.TryParse(resSum.ToString(), out otherPCS);
+                                    }
+                                }
+
+                                if (maxOrderPCS > 0 && (otherPCS + pcs) > maxOrderPCS)
+                                {
+                                    tran.Rollback();
+                                    decimal remainingPCS = Math.Max(0, maxOrderPCS - otherPCS);
+                                    return new
+                                    {
+                                        Status = false,
+                                        Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (otherPCS + pcs), maxOrderPCS, remainingPCS)
+                                    };
+                                }
+
+                                string updateSql = @"
+                                    UPDATE ProductionOrderSubDetail
+                                    SET
+                                        ProductionOrderID = @ProductionOrderID,
+                                        ProductionDate = @ProductionDate,
+                                        MachineNumber = @MachineNumber,
+                                        PCS = @PCS,
+                                        DateandTime = GETDATE()
+                                    WHERE ProductionOrderSubDetailID = @SubDetailID;";
+
+                                using (SqlCommand cmd = new SqlCommand(updateSql, con, tran))
+                                {
+                                    cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
+                                    cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
+                                    cmd.Parameters.AddWithValue("@MachineNumber", finalMachineNumber);
+                                    cmd.Parameters.AddWithValue("@PCS", pcs);
+                                    cmd.Parameters.AddWithValue("@SubDetailID", existingSubDetailId);
+                                    cmd.ExecuteNonQuery();
+                                    tran.Commit();
+
+                                    return new
+                                    {
+                                        Status = true,
+                                        Message = "Machine Details updated successfully!",
+                                        ProductionOrderSubDetailID = existingSubDetailId
+                                    };
+                                }
+                            }
+                            else
+                            {
+                                if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
+                                {
+                                    tran.Rollback();
+                                    decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
+                                    return new
+                                    {
+                                        Status = false,
+                                        Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
+                                    };
+                                }
+
+                                string insertSql = @"
+                                    INSERT INTO ProductionOrderSubDetail
+                                    (
+                                        ProductionOrderID,
+                                        ProductionOrderDetailID,
+                                        ProductionDate,
+                                        MachineNumber,
+                                        PCS,
+                                        CreatedByUserID,
+                                        CompanyId,
+                                        DateandTime,
+                                        IsActive
+                                    )
+                                    VALUES
+                                    (
+                                        @ProductionOrderID,
+                                        @ProductionOrderDetailID,
+                                        @ProductionDate,
+                                        @MachineNumber,
+                                        @PCS,
+                                        @CreatedByUserID,
+                                        @CompanyId,
+                                        GETDATE(),
+                                        1
+                                    );
+                                    SELECT SCOPE_IDENTITY();";
+
+                                using (SqlCommand cmd = new SqlCommand(insertSql, con, tran))
+                                {
+                                    cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
+                                    cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
+                                    cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
+                                    cmd.Parameters.AddWithValue("@MachineNumber", finalMachineNumber);
+                                    cmd.Parameters.AddWithValue("@PCS", pcs);
+                                    cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
+                                    cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
+                                    object newIdObj = cmd.ExecuteScalar();
+                                    long newId = Convert.ToInt64(newIdObj);
+                                    tran.Commit();
+
+                                    return new
+                                    {
+                                        Status = true,
+                                        Message = "Machine Details saved successfully!",
+                                        ProductionOrderSubDetailID = newId
+                                    };
+                                }
                             }
                         }
                         catch
@@ -56162,12 +56360,7 @@ ORDER BY
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetProcessStock(int processID, long processorID, long jobberID, string soNumber,
-            string slipNo,
-            string designNo,
-            int machineNumber,
-            string fromDate,
-            string toDate)
+        public object GetProcessStock(int processID, long processorID, long jobberID, string soNumber,string slipNo, string designNo, int machineNumber,string fromDate,string toDate)
         {
             try
             {
@@ -56353,17 +56546,7 @@ ORDER BY
         #region PHASE 5: PROCESS TO JOBBER ISSUE BACK
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetProcessStockForIssueBack(
-            int processID,
-            long processorID,
-            long jobberID,
-            string soNumber,
-            string slipNo,
-            string designNo,
-            int machineNumber,
-            string searchBarcode,
-            string fromDate,
-            string toDate)
+        public object GetProcessStockForIssueBack(int processID, long processorID,long jobberID,string soNumber,string slipNo, string designNo,int machineNumber,string searchBarcode,string fromDate, string toDate)
         {
             try
             {
@@ -56787,13 +56970,7 @@ ORDER BY
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object SaveProcessIssueBack(
-            long processorID,
-            int processID,
-            long jobberID,
-            string issueBackDate,
-            string remark,
-            List<IssueBackItemInput> items)
+        public object SaveProcessIssueBack(long processorID, int processID, long jobberID,string issueBackDate, string remark,List<IssueBackItemInput> items)
         {
             try
             {
@@ -57086,16 +57263,7 @@ ORDER BY
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetProcessIssueBackList(string fromDate,
-            string toDate,
-            long processorID,
-            int processID,
-            long jobberID,
-            string searchNo,
-            string soNumber,
-            string slipNo,
-            string designNo,
-            int machineNo)
+        public object GetProcessIssueBackList(string fromDate, string toDate,long processorID,int processID,long jobberID,string searchNo,string soNumber,string slipNo,string designNo,int machineNo)
         {
             try
             {
@@ -57890,14 +58058,7 @@ ORDER BY
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object SaveJobberReceive(
-            long issueBackTransactionID,
-            long processorID,
-            int processID,
-            long jobberID,
-            string receiveDate,
-            string remark,
-            List<JobberReceiveItemInput> items)
+        public object SaveJobberReceive( long issueBackTransactionID,long processorID,int processID,long jobberID,string receiveDate,string remark,List<JobberReceiveItemInput> items)
         {
             try
             {
@@ -58169,17 +58330,7 @@ ORDER BY
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetJobberReceiveList(
-            string fromDate,
-            string toDate,
-            long jobberID,
-            int processID,
-            long processorID,
-            string searchNo,
-            string soNumber,
-            string slipNo,
-            string designNo,
-            int machineNo)
+        public object GetJobberReceiveList(string fromDate,string toDate,long jobberID,int processID,long processorID,string searchNo,string soNumber,string slipNo,string designNo,int machineNo)
         {
             try
             {
@@ -58391,18 +58542,7 @@ ORDER BY
         #region PHASE 7A: COMPLETE PROCESS HISTORY & MOVEMENT TIMELINE
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public object GetProcessManagementHistory(
-            string fromDate,
-            string toDate,
-            int processID,
-            long jobberID,
-            long processorID,
-            string transactionType,
-            string searchNo,
-            string soNumber,
-            string slipNo,
-            string designNo,
-            int machineNo)
+        public object GetProcessManagementHistory( string fromDate,string toDate,int processID,long jobberID,long processorID,string transactionType,string searchNo,string soNumber,string slipNo,string designNo, int machineNo)
         {
             try
             {
@@ -58884,7 +59024,6 @@ ORDER BY
                 return new { Status = false, Message = ex.Message };
             }
         }
-
         [WebMethod]
         public string GenerateProcessChallanReportPDF(long processTransactionID)
         {
@@ -59327,8 +59466,6 @@ WHERE M.YarnPODetailIDCompanyCode = @ID", con))
             Context.Response.End();
         }
         #endregion
-
-
         public List<YarnPOMaster> GetYarnPODataForPDF_DB(int ids)
         {
             List<YarnPOMaster> list = new List<YarnPOMaster>();
@@ -61933,6 +62070,8 @@ FROM Filtered
                             ISNULL(pod.PCS, 0) AS PCS,
                             ISNULL(pod.ProductionPCS, 0) AS ProductionPCS,
                             ISNULL(pod.PendingPCS, 0) AS PendingPCS,
+                            ISNULL(pod.ShortPCS, 0) AS ShortPCS,
+                            CASE WHEN ISNULL(pod.ShortPCS, 0) > 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS IsClosed,
                             ISNULL(pod.SalesRate, 0) AS SalesRate,
                             ISNULL(pom.JobRate, 0) AS JobRate,
                             ISNULL(pom.PanaRepeat, 0) AS PanaRepeat,
@@ -62990,13 +63129,7 @@ FROM Filtered
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public object YarnOutwardScanReport(List<long> yarnOutwardID)
         {
-            return GenerateCrystalPdfReportCommon(
-                yarnOutwardID,
-                "~/Reports/YarnOutwardScanReport.rpt",
-                "YarnOutwardScan",
-                "@YarnOutwardID",
-                FetchYarnOutwardScanDataSet
-            );
+            return GenerateCrystalPdfReportCommon(yarnOutwardID,"~/Reports/YarnOutwardScanReport.rpt","YarnOutwardScan","@YarnOutwardID",FetchYarnOutwardScanDataSet);
         }
         private DataSet FetchYarnOutwardScanDataSet(SqlConnection con, long id)
         {
@@ -65889,21 +66022,22 @@ FROM Filtered
                 sods.Qty AS TotalOrderPcs,
 
                 ISNULL(prodSum.AlreadyProducedPcs, 0) AS AlreadyProducedPcs,
+                ISNULL(prodSum.AlreadyShortPcs, 0) AS AlreadyShortPcs,
 
                 CASE
                     WHEN
-                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) < 0
+                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0)) < 0
                     THEN 0
                     ELSE
-                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0))
+                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0))
                 END AS Pcs,
 
                 CASE
                     WHEN
-                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) < 0
+                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0)) < 0
                     THEN 0
                     ELSE
-                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0))
+                        (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0))
                 END AS PendingPcs,
 
                 sod.Rate,
@@ -65934,7 +66068,8 @@ FROM Filtered
                 SELECT
                     ISNULL(pod.SubDetailID, 0) AS SubDetailID,
                     pod.SalesOrderDetailID,
-                    ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs
+                    ISNULL(SUM(pod.ProductionPCS), 0) AS AlreadyProducedPcs,
+                    ISNULL(SUM(ISNULL(pod.ShortPCS, 0)), 0) AS AlreadyShortPcs
 
                 FROM ProductionOrderDetail pod
 
@@ -66028,7 +66163,7 @@ FROM Filtered
                 LTRIM(RTRIM(CONVERT(VARCHAR(100), defm.DesignNo)))
 
             WHERE
-                (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0)) > 0
+                (sods.Qty - ISNULL(prodSum.AlreadyProducedPcs, 0) - ISNULL(prodSum.AlreadyShortPcs, 0)) > 0
 
             ORDER BY
                 so.OrderNo,
@@ -66245,6 +66380,50 @@ FROM Filtered
             }
 
             return result;
+        }
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object GetProductionOrderSubDetailDetailIDs(long productionOrderID)
+        {
+            try
+            {
+                if (productionOrderID <= 0)
+                    return new { Status = false, Message = "Invalid Production Order ID.", Data = new List<long>() };
+
+                var ids = new List<long>();
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+                    EnsureProductionOrderSubDetailTableExists(con);
+
+                    const string sql = @"
+                SELECT DISTINCT ProductionOrderDetailID
+                FROM dbo.ProductionOrderSubDetail
+                WHERE ProductionOrderID = @ProductionOrderID
+                  AND ISNULL(IsActive, 1) = 1;";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, con))
+                    {
+                        cmd.Parameters.Add("@ProductionOrderID", SqlDbType.BigInt)
+                            .Value = productionOrderID;
+
+                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        {
+                            while (dr.Read())
+                                ids.Add(Convert.ToInt64(dr["ProductionOrderDetailID"]));
+                        }
+                    }
+                }
+
+                return new { Status = true, Data = ids };
+            }
+            catch (Exception ex)
+            {
+                return new { Status = false, Message = ex.Message, Data = new List<long>() };
+            }
         }
 
         #endregion

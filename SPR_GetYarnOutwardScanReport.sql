@@ -18,13 +18,27 @@ BEGIN
     SET NOCOUNT ON;
     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-    -- 1. Check if Scanned Records exist
-    IF EXISTS (
-        SELECT 1 
-        FROM YARNOUTWARDScanMaster M
-        INNER JOIN YARNOUTWARDScanMasterDetails D ON M.YarnOutwardScanID = D.YarnOutwardScanID
-        WHERE M.YarnOutwardID = @YarnOutwardID
-    )
+    DECLARE @TargetScanID INT = 0;
+    DECLARE @TargetOutwardID INT = 0;
+
+    -- 1. Check if @YarnOutwardID passed is specifically a YarnOutwardScanID
+    SELECT TOP (1)
+        @TargetScanID = YarnOutwardScanID,
+        @TargetOutwardID = YarnOutwardID
+    FROM YARNOUTWARDScanMaster WITH (NOLOCK)
+    WHERE YarnOutwardScanID = @YarnOutwardID;
+
+    -- 2. If not matched as YarnOutwardScanID, check if it matches a YarnOutwardID that has scanned records
+    IF (@TargetScanID = 0)
+    BEGIN
+        SELECT TOP (1)
+            @TargetOutwardID = YarnOutwardID
+        FROM YARNOUTWARDScanMaster WITH (NOLOCK)
+        WHERE YarnOutwardID = @YarnOutwardID;
+    END
+
+    -- 3. If scanned record(s) exist (either by ScanID or OutwardID)
+    IF (@TargetScanID > 0 OR @TargetOutwardID > 0)
     BEGIN
         -- COMPLETED / SCANNED CHALLAN
         SELECT
@@ -123,7 +137,8 @@ BEGIN
         INNER JOIN GodownLocationMaster GLM 
             ON GLM.GodownLocationID = D.GodownLocationID
 
-        WHERE M.YarnOutwardID = @YarnOutwardID
+        WHERE (@TargetScanID > 0 AND M.YarnOutwardScanID = @TargetScanID)
+           OR (@TargetScanID = 0 AND M.YarnOutwardID = @TargetOutwardID)
 
         ORDER BY D.YarnOutwardScanDetailID;
     END

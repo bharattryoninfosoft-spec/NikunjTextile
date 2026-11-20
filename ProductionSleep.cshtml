@@ -169,12 +169,18 @@
 
         #tblOrderListTable th:nth-child(9),
         #tblOrderListTable td:nth-child(9) {
-            width: 105px !important;
+            width: 85px !important;
         }
 
 
         #tblOrderListTable th:nth-child(10),
         #tblOrderListTable td:nth-child(10) {
+            width: 105px !important;
+        }
+
+
+        #tblOrderListTable th:nth-child(11),
+        #tblOrderListTable td:nth-child(11) {
             width: 75px !important;
         }
 
@@ -195,7 +201,8 @@
             #tblOrderListTable tbody td:nth-child(7),
             #tblOrderListTable tbody td:nth-child(8),
             #tblOrderListTable tbody td:nth-child(9),
-            #tblOrderListTable tbody td:nth-child(10) {
+            #tblOrderListTable tbody td:nth-child(10),
+            #tblOrderListTable tbody td:nth-child(11) {
                 text-align: center !important;
             }
 
@@ -539,12 +546,18 @@
 
                                     #tblOrderListTable th:nth-child(9),
                                     #tblOrderListTable td:nth-child(9) {
-                                        width: 105px !important;
+                                        width: 85px !important;
                                     }
 
 
                                     #tblOrderListTable th:nth-child(10),
                                     #tblOrderListTable td:nth-child(10) {
+                                        width: 105px !important;
+                                    }
+
+
+                                    #tblOrderListTable th:nth-child(11),
+                                    #tblOrderListTable td:nth-child(11) {
                                         width: 75px !important;
                                     }
 
@@ -565,7 +578,8 @@
                                         #tblOrderListTable tbody td:nth-child(7),
                                         #tblOrderListTable tbody td:nth-child(8),
                                         #tblOrderListTable tbody td:nth-child(9),
-                                        #tblOrderListTable tbody td:nth-child(10) {
+                                        #tblOrderListTable tbody td:nth-child(10),
+                                        #tblOrderListTable tbody td:nth-child(11) {
                                             text-align: center !important;
                                         }
 
@@ -1217,6 +1231,10 @@
                                                             </th>
 
                                                             <th>
+                                                                FULL CLOSE
+                                                            </th>
+
+                                                            <th>
                                                                 PENDING PCS
                                                             </th>
 
@@ -1233,7 +1251,7 @@
 
                                                         <tr>
 
-                                                            <td colspan="10"
+                                                            <td colspan="11"
                                                                 class="text-center text-muted py-3">
 
                                                                 Loading...
@@ -1365,6 +1383,28 @@
                         var isSavingProduction = false;
                         var isProductionEditMode = false;
                         var isProductionViewMode = false;
+                        var productionLockedDetailIDs = {};
+
+                        function showAppNotification(type, message, title, callback) {
+                            if (typeof Swal !== "undefined") {
+                                Swal.fire({
+                                    icon: type || "info",
+                                    title: title || (type === "success" ? "Success" : (type === "error" ? "Error" : "Warning")),
+                                    text: message || "",
+                                    confirmButtonColor: "#1273eb",
+                                    confirmButtonText: "OK"
+                                }).then(function () {
+                                    if (typeof callback === "function") callback();
+                                });
+                            } else if (typeof toastr !== "undefined" && toastr[type]) {
+                                toastr[type](message || "", title || "");
+                                if (typeof callback === "function") callback();
+                            } else {
+                                alert(message || "");
+                                if (typeof callback === "function") callback();
+                            }
+                        }
+
                         $(document).ready(function () {
 
                             $('body').addClass('fullscreen');
@@ -1676,16 +1716,10 @@
                                             !result.Master
                                         ) {
 
-                                            alert(
-                                                (
-                                                    result &&
-                                                    result.Message
-                                                ) ||
-                                                "Production Order not found."
-                                            );
-
-                                            window.location.href =
-                                                "/ProductionOrderList";
+                                            var notFoundMsg = (result && result.Message) || "Production Order not found.";
+                                            showAppNotification("error", notFoundMsg, "Not Found", function () {
+                                                window.location.href = "/ProductionOrderList";
+                                            });
 
                                             return;
 
@@ -1725,8 +1759,16 @@
                                                         var production = numberValue(sItem.ProductionPCS);
 
                                                         if (subId) {
-                                                            if (production > 0) {
-                                                                selectedItemsMap[subId] = { prodPcs: production };
+                                                            var isClosed =
+                                                                getBooleanValue(sItem.IsClosed) ||
+                                                                numberValue(sItem.ShortPCS) > 0;
+
+                                                            if (production > 0 || isClosed) {
+
+                                                                selectedItemsMap[subId] = {
+                                                                    prodPcs: production,
+                                                                    isClosed: isClosed
+                                                                };
                                                             }
                                                             if (savedSubIdMap[subId]) {
                                                                 var pItem = savedSubIdMap[subId];
@@ -1748,18 +1790,29 @@
                                                     selectedItemsMap = {};
 
                                                     $.each(details, function (index, sItem) {
+
                                                         sItem.GeneratedSlipNo = textValue(sItem.SlipNo);
+
                                                         var subId = getSubId(sItem);
                                                         var production = numberValue(sItem.ProductionPCS);
 
                                                         if (subId) {
+
                                                             savedSubIdMapEdit[subId] = sItem;
-                                                            if (production > 0) {
-                                                                selectedItemsMap[subId] = { prodPcs: production };
+
+                                                            var isClosed = isSlipFullyClosed(sItem);
+
+                                                            if (production > 0 || isClosed) {
+
+                                                                selectedItemsMap[subId] = {
+                                                                    prodPcs: production,
+                                                                    isClosed: isClosed
+                                                                };
                                                             }
                                                         }
+
                                                         mergedList.push(sItem);
-                                                    });
+                                                    });                                               
 
                                                     $.each(pendingData, function (index, pItem) {
                                                         var pSubId = getSubId(pItem);
@@ -1815,94 +1868,153 @@
                                             xhr.responseText
                                         );
 
-
-                                        alert(
-                                            "Unable to load Production Order."
-                                        );
-
-
-                                        window.location.href =
-                                            "/ProductionOrderList";
+                                        showAppNotification("error", "Unable to load Production Order.", "Error", function () {
+                                            window.location.href = "/ProductionOrderList";
+                                        });
 
                                     }
 
                             });
 
                         }
-                        function bindExistingProductionOrder(
-                            master,
-                            details,
-                            viewMode
-                        ) {
 
-                            isProductionViewMode =
-                                !!viewMode;
+                        function loadProductionSubDetailLocks(productionOrderID, callback) {
 
+                            productionLockedDetailIDs = {};
 
-                            isProductionEditMode =
-                                !isProductionViewMode;
+                            $.ajax({
+                                type: "POST",
+                                url: "WebServiceNikunjTextile.asmx/GetProductionOrderSubDetailDetailIDs",
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                data: JSON.stringify({
+                                    productionOrderID: productionOrderID
+                                }),
 
+                                success: function (response) {
+
+                                    var result = response && response.d
+                                        ? response.d
+                                        : response;
+
+                                    if (typeof result === "string") {
+                                        result = JSON.parse(result);
+                                    }
+
+                                    if (!result || result.Status !== true) {
+                                        var lockErrMsg = (result && result.Message) || "Unable to check machine production details.";
+                                        showAppNotification("error", lockErrMsg, "Error");
+                                        return;
+                                    }
+
+                                    $.each(result.Data || [], function (i, id) {
+                                        productionLockedDetailIDs[String(id)] = true;
+                                    });
+
+                                    callback();
+
+                                },
+
+                                error: function (xhr) {
+                                    console.error(
+                                        "GetProductionOrderSubDetailDetailIDs Error:",
+                                        xhr.responseText
+                                    );
+
+                                    showAppNotification("error", "Unable to check machine production details.", "Error");
+                                }
+                            });
+                        }
+
+                        function bindExistingProductionOrder(master, details, viewMode) {
+
+                            if (isProductionEditMode &&
+                                !window.productionSubDetailLocksLoaded) {
+
+                                var productionOrderID = numberValue(master.ProductionOrderID);
+
+                                loadProductionSubDetailLocks(
+                                    productionOrderID,
+                                    function () {
+                                        window.productionSubDetailLocksLoaded = true;
+
+                                        bindExistingProductionOrder(
+                                            master,
+                                            details,
+                                            viewMode
+                                        );
+                                    }
+                                );
+
+                                return;
+                            }
+
+                            isProductionViewMode = !!viewMode;
+                            isProductionEditMode = !isProductionViewMode;
 
                             /*
                              * MASTER
                              */
+                            $("#txtProductionOrderID").val(
+                                numberValue(master.ProductionOrderID)
+                            );
 
-                            $("#txtProductionOrderID")
-                                .val(
-                                    numberValue(
-                                        master.ProductionOrderID
-                                    )
-                                );
-                        
+                            $("#txtProductionOrderNo").val(
+                                textValue(master.ProductionOrderNo)
+                            );
 
-                            $("#txtProductionOrderNo")
-                                .val(
-                                    textValue(
-                                        master.ProductionOrderNo
-                                    )
-                                );
+                            $("#txtProductionOrderDate").val(
+                                normalizeDate(master.ProductionOrderDate)
+                            );
 
-
-                            $("#txtProductionOrderDate")
-                                .val(
-                                    normalizeDate(
-                                        master.ProductionOrderDate
-                                    )
-                                );
-
-
-                            var masterJobRate =
-                                numberValue(
-                                    master.JobRate
-                                );
+                            var masterJobRate = numberValue(master.JobRate);
 
                             $("#txtJobRate")
                                 .val(masterJobRate)
                                 .attr("data-initial-rate", masterJobRate);
 
-
-                            $("#txtPanaRepeat")
-                                .val(
-                                    numberValue(
-                                        master.PanaRepeat
-                                    )
+                            $("#txtPanaRepeat").val(
+                                numberValue(master.PanaRepeat)
                             );
 
+                            var jwID = master
+                                ? (master.JobWorkerID ||
+                                    master.jobWorkerID ||
+                                    master.JobWorker ||
+                                    master.jobWorker ||
+                                    master.PartyID ||
+                                    master.partyID)
+                                : null;
 
-                            var jwID = master ? (master.JobWorkerID || master.jobWorkerID || master.JobWorker || master.jobWorker || master.PartyID || master.partyID) : null;
-                            var jwName = master ? (master.JobWorkerName || master.jobWorkerName || master.PartyName || master.partyName) : null;
+                            var jwName = master
+                                ? (master.JobWorkerName ||
+                                    master.jobWorkerName ||
+                                    master.PartyName ||
+                                    master.partyName)
+                                : null;
 
-                            if ((!jwID || jwID === 0 || String(jwID) === "0") && (!jwName || String(jwName).trim() === "")) {
+                            if (
+                                (!jwID || jwID === 0 || String(jwID) === "0") &&
+                                (!jwName || String(jwName).trim() === "")
+                            ) {
                                 if (details && details.length > 0) {
-                                    jwID = details[0].PartyID || details[0].partyID || details[0].JobWorkerID || details[0].jobWorkerID;
-                                    jwName = details[0].PartyName || details[0].partyName || details[0].JobWorkerName || details[0].jobWorkerName;
+
+                                    jwID =
+                                        details[0].PartyID ||
+                                        details[0].partyID ||
+                                        details[0].JobWorkerID ||
+                                        details[0].jobWorkerID;
+
+                                    jwName =
+                                        details[0].PartyName ||
+                                        details[0].partyName ||
+                                        details[0].JobWorkerName ||
+                                        details[0].jobWorkerName;
                                 }
                             }
 
                             /*
-                             * JOB WORKER:
-                             * loadJobWorker is asynchronous, so set it immediately
-                             * if option exists, otherwise retry after dropdown load.
+                             * JOB WORKER
                              */
                             setExistingJobWorker(
                                 jwID,
@@ -1910,11 +2022,13 @@
                                 master ? master.PanaRepeat : 0
                             );
 
-
                             /*
                              * DETAILS
                              */
                             globalOrderData = details || [];
+
+                            // Reset selection map before binding existing details
+                            selectedItemsMap = {};
 
                             $.each(
                                 globalOrderData,
@@ -1922,84 +2036,117 @@
 
                                     if (!detail.GeneratedSlipNo) {
                                         detail.GeneratedSlipNo =
-                                            textValue(
-                                                detail.SlipNo
-                                            );
+                                            textValue(detail.SlipNo);
                                     }
 
-                                    var repRate = numberValue(detail.RepRate ?? detail.repRate ?? detail.JobRate ?? detail.jobRate);
+                                    /*
+                                     * REP RATE
+                                     */
+                                    var repRate = numberValue(
+                                        detail.RepRate ??
+                                        detail.repRate ??
+                                        detail.JobRate ??
+                                        detail.jobRate
+                                    );
+
                                     if (repRate > 0) {
+
                                         detail.OriginalRepRate = repRate;
-                                        if ((!detail.TotalCard || numberValue(detail.TotalCard) <= 0) && masterJobRate > 0) {
-                                            detail.TotalCard = Math.round((repRate * 100 / 0.0254) / masterJobRate);
+
+                                        if (
+                                            (!detail.TotalCard ||
+                                                numberValue(detail.TotalCard) <= 0) &&
+                                            masterJobRate > 0
+                                        ) {
+
+                                            detail.TotalCard = Math.round(
+                                                (repRate * 100 / 0.0254) / masterJobRate
+                                            );
                                         }
                                     }
 
-                                    var subId =
-                                        getSubId(detail);
+                                    /*
+                                     * SUB DETAIL ID
+                                     */
+                                    var subId = getSubId(detail);
 
-                                    var production =
-                                        numberValue(
-                                            detail.ProductionPCS
-                                        );
+                                    /*
+                                     * PRODUCTION PCS
+                                     */
+                                    var production = numberValue(
+                                        detail.ProductionPCS
+                                    );
 
-                                    if (
-                                        subId &&
-                                        production > 0 &&
-                                        selectedItemsMap[subId] === undefined
-                                    ) {
+                                    /*
+                                     * FULL CLOSE STATUS
+                                     *
+                                     * ShortPCS > 0  = CLOSED
+                                     * IsClosed = 1   = CLOSED
+                                     * Otherwise      = OPEN
+                                     */
+                                    var isClosed = isSlipFullyClosed(detail);
 
-                                        selectedItemsMap[
-                                            subId
-                                        ] = {
+                                    /*
+                                     * RESTORE EXISTING SELECTION
+                                     */
+                                    if (subId && (production > 0 || isClosed)) {
 
-                                            prodPcs:
-                                                production
+                                        selectedItemsMap[subId] = {
+
+                                            prodPcs: production,
+
+                                            isClosed: isClosed,
+
+                                            manuallySet: true
 
                                         };
-
                                     }
 
                                 }
                             );
 
+                            /*
+                             * GENERATE SLIP NUMBERS
+                             */
                             generateSlipNumbers();
 
+                            /*
+                             * POPULATE FILTERS
+                             */
                             populateAllFilters();
 
-                            renderTable(
-                                globalOrderData
-                            );
-
+                            /*
+                             * RENDER TABLE
+                             */
+                            renderTable(globalOrderData);
 
                             /*
-                             * Show first saved item's quality.
+                             * SHOW FIRST SAVED ITEM QUALITY
                              */
-                            if (
-                                globalOrderData.length > 0
-                            ) {
+                            if (globalOrderData.length > 0) {
 
                                 loadDesignQualityForItem(
                                     globalOrderData[0]
                                 );
 
-                            }
-                            else {
+                            } else {
 
                                 clearDesignQuality();
 
                             }
 
-
+                            /*
+                             * REBUILD PRODUCTION REPORT
+                             */
                             rebuildProductionReport();
 
-
                             /*
-                             * VIEW MODE
+                             * APPLY VIEW / EDIT MODE
                              */
                             applyProductionPageMode();
 
                         }
+
                         var existingJobWorkerRetryCount = 0;
                         var pendingJobWorkerID = null;
                         var pendingJobWorkerName = null;
@@ -2182,6 +2329,9 @@
                                 $("#txtJobRate")
                                     .prop("disabled", true);
 
+                                $("#txtPanaRepeat")
+                                    .prop("disabled", true);
+
                                 $("#chkSelectAll")
                                     .prop("disabled", true);
 
@@ -2219,6 +2369,9 @@
                                 $("#txtJobRate")
                                     .prop("disabled", false);
 
+                                $("#txtPanaRepeat")
+                                    .prop("disabled", false);
+
                                 $("#chkSelectAll")
                                     .prop("disabled", false);
 
@@ -2247,6 +2400,9 @@
                                     .prop("disabled", false);
 
                                 $("#txtJobRate")
+                                    .prop("disabled", false);
+
+                                $("#txtPanaRepeat")
                                     .prop("disabled", false);
 
                                 $("#chkSelectAll")
@@ -3249,12 +3405,31 @@
                             );
                         }
                         function getRate(item) {
+                            if (!item) return 0;
 
                             return numberValue(
+                                item.SalesRate ??
+                                item.SaleRate ??
                                 item.Rate ??
-                                item.SaleRate
+                                item.Sales_Rate ??
+                                item.Sale_Rate ??
+                                item.salesRate ??
+                                item.saleRate ??
+                                item.rate ??
+                                0
                             );
+                        }
 
+                        function getBooleanValue(value) {
+                            if (value === true || value === 1) return true;
+                            if (value === false || value === 0 || value == null) return false;
+
+                            var val = String(value).trim().toLowerCase();
+
+                            return val === "true" ||
+                                   val === "1" ||
+                                   val === "yes" ||
+                                   val === "closed";
                         }
                         function getSubId(item) {
 
@@ -3662,6 +3837,7 @@
                                                 "<tr>" +
 
                                                 "<td colspan='10' " +
+                                                "<td colspan='11' " +
                                                 "class='text-center text-danger py-4'>" +
 
                                                 "Unable to load pending orders." +
@@ -4236,7 +4412,57 @@
                                 }
                             }
 
-                            return false;
+    return false;
+}
+                        function isSlipFullyClosed(item) {
+                            if (!item) return false;
+
+                            var shortPcs = numberValue(
+                                item.ShortPCS ??
+                                item.ShortPcs ??
+                                item.shortPCS ??
+                                item.shortPcs ??
+                                0
+                            );
+
+                            var closed = getBooleanValue(
+                                item.IsClosed ??
+                                item.isClosed ??
+                                item.ISClosed ??
+                                false
+                            );
+
+                            return shortPcs > 0 || closed;
+                        }
+
+                        function getExistingClosedState(subId) {
+                            var selected = selectedItemsMap[subId];
+                            if (selected && selected.isClosed !== undefined) {
+                                return getBooleanValue(selected.isClosed);
+                            }
+                            var item = findGlobalItemBySubId(subId);
+                            return isSlipFullyClosed(item);
+                        }
+
+                        function isPanaRepeatCompleted(production, pcs) {
+                            var panaRepeat = numberValue($("#txtPanaRepeat").val());
+                            if (panaRepeat <= 0) return false;
+                            var prod = numberValue(production);
+                            var totalPcs = numberValue(pcs);
+                            if (prod <= 0 || totalPcs <= 0) return false;
+                            var remaining = totalPcs - prod;
+                            return remaining > 0 && remaining < panaRepeat;
+                        }
+
+                        function shouldAutoClosePanaRepeat(subId, production, pcs) {
+                            var selected = selectedItemsMap[subId];
+                            if (selected && selected.manuallySet) {
+                                return getBooleanValue(selected.isClosed);
+                            }
+                            if (isPanaRepeatCompleted(production, pcs)) {
+                                return true;
+                            }
+                            return getExistingClosedState(subId);
                         }
                         function isQualitySummaryMatch(summaryText, selectedKey) {
                             if (!summaryText || !selectedKey) return false;
@@ -4255,8 +4481,9 @@
                         function applyFilters() {
 
                             $("#tblOrderListBody").html(
-                                '<tr><td colspan="10" class="text-center py-4 text-primary fw-semibold"><i class="fa fa-spinner fa-spin fa-2x me-2"></i> Filtering data...</td></tr>'
-                            );
+                                '<tr><td colspan="11" class="text-center py-4 text-primary fw-semibold">' +
+                                    '<i class="fa fa-spinner fa-spin fa-2x me-2"></i> Filtering data...</td></tr>'
+                                );
 
                             setTimeout(function () {
 
@@ -4436,6 +4663,61 @@
                             return found;
 
                         }
+
+
+                        function getCloseSlipCellHtml(subId, item, production, pcs) {
+
+                            var maxVal = numberValue(pcs);
+                            var curVal = numberValue(production);
+
+                            var savedState = selectedItemsMap[textValue(subId)];
+
+                            if (isProductionViewMode) {
+                                var targetItem = item || findGlobalItemBySubId(subId);
+                                var isViewClosed = targetItem ? isSlipFullyClosed(targetItem) : (savedState ? getBooleanValue(savedState.isClosed) : false);
+
+                                if (isViewClosed) {
+                                    return '<span class="badge bg-danger text-white px-2 py-1">CLOSED</span>';
+                                }
+
+                                if (curVal >= maxVal && maxVal > 0) {
+                                    return '<span class="badge bg-success text-white px-2 py-1">FULL</span>';
+                                }
+
+                                return '<label class="form-check-label d-inline-flex align-items-center gap-1 mb-0" style="cursor:default;" title="Close remaining quantity">' +
+                                    '<input type="checkbox" class="chkCloseSlip" data-subid="' +
+                                    escapeHtml(subId) + '" disabled style="cursor:default;width:13px;height:13px;" /> ' +
+                                    '<span class="badge bg-light text-muted border" style="font-size:10px;padding:3px 5px;">Close</span>' +
+                                    '</label>';
+                            }
+
+                            // Manual checkbox state gets priority over auto-close.
+                            var isClosed = savedState && savedState.manuallySet
+                                ? !!savedState.isClosed
+                                : shouldAutoClosePanaRepeat(subId, production, pcs);
+
+                            if (curVal >= maxVal && maxVal > 0 && !isClosed) {
+                                return '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">FULL</span>';
+                            }
+
+                            return '<label class="form-check-label d-inline-flex align-items-center gap-1 mb-0" style="cursor:pointer;" title="Close remaining quantity">' +
+                                '<input type="checkbox" class="chkCloseSlip" data-subid="' +
+                                escapeHtml(subId) + '" ' +
+                                (isClosed ? 'checked' : '') +
+                                ' style="cursor:pointer;width:13px;height:13px;" /> ' +
+
+                                '<span class="badge ' +
+                                (isClosed
+                                    ? 'bg-danger text-white'
+                                    : 'bg-light text-muted border') +
+                                '" style="font-size:10px;padding:3px 5px;">' +
+
+                                (isClosed ? 'CLOSED' : 'Close') +
+
+                                '</span></label>';
+                        }
+
+
                         function renderTable(data) {
 
                             var selectedWarp = $("#filterWarpQuality").val() || "";
@@ -4452,7 +4734,7 @@
 
                                     "<tr>" +
 
-                                    "<td colspan='10' " +
+                                    "<td colspan='11' " +
                                     "class='text-center text-muted py-4'>" +
 
                                     "No pending records found." +
@@ -4590,6 +4872,7 @@
 
 
                                             "<td colspan='7'></td>" +
+                                            "<td colspan='8'></td>" +
 
 
                                             "</tr>";
@@ -4685,6 +4968,7 @@
 
 
                                             "<td colspan='5'></td>" +
+                                            "<td colspan='6'></td>" +
 
 
                                             "</tr>";
@@ -4720,6 +5004,15 @@
                                             production,
                                             pcs
                                         );
+
+                                    var productionDetailID = numberValue(
+                                        item.ProductionOrderDetailID ??
+                                        item.productionOrderDetailID
+                                    );
+
+                                    var hasMachineProduction =
+                                        productionDetailID > 0 &&
+                                        productionLockedDetailIDs[String(productionDetailID)] === true;
 
                                     var pending =
                                         Math.max(
@@ -4920,11 +5213,18 @@
                                         production +
                                         "'" +
 
-                                        (isProductionViewMode
+                                        ((isProductionViewMode || hasMachineProduction)
                                             ? " disabled "
                                             : "") +
 
                                         " />" +
+
+                                        "</td>" +
+
+
+                                        "<td class='text-center col-close-slip'>" +
+
+                                        getCloseSlipCellHtml(subId, item, production, pcs) +
 
                                         "</td>" +
 
@@ -4951,7 +5251,7 @@
 
                             if (!rows || rows.trim() === "") {
                                 $("#tblOrderListBody").html(
-                                    "<tr><td colspan='10' class='text-center text-muted py-4'>No pending records found.</td></tr>"
+                                    "<tr><td colspan='11' class='text-center text-muted py-4'>No pending records found.</td></tr>"
                                 );
                             } else {
                                 $("#tblOrderListBody").html(rows);
@@ -4969,11 +5269,7 @@
                         function ensureJobWorkerSelected() {
                             var jobWorker = $.trim($("#txtJobWorker").val() || "");
                             if (!jobWorker || jobWorker === "0") {
-                                if (typeof toastr !== "undefined") {
-                                    toastr.warning("Please select Job Worker first before selecting or entering Order Item Details.");
-                                } else {
-                                    alert("Please select Job Worker first before selecting or entering Order Item Details.");
-                                }
+                                showAppNotification("warning", "Please select Job Worker first before selecting or entering Order Item Details.", "Job Worker Required");
                                 setTimeout(function () {
                                     $("#txtJobWorker").focus();
                                 }, 10);
@@ -5037,6 +5333,7 @@
 
                         });
                         $(document).on("input.productionOrder", "#tblOrderListBody .txt-production", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).val(0);
                                 return false;
@@ -5061,10 +5358,17 @@
                             $tr.find(".td-ending").text(pending);
 
                             var $chk = $tr.find(".chk-subitem");
+                            var previousState = selectedItemsMap[subId];
+
+                            var isClosed = previousState && previousState.manuallySet
+                                ? !!previousState.isClosed
+                                : shouldAutoClosePanaRepeat(subId, production, pcs);
+
+                            var prevManuallySet = previousState && previousState.manuallySet;
                             if (production > 0) {
                                 ensureProductionDate();
                                 $chk.prop("checked", true);
-                                selectedItemsMap[subId] = { prodPcs: production };
+                                selectedItemsMap[subId] = { prodPcs: production, isClosed: isClosed, manuallySet: prevManuallySet || false };
                                 $tr.addClass("table-active");
                             } else {
                                 $chk.prop("checked", false);
@@ -5072,11 +5376,13 @@
                                 $tr.removeClass("table-active");
                             }
 
+                            $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), production, pcs));
                             rebuildProductionReport();
                             updateSelectAllState();
                         });
 
                         $(document).on("change.productionOrder", "#tblOrderListBody .txt-production", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).val(0);
                                 return false;
@@ -5095,10 +5401,17 @@
                             $tr.find(".td-ending").text(pending);
 
                             var $chk = $tr.find(".chk-subitem");
+                            var previousState = selectedItemsMap[subId];
+
+                            var isClosed = previousState && previousState.manuallySet
+                                ? !!previousState.isClosed
+                                : shouldAutoClosePanaRepeat(subId, production, pcs);
+
+                            var prevManuallySet = previousState && previousState.manuallySet;
                             if (production > 0) {
                                 ensureProductionDate();
                                 $chk.prop("checked", true);
-                                selectedItemsMap[subId] = { prodPcs: production };
+                                selectedItemsMap[subId] = { prodPcs: production, isClosed: isClosed, manuallySet: prevManuallySet || false };
                                 $tr.addClass("table-active");
                             } else {
                                 $chk.prop("checked", false);
@@ -5106,10 +5419,12 @@
                                 $tr.removeClass("table-active");
                             }
 
+                            $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), production, pcs));
                             rebuildProductionReport();
                             updateSelectAllState();
                         });
                         $(document).on("change.productionOrder", "#tblOrderListBody .chk-subitem", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).prop("checked", false);
                                 return false;
@@ -5134,8 +5449,9 @@
                                 production = snapToPanaRepeatMultiple(production, pcs);
                                 $input.val(production);
 
+                                var isClosed = shouldAutoClosePanaRepeat(subId, production, pcs);
                                 $tr.find(".td-ending").text(Math.max(0, pcs - production));
-                                selectedItemsMap[subId] = { prodPcs: production };
+                                selectedItemsMap[subId] = { prodPcs: production, isClosed: isClosed };
                                 $tr.addClass("table-active");
                             } else {
                                 delete selectedItemsMap[subId];
@@ -5147,11 +5463,83 @@
                                 $tr.removeClass("table-active");
                             }
 
+                            $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), numberValue($input.val()), pcs));
+                            rebuildProductionReport();
+                            updateSelectAllState();
+                        });
+
+                        $(document).on("change.productionOrder", "#tblOrderListBody .chkCloseSlip", function () {
+                            if (isProductionViewMode) return false;
+                            if (!ensureJobWorkerSelected()) {
+                                $(this).prop("checked", false);
+                                return false;
+                            }
+
+                            var $chkClose = $(this);
+                            var subId = textValue($chkClose.attr("data-subid"));
+                            var isClosed = $chkClose.is(":checked");
+
+                            var $tr = $chkClose.closest("tr");
+                            var pcs = getItemPendingPcs($tr);
+
+                            var $input = $tr.find(".txt-production");
+                            var production = numberValue($input.val());
+
+                            var $chk = $tr.find(".chk-subitem");
+
+                            if (isClosed && !$chk.is(":checked")) {
+
+                                ensureProductionDate();
+
+                                var selectedItem = findGlobalItemBySubId(subId);
+
+                                loadDesignQualityForItem(selectedItem);
+
+                                if (production <= 0) {
+
+                                    production = getDefaultProduction(pcs);
+                                    production = snapToPanaRepeatMultiple(production, pcs);
+
+                                    $input.val(production);
+
+                                    $tr.find(".td-ending").text(
+                                        Math.max(0, pcs - production)
+                                    );
+                                }
+
+                                $chk.prop("checked", true);
+                                $tr.addClass("table-active");
+                            }
+
+                            selectedItemsMap[subId] = {
+                                prodPcs: production,
+                                isClosed: isClosed,
+                                manuallySet: true
+                            };
+
+                            var $badge = $chkClose.siblings(".badge");
+
+                            if (isClosed) {
+
+                                $badge
+                                    .removeClass("bg-light text-muted border")
+                                    .addClass("bg-danger text-white")
+                                    .text("CLOSED");
+
+                            } else {
+
+                                $badge
+                                    .removeClass("bg-danger text-white")
+                                    .addClass("bg-light text-muted border")
+                                    .text("Close");
+                            }
+
                             rebuildProductionReport();
                             updateSelectAllState();
                         });
 
                         $(document).on("change.productionOrder", "#tblOrderListBody .chk-order-group", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).prop("checked", false);
                                 return false;
@@ -5171,6 +5559,7 @@
                         });
 
                         $(document).on("change.productionOrder", "#tblOrderListBody .chk-design-group", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).prop("checked", false);
                                 return false;
@@ -5189,6 +5578,7 @@
                         });
 
                         $(document).on("change.productionOrder", "#chkSelectAll", function () {
+                            if (isProductionViewMode) return false;
                             if (!ensureJobWorkerSelected()) {
                                 $(this).prop("checked", false);
                                 return false;
@@ -5212,7 +5602,8 @@
                                     production = snapToPanaRepeatMultiple(production, pcs);
                                     $input.val(production);
 
-                                    selectedItemsMap[subId] = { prodPcs: production };
+                                    var isClosed = shouldAutoClosePanaRepeat(subId, production, pcs);
+                                    selectedItemsMap[subId] = { prodPcs: production, isClosed: isClosed };
                                     $chk.prop("checked", true);
                                     $tr.addClass("table-active");
                                     $tr.find(".td-ending").text(Math.max(0, pcs - production));
@@ -5224,6 +5615,7 @@
                                     $tr.find(".td-ending").text(pcs);
                                     $tr.removeClass("table-active");
                                 }
+                                $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), numberValue($input.val()), pcs));
                             });
 
                             if (hasChecked) {
@@ -6117,14 +6509,20 @@
                                             );
 
 
+                                            var isClosed = shouldAutoClosePanaRepeat(subId, calculated, pcs);
                                             selectedItemsMap[
                                                 subId
                                             ] = {
 
                                                 prodPcs:
-                                                    calculated
+                                                    calculated,
+
+                                                isClosed:
+                                                    isClosed
 
                                             };
+
+                                            $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), calculated, pcs));
 
                                         }
 
@@ -6136,6 +6534,23 @@
 
                         });
                         $(document).on("input.productionOrder change.productionOrder", "#txtJobRate, #txtPanaRepeat", function () {
+
+                            $("#tblOrderListBody .chk-subitem:checked").each(function () {
+                                var $tr = $(this).closest("tr");
+                                var subId = textValue($tr.attr("data-subid"));
+                                var pcs = getItemPendingPcs($tr);
+                                var production = numberValue($tr.find(".txt-production").val());
+                                if (production > 0) {
+                                    var isClosed = shouldAutoClosePanaRepeat(subId, production, pcs);
+                                    var prevManuallySet = selectedItemsMap[subId] && selectedItemsMap[subId].manuallySet;
+                                    selectedItemsMap[subId] = {
+                                        prodPcs: production,
+                                        isClosed: isClosed,
+                                        manuallySet: prevManuallySet || false
+                                    };
+                                    $tr.find(".col-close-slip").html(getCloseSlipCellHtml(subId, findGlobalItemBySubId(subId), production, pcs));
+                                }
+                            });
 
                             rebuildProductionReport();
 
@@ -6446,6 +6861,13 @@
                                             pcs - production
                                         );
 
+                                    var isClosedSlip = shouldAutoClosePanaRepeat(subId, production, pcs);
+                                    var shortPcs = 0;
+                                    if (isClosedSlip && production < pcs) {
+                                        shortPcs = Math.max(0, pcs - production);
+                                        pending = 0;
+                                    }
+
 
                                     var rate =
                                         getRate(item);
@@ -6558,6 +6980,12 @@
                                         PendingPCS:
                                             pending,
 
+                                        ShortPCS:
+                                            shortPcs,
+
+                                        IsClosed:
+                                            isClosedSlip,
+
                                         SalesRate:
                                             rate,
 
@@ -6602,9 +7030,7 @@
                              */
 
                             if (!detailList || detailList.length === 0) {
-                                alert(
-                                    "Please enter Production greater than 0."
-                                );
+                                showAppNotification("warning", "Please enter Production greater than 0.", "Validation");
                                 return;
                             }
                             /*
@@ -6618,6 +7044,9 @@
                                 0;
 
                             var totalPendingPcs =
+                                0;
+
+                            var totalShortPcs =
                                 0;
 
                             var totalAmount =
@@ -6641,6 +7070,11 @@
                                     totalPendingPcs +=
                                         numberValue(
                                             item.PendingPCS
+                                        );
+
+                                    totalShortPcs +=
+                                        numberValue(
+                                            item.ShortPCS
                                         );
 
                                     totalAmount +=
@@ -6710,6 +7144,9 @@
 
                                 TotalPendingPcs:
                                     totalPendingPcs,
+
+                                TotalShortPcs:
+                                    totalShortPcs,
 
                                 TotalPCS:
                                     totalPcs,
@@ -6820,26 +7257,16 @@
                                             )
                                         ) {
 
-                                            alert(
-                                                result.Message ||
-                                                "Production Order saved successfully."
-                                            );
-
-                                            window.location.href = "/ProductionOrderList";
+                                            var successMsg = result.Message || "Production Order saved successfully.";
+                                            showAppNotification("success", successMsg, "Saved Successfully!", function () {
+                                                window.location.href = "/ProductionOrderList";
+                                            });
 
                                         }
                                         else {
 
-                                            alert(
-
-                                                (
-                                                    result &&
-                                                    result.Message
-                                                )
-                                                ||
-                                                "Unable to save Production Order."
-
-                                            );
+                                            var saveErrMsg = (result && result.Message) || "Unable to save Production Order.";
+                                            showAppNotification("error", saveErrMsg, "Save Failed");
 
                                         }
 
@@ -6853,10 +7280,7 @@
                                             xhr.responseText
                                         );
 
-
-                                        alert(
-                                            "Error while saving Production Order."
-                                        );
+                                        showAppNotification("error", "Error while saving Production Order.", "Error");
 
                                     },
 

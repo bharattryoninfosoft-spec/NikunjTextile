@@ -338,23 +338,12 @@
             getYarnColor();
             getColorGroup();
         });
-
         var notes = $('#notes').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
-
-
         var notess = $('#notess').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
-
-
-
-
-
-
-
-
         function getDefaultCompany() {
             $.ajax({
                 type: "GET",
@@ -384,7 +373,6 @@
                 }
             });
         }
-
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -403,7 +391,6 @@
                 }
             });
         }
-
         function logout() {
             $.ajax({
                 type: "POST",
@@ -419,9 +406,6 @@
                 }
             });
         }
-
-
-
         function clearAll() {
             getDefaultCompany();
             $("#savebtn").show();
@@ -437,7 +421,6 @@
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
         }
-
         function validate(code) {
             //alert(code);
             //alert(code.id + "  " + code.value);
@@ -472,10 +455,6 @@
                     return true;
                 }
         }
-
-
-
-
         function getDesignEntryForm() {
 
             var formData = new FormData();
@@ -524,11 +503,7 @@
             });
 
         }
-
-
-
         var ArrayYarnColor = [];
-
         function getYarnColor() {
 
             var formData = new FormData();
@@ -577,9 +552,6 @@
 
 
         }
-
-
-
         function getColorGroup() {
 
             var formData = new FormData();
@@ -624,11 +596,6 @@
 
 
         }
-
-
-
-
-
         function saveImage(input) {
             var previewStr = "#" + input.id + "-preview";
             if (input.files && input.files[0]) {
@@ -654,19 +621,12 @@
                 return false;
             }
         }
-
-
         function clearColorMatchingDefault() {
             $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
             $("#upload-ColorMatching-default").val("");
         }
-
-
-
-
         var listDesignColorMatchingDetails = [];
         var listDesignEntryWeftData = [];
-
         function getDesignNo(abc) {
             //alert(abc.value);
 
@@ -758,11 +718,6 @@
 
 
         }
-
-
-
-
-
         function checkPrevious() {
 
             var selectedOption = $('#ColorMatchingID').find('option:selected');
@@ -807,8 +762,6 @@
 
             //}, 500);
         }
-
-
         function checkNext() {
 
             var selectedOption = $('#ColorMatchingID').find('option:selected');
@@ -855,22 +808,15 @@
             //}, 500);
             //$("#btnclearColorMatchingDefault").click();
         }
-
-
         function showWarp(abc) {
             var matchingwarp = "#MatchingWarp" + abc;
             $(matchingwarp).removeAttr("disabled");
         }
-
-
-
         function showFeeder(abc) {
             var matchingwarp = "#MatchingFeeder" + abc;
             $(matchingwarp).removeAttr("disabled");
         }
-
         var DesignColorMatchingDetails = [];
-
         function getColorMatchingId(abc) {
             //alert(abc.value);
 
@@ -1110,9 +1056,6 @@
 
             }
         }
-
-
-
         function MatchingWarp(abc) {
 
             var MatchingWarp = "#MatchingWarp" + abc;
@@ -1193,7 +1136,6 @@
 
 
         }
-
         function MatchingFeeder(abc) {
 
             var MatchingFeeder1 = "#MatchingFeeder" + abc;
@@ -1296,14 +1238,6 @@
 
 
         }
-
-
-
-
-
-
-
-
         function checkSave() {
 
             $("#loading-wrapper").show();
@@ -1576,7 +1510,6 @@
 
 
         }
-
     </script>
 }
 

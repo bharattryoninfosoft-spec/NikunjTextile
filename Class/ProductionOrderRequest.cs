@@ -25,6 +25,7 @@ namespace NikunjTextile.Class
         public decimal TotalPcs { get; set; }
         public decimal TotalProductionPcs { get; set; }
         public decimal TotalPendingPcs { get; set; }
+        public decimal TotalShortPcs { get; set; }
         public decimal TotalAmount { get; set; }
 
         // These are accepted from the client, but SaveProductionOrder
@@ -64,6 +65,8 @@ namespace NikunjTextile.Class
         public decimal PCS { get; set; }
         public decimal ProductionPCS { get; set; }
         public decimal PendingPCS { get; set; }
+        public decimal ShortPCS { get; set; }
+        public bool IsClosed { get; set; }
 
         public decimal SalesRate { get; set; }
         public decimal JobRate { get; set; }
@@ -115,6 +118,7 @@ namespace NikunjTextile.Class
         public decimal TotalPcs { get; set; }
         public decimal TotalProductionPcs { get; set; }
         public decimal TotalPendingPcs { get; set; }
+        public decimal TotalShortPcs { get; set; }
         public decimal TotalAmount { get; set; }
 
         public int Status { get; set; }
@@ -154,6 +158,8 @@ namespace NikunjTextile.Class
         public decimal PCS { get; set; }
         public decimal ProductionPCS { get; set; }
         public decimal PendingPCS { get; set; }
+        public decimal ShortPCS { get; set; }
+        public bool IsClosed { get; set; }
 
         public decimal SalesRate { get; set; }
         public decimal JobRate { get; set; }

@@ -689,6 +689,28 @@
                         return;
                     }
 
+                    function parseLocationOrder(loc) {
+                        loc = (loc || '').trim();
+                        var hyphenIdx = loc.indexOf('-');
+                        if (hyphenIdx > 0) {
+                            var prefix = loc.substring(0, hyphenIdx).trim();
+                            var num = parseInt(loc.substring(hyphenIdx + 1).trim(), 10);
+                            return { prefix: prefix.toUpperCase(), num: isNaN(num) ? 0 : num, raw: loc };
+                        }
+                        return { prefix: loc.toUpperCase(), num: 0, raw: loc };
+                    }
+                    validItems.sort(function (a, b) {
+                        var locA = parseLocationOrder(a.LocationTitle || a.Location);
+                        var locB = parseLocationOrder(b.LocationTitle || b.Location);
+                        if (locA.prefix !== locB.prefix) {
+                            return locA.prefix.localeCompare(locB.prefix);
+                        }
+                        if (locA.num !== locB.num) {
+                            return locA.num - locB.num;
+                        }
+                        return locA.raw.localeCompare(locB.raw);
+                    });
+
                     $.each(validItems, function (i, v) {
                         var row = `<tr>
                                     <td hidden class="YarnMaterialID">${v.YarnMaterialID}</td>
