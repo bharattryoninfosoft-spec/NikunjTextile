@@ -654,6 +654,18 @@
         background-color: #FEF9C3 !important;
         border-left: 3px solid #EAB308 !important;
     }
+    .erp-locked-row td {
+        background-color: #F8FAFC !important;
+    }
+    .erp-badge-locked {
+        background-color: #64748B !important;
+        color: #FFFFFF !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        padding: 3px 6px !important;
+        border-radius: 4px !important;
+        letter-spacing: 0.5px;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -1841,6 +1853,29 @@
                 return false;
             }
 
+            let currentLockedProductionDetails = [];
+
+            function isSubDetailLocked(sub) {
+                if (!sub || !currentLockedProductionDetails || currentLockedProductionDetails.length === 0) return false;
+                let normalize = s => String(s || "").toLowerCase().replace(/[\/\-_]/g, ' ').replace(/\s+/g, ' ').trim();
+                let subId = parseInt(sub.SubDetailID || 0);
+                let colorId = parseInt(sub.ColorMatchingID || sub.ColourID || 0);
+                let colorName = normalize(sub.ColorMatchingName || sub.ColourName || "");
+
+                return currentLockedProductionDetails.some(function (p) {
+                    let pSubId = parseInt(p.SubDetailID || 0);
+                    let pColorId = parseInt(p.ColourMatchingID || 0);
+                    let pColorName = normalize(p.ColourMatchingName || "");
+
+                    if (subId > 0 && pSubId > 0 && subId === pSubId) return true;
+                    if (colorId > 0 && pColorId > 0 && colorId === pColorId) return true;
+                    if (colorName !== "" && pColorName !== "" && (colorName === pColorName || colorName.includes(pColorName) || pColorName.includes(colorName))) return true;
+                    if (pSubId === 0 && pColorId === 0 && pColorName === "") return true;
+
+                    return false;
+                });
+            }
+
             function matchesHighlightColor(colorName) {
                 if (!colorName) return false;
                 let targetHighlightColor = (new URLSearchParams(window.location.search).get('highlightColor') ||
@@ -1904,9 +1939,10 @@
                     let $existingRow = findItemTableRow(item.ColourID, item.ColourName);
                     let isAlreadyInTable = $existingRow.length > 0;
                     let isHighlighted = matchesHighlightColor(item.ColourName);
+                    let isLocked = isSubDetailLocked(item);
 
                     rowsHtml += `
-                        <tr class="${isHighlighted ? "erp-highlighted-history-row" : ""}" data-colorid="${item.ColourID}" data-colorname="${escapeHtml(item.ColourName)}">
+                        <tr class="${isHighlighted ? "erp-highlighted-history-row" : ""} ${isLocked ? "erp-locked-history-row" : ""}" data-colorid="${item.ColourID}" data-colorname="${escapeHtml(item.ColourName)}">
                             <td class="text-center">
                                 <input type="checkbox" class="chk-history-color" 
                                        data-colorid="${item.ColourID}" 
@@ -1914,9 +1950,13 @@
                                        data-totalqty="${item.TotalQty}" 
                                        data-designno="${escapeHtml(item.DesignNo)}" 
                                        ${isAlreadyInTable ? "checked" : ""}
-                                       style="cursor: pointer; width: 14px; height: 14px;" />
+                                       ${isLocked ? "disabled title='LOCKED: Linked to Production Order'" : ""}
+                                       style="cursor: ${isLocked ? "not-allowed" : "pointer"}; width: 14px; height: 14px;" />
                             </td>
-                            <td class="small fw-semibold text-truncate" title="Previous Qty: ${item.TotalQty}">${isHighlighted ? `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${escapeHtml(item.ColourName)}</span>` : escapeHtml(item.ColourName)}</td>
+                            <td class="small fw-semibold text-truncate" title="Previous Qty: ${item.TotalQty}">
+                                ${isHighlighted ? `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${escapeHtml(item.ColourName)}</span>` : escapeHtml(item.ColourName)}
+                                ${isLocked ? `<i class="fa fa-lock text-warning ms-1" title="LOCKED: Linked to Production Order"></i>` : ""}
+                            </td>
                         </tr>
                     `;
                 });
@@ -2160,6 +2200,10 @@
             // History checkbox change: if unchecked, remove from #itemTableBody if added from history
             $(document).on("change", ".chk-history-color", function () {
                 let $chk = $(this);
+                if ($chk.is(":disabled") || $chk.closest("tr").hasClass("erp-locked-history-row")) {
+                    $chk.prop("checked", true);
+                    return;
+                }
                 let isChecked = $chk.is(":checked");
                 let colorId = String($chk.attr("data-colorid") || "");
                 let colorName = String($chk.attr("data-colorname") || "");
@@ -2167,7 +2211,7 @@
                 if (!isChecked) {
                     let tbody = $("#itemTableBody");
                     let existingRow = findItemTableRow(colorId, colorName);
-                    if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true") {
+                    if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true" && existingRow.attr("data-locked") !== "true") {
                         existingRow.remove();
                         updateSrNo();
 
@@ -2187,14 +2231,14 @@
                 let isChecked = $(this).is(":checked");
                 let tbody = $("#itemTableBody");
 
-                $("#colourHistoryTableBody .chk-history-color").prop("checked", isChecked);
+                $("#colourHistoryTableBody .chk-history-color:not(:disabled)").prop("checked", isChecked);
 
                 if (!isChecked) {
                     $("#colourHistoryTableBody .chk-history-color").each(function () {
                         let colorId = String($(this).attr("data-colorid") || "");
                         let colorName = String($(this).attr("data-colorname") || "");
                         let existingRow = findItemTableRow(colorId, colorName);
-                        if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true") {
+                        if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true" && existingRow.attr("data-locked") !== "true") {
                             existingRow.remove();
                         }
                     });
@@ -2263,6 +2307,16 @@
                 let existingRow = findItemTableRow(colorId, colorName);
 
                 if (existingRow.length > 0) {
+                    if (existingRow.attr("data-locked") === "true") {
+                        if (typeof Swal !== "undefined" && Swal.fire) {
+                            Swal.fire({
+                                icon: "warning",
+                                title: "Locked Record",
+                                text: "This item is linked to Production and cannot be modified."
+                            });
+                        }
+                        return;
+                    }
                     // 🔥 UPDATE QUANTITY INSTEAD OF BLOCKING
                     let qtyInput = existingRow.find(".sub-qty-input");
                     if (qtyInput.length > 0) {
@@ -2400,7 +2454,7 @@
 
 
             function openDesignModal() {
-
+                currentLockedProductionDetails = [];
                 $("#DesignNo").val('');
                 $("#ColorMatchingID").empty();
                 $("#divColorMatchingTable").empty();
@@ -4124,7 +4178,7 @@
                     let row = $(this);
                     let subDetailId = parseInt(row.attr("data-subdetailid")) || 0;
                     let colorId = row.attr("data-colorid");
-                    let colorName = row.find("td:eq(4)").text().trim();
+                    let colorName = row.attr("data-colorname") || row.find("td:eq(4)").clone().children().remove().end().text().trim();
                     let qtyInput = row.find(".sub-qty-input");
                     let qty = qtyInput.length > 0 ? (parseFloat(qtyInput.val()) || 0) : (parseFloat(row.find("td:eq(5)").text()) || 0);
                     let remark = row.find("td:eq(6)").text().trim() || "";
@@ -4613,16 +4667,48 @@
                 currentViewIndex = index;
                 isEditMode = true;
                 const item = SaleOrderDetails[index];
-                $("#DesignNo").val(item.DesignId).trigger('change').prop("disabled", true);
-                bindSubTable(item.SubDetails);
-                bindFormFields(item);
-                let selectedId = item.SelectedColorId || item.SubDetails?.[0]?.ColorMatchingID;
-                if (selectedId) {
-                    $("#ColorMatchingID").val(selectedId).trigger("change");
-                    getColorMatchingId(document.getElementById("ColorMatchingID"));
+                let saleOrderId = parseInt($("#SaleOrderID").val() || 0);
+                let detailId = parseInt(item.DetailID || 0);
+                let designNo = item.DesignName || item.DesignNo || "";
+
+                currentLockedProductionDetails = [];
+
+                function showModalWithData(lockedData) {
+                    currentLockedProductionDetails = lockedData || [];
+                    $("#DesignNo").val(item.DesignId).trigger('change').prop("disabled", true);
+                    bindSubTable(item.SubDetails);
+                    bindFormFields(item);
+                    let selectedId = item.SelectedColorId || item.SubDetails?.[0]?.ColorMatchingID;
+                    if (selectedId) {
+                        $("#ColorMatchingID").val(selectedId).trigger("change");
+                        getColorMatchingId(document.getElementById("ColorMatchingID"));
+                    }
+                    filterAndShowColourHistory();
+                    $("#designModal").modal("show");
                 }
-                filterAndShowColourHistory();
-                $("#designModal").modal("show");
+
+                if (saleOrderId > 0 && detailId > 0) {
+                    showLoader();
+                    $.ajax({
+                        type: "POST",
+                        url: '/WebServiceNikunjTextile.asmx/CheckSaleOrderProductionDetails',
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({ saleOrderId: saleOrderId, detailId: detailId, designNo: designNo }),
+                        success: function (res) {
+                            hideLoader();
+                            let data = (typeof res.d === "string") ? JSON.parse(res.d) : (res.d || res);
+                            showModalWithData(data.Data || []);
+                        },
+                        error: function (xhr) {
+                            hideLoader();
+                            console.error("Error checking production details:", xhr);
+                            showModalWithData([]);
+                        }
+                    });
+                } else {
+                    showModalWithData([]);
+                }
             });
             function bindSubTable(subData) {
 
@@ -4645,9 +4731,31 @@
                     // 🔥 ALWAYS USE LATEST RATE FROM PARENT
                     let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
                     let isHighlighted = matchesHighlightColor(item.ColorMatchingName);
+                    let isLocked = isSubDetailLocked(item);
+
+                    let colorDisplay = item.ColorMatchingName;
+                    if (isHighlighted) {
+                        colorDisplay = `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${item.ColorMatchingName}</span>`;
+                    }
+                    if (isLocked) {
+                        colorDisplay += ` <span class="badge erp-badge-locked ms-2"><i class="fa fa-lock text-warning me-1"></i>LOCKED</span>`;
+                    }
+
+                    let qtyHtml = isLocked
+                        ? `<input type="number" class="form-control form-control-sm sub-qty-input text-center bg-light fw-bold" value="${item.Qty}" disabled readonly style="width: 75px; cursor: not-allowed;" title="LOCKED: Linked to Production Order" />`
+                        : `<input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${item.Qty}" min="1" style="width: 75px;" />`;
+
+                    let remarkHtml = isLocked
+                        ? `<span class="text-muted small">${escapeHtml(item.Remark || "")}</span>`
+                        : escapeHtml(item.Remark || "");
+
+                    let actionHtml = isLocked
+                        ? `<span class="badge bg-light text-muted border py-1 px-2" style="font-size: 11px; cursor: not-allowed;" title="Cannot delete: Linked to Production Order"><i class="fa fa-lock text-secondary me-1"></i>Locked</span>`
+                        : `<a href="javascript:void(0)" class="deleteRow text-danger" title="Delete"><i class="fa fa-trash"></i></a>`;
 
                     rows += `
-                    <tr class="${isHighlighted ? "erp-highlighted-sub-row" : ""}"
+                    <tr class="${isHighlighted ? "erp-highlighted-sub-row" : ""} ${isLocked ? "erp-locked-row" : ""}"
+                        data-locked="${isLocked ? "true" : "false"}"
                         data-subdetailid="${item.SubDetailID || 0}"
                         data-colorid="${item.ColorMatchingID}"
                         data-colorname="${escapeHtml(item.ColorMatchingName)}"
@@ -4661,17 +4769,13 @@
                         <td hidden>${item.DesignName || ""}</td>
                         <td hidden>${item.ColorGroup || ""}</td>
 
-                        <td>${isHighlighted ? `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${item.ColorMatchingName}</span>` : item.ColorMatchingName}</td>
+                        <td>${colorDisplay}</td>
 
-                        <td><input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${item.Qty}" min="1" style="width: 75px;" /></td>
+                        <td>${qtyHtml}</td>
 
-                        <td>${item.Remark || ""}</td>
+                        <td>${remarkHtml}</td>
 
-                        <td>
-                            <a href="javascript:void(0)" class="deleteRow text-danger">
-                                <i class="fa fa-trash"></i>
-                            </a>
-                        </td>
+                        <td>${actionHtml}</td>
                     </tr>`;
                 });
 
@@ -4723,6 +4827,9 @@
                 if (e) e.preventDefault();
 
                 let row = $(this).closest("tr");
+                if (row.attr("data-locked") === "true") {
+                    return;
+                }
                 let colorId = row.attr("data-colorid");
                 let colorName = row.attr("data-colorname") || row.find("td:eq(4)").text().trim();
 

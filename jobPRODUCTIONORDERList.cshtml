@@ -75,43 +75,43 @@
         line-height: 1.25 !important;
     }
 
-        #tblJobProductionOrderList th,
-        #tblJobProductionOrderList td {
-            border-bottom: 1px solid #e6ebf1 !important;
-            border-right: 1px solid #e6ebf1 !important;
-            padding: 7px 10px !important;
-            vertical-align: middle !important;
-            white-space: nowrap;
-        }
+    #tblJobProductionOrderList th,
+    #tblJobProductionOrderList td {
+        border-bottom: 1px solid #e6ebf1 !important;
+        border-right: 1px solid #e6ebf1 !important;
+        padding: 7px 10px !important;
+        vertical-align: middle !important;
+        white-space: nowrap;
+    }
 
         #tblJobProductionOrderList th:first-child,
         #tblJobProductionOrderList td:first-child {
             border-left: 1px solid #e6ebf1 !important;
         }
 
-        #tblJobProductionOrderList thead th {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: #1273eb !important;
-            color: #ffffff !important;
-            font-size: 0.775rem !important;
-            font-weight: 700 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            text-align: center !important;
-            height: 38px !important;
-            border-top: 1px solid #1273eb !important;
-            border-bottom: 2px solid #0d5bbd !important;
-        }
+    #tblJobProductionOrderList thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #1273eb !important;
+        color: #ffffff !important;
+        font-size: 0.775rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        text-align: center !important;
+        height: 38px !important;
+        border-top: 1px solid #1273eb !important;
+        border-bottom: 2px solid #0d5bbd !important;
+    }
 
-        #tblJobProductionOrderList tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
+    #tblJobProductionOrderList tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
 
-        #tblJobProductionOrderList tbody tr:hover td {
-            background-color: #eef5ff !important;
-        }
+    #tblJobProductionOrderList tbody tr:hover td {
+        background-color: #eef5ff !important;
+    }
 
     .slip-code-badge {
         font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -208,9 +208,11 @@
         body * {
             visibility: hidden;
         }
+
         #printSlipArea, #printSlipArea * {
             visibility: visible;
         }
+
         #printSlipArea {
             display: block !important;
             position: absolute;
@@ -232,35 +234,35 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .slip-card h4 {
-        text-align: center;
-        font-weight: 700;
-        color: #1273eb;
-        text-transform: uppercase;
-        border-bottom: 2px solid #1273eb;
-        padding-bottom: 10px;
-        margin-bottom: 16px;
-        font-size: 1.1rem;
-        letter-spacing: 0.5px;
-    }
+        .slip-card h4 {
+            text-align: center;
+            font-weight: 700;
+            color: #1273eb;
+            text-transform: uppercase;
+            border-bottom: 2px solid #1273eb;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
 
     .slip-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .slip-table td {
-        padding: 7px 10px;
-        border: 1px solid #e2e8f0;
-        font-size: 0.85rem;
-    }
+        .slip-table td {
+            padding: 7px 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
 
-    .slip-table td.label {
-        font-weight: 700;
-        background: #f1f5f9;
-        color: #334155;
-        width: 40%;
-    }
+            .slip-table td.label {
+                font-weight: 700;
+                background: #f1f5f9;
+                color: #334155;
+                width: 40%;
+            }
 </style>
 
 <!-- Content wrapper start -->
@@ -270,10 +272,10 @@
 
     <!-- Card Header Top Action Bar -->
     @*<div class="card-header-lg clearfix mb-3">
-        <button id="AddJobProductionOrder" style="float:right;" class="btn btn-primary" onclick="window.location.href='/ProductionSleep'">
-            <i class="fa fa-plus me-1"></i> Add Production Order
-        </button>
-    </div>*@
+            <button id="AddJobProductionOrder" style="float:right;" class="btn btn-primary" onclick="window.location.href='/ProductionSleep'">
+                <i class="fa fa-plus me-1"></i> Add Production Order
+            </button>
+        </div>*@
 
     <!-- Main Row -->
     <div class="row gutters">
@@ -401,20 +403,20 @@
                                     <th class="text-center" style="width: 38px;"><input id="selectAllSlip" type="checkbox" /></th>
                                     <th class="text-center" style="width: 50px;">SR NO</th>
                                     <th class="col-party">PARTY</th>
-                                    <th class="text-center" style="width: 100px;">ORDER <br/> DATE</th>
+                                    <th class="text-center" style="width: 100px;">ORDER <br /> DATE</th>
                                     <th>JOB WORKER</th>
-                                    <th class="text-center" style="width: 110px;">SO <br/> NUMBER</th>
-                                    <th class="text-center" style="width: 120px;">SLIP <br/> NO</th>
-                                    <th class="text-center" style="width: 110px;">DESIGN <br/> NO</th>
+                                    <th class="text-center" style="width: 110px;">SO <br /> NUMBER</th>
+                                    <th class="text-center" style="width: 120px;">SLIP <br /> NO</th>
+                                    <th class="text-center" style="width: 110px;">DESIGN <br /> NO</th>
                                     <th>COLOUR MATCHING</th>
-                                    <th class="text-end" style="width: 85px;">ORDER <br/> PCS</th>
-                                    <th class="text-end" style="width: 90px;">ALLOTTED <br/> PCS</th>
+                                    <th class="text-end" style="width: 85px;">ORDER <br /> PCS</th>
+                                    <th class="text-end" style="width: 90px;">ALLOTTED <br /> PCS</th>
                                     <th class="text-end" style="width: 90px;">PENDING</th>
                                     <th class="text-end" style="width: 95px;">JOB RATE</th>
                                     <th class="text-center" style="width: 80px;">REPEAT</th>
                                     <th class="text-center" style="width: 135px;">DATE</th>
-                                    <th class="text-center" style="width: 85px;">MACHINE <br/> NO</th>
-                                    <th class="text-center" style="width: 95px;">ALLOTTED <br/> REPEAT</th>
+                                    <th class="text-center" style="width: 85px;">MACHINE <br /> NO</th>
+                                    <th class="text-center" style="width: 95px;">ALLOTTED <br /> REPEAT</th>
                                 </tr>
                             </thead>
                             <tbody id="tblJobProductionOrderListBody">
@@ -539,13 +541,9 @@
         }
 
         $(document).ready(function () {
-            // Bind filter dropdown data directly on page load (fast roundtrip)
             loadFilterDropdownsDirectly();
-
-            // Load initial 30 slips for the active tab (Pending)
             loadProductionOrderSlips(true);
 
-            // Infinite scroll on table container: fetch next 30 rows on scroll down
             $(".production-list-table-container").off("scroll.infiniteload").on("scroll.infiniteload", function () {
                 var container = this;
                 if (container.scrollTop + container.clientHeight >= container.scrollHeight - 80) {
@@ -635,46 +633,46 @@
 
             $(document).on("click", "#paginationNumbers button", function () {
                 var p = parseInt($(this).attr("data-page"), 10);
-                if (p && p !== currentPage) {
-                    currentPage = p;
-                    renderTable(filteredSlipData);
+                if (p && p !== currentPageIndex) {
+                    currentPageIndex = p;
+                    loadProductionOrderSlips(true);
                 }
             });
 
             $("#btnFirstPage").on("click", function () {
-                if (currentPage > 1) {
-                    currentPage = 1;
-                    renderTable(filteredSlipData);
+                if (currentPageIndex > 1) {
+                    currentPageIndex = 1;
+                    loadProductionOrderSlips(true);
                 }
             });
 
             $("#btnPrevPage").on("click", function () {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderTable(filteredSlipData);
+                if (currentPageIndex > 1) {
+                    currentPageIndex--;
+                    loadProductionOrderSlips(true);
                 }
             });
 
             $("#btnNextPage").on("click", function () {
-                var totalPages = Math.ceil(filteredSlipData.length / pageSize) || 1;
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderTable(filteredSlipData);
+                var totalPages = Math.ceil(totalRecordsForTab / pageSize) || 1;
+                if (currentPageIndex < totalPages) {
+                    currentPageIndex++;
+                    loadProductionOrderSlips(true);
                 }
             });
 
             $("#btnLastPage").on("click", function () {
-                var totalPages = Math.ceil(filteredSlipData.length / pageSize) || 1;
-                if (currentPage < totalPages) {
-                    currentPage = totalPages;
-                    renderTable(filteredSlipData);
+                var totalPages = Math.ceil(totalRecordsForTab / pageSize) || 1;
+                if (currentPageIndex < totalPages) {
+                    currentPageIndex = totalPages;
+                    loadProductionOrderSlips(true);
                 }
             });
 
             $("#ddlPageSize").on("change", function () {
-                pageSize = parseInt($(this).val(), 10) || 15;
-                currentPage = 1;
-                renderTable(filteredSlipData);
+                pageSize = parseInt($(this).val(), 10) || 30;
+                currentPageIndex = 1;
+                loadProductionOrderSlips(true);
             });
         });
 
@@ -755,6 +753,9 @@
                             appendTableBatch(list, totalRecordsForTab, currentGrandTotalPcs);
                         }
 
+                        var totalPages = Math.ceil(totalRecordsForTab / pageSize) || 1;
+                        renderPagination(totalPages);
+
                         hasMoreData = (list.length >= pageSize && loadedCount < totalRecordsForTab);
                     }
                 },
@@ -785,24 +786,6 @@
                 return "SO" + digits.padStart(2, "0");
             }
             return str;
-        }
-
-        function parseDDMMYYYY(dateStr) {
-            if (!dateStr) return null;
-            var str = $.trim(String(dateStr));
-            var parts = str.split('/');
-            if (parts.length === 3) {
-                return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-            }
-            parts = str.split('-');
-            if (parts.length === 3) {
-                if (parts[0].length === 4) {
-                    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-                }
-                return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-            }
-            var d = new Date(str);
-            return isNaN(d.getTime()) ? null : d;
         }
 
         function loadFilterDropdownsDirectly() {
@@ -889,64 +872,6 @@
             }
         }
 
-        function populateFilterDropdowns() {
-            var allData = [].concat(allPendingData || [], allAllottedData || [], allCompletedData || []);
-
-            populateSingleDropdown("#filterParty", allData, function (item) { return item.PartyName; }, "Party Name");
-            populateSingleDropdown("#filterJobber", allData, function (item) { return item.JobWorkerName || item.PartyName; }, "Jobber / Job Worker");
-            populateSingleDropdown("#filterSO", allData, function (item) { return formatSONumber(item.SalesOrderNo); }, "SO Number");
-            populateSingleDropdown("#filterSlipNo", allData, function (item) { return item.SlipNo; }, "Slip No");
-            populateSingleDropdown("#filterDesignNo", allData, function (item) { return item.DesignNo; }, "Design No");
-            populateSingleDropdown("#filterColour", allData, function (item) { return item.ColourMatchingName; }, "Colour Matching");
-
-            if (typeof window.initAllSelect2 === "function") {
-                window.initAllSelect2();
-            }
-        }
-
-        function populateSingleDropdown(selector, dataList, valueExtractor, defaultLabel) {
-            var $ddl = $(selector);
-            var currentVal = $ddl.val();
-            var map = {};
-            var uniqueValues = [];
-
-            $.each(dataList, function (i, item) {
-                var raw = valueExtractor(item);
-                if (raw !== null && raw !== undefined) {
-                    var valStr = $.trim(String(raw));
-                    if (valStr && valStr !== "--" && !map[valStr.toLowerCase()]) {
-                        map[valStr.toLowerCase()] = true;
-                        uniqueValues.push(valStr);
-                    }
-                }
-            });
-
-            uniqueValues.sort(function (a, b) {
-                return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-            });
-
-            $ddl.empty();
-            $ddl.append($('<option>', { value: '', text: 'All ' + defaultLabel }));
-
-            $.each(uniqueValues, function (i, val) {
-                $ddl.append($('<option>', { value: val, text: val }));
-            });
-
-            if (currentVal && map[currentVal.toLowerCase()]) {
-                $ddl.val(currentVal);
-            } else {
-                $ddl.val('');
-            }
-
-            if ($ddl.data("select2")) {
-                $ddl.trigger("change.select2");
-            }
-        }
-
-        function applyFilters() {
-            loadProductionOrderSlips(true);
-        }
-
         function renderTableHeader() {
             var $thead = $("#tblJobProductionOrderListHead");
             if (currentTab === 'pending') {
@@ -968,7 +893,7 @@
                     '<th class="text-center" style="width: 135px;">DATE</th>' +
                     '<th class="text-center" style="width: 85px;">MACHINE <br/> NO</th>' +
                     '<th class="text-center" style="width: 95px;">ALLOTTED <br/> REPEAT</th>' +
-                '</tr>');
+                    '</tr>');
             } else if (currentTab === 'allotted') {
                 $thead.html('<tr>' +
                     '<th class="text-center" style="width: 38px;"><input id="selectAllSlip" type="checkbox" /></th>' +
@@ -987,7 +912,7 @@
                     '<th class="text-end" style="width: 95px;">JOB RATE</th>' +
                     '<th class="text-center" style="width: 80px;">REPEAT</th>' +
                     '<th class="text-center" style="width: 100px;">ACTION</th>' +
-                '</tr>');
+                    '</tr>');
             } else {
                 $thead.html('<tr>' +
                     '<th class="text-center" style="width: 38px;"><input id="selectAllSlip" type="checkbox" /></th>' +
@@ -1001,10 +926,12 @@
                     '<th>COLOUR MATCHING</th>' +
                     '<th class="text-end" style="width: 85px;">ORDER <br/> PCS</th>' +
                     '<th class="text-end" style="width: 95px;">COMPLETED <br/> PCS</th>' +
+                    '<th class="text-center" style="width: 90px;">PROD <br/> DATE</th>' +
+                    '<th class="text-center" style="width: 85px;">MACHINE <br/> NO</th>' +
                     '<th class="text-end" style="width: 95px;">JOB RATE</th>' +
                     '<th class="text-center" style="width: 80px;">REPEAT</th>' +
                     '<th class="text-center" style="width: 100px;">ACTION</th>' +
-                '</tr>');
+                    '</tr>');
             }
         }
 
@@ -1019,7 +946,7 @@
                 $tbody.html('<tr><td colspan="' + colSpan + '" class="text-center text-muted py-4">No ' + currentTab + ' records found matching filters.</td></tr>');
                 $("#lblTotalCount").text(0);
                 if ($("#lblTotalCountSummary").length) $("#lblTotalCountSummary").text(0);
-                $("#lblTotalPcs").text(0);
+                $("#lblTotalPcs").text("0.00");
                 $("#lblShowingInfo").text("Showing 0 to 0 of 0 slips");
                 return;
             }
@@ -1059,7 +986,6 @@
         function buildRowHtml(item, actualIndex, defaultDate) {
             var detailId = parseInt(item.ProductionOrderDetailID || item.productionOrderDetailID || item.Id || item.id || 0, 10);
             var orderId = parseInt(item.ProductionOrderID || item.productionOrderID || 0, 10);
-            var pcs = parseFloat(item.PCS || 0);
             var jobRate = parseFloat(item.JobRate || 0);
             var displaySO = formatSONumber(item.SalesOrderNo);
 
@@ -1068,25 +994,26 @@
             var completedPcs = parseFloat(item.CompletedPCS !== undefined ? item.CompletedPCS : (item.completedPCS !== undefined ? item.completedPCS : 0)) || 0;
             var remainingPcs = item.RemainingPCS !== undefined ? parseFloat(item.RemainingPCS) : (item.remainingPCS !== undefined ? parseFloat(item.remainingPCS) : Math.max(0, totalPcs - completedPcs));
 
-            var totalRepeats = 0;
             var repeatVal = '--';
             if (panaRepeat > 0) {
                 var calcR = totalPcs / panaRepeat;
-                if (calcR > 0) {
-                    totalRepeats = (calcR % 1 === 0) ? calcR : parseFloat(calcR.toFixed(2));
-                    repeatVal = totalRepeats;
-                } else {
-                    repeatVal = panaRepeat;
-                }
+                repeatVal = calcR > 0 ? ((calcR % 1 === 0) ? calcR : parseFloat(calcR.toFixed(2))) : panaRepeat;
             } else if (item.Repeat !== undefined && item.Repeat !== null && item.Repeat !== '') {
                 repeatVal = item.Repeat;
-                var parsedR = parseFloat(item.Repeat);
-                if (!isNaN(parsedR) && parsedR > 0) {
-                    totalRepeats = parsedR;
-                }
             }
 
             var noOfMachines = parseInt(item.NoOfMachines || item.noOfMachines || 0, 10);
+
+            var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
+            var imgSrc = '';
+            if (photoPath) {
+                photoPath = photoPath.replace(/\\/g, '/');
+                if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
+                else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
+                else imgSrc = photoPath;
+            }
+            var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
+            var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
 
             if (currentTab === 'pending') {
                 var maxRepeatInput = 0;
@@ -1107,17 +1034,6 @@
                     defaultInputVal = remainingPcs;
                 }
 
-                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                var imgSrc = '';
-                if (photoPath) {
-                    photoPath = photoPath.replace(/\\/g, '/');
-                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                    else imgSrc = photoPath;
-                }
-                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
-
                 return '<tr>' +
                     '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + detailId + '" data-detailid="' + detailId + '" data-orderid="' + orderId + '" /></td>' +
                     '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
@@ -1136,7 +1052,7 @@
                     '<td class="p-1"><input type="date" id="rowDate_' + detailId + '" class="form-control form-control-sm row-input-date" value="' + defaultDate + '" /></td>' +
                     '<td class="p-1"><input type="number" id="rowMachineNo_' + detailId + '" class="form-control form-control-sm row-input-machine" placeholder="No" min="1" ' + (noOfMachines > 0 ? ('max="' + noOfMachines + '" ') : '') + 'step="1" data-detailid="' + detailId + '" data-noofmachines="' + noOfMachines + '" /></td>' +
                     '<td class="p-1"><input type="number" id="rowPCS_' + detailId + '" class="form-control form-control-sm row-input-pcs" placeholder="' + (panaRepeat > 0 ? 'Repeat' : 'PCS') + '" min="' + pcsMin + '" max="' + maxRepeatInput + '" step="' + pcsStep + '" value="' + defaultInputVal + '" data-detailid="' + detailId + '" data-orderpcs="' + totalPcs + '" data-panarepeat="' + panaRepeat + '" data-maxrepeat="' + maxRepeatInput + '" data-completedpcs="' + completedPcs + '" data-remainingpcs="' + remainingPcs + '" /></td>' +
-                '</tr>';
+                    '</tr>';
             } else if (currentTab === 'allotted') {
                 var subDetailId = item.ProductionOrderSubDetailID || detailId;
                 var allottedPcs = item.SubDetailPCS !== undefined ? parseFloat(item.SubDetailPCS) : completedPcs;
@@ -1148,17 +1064,6 @@
                     var calcSubR = allottedPcs / panaRepeat;
                     allottedRepeatVal = (calcSubR % 1 === 0) ? calcSubR : parseFloat(calcSubR.toFixed(2));
                 }
-
-                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                var imgSrc = '';
-                if (photoPath) {
-                    photoPath = photoPath.replace(/\\/g, '/');
-                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                    else imgSrc = photoPath;
-                }
-                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
 
                 return '<tr>' +
                     '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + subDetailId + '" data-detailid="' + detailId + '" /></td>' +
@@ -1177,29 +1082,28 @@
                     '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
                     '<td class="text-center fw-bold text-info">' + allottedRepeatVal + '</td>' +
                     '<td class="text-center p-1">' +
-                        '<button type="button" class="btn btn-sm btn-outline-primary me-1" title="Print Slip" onclick="ExportProductionSlipPDF([' + subDetailId + '])">' +
-                            '<i class="fa fa-print me-1"></i> Print' +
-                        '</button>' +
-                        '<button type="button" class="btn btn-sm btn-outline-danger" title="Delete Sub Detail Entry" onclick="deleteSubDetailRow(' + subDetailId + ')">' +
-                            '<i class="fa fa-trash"></i>' +
-                        '</button>' +
+                    '<button type="button" class="btn btn-sm btn-outline-primary me-1" title="Print Slip" onclick="ExportProductionSlipPDF([' + subDetailId + '])">' +
+                    '<i class="fa fa-print me-1"></i> Print' +
+                    '</button>' +
+                    '<button type="button" class="btn btn-sm btn-outline-danger" title="Delete Sub Detail Entry" onclick="deleteSubDetailRow(' + subDetailId + ')">' +
+                    '<i class="fa fa-trash"></i>' +
+                    '</button>' +
                     '</td>' +
-                '</tr>';
+                    '</tr>';
             } else {
-                var completedSubIdsStr = (item.SubDetailIDs && $.trim(item.SubDetailIDs) !== '') ? $.trim(item.SubDetailIDs) : String(detailId);
-                var photoPath = item.PhotoPath || item.ColorMatchingPhoto || item.ImageUrl || '';
-                var imgSrc = '';
-                if (photoPath) {
-                    photoPath = photoPath.replace(/\\/g, '/');
-                    if (photoPath.indexOf('~/') === 0) imgSrc = photoPath.replace('~/', '/');
-                    else if (photoPath.indexOf('/') !== 0) imgSrc = '/' + photoPath;
-                    else imgSrc = photoPath;
+                var subDetailId = item.ProductionOrderSubDetailID || detailId;
+                var completedRowPcs = item.SubDetailPCS !== undefined ? parseFloat(item.SubDetailPCS) : completedPcs;
+                var prodDate = item.ProductionDate || item.OrderDate || '--';
+                var machineNo = item.MachineNumber || '--';
+
+                var completedRepeatVal = repeatVal;
+                if (panaRepeat > 0 && completedRowPcs > 0) {
+                    var calcCompR = completedRowPcs / panaRepeat;
+                    completedRepeatVal = (calcCompR % 1 === 0) ? calcCompR : parseFloat(calcCompR.toFixed(2));
                 }
-                var imgHtml = imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #c9cfd6; margin-right:6px; cursor:pointer;" onclick="window.open(this.src,\'_blank\')" title="Click to view image" />' : '';
-                var colourTd = '<td><div style="display:flex; align-items:center;">' + imgHtml + '<span class="fw-semibold">' + escapeHtml(item.ColourMatchingName || '--') + '</span></div></td>';
 
                 return '<tr>' +
-                    '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + completedSubIdsStr + '" data-detailid="' + detailId + '" /></td>' +
+                    '<td class="text-center"><input type="checkbox" class="chk-select-slip" value="' + subDetailId + '" data-detailid="' + detailId + '" /></td>' +
                     '<td class="text-center fw-bold">' + (actualIndex + 1) + '</td>' +
                     '<td class="col-party"><strong class="text-dark">' + escapeHtml(item.PartyName || '--') + '</strong></td>' +
                     '<td class="text-center fw-semibold text-secondary">' + escapeHtml(item.OrderDate || '--') + '</td>' +
@@ -1209,15 +1113,17 @@
                     '<td class="text-center fw-bold text-secondary">' + escapeHtml(item.DesignNo || '--') + '</td>' +
                     colourTd +
                     '<td class="text-end fw-bold text-dark">' + totalPcs + '</td>' +
-                    '<td class="text-end fw-bold text-success">' + completedPcs.toFixed(2) + '</td>' +
+                    '<td class="text-end fw-bold text-success">' + completedRowPcs.toFixed(2) + '</td>' +
+                    '<td class="text-center fw-semibold text-secondary">' + escapeHtml(prodDate) + '</td>' +
+                    '<td class="text-center fw-bold text-primary">' + escapeHtml(machineNo) + '</td>' +
                     '<td class="text-end fw-semibold"><i class="fa fa-inr me-1"></i>' + jobRate.toFixed(2) + '</td>' +
-                    '<td class="text-center fw-bold text-info">' + repeatVal + '</td>' +
+                    '<td class="text-center fw-bold text-info">' + completedRepeatVal + '</td>' +
                     '<td class="text-center p-1">' +
-                        '<button type="button" class="btn btn-sm btn-outline-primary" title="Print Slip" onclick="ExportProductionSlipPDF([' + completedSubIdsStr + '])">' +
-                            '<i class="fa fa-print me-1"></i> Print' +
-                        '</button>' +
+                    '<button type="button" class="btn btn-sm btn-outline-primary" title="Print Slip" onclick="ExportProductionSlipPDF([' + subDetailId + '])">' +
+                    '<i class="fa fa-print me-1"></i> Print' +
+                    '</button>' +
                     '</td>' +
-                '</tr>';
+                    '</tr>';
             }
         }
 
@@ -1253,9 +1159,7 @@
         function validatePCSValue(inputVal, panaRepeat, orderPcs, completedPcs, remainingPcs, isToast, maxRepeatInput) {
             if (isNaN(inputVal) || inputVal <= 0) {
                 var msg1 = (panaRepeat > 0) ? "Please enter a valid Repeat count." : "Please enter a valid PCS value.";
-                if (isToast) {
-                    showToast("warning", "Invalid Input", msg1);
-                }
+                if (isToast) showToast("warning", "Invalid Input", msg1);
                 return { valid: false, message: msg1, title: "Invalid Input" };
             }
 
@@ -1263,9 +1167,7 @@
                 var maxAllowedRepeats = (maxRepeatInput > 0) ? maxRepeatInput : (remainingPcs / panaRepeat);
                 if (inputVal > maxAllowedRepeats) {
                     var msgMaxR = "Repeat input (" + inputVal + ") cannot exceed REPEAT limit (" + maxAllowedRepeats + ")!";
-                    if (isToast) {
-                        showToast("warning", "Repeat Limit Exceeded", msgMaxR);
-                    }
+                    if (isToast) showToast("warning", "Repeat Limit Exceeded", msgMaxR);
                     return { valid: false, message: msgMaxR, title: "Repeat Limit Exceeded" };
                 }
 
@@ -1273,9 +1175,7 @@
                 var totalMachinePCS = completedPcs + pcsToSave;
                 if (orderPcs > 0 && totalMachinePCS > orderPcs) {
                     var msgMaxPcs = "Total Machine PCS (" + totalMachinePCS.toFixed(2) + ") cannot exceed Order PCS (" + orderPcs.toFixed(2) + "). Maximum remaining allowed PCS is " + remainingPcs.toFixed(2) + ".";
-                    if (isToast) {
-                        showToast("warning", "PCS Limit Exceeded", msgMaxPcs);
-                    }
+                    if (isToast) showToast("warning", "PCS Limit Exceeded", msgMaxPcs);
                     return { valid: false, message: msgMaxPcs, title: "PCS Limit Exceeded" };
                 }
 
@@ -1283,18 +1183,14 @@
             } else {
                 if (remainingPcs > 0 && inputVal > remainingPcs) {
                     var msgMax = "PCS (" + inputVal + ") cannot exceed Pending PCS (" + remainingPcs.toFixed(2) + ").";
-                    if (isToast) {
-                        showToast("warning", "PCS Limit Exceeded", msgMax);
-                    }
+                    if (isToast) showToast("warning", "PCS Limit Exceeded", msgMax);
                     return { valid: false, message: msgMax, title: "PCS Limit Exceeded" };
                 }
 
                 var totalMachinePCS = completedPcs + inputVal;
                 if (orderPcs > 0 && totalMachinePCS > orderPcs) {
                     var msg4 = "Total Machine PCS (" + totalMachinePCS.toFixed(2) + ") cannot exceed Order PCS (" + orderPcs.toFixed(2) + "). Maximum remaining allowed PCS is " + remainingPcs.toFixed(2) + ".";
-                    if (isToast) {
-                        showToast("warning", "PCS Limit Exceeded", msg4);
-                    }
+                    if (isToast) showToast("warning", "PCS Limit Exceeded", msg4);
                     return { valid: false, message: msg4, title: "PCS Limit Exceeded" };
                 }
 
@@ -1311,54 +1207,39 @@
             noOfMachines = parseInt(noOfMachines || $("#rowMachineNo_" + detailId).attr("data-noofmachines") || 0, 10);
 
             if (!prodDate) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please select Date.' });
-                } else {
-                    alert("Please select Date.");
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please select Date.' });
+                else alert("Please select Date.");
                 $("#rowDate_" + detailId).focus();
                 return;
             }
             if (isNaN(machineNo) || machineNo <= 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please enter a valid Machine Number.' });
-                } else {
-                    alert("Please enter a valid Machine Number.");
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please enter a valid Machine Number.' });
+                else alert("Please enter a valid Machine Number.");
                 $("#rowMachineNo_" + detailId).focus();
                 return;
             }
-
             if (noOfMachines > 0 && machineNo > noOfMachines) {
                 var msgMachine = "Machine No (" + machineNo + ") cannot exceed Jobber Machine count (" + noOfMachines + ")!";
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: 'Machine Count Exceeded', text: msgMachine });
-                } else {
-                    alert(msgMachine);
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Machine Count Exceeded', text: msgMachine });
+                else alert(msgMachine);
                 $("#rowMachineNo_" + detailId).focus();
                 return;
             }
 
             var check = validatePCSValue(inputVal, panaRepeat, orderPcs, completedPcs, remainingPcs, false, maxRepeatInput);
             if (!check.valid) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: check.title, text: check.message });
-                } else {
-                    alert(check.message);
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: check.title, text: check.message });
+                else alert(check.message);
                 $("#rowPCS_" + detailId).focus();
                 return;
             }
-
-            var pcsToSave = check.pcsToSave;
 
             var payload = {
                 productionOrderID: orderId,
                 productionOrderDetailID: detailId,
                 productionDate: prodDate,
                 machineNumber: machineNo,
-                pcs: pcsToSave
+                pcs: check.pcsToSave
             };
 
             $.ajax({
@@ -1374,7 +1255,7 @@
                     }
 
                     if (res && res.Status) {
-                        loadProductionOrderSlips();
+                        loadProductionOrderSlips(true);
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'success',
@@ -1388,22 +1269,16 @@
                         }
                     } else {
                         var errorMsg = (res ? res.Message : '') || 'Failed to save machine details.';
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
-                        } else {
-                            alert(errorMsg);
-                        }
+                        if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
+                        else alert(errorMsg);
                     }
                 },
                 error: function (xhr) {
                     console.error("Error saving row sub detail:", xhr);
                     var msg = "An error occurred while saving.";
                     if (xhr && xhr.responseJSON && xhr.responseJSON.Message) msg = xhr.responseJSON.Message;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'error', title: 'Error', text: msg });
-                    } else {
-                        alert(msg);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    else alert(msg);
                 }
             });
         }
@@ -1411,11 +1286,8 @@
         function saveBulkMachineDetails() {
             var $checkedBoxes = $("#tblJobProductionOrderListBody .chk-select-slip:checked");
             if ($checkedBoxes.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: 'Selection Warning', text: 'Please select at least one slip to save.' });
-                } else {
-                    alert('Please select at least one slip to save.');
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Selection Warning', text: 'Please select at least one slip to save.' });
+                else alert('Please select at least one slip to save.');
                 return;
             }
 
@@ -1447,22 +1319,16 @@
 
                 if (!prodDate) {
                     validationFailed = true;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please select Date for Slip ' + slipCode });
-                    } else {
-                        alert('Please select Date for Slip ' + slipCode);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please select Date for Slip ' + slipCode });
+                    else alert('Please select Date for Slip ' + slipCode);
                     $dateInput.focus();
                     return false;
                 }
 
                 if (isNaN(machineNo) || machineNo <= 0) {
                     validationFailed = true;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please enter a valid Machine Number for Slip ' + slipCode });
-                    } else {
-                        alert('Please enter a valid Machine Number for Slip ' + slipCode);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Validation Warning', text: 'Please enter a valid Machine Number for Slip ' + slipCode });
+                    else alert('Please enter a valid Machine Number for Slip ' + slipCode);
                     $machineInput.focus();
                     return false;
                 }
@@ -1470,11 +1336,8 @@
                 if (noOfMachines > 0 && machineNo > noOfMachines) {
                     validationFailed = true;
                     var msgMachine = "Machine No (" + machineNo + ") cannot exceed Jobber Machine count (" + noOfMachines + ") for Slip " + slipCode;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'warning', title: 'Machine Count Exceeded', text: msgMachine });
-                    } else {
-                        alert(msgMachine);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Machine Count Exceeded', text: msgMachine });
+                    else alert(msgMachine);
                     $machineInput.focus();
                     return false;
                 }
@@ -1482,11 +1345,8 @@
                 var check = validatePCSValue(inputVal, panaRepeat, orderPcs, completedPcs, remainingPcs, false, maxRepeatInput);
                 if (!check.valid) {
                     validationFailed = true;
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'warning', title: check.title, text: slipCode + ': ' + check.message });
-                    } else {
-                        alert(slipCode + ': ' + check.message);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: check.title, text: slipCode + ': ' + check.message });
+                    else alert(slipCode + ': ' + check.message);
                     $pcsInput.focus();
                     return false;
                 }
@@ -1502,58 +1362,48 @@
 
             if (validationFailed || itemsToSave.length === 0) return;
 
-            var doSave = function () {
-                $("#btnBulkSave").prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
-                $.ajax({
-                    type: "POST",
-                    url: "WebServiceNikunjTextile.asmx/SaveBulkProductionOrderSubDetails",
-                    data: JSON.stringify({ items: itemsToSave }),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                        $("#btnBulkSave").prop("disabled", false).html('<i class="fa fa-save me-1"></i> Add for Production');
-                        var res = response.d !== undefined ? response.d : response;
-                        if (typeof res === "string") {
-                            try { res = JSON.parse(res); } catch (e) { }
-                        }
-
-                        if (res && res.Status) {
-                            loadProductionOrderSlips(true);
-                            if (typeof Swal !== 'undefined') {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Saved Successfully!',
-                                    text: res.Message || 'Selected slips saved successfully.',
-                                    confirmButtonColor: '#1273eb',
-                                    confirmButtonText: 'OK'
-                                });
-                            } else {
-                                alert(res.Message || 'Selected slips saved successfully.');
-                            }
-                        } else {
-                            var errorMsg = (res ? res.Message : '') || 'Failed to save slips.';
-                            if (typeof Swal !== 'undefined') {
-                                Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
-                            } else {
-                                alert(errorMsg);
-                            }
-                        }
-                    },
-                    error: function (xhr) {
-                        $("#btnBulkSave").prop("disabled", false).html('<i class="fa fa-save me-1"></i> Add for Production');
-                        console.error("Error saving bulk machine details:", xhr);
-                        var msg = "An error occurred while saving.";
-                        if (xhr && xhr.responseJSON && xhr.responseJSON.Message) msg = xhr.responseJSON.Message;
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ icon: 'error', title: 'Error', text: msg });
-                        } else {
-                            alert(msg);
-                        }
+            $("#btnBulkSave").prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+            $.ajax({
+                type: "POST",
+                url: "WebServiceNikunjTextile.asmx/SaveBulkProductionOrderSubDetails",
+                data: JSON.stringify({ items: itemsToSave }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#btnBulkSave").prop("disabled", false).html('<i class="fa fa-save me-1"></i> Add for Production');
+                    var res = response.d !== undefined ? response.d : response;
+                    if (typeof res === "string") {
+                        try { res = JSON.parse(res); } catch (e) { }
                     }
-                });
-            };
 
-            doSave();
+                    if (res && res.Status) {
+                        loadProductionOrderSlips(true);
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Saved Successfully!',
+                                text: res.Message || 'Selected slips saved successfully.',
+                                confirmButtonColor: '#1273eb',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            alert(res.Message || 'Selected slips saved successfully.');
+                        }
+                    } else {
+                        var errorMsg = (res ? res.Message : '') || 'Failed to save slips.';
+                        if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
+                        else alert(errorMsg);
+                    }
+                },
+                error: function (xhr) {
+                    $("#btnBulkSave").prop("disabled", false).html('<i class="fa fa-save me-1"></i> Add for Production');
+                    console.error("Error saving bulk machine details:", xhr);
+                    var msg = "An error occurred while saving.";
+                    if (xhr && xhr.responseJSON && xhr.responseJSON.Message) msg = xhr.responseJSON.Message;
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    else alert(msg);
+                }
+            });
         }
 
         function deleteSubDetailRow(subDetailId) {
@@ -1610,11 +1460,8 @@
 
         function ExportProductionSlipPDF(ids) {
             if (!ids || ids.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'warning', title: 'Warning', text: 'Please select at least one production slip.' });
-                } else {
-                    alert('Please select at least one production slip.');
-                }
+                if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Warning', text: 'Please select at least one production slip.' });
+                else alert('Please select at least one production slip.');
                 return;
             }
 
@@ -1641,11 +1488,8 @@
                     if (result && result.Status && result.FilePath) {
                         window.open(result.FilePath, "_blank");
                     } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ icon: 'warning', title: 'Notice', text: (result ? result.Message : '') || 'PDF not generated' });
-                        } else {
-                            alert((result ? result.Message : '') || 'PDF not generated');
-                        }
+                        if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Notice', text: (result ? result.Message : '') || 'PDF not generated' });
+                        else alert((result ? result.Message : '') || 'PDF not generated');
                     }
                 },
                 error: function (xhr) {
@@ -1666,20 +1510,17 @@
                         }
                     }
 
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({ icon: 'error', title: 'Error!', text: msg });
-                    } else {
-                        alert(msg);
-                    }
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error!', text: msg });
+                    else alert(msg);
                 }
             });
         }
 
         function renderPagination(totalPages) {
-            $("#btnFirstPage").prop("disabled", currentPage <= 1);
-            $("#btnPrevPage").prop("disabled", currentPage <= 1);
-            $("#btnNextPage").prop("disabled", currentPage >= totalPages || totalPages === 0);
-            $("#btnLastPage").prop("disabled", currentPage >= totalPages || totalPages === 0);
+            $("#btnFirstPage").prop("disabled", currentPageIndex <= 1);
+            $("#btnPrevPage").prop("disabled", currentPageIndex <= 1);
+            $("#btnNextPage").prop("disabled", currentPageIndex >= totalPages || totalPages === 0);
+            $("#btnLastPage").prop("disabled", currentPageIndex >= totalPages || totalPages === 0);
 
             var $container = $("#paginationNumbers");
             $container.empty();
@@ -1687,7 +1528,7 @@
             if (totalPages <= 1) return;
 
             var maxButtons = 5;
-            var startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            var startPage = Math.max(1, currentPageIndex - Math.floor(maxButtons / 2));
             var endPage = startPage + maxButtons - 1;
 
             if (endPage > totalPages) {
@@ -1696,7 +1537,7 @@
             }
 
             for (var p = startPage; p <= endPage; p++) {
-                var activeClass = (p === currentPage) ? " active" : "";
+                var activeClass = (p === currentPageIndex) ? " active" : "";
                 $container.append('<button type="button" class="pagination-btn' + activeClass + '" data-page="' + p + '">' + p + '</button>');
             }
         }

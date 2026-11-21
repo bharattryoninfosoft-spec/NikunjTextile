@@ -44162,18 +44162,61 @@ ORDER BY
                     con.Open();
 
                     string query = @"
-                                  SELECT
+        SELECT
     SO.SaleOrderID,
     SO.OrderNo,
-        CASE
-            WHEN EXISTS (
+
+    -- =====================================================
+    -- EDIT VALIDATION
+    -- All SaleOrderDetails and ProductionOrderDetail
+    -- must match
+    -- =====================================================
+    CASE
+        WHEN
+            -- Every SaleOrderDetail must exist in ProductionOrderDetail
+            NOT EXISTS
+            (
+                SELECT 1
+                FROM SaleOrderDetails SD
+                WHERE SD.SaleOrderID = SO.SaleOrderID
+                  AND NOT EXISTS
+                  (
+                      SELECT 1
+                      FROM ProductionOrderDetail POD
+                      WHERE POD.SalesOrderID = SO.SaleOrderID
+                        AND POD.SalesOrderDetailID = SD.DetailID
+                        AND POD.DesignNo = SD.DesignNo
+                  )
+            )
+
+            -- No extra ProductionOrderDetail records allowed
+            AND NOT EXISTS
+            (
                 SELECT 1
                 FROM ProductionOrderDetail POD
-                WHERE POD.SalesOrderNo = SO.OrderNo
+                WHERE POD.SalesOrderID = SO.SaleOrderID
+                  AND NOT EXISTS
+                  (
+                      SELECT 1
+                      FROM SaleOrderDetails SD
+                      WHERE SD.SaleOrderID = SO.SaleOrderID
+                        AND SD.DetailID = POD.SalesOrderDetailID
+                        AND SD.DesignNo = POD.DesignNo
+                  )
             )
-			        THEN 1
-			        ELSE 0
-		        END AS isEdite,
+
+            -- At least one SaleOrderDetail must exist
+            AND EXISTS
+            (
+                SELECT 1
+                FROM SaleOrderDetails SD
+                WHERE SD.SaleOrderID = SO.SaleOrderID
+            )
+
+        THEN 1
+        ELSE 0
+    END AS isEdite,
+
     CONVERT(VARCHAR(10), SO.OrderDate, 23) AS OrderDate,
 
     ISNULL(PM.PartyName, '') AS PartyName,
@@ -44190,61 +44233,32 @@ ORDER BY
 
     ISNULL(SO.TotalQty, 0) AS TotalQty,
 
-    -- =====================================================
     -- RATE
-    -- Detail Rate Total + ChargeValue
-    --
-    -- Example:
-    -- 50 + 40 + 20 + 100 = 210
-    -- =====================================================
     ISNULL(D.TotalRate, 0)
         + ISNULL(AC.ChargeValue, 0) AS Rate,
 
-    -- Additional Charge
+    -- ADDITIONAL CHARGES
     ISNULL(AC.ChargeRemark, '') AS ChargeRemark,
     ISNULL(AC.ChargeValue, 0) AS ChargeValue,
 
-    -- =====================================================
     -- SUB TOTAL
-    --
-    -- JS:
-    -- (SaleRate + ChargeValue) * Qty
-    --
-    -- Example:
-    -- (50 + 100) * 24 = 3600
-    -- (40 + 100) * 24 = 3360
-    -- (20 + 100) * 24 = 2880
-    --
-    -- Total = 9840
-    -- =====================================================
     CALC.SubTotalAmount,
 
-    -- =====================================================
     -- DISCOUNT
-    -- =====================================================
     ISNULL(SO.DiscountPercent, 0) AS DiscountPercent,
     CALC.DiscountAmount,
 
-    -- =====================================================
     -- TAXABLE
-    -- =====================================================
     CALC.TaxableAmount,
 
-    -- =====================================================
     -- GST
-    -- =====================================================
     ISNULL(SO.GSTPercent, 10) AS GSTPercent,
     CALC.GSTAmount,
 
-    -- =====================================================
     -- ROUND OFF
-    -- =====================================================
     CALC.RoundOff,
 
-    -- =====================================================
     -- FINAL INVOICE AMOUNT
-    -- Same as JavaScript Math.round()
-    -- =====================================================
     CALC.InvoiceAmount AS FinalInvoiceAmount
 
 FROM SaleOrder SO
@@ -44258,35 +44272,29 @@ LEFT JOIN BrokerMaster BM
 LEFT JOIN TransportMaster TMST
     ON SO.TransportID = TMST.TransportCode
 
-
--- ==========================================================
+-- =====================================================
 -- ADDITIONAL CHARGES
--- ==========================================================
+-- =====================================================
 OUTER APPLY
 (
     SELECT
         MAX(ISNULL(SOA1.ChargeRemark, '')) AS ChargeRemark,
-
         SUM(ISNULL(SOA1.ChargeValue, 0)) AS ChargeValue
-
     FROM SaleOrderAdditionalCharges SOA1
     WHERE SOA1.SaleOrderID = SO.SaleOrderID
 ) AC
 
-
--- ==========================================================
+-- =====================================================
 -- SALE ORDER DETAILS
---
--- IMPORTANT:
--- Outer AC reference is NOT used inside SUM()
--- ==========================================================
+-- =====================================================
 OUTER APPLY
 (
     SELECT
         SUM(ISNULL(D1.BrokerRate, 0)) AS TotalRate,
 
         SUM(
-            ISNULL(D1.BrokerRate, 0) * ISNULL(D1.Qty, 0)
+            ISNULL(D1.BrokerRate, 0)
+            * ISNULL(D1.Qty, 0)
         ) AS DetailAmount,
 
         SUM(ISNULL(D1.Qty, 0)) AS DetailQty
@@ -44295,126 +44303,88 @@ OUTER APPLY
     WHERE D1.SaleOrderID = SO.SaleOrderID
 ) D
 
-
--- ==========================================================
--- JAVASCRIPT SAME SUBTOTAL CALCULATION
---
--- DetailAmount
--- +
--- ChargeValue × DetailQty
---
--- This is mathematically same as:
---
--- SUM((Rate + ChargeValue) × Qty)
--- ==========================================================
+-- =====================================================
+-- SUB TOTAL CALCULATION
+-- =====================================================
 CROSS APPLY
 (
     SELECT
-
         ISNULL(D.DetailAmount, 0)
         +
         (
             ISNULL(AC.ChargeValue, 0)
-            *
-            ISNULL(D.DetailQty, 0)
+            * ISNULL(D.DetailQty, 0)
         ) AS SubTotalAmount
-
 ) S
 
-
--- ==========================================================
+-- =====================================================
 -- DISCOUNT + TAXABLE
--- ==========================================================
+-- =====================================================
 CROSS APPLY
 (
     SELECT
-
         S.SubTotalAmount,
 
         S.SubTotalAmount
-        *
-        (
-            ISNULL(SO.DiscountPercent, 0) / 100.0
-        ) AS DiscountAmount,
+        * (ISNULL(SO.DiscountPercent, 0) / 100.0)
+            AS DiscountAmount,
 
         S.SubTotalAmount
         -
         (
             S.SubTotalAmount
-            *
-            (
-                ISNULL(SO.DiscountPercent, 0) / 100.0
-            )
+            * (ISNULL(SO.DiscountPercent, 0) / 100.0)
         ) AS TaxableAmount
-
 ) X
 
-
--- ==========================================================
+-- =====================================================
 -- GST
--- ==========================================================
+-- =====================================================
 CROSS APPLY
 (
     SELECT
-
         X.SubTotalAmount,
         X.DiscountAmount,
         X.TaxableAmount,
 
         X.TaxableAmount
-        *
-        (
-            ISNULL(SO.GSTPercent, 10) / 100.0
-        ) AS GSTAmount
-
+        * (ISNULL(SO.GSTPercent, 10) / 100.0)
+            AS GSTAmount
 ) Y
 
-
--- ==========================================================
+-- =====================================================
 -- UNROUNDED TOTAL
--- ==========================================================
+-- =====================================================
 CROSS APPLY
 (
     SELECT
-
         Y.SubTotalAmount,
         Y.DiscountAmount,
         Y.TaxableAmount,
         Y.GSTAmount,
 
-        Y.TaxableAmount
-        + Y.GSTAmount AS UnroundedInvoiceTotal
-
+        Y.TaxableAmount + Y.GSTAmount
+            AS UnroundedInvoiceTotal
 ) Z
 
-
--- ==========================================================
--- ROUND OFF + FINAL
--- ==========================================================
+-- =====================================================
+-- ROUND OFF + FINAL INVOICE
+-- =====================================================
 CROSS APPLY
 (
     SELECT
-
         Z.SubTotalAmount,
         Z.DiscountAmount,
         Z.TaxableAmount,
         Z.GSTAmount,
         Z.UnroundedInvoiceTotal,
 
-        ROUND(
-            Z.UnroundedInvoiceTotal,
-            0
-        )
-        -
-        Z.UnroundedInvoiceTotal AS RoundOff,
+        ROUND(Z.UnroundedInvoiceTotal, 0)
+        - Z.UnroundedInvoiceTotal AS RoundOff,
 
-        ROUND(
-            Z.UnroundedInvoiceTotal,
-            0
-        ) AS InvoiceAmount
-
+        ROUND(Z.UnroundedInvoiceTotal, 0)
+            AS InvoiceAmount
 ) CALC
-
 
 ORDER BY
     TRY_CAST(SO.OrderNo AS INT) DESC,
@@ -44729,16 +44699,16 @@ ORDER BY
                                 var detailsList = new List<Dictionary<string, object>>();
 
                                 using (SqlCommand cmdOld = new SqlCommand(@"
-                             SELECT SO.SaleOrderID, SO.OrderNo, SO.OrderDate, SO.PartyID, SO.BrokerID, 
-                                    SO.TransportID, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, 
-                                    SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount, SO.Remark,
-                                    D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate, D.DesignColorMatchingID,
-                                    SD.SubDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark AS SubRemark
-                             FROM dbo.SaleOrder SO WITH (UPDLOCK, HOLDLOCK)
-                             LEFT JOIN dbo.SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
-                             LEFT JOIN dbo.SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
-                             WHERE SO.SaleOrderID = @SaleOrderID
-                             ORDER BY D.DetailID, SD.SubDetailID", con, trans))
+                      SELECT SO.SaleOrderID, SO.OrderNo, SO.OrderDate, SO.PartyID, SO.BrokerID, 
+                             SO.TransportID, SO.TotalQty, SO.TotalAmount, SO.DiscountPercent, 
+                             SO.DiscountAmount, SO.GSTPercent, SO.GSTAmount, SO.InvoiceAmount, SO.Remark,
+                             D.DetailID, D.DesignID, D.DesignNo, D.ItemType, D.NoOfColours, D.Qty AS DetailQty, D.Unit AS DetailUnit, D.Rate, D.Amount, D.BrokerRate, D.DesignColorMatchingID,
+                             SD.SubDetailID, SD.ColourID, SD.ColourName, SD.Qty AS SubQty, SD.Unit AS SubUnit, SD.Remark AS SubRemark
+                      FROM dbo.SaleOrder SO WITH (UPDLOCK, HOLDLOCK)
+                      LEFT JOIN dbo.SaleOrderDetails D ON SO.SaleOrderID = D.SaleOrderID
+                      LEFT JOIN dbo.SaleOrderSubDetails SD ON D.DetailID = SD.DetailID
+                      WHERE SO.SaleOrderID = @SaleOrderID
+                      ORDER BY D.DetailID, SD.SubDetailID", con, trans))
                                 {
                                     cmdOld.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
                                     using (SqlDataReader rdrOld = cmdOld.ExecuteReader())
@@ -44776,20 +44746,20 @@ ORDER BY
                                                 if (!detailDict.TryGetValue(detailId, out var currentDetail))
                                                 {
                                                     currentDetail = new Dictionary<string, object>
-                                             {
-                                                 { "DetailID", detailId },
-                                                 { "DesignID", rdrOld["DesignID"] },
-                                                 { "DesignNo", rdrOld["DesignNo"] },
-                                                 { "ItemType", rdrOld["ItemType"] },
-                                                 { "NoOfColours", rdrOld["NoOfColours"] },
-                                                 { "Qty", rdrOld["DetailQty"] },
-                                                 { "Unit", rdrOld["DetailUnit"] },
-                                                 { "Rate", rdrOld["Rate"] },
-                                                 { "Amount", rdrOld["Amount"] },
-                                                 { "BrokerRate", rdrOld["BrokerRate"] },
-                                                 { "DesignColorMatchingID", rdrOld["DesignColorMatchingID"] },
-                                                 { "SubDetails", new List<Dictionary<string, object>>() }
-                                             };
+                                      {
+                                          { "DetailID", detailId },
+                                          { "DesignID", rdrOld["DesignID"] },
+                                          { "DesignNo", rdrOld["DesignNo"] },
+                                          { "ItemType", rdrOld["ItemType"] },
+                                          { "NoOfColours", rdrOld["NoOfColours"] },
+                                          { "Qty", rdrOld["DetailQty"] },
+                                          { "Unit", rdrOld["DetailUnit"] },
+                                          { "Rate", rdrOld["Rate"] },
+                                          { "Amount", rdrOld["Amount"] },
+                                          { "BrokerRate", rdrOld["BrokerRate"] },
+                                          { "DesignColorMatchingID", rdrOld["DesignColorMatchingID"] },
+                                          { "SubDetails", new List<Dictionary<string, object>>() }
+                                      };
                                                     detailDict[detailId] = currentDetail;
                                                     detailsList.Add(currentDetail);
                                                 }
@@ -44801,14 +44771,14 @@ ORDER BY
 
                                                     var subList = (List<Dictionary<string, object>>)currentDetail["SubDetails"];
                                                     subList.Add(new Dictionary<string, object>
-                                             {
-                                                 { "SubDetailID", subId },
-                                                 { "ColourID", rdrOld["ColourID"] },
-                                                 { "ColourName", rdrOld["ColourName"] },
-                                                 { "Qty", rdrOld["SubQty"] },
-                                                 { "Unit", rdrOld["SubUnit"] },
-                                                 { "Remark", rdrOld["SubRemark"] }
-                                             });
+                                      {
+                                          { "SubDetailID", subId },
+                                          { "ColourID", rdrOld["ColourID"] },
+                                          { "ColourName", rdrOld["ColourName"] },
+                                          { "Qty", rdrOld["SubQty"] },
+                                          { "Unit", rdrOld["SubUnit"] },
+                                          { "Remark", rdrOld["SubRemark"] }
+                                      });
                                                 }
                                             }
                                         }
@@ -44856,23 +44826,23 @@ ORDER BY
 
                                 // 3. Update Master Record
                                 using (SqlCommand cmdUpdMaster = new SqlCommand(@"
-                             UPDATE dbo.SaleOrder SET 
-                                 OrderNo = @OrderNo, 
-                                 OrderDate = @OrderDate, 
-                                 PartyID = @PartyID, 
-                                 BrokerID = @BrokerID,
-                                 MarkupPercent = @MarkupPercent,
-                                 TransportID = @TransportID,
-                                 TotalQty = @TotalQty,
-                                 TotalAmount = @TotalAmount,
-                                 DiscountPercent = @DiscountPercent,
-                                 DiscountAmount = @DiscountAmount,
-                                 GSTPercent = @GSTPercent,
-                                 GSTAmount = @GSTAmount,
-                                 InvoiceAmount = @InvoiceAmount,
-                                 Remark = @Remark,                              
-                                 RoundOff = @RoundOff
-                             WHERE SaleOrderID = @SaleOrderID", con, trans))
+                      UPDATE dbo.SaleOrder SET 
+                          OrderNo = @OrderNo, 
+                          OrderDate = @OrderDate, 
+                          PartyID = @PartyID, 
+                          BrokerID = @BrokerID,
+                          MarkupPercent = @MarkupPercent,
+                          TransportID = @TransportID,
+                          TotalQty = @TotalQty,
+                          TotalAmount = @TotalAmount,
+                          DiscountPercent = @DiscountPercent,
+                          DiscountAmount = @DiscountAmount,
+                          GSTPercent = @GSTPercent,
+                          GSTAmount = @GSTAmount,
+                          InvoiceAmount = @InvoiceAmount,
+                          Remark = @Remark,                              
+                          RoundOff = @RoundOff
+                      WHERE SaleOrderID = @SaleOrderID", con, trans))
                                 {
                                     AddParams(cmdUpdMaster, model, userAccountId, financialYearId, companyId);
                                     cmdUpdMaster.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
@@ -44899,17 +44869,7 @@ ORDER BY
                                             throw new InvalidOperationException($"Cannot delete line item DetailID {remDetailId}: referenced by {count} ProductionOrderDetail record(s).");
                                         }
                                     }
-                                    // Check ProcessTransactionDetail
-                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderDetailID = @DetailID", con, trans))
-                                    {
-                                        cmdDep.Parameters.Add("@DetailID", SqlDbType.Int).Value = remDetailId;
-                                        int count = Convert.ToInt32(cmdDep.ExecuteScalar());
-                                        if (count > 0)
-                                        {
-                                            throw new InvalidOperationException($"Cannot delete line item DetailID {remDetailId}: referenced by {count} ProcessTransactionDetail record(s).");
-                                        }
-                                    }
-                                    // Check weavelanesoftDB.ProductionData
+                                    // Check ProductionData
                                     using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM ProductionData WHERE SalesOrderDetailID = @DetailID", con, trans))
                                     {
                                         cmdDep.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = remDetailId;
@@ -44924,15 +44884,6 @@ ORDER BY
                                     {
                                         foreach (int subId in existingSubDetails[remDetailId])
                                         {
-                                            using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
-                                            {
-                                                cmdDep.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = subId;
-                                                int count = Convert.ToInt32(cmdDep.ExecuteScalar());
-                                                if (count > 0)
-                                                {
-                                                    throw new InvalidOperationException($"Cannot delete sub-item SubDetailID {subId} of DetailID {remDetailId}: referenced by {count} ProcessTransactionDetail record(s).");
-                                                }
-                                            }
                                             using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
                                             {
                                                 cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = subId;
@@ -44966,18 +44917,18 @@ ORDER BY
                                 model.OrderNo = nextOrderNo;
 
                                 using (SqlCommand cmd = new SqlCommand(@"INSERT INTO dbo.SaleOrder (
-                                 DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent, 
-                                 TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
-                                 GSTPercent, GSTAmount, InvoiceAmount, Remark, UserAccountId, 
-                                 FinancialYearID, CompanyId, RoundOff, CreatedDateTime, CreatedByUserID
-                             )
-                             VALUES (
-                                 GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, 
-                                 @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
-                                 @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark, @UserAccountId, 
-                                 @FinancialYearID, @CompanyId, @RoundOff, GETDATE(), @CreatedByUserID
-                             );
-                             SELECT SCOPE_IDENTITY();", con, trans))
+                          DateAndTime, OrderNo, OrderDate, PartyID, BrokerID, MarkupPercent, 
+                          TransportID, TotalQty, TotalAmount, DiscountPercent, DiscountAmount,
+                          GSTPercent, GSTAmount, InvoiceAmount, Remark, UserAccountId, 
+                          FinancialYearID, CompanyId, RoundOff, CreatedDateTime, CreatedByUserID
+                      )
+                      VALUES (
+                          GETDATE(), @OrderNo, @OrderDate, @PartyID, @BrokerID, @MarkupPercent, 
+                          @TransportID, @TotalQty, @TotalAmount, @DiscountPercent, @DiscountAmount,
+                          @GSTPercent, @GSTAmount, @InvoiceAmount, @Remark, @UserAccountId, 
+                          @FinancialYearID, @CompanyId, @RoundOff, GETDATE(), @CreatedByUserID
+                      );
+                      SELECT SCOPE_IDENTITY();", con, trans))
                                 {
                                     AddParams(cmd, model, userAccountId, financialYearId, companyId);
                                     cmd.Parameters.Add("@CreatedByUserID", SqlDbType.Int).Value = userAccountId;
@@ -45009,95 +44960,24 @@ ORDER BY
 
                                     if (d.DetailID > 0)
                                     {
-                                        // Production-linked detail immutability enforcement
-                                        if (detailDict.TryGetValue(d.DetailID, out var oldDet))
-                                        {
-                                            string oldDesignId = Convert.ToString(oldDet["DesignID"]) ?? "";
-                                            int oldColorMatchingId = SafeInt(oldDet["DesignColorMatchingID"]);
-                                            string oldDesignNo = Convert.ToString(oldDet["DesignNo"]) ?? "";
-                                            string oldItemType = Convert.ToString(oldDet["ItemType"]) ?? "";
-                                            int oldNoOfColours = SafeInt(oldDet["NoOfColours"]);
-                                            decimal oldQty = SafeDecimal(oldDet["Qty"]);
-                                            string oldUnit = Convert.ToString(oldDet["Unit"]) ?? "";
-                                            decimal oldRate = SafeDecimal(oldDet["Rate"]);
-                                            decimal oldBrokerRate = SafeDecimal(oldDet["BrokerRate"]);
-                                            decimal oldAmount = SafeDecimal(oldDet["Amount"]);
-
-                                            string newDesignId = designId > 0 ? designId.ToString() : (Convert.ToString(d.DesignID) ?? "");
-                                            string newDesignNo = d.DesignNo ?? "";
-                                            string newItemType = d.ItemType ?? "";
-                                            int newNoOfColours = SafeInt(d.NoOfColours);
-                                            decimal newQty = SafeDecimal(d.Qty);
-                                            string newUnit = d.Unit ?? "";
-                                            decimal newRate = SafeDecimal(d.Rate);
-                                            decimal newBrokerRate = SafeDecimal(d.BrokerRate);
-                                            decimal newAmount = SafeDecimal(d.Amount);
-
-                                            bool isDetailModified = (oldDesignId.Trim() != newDesignId.Trim()) ||
-                                                                    (oldColorMatchingId != designColorMatchingId) ||
-                                                                    (oldDesignNo.Trim() != newDesignNo.Trim()) ||
-                                                                    (oldItemType.Trim() != newItemType.Trim()) ||
-                                                                    (oldNoOfColours != newNoOfColours) ||
-                                                                    (oldQty != newQty) ||
-                                                                    (oldUnit.Trim() != newUnit.Trim()) ||
-                                                                    (oldRate != newRate) ||
-                                                                    (oldBrokerRate != newBrokerRate) ||
-                                                                    (oldAmount != newAmount);
-
-                                            if (isDetailModified)
-                                            {
-                                                int prodCount = 0;
-                                                string depTable = null;
-
-                                                using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
-                                                {
-                                                    cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
-                                                    prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                    if (prodCount > 0) depTable = "ProductionOrderDetail";
-                                                }
-
-                                                if (prodCount == 0)
-                                                {
-                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderDetailID = @DetailID", con, trans))
-                                                    {
-                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.Int).Value = d.DetailID;
-                                                        prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                        if (prodCount > 0) depTable = "ProcessTransactionDetail";
-                                                    }
-                                                }
-
-                                                if (prodCount == 0)
-                                                {
-                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM ProductionData WHERE SalesOrderDetailID = @DetailID", con, trans))
-                                                    {
-                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
-                                                        prodCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                        if (prodCount > 0) depTable = "ProductionData";
-                                                    }
-                                                }
-
-                                                if (prodCount > 0)
-                                                {
-                                                    throw new InvalidOperationException($"Cannot modify production-linked line item DetailID {d.DetailID}: already referenced by {prodCount} record(s) in {depTable}. Production-relevant fields (Design, Quantity, Rate, Amount, Colours) cannot be structurally changed.");
-                                                }
-                                            }
-                                        }
+                                        // Parent SaleOrderDetails is allowed to update.
+                                        // Production locking is applied only to the exact matched SubDetailID.
 
                                         // In-place UPDATE
                                         detailId = d.DetailID;
                                         using (SqlCommand cmdUpdDet = new SqlCommand(@"
-                                     UPDATE dbo.SaleOrderDetails
-                                     SET DesignID = @DesignID,
-                                         DesignNo = @DesignNo,
-                                         ItemType = @ItemType,
-                                         NoOfColours = @NoOfColours,
-                                         Qty = @Qty,
-                                         Unit = @Unit,
-                                         Rate = @Rate,
-                                         Amount = @Amount,
-                                         DesignColorMatchingID = @DesignColorMatchingID,
-                                         BrokerRate = @BrokerRate
-                                     WHERE DetailID = @DetailID AND SaleOrderID = @SaleOrderID", con, trans))
+                              UPDATE dbo.SaleOrderDetails
+                              SET DesignID = @DesignID,
+                                  DesignNo = @DesignNo,
+                                  ItemType = @ItemType,
+                                  NoOfColours = @NoOfColours,
+                                  Qty = @Qty,
+                                  Unit = @Unit,
+                                  Rate = @Rate,
+                                  Amount = @Amount,
+                                  DesignColorMatchingID = @DesignColorMatchingID,
+                                  BrokerRate = @BrokerRate
+                              WHERE DetailID = @DetailID AND SaleOrderID = @SaleOrderID", con, trans))
                                         {
                                             cmdUpdDet.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
                                             cmdUpdDet.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
@@ -45123,11 +45003,11 @@ ORDER BY
                                     {
                                         // New Detail INSERT
                                         using (SqlCommand cmdInsDet = new SqlCommand(@"
-                                     INSERT INTO dbo.SaleOrderDetails
-                                     (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount, DesignColorMatchingID, BrokerRate)
-                                     VALUES
-                                     (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount, @DesignColorMatchingID, @BrokerRate);
-                                     SELECT SCOPE_IDENTITY();", con, trans))
+                              INSERT INTO dbo.SaleOrderDetails
+                              (SaleOrderID, DesignID, DesignNo, ItemType, NoOfColours, Qty, Unit, Rate, Amount, DesignColorMatchingID, BrokerRate)
+                              VALUES
+                              (@SaleOrderID, @DesignID, @DesignNo, @ItemType, @NoOfColours, @Qty, @Unit, @Rate, @Amount, @DesignColorMatchingID, @BrokerRate);
+                              SELECT SCOPE_IDENTITY();", con, trans))
                                         {
                                             cmdInsDet.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
                                             cmdInsDet.Parameters.Add("@DesignID", SqlDbType.NVarChar, 50).Value = (object)designId.ToString() ?? DBNull.Value;
@@ -45157,24 +45037,26 @@ ORDER BY
 
                                     foreach (int remSubId in removedSubIds)
                                     {
-                                        using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
-                                        {
-                                            cmdDep.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = remSubId;
-                                            int count = Convert.ToInt32(cmdDep.ExecuteScalar());
-                                            if (count > 0)
-                                            {
-                                                throw new InvalidOperationException($"Cannot delete SubDetailID {remSubId}: referenced by {count} ProcessTransactionDetail record(s).");
-                                            }
-                                        }
-                                        using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
+                                        // If this exact colour row is linked to ProductionOrderDetail,
+                                        // preserve it silently and continue deleting other unmatched rows.
+                                        bool isRemovedSubProductionLinked;
+                                        using (SqlCommand cmdDep = new SqlCommand(@"
+                                     SELECT CASE WHEN EXISTS
+                                     (
+                                         SELECT 1
+                                         FROM dbo.ProductionOrderDetail
+                                         WHERE SubDetailID = @SubDetailID
+                                     ) THEN 1 ELSE 0 END", con, trans))
                                         {
                                             cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = remSubId;
-                                            int count = Convert.ToInt32(cmdDep.ExecuteScalar());
-                                            if (count > 0)
-                                            {
-                                                throw new InvalidOperationException($"Cannot delete SubDetailID {remSubId}: referenced by {count} ProductionOrderDetail record(s).");
-                                            }
+                                            isRemovedSubProductionLinked = Convert.ToInt32(cmdDep.ExecuteScalar()) == 1;
                                         }
+
+                                        if (isRemovedSubProductionLinked)
+                                        {
+                                            continue;
+                                        }
+
                                         using (SqlCommand cmdDelSub = new SqlCommand("DELETE FROM dbo.SaleOrderSubDetails WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
                                         {
                                             cmdDelSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = remSubId;
@@ -45190,118 +45072,60 @@ ORDER BY
                                             s.DetailID = detailId;
                                             if (s.SubDetailID > 0)
                                             {
-                                                // Production-linked subdetail immutability enforcement
-                                                if (detailDict.TryGetValue(detailId, out var parentOldDet))
+                                                // Lock only this SubDetailID when it exists in ProductionOrderDetail.
+                                                // All unmatched SubDetailID records remain editable.
+                                                bool isProductionLinkedSubDetail = false;
+
+                                                using (SqlCommand cmdChkSub = new SqlCommand(@"
+                                             SELECT COUNT(1)
+                                             FROM dbo.ProductionOrderDetail
+                                             WHERE SubDetailID = @SubDetailID", con, trans))
                                                 {
-                                                    var oldSubsList = parentOldDet["SubDetails"] as List<Dictionary<string, object>>;
-                                                    if (oldSubsList != null)
+                                                    cmdChkSub.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
+                                                    isProductionLinkedSubDetail = Convert.ToInt32(cmdChkSub.ExecuteScalar()) > 0;
+                                                }
+
+                                                // A production-linked colour row is preserved exactly as stored.
+                                                // Ignore any changed values sent by the client; do not fail the whole order save.
+
+                                                // Do not execute UPDATE for a matched record.
+                                                if (!isProductionLinkedSubDetail)
+                                                {
+                                                    // In-place UPDATE
+                                                    using (SqlCommand cmdUpdSub = new SqlCommand(@"
+                                      UPDATE dbo.SaleOrderSubDetails
+                                      SET ColourID = @ColourID,
+                                          ColourName = @ColourName,
+                                          Qty = @Qty,
+                                          Unit = @Unit,
+                                          Remark = @Remark
+                                      WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
                                                     {
-                                                        var oldSub = oldSubsList.FirstOrDefault(x => SafeInt(x["SubDetailID"]) == s.SubDetailID);
-                                                        if (oldSub != null)
+                                                        cmdUpdSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
+                                                        cmdUpdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
+                                                        cmdUpdSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = SafeInt(s.ColourID);
+                                                        cmdUpdSub.Parameters.Add("@ColourName", SqlDbType.NVarChar, 100).Value = (object)s.ColourName ?? DBNull.Value;
+                                                        cmdUpdSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(s.Qty);
+                                                        cmdUpdSub.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)s.Unit ?? DBNull.Value;
+                                                        cmdUpdSub.Parameters.Add("@Remark", SqlDbType.NVarChar, 255).Value = (object)s.Remark ?? DBNull.Value;
+
+                                                        int rowsSub = cmdUpdSub.ExecuteNonQuery();
+                                                        if (rowsSub == 0)
                                                         {
-                                                            int oldColourId = SafeInt(oldSub["ColourID"]);
-                                                            string oldColourName = Convert.ToString(oldSub["ColourName"]) ?? "";
-                                                            decimal oldSubQty = SafeDecimal(oldSub["Qty"]);
-                                                            string oldSubUnit = Convert.ToString(oldSub["Unit"]) ?? "";
-
-                                                            int newColourId = SafeInt(s.ColourID);
-                                                            string newColourName = s.ColourName ?? "";
-                                                            decimal newSubQty = SafeDecimal(s.Qty);
-                                                            string newSubUnit = s.Unit ?? "";
-
-                                                            bool isSubModified = (oldColourId != newColourId) ||
-                                                                                 (oldColourName.Trim() != newColourName.Trim()) ||
-                                                                                 (oldSubQty != newSubQty) ||
-                                                                                 (oldSubUnit.Trim() != newSubUnit.Trim());
-
-                                                            if (isSubModified)
-                                                            {
-                                                                int subProdCount = 0;
-                                                                string subDepTable = null;
-
-                                                                using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
-                                                                {
-                                                                    cmdChk.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
-                                                                    subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                                    if (subProdCount > 0) subDepTable = "ProductionOrderDetail";
-                                                                }
-
-                                                                if (subProdCount == 0)
-                                                                {
-                                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProcessTransactionDetail WHERE SaleOrderSubDetailID = @SubDetailID", con, trans))
-                                                                    {
-                                                                        cmdChk.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
-                                                                        subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                                        if (subProdCount > 0) subDepTable = "ProcessTransactionDetail";
-                                                                    }
-                                                                }
-
-                                                                if (subProdCount == 0)
-                                                                {
-                                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM ProductionData WHERE SubDetailID = @SubDetailID", con, trans))
-                                                                    {
-                                                                        cmdChk.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
-                                                                        subProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                                        if (subProdCount > 0) subDepTable = "ProductionData";
-                                                                    }
-                                                                }
-
-                                                                if (subProdCount > 0)
-                                                                {
-                                                                    throw new InvalidOperationException($"Cannot modify production-linked SubDetailID {s.SubDetailID} (DetailID {detailId}): already referenced by {subProdCount} record(s) in {subDepTable}. Production-relevant fields (Colour, Quantity, Unit) cannot be structurally changed.");
-                                                                }
-                                                            }
+                                                            throw new InvalidOperationException($"Failed to update SubDetailID {s.SubDetailID}: record not found for DetailID {detailId}.");
                                                         }
                                                     }
-                                                }
-
-                                                // In-place UPDATE
-                                                using (SqlCommand cmdUpdSub = new SqlCommand(@"
-                                             UPDATE dbo.SaleOrderSubDetails
-                                             SET ColourID = @ColourID,
-                                                 ColourName = @ColourName,
-                                                 Qty = @Qty,
-                                                 Unit = @Unit,
-                                                 Remark = @Remark
-                                             WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
-                                                {
-                                                    cmdUpdSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
-                                                    cmdUpdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
-                                                    cmdUpdSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = SafeInt(s.ColourID);
-                                                    cmdUpdSub.Parameters.Add("@ColourName", SqlDbType.NVarChar, 100).Value = (object)s.ColourName ?? DBNull.Value;
-                                                    cmdUpdSub.Parameters.Add("@Qty", SqlDbType.Decimal).Value = SafeDecimal(s.Qty);
-                                                    cmdUpdSub.Parameters.Add("@Unit", SqlDbType.NVarChar, 20).Value = (object)s.Unit ?? DBNull.Value;
-                                                    cmdUpdSub.Parameters.Add("@Remark", SqlDbType.NVarChar, 255).Value = (object)s.Remark ?? DBNull.Value;
-
-                                                    int rowsSub = cmdUpdSub.ExecuteNonQuery();
-                                                    if (rowsSub == 0)
-                                                    {
-                                                        throw new InvalidOperationException($"Failed to update SubDetailID {s.SubDetailID}: record not found for DetailID {detailId}.");
-                                                    }
-                                                }
+                                                } // Update only unmatched subdetails.
                                             }
                                             else
                                             {
-                                                // Adding a new subdetail to an existing detail: verify parent detail is not production-linked
-                                                if (d.DetailID > 0)
-                                                {
-                                                    int parentProdCount = 0;
-                                                    using (SqlCommand cmdChk = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
-                                                    {
-                                                        cmdChk.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = d.DetailID;
-                                                        parentProdCount = Convert.ToInt32(cmdChk.ExecuteScalar());
-                                                    }
-                                                    if (parentProdCount > 0)
-                                                    {
-                                                        throw new InvalidOperationException($"Cannot add new sub-items to production-linked line item DetailID {d.DetailID}: already referenced by {parentProdCount} record(s) in ProductionOrderDetail.");
-                                                    }
-                                                }
+                                                // New subdetail is allowed; locking applies only to matched SubDetailID records.
 
                                                 // New SubDetail INSERT
                                                 using (SqlCommand cmdInsSub = new SqlCommand(@"
-                                             INSERT INTO dbo.SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
-                                             VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark);
-                                             SELECT SCOPE_IDENTITY();", con, trans))
+                                      INSERT INTO dbo.SaleOrderSubDetails (DetailID, ColourID, ColourName, Qty, Unit, Remark)
+                                      VALUES (@DetailID, @ColourID, @ColourName, @Qty, @Unit, @Remark);
+                                      SELECT SCOPE_IDENTITY();", con, trans))
                                                 {
                                                     cmdInsSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
                                                     cmdInsSub.Parameters.Add("@ColourID", SqlDbType.Int).Value = SafeInt(s.ColourID);
@@ -45330,8 +45154,8 @@ ORDER BY
                                 foreach (var ac in model.AdditionalCharges)
                                 {
                                     using (SqlCommand cmdAdd = new SqlCommand(@"
-                                 INSERT INTO dbo.SaleOrderAdditionalCharges (SaleOrderID, ChargeRemark, ChargeValue, TotalCalculatedAmount, CreatedDateTime, CreatedByUserID)
-                                 VALUES (@SaleOrderID, @ChargeRemark, @ChargeValue, @TotalCalculatedAmount, GETDATE(), @CreatedByUserID)", con, trans))
+                          INSERT INTO dbo.SaleOrderAdditionalCharges (SaleOrderID, ChargeRemark, ChargeValue, TotalCalculatedAmount, CreatedDateTime, CreatedByUserID)
+                          VALUES (@SaleOrderID, @ChargeRemark, @ChargeValue, @TotalCalculatedAmount, GETDATE(), @CreatedByUserID)", con, trans))
                                     {
                                         cmdAdd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
                                         cmdAdd.Parameters.Add("@ChargeRemark", SqlDbType.NVarChar, 255).Value = (object)ac.ChargeRemark ?? "";
@@ -45713,6 +45537,73 @@ ORDER BY
                                     ColourID = Convert.ToInt32(rdr["ColourID"]),
                                     ColourName = rdr["ColourName"].ToString(),
                                     TotalQty = Convert.ToDecimal(rdr["TotalQty"])
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return new { Status = true, Message = "Success", Data = list };
+            }
+            catch (Exception ex)
+            {
+                return new { Status = false, Message = ex.Message, Data = new List<object>() };
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object CheckSaleOrderProductionDetails(int saleOrderId, int detailId, string designNo)
+        {
+            try
+            {
+                if (saleOrderId <= 0)
+                {
+                    return new { Status = false, Message = "Invalid SaleOrderID", Data = new List<object>() };
+                }
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                var list = new List<object>();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    string sql = @"
+                        SELECT 
+                            POD.ProductionOrderDetailID,
+                            POD.ProductionOrderID,
+                            POD.SalesOrderID,
+                            POD.SalesOrderDetailID,
+                            ISNULL(POD.SubDetailID, 0) AS SubDetailID,
+                            ISNULL(POD.DesignNo, '') AS DesignNo,
+                            ISNULL(POD.ColourMatchingID, 0) AS ColourMatchingID,
+                            ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
+                            ISNULL(POD.PCS, 0) AS PCS
+                        FROM dbo.ProductionOrderDetail POD WITH (NOLOCK)
+                        WHERE POD.SalesOrderID = @SaleOrderID
+                          AND (@DetailID = 0 OR POD.SalesOrderDetailID = @DetailID);";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, con))
+                    {
+                        cmd.Parameters.Add("@SaleOrderID", SqlDbType.Int).Value = saleOrderId;
+                        cmd.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = detailId;
+
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
+                            {
+                                list.Add(new
+                                {
+                                    ProductionOrderDetailID = Convert.ToInt64(rdr["ProductionOrderDetailID"]),
+                                    ProductionOrderID = Convert.ToInt64(rdr["ProductionOrderID"]),
+                                    SalesOrderID = Convert.ToInt32(rdr["SalesOrderID"]),
+                                    SalesOrderDetailID = Convert.ToInt64(rdr["SalesOrderDetailID"]),
+                                    SubDetailID = Convert.ToInt64(rdr["SubDetailID"]),
+                                    DesignNo = rdr["DesignNo"].ToString().Trim(),
+                                    ColourMatchingID = Convert.ToInt32(rdr["ColourMatchingID"]),
+                                    ColourMatchingName = rdr["ColourMatchingName"].ToString().Trim(),
+                                    PCS = Convert.ToDecimal(rdr["PCS"])
                                 });
                             }
                         }
@@ -50048,7 +49939,6 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                 ColourList = colourList
             };
         }
-
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public object jobproductionorderList(
@@ -50102,11 +49992,11 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                 if (userAccountId > 0)
                 {
                     using (SqlCommand cmdUser = new SqlCommand(@"
-                        SELECT 
-                            ISNULL(PartyId, 0) AS PartyId,
-                            ISNULL(UserRole, '') AS UserRole
-                        FROM UserAccountMaster
-                        WHERE UserAccountId = @UserAccountId", con))
+                SELECT 
+                    ISNULL(PartyId, 0) AS PartyId,
+                    ISNULL(UserRole, '') AS UserRole
+                FROM UserAccountMaster
+                WHERE UserAccountId = @UserAccountId", con))
                     {
                         cmdUser.Parameters.AddWithValue("@UserAccountId", userAccountId);
                         using (SqlDataReader drUser = cmdUser.ExecuteReader())
@@ -50124,24 +50014,31 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
 
                 // 1) Fast Badges Count Query
                 string sqlBadgeCounts = @"
-                    SELECT 
-                        COUNT(CASE WHEN ISNULL(Sub.TotPCS, 0) < ISNULL(POD.ProductionPCS, POD.PCS) OR ISNULL(POD.ProductionPCS, POD.PCS) = 0 THEN 1 END) AS PendingCount,
-                        COUNT(CASE WHEN ISNULL(Sub.TotPCS, 0) >= ISNULL(POD.ProductionPCS, POD.PCS) AND ISNULL(POD.ProductionPCS, POD.PCS) > 0 THEN 1 END) AS CompletedCount
-                    FROM ProductionOrderDetail POD
-                    LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
-                    OUTER APPLY (
-                        SELECT SUM(POSD.PCS) AS TotPCS
-                        FROM ProductionOrderSubDetail POSD
-                        WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
-                    ) Sub
-                    WHERE ISNULL(POD.IsActive, 1) = 1 " + (isJobWork && partyId > 0 ? " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) " : "") + @";
+            SELECT 
+                COUNT(CASE
+                    WHEN
+                        (ISNULL(Sub.TotPCS, 0) < ISNULL(POD.ProductionPCS, POD.PCS)
+                         OR ISNULL(POD.ProductionPCS, POD.PCS) = 0)
+                        AND
+                        (ISNULL(ISNULL(POD.ProductionPCS, POD.PCS), 0) - ISNULL(Sub.TotPCS, 0)) >= ISNULL(POM.PanaRepeat, 0)
+                    THEN 1
+                END) AS PendingCount,
+                COUNT(CASE WHEN ISNULL(Sub.TotPCS, 0) >= ISNULL(POD.ProductionPCS, POD.PCS) AND ISNULL(POD.ProductionPCS, POD.PCS) > 0 THEN 1 END) AS CompletedCount
+            FROM ProductionOrderDetail POD
+            LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+            OUTER APPLY (
+                SELECT SUM(POSD.PCS) AS TotPCS
+                FROM ProductionOrderSubDetail POSD
+                WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
+            ) Sub
+            WHERE ISNULL(POD.IsActive, 1) = 1 " + (isJobWork && partyId > 0 ? " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) " : "") + @";
 
-                    SELECT COUNT(1) AS AllottedCount
-                    FROM ProductionOrderSubDetail POSD
-                    LEFT JOIN ProductionOrderDetail POD ON POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID
-                    LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
-                    WHERE ISNULL(POSD.IsActive, 1) = 1 " + (isJobWork && partyId > 0 ? " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) " : "") + @";
-                ";
+            SELECT COUNT(1) AS AllottedCount
+            FROM ProductionOrderSubDetail POSD
+            LEFT JOIN ProductionOrderDetail POD ON POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID
+            LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
+            WHERE ISNULL(POSD.IsActive, 1) = 1 " + (isJobWork && partyId > 0 ? " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) " : "") + @";
+        ";
 
                 using (SqlCommand cmdBadges = new SqlCommand(sqlBadgeCounts, con))
                 {
@@ -50177,30 +50074,45 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                     cmd.Parameters.AddWithValue("@PageSize", pageSize);
                 };
 
-                // 2) Query Current Tab Data (thoda-thoda / paginated)
-                if (tab == "allotted")
+                // 2) Allotted OR Completed Tab: POSD level entries (jaise Allotted Slips mein show hoti hain)
+                if (tab == "allotted" || tab == "completed")
                 {
-                    string whereAllotted = " WHERE ISNULL(POSD.IsActive, 1) = 1 ";
-                    if (isJobWork && partyId > 0) whereAllotted += " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) ";
-                    if (!string.IsNullOrEmpty(party)) whereAllotted += " AND (POD.PartyName LIKE @Party OR POM.Traders LIKE @Party) ";
-                    if (!string.IsNullOrEmpty(jobber)) whereAllotted += " AND (POM.JobWorkerName LIKE @Jobber OR POD.PartyName LIKE @Jobber) ";
-                    if (!string.IsNullOrEmpty(so)) whereAllotted += " AND (POD.SalesOrderNo LIKE @SO OR REPLACE(POD.SalesOrderNo, 'SO', '') LIKE @SO) ";
-                    if (!string.IsNullOrEmpty(slipNo)) whereAllotted += " AND POD.SlipNo LIKE @SlipNo ";
-                    if (!string.IsNullOrEmpty(designNo)) whereAllotted += " AND POD.DesignNo LIKE @DesignNo ";
-                    if (!string.IsNullOrEmpty(colour)) whereAllotted += " AND POD.ColourMatchingName LIKE @Colour ";
-                    if (!string.IsNullOrEmpty(filterDate))
+                    bool isCompletedSubTab = (tab == "completed");
+                    string whereSub = " WHERE ISNULL(POSD.IsActive, 1) = 1 ";
+
+                    if (isCompletedSubTab)
                     {
-                        whereAllotted += " AND (CONVERT(varchar(10), POSD.ProductionDate, 120) = @FilterDate OR CONVERT(varchar(10), POSD.ProductionDate, 103) = @FilterDate OR CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 120) = @FilterDate OR CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) = @FilterDate) ";
+                        // Sirf un slips ki sub-detail rows jo complete ho chuki hain
+                        whereSub += @"
+                    AND ISNULL(POD.ProductionPCS, ISNULL(POD.PCS, 0)) > 0
+                    AND ISNULL((
+                        SELECT SUM(P.PCS)
+                        FROM ProductionOrderSubDetail P
+                        WHERE P.ProductionOrderDetailID = POSD.ProductionOrderDetailID
+                          AND ISNULL(P.IsActive, 1) = 1
+                    ), 0) >= ISNULL(POD.ProductionPCS, ISNULL(POD.PCS, 0)) ";
                     }
 
-                    string sqlAllottedCount = @"
-                        SELECT COUNT(1) AS FilteredTotal, ISNULL(SUM(POSD.PCS), 0) AS TotalPcs
-                        FROM ProductionOrderSubDetail POSD
-                        LEFT JOIN ProductionOrderDetail POD ON (POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID OR (ISNULL(POSD.ProductionOrderDetailID,0)=0 AND POSD.ProductionOrderID = POD.ProductionOrderID))
-                        LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
-                        " + whereAllotted;
+                    if (isJobWork && partyId > 0) whereSub += " AND (POD.PartyID = @PartyId OR POM.JobWorkerID = @PartyId) ";
+                    if (!string.IsNullOrEmpty(party)) whereSub += " AND (POD.PartyName LIKE @Party OR POM.Traders LIKE @Party) ";
+                    if (!string.IsNullOrEmpty(jobber)) whereSub += " AND (POM.JobWorkerName LIKE @Jobber OR POD.PartyName LIKE @Jobber) ";
+                    if (!string.IsNullOrEmpty(so)) whereSub += " AND (POD.SalesOrderNo LIKE @SO OR REPLACE(POD.SalesOrderNo, 'SO', '') LIKE @SO) ";
+                    if (!string.IsNullOrEmpty(slipNo)) whereSub += " AND POD.SlipNo LIKE @SlipNo ";
+                    if (!string.IsNullOrEmpty(designNo)) whereSub += " AND POD.DesignNo LIKE @DesignNo ";
+                    if (!string.IsNullOrEmpty(colour)) whereSub += " AND POD.ColourMatchingName LIKE @Colour ";
+                    if (!string.IsNullOrEmpty(filterDate))
+                    {
+                        whereSub += " AND (CONVERT(varchar(10), POSD.ProductionDate, 120) = @FilterDate OR CONVERT(varchar(10), POSD.ProductionDate, 103) = @FilterDate OR CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 120) = @FilterDate OR CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) = @FilterDate) ";
+                    }
 
-                    using (SqlCommand cmdCount = new SqlCommand(sqlAllottedCount, con))
+                    string sqlSubCount = @"
+                SELECT COUNT(1) AS FilteredTotal, ISNULL(SUM(POSD.PCS), 0) AS TotalPcs
+                FROM ProductionOrderSubDetail POSD
+                LEFT JOIN ProductionOrderDetail POD ON (POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID OR (ISNULL(POSD.ProductionOrderDetailID,0)=0 AND POSD.ProductionOrderID = POD.ProductionOrderID))
+                LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
+                " + whereSub;
+
+                    using (SqlCommand cmdCount = new SqlCommand(sqlSubCount, con))
                     {
                         attachFilterParams(cmdCount);
                         using (SqlDataReader drCount = cmdCount.ExecuteReader())
@@ -50213,66 +50125,66 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                         }
                     }
 
-                    string sqlAllottedData = @"
-                        SELECT 
-                            POSD.ProductionOrderSubDetailID,
-                            ISNULL(POSD.ProductionOrderDetailID, ISNULL(POD.ProductionOrderDetailID, 0)) AS ProductionOrderDetailID,
-                            ISNULL(POSD.ProductionOrderID, ISNULL(POD.ProductionOrderID, 0)) AS ProductionOrderID,
-                            ISNULL(POM.ProductionOrderNo, '') AS ProductionOrderNo,
-                            CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) AS OrderDate,
-                            CONVERT(varchar(10), POSD.ProductionDate, 103) AS ProductionDate,
-                            ISNULL(POSD.MachineNumber, 0) AS MachineNumber,
-                            ISNULL(POD.PartyName, ISNULL(POM.Traders, '')) AS PartyName,
-                            ISNULL(POD.SalesOrderNo, '') AS SalesOrderNo,
-                            ISNULL(POD.SlipNo, '') AS SlipNo,
-                            ISNULL(POD.DesignNo, '') AS DesignNo,
-                            ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
-                            ISNULL(
-                                (SELECT TOP 1 DCMD.ColorMatchingPhoto 
-                                 FROM DesignColorMatchingFormMaster DCMFM 
-                                 INNER JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
-                                 INNER JOIN SaleOrderDetails SOD ON SOD.DesignColorMatchingID = DCMFM.DesignColorMatchingFormID
-                                 INNER JOIN ProductionOrderDetail P ON P.SalesOrderDetailID = SOD.DetailID
-                                 WHERE P.ProductionOrderDetailID = POD.ProductionOrderDetailID
-                                   AND (
-                                       UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(  
-                                           CASE   
-                                               WHEN CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) > 0   
-                                                    THEN SUBSTRING(CONVERT(VARCHAR(500), POD.ColourMatchingName), CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) + 3, LEN(CONVERT(VARCHAR(500), POD.ColourMatchingName)))  
-                                               ELSE CONVERT(VARCHAR(200), POD.ColourMatchingName)  
-                                          END  
-                                       )))
-                                       OR DCMD.MatchingNo = 1
-                                   )
-                                 ORDER BY CASE WHEN UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(POD.ColourMatchingName))) THEN 0 ELSE 1 END), 
-                                ISNULL(DEFM.PhotoOfDesign, '')
-                            ) AS PhotoPath,
-                            ISNULL(POD.ProductionPCS, ISNULL(POD.PCS, 0)) AS OrderPCS,
-                            ISNULL(POSD.PCS, 0) AS SubDetailPCS,
-                            ISNULL((
-                                SELECT SUM(P.PCS) 
-                                FROM ProductionOrderSubDetail P 
-                                WHERE P.ProductionOrderDetailID = POSD.ProductionOrderDetailID 
-                                  AND ISNULL(P.IsActive, 1) = 1
-                            ), 0) AS TotalCompletedPCS,
-                            ISNULL(POD.JobRate, ISNULL(POM.JobRate, 0)) AS JobRate,
-                            ISNULL(POM.PanaRepeat, 0) AS PanaRepeat,
-                            ISNULL(POM.JobWorkerName, '') AS JobWorkerName,
-                            ISNULL(POD.Barcode, '') AS Barcode,
-                            ISNULL(POD.WarpQuality, '') AS WarpQuality,
-                            ISNULL(POD.WeftQuality, '') AS WeftQuality,
-                            ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
-                        FROM ProductionOrderSubDetail POSD
-                        LEFT JOIN ProductionOrderDetail POD ON (POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID OR (ISNULL(POSD.ProductionOrderDetailID,0)=0 AND POSD.ProductionOrderID = POD.ProductionOrderID))
-                        LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
-                        LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
-                        LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
-                        LEFT JOIN DesignEntryFormMaster DEFM ON LTRIM(RTRIM(REPLACE(REPLACE(POD.DesignNo, ' ', ''), '-', ''))) = LTRIM(RTRIM(REPLACE(REPLACE(DEFM.DesignNo, ' ', ''), '-', '')))
-                        " + whereAllotted + @"
-                        ORDER BY POSD.ProductionOrderSubDetailID DESC
-                        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                    string sqlSubData = @"
+                SELECT 
+                    POSD.ProductionOrderSubDetailID,
+                    ISNULL(POSD.ProductionOrderDetailID, ISNULL(POD.ProductionOrderDetailID, 0)) AS ProductionOrderDetailID,
+                    ISNULL(POSD.ProductionOrderID, ISNULL(POD.ProductionOrderID, 0)) AS ProductionOrderID,
+                    ISNULL(POM.ProductionOrderNo, '') AS ProductionOrderNo,
+                    CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) AS OrderDate,
+                    CONVERT(varchar(10), POSD.ProductionDate, 103) AS ProductionDate,
+                    ISNULL(POSD.MachineNumber, 0) AS MachineNumber,
+                    ISNULL(POD.PartyName, ISNULL(POM.Traders, '')) AS PartyName,
+                    ISNULL(POD.SalesOrderNo, '') AS SalesOrderNo,
+                    ISNULL(POD.SlipNo, '') AS SlipNo,
+                    ISNULL(POD.DesignNo, '') AS DesignNo,
+                    ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
+                    ISNULL(
+                        (SELECT TOP 1 DCMD.ColorMatchingPhoto 
+                         FROM DesignColorMatchingFormMaster DCMFM 
+                         INNER JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+                         INNER JOIN SaleOrderDetails SOD ON SOD.DesignColorMatchingID = DCMFM.DesignColorMatchingFormID
+                         INNER JOIN ProductionOrderDetail P ON P.SalesOrderDetailID = SOD.DetailID
+                         WHERE P.ProductionOrderDetailID = POD.ProductionOrderDetailID
+                           AND (
+                               UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(  
+                                   CASE   
+                                       WHEN CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) > 0   
+                                            THEN SUBSTRING(CONVERT(VARCHAR(500), POD.ColourMatchingName), CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) + 3, LEN(CONVERT(VARCHAR(500), POD.ColourMatchingName)))  
+                                       ELSE CONVERT(VARCHAR(200), POD.ColourMatchingName)  
+                                  END  
+                               )))
+                               OR DCMD.MatchingNo = 1
+                           )
+                         ORDER BY CASE WHEN UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(POD.ColourMatchingName))) THEN 0 ELSE 1 END), 
+                        ISNULL(DEFM.PhotoOfDesign, '')
+                    ) AS PhotoPath,
+                    ISNULL(POD.ProductionPCS, ISNULL(POD.PCS, 0)) AS OrderPCS,
+                    ISNULL(POSD.PCS, 0) AS SubDetailPCS,
+                    ISNULL((
+                        SELECT SUM(P.PCS) 
+                        FROM ProductionOrderSubDetail P 
+                        WHERE P.ProductionOrderDetailID = POSD.ProductionOrderDetailID 
+                          AND ISNULL(P.IsActive, 1) = 1
+                    ), 0) AS TotalCompletedPCS,
+                    ISNULL(POD.JobRate, ISNULL(POM.JobRate, 0)) AS JobRate,
+                    ISNULL(POM.PanaRepeat, 0) AS PanaRepeat,
+                    ISNULL(POM.JobWorkerName, '') AS JobWorkerName,
+                    ISNULL(POD.Barcode, '') AS Barcode,
+                    ISNULL(POD.WarpQuality, '') AS WarpQuality,
+                    ISNULL(POD.WeftQuality, '') AS WeftQuality,
+                    ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
+                FROM ProductionOrderSubDetail POSD
+                LEFT JOIN ProductionOrderDetail POD ON (POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID OR (ISNULL(POSD.ProductionOrderDetailID,0)=0 AND POSD.ProductionOrderID = POD.ProductionOrderID))
+                LEFT JOIN ProductionOrderMaster POM ON (POSD.ProductionOrderID = POM.ProductionOrderID OR POD.ProductionOrderID = POM.ProductionOrderID)
+                LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
+                LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
+                LEFT JOIN DesignEntryFormMaster DEFM ON LTRIM(RTRIM(REPLACE(REPLACE(POD.DesignNo, ' ', ''), '-', ''))) = LTRIM(RTRIM(REPLACE(REPLACE(DEFM.DesignNo, ' ', ''), '-', '')))
+                " + whereSub + @"
+                ORDER BY POSD.ProductionOrderSubDetailID DESC
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
-                    using (SqlCommand cmdData = new SqlCommand(sqlAllottedData, con))
+                    using (SqlCommand cmdData = new SqlCommand(sqlSubData, con))
                     {
                         attachFilterParams(cmdData);
                         using (SqlDataReader dr = cmdData.ExecuteReader())
@@ -50334,11 +50246,13 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                 }
                 else
                 {
-                    // Pending or Completed
-                    bool isCompletedTab = (tab == "completed");
-                    string statusCondition = isCompletedTab
-                        ? " AND (ISNULL(Sub.TotPCS, 0) >= ISNULL(POD.ProductionPCS, POD.PCS) AND ISNULL(POD.ProductionPCS, POD.PCS) > 0) "
-                        : " AND (ISNULL(Sub.TotPCS, 0) < ISNULL(POD.ProductionPCS, POD.PCS) OR ISNULL(POD.ProductionPCS, POD.PCS) = 0) ";
+                    // Pending Tab: POD level entries
+                    string statusCondition = @" AND (
+                (ISNULL(Sub.TotPCS, 0) < ISNULL(POD.ProductionPCS, POD.PCS)
+                 OR ISNULL(POD.ProductionPCS, POD.PCS) = 0)
+                AND
+                (ISNULL(ISNULL(POD.ProductionPCS, POD.PCS), 0) - ISNULL(Sub.TotPCS, 0)) >= ISNULL(POM.PanaRepeat, 0)
+            ) ";
 
                     string wherePOD = " WHERE ISNULL(POD.IsActive, 1) = 1 " + statusCondition;
 
@@ -50355,17 +50269,17 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                     }
 
                     string sqlPODCount = @"
-                        SELECT 
-                            COUNT(1) AS FilteredTotal, 
-                            ISNULL(SUM(ISNULL(POD.ProductionPCS, POD.PCS)), 0) AS TotalPcs
-                        FROM ProductionOrderDetail POD
-                        LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
-                        OUTER APPLY (
-                            SELECT SUM(POSD.PCS) AS TotPCS
-                            FROM ProductionOrderSubDetail POSD
-                            WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
-                        ) Sub
-                        " + wherePOD;
+                SELECT 
+                    COUNT(1) AS FilteredTotal, 
+                    ISNULL(SUM(ISNULL(POD.ProductionPCS, POD.PCS)), 0) AS TotalPcs
+                FROM ProductionOrderDetail POD
+                LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                OUTER APPLY (
+                    SELECT SUM(POSD.PCS) AS TotPCS
+                    FROM ProductionOrderSubDetail POSD
+                    WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
+                ) Sub
+                " + wherePOD;
 
                     using (SqlCommand cmdCount = new SqlCommand(sqlPODCount, con))
                     {
@@ -50381,67 +50295,58 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                     }
 
                     string sqlPODData = @"
-                        SELECT 
-                            POD.ProductionOrderDetailID,
-                            POD.ProductionOrderID,
-                            ISNULL(POM.ProductionOrderNo, '') AS ProductionOrderNo,
-                            CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) AS OrderDate,
-                            ISNULL(POD.PartyName, ISNULL(POM.Traders, '')) AS PartyName,
-                            ISNULL(POD.SalesOrderNo, '') AS SalesOrderNo,
-                            ISNULL(POD.SlipNo, '') AS SlipNo,
-                            ISNULL(POD.DesignNo, '') AS DesignNo,
-                            ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
-                            ISNULL(
-                                (SELECT TOP 1 DCMD.ColorMatchingPhoto 
-                                 FROM DesignColorMatchingFormMaster DCMFM 
-                                 INNER JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
-                                 INNER JOIN SaleOrderDetails SOD ON SOD.DesignColorMatchingID = DCMFM.DesignColorMatchingFormID
-                                 INNER JOIN ProductionOrderDetail P ON P.SalesOrderDetailID = SOD.DetailID
-                                 WHERE P.ProductionOrderDetailID = POD.ProductionOrderDetailID
-                                   AND (
-                                       UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(  
-                                           CASE   
-                                               WHEN CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) > 0   
-                                                    THEN SUBSTRING(CONVERT(VARCHAR(500), POD.ColourMatchingName), CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) + 3, LEN(CONVERT(VARCHAR(500), POD.ColourMatchingName)))  
-                                               ELSE CONVERT(VARCHAR(200), POD.ColourMatchingName)  
-                                          END  
-                                       )))
-                                       OR DCMD.MatchingNo = 1
-                                   )
-                                 ORDER BY CASE WHEN UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(POD.ColourMatchingName))) THEN 0 ELSE 1 END), 
-                                ISNULL(DEFM.PhotoOfDesign, '')
-                            ) AS PhotoPath,
-                            ISNULL(POD.ProductionPCS, POD.PCS) AS PCS,
-                            ISNULL(Sub.TotPCS, 0) AS CompletedPCS,
-                            ISNULL(
-                                STUFF((
-                                    SELECT ',' + CAST(POSD.ProductionOrderSubDetailID AS VARCHAR(20))
-                                    FROM ProductionOrderSubDetail POSD
-                                    WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID
-                                      AND ISNULL(POSD.IsActive, 1) = 1
-                                    FOR XML PATH('')
-                                ), 1, 1, ''), 
-                            '') AS SubDetailIDs,
-                            ISNULL(POD.RepRate, 0) AS JobRate,
-                            ISNULL(POM.PanaRepeat, 0) AS PanaRepeat,
-                            ISNULL(POM.JobWorkerName, '') AS JobWorkerName,
-                            ISNULL(POD.Barcode, '') AS Barcode,
-                            ISNULL(POD.WarpQuality, '') AS WarpQuality,
-                            ISNULL(POD.WeftQuality, '') AS WeftQuality,
-                            ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
-                        FROM ProductionOrderDetail POD
-                        LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
-                        LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
-                        LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
-                        LEFT JOIN DesignEntryFormMaster DEFM ON LTRIM(RTRIM(REPLACE(REPLACE(POD.DesignNo, ' ', ''), '-', ''))) = LTRIM(RTRIM(REPLACE(REPLACE(DEFM.DesignNo, ' ', ''), '-', '')))
-                        OUTER APPLY (
-                            SELECT SUM(POSD.PCS) AS TotPCS
-                            FROM ProductionOrderSubDetail POSD
-                            WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
-                        ) Sub
-                        " + wherePOD + @"
-                        ORDER BY POD.ProductionOrderDetailID DESC
-                        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+                SELECT 
+                    POD.ProductionOrderDetailID,
+                    POD.ProductionOrderID,
+                    ISNULL(POM.ProductionOrderNo, '') AS ProductionOrderNo,
+                    CONVERT(varchar(10), ISNULL(POD.OrderDate, POM.ProductionOrderDate), 103) AS OrderDate,
+                    ISNULL(POD.PartyName, ISNULL(POM.Traders, '')) AS PartyName,
+                    ISNULL(POD.SalesOrderNo, '') AS SalesOrderNo,
+                    ISNULL(POD.SlipNo, '') AS SlipNo,
+                    ISNULL(POD.DesignNo, '') AS DesignNo,
+                    ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
+                    ISNULL(
+                        (SELECT TOP 1 DCMD.ColorMatchingPhoto 
+                         FROM DesignColorMatchingFormMaster DCMFM 
+                         INNER JOIN DesignColorMatchingDetails DCMD ON DCMD.DesignColorMatchingFormID = DCMFM.DesignColorMatchingFormID
+                         INNER JOIN SaleOrderDetails SOD ON SOD.DesignColorMatchingID = DCMFM.DesignColorMatchingFormID
+                         INNER JOIN ProductionOrderDetail P ON P.SalesOrderDetailID = SOD.DetailID
+                         WHERE P.ProductionOrderDetailID = POD.ProductionOrderDetailID
+                           AND (
+                               UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(  
+                                   CASE   
+                                       WHEN CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) > 0   
+                                            THEN SUBSTRING(CONVERT(VARCHAR(500), POD.ColourMatchingName), CHARINDEX(' - ', CONVERT(VARCHAR(500), POD.ColourMatchingName)) + 3, LEN(CONVERT(VARCHAR(500), POD.ColourMatchingName)))  
+                                       ELSE CONVERT(VARCHAR(200), POD.ColourMatchingName)  
+                                  END  
+                               )))
+                               OR DCMD.MatchingNo = 1
+                           )
+                         ORDER BY CASE WHEN UPPER(LTRIM(RTRIM(DCMD.FeederMatchingID))) = UPPER(LTRIM(RTRIM(POD.ColourMatchingName))) THEN 0 ELSE 1 END), 
+                        ISNULL(DEFM.PhotoOfDesign, '')
+                    ) AS PhotoPath,
+                    ISNULL(POD.ProductionPCS, POD.PCS) AS PCS,
+                    ISNULL(Sub.TotPCS, 0) AS CompletedPCS,
+                    ISNULL(POD.RepRate, 0) AS JobRate,
+                    ISNULL(POM.PanaRepeat, 0) AS PanaRepeat,
+                    ISNULL(POM.JobWorkerName, '') AS JobWorkerName,
+                    ISNULL(POD.Barcode, '') AS Barcode,
+                    ISNULL(POD.WarpQuality, '') AS WarpQuality,
+                    ISNULL(POD.WeftQuality, '') AS WeftQuality,
+                    ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
+                FROM ProductionOrderDetail POD
+                LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
+                LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
+                LEFT JOIN DesignEntryFormMaster DEFM ON LTRIM(RTRIM(REPLACE(REPLACE(POD.DesignNo, ' ', ''), '-', ''))) = LTRIM(RTRIM(REPLACE(REPLACE(DEFM.DesignNo, ' ', ''), '-', '')))
+                OUTER APPLY (
+                    SELECT SUM(POSD.PCS) AS TotPCS
+                    FROM ProductionOrderSubDetail POSD
+                    WHERE POSD.ProductionOrderDetailID = POD.ProductionOrderDetailID AND ISNULL(POSD.IsActive, 1) = 1
+                ) Sub
+                " + wherePOD + @"
+                ORDER BY POD.ProductionOrderDetailID DESC
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
                     using (SqlCommand cmdData = new SqlCommand(sqlPODData, con))
                     {
@@ -50457,8 +50362,6 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                                 decimal panaRepeatVal = dr["PanaRepeat"] != DBNull.Value ? Convert.ToDecimal(dr["PanaRepeat"]) : 0;
                                 decimal calcRepeat = panaRepeatVal > 0 ? (pcsVal / panaRepeatVal) : 0;
                                 object repeatObj = calcRepeat > 0 ? (calcRepeat % 1 == 0 ? (object)(int)calcRepeat : (object)Math.Round(calcRepeat, 2)) : (object)panaRepeatVal;
-
-                                bool isCompleted = (completedPcsVal >= pcsVal && pcsVal > 0);
 
                                 string rawPhoto = dr["PhotoPath"] != DBNull.Value ? dr["PhotoPath"].ToString().Trim() : "";
                                 string normalizedPhoto = "";
@@ -50484,8 +50387,7 @@ WHERE ProductionOrderDetailID = @ProductionOrderDetailID;";
                                     PCS = pcsVal,
                                     CompletedPCS = completedPcsVal,
                                     RemainingPCS = remainingPcsVal,
-                                    IsCompleted = isCompleted,
-                                    SubDetailIDs = dr["SubDetailIDs"] != DBNull.Value ? dr["SubDetailIDs"].ToString() : "",
+                                    IsCompleted = false,
                                     JobRate = dr["JobRate"] != DBNull.Value ? Convert.ToDecimal(dr["JobRate"]) : 0,
                                     PanaRepeat = panaRepeatVal,
                                     Repeat = repeatObj,
@@ -50820,6 +50722,15 @@ ORDER BY
         {
             try
             {
+                if (pcs <= 0)
+                {
+                    return new
+                    {
+                        Status = false,
+                        Message = "Please enter a valid PCS value greater than 0."
+                    };
+                }
+
                 string connectionString = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
                 long createdByUserID = 0;
                 long companyId = 0;
@@ -50869,7 +50780,7 @@ ORDER BY
                                 DateTime.TryParse(productionDate, out parsedDate);
                             }
 
-                            // Check total order PCS for validation
+                            // 1) Total Order / Production PCS
                             decimal maxOrderPCS = 0;
                             using (SqlCommand cmdMax = new SqlCommand("SELECT TOP 1 ISNULL(ProductionPCS, PCS) FROM ProductionOrderDetail WHERE ProductionOrderDetailID = @DetailID", con, tran))
                             {
@@ -50881,7 +50792,7 @@ ORDER BY
                                 }
                             }
 
-                            // Check existing total assigned PCS for this detail
+                            // 2) Abhi tak total allotted PCS (e.g. 9.00)
                             decimal existingPCS = 0;
                             using (SqlCommand cmdSum = new SqlCommand("SELECT ISNULL(SUM(PCS), 0) FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ISNULL(IsActive, 1) = 1", con, tran))
                             {
@@ -50893,15 +50804,27 @@ ORDER BY
                                 }
                             }
 
-                            // Check maximum allowed machine number for Jobber
+                            // 3) Limit check: (existingPCS + new pcs) order PCS se zyada na ho
+                            if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
+                            {
+                                tran.Rollback();
+                                decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
+                                return new
+                                {
+                                    Status = false,
+                                    Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
+                                };
+                            }
+
+                            // 4) Max Jobber Machines check
                             int maxJobberMachines = 0;
                             using (SqlCommand cmdJobber = new SqlCommand(@"
-                                SELECT TOP 1 ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
-                                FROM ProductionOrderDetail POD
-                                LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
-                                LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
-                                LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
-                                WHERE POD.ProductionOrderDetailID = @DetailID OR POM.ProductionOrderID = @OrderID", con, tran))
+                        SELECT TOP 1 ISNULL(JM.NoOfMachines, ISNULL(JM2.NoOfMachines, 0)) AS NoOfMachines
+                        FROM ProductionOrderDetail POD
+                        LEFT JOIN ProductionOrderMaster POM ON POD.ProductionOrderID = POM.ProductionOrderID
+                        LEFT JOIN JobberMaster JM ON ((POM.JobWorkerID IS NOT NULL AND POM.JobWorkerID > 0 AND JM.Id = POM.JobWorkerID) OR (POM.JobWorkerName IS NOT NULL AND POM.JobWorkerName <> '' AND LTRIM(RTRIM(JM.PartyName)) = LTRIM(RTRIM(POM.JobWorkerName))))
+                        LEFT JOIN JobberMaster JM2 ON ((POD.PartyID IS NOT NULL AND POD.PartyID > 0 AND JM2.Id = POD.PartyID) OR (POD.PartyName IS NOT NULL AND POD.PartyName <> '' AND LTRIM(RTRIM(JM2.PartyName)) = LTRIM(RTRIM(POD.PartyName))))
+                        WHERE POD.ProductionOrderDetailID = @DetailID OR POM.ProductionOrderID = @OrderID", con, tran))
                             {
                                 cmdJobber.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
                                 cmdJobber.Parameters.AddWithValue("@OrderID", productionOrderID);
@@ -50918,132 +50841,53 @@ ORDER BY
                                 finalMachineNumber = 1;
                             }
 
-                            // Check if an active SubDetail already exists for this detail
-                            long existingSubDetailId = 0;
-                            using (SqlCommand cmdExist = new SqlCommand("SELECT TOP 1 ProductionOrderSubDetailID FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ISNULL(IsActive, 1) = 1 ORDER BY ProductionOrderSubDetailID ASC", con, tran))
+                            // 5) Hamesha NAYI row INSERT karein (purani update nahi hogi)
+                            string insertSql = @"
+                        INSERT INTO ProductionOrderSubDetail
+                        (
+                            ProductionOrderID,
+                            ProductionOrderDetailID,
+                            ProductionDate,
+                            MachineNumber,
+                            PCS,
+                            CreatedByUserID,
+                            CompanyId,
+                            DateandTime,
+                            IsActive
+                        )
+                        VALUES
+                        (
+                            @ProductionOrderID,
+                            @ProductionOrderDetailID,
+                            @ProductionDate,
+                            @MachineNumber,
+                            @PCS,
+                            @CreatedByUserID,
+                            @CompanyId,
+                            GETDATE(),
+                            1
+                        );
+                        SELECT SCOPE_IDENTITY();";
+
+                            using (SqlCommand cmd = new SqlCommand(insertSql, con, tran))
                             {
-                                cmdExist.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
-                                object resExist = cmdExist.ExecuteScalar();
-                                if (resExist != null && resExist != DBNull.Value)
+                                cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
+                                cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
+                                cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
+                                cmd.Parameters.AddWithValue("@MachineNumber", finalMachineNumber);
+                                cmd.Parameters.AddWithValue("@PCS", pcs);
+                                cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
+                                cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
+                                object newIdObj = cmd.ExecuteScalar();
+                                long newId = Convert.ToInt64(newIdObj);
+                                tran.Commit();
+
+                                return new
                                 {
-                                    long.TryParse(resExist.ToString(), out existingSubDetailId);
-                                }
-                            }
-
-                            if (existingSubDetailId > 0)
-                            {
-                                // Check other assigned PCS (excluding current sub detail)
-                                decimal otherPCS = 0;
-                                using (SqlCommand cmdSum = new SqlCommand("SELECT ISNULL(SUM(PCS), 0) FROM ProductionOrderSubDetail WHERE ProductionOrderDetailID = @DetailID AND ProductionOrderSubDetailID <> @SubID AND ISNULL(IsActive, 1) = 1", con, tran))
-                                {
-                                    cmdSum.Parameters.AddWithValue("@DetailID", productionOrderDetailID);
-                                    cmdSum.Parameters.AddWithValue("@SubID", existingSubDetailId);
-                                    object resSum = cmdSum.ExecuteScalar();
-                                    if (resSum != null && resSum != DBNull.Value)
-                                    {
-                                        decimal.TryParse(resSum.ToString(), out otherPCS);
-                                    }
-                                }
-
-                                if (maxOrderPCS > 0 && (otherPCS + pcs) > maxOrderPCS)
-                                {
-                                    tran.Rollback();
-                                    decimal remainingPCS = Math.Max(0, maxOrderPCS - otherPCS);
-                                    return new
-                                    {
-                                        Status = false,
-                                        Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (otherPCS + pcs), maxOrderPCS, remainingPCS)
-                                    };
-                                }
-
-                                string updateSql = @"
-                                    UPDATE ProductionOrderSubDetail
-                                    SET
-                                        ProductionOrderID = @ProductionOrderID,
-                                        ProductionDate = @ProductionDate,
-                                        MachineNumber = @MachineNumber,
-                                        PCS = @PCS,
-                                        DateandTime = GETDATE()
-                                    WHERE ProductionOrderSubDetailID = @SubDetailID;";
-
-                                using (SqlCommand cmd = new SqlCommand(updateSql, con, tran))
-                                {
-                                    cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
-                                    cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
-                                    cmd.Parameters.AddWithValue("@MachineNumber", finalMachineNumber);
-                                    cmd.Parameters.AddWithValue("@PCS", pcs);
-                                    cmd.Parameters.AddWithValue("@SubDetailID", existingSubDetailId);
-                                    cmd.ExecuteNonQuery();
-                                    tran.Commit();
-
-                                    return new
-                                    {
-                                        Status = true,
-                                        Message = "Machine Details updated successfully!",
-                                        ProductionOrderSubDetailID = existingSubDetailId
-                                    };
-                                }
-                            }
-                            else
-                            {
-                                if (maxOrderPCS > 0 && (existingPCS + pcs) > maxOrderPCS)
-                                {
-                                    tran.Rollback();
-                                    decimal remainingPCS = Math.Max(0, maxOrderPCS - existingPCS);
-                                    return new
-                                    {
-                                        Status = false,
-                                        Message = string.Format("Total Machine PCS ({0:0.00}) cannot exceed Order PCS ({1:0.00}). Maximum remaining allowed PCS is {2:0.00}.", (existingPCS + pcs), maxOrderPCS, remainingPCS)
-                                    };
-                                }
-
-                                string insertSql = @"
-                                    INSERT INTO ProductionOrderSubDetail
-                                    (
-                                        ProductionOrderID,
-                                        ProductionOrderDetailID,
-                                        ProductionDate,
-                                        MachineNumber,
-                                        PCS,
-                                        CreatedByUserID,
-                                        CompanyId,
-                                        DateandTime,
-                                        IsActive
-                                    )
-                                    VALUES
-                                    (
-                                        @ProductionOrderID,
-                                        @ProductionOrderDetailID,
-                                        @ProductionDate,
-                                        @MachineNumber,
-                                        @PCS,
-                                        @CreatedByUserID,
-                                        @CompanyId,
-                                        GETDATE(),
-                                        1
-                                    );
-                                    SELECT SCOPE_IDENTITY();";
-
-                                using (SqlCommand cmd = new SqlCommand(insertSql, con, tran))
-                                {
-                                    cmd.Parameters.AddWithValue("@ProductionOrderID", productionOrderID);
-                                    cmd.Parameters.AddWithValue("@ProductionOrderDetailID", productionOrderDetailID);
-                                    cmd.Parameters.AddWithValue("@ProductionDate", parsedDate);
-                                    cmd.Parameters.AddWithValue("@MachineNumber", finalMachineNumber);
-                                    cmd.Parameters.AddWithValue("@PCS", pcs);
-                                    cmd.Parameters.AddWithValue("@CreatedByUserID", createdByUserID > 0 ? (object)createdByUserID : DBNull.Value);
-                                    cmd.Parameters.AddWithValue("@CompanyId", companyId > 0 ? (object)companyId : DBNull.Value);
-                                    object newIdObj = cmd.ExecuteScalar();
-                                    long newId = Convert.ToInt64(newIdObj);
-                                    tran.Commit();
-
-                                    return new
-                                    {
-                                        Status = true,
-                                        Message = "Machine Details saved successfully!",
-                                        ProductionOrderSubDetailID = newId
-                                    };
-                                }
+                                    Status = true,
+                                    Message = "Machine Details saved successfully!",
+                                    ProductionOrderSubDetailID = newId
+                                };
                             }
                         }
                         catch
