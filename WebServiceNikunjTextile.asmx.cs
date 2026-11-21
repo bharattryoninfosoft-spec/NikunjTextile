@@ -45660,6 +45660,72 @@ ORDER BY
                 return new { success = false, message = ex.Message };
             }
         }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public object GetPartyPreviousOrderColourHistory(int partyId)
+        {
+            try
+            {
+                if (partyId <= 0)
+                {
+                    return new { Status = false, Message = "Invalid Party ID.", Data = new List<object>() };
+                }
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                var list = new List<object>();
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    const string sql = @"
+                        SELECT 
+                            SO.PartyID,
+                            ISNULL(D.DesignID, '') AS DesignID,
+                            ISNULL(D.DesignNo, '') AS DesignNo,
+                            ISNULL(SD.ColourID, 0) AS ColourID,
+                            ISNULL(SD.ColourName, '') AS ColourName,
+                            CAST(SUM(ISNULL(SD.Qty, 0)) AS DECIMAL(18, 2)) AS TotalQty
+                        FROM dbo.SaleOrder SO WITH (NOLOCK)
+                        INNER JOIN dbo.SaleOrderDetails D WITH (NOLOCK) ON SO.SaleOrderID = D.SaleOrderID
+                        INNER JOIN dbo.SaleOrderSubDetails SD WITH (NOLOCK) ON D.DetailID = SD.DetailID
+                        LEFT JOIN dbo.PartyMaster PM WITH (NOLOCK) ON SO.PartyID = PM.PartyId
+                        WHERE SO.PartyID = @PartyID
+                          AND ISNULL(SD.ColourName, '') <> ''
+                        GROUP BY SO.PartyID, D.DesignID, D.DesignNo, SD.ColourID, SD.ColourName
+                        HAVING SUM(ISNULL(SD.Qty, 0)) > 0
+                        ORDER BY D.DesignNo, SD.ColourName;";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, con))
+                    {
+                        cmd.Parameters.Add("@PartyID", SqlDbType.Int).Value = partyId;
+
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            while (rdr.Read())
+                            {
+                                list.Add(new
+                                {
+                                    PartyID = Convert.ToInt32(rdr["PartyID"]),
+                                    DesignID = rdr["DesignID"].ToString(),
+                                    DesignNo = rdr["DesignNo"].ToString(),
+                                    ColourID = Convert.ToInt32(rdr["ColourID"]),
+                                    ColourName = rdr["ColourName"].ToString(),
+                                    TotalQty = Convert.ToDecimal(rdr["TotalQty"])
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return new { Status = true, Message = "Success", Data = list };
+            }
+            catch (Exception ex)
+            {
+                return new { Status = false, Message = ex.Message, Data = new List<object>() };
+            }
+        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public ApiResponse<SaleOrderVM> GetSaleOrderById(int SaleOrderID)
@@ -46882,7 +46948,7 @@ ORDER BY
                 PanaWidth,
                 NoOfMachines
             FROM JobberMaster
-            WHERE ISNULL(IsActiveParty, 1) = 1
+            WHERE ISNULL(IsActiveParty, 1) = 1 AND JobberType='Weaving'
             ORDER BY PartyName
             ";
 

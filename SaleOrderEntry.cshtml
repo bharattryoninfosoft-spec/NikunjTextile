@@ -1,29 +1,311 @@
-@{
+﻿@{
     Layout = "/_LayoutPage1.cshtml";
 }
 
 <style>
-    .table-box {
-        border: 1px dashed #ccc;
-        padding: 10px;
-        background: #fff;
+    /* ========================================================
+       ERP DESIGN SYSTEM - SALE ORDER ENTRY (NIKUNJ TEXTILE)
+       Deep Navy Blue (#1E3A5F) | Royal Blue (#2563EB) | Teal (#0D9488) | Light Gray (#F5F7FA)
+    ======================================================== */
+    :root {
+        --erp-navy: #1E3A5F;
+        --erp-navy-dark: #152A45;
+        --erp-navy-light: #F0F4F8;
+        --erp-blue: #2563EB;
+        --erp-blue-hover: #1D4ED8;
+        --erp-blue-light: #EFF6FF;
+        --erp-teal: #0D9488;
+        --erp-teal-light: #F0FDFA;
+        --erp-bg: #F5F7FA;
+        --erp-card-bg: #FFFFFF;
+        --erp-border: #E2E8F0;
+        --erp-text-main: #1E293B;
+        --erp-text-muted: #64748B;
+        --erp-shadow: 0 4px 12px rgba(30, 58, 95, 0.06);
+        --erp-shadow-hover: 0 8px 20px rgba(30, 58, 95, 0.1);
     }
 
-    .table th {
+    body, .content-wrapper {
+        background-color: var(--erp-bg);
+        color: var(--erp-text-main);
+    }
+
+    /* Hero Header */
+    .erp-hero-header {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: var(--erp-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .erp-hero-title-group {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .erp-hero-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .erp-hero-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--erp-navy);
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .erp-hero-subtitle {
         font-size: 13px;
+        color: var(--erp-text-muted);
+        margin: 3px 0 0 0;
+    }
+
+    /* ERP Cards */
+    .erp-card {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: var(--erp-shadow);
+        margin-bottom: 20px;
+    }
+
+    .erp-card-header {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--erp-navy);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    .card-box-border {
+        border: 1px solid var(--erp-border);
+        border-radius: 10px;
+        background: #FFFFFF;
+        padding: 18px;
+        height: 100%;
+    }
+
+    .header-box-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--erp-navy);
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Badges */
+    .erp-badge-pos {
+        background: var(--erp-teal-light);
+        color: var(--erp-teal);
+        border: 1px solid #CCFBF1;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .erp-badge-gst {
+        background: var(--erp-blue-light);
+        color: var(--erp-blue);
+        border: 1px solid #DBEAFE;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Buttons */
+    .erp-btn-save {
+        background: var(--erp-blue) !important;
+        border-color: var(--erp-blue) !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        padding: 10px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+
+    .erp-btn-save:hover {
+        background: var(--erp-blue-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+        color: #FFFFFF !important;
+    }
+
+    .erp-btn-outline {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        color: var(--erp-navy);
+        font-weight: 600;
+        padding: 9px 18px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .erp-btn-outline:hover {
+        background: #F8FAFC;
+        border-color: var(--erp-navy);
+        color: var(--erp-navy);
+    }
+
+    .erp-btn-sm-outline {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-blue);
+        color: var(--erp-blue);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .erp-btn-sm-outline:hover {
+        background: var(--erp-blue);
+        color: #FFFFFF;
+    }
+
+    /* Add Items Bar */
+    .erp-add-items-bar {
+        border: 2px dashed #93C5FD;
+        background: #EFF6FF;
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--erp-blue);
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .erp-add-items-bar:hover {
+        background: #DBEAFE;
+        border-color: var(--erp-blue);
+        transform: translateY(-1px);
+    }
+
+    /* Modern ERP Table */
+    .erp-table-container {
+        border: 1px solid var(--erp-border);
+        border-radius: 10px;
+        overflow-x: auto;
+        background: #FFFFFF;
+    }
+
+    #SaleOrderDetails {
+        width: 100% !important;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #SaleOrderDetails thead th {
+        background-color: var(--erp-navy) !important;
+        color: #FFFFFF !important;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 12px 10px;
+        vertical-align: middle;
+        border: none;
         white-space: nowrap;
     }
 
-    .no-data {
-        text-align: center;
-        padding: 20px;
-        color: #777;
+    #SaleOrderDetails tbody td {
+        padding: 10px;
+        vertical-align: middle;
+        border-top: 1px solid #F1F5F9;
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
+        font-size: 13px;
+        color: var(--erp-text-main);
+        transition: background-color 0.15s ease;
     }
 
+    #SaleOrderDetails tbody tr:hover td {
+        background-color: #F8FAFC !important;
+    }
+
+    #SaleOrderDetails tbody tr td img {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        border: 1px solid var(--erp-border);
+        border-radius: 6px;
+    }
+
+    #SaleOrderDetails tbody tr td img:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    #SaleOrderDetails .col-action {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    #SaleOrderDetails .col-action i {
+        font-size: 16px;
+        margin: 0 5px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #SaleOrderDetails .col-action i:hover {
+        transform: scale(1.2);
+    }
+
+    /* Summary Card & Banner */
     .summary-card {
-        background: #fff;
+        background: #FFFFFF;
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: var(--erp-shadow);
+        border: 1px solid var(--erp-border);
+        padding: 20px;
         font-size: 14px;
     }
 
@@ -35,14 +317,86 @@
         border-bottom: 1px dashed #eee;
     }
 
-        .summary-row:last-child {
-            border-bottom: none;
-        }
+    .summary-row:last-child {
+        border-bottom: none;
+    }
 
-        .summary-row.total {
-            font-size: 16px;
-            font-weight: bold;
-        }
+    .erp-total-banner {
+        background: linear-gradient(135deg, var(--erp-navy) 0%, var(--erp-blue) 100%);
+        color: #FFFFFF;
+        padding: 16px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(30, 58, 95, 0.2);
+        margin-top: 14px;
+        margin-bottom: 10px;
+    }
+
+    .erp-total-label {
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #FFFFFF;
+    }
+
+    .erp-total-currency {
+        font-size: 20px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+        margin-right: 2px;
+    }
+
+    .erp-total-value {
+        font-size: 26px;
+        font-weight: 800;
+        color: #FFFFFF;
+    }
+
+    .erp-link-action {
+        color: var(--erp-blue);
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .erp-link-action:hover {
+        color: var(--erp-blue-hover);
+        text-decoration: underline;
+    }
+
+    .erp-footer-bar {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        border-radius: 12px;
+        padding: 16px 24px;
+        box-shadow: var(--erp-shadow);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    /* Normal GST Dropdown styling (NO Select2) */
+    select#GSTSLABId, .no-select2 {
+        display: inline-block !important;
+        width: 130px !important;
+        height: 36px !important;
+        border: 1px solid var(--erp-border) !important;
+        border-radius: 6px !important;
+        background-color: #FFFFFF !important;
+        color: var(--erp-navy) !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        cursor: pointer !important;
+        padding: 4px 8px !important;
+    }
+
+    #GSTSLABId + .select2-container,
+    .select2-container:has(#GSTSLABId) {
+        display: none !important;
+    }
 
     #designModal .modal-body {
         max-height: 75vh;
@@ -68,357 +422,541 @@
         font-size: larger;
         align-self: center;
     }
-
-    /* Table container */
-    .table-responsive {
-        border-radius: 8px;
+    /* ========================================================
+       ERP MODAL DESIGN - DESIGN SELECTION & COLOR MATCHING
+    ======================================================== */
+    #designModal .modal-content {
+        border-radius: 14px !important;
         overflow: hidden;
+        border: 1px solid var(--erp-border) !important;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25) !important;
     }
 
-    #SaleOrderDetails {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
+    #designModal .modal-header {
+        background: linear-gradient(135deg, var(--erp-navy) 0%, var(--erp-navy-dark) 100%) !important;
+        border-bottom: none;
+        padding: 16px 24px !important;
     }
 
-        #SaleOrderDetails th {
-            padding: 10px;
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-            font-weight: 600;
-        }
-
-        #SaleOrderDetails td {
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        #SaleOrderDetails tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        #SaleOrderDetails tbody tr:hover {
-            background-color: #e9ecef;
-            transition: 0.2s;
-        }
-
-        #SaleOrderDetails input {
-            width: 80px;
-            padding: 4px 6px;
-            text-align: right;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
-
-        #SaleOrderDetails .col-action {
-            text-align: center;
-            vertical-align: middle;
-            white-space: nowrap;
-        }
-
-            #SaleOrderDetails .col-action i {
-                font-size: 18px;
-                margin: 0 6px;
-                cursor: pointer;
-                transition: 0.2s;
-            }
-
-                #SaleOrderDetails .col-action i:hover {
-                    transform: scale(1.2);
-                }
-    /* Split Header Card Styles */
-    .card-box-border {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        background: #fff;
-        padding: 16px;
-        height: 100%;
+    #designModal .modal-body {
+        background-color: #F8FAFC !important;
+        max-height: 80vh;
+        overflow-y: auto;
     }
 
-    .header-box-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 12px;
+    /* Modal Photo Frame */
+    .erp-modal-photo-frame {
+        background: #FFFFFF;
+        border: 2px dashed #CBD5E1;
+        border-radius: 10px;
+        padding: 8px;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-    }
-    #SaleOrderDetails tbody tr td img {
-        cursor: pointer;
-        transition: transform 0.2s ease;
+        justify-content: center;
+        overflow: hidden;
+        transition: all 0.2s ease;
     }
 
-        #SaleOrderDetails tbody tr td img:hover {
-            transform: scale(1.08);
+    .erp-modal-photo-frame:hover {
+        border-color: var(--erp-blue);
+    }
+
+    #upload-ColorMatching-default-preview img,
+    #upload-PhotoOfDesign-default-preview img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 6px;
+    }
+
+    .erp-btn-nav-photo {
+        background: #EFF6FF;
+        color: var(--erp-blue);
+        border: 1px solid #DBEAFE;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 5px 16px;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .erp-btn-nav-photo:hover {
+        background: var(--erp-blue);
+        color: #FFFFFF;
+        border-color: var(--erp-blue);
+    }
+
+    /* Bulk Qty Panel */
+    .erp-bulk-panel {
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .erp-btn-bulk {
+        background: #16A34A !important;
+        border-color: #16A34A !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .erp-btn-bulk:hover {
+        background: #15803D !important;
+        transform: translateY(-1px);
+        color: #FFFFFF !important;
+    }
+
+    /* Modal Divider */
+    .erp-modal-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin: 12px 0;
+    }
+
+    .erp-modal-divider::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #E2E8F0;
+        z-index: 1;
+    }
+
+    .erp-divider-badge {
+        position: relative;
+        z-index: 2;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        color: var(--erp-blue);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 3px 12px;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Selected Color Tile */
+    .erp-selected-color-box {
+        background: #EFF6FF;
+        border: 1px solid #DBEAFE;
+        border-radius: 8px;
+        padding: 7px 10px;
+        height: 42px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .erp-selected-color-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--erp-blue);
+        font-weight: 700;
+        display: block;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .ColorMatchingName {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--erp-navy);
+        line-height: 1.2;
+    }
+
+    /* Tables in Modal */
+    #SaleOrderSubDetails thead th,
+    #tblColourHistory thead th {
+        background-color: var(--erp-navy) !important;
+        color: #FFFFFF !important;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 9px 10px;
+        border: none;
+    }
+
+    #SaleOrderSubDetails tbody td,
+    #tblColourHistory tbody td {
+        padding: 8px 10px;
+        font-size: 12px;
+        border-top: 1px solid #F1F5F9;
+        vertical-align: middle;
+    }
+
+    #SaleOrderSubDetails tbody tr:hover td,
+    #tblColourHistory tbody tr:hover td {
+        background-color: #F8FAFC !important;
+    }
+
+    /* Modal OK button */
+    .erp-btn-ok {
+        background: #16A34A !important;
+        border-color: #16A34A !important;
+        color: #FFFFFF !important;
+        font-weight: 700;
+        border-radius: 8px;
+        padding: 8px 30px;
+        font-size: 13px;
+        box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .erp-btn-ok:hover {
+        background: #15803D !important;
+        transform: translateY(-1px);
+        color: #FFFFFF !important;
+    }
+    /* Highlight for Color coming from Jobber Report */
+    .erp-color-highlight {
+        background-color: #FEF08A !important;
+        color: #854D0E !important;
+        font-weight: 700 !important;
+        padding: 3px 8px !important;
+        border-radius: 4px !important;
+        border: 1px solid #EAB308 !important;
+        box-shadow: 0 0 10px rgba(234, 179, 8, 0.6) !important;
+        display: inline-block !important;
+        margin: 2px 0 !important;
+        animation: erpPulseHighlight 2s infinite ease-in-out;
+    }
+
+    @@keyframes erpPulseHighlight {
+        0%, 100% {
+            box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
         }
+        50% {
+            box-shadow: 0 0 14px rgba(234, 179, 8, 0.9);
+        }
+    }
+
+    .erp-highlighted-order-row td {
+        background-color: #FEFCE8 !important;
+    }
+    .erp-highlighted-sub-row {
+        background-color: #FEF9C3 !important;
+        border-left: 4px solid #EAB308 !important;
+    }
+    .erp-highlighted-history-row {
+        background-color: #FEF9C3 !important;
+        border-left: 3px solid #EAB308 !important;
+    }
 </style>
 
 <div class="content-wrapper">
+    <!-- ERP Hero Header Banner -->
+    <div class="erp-hero-header">
+        <div class="erp-hero-title-group">
+            <div class="erp-hero-icon">
+                <i class="fa fa-shopping-cart"></i>
+            </div>
+            <div>
+                <h4 class="erp-hero-title">Sale Order Entry</h4>
+                <p class="erp-hero-subtitle">Create customer orders, specify items, select color combinations, and calculate totals</p>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="listSaleOrderEntry" class="btn erp-btn-outline">
+                <i class="fa fa-arrow-left me-1"></i> Back to Orders
+            </a>
+            <button type="button" class="btn erp-btn-save" onclick="saveSaleOrder()">
+                <i class="fa fa-check me-1"></i> Save Sale Order
+            </button>
+        </div>
+    </div>
+
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-section-header">Sale Order Entry</div>
+            <div class="erp-card">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
+                    <div class="row gutters">
+                        <input type="text" value="0" id="SaleOrderID" hidden>
 
-                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
-                        <div class="row gutters">
-                            <input type="text" value="0" id="SaleOrderID" hidden>
+                        <!-- LEFT SIDE: Bill To & Extra Details -->
+                        <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12 mb-2">
+                            <div class="card-box-border h-100">
 
-                            <!-- LEFT SIDE: Bill To & Extra Details -->
-                            <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 col-12 mb-2">
-                                <div class="card-box-border h-100">
+                                <!-- STATE 1: Dropdown Selection View -->
+                                <div id="partySelectContainer">
+                                    <div class="header-box-title mb-2">
+                                        <span><i class="fa fa-address-card-o text-primary me-2"></i>Bill To</span>
+                                    </div>
+                                    <div class="field-wrapper position-relative mb-3">
+                                        <select id="ddlPartyGST" class="select-single detail form-control" data-live-search="true">
+                                            <option value="-1">Select Party GST / Name</option>
+                                        </select>
+                                        <div class="field-placeholder">Party GST <sup style="color:red;">*</sup></div>
+                                        <button type="button" id="AddPartyModel" class="btn btn-primary position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
-                                    <!-- STATE 1: Dropdown Selection View -->
-                                    <div id="partySelectContainer">
-                                        <div class="header-box-title mb-2">
-                                            <span>Bill To</span>
+                                <!-- STATE 2: Selected Party Details Card View -->
+                                <div id="partyDetailsCard" style="display: none;">
+                                    <div class="header-box-title d-flex justify-content-between align-items-center mb-2">
+                                        <span><i class="fa fa-address-card-o text-primary me-2"></i>Bill To</span>
+                                        <button type="button" id="btnChangeParty" class="btn erp-btn-sm-outline">Change Party</button>
+                                    </div>
+
+                                    <div class="row gutters font-size-sm mb-3">
+                                        <!-- Left Column of Details -->
+                                        <div class="col-md-7 col-12">
+                                            <h6 id="cardPartyName" class="fw-bold mb-1" style="color: var(--erp-navy);">--</h6>
+                                            <div class="text-muted mb-1"><i class="fa fa-map-marker text-danger me-1"></i>Address: <span id="cardPartyAddress" class="text-dark">--</span></div>
                                         </div>
-                                        <div class="field-wrapper position-relative mb-3">
-                                            <select id="ddlPartyGST" class="select-single detail form-control" data-live-search="true">
-                                                <option value="-1">Select Party GST / Name</option>
-                                            </select>
-                                            <div class="field-placeholder">Party GST <sup style="color:red;">*</sup></div>
-                                            <button type="button" id="AddPartyModel" class="btn btn-primary position-absolute" data-bs-toggle="modal" data-bs-target="#addNewContact" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
-                                                <i class="fa fa-plus"></i>
+
+                                        <!-- Right Column of Details -->
+                                        <div class="col-md-5 col-12 border-start">
+                                            <div class="mb-1"><span class="erp-badge-pos"><i class="fa fa-globe me-1"></i>POS: <span id="cardPlaceOfSupply">--</span></span></div>
+                                            <div class="mb-1"><span class="erp-badge-gst"><i class="fa fa-id-card-o me-1"></i>GST: <span id="cardPartyGST">--</span></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Broker & Transport fields positioned cleanly underneath -->
+                                <div class="row gutters">
+                                    <div class="col-md-6 col-12 mb-3">
+                                        <div class="field-wrapper mb-0 position-relative">
+                                            <select id="ddlBroker" class="select-single detail form-control" data-live-search="true"></select>
+                                            <div class="field-placeholder">Broker <sup style="color:red;">*</sup></div>
+                                            <button class="btn btn-primary btn-sm position-absolute brokerModal" data-bs-toggle="modal" data-bs-target="#brokerModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                <i class="fa fa-plus"></i> 
                                             </button>
                                         </div>
                                     </div>
 
-                                    <!-- STATE 2: Selected Party Details Card View -->
-                                    <div id="partyDetailsCard" style="display: none;">
-                                        <div class="header-box-title d-flex justify-content-between align-items-center mb-2">
-                                            <span>Bill To</span>
-                                            <button type="button" id="btnChangeParty" class="btn btn-outline-primary btn-sm py-0 px-3">Change Party</button>
-                                        </div>
-
-                                        <div class="row gutters font-size-sm mb-3">
-                                            <!-- Left Column of Details -->
-                                            <div class="col-md-7 col-12">
-                                                <h6 id="cardPartyName" class="fw-bold text-dark mb-1">--</h6>
-                                                <div class="text-muted mb-1">Address: <span id="cardPartyAddress" class="text-dark">--</span></div>
-                                            </div>
-
-                                            <!-- Right Column of Details -->
-                                            <div class="col-md-5 col-12 border-start">
-                                                <div class="text-muted mb-1">Place of Supply: <span id="cardPlaceOfSupply" class="text-dark">--</span></div>
-                                                <div class="text-muted mb-1">GST: <span id="cardPartyGST" class="text-dark">--</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Broker & Transport fields positioned cleanly underneath -->
-                                    <div class="row gutters">
-                                        <div class="col-md-6 col-12 mb-3">
-                                            <div class="field-wrapper mb-0">
-                                                <select id="ddlBroker" class="select-single detail form-control" data-live-search="true"></select>
-                                                <div class="field-placeholder">Broker <sup style="color:red;">*</sup></div>
-                                                <button class="btn btn-primary btn-sm position-absolute brokerModal" data-bs-toggle="modal" data-bs-target="#brokerModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
-                                                    <i class="fa fa-plus"></i> 
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Transport -->
-                                        <div class="col-md-6 col-12 mb-3 position-relative">
-                                            <div class="field-wrapper mb-0">
-                                                <select id="ddlTransport" class="select-single detail form-control" data-live-search="true">
-                                                    <option value="-1">Select</option>
-                                                </select>
-                                                <div class="field-placeholder">Transport <sup style="color:red;">*</sup></div>
-                                                <button type="button" id="AddTransportModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#TransportModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- RIGHT SIDE: Date and Invoice Number Panel -->
-                            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12 mb-2">
-                                <div class="card-box-border h-100">
-                                    <div class="header-box-title">
-                                        <span>Date and Invoice Number</span>
-                                    </div>
-
-                                    <div class="row gutters">
-                                        <!-- Order Date -->
-                                        <div class="col-md-6 col-12 mb-3">
-                                            <div class="field-wrapper mb-0">
-                                                <input type="date" id="OrderDate">
-                                                <div class="field-placeholder">Order Date</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Order No / Invoice No -->
-                                        <div class="col-md-6 col-12 mb-3">
-                                            <div class="field-wrapper mb-0">
-                                                <input type="text" id="OrderNo" value="0" readonly>
-                                                <div class="field-placeholder">Order No</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Markup % -->
-                                        <div class="col-12">
-                                            <div class="field-wrapper mb-0">
-                                                <input type="text" id="Markup" value="0">
-                                                <div class="field-placeholder">Mark-up %</div>
-                                            </div>
+                                    <!-- Transport -->
+                                    <div class="col-md-6 col-12 mb-3 position-relative">
+                                        <div class="field-wrapper mb-0">
+                                            <select id="ddlTransport" class="select-single detail form-control" data-live-search="true">
+                                                <option value="-1">Select</option>
+                                            </select>
+                                            <div class="field-placeholder">Transport <sup style="color:red;">*</sup></div>
+                                            <button type="button" id="AddTransportModel" class="btn btn-primary btn-sm position-absolute" data-bs-toggle="modal" data-bs-target="#TransportModal" style="top:50%; right:5px; transform:translateY(-50%); height:80%;">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-section-header mb-2">Item Details</div>
-                    <!-- Main Order Items Table -->
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered" id="SaleOrderDetails">
-                            <thead>
-                                <tr>
-                                    <th>Sr No</th>
-                                    <th>Design No</th>
-                                    <th>Type</th>
-                                    <th>No of Colours</th>
-                                    <th>Colours</th>
-                                    <th>Qty</th>
-                                    <th>Unit</th>
-                                    <th hidden>Rate</th>
-                                    <th>Rate</th>
-                                    <th>Amount</th>
-                                    <th>Remark</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orderBody">
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <!-- Add Items Bar (matches image block style) -->
-                    <div class="table-box text-center mb-4" style="border: 1px dashed #0d6efd; cursor: pointer;" onclick="openDesignModal()">
-                        <span class="text-primary fw-bold">+ Add Items</span>
-                    </div>
+                        <!-- RIGHT SIDE: Date and Invoice Number Panel -->
+                        <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 col-12 mb-2">
+                            <div class="card-box-border h-100">
+                                <div class="header-box-title">
+                                    <span><i class="fa fa-file-text-o text-primary me-2"></i>Date & Order Details</span>
+                                </div>
 
-                    <!-- Layout matching reference image: Left (Notes & Terms) / Right (Additional Charges & Totals) -->
-                    <!-- Layout matching reference image: Left (Notes & Terms) / Right (Additional Charges & Totals) -->
-                    <div class="row gutters">
-                        <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-12">
-                            <div class="card mb-3 border">
-                                <div class="card-body">
-                                    <div class="form-section-header mb-2">Notes / Remarks</div>
-                                    <div class="field-wrapper mb-3">
-                                        <textarea id="NotesRemark" class="form-control" rows="3" placeholder="Enter your notes or remarks"></textarea>
+                                <div class="row gutters">
+                                    <!-- Order Date -->
+                                    <div class="col-md-6 col-12 mb-3">
+                                        <div class="field-wrapper mb-0">
+                                            <input type="date" id="OrderDate">
+                                            <div class="field-placeholder">Order Date</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Order No / Invoice No -->
+                                    <div class="col-md-6 col-12 mb-3">
+                                        <div class="field-wrapper mb-0">
+                                            <input type="text" id="OrderNo" value="0" readonly>
+                                            <div class="field-placeholder">Order No</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Markup % -->
+                                    <div class="col-12">
+                                        <div class="field-wrapper mb-0">
+                                            <input type="text" id="Markup" value="0">
+                                            <div class="field-placeholder">Mark-up %</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 ms-auto">
-                            <div class="summary-card p-3 border">
+                    </div>
+                </div>
 
-                                <!-- Dynamic Additional Rows Container -->
-                                <div id="additionalChargesContainer">
-                                    <div class="summary-row align-items-center d-flex pb-2 mb-2 border-bottom additional-row">
-                                        <div class="position-relative flex-grow-1 me-2">
-                                            <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
-                                        </div>
-                                        <div class="input-group input-group-sm me-2" style="width: 100px;">
-                                            <span class="input-group-text"><i class="fa fa-inr"></i></span>
-                                            <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
-                                        </div>
-                                        <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
-                                    </div>
-                                </div>
+                <!-- Item Details Header -->
+                <div class="erp-card-header mb-2">
+                    <span><i class="fa fa-th-list text-primary me-2"></i>Item Details & Color Matching</span>
+                </div>
 
-                                <!-- Action Links Section -->
-                                <div class="mb-3 d-flex flex-column gap-1">
-                                    <a href="javascript:void(0);" id="btnAddMoreAdditional" class="text-primary fw-bold text-decoration-none small">+ Add Additional Charges</a>
-                                </div>
+                <!-- Main Order Items Table -->
+                <div class="erp-table-container table-responsive mb-3">
+                    <table class="table" id="SaleOrderDetails">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px; text-align: center;">Sr No</th>
+                                <th>Design No</th>
+                                <th>Type</th>
+                                <th style="text-align: center;">No of Colours</th>
+                                <th>Colours</th>
+                                <th style="text-align: right;">Qty</th>
+                                <th style="text-align: center;">Unit</th>
+                                <th hidden>Rate</th>
+                                <th style="text-align: right; width: 100px;">Rate</th>
+                                <th style="text-align: right;">Amount</th>
+                                <th>Remark</th>
+                                <th style="text-align: center; width: 80px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderBody">
+                        </tbody>
+                    </table>
+                </div>
 
-                                <!-- Dynamic Discount Rows Container (Hidden by default until clicked) -->
-                                <div id="discountChargesContainer"></div>
+                <!-- Add Items Bar -->
+                <div class="erp-add-items-bar mb-4" onclick="openDesignModal()">
+                    <i class="fa fa-plus-circle me-1" style="font-size: 16px;"></i>
+                    <span>+ Add Design & Color Matching Items</span>
+                </div>
 
-                                <!-- Dual Discount Inputs Block -->
-                                <div id="defaultDiscountSection" class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
-                                    <span class="fw-semibold text-secondary">Discount</span>
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <div class="input-group input-group-sm" style="width: 110px;">
-                                            <span class="input-group-text"><i class="fa fa-inr"></i></span>
-                                            <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0" readonly>
-                                        </div>
-                                        <div class="input-group input-group-sm" style="width: 90px;">
-                                            <span class="input-group-text">%</span>
-                                            <input type="number" id="discountValuePercent" class="form-control form-control-sm" value="0" placeholder="0">
-                                        </div>
-                                        <a href="javascript:void(0);" id="btnClearDiscount" class="text-danger text-decoration-none ms-1"><i class="fa fa-times-circle"></i></a>
-                                    </div>
-                                </div>
-
-                                <!-- GST Section (Fixed Alignment & Flex Structure) -->
-                                <div class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
-                                    <span class="fw-semibold text-secondary">GST</span>
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <select id="GSTSLABId" class="form-select form-control form-control-sm" style="width: 110px;"></select>
-                                        <input type="text" id="gstPercent" class="form-control" hidden>
-                                        <span id="gstAmount" class="fw-bold text-dark" style="min-width: 70px; text-align: right;">0.00</span>
-                                    </div>
-                                </div>
-
-                                <hr class="my-2">
-
-                                <!-- Total Amount Display -->
-                                <div class="summary-row total d-flex justify-content-between align-items-center py-2">
-                                    <span class="fs-5 fw-bold text-dark">Total Amount</span>
-                                    <span id="invoiceAmount" class="fs-4 fw-bold text-dark">0.00</span>
-                                </div>
-                                <div class="summary-row RoundOff text-muted small d-flex justify-content-between">
-                                    <span>RoundOff Amount</span>
-                                    <span id="RoundOff">0.00</span>
-                                </div>
-
-                                <!-- Hidden legacy element hooks (Unique IDs preserved to avoid JS conflict) -->
-                                <div style="display:none;">
-                                    <span id="totalQty">0</span>
-                                    <span id="totalAmount">0</span>
-                                    <span id="discountAmount">0</span>
-                                    <select id="discountType"><option value="Percentage" selected>%</option></select>
-                                    <input type="number" id="discountValue" value="0">
-                                    <input type="text" id="AdditionalText">
-                                    <input type="tel" id="AdditionalValue">
-                                    <span id="AdditionalAmount">0.00</span>
-                                </div>
-
+                <!-- Bottom Section: Left (Notes & Terms) / Right (Additional Charges & Totals) -->
+                <div class="row gutters">
+                    <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12 col-12">
+                        <div class="card-box-border mb-3">
+                            <div class="header-box-title mb-2">
+                                <span><i class="fa fa-sticky-note-o text-primary me-2"></i>Notes / Remarks</span>
+                            </div>
+                            <div class="field-wrapper mb-0">
+                                <textarea id="NotesRemark" class="form-control" rows="4" placeholder="Enter special order instructions, packaging terms, or general remarks..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <br />
-
-                    <div class="text-end">
-                        <a href="listSaleOrderEntry" class="btn btn-light me-2">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-
-                        <div id="loaderOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;justify-content:center;align-items:center;">
-                            <div class="spinner-border text-light" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                    <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 ms-auto">
+                        <div class="summary-card">
+                            <div class="header-box-title mb-3">
+                                <span><i class="fa fa-calculator text-primary me-2"></i>Financial Summary</span>
                             </div>
-                        </div>
 
-                        <button id="btnSave" class="btn btn-primary" onclick="saveSaleOrder()">
-                            Save Sale Order
-                        </button>
+                            <!-- Dynamic Additional Rows Container -->
+                            <div id="additionalChargesContainer">
+                                <div class="summary-row align-items-center d-flex pb-2 mb-2 border-bottom additional-row">
+                                    <div class="position-relative flex-grow-1 me-2">
+                                        <input type="text" class="form-control form-control-sm AdditionalText" placeholder="Remark" autocomplete="off">
+                                    </div>
+                                    <div class="input-group input-group-sm me-2" style="width: 100px;">
+                                        <span class="input-group-text"><i class="fa fa-inr"></i></span>
+                                        <input type="tel" class="form-control form-control-sm AdditionalValue" value="0">
+                                    </div>
+                                    <a href="javascript:void(0);" class="text-danger remove-additional"><i class="fa fa-times-circle"></i></a>
+                                </div>
+                            </div>
+
+                            <!-- Action Links Section -->
+                            <div class="mb-3 d-flex flex-column gap-1">
+                                <a href="javascript:void(0);" id="btnAddMoreAdditional" class="erp-link-action">
+                                    <i class="fa fa-plus-circle me-1"></i> Add Additional Charges
+                                </a>
+                            </div>
+
+                            <!-- Dynamic Discount Rows Container (Hidden by default until clicked) -->
+                            <div id="discountChargesContainer"></div>
+
+                            <!-- Dual Discount Inputs Block -->
+                            <div id="defaultDiscountSection" class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
+                                <span class="fw-semibold text-secondary">Discount</span>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="input-group input-group-sm" style="width: 110px;">
+                                        <span class="input-group-text"><i class="fa fa-inr"></i></span>
+                                        <input type="number" id="discountValueAmount" class="form-control form-control-sm" value="0" placeholder="0" readonly>
+                                    </div>
+                                    <div class="input-group input-group-sm" style="width: 90px;">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" id="discountValuePercent" class="form-control form-control-sm" value="0" placeholder="0">
+                                    </div>
+                                    <a href="javascript:void(0);" id="btnClearDiscount" class="text-danger text-decoration-none ms-1"><i class="fa fa-times-circle"></i></a>
+                                </div>
+                            </div>
+
+                            <!-- GST Section (Fixed Alignment & Flex Structure) -->
+                            <div class="summary-row d-flex align-items-center justify-content-between py-2 border-top">
+                                <span class="fw-semibold text-secondary">GST</span>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select id="GSTSLABId" class="form-select form-control form-control-sm no-select2" style="width: 130px;"></select>
+                                    <input type="text" id="gstPercent" class="form-control" hidden>
+                                    <span id="gstAmount" class="fw-bold text-dark" style="min-width: 70px; text-align: right;">0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Total Invoice Amount Banner -->
+                            <div class="erp-total-banner">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="erp-total-label">Total Amount</span>
+                                        <div style="font-size: 11px; opacity: 0.85;">Includes taxes & charges</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="erp-total-currency"><i class="fa fa-inr"></i></span>
+                                        <span id="invoiceAmount" class="erp-total-value">0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-row RoundOff text-muted small d-flex justify-content-between pt-1">
+                                <span>RoundOff Amount:</span>
+                                <strong id="RoundOff">0.00</strong>
+                            </div>
+
+                            <!-- Hidden legacy element hooks (Unique IDs preserved to avoid JS conflict) -->
+                            <div style="display:none;">
+                                <span id="totalQty">0</span>
+                                <span id="totalAmount">0</span>
+                                <span id="discountAmount">0</span>
+                                <select id="discountType"><option value="Percentage" selected>%</option></select>
+                                <input type="number" id="discountValue" value="0">
+                                <input type="text" id="AdditionalText">
+                                <input type="tel" id="AdditionalValue">
+                                <span id="AdditionalAmount">0.00</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Action Footer Bar -->
+                <div class="erp-footer-bar">
+                    <a href="listSaleOrderEntry" class="btn erp-btn-outline me-2">
+                        <i class="fa fa-arrow-left me-1"></i> Back
+                    </a>
+
+                    <div id="loaderOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;justify-content:center;align-items:center;">
+                        <div class="spinner-border text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
 
-                    <!-- Modals (Party, Design, Transport) kept intact -->
+                    <button id="btnSave" class="btn erp-btn-save" onclick="saveSaleOrder()">
+                        <i class="fa fa-check me-1"></i> Save Sale Order
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modals (Party, Design, Transport) kept intact -->
                     <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
                         <div class="modal-dialog modal-xl" role="document">
                             <div class="modal-content">
@@ -641,51 +1179,57 @@
                         </div>
                     </div>
                     <!--  Design -->
-                    <div class="modal fade" id="designModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                                        <div class="modal fade" id="designModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%; width: 95%;">
                             <div class="modal-content shadow-lg border-0 rounded-3">
 
                                 <!-- HEADER -->
-                                <div class="modal-header bg-dark text-white py-3 px-4">
-                                    <h5 class="modal-title fw-bold fs-5">
-                                        <i class="fa fa-th-large me-2"></i> Design Selection & Color Matching
+                                <div class="modal-header py-3 px-4">
+                                    <h5 class="modal-title fw-bold fs-5 text-white">
+                                        <i class="fa fa-th-large me-2 text-info"></i> Design Selection & Color Matching
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white text-white close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close" style="background: transparent; border: none; font-size: 1.5rem; color: #fff; opacity: 0.9; cursor: pointer; line-height: 1;"><span aria-hidden="true">&times;</span></button>
                                 </div>
 
                                 <!-- BODY -->
                                 <div class="modal-body p-4 bg-light">
-                                    <div class="row g-4">
+                                    <div class="row g-3">
 
                                         <!-- LEFT SIDE: IMAGE & NAVIGATION CARD -->
-                                        <div class="col-lg-4 col-md-5 d-flex flex-column">
-                                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100 bg-white">
-                                                <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 380px;">
-                                                    <div class="border rounded-2 bg-light d-flex align-items-center justify-content-center w-100 mb-3 p-2" style="height: 340px; overflow: hidden;">
-                                                        <label id="upload-ColorMatching-default-preview" class="w-100 h-100 d-flex align-items-center justify-content-center text-muted fw-semibold cursor-pointer text-center">
-                                                            <span class="small"><i class="fa fa-image fa-2x mb-2 d-block text-secondary"></i> Upload Color Matching</span>
+                                        <div class="col-xl-3 col-lg-3 col-md-3 d-flex flex-column">
+                                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100 bg-white" style="border: 1px solid var(--erp-border) !important;">
+                                                <div class="card-body p-3 d-flex flex-column align-items-center justify-content-between text-center" style="min-height: 380px;">
+                                                    <div class="w-100 d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
+                                                        <span class="fw-bold" style="font-size: 11px; color: var(--erp-navy); text-transform: uppercase; letter-spacing: 0.5px;">
+                                                            <i class="fa fa-picture-o text-primary me-1"></i> Design Photo
+                                                        </span>
+                                                    </div>
+                                                    <div class="erp-modal-photo-frame w-100 mb-3" style="height: 320px;">
+                                                        <label id="upload-ColorMatching-default-preview" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted fw-semibold cursor-pointer text-center" style="font-size: 13px;">
+                                                            <i class="fa fa-picture-o fa-3x text-muted mb-2" style="opacity: 0.5;"></i>
+                                                            <span>Color Matching Photo</span>
                                                         </label>
                                                     </div>
-                                                    <div class="d-flex justify-content-center gap-2 w-100">
-                                                        <button id="Previousbtn" type="button" class="btn btn-outline-dark px-3 btn-sm rounded-pill shadow-sm" onclick="checkPrevious()" style="display:none;">
-                                                            <i class="fa fa-arrow-left me-1"></i> Previous
+                                                    <div class="d-flex justify-content-center gap-2 w-100 mt-auto pt-2">
+                                                        <button id="Previousbtn" type="button" class="btn erp-btn-nav-photo" onclick="checkPrevious()" style="display:none;">
+                                                            <i class="fa fa-chevron-left me-1"></i> Previous
                                                         </button>
-                                                        <button id="Nextbtn" type="button" class="btn btn-outline-dark px-3 btn-sm rounded-pill shadow-sm" onclick="checkNext()" style="display:none;">
-                                                            Next <i class="fa fa-arrow-right ms-1"></i>
+                                                        <button id="Nextbtn" type="button" class="btn erp-btn-nav-photo" onclick="checkNext()" style="display:none;">
+                                                            Next <i class="fa fa-chevron-right ms-1"></i>
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- RIGHT SIDE: CONTROLS, FORM & TABLE -->
-                                        <div class="col-lg-8 col-md-7 d-flex flex-column">
-                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+                                        <!-- MIDDLE: CONTROLS, FORM & TABLE -->
+                                        <div class="col-xl-6 col-lg-6 col-md-6 d-flex flex-column">
+                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100" style="border: 1px solid var(--erp-border) !important;">
 
                                                 <!-- TOP FIELDS: Design No & Color Group -->
                                                 <div class="row g-3 mb-2">
                                                     <div class="col-md-6">
-                                                        <div class="field-wrapper">
+                                                        <div class="field-wrapper mb-0">
                                                             <select id="DesignNo" class="select-single detail form-select form-select-sm" title="Select Design No" data-live-search="true">
                                                             </select>
                                                             <div class="field-placeholder">Design No <sup class="text-danger">*</sup></div>
@@ -694,7 +1238,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- Hidden Inputs -->
+                                                    <!-- Hidden Inputs Preserved -->
                                                     <div class="d-none">
                                                         <select id="ColorMatchingID" onchange="getColorMatchingId(this)"></select>
                                                         <select id="TypeRow"></select>
@@ -702,7 +1246,7 @@
                                                     </div>
 
                                                     <div class="col-md-6">
-                                                        <div class="field-wrapper">
+                                                        <div class="field-wrapper mb-0">
                                                             <select id="ddlColourGroup" class="select-single detail form-select form-select-sm" title="Select Color Group" data-live-search="true">
                                                             </select>
                                                             <div class="field-placeholder">Color Group <sup class="text-danger">*</sup></div>
@@ -713,7 +1257,7 @@
                                                 </div>
 
                                                 <!-- BULK COLOR GROUP ADD PANEL -->
-                                                <div class="p-3 rounded-2 bg-light border mb-3">
+                                                <div class="erp-bulk-panel mb-3">
                                                     <div class="row g-2 align-items-center">
                                                         <div class="col-md-7">
                                                             <div class="field-wrapper mb-0 bg-white">
@@ -722,7 +1266,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-md-5">
-                                                            <button type="button" id="ColorGroupAddbtn" class="btn btn-success btn-sm w-100 fw-bold shadow-sm">
+                                                            <button type="button" id="ColorGroupAddbtn" class="btn erp-btn-bulk w-100">
                                                                 <i class="fa fa-plus-circle me-1"></i> Add All Colours
                                                             </button>
                                                         </div>
@@ -730,18 +1274,16 @@
                                                 </div>
 
                                                 <!-- DIVIDER -->
-                                                <div class="d-flex align-items-center my-2">
-                                                    <hr class="flex-grow-1 m-0 text-muted">
-                                                    <span class="fw-bold text-primary px-3 small text-uppercase bg-white border rounded-pill shadow-xs">Single Item Wise</span>
-                                                    <hr class="flex-grow-1 m-0 text-muted">
+                                                <div class="erp-modal-divider my-2">
+                                                    <span class="erp-divider-badge"><i class="fa fa-cube me-1"></i> Single Item Wise</span>
                                                 </div>
 
                                                 <!-- SINGLE ITEM FORM ROW -->
                                                 <div class="row g-2 align-items-center mb-3">
                                                     <div class="col-md-4">
-                                                        <div class="p-2 border rounded bg-light text-truncate">
-                                                            <small class="text-muted d-block" style="font-size: 10px;">SELECTED COLOR</small>
-                                                            <strong class="ColorMatchingName mb-0 text-dark d-block text-truncate small">CHIKU MULTY - SEA GREEN</strong>
+                                                        <div class="erp-selected-color-box text-truncate">
+                                                            <span class="erp-selected-color-label">SELECTED COLOR</span>
+                                                            <strong class="ColorMatchingName text-dark d-block text-truncate">Select Color Matching</strong>
                                                         </div>
                                                     </div>
 
@@ -760,7 +1302,7 @@
                                                     </div>
 
                                                     <div class="col-md-2">
-                                                        <button type="button" id="ColorMatchingAddbtn" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm">
+                                                        <button type="button" id="ColorMatchingAddbtn" class="btn erp-btn-primary btn-sm w-100" style="padding: 7px 10px;">
                                                             Add Item
                                                         </button>
                                                     </div>
@@ -769,18 +1311,18 @@
                                                 <span class="fw-bold text-danger small d-block mb-2" id="AlertsMsg"></span>
 
                                                 <!-- SUB-DETAILS TABLE -->
-                                                <div class="table-responsive border rounded-2 bg-white" style="max-height: 180px; overflow-y: auto;">
+                                                <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 185px; min-height: 160px; overflow-y: auto;">
                                                     <table class="table table-sm table-hover align-middle mb-0" id="SaleOrderSubDetails">
-                                                        <thead class="table-light sticky-top shadow-xs">
+                                                        <thead class="sticky-top">
                                                             <tr>
-                                                                <th class="ps-3">Sr No</th>
+                                                                <th class="ps-3" style="width: 50px;">Sr No</th>
                                                                 <th hidden>Design No</th>
                                                                 <th hidden>Design Name</th>
                                                                 <th hidden>Color Group</th>
                                                                 <th>Color Matching</th>
-                                                                <th>Qty</th>
+                                                                <th style="width: 90px; text-align: right;">Qty</th>
                                                                 <th>Remark</th>
-                                                                <th class="text-center pe-3">Action</th>
+                                                                <th class="text-center pe-3" style="width: 70px;">Action</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="itemTableBody">
@@ -792,7 +1334,51 @@
                                                         </tbody>
                                                     </table>
                                                 </div>
+                                            </div>
+                                        </div>
 
+                                        <!-- RIGHT SIDE: PREVIOUS ORDER COLOUR HISTORY -->
+                                        <div class="col-xl-3 col-lg-3 col-md-3 d-flex flex-column" id="pnlColourHistory">
+                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 d-flex flex-column" style="border: 1px solid var(--erp-border) !important;">
+                                                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                                                    <span class="fw-bold" style="font-size: 11px; color: var(--erp-navy); text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        <i class="fa fa-history text-primary me-1"></i> Previous Order Colour History
+                                                    </span>
+                                                </div>
+                                                <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 280px; min-height: 200px; overflow-y: auto;">
+                                                    <table class="table table-sm table-hover align-middle mb-0" id="tblColourHistory">
+                                                        <thead class="sticky-top">
+                                                            <tr>
+                                                                <th style="width: 36px; text-align: center;">
+                                                                    <input type="checkbox" id="chkHistorySelectAll" style="cursor: pointer; width: 14px; height: 14px;" title="Select All" />
+                                                                </th>
+                                                                <th>Colour Name</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="colourHistoryTableBody">
+                                                            <tr class="no-history-data">
+                                                                <td colspan="2" class="text-center text-muted py-3 small">
+                                                                    No Previous Order Colour History
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <!-- Qty and Add Item button below table -->
+                                                <div class="row g-2 align-items-center mt-2 pt-2 border-top">
+                                                    <div class="col-6">
+                                                        <div class="field-wrapper mb-0">
+                                                            <input type="tel" id="txtHistoryQty" class="form-control form-control-sm" placeholder=" ">
+                                                            <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <button type="button" id="btnHistoryAddItem" class="btn-primary btn-sm w-100" style="padding: 7px 10px;">
+                                                            Add Item
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -801,8 +1387,8 @@
 
                                 <!-- FOOTER -->
                                 <div class="modal-footer bg-white py-3 px-4 border-top">
-                                    <button class="btn btn-outline-secondary px-4 rounded-pill btn-sm" data-bs-dismiss="modal">Close</button>
-                                    <button class="btn btn-success px-5 rounded-pill fw-bold btn-sm shadow-sm" id="btnAddToOrder">
+                                    <button type="button" class="btn erp-btn-outline px-4 btn-sm" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn erp-btn-ok px-5 btn-sm" id="btnAddToOrder">
                                         <i class="fa fa-check me-1"></i> OK
                                     </button>
                                 </div>
@@ -1127,12 +1713,209 @@
             // Title change
             $("#addNewContactLabel").text("Add Party");
         });
+        var partyColourHistoryData = [];
+
+        function findItemTableRow(colorId, colorName) {
+            let targetId = String(colorId || "").trim();
+            let targetName = String(colorName || "").trim().toLowerCase();
+            return $("#itemTableBody tr").filter(function () {
+                let rowId = String($(this).attr("data-colorid") || "").trim();
+                let rowName = String($(this).attr("data-colorname") || $(this).find("td:eq(4)").text() || "").trim().toLowerCase();
+                return rowId === targetId && rowName === targetName;
+            });
+        }
+
+        function findHistoryTableRow(colorId, colorName) {
+            let targetId = String(colorId || "").trim();
+            let targetName = String(colorName || "").trim().toLowerCase();
+            return $("#colourHistoryTableBody tr").filter(function () {
+                let rowId = String($(this).attr("data-colorid") || "").trim();
+                let rowName = String($(this).attr("data-colorname") || $(this).find(".chk-history-color").attr("data-colorname") || "").trim().toLowerCase();
+                return rowId === targetId && rowName === targetName;
+            });
+        }
+
+        function resetColourHistory() {
+            partyColourHistoryData = [];
+            $("#colourHistoryTableBody").html(`
+                <tr class="no-history-data">
+                    <td colspan="2" class="text-center text-muted py-2 small">
+                        No Previous Order Colour History
+                    </td>
+                </tr>
+            `);
+            $("#chkHistorySelectAll").prop("checked", false);
+            $("#txtHistoryQty").val("");
+        }
+
+        function loadPartyPreviousOrderColourHistory(partyId) {
+            partyColourHistoryData = [];
+            resetColourHistory();
+
+            let pid = parseInt(partyId, 10);
+            if (!pid || pid <= 0) return;
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/GetPartyPreviousOrderColourHistory",
+                data: JSON.stringify({ partyId: pid }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    let res = response.d;
+                    if (typeof res === "string") {
+                        try { res = JSON.parse(res); } catch (e) { }
+                    }
+
+                    if (res && (res.Status === true || res.Status === "true" || res.Code === 200) && res.Data) {
+                        partyColourHistoryData = res.Data;
+                    } else if (Array.isArray(res)) {
+                        partyColourHistoryData = res;
+                    } else {
+                        partyColourHistoryData = [];
+                    }
+
+                    if ($("#designModal").hasClass("show") || $("#designModal").is(":visible")) {
+                        filterAndShowColourHistory();
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Error loading party color history:", xhr);
+                    partyColourHistoryData = [];
+                }
+            });
+        }
+
+        function isDesignMatch(historyItem, selectedDesignVal, selectedDesignText) {
+            if (!historyItem) return false;
+
+            if (selectedDesignVal && historyItem.DesignID) {
+                let hVal = String(historyItem.DesignID).trim();
+                let sVal = String(selectedDesignVal).trim();
+                if (hVal !== "" && sVal !== "") {
+                    if (hVal === sVal) return true;
+                    let hPart = hVal.split('|')[0].trim();
+                    let sPart = sVal.split('|')[0].trim();
+                    if (hPart !== "" && sPart !== "" && hPart === sPart) return true;
+                }
+            }
+
+            if (selectedDesignText && historyItem.DesignNo) {
+                let normH = String(historyItem.DesignNo).replace(/[\s\-_]/g, '').toLowerCase();
+                let normS = String(selectedDesignText).replace(/[\s\-_]/g, '').toLowerCase();
+                if (normH !== "" && normS !== "") {
+                    if (normH === normS || normS.includes(normH) || normH.includes(normS)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        function matchesHighlightColor(colorName) {
+            if (!colorName) return false;
+            let targetHighlightColor = (new URLSearchParams(window.location.search).get('highlightColor') ||
+                                        new URLSearchParams(window.location.search).get('color') ||
+                                        new URLSearchParams(window.location.search).get('colour') || '').trim();
+            if (!targetHighlightColor) return false;
+            let normalize = s => String(s).toLowerCase().replace(/[\/\-_]/g, ' ').replace(/\s+/g, ' ').trim();
+            let n1 = normalize(colorName);
+            let n2 = normalize(targetHighlightColor);
+            if (n1 === n2) return true;
+            if (n1.length > 3 && n2.length > 3 && (n1.includes(n2) || n2.includes(n1))) return true;
+            return false;
+        }
+
+        function filterAndShowColourHistory() {
+            let selectedDesignVal = $("#DesignNo").val();
+            let selectedDesignText = $("#DesignNo option:selected").text().trim();
+
+            if (!selectedDesignVal || selectedDesignVal === "-1" || selectedDesignVal === "") {
+                $("#colourHistoryTableBody").html(`
+                    <tr class="no-history-data">
+                        <td colspan="2" class="text-center text-muted py-2 small">
+                            Select a Design to view history
+                        </td>
+                    </tr>
+                `);
+                $("#chkHistorySelectAll").prop("checked", false);
+                return;
+            }
+
+            if (!partyColourHistoryData || partyColourHistoryData.length === 0) {
+                $("#colourHistoryTableBody").html(`
+                    <tr class="no-history-data">
+                        <td colspan="2" class="text-center text-muted py-2 small">
+                            No Previous Order Colour History
+                        </td>
+                    </tr>
+                `);
+                $("#chkHistorySelectAll").prop("checked", false);
+                return;
+            }
+
+            let matchedHistory = partyColourHistoryData.filter(function (h) {
+                return isDesignMatch(h, selectedDesignVal, selectedDesignText);
+            });
+
+            if (matchedHistory.length === 0) {
+                $("#colourHistoryTableBody").html(`
+                    <tr class="no-history-data">
+                        <td colspan="2" class="text-center text-muted py-2 small">
+                            No Previous Order Colour History for this Design
+                        </td>
+                    </tr>
+                `);
+                $("#chkHistorySelectAll").prop("checked", false);
+                return;
+            }
+
+            let rowsHtml = "";
+            matchedHistory.forEach(function (item) {
+                let $existingRow = findItemTableRow(item.ColourID, item.ColourName);
+                let isAlreadyInTable = $existingRow.length > 0;
+                    let isHighlighted = matchesHighlightColor(item.ColourName);
+
+                rowsHtml += `
+                    <tr class="${isHighlighted ? "erp-highlighted-history-row" : ""}" data-colorid="${item.ColourID}" data-colorname="${escapeHtml(item.ColourName)}">
+                        <td class="text-center">
+                            <input type="checkbox" class="chk-history-color" 
+                                   data-colorid="${item.ColourID}" 
+                                   data-colorname="${escapeHtml(item.ColourName)}" 
+                                   data-totalqty="${item.TotalQty}" 
+                                   data-designno="${escapeHtml(item.DesignNo)}" 
+                                   ${isAlreadyInTable ? "checked" : ""}
+                                   style="cursor: pointer; width: 14px; height: 14px;" />
+                        </td>
+                        <td class="small fw-semibold text-truncate" title="Previous Qty: ${item.TotalQty}">${isHighlighted ? `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${escapeHtml(item.ColourName)}</span>` : escapeHtml(item.ColourName)}</td>
+                    </tr>
+                `;
+            });
+
+            $("#colourHistoryTableBody").html(rowsHtml);
+            $("#pnlColourHistory").show();
+            updateHistorySelectAllState();
+        }
+
+        function updateHistorySelectAllState() {
+            let $all = $("#colourHistoryTableBody .chk-history-color");
+            if ($all.length === 0) {
+                $("#chkHistorySelectAll").prop("checked", false);
+                return;
+            }
+            let checkedCount = $all.filter(":checked").length;
+            $("#chkHistorySelectAll").prop("checked", checkedCount > 0 && checkedCount === $all.length);
+        }
+
         // Party selection change handler to toggle views and fill card data
         $("#ddlPartyGST").on("change", function () {
             let selected = $(this).find("option:selected");
             let partyId = $(this).val();
 
             if (!partyId || partyId === "-1") return;
+            if (!partyId || partyId === "-1") {
+                resetColourHistory();
+                return;
+            }
 
             // Populate Card View Fields
             $("#cardPartyName").text(selected.data("name") || selected.text());
@@ -1143,6 +1926,9 @@
             // Toggle visibility states
             $("#partySelectContainer").hide();
             $("#partyDetailsCard").show();
+
+            // Load party's previous order colour history
+            loadPartyPreviousOrderColourHistory(partyId);
         });
         // "Change Party" button handler to switch back to dropdown view
         $("#btnChangeParty").on("click", function () {
@@ -1172,6 +1958,7 @@
                 width: '100%'
             });
 
+            filterAndShowColourHistory();
         });
         $('#designModal').on('hidden.bs.modal', function () {
 
@@ -1209,6 +1996,10 @@
             $("#Nextbtn").hide();
             $("#Previousbtn").hide();
 
+            // ✅ Reset History selection
+            $("#chkHistorySelectAll").prop("checked", false);
+            $("#colourHistoryTableBody .chk-history-color").prop("checked", false);
+            $("#txtHistoryQty").val("");
         });
         $("#DesignNo").on("change", function () {
 
@@ -1238,11 +2029,154 @@
                     $("#ddlColourGroup").append(options);
                 }
                 getDesignNo(designEntryId, colorMatchingId);
+                filterAndShowColourHistory();
 
             } else {
                 $("#TypeRow").html('<option value="">Select Type</option>');
                 $("#UnitRow").html('<option value="">Select Unit</option>');
                 $("#ddlColourGroup").html('<option value="">Select Color Group</option>');
+                filterAndShowColourHistory();
+            }
+        });
+
+        // History "Add Item" button click: adds all checked colours with entered Qty
+        $(document).on("click", "#btnHistoryAddItem", function () {
+            let qtyVal = String($("#txtHistoryQty").val() || "").trim();
+            let qty = parseFloat(qtyVal);
+
+            if (!qty || qty <= 0 || isNaN(qty)) {
+                if (typeof Swal !== "undefined" && Swal.fire) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Required",
+                        text: "Please enter a valid quantity.",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    alert("Please enter a valid quantity.");
+                }
+                $("#txtHistoryQty").focus();
+                return;
+            }
+
+            let $checked = $("#colourHistoryTableBody .chk-history-color:checked");
+            if ($checked.length === 0) {
+                if (typeof Swal !== "undefined" && Swal.fire) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Required",
+                        text: "Please select at least one colour from history.",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    alert("Please select at least one colour from history.");
+                }
+                return;
+            }
+
+            let tbody = $("#itemTableBody");
+            tbody.find(".no-data").remove();
+
+            let designNo = $("#DesignNo").val();
+            let designName = $("#DesignNo option:selected").text().trim();
+            let colorGroupId = $("#ddlColourGroup").val();
+            let colorGroupName = $("#ddlColourGroup option:selected").text().trim();
+            let saleRate = parseFloat($("#DesignNo option:selected").data("salerate")) || 0;
+
+            $checked.each(function () {
+                let $chk = $(this);
+                let colorId = String($chk.attr("data-colorid") || "");
+                let colorName = String($chk.attr("data-colorname") || "");
+
+                let existingRow = findItemTableRow(colorId, colorName);
+                if (existingRow.length > 0) {
+                    if (existingRow.attr("data-from-history") === "true") {
+                        existingRow.find(".sub-qty-input").val(qty);
+                    }
+                    return;
+                }
+
+                let imageUrl = "";
+                let $matchingOpt = $("#ColorMatchingID option[value='" + colorId + "']");
+                if ($matchingOpt.length > 0) {
+                    imageUrl = $matchingOpt.attr("data-img") || "";
+                }
+                if (!imageUrl) {
+                    imageUrl = $("#upload-ColorMatching-default-preview img").attr("src") || "";
+                }
+
+                let $newRow = $(createSubRow(
+                    designNo,
+                    designName,
+                    colorGroupId,
+                    colorGroupName,
+                    "",
+                    colorId,
+                    colorName,
+                    qty,
+                    imageUrl,
+                    saleRate
+                ));
+                $newRow.attr("data-from-history", "true");
+                tbody.append($newRow);
+            });
+
+            updateSrNo();
+            $("#DesignNo").prop("disabled", true);
+            $("#txtHistoryQty").val("");
+            updateHistorySelectAllState();
+        });
+
+        // History checkbox change: if unchecked, remove from #itemTableBody if added from history
+        $(document).on("change", ".chk-history-color", function () {
+            let $chk = $(this);
+            let isChecked = $chk.is(":checked");
+            let colorId = String($chk.attr("data-colorid") || "");
+            let colorName = String($chk.attr("data-colorname") || "");
+
+            if (!isChecked) {
+                let tbody = $("#itemTableBody");
+                let existingRow = findItemTableRow(colorId, colorName);
+                if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true") {
+                    existingRow.remove();
+                    updateSrNo();
+
+                    let rows = tbody.find("tr").not(".no-data");
+                    if (rows.length === 0) {
+                        tbody.html(noDataRow());
+                        $("#DesignNo").prop("disabled", false);
+                    }
+                }
+            }
+
+            updateHistorySelectAllState();
+        });
+
+        // Select All History checkbox toggle
+        $(document).on("change", "#chkHistorySelectAll", function () {
+            let isChecked = $(this).is(":checked");
+            let tbody = $("#itemTableBody");
+
+            $("#colourHistoryTableBody .chk-history-color").prop("checked", isChecked);
+
+            if (!isChecked) {
+                $("#colourHistoryTableBody .chk-history-color").each(function () {
+                    let colorId = String($(this).attr("data-colorid") || "");
+                    let colorName = String($(this).attr("data-colorname") || "");
+                    let existingRow = findItemTableRow(colorId, colorName);
+                    if (existingRow.length > 0 && existingRow.attr("data-from-history") === "true") {
+                        existingRow.remove();
+                    }
+                });
+
+                updateSrNo();
+                let rows = tbody.find("tr").not(".no-data");
+                if (rows.length === 0) {
+                    tbody.html(noDataRow());
+                    $("#DesignNo").prop("disabled", false);
+                }
             }
         });
         $('#TransportModal').on('show.bs.modal', function () {
@@ -1298,7 +2232,7 @@
             const tbody = $("#itemTableBody");
             tbody.find(".no-data").remove();
 
-            let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
+            let existingRow = findItemTableRow(colorId, colorName);
 
             if (existingRow.length > 0) {
                 // 🔥 UPDATE QUANTITY INSTEAD OF BLOCKING
@@ -1413,6 +2347,7 @@
             $("#DesignNo").val('');
             $("#ColorMatchingID").empty();
             $("#divColorMatchingTable").empty();
+            filterAndShowColourHistory();
             getDesignEntryForm();
             $("#designModal").modal("show");
         }
@@ -2823,6 +3758,7 @@
                     $("#GSTSLABId option[value]").each(function () {
                         $(this).remove();
                     });
+                    if ($("#GSTSLABId").data("select2")) { $("#GSTSLABId").select2("destroy"); }
                     appendTemp = "<option value='0' selected>Select GST</option >";
                     $('#GSTSLABId').append(appendTemp);
                     //$('#GSTSLABId').append("<option value='0' selected> </option>");
@@ -2951,7 +3887,7 @@
                 let colorName = $(this).text().trim();
                 if (!colorId) return;
                 let imageUrl = $(this).attr("data-img") || "";
-                let existingRow = tbody.find(`tr[data-colorid='${colorId}']`);
+                let existingRow = findItemTableRow(colorId, colorName);
                 if (existingRow.length > 0) {
                     duplicateFound = true; // 🔥 mark duplicate
                     return; // skip only this color
@@ -3102,13 +4038,15 @@
 
                 if (!colorId || qty <= 0) return;
 
-                if (uniqueMap[colorId]) {
-                    uniqueMap[colorId].Qty += qty;
-                    if (remark && !uniqueMap[colorId].Remark.includes(remark)) {
-                        uniqueMap[colorId].Remark += ', ' + remark;
+                let key = colorId + "___" + colorName.toLowerCase();
+
+                if (uniqueMap[key]) {
+                    uniqueMap[key].Qty += qty;
+                    if (remark && !uniqueMap[key].Remark.includes(remark)) {
+                        uniqueMap[key].Remark += ', ' + remark;
                     }
                 } else {
-                    uniqueMap[colorId] = {
+                    uniqueMap[key] = {
                         ColorMatchingID: colorId,
                         ColorMatchingName: colorName,
                         Qty: qty,
@@ -3208,7 +4146,167 @@
             saleRate
         ) {
             return `
-                <tr data-colorid="${colorId}" data-colorgroupid="${colorGroupId}" data-rate="${saleRate}" data-img="${imageUrl}">
+                <tr data-colorid="${colorId}" data-colorname="${escapeHtml(colorName)}" data-colorgroupid="${colorGroupId}" data-rate="${saleRate}" data-img="${imageUrl}">
+                    <td></td>
+                    <td hidden>${designNo}</td>
+                    <td hidden>${designName}</td>
+                    <td hidden>${colorGroupName}</td>
+                    <td>${colorName}</td>
+                    <td><input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${qty}" min="1" style="width: 75px;" /></td>
+                    <td>${remark}</td>
+                    <td>
+                        <a href="#" class="deleteRow text-danger">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>`;
+        }
+        function formatImageUrl(url) {
+            if (!url || typeof url !== 'string') return '/images/no-image.png';
+
+            url = url.trim().replace(/^\/+/, ''); // Clean up leading slashes/spaces
+            if (url === '') return '/images/no-image.png';
+
+            // If it's already a full http/https URL, pass it through
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            // Target domain for external or root-relative
+            const baseDomain = isLocalhost ? 'https://weavelanesoft.in/' : '/';
+
+            return baseDomain + url;
+        }
+        function handleImageError(imgElement, originalUrl) {
+            // If we haven't tried converting to uppercase yet
+            if (!imgElement.dataset.triedUppercase && originalUrl) {
+                imgElement.dataset.triedUppercase = "true";
+
+                // Convert path & filename to UPPERCASE
+                let upperUrl = originalUrl.toUpperCase();
+                imgElement.src = formatImageUrl(upperUrl);
+            } else {
+                // Fallback to placeholder if uppercase attempt also fails
+                imgElement.onerror = null;
+                imgElement.src = '/images/no-image.png';
+            }
+        }
+        function bindMainTable() {
+            const tbody = $("#orderBody");
+            tbody.empty();
+
+            if (SaleOrderDetails.length === 0) {
+                tbody.html(`<tr><td colspan="12" class="text-center">No Data Available</td></tr>`);
+                return;
+            }
+
+            // 🔥 Sum up all active per-unit additional charge inputs from all additional rows
+            let totalAdditionalPerUnit = 0;
+            $(".additional-row").each(function () {
+                let val = parseFloat($(this).find(".AdditionalValue").val()) || 0;
+                totalAdditionalPerUnit += val;
+            });
+
+            let targetHighlightColor = (new URLSearchParams(window.location.search).get('highlightColor') || new URLSearchParams(window.location.search).get('color') || new URLSearchParams(window.location.search).get('colour') || '').trim();
+
+            SaleOrderDetails.forEach((item, index) => {
+                let hasHighlight = false;
+                let colorText = item.SubDetails.map((x, i) => {
+                    let lineText = `${i + 1}. ${x.ColorMatchingName} - ${x.Qty}`;
+                    if (targetHighlightColor) {
+                        let hl = targetHighlightColor.toLowerCase().replace(/\s+/g, ' ').trim();
+                        let cName = (x.ColorMatchingName || "").toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (cName === hl || cName.includes(hl) || hl.includes(cName)) {
+                            hasHighlight = true;
+                            return `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${lineText}</span>`;
+                        }
+                    }
+                    return lineText;
+                }).join("<br>");
+
+                let combinedRemark = item.SubDetails
+                    .map(x => x.Remark)
+                    .filter(x => x && x.trim() !== "")
+                    .join("<br>");
+
+                let designDisplay = item.DesignNo;
+                if (item.ImageUrl && item.ImageUrl.trim() !== "") {
+                    let imgSrc = formatImageUrl(item.ImageUrl);
+
+                    designDisplay = `
+        <div class="d-flex align-items-center gap-2">
+            <img src="${imgSrc}" alt="Design" 
+                 style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" 
+                 onerror="handleImageError(this, '${item.ImageUrl}')">
+            <span>${item.DesignNo}</span>
+        </div>`;
+                }
+
+                let baseRate = parseFloat(item.BrokerRate) || 0;
+
+                // 🔥 Effective Rate = Base Broker Rate + Sum of All Additional Charges per unit
+                let effectiveRate = baseRate + totalAdditionalPerUnit;
+
+                item.UnitAdditionalValue = totalAdditionalPerUnit;
+                item.Amount = parseFloat(item.TotalQty) * effectiveRate;
+
+                let tr = `
+                    <tr data-index="${index}"${hasHighlight ? ' class="erp-highlighted-order-row"' : ''}>
+                        <td class="col-srno">${index + 1}</td>
+                        <td class="col-design">${designDisplay}</td>
+                        <td class="col-type">${item.Type}</td>
+                        <td class="col-colors">${item.NoOfColors}</td>
+                        <td class="col-colorText">${colorText}</td>
+                        <td class="col-qty">${item.TotalQty}</td>
+                        <td class="col-unit">${item.Unit}</td>
+                        <td class="col-rate" hidden>${item.Rate}</td>
+                        <td class="col-brokerRate">
+                            <input type="number"
+                                   class="form-control form-control-sm brokerRateInput"
+                                   value="${effectiveRate}"
+                                   data-index="${index}"
+                                   style="width:80px;" />
+                        </td>
+                        <td class="col-amount amountCell">${parseFloat(item.Amount || 0).toFixed(2)}</td>
+                        <td class="col-remark">
+                            <div><b>${item.Remark || ''}</b></div>
+                            <small style="color:gray">${combinedRemark}</small>
+                        </td>
+                        <td class="col-action">
+                            <a class="viewSub"><i class="fa fa-eye text-secondary"></i></a>
+                            <a class="deleteMain"><i class="icon-x-circle text-danger"></i></a>
+                        </td>
+                    </tr>`;
+
+                tbody.append(tr);
+            });
+
+            if (targetHighlightColor && $(".erp-color-highlight").length > 0) {
+                setTimeout(function () {
+                    let $hl = $(".erp-color-highlight").first();
+                    if ($hl.length > 0) {
+                        $('html, body').animate({
+                            scrollTop: $hl.offset().top - 200
+                        }, 400);
+                    }
+                }, 250);
+            }
+        function createSubRow(
+            designNo,
+            designName,
+            colorGroupId,
+            colorGroupName,
+            remark,
+            colorId,
+            colorName,
+            qty,
+            imageUrl = "",
+            saleRate
+        ) {
+            return `
+                <tr data-colorid="${colorId}" data-colorname="${escapeHtml(colorName)}" data-colorgroupid="${colorGroupId}" data-rate="${saleRate}" data-img="${imageUrl}">
                     <td></td>
                     <td hidden>${designNo}</td>
                     <td hidden>${designName}</td>
@@ -3581,9 +4679,12 @@
 
                 // 🔥 ALWAYS USE LATEST RATE FROM PARENT
                 let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
+                    let isHighlighted = matchesHighlightColor(item.ColorMatchingName);
 
                 rows += `
-                    <tr data-colorid="${item.ColorMatchingID}"
+                    <tr class="${isHighlighted ? "erp-highlighted-sub-row" : ""}"
+                        data-colorid="${item.ColorMatchingID}"
+                        data-colorname="${escapeHtml(item.ColorMatchingName)}"
                         data-colorgroupid="${item.ColorGroupId || ""}"
                         data-rate="${saleRate}"
                         data-img="${item.ImageUrl || ""}">
@@ -3594,7 +4695,7 @@
                         <td hidden>${item.DesignName || ""}</td>
                         <td hidden>${item.ColorGroup || ""}</td>
 
-                        <td>${item.ColorMatchingName}</td>
+                        <td>${isHighlighted ? `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${item.ColorMatchingName}</span>` : item.ColorMatchingName}</td>
 
                         <td><input type="number" class="form-control form-control-sm sub-qty-input text-center" value="${item.Qty}" min="1" style="width: 75px;" /></td>
 
@@ -3609,6 +4710,20 @@
             });
 
             $tbody.html(rows);
+
+                setTimeout(function () {
+                    let $subHl = $tbody.find(".erp-highlighted-sub-row").first();
+                    if ($subHl.length > 0) {
+                        let scrollParent = $subHl.closest(".table-responsive, .modal-body, div[style*='overflow']");
+                        if (scrollParent.length > 0) {
+                            scrollParent.animate({
+                                scrollTop: scrollParent.scrollTop() + $subHl.position().top - 80
+                            }, 300);
+                        } else {
+                            $subHl[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }, 300);
         }
         function bindFormFields(item) {
 
@@ -3638,68 +4753,56 @@
         function escapeHtml(text) {
             return $("<div>").text(text || "").html();
         }
-        $(document).on("click", ".deleteRow", function () {
+        $(document).on("click", ".deleteRow", function (e) {
+                if (e) e.preventDefault();
 
-            let row = $(this).closest("tr");
-            let colorId = row.attr("data-colorid");
+                let row = $(this).closest("tr");
+                let colorId = row.attr("data-colorid");
+                let colorName = row.attr("data-colorname") || row.find("td:eq(4)").text().trim();
 
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You want to delete this row!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
+                if (currentViewIndex !== -1) {
 
-                if (result.isConfirmed) {
+                    let subList = SaleOrderDetails[currentViewIndex].SubDetails;
+
+                    SaleOrderDetails[currentViewIndex].SubDetails =
+                        subList.filter(x => !(x.ColorMatchingID == colorId && (x.ColorMatchingName || "").trim().toLowerCase() === colorName.toLowerCase()));
+
+                    updateMainTotals(currentViewIndex);
+                }
+
+                row.remove();
+
+                if (colorId && colorName) {
+                    let $hRow = findHistoryTableRow(colorId, colorName);
+                    if ($hRow.length > 0) {
+                        $hRow.find(".chk-history-color").prop("checked", false);
+                        updateHistorySelectAllState();
+                    }
+                }
+
+                let rows = $("#itemTableBody tr").not(".no-data");
+
+                if (rows.length === 0) {
+
+                    $("#itemTableBody").html(noDataRow());
+                    $("#ColorMatchingID").val("");
+                    $("#upload-ColorMatching-default-preview").html("No Image");
+
+                } else {
+
+                    let firstRow = rows.first();
+                    let id = firstRow.attr("data-colorid");
+
+                    $("#ColorMatchingID").val(id).trigger("change");
+                    getColorMatchingId(document.getElementById("ColorMatchingID"));
 
                     if (currentViewIndex !== -1) {
-
-                        let subList = SaleOrderDetails[currentViewIndex].SubDetails;
-
-                        SaleOrderDetails[currentViewIndex].SubDetails =
-                            subList.filter(x => x.ColorMatchingID != colorId);
-
-                        updateMainTotals(currentViewIndex);
+                        SaleOrderDetails[currentViewIndex].SelectedColorId = id;
                     }
-
-                    row.remove();
-
-                    let rows = $("#itemTableBody tr").not(".no-data");
-
-                    if (rows.length === 0) {
-
-                        $("#itemTableBody").html(noDataRow());
-                        $("#ColorMatchingID").val("");
-                        $("#upload-ColorMatching-default-preview").html("No Image");
-
-                    } else {
-
-                        let firstRow = rows.first();
-                        let id = firstRow.attr("data-colorid");
-
-                        $("#ColorMatchingID").val(id).trigger("change");
-                        getColorMatchingId(document.getElementById("ColorMatchingID"));
-
-                        if (currentViewIndex !== -1) {
-                            SaleOrderDetails[currentViewIndex].SelectedColorId = id;
-                        }
-                    }
-
-                    updateSrNo();
-
-                    // ✅ Success message after delete
-                    Swal.fire({
-                        title: "Deleted!",
-                        text: "Row has been deleted successfully.",
-                        icon: "success",
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
                 }
+
+                updateSrNo();
             });
-        });
         function resetModal() {
 
             $("#itemTableBody").html(`
@@ -3709,6 +4812,9 @@
                 `);
 
             $("#DesignSelectionRemark").val("");
+            $("#chkHistorySelectAll").prop("checked", false);
+            $("#colourHistoryTableBody .chk-history-color").prop("checked", false);
+            $("#txtHistoryQty").val("");
             $("#designModal").modal("hide");
         }
         function saveSaleOrder() {
