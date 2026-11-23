@@ -1876,13 +1876,36 @@
                 });
             }
 
-            function matchesHighlightColor(colorName) {
+            function matchesHighlightColor(colorName, designNo) {
                 if (!colorName) return false;
-                let targetHighlightColor = (new URLSearchParams(window.location.search).get('highlightColor') ||
-                                            new URLSearchParams(window.location.search).get('color') ||
-                                            new URLSearchParams(window.location.search).get('colour') || '').trim();
+                let urlParams = new URLSearchParams(window.location.search);
+                let targetHighlightColor = (urlParams.get('highlightColor') ||
+                                            urlParams.get('color') ||
+                                            urlParams.get('colour') || '').trim();
                 if (!targetHighlightColor) return false;
-                let normalize = s => String(s).toLowerCase().replace(/[\/\-_]/g, ' ').replace(/\s+/g, ' ').trim();
+
+                let targetHighlightDesign = (urlParams.get('highlightDesign') ||
+                                             urlParams.get('design') ||
+                                             urlParams.get('designNo') || '').trim();
+
+                let normalize = s => String(s || "").toLowerCase().replace(/[\/\-_]/g, ' ').replace(/\s+/g, ' ').trim();
+
+                if (targetHighlightDesign) {
+                    if (!designNo) {
+                        if (typeof currentViewIndex !== "undefined" && currentViewIndex !== -1 && typeof SaleOrderDetails !== "undefined" && SaleOrderDetails[currentViewIndex]) {
+                            designNo = SaleOrderDetails[currentViewIndex].DesignNo || SaleOrderDetails[currentViewIndex].DesignName || "";
+                        } else if ($("#DesignNo option:selected").length > 0) {
+                            designNo = $("#DesignNo option:selected").text().trim();
+                        }
+                    }
+                    if (designNo) {
+                        let d1 = normalize(designNo);
+                        let d2 = normalize(targetHighlightDesign);
+                        let dMatch = (d1 === d2 || (d1.length > 2 && d2.length > 2 && (d1.includes(d2) || d2.includes(d1))));
+                        if (!dMatch) return false;
+                    }
+                }
+
                 let n1 = normalize(colorName);
                 let n2 = normalize(targetHighlightColor);
                 if (n1 === n2) return true;
@@ -1938,7 +1961,7 @@
                 matchedHistory.forEach(function (item) {
                     let $existingRow = findItemTableRow(item.ColourID, item.ColourName);
                     let isAlreadyInTable = $existingRow.length > 0;
-                    let isHighlighted = matchesHighlightColor(item.ColourName);
+                    let isHighlighted = matchesHighlightColor(item.ColourName, item.DesignNo || selectedDesignText);
                     let isLocked = isSubDetailLocked(item);
 
                     rowsHtml += `
@@ -1980,18 +2003,15 @@
             $("#ddlPartyGST").on("change", function () {
                 let selected = $(this).find("option:selected");
                 let partyId = $(this).val();
-
                 if (!partyId || partyId === "-1") {
                     resetColourHistory();
                     return;
                 }
-
                 // Populate Card View Fields
                 $("#cardPartyName").text(selected.data("name") || selected.text());
                 $("#cardPartyAddress").text(selected.data("address") || "");
                 $("#cardPartyGST").text(selected.data("gstin") || "");
                 $("#cardPlaceOfSupply").text(selected.data("state") || "24-Gujarat");
-
                 // Toggle visibility states
                 $("#partySelectContainer").hide();
                 $("#partyDetailsCard").show();
@@ -4299,7 +4319,7 @@
                 imageUrl = "",
                 saleRate
             ) {
-                let isHighlighted = matchesHighlightColor(colorName);
+                let isHighlighted = matchesHighlightColor(colorName, designNo);
                 return `
                     <tr class="${isHighlighted ? "erp-highlighted-sub-row" : ""}" data-colorid="${colorId}" data-colorname="${escapeHtml(colorName)}" data-colorgroupid="${colorGroupId}" data-rate="${saleRate}" data-img="${imageUrl}">
                     <td></td>
@@ -4358,9 +4378,7 @@
                     let colorText = item.SubDetails.map((x, i) => {
                         let lineText = `${i + 1}. ${x.ColorMatchingName} - ${x.Qty}`;
                         if (targetHighlightColor) {
-                            let hl = targetHighlightColor.toLowerCase().replace(/\s+/g, ' ').trim();
-                            let cName = (x.ColorMatchingName || "").toLowerCase().replace(/\s+/g, ' ').trim();
-                            if (cName === hl || cName.includes(hl) || hl.includes(cName)) {
+                            if (matchesHighlightColor(x.ColorMatchingName, item.DesignNo)) {
                                 hasHighlight = true;
                                 return `<span class="erp-color-highlight"><i class="fa fa-hand-o-right me-1 text-danger"></i>${lineText}</span>`;
                             }
@@ -4726,11 +4744,13 @@
                     ? SaleOrderDetails[currentViewIndex]
                     : null;
 
+                let currentDesign = parent ? (parent.DesignNo || parent.DesignName || "") : ($("#DesignNo option:selected").text().trim() || "");
+
                 subData.forEach((item, i) => {
 
                     // 🔥 ALWAYS USE LATEST RATE FROM PARENT
                     let saleRate = parent ? parent.BrokerRate : (item.Rate || 0);
-                    let isHighlighted = matchesHighlightColor(item.ColorMatchingName);
+                    let isHighlighted = matchesHighlightColor(item.ColorMatchingName, item.DesignNo || currentDesign);
                     let isLocked = isSubDetailLocked(item);
 
                     let colorDisplay = item.ColorMatchingName;
