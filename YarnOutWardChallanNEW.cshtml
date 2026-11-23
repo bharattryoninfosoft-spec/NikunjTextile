@@ -650,14 +650,33 @@
                             $('#ddlGodownMaster').empty();
                             var tempPartyName = "<option value='0'> Select Godown </option>";
                             $('#ddlGodownMaster').append(tempPartyName);
+                            var hasDefault = false;
                             for (var i = 0; i < response.listGodownMaster.length; i++) {
                                 if (response.listGodownMaster[i].IsDefault == "1") {
+                                    hasDefault = true;
+                                    break;
+                                }
+                            }
+                            var selectedTitle = "";
+                            for (var i = 0; i < response.listGodownMaster.length; i++) {
+                                var isSel = false;
+                                if (response.listGodownMaster[i].IsDefault == "1") {
+                                    isSel = true;
+                                } else if (!hasDefault && (response.listGodownMaster[i].GodownTitle.indexOf("WEAVELANE") !== -1 || response.listGodownMaster.length === 1)) {
+                                    isSel = true;
+                                    hasDefault = true;
+                                }
+                                if (isSel) {
+                                    selectedTitle = response.listGodownMaster[i].GodownTitle;
                                     tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "' selected> " + response.listGodownMaster[i].GodownTitle + " </option>";
                                 }
                                 else {
                                     tempPartyName = "<option value='" + response.listGodownMaster[i].GodownID + "'> " + response.listGodownMaster[i].GodownTitle + " </option>";
                                 }
                                 $('#ddlGodownMaster').append(tempPartyName);
+                            }
+                            if (selectedTitle) {
+                                $("#select2-ddlGodownMaster-container").html(selectedTitle).attr('title', selectedTitle);
                             }
                         }
                         else {
@@ -1199,6 +1218,7 @@
         }
 
         function applyCheckboxVisibility() {
+            let godownId = parseInt($("#ddlGodownMaster").val(), 10) || 0;
             let stockMap = {};
 
             $(".txtStockInput").each(function () {
@@ -1241,23 +1261,32 @@
                 checkbox.data("reqboxes", reqBoxes);
                 checkbox.data("godownstock", gStock);
 
-                let isMatch = gStock > 0 || checkbox.is(":checked");
-
-                if (isMatch) {
+                if (godownId <= 0) {
                     checkbox.prop("disabled", false);
                     row.find(".pending-box-cell").html(`
                         <span class="font-weight-bold text-dark">${reqBoxes}</span>
-                        <br/><span class="badge" style="font-size: 10px; background-color: #d1e7dd; color: #0f5132;" title="Godown Available Stock: ${gStock} Boxes">Godown: ${gStock}</span>
+                        <br/><span class="badge" style="font-size: 10px; background-color: #e0f2fe; color: #0369a1;" title="Please Select Godown to view available stock">Select Godown</span>
                     `);
                     matchedRows.push(row);
                 } else {
-                    checkbox.prop("disabled", true);
-                    checkbox.prop("checked", false);
-                    row.find(".pending-box-cell").html(`
-                        <span class="text-muted font-weight-bold">${reqBoxes}</span>
-                        <br/><span class="badge" style="font-size: 10px; background-color: #f8d7da; color: #842029;" title="No Stock Available in Selected Godown">Stock: 0</span>
-                    `);
-                    unmatchedRows.push(row);
+                    let isMatch = gStock > 0 || checkbox.is(":checked");
+
+                    if (isMatch) {
+                        checkbox.prop("disabled", false);
+                        row.find(".pending-box-cell").html(`
+                            <span class="font-weight-bold text-dark">${reqBoxes}</span>
+                            <br/><span class="badge" style="font-size: 10px; background-color: #d1e7dd; color: #0f5132;" title="Godown Available Stock: ${gStock} Boxes">Godown: ${gStock}</span>
+                        `);
+                        matchedRows.push(row);
+                    } else {
+                        checkbox.prop("disabled", true);
+                        checkbox.prop("checked", false);
+                        row.find(".pending-box-cell").html(`
+                            <span class="text-muted font-weight-bold">${reqBoxes}</span>
+                            <br/><span class="badge" style="font-size: 10px; background-color: #f8d7da; color: #842029;" title="No Stock Available in Selected Godown">Stock: 0</span>
+                        `);
+                        unmatchedRows.push(row);
+                    }
                 }
             });
 
@@ -1488,6 +1517,17 @@
 
         $(document).on("change", ".row-checkbox", function () {
             let currentChk = $(this);
+            let godownId = parseInt($("#ddlGodownMaster").val(), 10) || 0;
+            if (godownId <= 0) {
+                currentChk.prop("checked", false);
+                Swal.fire({
+                    title: 'Select Godown',
+                    text: 'Please select a Godown to view and allocate available stock.',
+                    icon: 'warning'
+                });
+                return;
+            }
+
             let key = normalize(currentChk.data("key"));
             let mat = currentChk.data("materialid");
             let col = currentChk.data("colorid");

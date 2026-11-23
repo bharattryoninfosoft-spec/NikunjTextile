@@ -1598,6 +1598,10 @@ AB.BoxNo";
                         if (!allInLocation) {
                             rowBoxesCache = res.data;
                             $("#countRowOnly").text(res.data.length);
+                            var loadedTotalWt = res.data.reduce(function (acc, b) { return acc + (parseFloat(b.NetWeight) || 0); }, 0);
+                            $("#boxModalTotalBoxes").text(res.data.length);
+                            $("#boxModalTotalWeight").text(loadedTotalWt.toFixed(2));
+                            $("#boxModalAvgWeight").text(res.data.length > 0 ? (loadedTotalWt / res.data.length).toFixed(2) : '0.00');
                         } else {
                             allBoxesCache = res.data;
                             $("#countAllLocBadge").text('(' + res.data.length + ')');
@@ -1634,6 +1638,10 @@ AB.BoxNo";
                             if (!allInLocation) {
                                 rowBoxesCache = boxList;
                                 $("#countRowOnly").text(boxList.length);
+                                var loadedTotalWt2 = boxList.reduce(function (acc, b) { return acc + (parseFloat(b.NetWeight) || 0); }, 0);
+                                $("#boxModalTotalBoxes").text(boxList.length);
+                                $("#boxModalTotalWeight").text(loadedTotalWt2.toFixed(2));
+                                $("#boxModalAvgWeight").text(boxList.length > 0 ? (loadedTotalWt2 / boxList.length).toFixed(2) : '0.00');
                             } else {
                                 allBoxesCache = boxList;
                                 $("#countAllLocBadge").text('(' + boxList.length + ')');

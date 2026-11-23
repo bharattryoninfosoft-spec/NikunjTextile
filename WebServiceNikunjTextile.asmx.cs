@@ -36832,17 +36832,17 @@ ORDER BY T1.YarnInwardDetailID DESC;";
             }
             if (ilist.BillToPartyID > 0)
             {
-                CompanyName = " and (T.CompanyPartyID = " + ilist.BillToPartyID + " or T.BillToPartyID = " + ilist.BillToPartyID + ") ";
+                CompanyName = " and (YPM.CompanyPartyID = " + ilist.BillToPartyID + " or YPM.BillToPartyID = " + ilist.BillToPartyID + ") ";
             }
             string YarnMaterial = "";
             if (ilist.YarnMaterialID > 0)
             {
-                YarnMaterial = " and T.YarnMaterialID = " + ilist.YarnMaterialID + " ";
+                YarnMaterial = " and AB.CurrentMaterialID = " + ilist.YarnMaterialID + " ";
             }
             string YarnColor = "";
             if (yarnColorList.Any())
             {
-                YarnColor = $" AND T.YarnColorID IN ({string.Join(",", yarnColorList)}) ";
+                YarnColor = $" AND AB.CurrentColorID IN ({string.Join(",", yarnColorList)}) ";
             }
 
             string YarnInwardDetails = "";
@@ -36860,12 +36860,52 @@ ORDER BY T1.YarnInwardDetailID DESC;";
                 cmd.CommandTimeout = 180;
                 cmd.CommandType = System.Data.CommandType.Text;
 
-
+                string activeBoxesCte = @"
+;WITH LatestInterchange AS (
+    SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
+    FROM (
+        SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
+               ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) as rn
+        FROM YarnInterchangeMaster
+        WHERE YarnInwardDetailID IS NOT NULL
+    ) sub WHERE rn = 1
+),
+ActiveBoxes AS (
+    SELECT
+        YID.YarnInwardDetailID,
+        YID.BoxNo,
+        YID.BarcodeNo,
+        YID.YarnInwardID,
+        COALESCE(
+            NULLIF(LI.GodownLocationID, 0),
+            NULLIF(YID.YarnInterchangeID, 0),
+            YID.GodownLocationID
+        ) AS CurrentLocationID,
+        COALESCE(
+            LI.YarnMaterialID,
+            YIM.YarnMaterialID
+        ) AS CurrentMaterialID,
+        COALESCE(
+            LI.YarnColorID,
+            YIM.YarnColorID
+        ) AS CurrentColorID
+    FROM YarnInwardDetail YID
+    INNER JOIN YarnInwardMaster YIM ON YIM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN LatestInterchange LI ON LI.YarnInwardDetailID = YID.YarnInwardDetailID
+    WHERE
+        ISNULL(YID.BoxNo, '') <> ''
+        AND YID.BarcodeNo IS NOT NULL
+        AND ISNULL(YID.IsScanStutas, 0) <> 1
+        AND NOT EXISTS (
+            SELECT 1
+            FROM YARNOUTWARDScanMasterDetails YOSD
+            WHERE YOSD.BarcodeNo = YID.BarcodeNo
+        )
+) ";
 
                 if (ilist.SiftGodownLocationId != "")
                 {
-
-                    cmd.CommandText = @"
+                    cmd.CommandText = activeBoxesCte + @"
 SELECT
     Q.Stock,
     Q.BillToPartyID,
@@ -36886,7 +36926,6 @@ FROM
                 THEN 0
             ELSE ISNULL(I.Stock, 0) - ISNULL(S.Stock, 0)
         END AS Stock,
-
         I.BillToPartyID,
         I.CompanyPartyID,
         I.CompanyName,
@@ -36898,81 +36937,38 @@ FROM
     FROM
     (
         SELECT
-            ISNULL(SUM(T.Stock), 0) AS Stock,
-            T.BillToPartyID,
-            T.CompanyPartyID,
-            T.CompanyName,
-            T.YarnMaterialID,
-            T.YarnMaterial,
-            T.YarnColorID,
-            T.YarnColor,
-            T.YarnColorCode
-        FROM
-        (
-            SELECT
-                YIM.YarnInwardID,
-                YIM.YarnPOID,
-                YPOM.BillToPartyID,
-                YPOM.CompanyPartyID,
-                PM.PartyName AS CompanyName,
-                YIM.YarnMaterialID,
-                YMM.YarnMaterial,
-                YIM.YarnColorID,
-                YCM.YarnColor,
-                YPD.CompanyCode AS YarnColorCode,
-                ISNULL(YIDD.Stock, 0) AS Stock
-            FROM YarnInwardMaster YIM
-
-            LEFT JOIN YarnPOMaster YPOM
-                ON YPOM.YarnPOID = YIM.YarnPOID
-
-            LEFT JOIN PartyMaster PM
-                ON PM.PartyId = YPOM.CompanyPartyID
-
-            LEFT JOIN YarnPODetails YPD
-                ON YPD.YarnPOID = YIM.YarnPOID
-                AND YPD.YarnMaterialID = YIM.YarnMaterialID
-                AND YPD.YarnColorID = YIM.YarnColorID
-
-            LEFT JOIN YarnMaterialMaster YMM
-                ON YMM.YarnMaterialID = YIM.YarnMaterialID
-
-            LEFT JOIN YarnColorMaster YCM
-                ON YCM.YarnColorID = YIM.YarnColorID
-
-            LEFT JOIN
-            (
-                SELECT
-                    COUNT(*) AS Stock,
-                    YID.YarnInwardID
-                FROM YarnInwardDetail YID
-                WHERE ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) IN
-                (
-                    SELECT GLM.GodownLocationID
-                    FROM GodownLocationMaster GLM
-                    WHERE GLM.GodownID = @GodownID
-                )
-                AND ISNULL(YID.IsScanStutas, 0) <> 1
-                " + YarnInwardDetails + @"
-                GROUP BY YID.YarnInwardID
-            ) YIDD
-                ON YIDD.YarnInwardID = YIM.YarnInwardID
-        ) T
-        WHERE (1 = 1)
+            COUNT_BIG(*) AS Stock,
+            YPM.BillToPartyID,
+            YPM.CompanyPartyID,
+            ISNULL(CP.PartyName, BP.PartyName) AS CompanyName,
+            AB.CurrentMaterialID AS YarnMaterialID,
+            YMM.YarnMaterial,
+            AB.CurrentColorID AS YarnColorID,
+            YCM.YarnColor,
+            COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '') AS YarnColorCode
+        FROM ActiveBoxes AB
+        INNER JOIN YarnInwardMaster YIM ON YIM.YarnInwardID = AB.YarnInwardID
+        LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
+        LEFT JOIN PartyMaster CP ON CP.PartyID = YPM.CompanyPartyID
+        LEFT JOIN PartyMaster BP ON BP.PartyID = YPM.BillToPartyID
+        LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = AB.CurrentMaterialID
+        LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = AB.CurrentColorID
+        LEFT JOIN YarnPODetails YPD ON YPD.YarnPODetailID = YIM.YarnPODetailIDCompanyCode
+        INNER JOIN GodownLocationMaster GL ON GL.GodownLocationID = AB.CurrentLocationID
+        WHERE GL.GodownID = @GodownID
             " + CompanyName + @"
             " + YarnMaterial + @"
             " + YarnColor + @"
         GROUP BY
-            T.BillToPartyID,
-            T.CompanyPartyID,
-            T.CompanyName,
-            T.YarnMaterialID,
-            T.YarnMaterial,
-            T.YarnColorID,
-            T.YarnColor,
-            T.YarnColorCode
+            YPM.BillToPartyID,
+            YPM.CompanyPartyID,
+            ISNULL(CP.PartyName, BP.PartyName),
+            AB.CurrentMaterialID,
+            YMM.YarnMaterial,
+            AB.CurrentColorID,
+            YCM.YarnColor,
+            COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '')
     ) I
-
     LEFT JOIN
     (
         SELECT
@@ -37018,148 +37014,48 @@ FROM
         AND S.YarnColorID = I.YarnColorID
 ) Q
 WHERE Q.Stock > 0;";
-
                 }
                 else
                 {
-                    // NORMAL INWARD - OUTWARD STOCK BRANCH
-                    cmd.CommandText = @"
-                            SELECT
-                                (T1.Stock - ISNULL(YOD.Stock, 0)) AS Stock,
-                                T1.BillToPartyID,
-                                T1.CompanyPartyID,
-                                T1.CompanyName,
-                                T1.YarnMaterialID,
-                                T1.YarnMaterial,
-                                T1.YarnColorID,
-                                T1.YarnColor,
-                                T1.CompanyCode AS YarnColorCode,
-                                T1.YarnInterchangeID AS GodownLocationID,
-                                T1.LocationTitle
-                            FROM
-                            (
-                                SELECT
-                                    ISNULL(SUM(T.Stock), 0) AS Stock,
-                                    T.BillToPartyID,
-                                    T.CompanyPartyID,
-                                    T.CompanyName,
-                                    T.YarnMaterialID,
-                                    T.YarnMaterial,
-                                    T.YarnColorID,
-                                    T.YarnColor,
-                                    MAX(T.CompanyCode) AS CompanyCode,
-                                    T.YarnInterchangeID,
-                                    T.LocationTitle
-                                FROM
-                                (
-                                    SELECT
-                                        YIM.YarnInwardID,
-                                        YIM.YarnPOID,
-                                        YPOM.BillToPartyID,
-                                        YPOM.CompanyPartyID,
-                                        PM.PartyName AS CompanyName,
-                                        YIM.YarnMaterialID,
-                                        YMM.YarnMaterial,
-                                        YIM.YarnColorID,
-                                        YCM.YarnColor,
-                                        YPD.CompanyCode,
-                                        GL.LocationTitle,
-                                        YIDD.YarnInterchangeID,
-                                        ISNULL(YIDD.Stock, 0) AS Stock
-                                    FROM YarnInwardMaster YIM
-
-                                    LEFT JOIN YarnPOMaster YPOM
-                                        ON YPOM.YarnPOID = YIM.YarnPOID
-
-                                    LEFT JOIN PartyMaster PM
-                                        ON PM.PartyId = YPOM.CompanyPartyID
-
-                                    LEFT JOIN YarnPODetails YPD
-                                        ON YPD.YarnPOID = YIM.YarnPOID
-                                        AND YPD.YarnMaterialID = YIM.YarnMaterialID
-                                        AND YPD.YarnColorID = YIM.YarnColorID
-
-                                    LEFT JOIN YarnMaterialMaster YMM
-                                        ON YMM.YarnMaterialID = YIM.YarnMaterialID
-
-                                    LEFT JOIN YarnColorMaster YCM
-                                        ON YCM.YarnColorID = YIM.YarnColorID
-
-                                    LEFT JOIN
-                                    (
-                                        SELECT
-                                            COUNT(*) AS Stock,
-                                            YID.YarnInwardID,
-                                            ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) AS YarnInterchangeID
-                                        FROM YarnInwardDetail YID
-                                        WHERE ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID) IN
-                                        (
-                                            SELECT GLM.GodownLocationID
-                                            FROM GodownLocationMaster GLM
-                                            WHERE GLM.GodownID = @GodownID
-                                        )
-                                        AND ISNULL(YID.IsScanStutas, 0) <> 1
-                                        " + YarnInwardDetails + @"
-                                        GROUP BY
-                                            YID.YarnInwardID,
-                                            ISNULL(NULLIF(YID.YarnInterchangeID, 0), YID.GodownLocationID)
-                                    ) YIDD
-                                        ON YIDD.YarnInwardID = YIM.YarnInwardID
-
-                                    LEFT JOIN GodownLocationMaster GL
-                                        ON GL.GodownLocationID = YIDD.YarnInterchangeID
-                                ) T
-
-                                WHERE (1 = 1)
-                                    " + CompanyName + @"
-                                    " + YarnMaterial + @"
-                                    " + YarnColor + @"
-
-                                GROUP BY
-                                    T.BillToPartyID,
-                                    T.CompanyPartyID,
-                                    T.CompanyName,
-                                    T.YarnMaterialID,
-                                    T.YarnMaterial,
-                                    T.YarnColorID,
-                                    T.YarnColor,
-                                    T.YarnInterchangeID,
-                                    T.LocationTitle
-                            ) T1
-
-                            LEFT JOIN
-                            (
-                                SELECT
-                                    SUM(YOD.NoOfBox) AS Stock,
-                                    YOD.YarnCompanyID,
-                                    YOD.YarnMaterialID,
-                                    YOD.YarnColorID,
-                                    YOD.GodownLocationID
-                                FROM YarnOutwardDetail YOD
-
-                                INNER JOIN YarnOutwardMaster YOM
-                                    ON YOM.YarnOutwardID = YOD.YarnOutwardID
-
-                                WHERE YOM.CompanyId =
-                                (
-                                    SELECT CompanyId
-                                    FROM CompanyMaster
-                                    WHERE is_default = 1
-                                )
-
-                                GROUP BY
-                                    YOD.YarnCompanyID,
-                                    YOD.YarnMaterialID,
-                                    YOD.YarnColorID,
-                                    YOD.GodownLocationID
-                            ) YOD
-                                ON (T1.CompanyPartyID = YOD.YarnCompanyID OR T1.BillToPartyID = YOD.YarnCompanyID)
-                                AND T1.YarnMaterialID = YOD.YarnMaterialID
-                                AND T1.YarnColorID = YOD.YarnColorID
-                                AND T1.YarnInterchangeID = YOD.GodownLocationID
-
-                            WHERE
-                                (T1.Stock - ISNULL(YOD.Stock, 0)) > 0;";
+                    cmd.CommandText = activeBoxesCte + @"
+SELECT 
+    COUNT_BIG(*) AS Stock,
+    YPM.BillToPartyID,
+    YPM.CompanyPartyID,
+    ISNULL(CP.PartyName, BP.PartyName) AS CompanyName,
+    AB.CurrentMaterialID AS YarnMaterialID,
+    YMM.YarnMaterial,
+    AB.CurrentColorID AS YarnColorID,
+    YCM.YarnColor,
+    COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '') AS YarnColorCode,
+    AB.CurrentLocationID AS GodownLocationID,
+    GL.LocationTitle
+FROM ActiveBoxes AB
+INNER JOIN YarnInwardMaster YIM ON YIM.YarnInwardID = AB.YarnInwardID
+LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
+LEFT JOIN PartyMaster CP ON CP.PartyID = YPM.CompanyPartyID
+LEFT JOIN PartyMaster BP ON BP.PartyID = YPM.BillToPartyID
+LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = AB.CurrentMaterialID
+LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = AB.CurrentColorID
+LEFT JOIN YarnPODetails YPD ON YPD.YarnPODetailID = YIM.YarnPODetailIDCompanyCode
+INNER JOIN GodownLocationMaster GL ON GL.GodownLocationID = AB.CurrentLocationID
+WHERE GL.GodownID = @GodownID
+    " + CompanyName + @"
+    " + YarnMaterial + @"
+    " + YarnColor + @"
+GROUP BY
+    YPM.BillToPartyID,
+    YPM.CompanyPartyID,
+    ISNULL(CP.PartyName, BP.PartyName),
+    AB.CurrentMaterialID,
+    YMM.YarnMaterial,
+    AB.CurrentColorID,
+    YCM.YarnColor,
+    COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, ''),
+    AB.CurrentLocationID,
+    GL.LocationTitle
+HAVING COUNT_BIG(*) > 0
+ORDER BY LocationTitle;";
                 }
                 cmd.CommandTimeout = 180;
                 cmd.Parameters.Add("@GodownID", SqlDbType.Int).Value = ilist.GodownID;
