@@ -24,16 +24,14 @@
                         <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                             <div id="dropzone-sm">
                                 <div class="row gutters">
-                                    <div class="col-12" style=" text-align: center;">
-                                        <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Design No</div>
+                                    <div class="col-12" style="text-align: center;">
+                                        <div class="form-section-header" style="margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Design No</div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-                            <!-- Field wrapper start -->
                             <div id="dropzone-sm">
                                 <div class="row gutters">
                                     <div class="col-12">
@@ -44,32 +42,21 @@
                             </div>
                         </div>
 
-
                         <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"></div>
-
-
 
                         <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                             <div id="dropzone-sm">
                                 <div class="row gutters">
-                                    <div class="col-12" style=" text-align: center;">
-                                        <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Color Matching ID</div>
+                                    <div class="col-12" style="text-align: center;">
+                                        <div class="form-section-header" style="margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Color Matching ID</div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
-
-
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <!-- Field wrapper start -->
                             <div id="dropzone-sm">
-
-
-
                                 <div class="row gutters">
-
                                     <div class="col-12">
                                         <select class="select-single detail" style="min-height: 35px;" id="ColorMatchingID" onchange="getColorMatchingId(this)">
                                             <option value="">Select Color Matching</option>
@@ -77,273 +64,123 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Field wrapper end -->
                         </div>
+
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <!-- Field wrapper start -->
                             <br />
                             <br />
                             <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
                                 <div class="dropzone needsclick dz-clickable" id="demo-upload">
                                     <div class="dz-message needsclick" style="text-align: center;">
-                                        <label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default" style=" width: 100%; padding-top: 80px;">Photo Of Design.</label>
+                                        <label id="upload-PhotoOfDesign-default-preview" for="upload-PhotoOfDesign-default" style="width: 100%; padding-top: 80px;">Photo Of Design.</label>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Field wrapper end -->
                         </div>
+
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             <br />
                             <br />
-                            <!-- Field wrapper start -->
                             <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
                                 <div class="dropzone needsclick dz-clickable" id="demo-upload">
                                     <input type="file" id="upload-ColorMatching-default" style="display:none;" onchange="saveImage(this)" accept="image/*" />
                                     <input type="hidden" id="upload-ColorMatching-temp-default" value="" />
                                     <div class="dz-message needsclick" style="text-align: center;">
-                                        <label id="upload-ColorMatching-default-preview" for="upload-ColorMatching-default" style="width: 100%; padding-top: 80px; ">Color Matching Photo to Be Uploaded.</label>
+                                        <label id="upload-ColorMatching-default-preview" for="upload-ColorMatching-default" style="width: 100%; padding-top: 80px;">Color Matching Photo to Be Uploaded.</label>
                                     </div>
                                 </div>
                                 <div style="text-align: end; padding-top: 10px;">
-                                    <button class="btn btn-outline-danger" id="btnclearColorMatchingDefault" onclick="clearColorMatchingDefault()" style="padding: .375rem .75rem;"><i class="fa fa-times" style="font-size:large; margin:0; padding:0;"></i></button>
+                                    <button type="button" class="btn btn-outline-danger" id="btnclearColorMatchingDefault" onclick="clearColorMatchingDefault()" style="padding: .375rem .75rem;"><i class="fa fa-times" style="font-size:large; margin:0; padding:0;"></i></button>
                                 </div>
                             </div>
-                            <!-- Field wrapper end -->
-
                         </div>
-
-
 
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-
-                            <!-- Field wrapper start -->
                             <div id="dropzone-sm">
-                                <div class="table-responsive" id="divColorMatchingTable">
-                                    <!--
-                                     <br />
-                                     <br />
-                                     <table id="copy-print-csvs" class="table table-hover table-bordered m-0">
-                                         <tr style="text-align: center;">
-                                             <th style="padding: .3rem .3rem; width: 15%;">Warp 1</th>
-                                             <td style="padding: .3rem .3rem; width: 25%;"></td>
-                                             <td style="padding: .3rem .3rem; width: 40%;">
-                                                 <select id="MatchingWarp1" class="form-control is-invalid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp('1')" disabled>
-                                                     <option value="" selected=""> Select Color </option>
-                                                     <option value="5"> BLACK </option>
-                                                     <option value="6"> BLUE </option>
-                                                     <option value="11"> FIROZI </option>
-                                                     <option value="13"> GOLD </option>
-                                                     <option value="9"> MAROON </option>
-                                                     <option value="7"> ORANGE </option>
-                                                     <option value="10"> PURPLE </option>
-                                                     <option value="1"> RED </option>
-                                                     <option value="12"> WINE </option>
-                                                     <option value="8"> YELLOW </option>
-                                                 </select>
-                                             </td>
-                                             <td id="tdWarColor1" style="padding: .3rem .3rem; width: 15%; ">
-                                                 <div style="background-color: red; padding: 15px; "></div>
-                                             </td>
-                                             <td style="padding: .3rem .3rem; width: 5%;">
-                                                 <a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(1)"><i class="icon-edit1 text-info" style="font-size: large;"></i></a>
-                                             </td>
-                                         </tr>
-
-                                         <tr style="text-align: center;">
-                                             <th style="padding: .3rem .3rem; width: 15%;">Warp 2</th>
-                                             <td style="padding: .3rem .3rem; width: 25%;"></td>
-                                             <td style="padding: .3rem .3rem; width: 40%;">
-                                                 <select id="MatchingWarp2" class="form-control is-invalid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp('2')" disabled>
-                                                     <option value="" selected=""> Select Color </option>
-                                                     <option value="5"> BLACK </option>
-                                                     <option value="6"> BLUE </option>
-                                                     <option value="11"> FIROZI </option>
-                                                     <option value="13"> GOLD </option>
-                                                     <option value="9"> MAROON </option>
-                                                     <option value="7"> ORANGE </option>
-                                                     <option value="10"> PURPLE </option>
-                                                     <option value="1"> RED </option>
-                                                     <option value="12"> WINE </option>
-                                                     <option value="8"> YELLOW </option>
-                                                 </select>
-                                             </td>
-                                             <td id="tdWarColor1" style="padding: .3rem .3rem; width: 15%; ">
-                                                 <div style="background-color: green; padding: 15px; "></div>
-                                             </td>
-                                             <td style="padding: .3rem .3rem; width: 5%;">
-                                                 <a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(2)"><i class="icon-edit1 text-info" style="font-size: large;"></i></a>
-                                             </td>
-                                         </tr>
-                                     </table>
-
-
-                                     <hr style="height: 5px;" />
-
-
-                                     <table id="copy-print-csvs" class="table table-hover table-bordered m-0">
-                                         <tr style="text-align: center;">
-                                             <th style="padding: .3rem .3rem; width: 15%;">Feeder 1</th>
-                                             <td style="padding: .3rem .3rem; width: 25%;">Jari</td>
-                                             <td style="padding: .3rem .3rem; width: 40%;">
-                                                 <select id="MatchingFeeder1" class="form-control is-invalid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder('1')" disabled>
-                                                     <option value="" selected=""> Select Color </option>
-                                                     <option value="5"> BLACK </option>
-                                                     <option value="6"> BLUE </option>
-                                                     <option value="11"> FIROZI </option>
-                                                     <option value="13"> GOLD </option>
-                                                     <option value="9"> MAROON </option>
-                                                     <option value="7"> ORANGE </option>
-                                                     <option value="10"> PURPLE </option>
-                                                     <option value="1"> RED </option>
-                                                     <option value="12"> WINE </option>
-                                                     <option value="8"> YELLOW </option>
-                                                 </select>
-                                             </td>
-                                             <td id="tdWarColor1" style="padding: .3rem .3rem; width: 15%; ">
-                                                 <div style="background-color: red; padding: 15px; "></div>
-                                             </td>
-                                             <td style="padding: .3rem .3rem; width: 5%;">
-                                                 <a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(1)"><i class="icon-edit1 text-info" style="font-size: large;"></i></a>
-                                             </td>
-                                         </tr>
-
-                                         <tr style="text-align: center;">
-                                             <th style="padding: .3rem .3rem; width: 15%;">Feeder 2</th>
-                                             <td style="padding: .3rem .3rem; width: 25%;">GROUND</td>
-                                             <td style="padding: .3rem .3rem; width: 40%;">
-                                                 <select id="MatchingFeeder2" class="form-control is-invalid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder('2')" disabled>
-                                                     <option value="" selected=""> Select Color </option>
-                                                     <option value="5"> BLACK </option>
-                                                     <option value="6"> BLUE </option>
-                                                     <option value="11"> FIROZI </option>
-                                                     <option value="13"> GOLD </option>
-                                                     <option value="9"> MAROON </option>
-                                                     <option value="7"> ORANGE </option>
-                                                     <option value="10"> PURPLE </option>
-                                                     <option value="1"> RED </option>
-                                                     <option value="12"> WINE </option>
-                                                     <option value="8"> YELLOW </option>
-                                                 </select>
-                                             </td>
-                                             <td id="tdWarColor1" style="padding: .3rem .3rem; width: 15%; ">
-                                                 <div style="background-color: green; padding: 15px; "></div>
-                                             </td>
-                                             <td style="padding: .3rem .3rem; width: 5%;">
-                                                 <a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(2)"><i class="icon-edit1 text-info" style="font-size: large;"></i></a>
-                                             </td>
-                                         </tr>
-                                     </table>
-
-                                     -->
-
-                                </div>
+                                <div class="table-responsive" id="divColorMatchingTable"></div>
                             </div>
-
-                            <!-- Field wrapper end -->
-
                         </div>
+
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" style="text-align:center;">
                             <div id="dropzone-sm">
-                                <button id="Previousbtn" type="button" class="btn btn-success" onclick="checkPrevious()" style="padding: .375rem .75rem; box-shadow: 0px 0px 2px 1px black; display:none;"><i class="fa fa-arrow-left" style=" font-size: x-large;"></i> </button> &nbsp; &nbsp;
-                                <button id="Nextbtn" type="button" class="btn btn-success" onclick="checkNext()" style="padding: .375rem .75rem; box-shadow: 0px 0px 2px 1px black; display: none;"> <i class="fa fa-arrow-right" style=" font-size: x-large;"></i></button>
-
+                                <button id="Previousbtn" type="button" class="btn btn-success" onclick="checkPrevious()" style="padding: .375rem .75rem; box-shadow: 0px 0px 2px 1px black; display:none;"><i class="fa fa-arrow-left" style="font-size: x-large;"></i></button> &nbsp; &nbsp;
+                                <button id="Nextbtn" type="button" class="btn btn-success" onclick="checkNext()" style="padding: .375rem .75rem; box-shadow: 0px 0px 2px 1px black; display: none;"><i class="fa fa-arrow-right" style="font-size: x-large;"></i></button>
                             </div>
                         </div>
+
                         <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                             <div id="dropzone-sm">
                                 <div class="row gutters">
-                                    <div class="col-12" style=" text-align: center;">
-                                        <div class="form-section-header" style=" margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Color Group</div>
+                                    <div class="col-12" style="text-align: center;">
+                                        <div class="form-section-header" style="margin: 0; padding: 0.3rem 0.9rem; background: #689de7;">Color Group</div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
-
-
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <!-- Field wrapper start -->
                             <div id="dropzone-sm">
                                 <div class="row gutters">
                                     <div class="col-12">
-                                        <select  class="select-single" style="min-height: 35px;" id="ColorGroup">
+                                        <select class="select-single" style="min-height: 35px;" id="ColorGroup">
                                             <option value="">Select Color Group</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Field wrapper end -->
-
                         </div>
-
-
-
                     </div>
 
-
-
-
-
-
                     <hr />
-
-
-
-
 
                     <div class="modal-footer">
                         <button id="savebtn" type="button" class="btn btn-primary" onclick="checkSave()" style="font-size: medium;">Save Color Validate</button>
                     </div>
-
 
                     <input type="hidden" id="txtColorArray" title="txtColorArray" />
                     <input type="hidden" id="warpLength" title="warpLength" />
                     <input type="hidden" id="weftLength" title="weftLength" />
                     <input type="hidden" id="WarpCheckBox" title="WarpCheckBox" />
                     <input type="hidden" id="WeftCheckBox" title="WeftCheckBox" />
-
                 </div>
             </div>
 
         </div>
     </div>
-
-
 </div>
-
 
 @section Scripts{
     <script>
         $('body').addClass('fullscreen');
         var currentPagePermission = {};
-        $(document).ready(function () {
+        var ArrayYarnColor = [];
+        var listDesignColorMatchingDetails = [];
+        var listDesignEntryWeftData = [];
+        var DesignColorMatchingDetails = [];
+        var isCurrentMatchingLockedInSaleOrder = false;
 
+        $(document).ready(function () {
             var permission = getCookie("PagePermission");
             if (permission != null && permission != "") {
-                var currentPagePermission = JSON.parse(permission);
+                currentPagePermission = JSON.parse(permission);
                 if (currentPagePermission.Add == false) {
                     $("#savebtn").hide();
                 }
-
             }
 
             FunctionIsLogin();
-
-            //getDesignEntryForm();
-
-            //getDefaultCompany();
-
             getDesignEntryForm();
             getYarnColor();
             getColorGroup();
         });
+
         var notes = $('#notes').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
         var notess = $('#notess').notify({
             removeIcon: '<i class="icon-close"></i>'
         });
+
         function getDefaultCompany() {
             $.ajax({
                 type: "GET",
@@ -357,22 +194,12 @@
                         $("#company-default").html(response.listCompanyMaster[0].CompanyName);
                     }
                 },
-                error: function (request, status, error) {
-                    //$("#add-alert").removeClass("alert-success");
-                    //$("#add-alert").addClass("alert-danger");
-                    //$("#add-alert").html(response.Message);
-                    //$("#add-alert").show();
-
-                    notes.show(request.statusText, {
-                        type: 'danger',
-                        //title: 'Opps.!',
-                        //icon: '<i class="icon-alert-triangle"></i>'
-                    });
-
-
+                error: function (request) {
+                    notes.show(request.statusText, { type: 'danger' });
                 }
             });
         }
+
         function FunctionIsLogin() {
             $.ajax({
                 type: "POST",
@@ -380,8 +207,7 @@
                 data: "{ 'userName':'0' }",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (data, status) {
-                    console.log(data);
+                success: function (data) {
                     if (data.d == "false") {
                         window.location.replace("/Index");
                     }
@@ -391,74 +217,90 @@
                 }
             });
         }
+
         function logout() {
             $.ajax({
                 type: "POST",
                 url: '/WebServiceNikunjTextile.asmx/Logout',
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (data, status) {
+                success: function (data) {
                     if (data.d == "done") {
                         window.location.replace("/Index");
                     }
-                },
-                error: function (request, status, error) {
                 }
             });
         }
+
         function clearAll() {
             getDefaultCompany();
             $("#savebtn").show();
             $("#Updatebtn").hide();
             $("#addNewContactLabel").html("Add Design Entry Form");
             $("#add-alert").hide();
-
             $("#YarnColor").val('');
-
             $(".company-invalid-feedback").hide();
-
             $(".clear-field").removeClass("is-valid is-invalid");
             $(".invalid-feedback").hide();
             $(".valid-feedback").hide();
         }
-        function validate(code) {
-            //alert(code);
-            //alert(code.id + "  " + code.value);
-            //console.log(code.id + " Hello");
 
+        function validate(code) {
             code.value = code.value.replace(/\s+/g, ' ').trim();
             var errorMessageValid = "." + code.id + "-valid-feedback";
             var errorMessageInvalid = "." + code.id + "-invalid-feedback";
             $(".invalid-feedback .valid-feedback").hide();
 
-            if (code.value == "0") {
-
+            if (code.value == "0" || code.value == "") {
                 document.getElementById(code.id).classList.remove("is-valid");
                 document.getElementById(code.id).classList.add("is-invalid");
                 $(errorMessageInvalid).show();
                 return false;
             }
-            else
-                if (code.value == "") {
 
-                    document.getElementById(code.id).classList.remove("is-valid");
-                    document.getElementById(code.id).classList.add("is-invalid");
-                    $(errorMessageInvalid).show();
-                    return false;
-                }
-                else {
-                    document.getElementById(code.id).classList.add("is-valid");
-                    document.getElementById(code.id).classList.remove("is-invalid");
-                    $(errorMessageValid).show();
-                    $(errorMessageInvalid).hide();
-                    $(".company-invalid-feedback").show();
-                    return true;
-                }
+            document.getElementById(code.id).classList.add("is-valid");
+            document.getElementById(code.id).classList.remove("is-invalid");
+            $(errorMessageValid).show();
+            $(errorMessageInvalid).hide();
+            $(".company-invalid-feedback").show();
+            return true;
         }
-        function getDesignEntryForm() {
 
+        function isUsedInSaleOrder(detail) {
+            if (!detail) return false;
+            var flag = detail.IsUsedInSaleOrder !== undefined
+                ? detail.IsUsedInSaleOrder
+                : (detail.isUsedInSaleOrder !== undefined ? detail.isUsedInSaleOrder : detail.IsInSaleOrder);
+            return flag === true || flag === 1 || flag === "1" || String(flag).toLowerCase() === "true";
+        }
+
+        function applySaleOrderEditLock(locked) {
+            isCurrentMatchingLockedInSaleOrder = Boolean(locked);
+            var canAdd = currentPagePermission.Add !== false;
+
+            $("#upload-ColorMatching-default").prop("disabled", isCurrentMatchingLockedInSaleOrder);
+            $("#btnclearColorMatchingDefault")
+                .prop("disabled", isCurrentMatchingLockedInSaleOrder)
+                .toggle(!isCurrentMatchingLockedInSaleOrder);
+            $("#ColorGroup").prop("disabled", isCurrentMatchingLockedInSaleOrder);
+
+            if (isCurrentMatchingLockedInSaleOrder) {
+                $("#savebtn").prop("disabled", true).hide();
+                if ($("#saleOrderLockAlert").length === 0) {
+                    $("#divColorMatchingTable").prepend(
+                        '<div id="saleOrderLockAlert" class="alert alert-warning py-2 px-3 mb-2" style="font-size:0.82rem;font-weight:600;">' +
+                        '<i class="fa fa-lock me-1"></i> This Color Matching ID is already added in a Sale Order and cannot be edited.' +
+                        '</div>'
+                    );
+                }
+            } else {
+                $("#saleOrderLockAlert").remove();
+                $("#savebtn").prop("disabled", false).toggle(canAdd);
+            }
+        }
+
+        function getDesignEntryForm() {
             var formData = new FormData();
-            //formData.append('SaleInvoiceID', SaleInvoiceID);
 
             $.ajax({
                 type: "POST",
@@ -468,46 +310,20 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    //console.log(response);
-                    //alert(response.Code);
-
-                    if (response.Code == "200") {
-
-                        var DesignColorMatchingFormIDs = "";
-                        var designNo = "";
-                        //Design No
-                        if (response.listDesignEntryForm.length > 0) {
-                            var tempDesignNo = "";
-                            tempDesignNo = "<option value=''> Select Designer No </option>";
-                            $('#DesignNo').append(tempDesignNo);
-                            for (var i = 0; i < response.listDesignEntryForm.length; i++) {
-                                DesignColorMatchingFormIDs = response.listDesignEntryForm[i].DesignColorMatchingFormIDs;
-
-                                tempDesignNo = "<option value='" + response.listDesignEntryForm[i].DesignEntryFormID + "|" + response.listDesignEntryForm[i].DesignColorMatchingFormID + "'> " + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + " </option>";
-                                $('#DesignNo').append(tempDesignNo);
-
-                            }
+                    if (response.Code == "200" && response.listDesignEntryForm.length > 0) {
+                        $('#DesignNo').html("<option value=''> Select Designer No </option>");
+                        for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+                            var item = response.listDesignEntryForm[i];
+                            var optionHtml = "<option value='" + item.DesignEntryFormID + "|" + item.DesignColorMatchingFormID + "'> " + item.DesignerCode + item.DesignNo + " </option>";
+                            $('#DesignNo').append(optionHtml);
                         }
-
-                        //if (DesignColorMatchingFormIDs != "0") {
-                        //    getCookieDesignNo(designNo)
-                        //}
                     }
-
-                },
-                error: function (request, status, error) {
-
-                    //window.location.href = 'SaleInvoice';
-
                 }
             });
-
         }
-        var ArrayYarnColor = [];
-        function getYarnColor() {
 
+        function getYarnColor() {
             var formData = new FormData();
-            //formData.append('SaleInvoiceID', SaleInvoiceID);
 
             $.ajax({
                 type: "POST",
@@ -517,45 +333,13 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    //console.log(response);
-                    //alert(response.Code);
-                    ArrayYarnColor.push(response.listYarnColorMaster);
-
-                    if (response.Code == "200") {
-
-                        //Design No
-                        if (response.listYarnColorMaster.length > 0) {
-                            var tempDesignNo = "";
-                            //tempDesignNo = "<option value='' selected> Select Color </option>";
-                            //$('#WarpMaching1').append(tempDesignNo);
-                            //$('#WeftMaching1').append(tempDesignNo);
-                            //$('#Metching11').append(tempDesignNo);
-                            //for (var i = 0; i < response.listYarnColorMaster.length; i++) {
-
-                            //    tempDesignNo = "<option value='" + response.listYarnColorMaster[i].YarnColorID + "'> " + response.listYarnColorMaster[i].YarnColor + " </option>";
-                            //    $('#WarpMaching1').append(tempDesignNo);
-                            //    $('#WeftMaching1').append(tempDesignNo);
-                            //    $('#Metching11').append(tempDesignNo);
-                            //}
-                        }
-                    }
-                },
-                error: function (request, status, error) {
-
-                    //window.location.href = 'SaleInvoice';
-
+                    ArrayYarnColor.push(response.listYarnColorMaster || []);
                 }
             });
-
-
-
-
-
         }
-        function getColorGroup() {
 
+        function getColorGroup() {
             var formData = new FormData();
-            //formData.append('SaleInvoiceID', SaleInvoiceID);
 
             $.ajax({
                 type: "POST",
@@ -565,38 +349,23 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    console.log(response);
-                    //alert(response.Code);
-
-                    if (response.Code == "200") {
-
-                        //Design No
-                        if (response.listColorGroupMaster.length > 0) {
-                            var tempDesignNo = "";
-                            tempDesignNo = "<option value='0' selected> Select Color Group </option>";
-                            $('#ColorGroup').html(tempDesignNo);
-
-                            for (var i = 0; i < response.listColorGroupMaster.length; i++) {
-                                tempDesignNo = "<option value='" + response.listColorGroupMaster[i].ColorGroupID + "'> " + response.listColorGroupMaster[i].ColorGroup + " </option>";
-                                $('#ColorGroup').append(tempDesignNo);
-
-                            }
+                    if (response.Code == "200" && response.listColorGroupMaster.length > 0) {
+                        $('#ColorGroup').html("<option value='0' selected> Select Color Group </option>");
+                        for (var i = 0; i < response.listColorGroupMaster.length; i++) {
+                            var grp = response.listColorGroupMaster[i];
+                            $('#ColorGroup').append("<option value='" + grp.ColorGroupID + "'> " + grp.ColorGroup + " </option>");
                         }
                     }
-                },
-                error: function (request, status, error) {
-
-                    //window.location.href = 'SaleInvoice';
-
                 }
             });
-
-
-
-
-
         }
+
         function saveImage(input) {
+            if (isCurrentMatchingLockedInSaleOrder) {
+                input.value = "";
+                return false;
+            }
+
             var previewStr = "#" + input.id + "-preview";
             if (input.files && input.files[0]) {
                 var fildr = new FileReader();
@@ -604,51 +373,38 @@
                     var imgStr = "<img src='" + e.target.result + "' style='width:100%;margin-top:-54px;'>";
                     $(previewStr).html(imgStr);
                     $(previewStr).css('color', 'initial');
-                }
+                };
                 fildr.readAsDataURL(input.files[0]);
                 return true;
             }
-            else {
-                var message = "";
-                if (input.id == "upload-image" || input.id == "upload-image-default") {
-                    message = "Photo Of Sketch Is Needed.";
-                }
-                else {
-                    message = "Photo Of Design Is Needed.";
-                }
-                $(previewStr).html(message);
-                $(previewStr).css('color', 'red');
-                return false;
-            }
+
+            var message = (input.id == "upload-image" || input.id == "upload-image-default")
+                ? "Photo Of Sketch Is Needed."
+                : "Photo Of Design Is Needed.";
+            $(previewStr).html(message);
+            $(previewStr).css('color', 'red');
+            return false;
         }
+
         function clearColorMatchingDefault() {
+            if (isCurrentMatchingLockedInSaleOrder) return;
             $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
             $("#upload-ColorMatching-default").val("");
         }
-        var listDesignColorMatchingDetails = [];
-        var listDesignEntryWeftData = [];
+
         function getDesignNo(abc) {
-            //alert(abc.value);
-
-
             $("#divColorMatchingTable").html('');
-
             listDesignColorMatchingDetails = [];
             listDesignEntryWeftData = [];
+            applySaleOrderEditLock(false);
+
             if (abc.value != "") {
                 var DesignEntryFormID = abc.value.split("|")[0];
                 var DesignColorMatchingFormID = abc.value.split("|")[1];
 
-                //alert(DesignEntryFormID + " - " + DesignColorMatchingFormID);
-
-
-
-
                 var formData = new FormData();
                 formData.append('DesignEntryFormID', DesignEntryFormID);
                 formData.append('DesignColorMatchingFormID', DesignColorMatchingFormID);
-
-                var PartyId = 0;
 
                 $.ajax({
                     type: "POST",
@@ -658,858 +414,415 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-                        console.log(response);
+                        var form = response.listDesignColorMatchingForm[0];
+                        var imgStr = `<img src="https://weavelanesoft.in/${form.PhotoOfDesign}" style="width:100%;margin-top:-54px;">`;
+                        $("#upload-PhotoOfDesign-default-preview").html(imgStr).css('color', 'initial');
 
+                        $("#weftLength").val(form.TotalWeft);
+                        $("#warpLength").val(form.TotalWarp);
+                        $("#WarpCheckBox").val(form.WarpCheckBox);
+                        $("#WeftCheckBox").val(form.WeftCheckBox);
 
-                        var imgStr = `<img src="https://weavelanesoft.in/${response.listDesignColorMatchingForm[0].PhotoOfDesign}" style="width:100%;margin-top:-54px;">`;
-                        $("#upload-PhotoOfDesign-default-preview").html(imgStr);
-                        $("#upload-PhotoOfDesign-default-preview").css('color', 'initial');
-
-                        var weftLength = response.listDesignColorMatchingForm[0].TotalWeft;
-                        var warpLength = response.listDesignColorMatchingForm[0].TotalWarp;
-                        var WarpCheckBox = response.listDesignColorMatchingForm[0].WarpCheckBox;
-                        var WeftCheckBox = response.listDesignColorMatchingForm[0].WeftCheckBox;
-
-
-
-                        //alert(weftLength + " " + warpLength);
-
-                        $("#weftLength").val(weftLength);
-                        $("#warpLength").val(warpLength);
-                        $("#WarpCheckBox").val(WarpCheckBox);
-                        $("#WeftCheckBox").val(WeftCheckBox);
-
-
-                        var tempColorMatchingID = '<option value="0" selected>Select Color Matching</option>';
-                        $("#ColorMatchingID").html(tempColorMatchingID);
-                        for (var i = 0; i < response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails.length; i++) {
-                            tempColorMatchingID = '<option value="' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].DesignColorMatchingDetailsID + '">' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].WarpMatchingID + ' - ' + response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails[i].FeederMatchingID + '</option>';
-                            $("#ColorMatchingID").append(tempColorMatchingID);
+                        $("#ColorMatchingID").html('<option value="0" selected>Select Color Matching</option>');
+                        for (var i = 0; i < form.listDesignColorMatchingDetails.length; i++) {
+                            var detail = form.listDesignColorMatchingDetails[i];
+                            var lockedTag = isUsedInSaleOrder(detail) ? " [In Sale Order]" : "";
+                            $("#ColorMatchingID").append(
+                                '<option value="' + detail.DesignColorMatchingDetailsID + '">' +
+                                detail.WarpMatchingID + ' - ' + detail.FeederMatchingID + lockedTag +
+                                '</option>'
+                            );
                         }
 
-                        listDesignColorMatchingDetails.push(response.listDesignColorMatchingForm[0].listDesignColorMatchingDetails);
-                        listDesignEntryWeftData.push(response.listDesignColorMatchingForm[0].listDesignEntryWeftData);
+                        listDesignColorMatchingDetails.push(form.listDesignColorMatchingDetails);
+                        listDesignEntryWeftData.push(form.listDesignEntryWeftData);
 
                         $("#Previousbtn").hide();
                         $("#Nextbtn").show();
-
-
-
                         $("#btnclearColorMatchingDefault").click();
-
-
-                    },
-                    error: function (request, status, error) {
-
-                        //window.location.href = 'PurchaseInvoice';
-
                     }
                 });
-
-
             }
             else {
                 $("#upload-PhotoOfDesign-default-preview").html('Photo Of Design.');
-
                 $("#weftLength").val('');
                 $("#warpLength").val('');
+            }
+        }
 
+        function updateNavButtons() {
+            var selectedColorOption = $('#ColorMatchingID').find('option:selected');
+            var prevColorOption = selectedColorOption.prev();
+            var nextColorOption = selectedColorOption.next();
+
+            $("#Nextbtn").show();
+            $("#Previousbtn").show();
+
+            if (prevColorOption.text() == "") {
+                $("#Previousbtn").hide();
+                $("#Nextbtn").show();
             }
 
-
+            if (nextColorOption.text() == "") {
+                $("#Nextbtn").hide();
+                $("#Previousbtn").show();
+            }
         }
+
         function checkPrevious() {
-
-            var selectedOption = $('#ColorMatchingID').find('option:selected');
-
-            var prevOption = selectedOption.prev();
-            var nextOption = selectedOption.next();
-
-            //console.log("Prev:", prevOption.val(), prevOption.text());
-            //console.log("Next:", nextOption.val(), nextOption.text());
-
+            var prevOption = $('#ColorMatchingID').find('option:selected').prev();
+            if (!prevOption.length) return;
             $('#ColorMatchingID').val(prevOption.val());
-
-            // setTimeout(function () {
-            //console.log("Another message after 5 seconds using an anonymous function.");
-
-            var selectedColorOption = $('#ColorMatchingID').find('option:selected');
-
-            var prevColorOption = selectedColorOption.prev();
-            var nextColorOption = selectedColorOption.next();
-
-            //console.log("Prev:", prevColorOption.val(), prevColorOption.text());
-            //console("Next:", nextColorOption.val(), nextColorOption.text());
-
-
-            $("#Nextbtn").show();
-            $("#Previousbtn").show();
-
-            if (prevColorOption.text() == "") {
-
-                $("#Previousbtn").hide();
-                $("#Nextbtn").show();
-            }
-
-            if (nextColorOption.text() == "") {
-
-                $("#Nextbtn").hide();
-                $("#Previousbtn").show();
-            }
-
+            updateNavButtons();
             $("#btnclearColorMatchingDefault").click();
             getColorMatchingId(document.getElementById("ColorMatchingID"));
-
-            //}, 500);
         }
+
         function checkNext() {
-
-            var selectedOption = $('#ColorMatchingID').find('option:selected');
-
-            var prevOption = selectedOption.prev();
-            var nextOption = selectedOption.next();
-
-            //console.log("Prev:", prevOption.val(), prevOption.text());
-            //console.log("Next:", nextOption.val(), nextOption.text());
-
+            var nextOption = $('#ColorMatchingID').find('option:selected').next();
+            if (!nextOption.length) return;
             $('#ColorMatchingID').val(nextOption.val());
-            //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
-
-            //setTimeout(function () {
-            //console.log("Another message after 5 seconds using an anonymous function.");
-
-            var selectedColorOption = $('#ColorMatchingID').find('option:selected');
-
-            var prevColorOption = selectedColorOption.prev();
-            var nextColorOption = selectedColorOption.next();
-
-            //console.log("Prev:", prevColorOption.val(), prevColorOption.text());
-            //console.log("Next:", nextColorOption.val(), nextColorOption.text());
-            $("#Nextbtn").show();
-            $("#Previousbtn").show();
-
-            if (prevColorOption.text() == "") {
-                $("#Previousbtn").hide();
-                $("#Nextbtn").show();
-            }
-
-            //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
-
-            if (nextColorOption.text() == "") {
-
-                $("#Nextbtn").hide();
-                $("#Previousbtn").show();
-            }
-
+            updateNavButtons();
             $("#btnclearColorMatchingDefault").click();
             getColorMatchingId(document.getElementById("ColorMatchingID"));
-
-
-            //}, 500);
-            //$("#btnclearColorMatchingDefault").click();
         }
+
         function showWarp(abc) {
-            var matchingwarp = "#MatchingWarp" + abc;
-            $(matchingwarp).removeAttr("disabled");
+            if (isCurrentMatchingLockedInSaleOrder) return;
+            $("#MatchingWarp" + abc).removeAttr("disabled");
         }
+
         function showFeeder(abc) {
-            var matchingwarp = "#MatchingFeeder" + abc;
-            $(matchingwarp).removeAttr("disabled");
+            if (isCurrentMatchingLockedInSaleOrder) return;
+            $("#MatchingFeeder" + abc).removeAttr("disabled");
         }
-        var DesignColorMatchingDetails = [];
+
+        function getColorCodeById(yarnColorId) {
+            var yarnColors = ArrayYarnColor[0] || [];
+            for (var j = 0; j < yarnColors.length; j++) {
+                if (yarnColors[j].YarnColorID == yarnColorId) {
+                    return "#" + yarnColors[j].YarnColorCode;
+                }
+            }
+            return "";
+        }
+
         function getColorMatchingId(abc) {
-            //alert(abc.value);
-
             if (abc.value == "0") {
+                applySaleOrderEditLock(false);
                 $("#btnclearColorMatchingDefault").click();
+                return;
             }
-            else {
 
-                var selectedOption = $('#ColorMatchingID').find('option:selected');
-
-                var prevOption = selectedOption.prev();
-                var nextOption = selectedOption.next();
-
-                $("#Nextbtn").show();
-                $("#Previousbtn").show();
-
-                if (prevOption.text() == "") {
-                    $("#Previousbtn").hide();
-                    $("#Nextbtn").show();
-                }
-
-                //alert("Prev " + prevColorOption.val() + " Next " + nextColorOption.val());
-
-                if (nextOption.text() == "") {
-
-                    $("#Nextbtn").hide();
-                    $("#Previousbtn").show();
-                }
-
-
-                //alert(listDesignColorMatchingDetails[0].length);
-
-                var warpLength = $("#warpLength").val();
-                var weftLength = $("#weftLength").val();
-
-                console.log(listDesignColorMatchingDetails[0]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                DesignColorMatchingDetails = listDesignColorMatchingDetails[0];
-
-                var tempColorMatchingTable = "";
-
-                for (var i = 0; i < listDesignColorMatchingDetails[0].length; i++) {
-
-
-                    if (abc.value == listDesignColorMatchingDetails[0][i].DesignColorMatchingDetailsID) {
-
-
-                        if (listDesignColorMatchingDetails[0][i].ColorMatchingPhoto != "") {
-                            //alert(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto)
-                            var imgStr = `<img src="https://weavelanesoft.in/${listDesignColorMatchingDetails[0][i].ColorMatchingPhoto}"
-                                style="width:100%;margin-top:-54px;">`;
-
-                            $("#upload-ColorMatching-default-preview").html(imgStr);
-                            $("#upload-ColorMatching-default-preview").css('color', 'initial');
-                            //alert(imgStr);
-                            $("#upload-ColorMatching-temp-default").val(listDesignColorMatchingDetails[0][i].ColorMatchingPhoto);
-
-
-                            $("#savebtn").removeClass("btn btn-primary").addClass("btn btn-warning");
-                            $("#savebtn").text('Update Color Validate');
-
-                        }
-                        else {
-                            $("#upload-ColorMatching-temp-default").val('');
-
-                            $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.");
-                            $("#upload-ColorMatching-default").val("");
-
-                            $("#savebtn").removeClass("btn btn-warning").addClass("btn btn-primary");
-                            $("#savebtn").text('Save Color Validate');
-                        }
-
-
-                        if (listDesignColorMatchingDetails[0][i].ColorGroupID != "0") {
-                            $("#ColorGroup").val(listDesignColorMatchingDetails[0][i].ColorGroupID);
-                        }
-                        else {
-                            $("#ColorGroup").val(0);
-                        }
-
-
-
-
-                        tempColorMatchingTable += '<br /><br />';
-                        tempColorMatchingTable += '<input type="hidden" id="WarpMatchingID" value="' + listDesignColorMatchingDetails[0][i].WarpMatchingID + '" class="form-control"/>';
-                        tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
-                        tempColorMatchingTable += ' <tbody>';
-
-                        //var warpLength = 5;
-                        var warpData = listDesignColorMatchingDetails[0][i];
-                        var warps = {};
-
-                        var WarpCheckBoxArry = $("#WarpCheckBox").val().split("|");
-
-                        for (let w = 1; w <= warpLength; w++) {
-                            warps["Warp" + w] = warpData["Warp" + w];
-
-                            var srNos = w - 1;
-
-                            tempColorMatchingTable += '<tr style="text-align: center;">';
-                            tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Warp ' + w + '</th>';
-                            if (srNos == 0) {
-                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> </th>';
-                            }
-                            else {
-                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <input type="hidden" value="' + WarpCheckBoxArry[srNos] + '" id="ischeckWarp' + w + '" disabled/></th>';
-                            }
-
-
-                            tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
-                            tempColorMatchingTable += ' <select id="MatchingWarp' + w + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp(' + w + ')" disabled>';
-                            tempColorMatchingTable += ' <option value="0"> Select Color </option>';
-                            var ColorCode = "";
-                            for (var j = 0; j < ArrayYarnColor[0].length; j++) {
-                                if (warpData["Warp" + w] == ArrayYarnColor[0][j].YarnColorID) {
-                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
-                                    ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
-                                }
-                                else {
-                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
-                                }
-                            }
-
-                            tempColorMatchingTable += '</select>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '<td id="tdWarColor' + w + '" style="padding: .3rem .3rem; width: 15%; ">';
-                            tempColorMatchingTable += '<div id="tddivColor' + w + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
-                            tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(' + w + ')">';
-                            tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
-                            tempColorMatchingTable += '</a>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '</tr>';
-
-                            //alert("Warp " + w + "  " + warpData["Warp" + w]);
-                        }
-
-
-                        tempColorMatchingTable += '</tbody>';
-                        tempColorMatchingTable += '</table>';
-
-                        tempColorMatchingTable += '<hr style="height: 5px;">';
-
-                        tempColorMatchingTable += '<input type="hidden" id="FeederMatchingID" value="' + listDesignColorMatchingDetails[0][i].FeederMatchingID + '" class="form-control"/>';
-                        tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0">';
-                        tempColorMatchingTable += ' <tbody>';
-
-                        var FeederData = listDesignColorMatchingDetails[0][i];
-                        var Feeder = {};
-
-                        console.log(listDesignEntryWeftData[0][0].DesignSpecification);
-
-                        var DesignEntryWeftData = listDesignEntryWeftData[0][i];
-                        var DesignSpecification = {};
-
-
-                        var WeftCheckBoxArry = $("#WeftCheckBox").val().split("|");
-
-                        for (let fe = 1; fe <= weftLength; fe++) {
-                            Feeder["Feeder" + fe] = warpData["Feeder" + fe];
-
-                            var srNo = fe - 1;
-
-                            //DesignSpecification["DesignSpecification" + fe] = warpData["DesignSpecification" + fe];
-                            //alert("Feeder " + fe + "  " + warpData["Feeder" + fe]);
-
-                            tempColorMatchingTable += '<tr style="text-align: center;">';
-                            tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;">Feeder ' + fe + '</th>';
-
-                            if (listDesignEntryWeftData[0][srNo].DesignSpecification == "GROUND") {
-                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span></th>';
-                            }
-                            else {
-                                tempColorMatchingTable += ' <th style="padding: .3rem .3rem; width: 15%;"> <span id="spanDesignSpecification' + fe + '"> ' + listDesignEntryWeftData[0][srNo].DesignSpecification + ' </span> &nbsp; <input type="hidden" value="' + WeftCheckBoxArry[srNo] + '" id="ischeckWeft' + fe + '" disabled/></th>';
-                            }
-
-                            tempColorMatchingTable += ' <td style="padding: .3rem .3rem; width: 40%;">';
-                            tempColorMatchingTable += ' <select id="MatchingFeeder' + fe + '" class="form-control is-valid" style=" min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder(' + fe + ')" disabled>';
-                            tempColorMatchingTable += ' <option value="0"> Select Color </option>';
-                            var ColorCode = "";
-                            for (var j = 0; j < ArrayYarnColor[0].length; j++) {
-                                if (warpData["Feeder" + fe] == ArrayYarnColor[0][j].YarnColorID) {
-                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "' selected> " + ArrayYarnColor[0][j].YarnColor + " </option>";
-                                    ColorCode = "#" + ArrayYarnColor[0][j].YarnColorCode;
-                                }
-                                else {
-                                    tempColorMatchingTable += "<option value='" + ArrayYarnColor[0][j].YarnColorID + "'> " + ArrayYarnColor[0][j].YarnColor + " </option>";
-                                }
-                            }
-
-                            tempColorMatchingTable += '</select>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '<td id="tdWarColor' + fe + '" style="padding: .3rem .3rem; width: 15%; ">';
-                            tempColorMatchingTable += '<div id="tddivFeederColor' + fe + '" style="background-color: ' + ColorCode + '; padding: 15px; "></div>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;">';
-                            tempColorMatchingTable += '<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(' + fe + ')">';
-                            tempColorMatchingTable += '<i class="icon-edit1 text-info" style="font-size: large;"></i>';
-                            tempColorMatchingTable += '</a>';
-                            tempColorMatchingTable += '</td>';
-                            tempColorMatchingTable += '</tr>';
-                        }
-
-                        tempColorMatchingTable += '</tbody>';
-                        tempColorMatchingTable += '</table>';
-
-                        tempColorMatchingTable += '<br /> ';
-                        tempColorMatchingTable += '<center><span class="field-placeholder" style="position: relative; padding: 0px 12px 0px 12px; width: 90%; text-align: center; color:red; font-size: medium; font-weight: 600;" id="spanDuplicate"></span></center>';
-                        tempColorMatchingTable += '<br /> ';
-                        $("#divColorMatchingTable").html(tempColorMatchingTable);
-                        //divColorMatchingTable
-                    }
-
-
-
-
-
-
-
-                }
-
-            }
-        }
-        function MatchingWarp(abc) {
-
-            var MatchingWarp = "#MatchingWarp" + abc;
-
-
-            var yarnColors = ArrayYarnColor[0];
-
-            var YarnColorID = $(MatchingWarp).val();
-            var yarnColorCode = null;
-
-            $.each(yarnColors, function (index, item) {
-
-                if (item.YarnColorID == YarnColorID) {
-                    yarnColorCode = item.YarnColorCode;
-                    return false; // break the loop once found
-                }
-
-            });
-
-            var tddivColor = "#tddivColor" + abc;
-            var yarnColor = "#" + yarnColorCode;
-
-            $(tddivColor).css("background-color", yarnColor);
-
-
-
-
-            var warpLength = $("#warpLength").val();
-
-            var WarpMatchingID = "";
-            for (var i = 0; i < warpLength; i++) {
-                var SrNo = i + 1;
-
-                var MatchingWarp = "#MatchingWarp" + SrNo;
-
-                if (i == 0) {
-                    WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
+            updateNavButtons();
+
+            var warpLength = parseInt($("#warpLength").val(), 10) || 0;
+            var weftLength = parseInt($("#weftLength").val(), 10) || 0;
+            DesignColorMatchingDetails = listDesignColorMatchingDetails[0] || [];
+            var weftMetaList = listDesignEntryWeftData[0] || [];
+            var WarpCheckBoxArry = ($("#WarpCheckBox").val() || "").split("|");
+            var WeftCheckBoxArry = ($("#WeftCheckBox").val() || "").split("|");
+
+            for (var i = 0; i < DesignColorMatchingDetails.length; i++) {
+                var rowItem = DesignColorMatchingDetails[i];
+                if (abc.value != rowItem.DesignColorMatchingDetailsID) continue;
+
+                var locked = isUsedInSaleOrder(rowItem);
+
+                if (rowItem.ColorMatchingPhoto != "") {
+                    var imgStr = `<img src="https://weavelanesoft.in/${rowItem.ColorMatchingPhoto}" style="width:100%;margin-top:-54px;">`;
+                    $("#upload-ColorMatching-default-preview").html(imgStr).css('color', 'initial');
+                    $("#upload-ColorMatching-temp-default").val(rowItem.ColorMatchingPhoto);
+                    $("#savebtn").removeClass("btn-primary").addClass("btn-warning").text('Update Color Validate');
                 }
                 else {
-
-                    var ischeckWarp = "#ischeckWarp" + SrNo;
-                    var checkWarpValue = $(ischeckWarp).val();
-
-                    if (checkWarpValue == "1") {
-                        WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
-                    }
+                    $("#upload-ColorMatching-temp-default").val('');
+                    $("#upload-ColorMatching-default-preview").html("Color Matching Photo to Be Uploaded.").css('color', '');
+                    $("#upload-ColorMatching-default").val("");
+                    $("#savebtn").removeClass("btn-warning").addClass("btn-primary").text('Save Color Validate');
                 }
-            }
-            $("#WarpMatchingID").val(WarpMatchingID.slice(0, -1));
 
+                $("#ColorGroup").val(rowItem.ColorGroupID != "0" ? rowItem.ColorGroupID : 0);
 
+                var tempColorMatchingTable = '<br /><br />';
+                tempColorMatchingTable += '<input type="hidden" id="WarpMatchingID" value="' + rowItem.WarpMatchingID + '" class="form-control"/>';
+                tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0"><tbody>';
 
-            var MatchingID = WarpMatchingID.slice(0, -1) + "/" + $("#FeederMatchingID").val();
-            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
+                for (var w = 1; w <= warpLength; w++) {
+                    var srNos = w - 1;
+                    var colorCode = getColorCodeById(rowItem["Warp" + w]);
 
-                var SrNos = j + 1;
-                var ColorMatchingID = $("#ColorMatchingID").val();
-
-                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
-
-
-                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
-
-                        $("#savebtn").hide();
-                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
-                        return true;
+                    tempColorMatchingTable += '<tr style="text-align: center;">';
+                    tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;">Warp ' + w + '</th>';
+                    if (srNos == 0) {
+                        tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;"></th>';
                     }
                     else {
-                        $("#savebtn").show();
-                        $("#spanDuplicate").html("");
+                        tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;"><input type="hidden" value="' + (WarpCheckBoxArry[srNos] || "") + '" id="ischeckWarp' + w + '" disabled/></th>';
                     }
 
+                    tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 40%;">';
+                    tempColorMatchingTable += '<select id="MatchingWarp' + w + '" class="form-control is-valid" style="min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingWarp(' + w + ')" disabled>';
+                    tempColorMatchingTable += '<option value="0"> Select Color </option>';
+                    for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                        var yc = ArrayYarnColor[0][j];
+                        var sel = (rowItem["Warp" + w] == yc.YarnColorID) ? " selected" : "";
+                        tempColorMatchingTable += "<option value='" + yc.YarnColorID + "'" + sel + "> " + yc.YarnColor + " </option>";
+                    }
+                    tempColorMatchingTable += '</select></td>';
+                    tempColorMatchingTable += '<td id="tdWarColor' + w + '" style="padding: .3rem .3rem; width: 15%;"><div id="tddivColor' + w + '" style="background-color: ' + colorCode + '; padding: 15px;"></div></td>';
+                    if (locked) {
+                        tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;"><i class="fa fa-lock text-secondary" title="Used in Sale Order"></i></td>';
+                    } else {
+                        tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;"><a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showWarp(' + w + ')"><i class="icon-edit1 text-info" style="font-size: large;"></i></a></td>';
+                    }
+                    tempColorMatchingTable += '</tr>';
                 }
 
+                tempColorMatchingTable += '</tbody></table><hr style="height: 5px;">';
+                tempColorMatchingTable += '<input type="hidden" id="FeederMatchingID" value="' + rowItem.FeederMatchingID + '" class="form-control"/>';
+                tempColorMatchingTable += '<table id="copy-print-csvs" class="table table-hover table-bordered m-0"><tbody>';
 
+                for (var fe = 1; fe <= weftLength; fe++) {
+                    var srNo = fe - 1;
+                    var weftMeta = weftMetaList[srNo] || {};
+                    var colorCode = getColorCodeById(rowItem["Feeder" + fe]);
 
+                    tempColorMatchingTable += '<tr style="text-align: center;">';
+                    tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;">Feeder ' + fe + '</th>';
+                    if (weftMeta.DesignSpecification == "GROUND") {
+                        tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;"><span id="spanDesignSpecification' + fe + '"> ' + weftMeta.DesignSpecification + ' </span></th>';
+                    }
+                    else {
+                        tempColorMatchingTable += '<th style="padding: .3rem .3rem; width: 15%;"><span id="spanDesignSpecification' + fe + '"> ' + (weftMeta.DesignSpecification || "") + ' </span> &nbsp; <input type="hidden" value="' + (WeftCheckBoxArry[srNo] || "") + '" id="ischeckWeft' + fe + '" disabled/></th>';
+                    }
+
+                    tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 40%;">';
+                    tempColorMatchingTable += '<select id="MatchingFeeder' + fe + '" class="form-control is-valid" style="min-height: 30px; width: 90%; font-size: x-small;" onfocusout="validate(this)" onchange="MatchingFeeder(' + fe + ')" disabled>';
+                    tempColorMatchingTable += '<option value="0"> Select Color </option>';
+                    for (var j = 0; j < ArrayYarnColor[0].length; j++) {
+                        var yc = ArrayYarnColor[0][j];
+                        var sel = (rowItem["Feeder" + fe] == yc.YarnColorID) ? " selected" : "";
+                        tempColorMatchingTable += "<option value='" + yc.YarnColorID + "'" + sel + "> " + yc.YarnColor + " </option>";
+                    }
+                    tempColorMatchingTable += '</select></td>';
+                    tempColorMatchingTable += '<td id="tdWarColor' + fe + '" style="padding: .3rem .3rem; width: 15%;"><div id="tddivFeederColor' + fe + '" style="background-color: ' + colorCode + '; padding: 15px;"></div></td>';
+                    if (locked) {
+                        tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;"><i class="fa fa-lock text-secondary" title="Used in Sale Order"></i></td>';
+                    } else {
+                        tempColorMatchingTable += '<td style="padding: .3rem .3rem; width: 5%;"><a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit" onclick="showFeeder(' + fe + ')"><i class="icon-edit1 text-info" style="font-size: large;"></i></a></td>';
+                    }
+                    tempColorMatchingTable += '</tr>';
+                }
+
+                tempColorMatchingTable += '</tbody></table><br />';
+                tempColorMatchingTable += '<center><span class="field-placeholder" style="position: relative; padding: 0px 12px 0px 12px; width: 90%; text-align: center; color:red; font-size: medium; font-weight: 600;" id="spanDuplicate"></span></center><br />';
+                $("#divColorMatchingTable").html(tempColorMatchingTable);
+
+                applySaleOrderEditLock(locked);
             }
-
-
         }
-        function MatchingFeeder(abc) {
 
-            var MatchingFeeder1 = "#MatchingFeeder" + abc;
+        function buildWarpMatchingId() {
+            var warpLength = parseInt($("#warpLength").val(), 10) || 0;
+            var result = "";
 
-
-
-            var yarnColors = ArrayYarnColor[0];
-            console.log(yarnColors);
-            var YarnColorID = $(MatchingFeeder1).val();
-            var yarnColorCode = null;
-
-            $.each(yarnColors, function (index, item) {
-
-                if (item.YarnColorID == YarnColorID) {
-                    yarnColorCode = item.YarnColorCode;
-                    return false; // break the loop once found
+            for (var i = 0; i < warpLength; i++) {
+                var srNo = i + 1;
+                var selectedText = $("#MatchingWarp" + srNo).find('option:selected').text().replace(/ /g, "");
+                if (i == 0 || $("#ischeckWarp" + srNo).val() == "1") {
+                    result += selectedText + "/";
                 }
+            }
+            return result.slice(0, -1);
+        }
 
-            });
+        function buildFeederMatchingId() {
+            var weftLength = parseInt($("#weftLength").val(), 10) || 0;
+            var missing = [], checked = [];
 
-            var tddivColor = "#tddivFeederColor" + abc;
-            var yarnColor = "#" + yarnColorCode;
-
-            $(tddivColor).css("background-color", yarnColor);
-
-
-
-
-
-            var weftLength = $("#weftLength").val();
-
-            let missing = [], checked = [];
-            for (let i = 1; i <= weftLength; i++) {
-                const chk = $(`#ischeckWeft${i}`);
+            for (var i = 1; i <= weftLength; i++) {
+                var chk = $(`#ischeckWeft${i}`);
                 if (!chk.length) missing.push(i);
                 else checked.push(i);
             }
-            console.log(missing);
-            console.log(checked);
 
-            var MatchingFeeder = "";
-            if (missing.length > 0) {
-                for (var mi = 0; mi < missing.length; mi++) {
-                    var MFeeder = "#MatchingFeeder" + missing[mi];
-                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
-                }
+            var result = "";
+            for (var mi = 0; mi < missing.length; mi++) {
+                result += $("#MatchingFeeder" + missing[mi]).find('option:selected').text().replace(/ /g, "") + "/";
             }
-
-
             for (var ck = 0; ck < checked.length; ck++) {
-                //var srNo = ck + 1;
-                var ischeckWeft = "#ischeckWeft" + checked[ck];
-                var checkVal = $(ischeckWeft).val();
-
-                if (checkVal == 1) {
-                    var MFeeder = "#MatchingFeeder" + checked[ck];
-                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
+                if ($("#ischeckWeft" + checked[ck]).val() == 1) {
+                    result += $("#MatchingFeeder" + checked[ck]).find('option:selected').text().replace(/ /g, "") + "/";
                 }
-
-
             }
-
-            var FeederMatchingID = MatchingFeeder.slice(0, -1);
-            $("#FeederMatchingID").val(FeederMatchingID);
-
-
-
-
-
-            var MatchingID = $("#WarpMatchingID").val() + "/" + FeederMatchingID;
-            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
-
-                var SrNos = j + 1;
-                var ColorMatchingID = $("#ColorMatchingID").val();
-
-                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
-
-
-                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
-
-                        $("#savebtn").hide();
-                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
-                        return true;
-                    }
-                    else {
-                        $("#savebtn").show();
-                        $("#spanDuplicate").html("");
-                    }
-
-                }
-
-
-
-            }
-
-
-
-
-
-
-
+            return result.slice(0, -1);
         }
+
+        function hasDuplicateMatching(candidateMatchingId) {
+            var currentColorMatchingId = $("#ColorMatchingID").val();
+            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
+                var detail = DesignColorMatchingDetails[j];
+                if (detail.DesignColorMatchingDetailsID != currentColorMatchingId && detail.MatchingID == candidateMatchingId) {
+                    return j + 1;
+                }
+            }
+            return 0;
+        }
+
+        function MatchingWarp(abc) {
+            if (isCurrentMatchingLockedInSaleOrder) return;
+
+            var colorCode = getColorCodeById($("#MatchingWarp" + abc).val());
+            $("#tddivColor" + abc).css("background-color", colorCode);
+
+            var warpMatchId = buildWarpMatchingId();
+            $("#WarpMatchingID").val(warpMatchId);
+
+            var dupRow = hasDuplicateMatching(warpMatchId + "/" + $("#FeederMatchingID").val());
+            if (dupRow > 0) {
+                $("#savebtn").hide();
+                $("#spanDuplicate").html("Duplicate Found with Matching " + dupRow);
+            }
+            else {
+                $("#savebtn").show();
+                $("#spanDuplicate").html("");
+            }
+        }
+
+        function MatchingFeeder(abc) {
+            if (isCurrentMatchingLockedInSaleOrder) return;
+
+            var colorCode = getColorCodeById($("#MatchingFeeder" + abc).val());
+            $("#tddivFeederColor" + abc).css("background-color", colorCode);
+
+            var feederMatchId = buildFeederMatchingId();
+            $("#FeederMatchingID").val(feederMatchId);
+
+            var dupRow = hasDuplicateMatching($("#WarpMatchingID").val() + "/" + feederMatchId);
+            if (dupRow > 0) {
+                $("#savebtn").hide();
+                $("#spanDuplicate").html("Duplicate Found with Matching " + dupRow);
+            }
+            else {
+                $("#savebtn").show();
+                $("#spanDuplicate").html("");
+            }
+        }
+
         function checkSave() {
+            if (isCurrentMatchingLockedInSaleOrder) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Locked Record',
+                    text: 'This Color Matching ID is already used in a Sale Order and cannot be edited.'
+                });
+                return false;
+            }
 
             $("#loading-wrapper").show();
 
-            var warpLength = $("#warpLength").val();
+            var warpLength = parseInt($("#warpLength").val(), 10) || 0;
+            var weftLength = parseInt($("#weftLength").val(), 10) || 0;
+            var warpMatchId = buildWarpMatchingId();
+            var feederMatchId = buildFeederMatchingId();
+            var dupRow = hasDuplicateMatching(warpMatchId + "/" + feederMatchId);
 
-            var WarpMatchingID = "";
-            for (var i = 0; i < warpLength; i++) {
-                var SrNo = i + 1;
-
-                var MatchingWarp = "#MatchingWarp" + SrNo;
-
-                if (i == 0) {
-                    WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
-                }
-                else {
-
-                    var ischeckWarp = "#ischeckWarp" + SrNo;
-                    var checkWarpValue = $(ischeckWarp).val();
-
-                    if (checkWarpValue == "1") {
-                        WarpMatchingID += $(MatchingWarp).find('option:selected').text().replace(/ /g, "") + "/";
-                    }
-                }
-            }
-            // $("#WarpMatchingID").val(WarpMatchingID.slice(0, -1));
-
-
-
-
-            var weftLength = $("#weftLength").val();
-
-            let missing = [], checked = [];
-            for (let i = 1; i <= weftLength; i++) {
-                const chk = $(`#ischeckWeft${i}`);
-                if (!chk.length) missing.push(i);
-                else checked.push(i);
-            }
-            console.log(missing);
-            console.log(checked);
-
-            var MatchingFeeder = "";
-            if (missing.length > 0) {
-                for (var mi = 0; mi < missing.length; mi++) {
-                    var MFeeder = "#MatchingFeeder" + missing[mi];
-                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
-                }
+            if (dupRow > 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Duplicate Found',
+                    text: 'Matching ' + dupRow + ' already exists.',
+                    confirmButtonText: 'OK'
+                });
+                $("#spanDuplicate").html("Duplicate Found with Matching " + dupRow);
+                $("#loading-wrapper").hide();
+                return false;
             }
 
+            $("#spanDuplicate").html("");
 
-            for (var ck = 0; ck < checked.length; ck++) {
-                //var srNo = ck + 1;
-                var ischeckWeft = "#ischeckWeft" + checked[ck];
-                var checkVal = $(ischeckWeft).val();
+            var colorGroupEl = document.getElementById("ColorGroup");
+            var colorMatchingIdEl = document.getElementById("ColorMatchingID");
+            var tempPhoto = $("#upload-ColorMatching-temp-default").val();
 
-                if (checkVal == 1) {
-                    var MFeeder = "#MatchingFeeder" + checked[ck];
-                    MatchingFeeder += $(MFeeder).find('option:selected').text().replace(/ /g, "") + "/";
-                }
-
-
+            if (!validate(colorGroupEl) || !validate(colorMatchingIdEl)) {
+                $("#loading-wrapper").hide();
+                return false;
             }
 
-            var FeederMatchingID = MatchingFeeder.slice(0, -1);
-            //$("#FeederMatchingID").val(FeederMatchingID);
-
-
-
-            //alert(WarpMatchingID + FeederMatchingID);
-
-            var NoMatchingError = 0;
-
-            var MatchingID = WarpMatchingID + FeederMatchingID;
-            for (var j = 0; j < DesignColorMatchingDetails.length; j++) {
-
-                var SrNos = j + 1;
-                var ColorMatchingID = $("#ColorMatchingID").val();
-
-                if (DesignColorMatchingDetails[j].DesignColorMatchingDetailsID != ColorMatchingID) {
-
-
-                    if (DesignColorMatchingDetails[j].MatchingID == MatchingID) {
-                        NoMatchingError = 1;
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Duplicate Found',
-                            text: 'Matching ' + SrNos + ' already exists.',
-                            confirmButtonText: 'OK'
-                        });
-
-                        $("#spanDuplicate").html("Duplicate Found with Matching " + SrNos + "");
-                        $("#loading-wrapper").hide();
-                        return false;
-                    }
-                    else {
-                        NoMatchingError = 0;
-                        $("#spanDuplicate").html("");
-
-
-                    }
-
-                }
-
-
-
+            if ($('#upload-ColorMatching-default')[0].files.length == 0 && tempPhoto == "") {
+                $("#loading-wrapper").hide();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Photo Required',
+                    text: 'Please upload Color Matching Photo.'
+                });
+                return false;
             }
-            if (NoMatchingError == 0) {
-                var ColorGroup = document.getElementById("ColorGroup");
-                var ColorMatchingID = document.getElementById("ColorMatchingID");
-                var ColorMatchingPhoto = document.getElementById("upload-ColorMatching-temp-default").value;
 
-                if (validate(ColorGroup) == false || validate(ColorMatchingID) == false) {
-                    validate(ColorGroup);
-                    validate(ColorMatchingID);
+            var detailPayload = {
+                DesignColorMatchingDetailsID: $("#ColorMatchingID").val(),
+                DesignColorMatchingFormID: $("#DesignNo").val().split("|")[1],
+                ColorGroupID: $("#ColorGroup").val(),
+                ColorMatchingPhoto: tempPhoto,
+                WarpMatchingID: $("#WarpMatchingID").val()
+            };
 
+            for (var wa = 0; wa < warpLength; wa++) {
+                var sno = wa + 1;
+                detailPayload["Warp" + sno] = $("#MatchingWarp" + sno).val();
+            }
+
+            detailPayload.FeederMatchingID = $("#FeederMatchingID").val();
+
+            for (var we = 0; we < weftLength; we++) {
+                var sno = we + 1;
+                detailPayload["Feeder" + sno] = $("#MatchingFeeder" + sno).val();
+            }
+
+            var formData = new FormData();
+            formData.append('DesignColorMatchingDetails', JSON.stringify(detailPayload));
+            if ($('#upload-ColorMatching-default')[0].files.length > 0) {
+                formData.append('ColorMatching', $('#upload-ColorMatching-default')[0].files[0]);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/UpdateDesignColorMatchingValidationFormMaster',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
                     $("#loading-wrapper").hide();
-                    //if (validate(ColorGroup) == false) {
-                    //    notes.show('Please Select Color Group.', {
-                    //        type: 'danger',
-                    //        //title: 'Opps.!',
-                    //        //icon: '<i class="icon-alert-triangle"></i>'
-                    //    });
-                    //}
-
-                }
-                else {
-
-                    var ColorMatchingPhotoUploadOrNot = 0;
-                    //alert(ColorMatchingPhoto);
-                    if ($('#upload-ColorMatching-default')[0].files.length == 0) {
-
-                        if (ColorMatchingPhoto == "") {
-                            $("#loading-wrapper").hide();
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Photo Required',
-                                text: 'Please upload Color Matching Photo.'
-                            });
-                            ColorMatchingPhotoUploadOrNot = 0;
-                        }
-                        else {
-                            ColorMatchingPhotoUploadOrNot = 1;
-                        }
-
-
-
+                    if (response.Code == 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Design Entry Created Successfully.',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            getDesignNo(document.getElementById("DesignNo"));
+                        });
                     }
                     else {
-                        ColorMatchingPhotoUploadOrNot = 1;
-                    }
-
-
-
-                    if (ColorMatchingPhotoUploadOrNot == 1) {
-
-
-
-                        var WarpFeederArray = "";
-                        WarpFeederArray += "{";
-                        WarpFeederArray += '"DesignColorMatchingDetailsID": "' + $("#ColorMatchingID").val() + '",';
-                        WarpFeederArray += '"DesignColorMatchingFormID": "' + $("#DesignNo").val().split("|")[1] + '",';
-                        WarpFeederArray += '"ColorGroupID": "' + $("#ColorGroup").val() + '",';
-                        WarpFeederArray += '"ColorMatchingPhoto": "' + $("#upload-ColorMatching-temp-default").val() + '",';
-                        WarpFeederArray += '"WarpMatchingID": "' + $("#WarpMatchingID").val() + '",';
-
-                        for (var wa = 0; wa < warpLength; wa++) {
-                            var Sno = parseInt(wa) + parseInt(1);
-
-                            var Matching = "#MatchingWarp" + Sno;
-
-                            var MG = $(Matching).val();
-                            var warp = "Warp" + Sno;
-
-                            WarpFeederArray += '"' + warp + '": "' + MG + '",';
-                            //alert(WarpFeederArray);
-                        }
-
-                        WarpFeederArray += '"FeederMatchingID": "' + $("#FeederMatchingID").val() + '",';
-
-
-                        for (var we = 0; we < weftLength; we++) {
-                            var Sno = parseInt(we) + parseInt(1);
-                            var Matching = "#MatchingFeeder" + Sno;
-
-                            var MG = $(Matching).val();
-                            var weft = "Feeder" + Sno;
-
-                            if (Sno == weftLength) {
-                                WarpFeederArray += '"' + weft + '": "' + MG + '"';
-                            }
-                            else {
-                                WarpFeederArray += '"' + weft + '": "' + MG + '",';
-                            }
-
-                        }
-
-                        WarpFeederArray += '}';
-
-
-                        console.log(WarpFeederArray);
-
-
-                        var ColorMatching = $('#upload-ColorMatching-default')[0].files[0];
-
-                        var formData = new FormData();
-                        formData.append('DesignColorMatchingDetails', WarpFeederArray);
-                        formData.append('ColorMatching', ColorMatching);
-
-
-                        $.ajax({
-                            type: "POST",
-                            url: '/WebServiceNikunjTextile.asmx/UpdateDesignColorMatchingValidationFormMaster',
-                            data: formData,
-                            dataType: 'json',
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-
-                                if (response.Code == 200) {
-                                    $("#loading-wrapper").hide();
-                                    //$("#editItembtn").attr("disabled", false);
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success',
-                                        text: 'Design Entry Created Successfully.',
-                                        confirmButtonText: 'OK'
-                                    }).then(() => {
-                                        // Optional
-                                        // window.location.href = 'DesignEntry';
-                                    });
-                                }
-                                else {
-                                    $("#loading-wrapper").hide();
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.Message
-                                    });
-
-                                }
-                            },
-                            error: function (error) {
-                                $("#loading-wrapper").hide();
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Problem has occurred while submitting your data.'
-                                });
-
-                            }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.Message
                         });
-
-
-
-
                     }
-
-
-
+                },
+                error: function () {
+                    $("#loading-wrapper").hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Problem has occurred while submitting your data.'
+                    });
                 }
-
-
-
-            }
-
-
-
-
-
-
-
+            });
         }
     </script>
 }
-

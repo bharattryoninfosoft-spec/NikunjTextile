@@ -633,115 +633,108 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (rowStart == 0) {
-                        $("#copy-print-csv tbody").empty();
+                    var list = (response && response.listDesignColorMatchingForm) || [];
+                    var tbody = $("#copy-print-csv tbody");
+
+                    if (parseInt(rowStart, 10) === 0) {
+                        tbody.empty();
                     }
-                    var dataTable = $('#copy-print-csv');
-                    var temp = "";
-                  
-                    var srno = parseInt(rowStart) + parseInt(1);
-                    for (var i = 0; i < response.listDesignColorMatchingForm.length; i++) {
-                        var colorPhoto = response.listDesignColorMatchingForm[i].ColorMatchingPhoto;
 
-                        var canEditDelete = (
-                            colorPhoto == null ||
-                            colorPhoto.trim() == ""
-                        );
-                        temp += "<tr><td>" + srno++ + "</td>";
-                        //temp += "<td><div class='actions'><a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='fa fa-eye text-secondary' style='font-weight:50;'></i></a>&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' data-toggle='tooltip' data-placement='top' title='' data-original-title='Delete' onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'><i class='icon-x-circle text-danger'></i></a></div></td>";
-                        temp += "<td><div class='actions'>";
+                    var rowsHtml = "";
+                    var srno = parseInt(rowStart, 10) + 1;
 
-                        // EDIT
-                  
-                        temp += "<a href='javascript:void(0);' " +
-                            "class='EditBtn " + (canEditDelete ? "" : "disabled-action") + "' " +
-                            "data-toggle='tooltip' " +
-                            "title='" + (canEditDelete ? "Edit" : "Cannot Edit - Photo Available") + "' " +
-                            (canEditDelete
-                                ? "onclick='showEditRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'"
-                                : "aria-disabled='true' style='pointer-events:none; opacity:0.3;'") +
-                            ">" +
-                            "<i class='icon-edit1 text-info'></i>" +
-                            "</a>&nbsp;&nbsp;&nbsp;";
-                   
+                    for (var i = 0; i < list.length; i++) {
+                        var row = list[i] || {};
+                        var formId = Number(row.DesignColorMatchingFormID) || 0;
 
-                        temp += "<a href='javascript:void(0);' " +
-                            "class='ViewBtn' " +
-                                "data-toggle='tooltip' " +
-                                "data-placement='top' " +
-                                "title='View' " +
-                                "data-bs-toggle='modal' " +
-                                "data-bs-target='#addNewContact' " +
-                                "onclick='showRecords(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'>" +
-                                "<i class='fa fa-eye text-secondary'></i>" +
-                                "</a>&nbsp;&nbsp;&nbsp;";
-                      
+                        var dateTimeText = escapeHtml(row.DateandTimes || "");
+                        var designerCode = escapeHtml(row.DesignerCode || "");
+                        var designNo = escapeHtml(row.DesignNo || "");
+                        var photoUrl = row.PhotoOfDesign ? escapeAttr(row.PhotoOfDesign) : "";
 
-                        temp += "<a href='javascript:void(0);' " +
-                            "class='DeleteBtn " + (canEditDelete ? "" : "disabled-action") + "' " +
-                            "data-toggle='tooltip' " +
-                            "title='" + (canEditDelete ? "Delete" : "Cannot Delete - Photo Available") + "' " +
-                            (canEditDelete
-                                ? "onclick='functionUserDelete(" + response.listDesignColorMatchingForm[i].DesignColorMatchingFormID + ")'"
-                                : "aria-disabled='true' style='pointer-events:none; opacity:0.3;'") +
-                            ">" +
-                            "<i class='icon-x-circle text-danger'></i>" +
-                            "</a>";
-                   
+                        var matchingParts = splitCsv(row.MatchingID);
+                        var warpParts = splitCsv(row.WarpMatchingID);
+                        var feederParts = splitCsv(row.FeederMatchingID);
+                        var maxLen = Math.max(matchingParts.length, warpParts.length, feederParts.length);
 
-                        temp += "</div></td>";
-                        temp += "<td>" + response.listDesignColorMatchingForm[i].DateandTimes + "</td>";
-                        temp += "<td>" + response.listDesignColorMatchingForm[i].DesignerCode + response.listDesignColorMatchingForm[i].DesignNo + "</td>";
-                        temp += "<td><img src='" + response.listDesignColorMatchingForm[i].PhotoOfDesign + "' style='width:50px; height:50px;'></td>";
+                        var matchingHtml = "";
+                        var warpHtml = "";
+                        var feederHtml = "";
 
-                        //temp += "<td>" + response.listDesignColorMatchingForm[i].PickOnLoom + "</td>";
-                        //temp += "<td>" + response.listDesignColorMatchingForm[i].TotalCard + "</td>";
-                        //temp += "<td>" + response.listDesignColorMatchingForm[i].WarpQuality + "</td>";
-
-
-                        var MatchingId = "";
-                        var WarpMatchingID = "";
-                        var FeederMatchingID = "";
-                        for (var j = 0; j < response.listDesignColorMatchingForm[i].MatchingID.split(',').length; j++) {
-                            var SrNos = j + 1;
-                            MatchingId += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].WarpMatchingID.split(',')[j] + " <b>-</b> " + response.listDesignColorMatchingForm[i].FeederMatchingID.split(',')[j] + "<br />";
-                            WarpMatchingID += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].WarpMatchingID.split(',')[j] + "<br />";
-                            FeederMatchingID += "<b>" + SrNos + ":</b> " + response.listDesignColorMatchingForm[i].FeederMatchingID.split(',')[j] + "<br />";
+                        for (var j = 0; j < maxLen; j++) {
+                            var lineNo = j + 1;
+                            var warpVal = escapeHtml(warpParts[j] || "");
+                            var feederVal = escapeHtml(feederParts[j] || "");
+                            matchingHtml += "<b>" + lineNo + ":</b> " + warpVal + " <b>-</b> " + feederVal + "<br />";
+                            warpHtml += "<b>" + lineNo + ":</b> " + warpVal + "<br />";
+                            feederHtml += "<b>" + lineNo + ":</b> " + feederVal + "<br />";
                         }
 
-
-
-                        temp += "<td>" + MatchingId + "</td>";
-                        temp += "<td>" + WarpMatchingID + "</td>";
-                        temp += "<td>" + FeederMatchingID + "</td>";
-
-
-                        temp += "</tr>";
-
+                        rowsHtml += "<tr>";
+                        rowsHtml += "<td>" + (srno++) + "</td>";
+                        rowsHtml += "<td><div class='actions'>";
+                        rowsHtml += "<a href='javascript:void(0);' class='EditBtn' data-toggle='tooltip' title='Edit' onclick='showEditRecords(" + formId + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
+                        rowsHtml += "<a href='javascript:void(0);' class='ViewBtn' data-toggle='tooltip' data-placement='top' title='View' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + formId + ")'><i class='fa fa-eye text-secondary'></i></a>&nbsp;&nbsp;&nbsp;";
+                        rowsHtml += "<a href='javascript:void(0);' class='DeleteBtn' data-toggle='tooltip' title='Delete' onclick='functionUserDelete(" + formId + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        rowsHtml += "</div></td>";
+                        rowsHtml += "<td>" + dateTimeText + "</td>";
+                        rowsHtml += "<td>" + designerCode + designNo + "</td>";
+                        rowsHtml += "<td>" + (photoUrl ? "<img src='" + photoUrl + "' style='width:50px; height:50px;' alt='Design Photo'>" : "") + "</td>";
+                        rowsHtml += "<td>" + matchingHtml + "</td>";
+                        rowsHtml += "<td>" + warpHtml + "</td>";
+                        rowsHtml += "<td>" + feederHtml + "</td>";
+                        rowsHtml += "</tr>";
                     }
-                    $("#copy-print-csv tbody").empty();
-                    $("#copy-print-csv tbody").append(temp);
+
+                    tbody.empty().append(rowsHtml);
+
                     var permission = getCookie("PagePermission");
                     if (permission) {
-                        var currentPagePermission = JSON.parse(permission);
-                        if (currentPagePermission.Add == false) { $("#AddColorMatching").hide(); }
-                        if (currentPagePermission.Edit == false) { $(".EditBtn").hide(); }
-                        if (currentPagePermission.Delete == false) { $(".DeleteBtn").hide(); }
-                        if (currentPagePermission.view == false) { $(".viewBtn").hide(); }
+                        try {
+                            var currentPagePermission = JSON.parse(permission);
+                            if (currentPagePermission.Add === false) { $("#AddColorMatching").hide(); }
+                            if (currentPagePermission.Edit === false) { $(".EditBtn").hide(); }
+                            if (currentPagePermission.Delete === false) { $(".DeleteBtn").hide(); }
+                            if (currentPagePermission.view === false || currentPagePermission.View === false) { $(".ViewBtn").hide(); }
+                        } catch (e) {
+                            console.error("Invalid PagePermission cookie:", e);
+                        }
                     }
-                    renderPaginationControls();
+
+                    if (typeof renderPaginationControls === "function") {
+                        renderPaginationControls();
+                    }
                 },
                 error: function (request, status, error) {
-
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: "Something went wrong while loading data.",
                         footer: request.status + " - " + (error || request.statusText)
                     });
-
                 }
             });
+        }
+        function splitCsv(val) {
+            if (typeof val !== "string" || val.trim() === "") {
+                return [];
+            }
+            return val.split(",").map(function (item) {
+                return item.trim();
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function escapeAttr(str) {
+            return escapeHtml(str);
         }
         var total = 0;
         var Paggination = 0;
@@ -1709,6 +1702,16 @@
             });
         }
         function functionUserDelete(id) {
+            var formId = Number(id);
+            if (!formId || formId <= 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Record",
+                    text: "Invalid Design Color Matching Form ID."
+                });
+                return;
+            }
+
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to recover this record!",
@@ -1719,11 +1722,9 @@
                 confirmButtonText: "Yes, Delete it!",
                 cancelButtonText: "Cancel"
             }).then((result) => {
-
                 if (result.isConfirmed) {
-
                     var formData = new FormData();
-                    formData.append("DesignColorMatchingFormID", id);
+                    formData.append("DesignColorMatchingFormID", formId);
 
                     $.ajax({
                         type: "POST",
@@ -1733,45 +1734,37 @@
                         contentType: false,
                         processData: false,
                         success: function (response) {
-
-                            if (response.Code == 200) {
-
+                            if (response && (response.Code == 200 || response.Code == "200")) {
                                 Swal.fire({
                                     icon: "success",
                                     title: "Deleted!",
-                                    text: "Color Matching Form deleted successfully.",
+                                    text: response.Message || "Color Matching Form deleted successfully.",
                                     timer: 1500,
                                     showConfirmButton: false
                                 }).then(() => {
-                                    displayData(0);
+                                    var currentRowStart = parseInt($("#rowStartCount").val(), 10) || 0;
+                                    displayPagginationData();
+                                    displayData(currentRowStart);
                                 });
-
                             } else {
-
                                 Swal.fire({
                                     icon: "error",
                                     title: "Delete Failed",
-                                    text: response.Message || "Problem occurred while deleting the Color Matching Form."
+                                    text: (response && response.Message) ? response.Message : "Problem occurred while deleting your data."
                                 });
-
                             }
                         },
                         error: function (request, status, error) {
-
                             Swal.fire({
                                 icon: "error",
                                 title: "Error",
                                 text: "Something went wrong while deleting the record.",
                                 footer: request.status + " - " + (error || request.statusText)
                             });
-
                         }
                     });
-
                 }
-
             });
-
         }
         //function printModalBody() {
 

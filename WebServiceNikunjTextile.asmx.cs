@@ -313,25 +313,15 @@ namespace NikunjTextile
         [System.Web.Script.Services.ScriptMethod]
         public string checkLoginStatus()
         {
-            string msg = "";
+            var cookies = Context.Request.Cookies;
+            bool isLoggedIn = cookies["UserIDs"] != null &&
+                              cookies["UserName"] != null &&
+                              cookies["CompanyID"] != null &&
+                              cookies["CompanyName"] != null &&
+                              cookies["CompanyState"] != null &&
+                              cookies["FinacialYearDefaultID"] != null;
 
-            if (Context.Request.Cookies["UserIDs"] != null &&
-                 Context.Request.Cookies["UserName"] != null &&
-                  Context.Request.Cookies["CompanyID"] != null &&
-                  Context.Request.Cookies["CompanyName"] != null &&
-                  Context.Request.Cookies["CompanyState"] != null &&
-                  Context.Request.Cookies["FinacialYearDefaultID"] != null)
-            {
-
-                msg = "true";
-            }
-            else
-            {
-                msg = "false";
-            }
-
-            return msg;
-
+            return isLoggedIn ? "true" : "false";
         }
         [WebMethod]
         [System.Web.Script.Services.ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -1904,103 +1894,58 @@ END";
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCompanyMasterDefault()
         {
-            JavaScriptSerializer js = new JavaScriptSerializer
-            {
-                MaxJsonLength = Int32.MaxValue
-            };
-
-            List<CompanyMaster> listUser = new List<CompanyMaster>();
+            List<CompanyMaster> listCompany = new List<CompanyMaster>();
             CompanyMasterResponse response = new CompanyMasterResponse();
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             try
             {
-                string sql = @"SELECT *  FROM dbo.CompanyMaster   WHERE is_default = 1";
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
                 using (SqlConnection con = new SqlConnection(cs))
-                using (SqlCommand cmd = new SqlCommand(sql, con))
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM dbo.CompanyMaster WHERE is_default = 1", con))
                 {
                     con.Open();
-
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         while (rdr.Read())
                         {
-                            CompanyMaster condition = new CompanyMaster();
-
-                            condition.CompanyId = Convert.ToInt32(rdr["CompanyId"]);
-
-                            condition.CompanyName = rdr["CompanyName"] != DBNull.Value
-                                ? rdr["CompanyName"].ToString() : "";
-
-                            condition.MobileNo = rdr["MobileNo"] != DBNull.Value
-                                ? rdr["MobileNo"].ToString() : "";
-
-                            condition.AlterMobileNo = rdr["AlterMobileNo"] != DBNull.Value
-                                ? rdr["AlterMobileNo"].ToString() : "";
-
-                            condition.Email = rdr["Email"] != DBNull.Value
-                                ? rdr["Email"].ToString() : "";
-
-                            condition.BusinessAddress = rdr["BusinessAddress"] != DBNull.Value
-                                ? rdr["BusinessAddress"].ToString() : "";
-
-                            condition.GSTIN = rdr["GSTIN"] != DBNull.Value
-                                ? rdr["GSTIN"].ToString() : "";
-
-                            condition.State = rdr["State"] != DBNull.Value
-                                ? rdr["State"].ToString() : "";
-
-                            condition.BusinessType = rdr["BusinessType"] != DBNull.Value
-                                ? rdr["BusinessType"].ToString() : "";
-
-                            condition.BusinessCategory = rdr["BusinessCategory"] != DBNull.Value
-                                ? rdr["BusinessCategory"].ToString() : "";
-
-                            condition.BusinessDescription = rdr["BusinessDescription"] != DBNull.Value
-                                ? rdr["BusinessDescription"].ToString() : "";
-
-                            condition.BankName = rdr["BankName"] != DBNull.Value
-                                ? rdr["BankName"].ToString() : "";
-
-                            condition.ACNo = rdr["ACNo"] != DBNull.Value
-                                ? rdr["ACNo"].ToString() : "";
-
-                            condition.IFSC = rdr["IFSC"] != DBNull.Value
-                                ? rdr["IFSC"].ToString() : "";
-
-                            condition.CompanyLogo = rdr["CompanyLogo"] != DBNull.Value
-                                ? rdr["CompanyLogo"].ToString() : "";
-
-                            condition.Sign = rdr["Sign"] != DBNull.Value
-                                ? rdr["Sign"].ToString() : "";
-
-                            condition.is_default = rdr["is_default"] != DBNull.Value
-                                ? rdr["is_default"].ToString() : "";
-
-                            condition.SupportNumber = rdr["SupportNumber"] != DBNull.Value
-                                ? rdr["SupportNumber"].ToString() : "";
-
-                            listUser.Add(condition);
+                            listCompany.Add(new CompanyMaster
+                            {
+                                CompanyId = Convert.ToInt32(rdr["CompanyId"]),
+                                CompanyName = GetString(rdr, "CompanyName"),
+                                MobileNo = GetString(rdr, "MobileNo"),
+                                AlterMobileNo = GetString(rdr, "AlterMobileNo"),
+                                Email = GetString(rdr, "Email"),
+                                BusinessAddress = GetString(rdr, "BusinessAddress"),
+                                GSTIN = GetString(rdr, "GSTIN"),
+                                State = GetString(rdr, "State"),
+                                BusinessType = GetString(rdr, "BusinessType"),
+                                BusinessCategory = GetString(rdr, "BusinessCategory"),
+                                BusinessDescription = GetString(rdr, "BusinessDescription"),
+                                BankName = GetString(rdr, "BankName"),
+                                ACNo = GetString(rdr, "ACNo"),
+                                IFSC = GetString(rdr, "IFSC"),
+                                CompanyLogo = GetString(rdr, "CompanyLogo"),
+                                Sign = GetString(rdr, "Sign"),
+                                is_default = GetString(rdr, "is_default"),
+                                SupportNumber = GetString(rdr, "SupportNumber")
+                            });
                         }
                     }
                 }
 
                 response.Code = 200;
                 response.Message = "Success";
-                response.listCompanyMaster = listUser;
             }
             catch (Exception ex)
             {
                 AuditLogHelper.LogError("Company Master", "getCompanyMasterDefault", ex);
-
                 response.Code = 500;
                 response.Message = "Error while fetching default company.";
-                response.listCompanyMaster = listUser;
             }
 
-            Context.Response.Write(js.Serialize(response));
+            response.listCompanyMaster = listCompany;
+            WriteJsonResponse(response);
         }
 
         [WebMethod]
@@ -21085,6 +21030,10 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                         condition.Type = rdr["Type"].ToString().ToUpper();
                         condition.DesignCategoryID = Convert.ToInt32(rdr["DesignCategoryID"].ToString());
                         condition.DesignCategory = rdr["DesignCategory"].ToString().ToUpper();
+                        condition.DesignCut = rdr["DesignCut"] != DBNull.Value ? rdr["DesignCut"].ToString().ToUpper() : "";
+                        condition.SaleRate = rdr["SaleRate"] != DBNull.Value ? Convert.ToDecimal(rdr["SaleRate"]) : 0;
+                        condition.HSNCode = rdr["HSNCode"] != DBNull.Value ? rdr["HSNCode"].ToString().Trim() : "";
+                        condition.BarcodeNo = rdr["BarcodeNo"] != DBNull.Value ? rdr["BarcodeNo"].ToString().ToUpper() : "";
                         listUser.Add(condition);
                     }
                 }
@@ -21114,11 +21063,17 @@ WHERE GS.GSTSLABId = @GSTSLABId";
             {
                 string search = HttpContext.Current.Request.Params["SearchString"] ?? "";
 
+                string rawCompany = HttpContext.Current.Request.Cookies["CompanyID"]?.Value;
+                string rawFinYear = HttpContext.Current.Request.Cookies["FinacialYearDefaultID"]?.Value;
+
+                string compVal = rawCompany != null && rawCompany.Contains("=") ? rawCompany.Split('=').Last() : rawCompany;
+                string finVal = rawFinYear != null && rawFinYear.Contains("=") ? rawFinYear.Split('=').Last() : rawFinYear;
+
                 int companyId;
                 int financialYearId;
 
-                if (!int.TryParse(HttpContext.Current.Request.Cookies["CompanyID"]?.Value, out companyId) ||
-                    !int.TryParse(HttpContext.Current.Request.Cookies["FinacialYearDefaultID"]?.Value, out financialYearId))
+                if (!int.TryParse(compVal, out companyId) ||
+                    !int.TryParse(finVal, out financialYearId))
                 {
                     response.Code = 0;
                     response.Message = "Please Re-Login your Account.";
@@ -21618,6 +21573,167 @@ WHERE GS.GSTSLABId = @GSTSLABId";
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
         }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void QuickUpdateDesignCategoryRateHSN()
+        {
+            CommanResponse comman = new CommanResponse();
+
+            try
+            {
+                HttpRequest request = HttpContext.Current.Request;
+
+                string userCookie = request.Cookies["UserIDs"]?.Value;
+                string companyCookie = request.Cookies["CompanyID"]?.Value;
+                string financialYearCookie = request.Cookies["FinacialYearDefaultID"]?.Value;
+
+                string userVal = userCookie != null && userCookie.Contains("=") ? userCookie.Split('=').Last() : userCookie;
+                string compVal = companyCookie != null && companyCookie.Contains("=") ? companyCookie.Split('=').Last() : companyCookie;
+                string finVal = financialYearCookie != null && financialYearCookie.Contains("=") ? financialYearCookie.Split('=').Last() : financialYearCookie;
+
+                int userId, companyId, financialYearId;
+
+                if (!int.TryParse(userVal, out userId) ||
+                    !int.TryParse(compVal, out companyId) ||
+                    !int.TryParse(finVal, out financialYearId))
+                {
+                    comman.Code = 401;
+                    comman.Message = "Please Re-Login your Account.";
+                    WriteJsonResponse(comman);
+                    return;
+                }
+
+                int designEntryFormId;
+                if (!int.TryParse(request.Params["DesignEntryFormID"], out designEntryFormId) || designEntryFormId <= 0)
+                {
+                    comman.Code = 400;
+                    comman.Message = "Invalid Design ID.";
+                    WriteJsonResponse(comman);
+                    return;
+                }
+
+                int designCategoryId;
+                if (!int.TryParse(request.Params["DesignCategoryID"], out designCategoryId) || designCategoryId <= 0)
+                {
+                    comman.Code = 400;
+                    comman.Message = "Please select a valid Design Category.";
+                    WriteJsonResponse(comman);
+                    return;
+                }
+
+                decimal saleRate;
+                if (!decimal.TryParse(request.Params["SaleRate"], out saleRate) || saleRate < 0)
+                {
+                    comman.Code = 400;
+                    comman.Message = "Please enter a valid Sale Rate.";
+                    WriteJsonResponse(comman);
+                    return;
+                }
+
+                string hsnCode = (request.Params["HSNCode"] ?? "").Trim();
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+                    using (SqlTransaction tran = con.BeginTransaction())
+                    {
+                        try
+                        {
+                            int oldDesignCategoryID = 0;
+                            decimal oldSaleRate = 0;
+                            string oldHSNCode = "";
+                            string designNo = "";
+
+                            using (SqlCommand cmdGet = new SqlCommand(@"
+                                SELECT DesignCategoryID, SaleRate, HSNCode, (CAST(ISNULL(DesignerCode,'') AS NVARCHAR(50)) + CAST(ISNULL(DesignNo,'') AS NVARCHAR(50))) AS FullDesignNo
+                                FROM DesignEntryFormMaster WITH (UPDLOCK, HOLDLOCK)
+                                WHERE DesignEntryFormID = @DesignEntryFormID AND CompanyId = @CompanyId", con, tran))
+                            {
+                                cmdGet.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = designEntryFormId;
+                                cmdGet.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
+
+                                using (SqlDataReader rdr = cmdGet.ExecuteReader())
+                                {
+                                    if (!rdr.Read())
+                                    {
+                                        tran.Rollback();
+                                        comman.Code = 404;
+                                        comman.Message = "Design record not found.";
+                                        WriteJsonResponse(comman);
+                                        return;
+                                    }
+
+                                    oldDesignCategoryID = rdr["DesignCategoryID"] != DBNull.Value ? Convert.ToInt32(rdr["DesignCategoryID"]) : 0;
+                                    oldSaleRate = rdr["SaleRate"] != DBNull.Value ? Convert.ToDecimal(rdr["SaleRate"]) : 0;
+                                    oldHSNCode = rdr["HSNCode"] != DBNull.Value ? rdr["HSNCode"].ToString().Trim() : "";
+                                    designNo = rdr["FullDesignNo"] != DBNull.Value ? rdr["FullDesignNo"].ToString().Trim() : "";
+                                }
+                            }
+
+                            using (SqlCommand cmdUpdate = new SqlCommand(@"
+                                UPDATE DesignEntryFormMaster
+                                SET DesignCategoryID = @DesignCategoryID,
+                                    SaleRate = @SaleRate,
+                                    HSNCode = @HSNCode
+                                WHERE DesignEntryFormID = @DesignEntryFormID AND CompanyId = @CompanyId", con, tran))
+                            {
+                                cmdUpdate.Parameters.Add("@DesignCategoryID", SqlDbType.Int).Value = designCategoryId;
+                                cmdUpdate.Parameters.Add("@SaleRate", SqlDbType.Decimal).Value = saleRate;
+                                cmdUpdate.Parameters.Add("@HSNCode", SqlDbType.NVarChar, 50).Value = string.IsNullOrWhiteSpace(hsnCode) ? (object)DBNull.Value : hsnCode;
+                                cmdUpdate.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = designEntryFormId;
+                                cmdUpdate.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
+
+                                int affected = cmdUpdate.ExecuteNonQuery();
+                                if (affected <= 0)
+                                {
+                                    tran.Rollback();
+                                    comman.Code = 500;
+                                    comman.Message = "Update failed. No rows affected.";
+                                    WriteJsonResponse(comman);
+                                    return;
+                                }
+                            }
+
+                            var oldValueObj = new { DesignCategoryID = oldDesignCategoryID, SaleRate = oldSaleRate, HSNCode = oldHSNCode };
+                            var newValueObj = new { DesignCategoryID = designCategoryId, SaleRate = saleRate, HSNCode = hsnCode };
+
+                            AuditLogHelper.Log(
+                                module: "Design Entry",
+                                action: "QUICK_UPDATE",
+                                tableName: "DesignEntryFormMaster",
+                                recordId: designEntryFormId.ToString(),
+                                description: $"Quick updated Design #{designEntryFormId} ({designNo}): Category ID {oldDesignCategoryID} -> {designCategoryId}, Sale Rate {oldSaleRate} -> {saleRate}, HSN '{oldHSNCode}' -> '{hsnCode}'",
+                                oldValue: oldValueObj,
+                                newValue: newValueObj,
+                                existingConn: con,
+                                existingTran: tran
+                            );
+
+                            tran.Commit();
+
+                            comman.Code = 200;
+                            comman.Message = "Design Category, Sale Rate & HSN Code updated successfully.";
+                        }
+                        catch (Exception exTran)
+                        {
+                            try { tran.Rollback(); } catch { }
+                            throw exTran;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Design Entry", "QuickUpdateDesignCategoryRateHSN", ex);
+                comman.Code = 500;
+                comman.Message = "Error updating design: " + ex.Message;
+            }
+
+            WriteJsonResponse(comman);
+        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignEntryFormMaster()
@@ -22087,11 +22203,7 @@ WHERE GS.GSTSLABId = @GSTSLABId";
             try
             {
                 int designColorMatchingFormId = 0;
-                string cookieValue = "";
-                if (Context.Request.Cookies["DesignColorMatchingFormIDs"] != null)
-                {
-                    cookieValue = Context.Request.Cookies["DesignColorMatchingFormIDs"].Value.Split('=')[1];
-                }
+                string cookieValue = GetCookieValue("DesignColorMatchingFormIDs");
 
                 if (!string.IsNullOrWhiteSpace(cookieValue) &&
                     !int.TryParse(cookieValue, out designColorMatchingFormId))
@@ -22106,39 +22218,28 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                     using (SqlConnection con = new SqlConnection(cs))
                     using (SqlCommand cmd = new SqlCommand(@"
                 SELECT
-                    DEFM.*,
-                    ISNULL(DCMFM.DesignColorMatchingFormID, 0)
-                        AS DesignColorMatchingFormID
+                    DEFM.DesignEntryFormID,
+                    DEFM.DesignNo,
+                    DEFM.DesignerCode,
+                    ISNULL(DCMFM.DesignColorMatchingFormID, 0) AS DesignColorMatchingFormID
                 FROM DesignEntryFormMaster DEFM
                 LEFT JOIN DesignColorMatchingFormMaster DCMFM
                     ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
                 ORDER BY DEFM.DesignEntryFormID DESC", con))
                     {
                         con.Open();
-
                         using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
                             while (rdr.Read())
                             {
-                                DesignEntryForm item = new DesignEntryForm
+                                listDesignerMaster.Add(new DesignEntryForm
                                 {
-                                    DesignEntryFormID =
-                                        Convert.ToInt32(rdr["DesignEntryFormID"]),
-
-                                    DesignColorMatchingFormID =
-                                        Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
-
-                                    DesignColorMatchingFormIDs =
-                                        designColorMatchingFormId,
-
-                                    DesignNo =
-                                        Convert.ToString(rdr["DesignNo"]).ToUpper(),
-
-                                    DesignerCode =
-                                        Convert.ToString(rdr["DesignerCode"]).ToUpper()
-                                };
-
-                                listDesignerMaster.Add(item);
+                                    DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]),
+                                    DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                    DesignColorMatchingFormIDs = designColorMatchingFormId,
+                                    DesignNo = Convert.ToString(rdr["DesignNo"]).ToUpper(),
+                                    DesignerCode = Convert.ToString(rdr["DesignerCode"]).ToUpper()
+                                });
                             }
                         }
                     }
@@ -22149,84 +22250,74 @@ WHERE GS.GSTSLABId = @GSTSLABId";
             }
             catch (Exception ex)
             {
-                AuditLogHelper.LogError(
-                    "Design Entry",
-                    "getDesignNoUpdateForm",
-                    ex
-                );
-
+                AuditLogHelper.LogError("Design Entry", "getDesignNoUpdateForm", ex);
                 response.Code = 500;
                 response.Message = "FAILED";
             }
 
             response.listDesignEntryForm = listDesignerMaster;
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-
-            Context.Response.Write(js.Serialize(response));
+            WriteJsonResponse(response);
         }
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getExportExistingDesignNoForm()
         {
-            var request = HttpContext.Current.Request;
-
-            DesignColorMatchingForm ilist = new DesignColorMatchingForm();
-
-            ilist.TotalWarp = Convert.ToInt32(HttpContext.Current.Request.Params["TotalWarp"]);
-            ilist.TotalWeft = Convert.ToInt32(HttpContext.Current.Request.Params["TotalWeft"]);
-
-
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<DesignEntryForm> listDesignerMaster = new List<DesignEntryForm>();
-            DesignEntryFormResponse DesignEntryForm = new DesignEntryFormResponse();
+            DesignEntryFormResponse response = new DesignEntryFormResponse();
 
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
+            try
             {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select DEFM.*, ISNULL(DCMFM.DesignColorMatchingFormID,0) as DesignColorMatchingFormID   " +
-                    " from DesignEntryFormMaster DEFM" +
-                    " LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID " +
-                    " Where DCMFM.TotalWarp = " + ilist.TotalWarp + " and DCMFM.TotalWeft = " + ilist.TotalWeft + " " +
-                    " order by DesignEntryFormID DESC";
-                con.Open();
-                rdr = cmd.ExecuteReader();
+                int totalWarp, totalWeft;
+                int.TryParse(HttpContext.Current.Request.Params["TotalWarp"], out totalWarp);
+                int.TryParse(HttpContext.Current.Request.Params["TotalWeft"], out totalWeft);
 
-                if (rdr.HasRows)
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                using (SqlCommand cmd = new SqlCommand(@"
+            SELECT DEFM.DesignEntryFormID,
+                   DEFM.DesignNo,
+                   DEFM.DesignerCode,
+                   DCMFM.DesignColorMatchingFormID
+            FROM DesignEntryFormMaster DEFM
+            INNER JOIN DesignColorMatchingFormMaster DCMFM
+                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+            WHERE DCMFM.TotalWarp = @TotalWarp
+              AND DCMFM.TotalWeft = @TotalWeft
+            ORDER BY DEFM.DesignEntryFormID DESC", con))
                 {
-                    while (rdr.Read())
+                    cmd.Parameters.Add("@TotalWarp", SqlDbType.Int).Value = totalWarp;
+                    cmd.Parameters.Add("@TotalWeft", SqlDbType.Int).Value = totalWeft;
+
+                    con.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
-                        DesignEntryForm Designer = new DesignEntryForm();
-                        Designer.DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]);
-                        Designer.DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]);
-                        Designer.DesignNo = rdr["DesignNo"].ToString().ToUpper();
-                        Designer.DesignerCode = rdr["DesignerCode"].ToString().ToUpper();
-                        listDesignerMaster.Add(Designer);
+                        while (rdr.Read())
+                        {
+                            listDesignerMaster.Add(new DesignEntryForm
+                            {
+                                DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]),
+                                DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                DesignNo = GetString(rdr, "DesignNo").ToUpper(),
+                                DesignerCode = GetString(rdr, "DesignerCode").ToUpper()
+                            });
+                        }
                     }
                 }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
 
+                response.Code = 200;
+                response.Message = "Success";
             }
-            DesignEntryForm.Code = 200;
-            DesignEntryForm.Message = "Success";
-            DesignEntryForm.listDesignEntryForm = listDesignerMaster;
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Design Entry", "getExportExistingDesignNoForm", ex);
+                response.Code = 500;
+                response.Message = "FAILED";
+            }
 
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
-
-            return;
+            response.listDesignEntryForm = listDesignerMaster;
+            WriteJsonResponse(response);
         }
-
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -22241,25 +22332,22 @@ WHERE GS.GSTSLABId = @GSTSLABId";
 
                 using (SqlConnection con = new SqlConnection(cs))
                 using (SqlCommand cmd = new SqlCommand(@"
-                        SELECT YarnColorID, YarnColor, YarnColorCode
-                        FROM YarnColorMaster
-                        WHERE IsActive = 1
-                        ORDER BY YarnColor", con))
+            SELECT YarnColorID, YarnColor, YarnColorCode
+            FROM YarnColorMaster
+            WHERE IsActive = 1
+            ORDER BY YarnColor", con))
                 {
                     con.Open();
-
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         while (rdr.Read())
                         {
-                            YarnColorMaster item = new YarnColorMaster
+                            listYarnColorMaster.Add(new YarnColorMaster
                             {
                                 YarnColorID = Convert.ToInt32(rdr["YarnColorID"]),
                                 YarnColor = Convert.ToString(rdr["YarnColor"]).ToUpper(),
                                 YarnColorCode = Convert.ToString(rdr["YarnColorCode"]).ToUpper()
-                            };
-
-                            listYarnColorMaster.Add(item);
+                            });
                         }
                     }
                 }
@@ -22269,181 +22357,143 @@ WHERE GS.GSTSLABId = @GSTSLABId";
             }
             catch (Exception ex)
             {
-                AuditLogHelper.LogError(
-                    "Design Entry",
-                    "getYarnColorMatching",
-                    ex
-                );
-
+                AuditLogHelper.LogError("Design Entry", "getYarnColorMatching", ex);
                 response.Code = 500;
                 response.Message = "FAILED";
             }
 
             response.listYarnColorMaster = listYarnColorMaster;
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-
-            Context.Response.Write(js.Serialize(response));
+            WriteJsonResponse(response);
         }
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getDesignEntryDataForm()
         {
-            var request = HttpContext.Current.Request;
-            Int64 customer_id = 0;
-
-            if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
-            {
-                customer_id = Convert.ToInt64(request.Form["CustomerId"]);
-            }
-
-
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<DesignEntryForm> listDesignerMaster = new List<DesignEntryForm>();
-            DesignEntryFormResponse DesignEntryForm = new DesignEntryFormResponse();
+            DesignEntryFormResponse response = new DesignEntryFormResponse();
 
-
-            DesignEntryForm ilist = new DesignEntryForm();
-            CommanResponse comman = new CommanResponse();
-            ilist.DesignEntryFormID = Convert.ToInt32(HttpContext.Current.Request.Params["DesignEntryFormID"]);
-
-
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
+            try
             {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select DEFM.*, DCM.DesignCategory, ISNUll( DCMFM.DesignColorMatchingFormID,0) as DesignColorMatchingFormID" +
-                    " from DesignEntryFormMaster DEFM " +
-                    " LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID " +
-                    " LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID" +
-                    " where DEFM.DesignEntryFormID = " + ilist.DesignEntryFormID + " ";
-                con.Open();
-                rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
+                int designEntryFormID;
+                if (!int.TryParse(HttpContext.Current.Request.Params["DesignEntryFormID"], out designEntryFormID) || designEntryFormID <= 0)
                 {
-                    while (rdr.Read())
+                    response.Code = 400;
+                    response.Message = "Invalid DesignEntryFormID.";
+                    response.listDesignEntryForm = listDesignerMaster;
+                    WriteJsonResponse(response);
+                    return;
+                }
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                {
+                    con.Open();
+
+                    string query = @"
+                SELECT DEFM.*, DCM.DesignCategory, ISNULL(DCMFM.DesignColorMatchingFormID, 0) AS DesignColorMatchingFormID
+                FROM DesignEntryFormMaster DEFM
+                LEFT JOIN DesignCategoryMaster DCM ON DCM.DesignCategoryID = DEFM.DesignCategoryID
+                LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+                WHERE DEFM.DesignEntryFormID = @DesignEntryFormID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        DesignEntryForm Designer = new DesignEntryForm();
-                        Designer.DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]);
-                        Designer.DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]);
-                        Designer.PhotoOfDesign = rdr["PhotoOfDesign"].ToString();
-                        Designer.PhotoOfSketch = rdr["PhotoOfSketch"].ToString();
-                        Designer.WarpQualityID = Convert.ToInt32(rdr["WarpQualityID"].ToString());
-                        //Designer.WarpQuality = rdr["WarpQuality"].ToString().ToUpper();
-                        Designer.DesignerID = Convert.ToInt32(rdr["DesignerID"].ToString());
-                        Designer.DesignerCode = rdr["DesignerCode"].ToString().ToUpper();
-                        Designer.DesignNo = rdr["DesignNo"].ToString().ToUpper();
-                        //Designer.DesignerName = rdr["DesignerName"].ToString().ToUpper();
-                        Designer.SketcherID = Convert.ToInt32(rdr["SketcherID"].ToString());
-                        //Designer.Sketcher = rdr["Sketcher"].ToString().ToUpper();
-                        Designer.Remark = rdr["Remark"].ToString().ToUpper();
-                        Designer.PickOnLoom = rdr["PickOnLoom"].ToString();
-                        Designer.TotalCard = Convert.ToDecimal(rdr["TotalCard"].ToString());
-                        Designer.AveragePic = Convert.ToDecimal(rdr["AveragePic"].ToString());
-                        Designer.ReedOnLoom = rdr["ReedOnLoom"].ToString().ToUpper();
-                        Designer.TypeID = Convert.ToInt32(rdr["TypeID"].ToString());
-                        //Designer.MaterialID = Convert.ToInt32(rdr["MaterialID"].ToString());
-                        //Designer.Type = rdr["Type"].ToString().ToUpper();
-                        Designer.DesignCategory = rdr["DesignCategory"].ToString().ToUpper();
-                        //Designer.Material = rdr["Material"].ToString().ToUpper();
-                        listDesignerMaster.Add(Designer);
+                        cmd.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = designEntryFormID;
 
-
-
-                        SqlCommand cmd1 = new SqlCommand();
-                        cmd1.Connection = con;
-                        cmd1.CommandType = System.Data.CommandType.Text;
-                        cmd1.CommandText = "select DEWD.*, YMM.YarnMaterial, DSM.DesignSpecification from DesignEntryWeftData DEWD" +
-                            " LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = DEWD.YarnMaterialID" +
-                            " LEFT JOIN DesignSpecificationMaster DSM ON DSM.DesignSpecificationID = DEWD.DesignSpecificationID" +
-                            " where DEWD.DesignEntryFormID = " + ilist.DesignEntryFormID + "";
-                        SqlDataReader rdr1 = cmd1.ExecuteReader();
-
-                        if (rdr1.HasRows)
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
-                            List<DesignEntryWeftData> EntryWeftData = new List<DesignEntryWeftData>();
-                            while (rdr1.Read())
+                            while (rdr.Read())
                             {
-                                DesignEntryWeftData Material = new DesignEntryWeftData();
-                                Material.DesignEntryWeftID = Convert.ToInt32(rdr1["DesignEntryWeftID"]);
-                                Material.Card = Convert.ToInt32(rdr1["Card"]);
-                                Material.Pick = Convert.ToInt32(rdr1["Pick"]);
-                                Material.YarnMaterialID = Convert.ToInt32(rdr1["YarnMaterialID"]);
-                                Material.YarnMaterial = rdr1["YarnMaterial"].ToString().ToUpper();
-                                Material.DesignSpecification = rdr1["DesignSpecification"].ToString().ToUpper();
-
-                                EntryWeftData.Add(Material);
+                                listDesignerMaster.Add(new DesignEntryForm
+                                {
+                                    DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                    DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]),
+                                    PhotoOfDesign = GetString(rdr, "PhotoOfDesign"),
+                                    PhotoOfSketch = GetString(rdr, "PhotoOfSketch"),
+                                    WarpQualityID = GetInt(rdr, "WarpQualityID"),
+                                    DesignerID = GetInt(rdr, "DesignerID"),
+                                    DesignerCode = GetString(rdr, "DesignerCode").ToUpper(),
+                                    DesignNo = GetString(rdr, "DesignNo").ToUpper(),
+                                    SketcherID = GetInt(rdr, "SketcherID"),
+                                    Remark = GetString(rdr, "Remark").ToUpper(),
+                                    PickOnLoom = GetString(rdr, "PickOnLoom"),
+                                    TotalCard = rdr["TotalCard"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["TotalCard"]),
+                                    AveragePic = rdr["AveragePic"] == DBNull.Value ? 0 : Convert.ToDecimal(rdr["AveragePic"]),
+                                    ReedOnLoom = GetString(rdr, "ReedOnLoom").ToUpper(),
+                                    TypeID = GetInt(rdr, "TypeID"),
+                                    DesignCategory = GetString(rdr, "DesignCategory").ToUpper()
+                                });
                             }
-                            Designer.listDesignEntryWeftData = EntryWeftData;
                         }
-
-                        rdr1.Close();
-                        cmd1.Dispose();
-
-
-
-
-                        SqlCommand cmd2 = new SqlCommand();
-                        cmd2.Connection = con;
-                        cmd2.CommandType = System.Data.CommandType.Text;
-                        cmd2.CommandText = " select DFWD.*, YQM.YarnMaterial from DesignFormWarpData DFWD" +
-                            // " LEFT JOIN YarnColorMaster YCM ON YCM.YarnColorID = DFWD.YarnColorID" +
-                            " LEFT JOIN YarnMaterialMaster YQM ON YQM.YarnMaterialID = DFWD.YarnQualityMaterialID " +
-                            " where DFWD.DesignEntryFormID = " + ilist.DesignEntryFormID + "  ";
-                        SqlDataReader rdr3 = cmd2.ExecuteReader();
-                        if (rdr3.HasRows)
-                        {
-                            List<DesignFormWarpData> DesignFormWarpData = new List<DesignFormWarpData>();
-                            while (rdr3.Read())
-                            {
-                                DesignFormWarpData DesignFormWarp = new DesignFormWarpData();
-                                DesignFormWarp.DesignEntryWarpID = Convert.ToInt32(rdr3["DesignEntryWarpID"].ToString());
-                                DesignFormWarp.YarnQualityID = Convert.ToInt32(rdr3["YarnQualityMaterialID"].ToString());
-                                //DesignFormWarp.YarnColorID = Convert.ToInt32(rdr3["YarnColorID"].ToString());
-                                //DesignFormWarp.YarnQuality = rdr3["YarnQuality"].ToString().ToUpper();
-                                DesignFormWarp.YarnMaterial = rdr3["YarnMaterial"].ToString().ToUpper();
-                                DesignFormWarp.Tar = Convert.ToInt32(rdr3["Tar"].ToString());
-                                DesignFormWarpData.Add(DesignFormWarp);
-                            }
-                            Designer.listDesignFormWarpData = DesignFormWarpData;
-                        }
-                        rdr3.Close();
-                        cmd2.Dispose();
-
-
-
-
-
-
-
                     }
 
-                }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
+                    foreach (var designer in listDesignerMaster)
+                    {
+                        designer.listDesignEntryWeftData = new List<DesignEntryWeftData>();
+                        using (SqlCommand cmd1 = new SqlCommand(@"
+                    SELECT DEWD.DesignEntryWeftID, DEWD.Card, DEWD.Pick, DEWD.YarnMaterialID,
+                           YMM.YarnMaterial, DSM.DesignSpecification
+                    FROM DesignEntryWeftData DEWD
+                    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = DEWD.YarnMaterialID
+                    LEFT JOIN DesignSpecificationMaster DSM ON DSM.DesignSpecificationID = DEWD.DesignSpecificationID
+                    WHERE DEWD.DesignEntryFormID = @DesignEntryFormID", con))
+                        {
+                            cmd1.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = designEntryFormID;
+                            using (SqlDataReader rdr1 = cmd1.ExecuteReader())
+                            {
+                                while (rdr1.Read())
+                                {
+                                    designer.listDesignEntryWeftData.Add(new DesignEntryWeftData
+                                    {
+                                        DesignEntryWeftID = Convert.ToInt32(rdr1["DesignEntryWeftID"]),
+                                        Card = GetInt(rdr1, "Card"),
+                                        Pick = GetInt(rdr1, "Pick"),
+                                        YarnMaterialID = GetInt(rdr1, "YarnMaterialID"),
+                                        YarnMaterial = GetString(rdr1, "YarnMaterial").ToUpper(),
+                                        DesignSpecification = GetString(rdr1, "DesignSpecification").ToUpper()
+                                    });
+                                }
+                            }
+                        }
 
-                listDesignerMaster.Add(ilist);
+                        designer.listDesignFormWarpData = new List<DesignFormWarpData>();
+                        using (SqlCommand cmd2 = new SqlCommand(@"
+                    SELECT DFWD.DesignEntryWarpID, DFWD.YarnQualityMaterialID, DFWD.Tar, YQM.YarnMaterial
+                    FROM DesignFormWarpData DFWD
+                    LEFT JOIN YarnMaterialMaster YQM ON YQM.YarnMaterialID = DFWD.YarnQualityMaterialID
+                    WHERE DFWD.DesignEntryFormID = @DesignEntryFormID", con))
+                        {
+                            cmd2.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = designEntryFormID;
+                            using (SqlDataReader rdr2 = cmd2.ExecuteReader())
+                            {
+                                while (rdr2.Read())
+                                {
+                                    designer.listDesignFormWarpData.Add(new DesignFormWarpData
+                                    {
+                                        DesignEntryWarpID = Convert.ToInt32(rdr2["DesignEntryWarpID"]),
+                                        YarnQualityID = GetInt(rdr2, "YarnQualityMaterialID"),
+                                        YarnMaterial = GetString(rdr2, "YarnMaterial").ToUpper(),
+                                        Tar = GetInt(rdr2, "Tar")
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                response.Code = 200;
+                response.Message = "Success";
+            }
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Design Entry", "getDesignEntryDataForm", ex);
+                response.Code = 500;
+                response.Message = "FAILED";
             }
 
-
-            DesignEntryForm.Code = 200;
-            DesignEntryForm.Message = "Success";
-            DesignEntryForm.listDesignEntryForm = listDesignerMaster;
-
-
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
-
-            return;
+            response.listDesignEntryForm = listDesignerMaster;
+            WriteJsonResponse(response);
         }
 
         [WebMethod]
@@ -22451,507 +22501,171 @@ WHERE GS.GSTSLABId = @GSTSLABId";
         public void insertDesignColorMatchingFormMaster()
         {
             CommanResponse comman = new CommanResponse();
-            DesignColorMatchingForm ilist = new DesignColorMatchingForm();
             DesignColorMatchingForm myDetails = null;
 
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime dateTimeIndian = TimeZoneInfo.ConvertTimeFromUtc(
                 DateTime.UtcNow,
                 TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
             );
 
-            ilist.DateandTime = dateTime_Indian;
+            string userAccountId = GetCookieValue("UserIDs", "0");
+            string companyId = GetCookieValue("CompanyID", "0");
+            string financialYearId = GetCookieValue("FinacialYearDefaultID", "0");
+            string rawJson = HttpContext.Current.Request.Params["ColorFormArray"];
 
-            string userAccountId = Context.Request.Cookies["UserIDs"] != null
-                ? Context.Request.Cookies["UserIDs"].Value.Split('=')[1]
-                : "0";
-
-            string companyId = Context.Request.Cookies["CompanyID"] != null
-                ? Context.Request.Cookies["CompanyID"].Value.Split('=')[1]
-                : "0";
-
-            string financialYearId = Context.Request.Cookies["FinacialYearDefaultID"] != null
-                ? Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1]
-                : "0";
-
-            ilist.DesignColorMatchingArray =
-                HttpContext.Current.Request.Params["ColorFormArray"];
-
-            JavaScriptSerializer serializer = new JavaScriptSerializer
-            {
-                MaxJsonLength = int.MaxValue
-            };
-
-            // 1. Validate session
-            if (string.IsNullOrWhiteSpace(userAccountId) ||
-                string.IsNullOrWhiteSpace(companyId) ||
-                string.IsNullOrWhiteSpace(financialYearId) ||
-                userAccountId == "0" ||
-                companyId == "0" ||
-                financialYearId == "0")
+            if (string.IsNullOrWhiteSpace(userAccountId) || userAccountId == "0" ||
+                string.IsNullOrWhiteSpace(companyId) || companyId == "0" ||
+                string.IsNullOrWhiteSpace(financialYearId) || financialYearId == "0")
             {
                 comman.Code = 500;
                 comman.Message = "Please Re-Login your Account.";
-
-                AuditLogHelper.LogValidationError(
-                    "Design Color Matching",
-                    "DesignColorMatchingFormMaster",
-                    null,
-                    "Validation failed: Session or company cookie missing.",
-                    errorMessage: comman.Message
-                );
-
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "Validation failed: Session or company cookie missing.", errorMessage: comman.Message);
+                WriteJsonResponse(comman);
                 return;
             }
 
-            // 2. Validate JSON
-            if (string.IsNullOrWhiteSpace(ilist.DesignColorMatchingArray))
+            if (string.IsNullOrWhiteSpace(rawJson))
             {
                 comman.Code = 400;
                 comman.Message = "Color Form details cannot be empty.";
-
-                AuditLogHelper.LogValidationError(
-                    "Design Color Matching",
-                    "DesignColorMatchingFormMaster",
-                    null,
-                    "Validation failed: ColorFormArray parameter is missing.",
-                    errorMessage: comman.Message
-                );
-
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "Validation failed: ColorFormArray parameter is missing.", errorMessage: comman.Message);
+                WriteJsonResponse(comman);
                 return;
             }
 
             try
             {
-                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingForm>(
-                    ilist.DesignColorMatchingArray
-                );
+                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingForm>(rawJson);
             }
             catch (Exception ex)
             {
                 comman.Code = 400;
                 comman.Message = "Invalid JSON data provided for Color Form.";
-
-                AuditLogHelper.LogValidationError(
-                    "Design Color Matching",
-                    "DesignColorMatchingFormMaster",
-                    null,
-                    "JSON deserialization failed.",
-                    errorMessage: ex.Message
-                );
-
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "JSON deserialization failed.", errorMessage: ex.Message);
+                WriteJsonResponse(comman);
                 return;
             }
 
-            // 3. Validate DesignEntryFormID
             if (myDetails == null || myDetails.DesignEntryFormID <= 0)
             {
                 comman.Code = 400;
                 comman.Message = "Valid Design Entry Form ID is required.";
-
-                AuditLogHelper.LogValidationError(
-                    "Design Color Matching",
-                    "DesignColorMatchingFormMaster",
-                    null,
-                    "Validation failed: DesignEntryFormID is invalid or 0.",
-                    errorMessage: comman.Message,
-                    requestData: myDetails
-                );
-
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "Validation failed: DesignEntryFormID is invalid or 0.", errorMessage: comman.Message, requestData: myDetails);
+                WriteJsonResponse(comman);
                 return;
             }
 
-            string connectionString =
-                ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-
             try
             {
-                using (SqlConnection con = new SqlConnection(connectionString))
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
                 {
                     con.Open();
-
-                    using (SqlTransaction trans = con.BeginTransaction(
-                        System.Data.IsolationLevel.Serializable))
+                    using (SqlTransaction trans = con.BeginTransaction(System.Data.IsolationLevel.Serializable))
                     {
                         try
                         {
-                            // 4. Duplicate check.
-                            // Serializable isolation + locking helps prevent concurrent
-                            // requests from inserting the same DesignEntryFormID.
                             long existingId = 0;
-
-                            string checkSql = @"
+                            using (SqlCommand cmdCheck = new SqlCommand(@"
                         SELECT TOP (1) DesignColorMatchingFormID
-                        FROM dbo.DesignColorMatchingFormMaster
-                             WITH (UPDLOCK, HOLDLOCK)
-                        WHERE DesignEntryFormID = @DesignEntryFormID;";
-
-                            using (SqlCommand cmdCheck =
-                                new SqlCommand(checkSql, con, trans))
+                        FROM dbo.DesignColorMatchingFormMaster WITH (UPDLOCK, HOLDLOCK)
+                        WHERE DesignEntryFormID = @DesignEntryFormID;", con, trans))
                             {
-                                cmdCheck.Parameters.Add(
-                                    "@DesignEntryFormID",
-                                    SqlDbType.Int
-                                ).Value = myDetails.DesignEntryFormID;
-
+                                cmdCheck.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = myDetails.DesignEntryFormID;
                                 object result = cmdCheck.ExecuteScalar();
-
                                 if (result != null && result != DBNull.Value)
-                                {
                                     existingId = Convert.ToInt64(result);
-                                }
                             }
 
                             if (existingId > 0)
                             {
                                 trans.Rollback();
-
                                 comman.Code = 405;
                                 comman.id = Convert.ToInt32(existingId);
-                                comman.Message =
-                                    $"Color Matching Form for Design Entry " +
-                                    $"#{myDetails.DesignEntryFormID} already exists. " +
-                                    $"Existing Form ID: {existingId}.";
-
-                                // Do not write a CREATE audit record for a rejected insert.
-                                AuditLogHelper.LogDuplicateError(
-                                    "Design Color Matching",
-                                    "DesignColorMatchingFormMaster",
-                                    existingId.ToString(),
-                                    $"Duplicate request for Design Entry " +
-                                    $"#{myDetails.DesignEntryFormID}. " +
-                                    $"Existing Form ID: {existingId}.",
-                                    errorMessage: comman.Message,
-                                    requestData: myDetails
-                                );
-
-                                Context.Response.Write(serializer.Serialize(comman));
+                                comman.Message = $"Color Matching Form for Design Entry #{myDetails.DesignEntryFormID} already exists. Existing Form ID: {existingId}.";
+                                AuditLogHelper.LogDuplicateError("Design Color Matching", "DesignColorMatchingFormMaster", existingId.ToString(), $"Duplicate request for Design Entry #{myDetails.DesignEntryFormID}. Existing Form ID: {existingId}.", errorMessage: comman.Message, requestData: myDetails);
+                                WriteJsonResponse(comman);
                                 return;
                             }
 
-                            // 5. Insert master and retrieve the actual primary key.
                             string sqlMaster = @"
                         INSERT INTO dbo.DesignColorMatchingFormMaster
                         (
-                            DateandTime,
-                            UserAccountId,
-                            CompanyId,
-                            FinancialYearID,
-                            DesignEntryFormID,
-                            TotalWarp,
-                            TotalWeft,
-                            ColorArray,
-                            WarpCheckBox,
-                            WeftCheckBox
+                            DateandTime, UserAccountId, CompanyId, FinancialYearID,
+                            DesignEntryFormID, TotalWarp, TotalWeft, ColorArray, WarpCheckBox, WeftCheckBox
                         )
                         OUTPUT INSERTED.DesignColorMatchingFormID
                         VALUES
                         (
-                            @DateandTime,
-                            @UserAccountId,
-                            @CompanyId,
-                            @FinancialYearID,
-                            @DesignEntryFormID,
-                            @TotalWarp,
-                            @TotalWeft,
-                            @ColorArray,
-                            @WarpCheckBox,
-                            @WeftCheckBox
+                            @DateandTime, @UserAccountId, @CompanyId, @FinancialYearID,
+                            @DesignEntryFormID, @TotalWarp, @TotalWeft, @ColorArray, @WarpCheckBox, @WeftCheckBox
                         );";
 
                             long id;
-
-                            using (SqlCommand cmdMaster =
-                                new SqlCommand(sqlMaster, con, trans))
+                            using (SqlCommand cmdMaster = new SqlCommand(sqlMaster, con, trans))
                             {
-                                cmdMaster.Parameters.Add(
-                                    "@DateandTime",
-                                    SqlDbType.DateTime
-                                ).Value = dateTime_Indian;
-
-                                cmdMaster.Parameters.Add(
-                                    "@UserAccountId",
-                                    SqlDbType.Int
-                                ).Value = Convert.ToInt32(userAccountId);
-
-                                cmdMaster.Parameters.Add(
-                                    "@CompanyId",
-                                    SqlDbType.Int
-                                ).Value = Convert.ToInt32(companyId);
-
-                                cmdMaster.Parameters.Add(
-                                    "@FinancialYearID",
-                                    SqlDbType.Int
-                                ).Value = Convert.ToInt32(financialYearId);
-
-                                cmdMaster.Parameters.Add(
-                                    "@DesignEntryFormID",
-                                    SqlDbType.Int
-                                ).Value = myDetails.DesignEntryFormID;
-
-                                cmdMaster.Parameters.Add(
-                                    "@TotalWarp",
-                                    SqlDbType.Int
-                                ).Value = myDetails.TotalWarp;
-
-                                cmdMaster.Parameters.Add(
-                                    "@TotalWeft",
-                                    SqlDbType.Int
-                                ).Value = myDetails.TotalWeft;
-
-                                cmdMaster.Parameters.Add(
-                                    "@ColorArray",
-                                    SqlDbType.NVarChar,
-                                    -1
-                                ).Value = (object)myDetails.ColorArray ?? DBNull.Value;
-
-                                cmdMaster.Parameters.Add(
-                                    "@WarpCheckBox",
-                                    SqlDbType.NVarChar,
-                                    -1
-                                ).Value = (object)myDetails.WarpCheckBox ?? DBNull.Value;
-
-                                cmdMaster.Parameters.Add(
-                                    "@WeftCheckBox",
-                                    SqlDbType.NVarChar,
-                                    -1
-                                ).Value = (object)myDetails.WeftCheckBox ?? DBNull.Value;
+                                cmdMaster.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTimeIndian;
+                                cmdMaster.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = Convert.ToInt32(userAccountId);
+                                cmdMaster.Parameters.Add("@CompanyId", SqlDbType.Int).Value = Convert.ToInt32(companyId);
+                                cmdMaster.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = Convert.ToInt32(financialYearId);
+                                cmdMaster.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = myDetails.DesignEntryFormID;
+                                cmdMaster.Parameters.Add("@TotalWarp", SqlDbType.Int).Value = myDetails.TotalWarp;
+                                cmdMaster.Parameters.Add("@TotalWeft", SqlDbType.Int).Value = myDetails.TotalWeft;
+                                cmdMaster.Parameters.Add("@ColorArray", SqlDbType.NVarChar, -1).Value = (object)myDetails.ColorArray ?? DBNull.Value;
+                                cmdMaster.Parameters.Add("@WarpCheckBox", SqlDbType.NVarChar, -1).Value = (object)myDetails.WarpCheckBox ?? DBNull.Value;
+                                cmdMaster.Parameters.Add("@WeftCheckBox", SqlDbType.NVarChar, -1).Value = (object)myDetails.WeftCheckBox ?? DBNull.Value;
 
                                 id = Convert.ToInt64(cmdMaster.ExecuteScalar());
                             }
 
                             if (id <= 0)
-                            {
-                                throw new Exception(
-                                    "Master record was not inserted successfully."
-                                );
-                            }
+                                throw new Exception("Master record was not inserted successfully.");
 
-                            // 6. Insert details.
-                            if (myDetails.listDesignColorMatchingDetails != null &&
-                                myDetails.listDesignColorMatchingDetails.Count > 0)
+                            if (myDetails.listDesignColorMatchingDetails != null && myDetails.listDesignColorMatchingDetails.Count > 0)
                             {
                                 string sqlDetail = @"
                             INSERT INTO dbo.DesignColorMatchingDetails
                             (
-                                DesignColorMatchingFormID,
-                                MatchingNo,
-                                MatchingID,
-                                WarpMatchingID,
-                                Warp1, Warp2, Warp3, Warp4, Warp5,
-                                Warp6, Warp7, Warp8, Warp9, Warp10,
+                                DesignColorMatchingFormID, MatchingNo, MatchingID, WarpMatchingID,
+                                Warp1, Warp2, Warp3, Warp4, Warp5, Warp6, Warp7, Warp8, Warp9, Warp10,
                                 FeederMatchingID,
-                                Feeder1, Feeder2, Feeder3, Feeder4, Feeder5,
-                                Feeder6, Feeder7, Feeder8, Feeder9, Feeder10,
-                                Feeder11, Feeder12, Feeder13, Feeder14, Feeder15,
-                                Feeder16, Feeder17, Feeder18, Feeder19, Feeder20,
-                                Feeder21, Feeder22, Feeder23, Feeder24, Feeder25,
-                                Feeder26, Feeder27, Feeder28, Feeder29, Feeder30,
-                                ColorGroupID,
-                                UserAccountId
+                                Feeder1, Feeder2, Feeder3, Feeder4, Feeder5, Feeder6, Feeder7, Feeder8, Feeder9, Feeder10,
+                                Feeder11, Feeder12, Feeder13, Feeder14, Feeder15, Feeder16, Feeder17, Feeder18, Feeder19, Feeder20,
+                                Feeder21, Feeder22, Feeder23, Feeder24, Feeder25, Feeder26, Feeder27, Feeder28, Feeder29, Feeder30,
+                                ColorGroupID, UserAccountId
                             )
                             VALUES
                             (
-                                @DesignColorMatchingFormID,
-                                @MatchingNo,
-                                @MatchingID,
-                                @WarpMatchingID,
-                                @Warp1, @Warp2, @Warp3, @Warp4, @Warp5,
-                                @Warp6, @Warp7, @Warp8, @Warp9, @Warp10,
+                                @FormID, @MatchingNo, @MatchingID, @WarpMatchingID,
+                                @Warp1, @Warp2, @Warp3, @Warp4, @Warp5, @Warp6, @Warp7, @Warp8, @Warp9, @Warp10,
                                 @FeederMatchingID,
-                                @Feeder1, @Feeder2, @Feeder3, @Feeder4, @Feeder5,
-                                @Feeder6, @Feeder7, @Feeder8, @Feeder9, @Feeder10,
-                                @Feeder11, @Feeder12, @Feeder13, @Feeder14, @Feeder15,
-                                @Feeder16, @Feeder17, @Feeder18, @Feeder19, @Feeder20,
-                                @Feeder21, @Feeder22, @Feeder23, @Feeder24, @Feeder25,
-                                @Feeder26, @Feeder27, @Feeder28, @Feeder29, @Feeder30,
+                                @Feeder1, @Feeder2, @Feeder3, @Feeder4, @Feeder5, @Feeder6, @Feeder7, @Feeder8, @Feeder9, @Feeder10,
+                                @Feeder11, @Feeder12, @Feeder13, @Feeder14, @Feeder15, @Feeder16, @Feeder17, @Feeder18, @Feeder19, @Feeder20,
+                                @Feeder21, @Feeder22, @Feeder23, @Feeder24, @Feeder25, @Feeder26, @Feeder27, @Feeder28, @Feeder29, @Feeder30,
                                 0, 0
                             );";
 
-                                foreach (DesignColorMatchingDetails each
-                                         in myDetails.listDesignColorMatchingDetails)
+                                foreach (var each in myDetails.listDesignColorMatchingDetails)
                                 {
-                                    using (SqlCommand cmdDetail =
-                                        new SqlCommand(sqlDetail, con, trans))
+                                    using (SqlCommand cmdDetail = new SqlCommand(sqlDetail, con, trans))
                                     {
-                                        string matchingId =
-                                            (each.WarpMatchingID ?? "") + "/" +
-                                            (each.FeederMatchingID ?? "");
-
-                                        cmdDetail.Parameters.Add(
-                                            "@DesignColorMatchingFormID",
-                                            SqlDbType.BigInt
-                                        ).Value = id;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@MatchingNo",
-                                            SqlDbType.Int
-                                        ).Value = each.MatchingNo;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@MatchingID",
-                                            SqlDbType.NVarChar,
-                                            100
-                                        ).Value = matchingId;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@WarpMatchingID",
-                                            SqlDbType.NVarChar,
-                                            100
-                                        ).Value =
-                                            (object)each.WarpMatchingID ?? DBNull.Value;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp1", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp1 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp2", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp2 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp3", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp3 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp4", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp4 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp5", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp5 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp6", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp6 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp7", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp7 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp8", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp8 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp9", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp9 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Warp10", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Warp10 ?? DBNull.Value;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@FeederMatchingID",
-                                            SqlDbType.NVarChar,
-                                            100
-                                        ).Value =
-                                            (object)each.FeederMatchingID ?? DBNull.Value;
-
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder1", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder1 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder2", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder2 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder3", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder3 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder4", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder4 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder5", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder5 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder6", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder6 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder7", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder7 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder8", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder8 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder9", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder9 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder10", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder10 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder11", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder11 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder12", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder12 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder13", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder13 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder14", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder14 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder15", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder15 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder16", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder16 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder17", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder17 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder18", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder18 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder19", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder19 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder20", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder20 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder21", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder21 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder22", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder22 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder23", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder23 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder24", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder24 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder25", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder25 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder26", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder26 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder27", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder27 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder28", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder28 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder29", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder29 ?? DBNull.Value;
-                                        cmdDetail.Parameters.Add(
-                                            "@Feeder30", SqlDbType.NVarChar, 100
-                                        ).Value = (object)each.Feeder30 ?? DBNull.Value;
-
+                                        string matchingId = (each.WarpMatchingID ?? "") + "/" + (each.FeederMatchingID ?? "");
+                                        AddDesignColorDetailParameters(cmdDetail, each, matchingId, id, false);
                                         cmdDetail.ExecuteNonQuery();
                                     }
                                 }
                             }
 
-                            // 7. Log the actual inserted master primary key.
                             AuditLogHelper.LogCreate(
                                 module: "Design Color Matching",
                                 tableName: "DesignColorMatchingFormMaster",
                                 recordId: id.ToString(),
-                                description:
-                                    $"Created Design Color Matching Form ID #{id} " +
-                                    $"for Design Entry #{myDetails.DesignEntryFormID}",
+                                description: $"Created Design Color Matching Form ID #{id} for Design Entry #{myDetails.DesignEntryFormID}",
                                 newValue: myDetails,
                                 conn: con,
                                 tran: trans
                             );
 
-                            // 8. Commit master + details + audit log together.
                             trans.Commit();
 
                             comman.id = Convert.ToInt32(id);
@@ -22960,15 +22674,7 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                         }
                         catch
                         {
-                            try
-                            {
-                                trans.Rollback();
-                            }
-                            catch
-                            {
-                                // Preserve the original exception.
-                            }
-
+                            try { trans.Rollback(); } catch { }
                             throw;
                         }
                     }
@@ -22980,45 +22686,79 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                 {
                     comman.Code = 405;
                     comman.Message = "Duplicate record detected. Please refresh and try again.";
-
-                    AuditLogHelper.LogDuplicateError(
-                        "Design Color Matching",
-                        "DesignColorMatchingFormMaster",
-                        null,
-                        "SQL duplicate-key error during insert.",
-                        errorMessage: ex.Message,
-                        requestData: myDetails
-                    );
+                    AuditLogHelper.LogDuplicateError("Design Color Matching", "DesignColorMatchingFormMaster", null, "SQL duplicate-key error during insert.", errorMessage: ex.Message, requestData: myDetails);
                 }
                 else
                 {
                     comman.Code = 410;
                     comman.Message = "Problem has been occurred while submitting your data.";
-
-                    AuditLogHelper.LogError(
-                        "Design Color Matching",
-                        "insertDesignColorMatchingFormMaster",
-                        ex,
-                        ilist.DesignColorMatchingArray
-                    );
+                    AuditLogHelper.LogError("Design Color Matching", "insertDesignColorMatchingFormMaster", ex, rawJson);
                 }
             }
             catch (Exception ex)
             {
                 comman.Code = 500;
                 comman.Message = "An unexpected error occurred: " + ex.Message;
-
-                AuditLogHelper.LogError(
-                    "Design Color Matching",
-                    "insertDesignColorMatchingFormMaster",
-                    ex,
-                    ilist.DesignColorMatchingArray
-                );
+                AuditLogHelper.LogError("Design Color Matching", "insertDesignColorMatchingFormMaster", ex, rawJson);
             }
 
-            Context.Response.Write(serializer.Serialize(comman));
+            WriteJsonResponse(comman);
+        }
+        private string GetCookieValue(string cookieName, string defaultValue = "")
+        {
+            var cookie = Context.Request.Cookies[cookieName];
+            if (cookie == null || string.IsNullOrEmpty(cookie.Value))
+                return defaultValue;
+
+            var parts = cookie.Value.Split('=');
+            return parts.Length > 1 ? parts[1] : parts[0];
         }
 
+        private string GetString(SqlDataReader rdr, string column)
+        {
+            return rdr[column] == DBNull.Value ? "" : rdr[column].ToString();
+        }
+
+        private int GetInt(SqlDataReader rdr, string column)
+        {
+            return rdr[column] == DBNull.Value ? 0 : Convert.ToInt32(rdr[column]);
+        }
+
+        private void WriteJsonResponse(object payload)
+        {
+            JavaScriptSerializer js = new JavaScriptSerializer { MaxJsonLength = Int32.MaxValue };
+            Context.Response.Write(js.Serialize(payload));
+        }
+
+        private void AddDesignColorDetailParameters(
+            SqlCommand cmd,
+            DesignColorMatchingDetails each,
+            string matchingId,
+            long formId,
+            bool includeDetailId)
+        {
+            cmd.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
+            if (includeDetailId)
+                cmd.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = each.DesignColorMatchingDetailsID;
+
+            cmd.Parameters.Add("@MatchingNo", SqlDbType.Int).Value = each.MatchingNo;
+            cmd.Parameters.Add("@MatchingID", SqlDbType.NVarChar, 100).Value = matchingId;
+            cmd.Parameters.Add("@WarpMatchingID", SqlDbType.NVarChar, 100).Value = (object)each.WarpMatchingID ?? DBNull.Value;
+            cmd.Parameters.Add("@FeederMatchingID", SqlDbType.NVarChar, 100).Value = (object)each.FeederMatchingID ?? DBNull.Value;
+
+            var detailType = typeof(DesignColorMatchingDetails);
+            for (int w = 1; w <= 10; w++)
+            {
+                object val = detailType.GetProperty("Warp" + w)?.GetValue(each);
+                cmd.Parameters.Add("@Warp" + w, SqlDbType.NVarChar, 100).Value = val ?? DBNull.Value;
+            }
+
+            for (int f = 1; f <= 30; f++)
+            {
+                object val = detailType.GetProperty("Feeder" + f)?.GetValue(each);
+                cmd.Parameters.Add("@Feeder" + f, SqlDbType.NVarChar, 100).Value = val ?? DBNull.Value;
+            }
+        }
         // View Design Entry Form
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -23049,56 +22789,56 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                 cmd.CommandType = System.Data.CommandType.Text;
                 //cmd.CommandText = "select PM.* from PartyMaster PM LEFT JOIN CompanyMaster CM ON PM.CompanyId = CM.CompanyId where CM.is_default = '1' and PM.UserAccountId = " + Context.Request.Cookies["UserIDs"].Value.Split('=')[1] + " and PM.CompanyId = (select CompanyId from CompanyMaster where is_default = 1) order by PM.PartyId desc OFFSET " + ilist.startFrom.ToString() + " ROWS FETCH NEXT 10 ROWS ONLY";
                 cmd.CommandText = @"SELECT *
-FROM
-(
-    SELECT
-        ROW_NUMBER() OVER (
-            ORDER BY DCM.DesignColorMatchingFormID DESC
-        ) AS row_num,
+                            FROM
+                            (
+                                SELECT
+                                    ROW_NUMBER() OVER (
+                                        ORDER BY DCM.DesignColorMatchingFormID DESC
+                                    ) AS row_num,
 
-        DCM.*,
-        DEFM.PhotoOfDesign,
-        DEFM.DesignerID,
-        DEFM.DesignerCode,
-        DEFM.DesignNo,
-        DEFM.PickOnLoom,
-        DEFM.TotalCard,
-        DEFM.ReedOnLoom,
+                                    DCM.*,
+                                    DEFM.PhotoOfDesign,
+                                    DEFM.DesignerID,
+                                    DEFM.DesignerCode,
+                                    DEFM.DesignNo,
+                                    DEFM.PickOnLoom,
+                                    DEFM.TotalCard,
+                                    DEFM.ReedOnLoom,
 
-        DCMD.MatchingID,
-        DCMD.WarpMatchingID,
-        DCMD.FeederMatchingID,
-        DCMD.ColorMatchingPhoto
+                                    DCMD.MatchingID,
+                                    DCMD.WarpMatchingID,
+                                    DCMD.FeederMatchingID,
+                                    DCMD.ColorMatchingPhoto
 
-    FROM DesignColorMatchingFormMaster DCM
+                                FROM DesignColorMatchingFormMaster DCM
 
-    LEFT JOIN DesignEntryFormMaster DEFM
-        ON DEFM.DesignEntryFormID = DCM.DesignEntryFormID
+                                LEFT JOIN DesignEntryFormMaster DEFM
+                                    ON DEFM.DesignEntryFormID = DCM.DesignEntryFormID
 
-    LEFT JOIN
-    (
-        SELECT
-            DesignColorMatchingFormID,
-            STRING_AGG(MatchingID, ', ') AS MatchingID,
-            STRING_AGG(WarpMatchingID, ', ') AS WarpMatchingID,
-            STRING_AGG(FeederMatchingID, ', ') AS FeederMatchingID,
-            STRING_AGG(ColorMatchingPhoto, ', ') AS ColorMatchingPhoto
+                                LEFT JOIN
+                                (
+                                    SELECT
+                                        DesignColorMatchingFormID,
+                                        STRING_AGG(MatchingID, ', ') AS MatchingID,
+                                        STRING_AGG(WarpMatchingID, ', ') AS WarpMatchingID,
+                                        STRING_AGG(FeederMatchingID, ', ') AS FeederMatchingID,
+                                        STRING_AGG(ColorMatchingPhoto, ', ') AS ColorMatchingPhoto
 
-        FROM DesignColorMatchingDetails
-        GROUP BY DesignColorMatchingFormID
+                                    FROM DesignColorMatchingDetails
+                                    GROUP BY DesignColorMatchingFormID
 
-    ) DCMD
-        ON DCMD.DesignColorMatchingFormID = DCM.DesignColorMatchingFormID
+                                ) DCMD
+                                    ON DCMD.DesignColorMatchingFormID = DCM.DesignColorMatchingFormID
 
-    WHERE DCM.CompanyId = " + Context.Request.Cookies["CompanyID"].Value.Split('=')[1] +
-       " AND DCM.FinancialYearID = " + Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1] +
-       ilist.SearchDesignNo + @"
+                                WHERE DCM.CompanyId = " + Context.Request.Cookies["CompanyID"].Value.Split('=')[1] +
+                                   " AND DCM.FinancialYearID = " + Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1] +
+                                   ilist.SearchDesignNo + @"
 
-) AS t1
+                            ) AS t1
 
-WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
-   " AND " + (Convert.ToInt32(ilist.startFrom) + 30) +
-   " ORDER BY t1.DesignColorMatchingFormID DESC";
+                            WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
+                               " AND " + (Convert.ToInt32(ilist.startFrom) + 30) +
+                               " ORDER BY t1.DesignColorMatchingFormID DESC";
 
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
@@ -23128,21 +22868,16 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                         listUser.Add(condition);
                     }
                 }
-
                 rdr.Close();
                 cmd.Dispose();
                 con.Close();
             }
-
-
             System.Web.HttpCookie nameCookie = new System.Web.HttpCookie("DesignColorMatchingFormIDs");
             nameCookie.Expires = DateTime.Now.AddDays(-1);
             Context.Response.Cookies.Add(nameCookie);
-
             response.Code = 200;
             response.Message = "Success";
             response.listDesignColorMatchingForm = listUser;
-
             js = new JavaScriptSerializer();
             js.MaxJsonLength = Int32.MaxValue;
             Context.Response.Write(js.Serialize(response));
@@ -23448,7 +23183,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             return;
 
 
-        }       
+        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getCreateColorMatchingFormDetails()
@@ -23459,449 +23194,247 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             try
             {
                 int designColorMatchingFormID;
-
                 string idValue = HttpContext.Current.Request.Params["DesignColorMatchingFormID"];
 
-                if (!int.TryParse(idValue, out designColorMatchingFormID) ||
-                    designColorMatchingFormID <= 0)
+                if (!int.TryParse(idValue, out designColorMatchingFormID) || designColorMatchingFormID <= 0)
                 {
                     response.Code = 400;
                     response.Message = "Invalid DesignColorMatchingFormID.";
                     response.listDesignColorMatchingForm = listDesignEntryForm;
+                    WriteJsonResponse(response);
+                    return;
                 }
-                else
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(cs))
                 {
-                    string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                    con.Open();
 
-                    using (SqlConnection con = new SqlConnection(cs))
-                    using (SqlConnection detailCon = new SqlConnection(cs))
+                    string query = @"
+                SELECT DCMFM.*,
+                       DEFM.PhotoOfDesign,
+                       DEFM.DesignerID,
+                       DEFM.DesignerCode,
+                       DEFM.DesignNo,
+                       DEFM.PickOnLoom,
+                       DEFM.SaleRate,
+                       DEFM.TotalCard,
+                       DEFM.ReedOnLoom,
+                       WQ.WarpQuality,
+                       DCM.DesignCategory
+                FROM DesignColorMatchingFormMaster DCMFM
+                LEFT JOIN DesignEntryFormMaster DEFM
+                    ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
+                LEFT JOIN WarpQualityMaster WQ
+                    ON WQ.WarpQualityID = DEFM.WarpQualityID
+                LEFT JOIN DesignCategoryMaster DCM
+                    ON DCM.DesignCategoryID = DEFM.DesignCategoryID
+                WHERE DCMFM.DesignColorMatchingFormID = @DesignColorMatchingFormID
+                  AND DCMFM.FinancialYearID = (SELECT FinancialYearID FROM FinancialYearMaster WHERE IsDefault = 1)
+                  AND DCMFM.CompanyId = (SELECT CompanyId FROM CompanyMaster WHERE is_default = 1)";
+
+                    using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        con.Open();
-                        detailCon.Open();
+                        cmd.Parameters.Add("@DesignColorMatchingFormID", SqlDbType.Int).Value = designColorMatchingFormID;
 
-                        string query = @"
-                            SELECT DCMFM.*,
-                                   DEFM.PhotoOfDesign,
-                                   DEFM.DesignerID,
-                                   DEFM.DesignerCode,
-                                   DEFM.DesignNo,
-                                   DEFM.PickOnLoom,
-                                   DEFM.SaleRate,
-                                   DEFM.TotalCard,
-                                   DEFM.ReedOnLoom,
-                                   DEFM.WarpQuality,
-                                   DEFM.DesignCategory
-                            FROM DesignColorMatchingFormMaster DCMFM
-                            LEFT JOIN
-                            (
-                                SELECT DEFM.*,
-                                       WQ.WarpQuality,
-                                       SM.Sketcher,
-                                       TM.Type,
-                                       DCM.DesignCategory
-                                FROM DesignEntryFormMaster DEFM
-                                LEFT JOIN WarpQualityMaster WQ
-                                    ON WQ.WarpQualityID = DEFM.WarpQualityID
-                                LEFT JOIN SketcherMaster SM
-                                    ON SM.SketcherID = DEFM.SketcherID
-                                LEFT JOIN TypeMaster TM
-                                    ON TM.TypeID = DEFM.TypeID
-                                LEFT JOIN DesignCategoryMaster DCM
-                                    ON DCM.DesignCategoryID = DEFM.DesignCategoryID
-                            ) DEFM
-                                ON DEFM.DesignEntryFormID = DCMFM.DesignEntryFormID
-                            WHERE DCMFM.DesignColorMatchingFormID = @DesignColorMatchingFormID
-                              AND DCMFM.FinancialYearID =
-                                  (SELECT FinancialYearID
-                                   FROM FinancialYearMaster
-                                   WHERE IsDefault = 1)
-                              AND DCMFM.CompanyId =
-                                  (SELECT CompanyId
-                                   FROM CompanyMaster
-                                   WHERE is_default = 1)";
-
-                        using (SqlCommand cmd = new SqlCommand(query, con))
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
-                            cmd.Parameters.Add("@DesignColorMatchingFormID",
-                                SqlDbType.Int).Value = designColorMatchingFormID;
-
-                            using (SqlDataReader rdr = cmd.ExecuteReader())
+                            while (rdr.Read())
                             {
-                                while (rdr.Read())
+                                listDesignEntryForm.Add(new DesignColorMatchingForm
                                 {
-                                    DesignColorMatchingForm DEntryForm =
-                                        new DesignColorMatchingForm();
-
-                                    DEntryForm.DesignColorMatchingFormID =
-                                        Convert.ToInt32(rdr["DesignColorMatchingFormID"]);
-
-                                    DEntryForm.DateandTime =
-                                        rdr["DateandTime"] == DBNull.Value
-                                        ? DateTime.MinValue
-                                        : Convert.ToDateTime(rdr["DateandTime"]);
-
-                                    DEntryForm.DateandTimes =
-                                        rdr["DateandTime"] == DBNull.Value
-                                        ? ""
-                                        : Convert.ToDateTime(rdr["DateandTime"]).ToString("dd-MM-yyyy");
-
-                                    DEntryForm.DesignEntryFormID =
-                                        Convert.ToInt32(rdr["DesignEntryFormID"]);
-
-                                    DEntryForm.TotalWarp =
-                                        Convert.ToInt32(rdr["TotalWarp"] == DBNull.Value ? 0 : rdr["TotalWarp"]);
-
-                                    DEntryForm.TotalWeft =
-                                        Convert.ToInt32(rdr["TotalWeft"] == DBNull.Value ? 0 : rdr["TotalWeft"]);
-
-                                    DEntryForm.ColorArray =
-                                        Convert.ToString(rdr["ColorArray"]).ToUpper();
-
-                                    DEntryForm.PhotoOfDesign =
-                                        Convert.ToString(rdr["PhotoOfDesign"]);
-
-                                    DEntryForm.DesignerID =
-                                        Convert.ToInt32(rdr["DesignerID"] == DBNull.Value ? 0 : rdr["DesignerID"]);
-
-                                    DEntryForm.DesignerCode =
-                                        Convert.ToString(rdr["DesignerCode"]).ToUpper();
-
-                                    DEntryForm.DesignNo =
-                                        Convert.ToString(rdr["DesignNo"]).ToUpper();
-
-                                    DEntryForm.PickOnLoom =
-                                        Convert.ToString(rdr["PickOnLoom"]);
-
-                                    DEntryForm.TotalCard =
-                                        Convert.ToDouble(rdr["TotalCard"] == DBNull.Value ? 0 : rdr["TotalCard"]);
-
-                                    DEntryForm.ReedOnLoom =
-                                        Convert.ToString(rdr["ReedOnLoom"]).ToUpper();
-
-                                    DEntryForm.WarpQuality =
-                                        Convert.ToString(rdr["WarpQuality"]).ToUpper();
-
-                                    DEntryForm.DesignCategory =
-                                        Convert.ToString(rdr["DesignCategory"]).ToUpper();
-
-                                    DEntryForm.WarpCheckBox =
-                                        Convert.ToString(rdr["WarpCheckBox"]).ToUpper();
-
-                                    DEntryForm.WeftCheckBox =
-                                        Convert.ToString(rdr["WeftCheckBox"]).ToUpper();
-
-                                    DEntryForm.SaleRate =
-                                        rdr["SaleRate"] == DBNull.Value
-                                        ? 0.00m
-                                        : Convert.ToDecimal(rdr["SaleRate"]);
-
-                                    int designEntryFormID =
-                                        Convert.ToInt32(rdr["DesignEntryFormID"]);
-
-                                    // Design Entry Weft Data
-                                    List<DesignEntryWeftData> EntryWeftData =
-                                        new List<DesignEntryWeftData>();
-
-                                    using (SqlCommand cmd1 = new SqlCommand(@"
-                                        SELECT DEWD.*,
-                                               YMM.YarnMaterial,
-                                               DSM.DesignSpecification
-                                        FROM DesignEntryWeftData DEWD
-                                        LEFT JOIN YarnMaterialMaster YMM
-                                            ON YMM.YarnMaterialID = DEWD.YarnMaterialID
-                                        LEFT JOIN DesignSpecificationMaster DSM
-                                            ON DSM.DesignSpecificationID = DEWD.DesignSpecificationID
-                                        WHERE DEWD.DesignEntryFormID = @DesignEntryFormID",
-                                        detailCon))
-                                    {
-                                        cmd1.Parameters.Add("@DesignEntryFormID",
-                                            SqlDbType.Int).Value = designEntryFormID;
-
-                                        using (SqlDataReader rdr1 = cmd1.ExecuteReader())
-                                        {
-                                            while (rdr1.Read())
-                                            {
-                                                DesignEntryWeftData Material =
-                                                    new DesignEntryWeftData();
-
-                                                Material.DesignEntryWeftID =
-                                                    Convert.ToInt32(rdr1["DesignEntryWeftID"]);
-
-                                                Material.Card =
-                                                    Convert.ToInt32(rdr1["Card"] == DBNull.Value ? 0 : rdr1["Card"]);
-
-                                                Material.Pick =
-                                                    Convert.ToInt32(rdr1["Pick"] == DBNull.Value ? 0 : rdr1["Pick"]);
-
-                                                Material.YarnMaterialID =
-                                                    Convert.ToInt32(rdr1["YarnMaterialID"] == DBNull.Value ? 0 : rdr1["YarnMaterialID"]);
-
-                                                Material.YarnMaterial =
-                                                    Convert.ToString(rdr1["YarnMaterial"]).ToUpper();
-
-                                                Material.DesignSpecification =
-                                                    Convert.ToString(rdr1["DesignSpecification"]).ToUpper();
-
-                                                EntryWeftData.Add(Material);
-                                            }
-                                        }
-                                    }
-
-                                    DEntryForm.listDesignEntryWeftData = EntryWeftData;
-
-                                    // Design Form Warp Data
-                                    List<DesignFormWarpData> warpDataList =
-                                        new List<DesignFormWarpData>();
-
-                                    using (SqlCommand cmd2 = new SqlCommand(@"
-                                        SELECT DFWD.*,
-                                               YQM.YarnMaterial
-                                        FROM DesignFormWarpData DFWD
-                                        LEFT JOIN YarnMaterialMaster YQM
-                                            ON YQM.YarnMaterialID = DFWD.YarnQualityMaterialID
-                                        WHERE DFWD.DesignEntryFormID = @DesignEntryFormID",
-                                        detailCon))
-                                    {
-                                        cmd2.Parameters.Add("@DesignEntryFormID",
-                                            SqlDbType.Int).Value = designEntryFormID;
-
-                                        using (SqlDataReader rdr3 = cmd2.ExecuteReader())
-                                        {
-                                            while (rdr3.Read())
-                                            {
-                                                DesignFormWarpData DesignFormWarp =
-                                                    new DesignFormWarpData();
-
-                                                DesignFormWarp.DesignEntryWarpID =
-                                                    Convert.ToInt32(rdr3["DesignEntryWarpID"]);
-
-                                                DesignFormWarp.YarnQualityID =
-                                                    Convert.ToInt32(rdr3["YarnQualityMaterialID"] == DBNull.Value
-                                                        ? 0 : rdr3["YarnQualityMaterialID"]);
-
-                                                DesignFormWarp.YarnMaterial =
-                                                    Convert.ToString(rdr3["YarnMaterial"]).ToUpper();
-
-                                                DesignFormWarp.Tar =
-                                                    Convert.ToInt32(rdr3["Tar"] == DBNull.Value ? 0 : rdr3["Tar"]);
-
-                                                warpDataList.Add(DesignFormWarp);
-                                            }
-                                        }
-                                    }
-
-                                    DEntryForm.listDesignFormWarpData = warpDataList;
-
-                                    // Design Color Matching Details
-                                    List<DesignColorMatchingDetails> allDesignColorMatchingDetails =
-                                        new List<DesignColorMatchingDetails>();
-
-                                    using (SqlCommand cmd3 = new SqlCommand(@"
-                                        SELECT *
-                                        FROM DesignColorMatchingDetails
-                                        WHERE DesignColorMatchingFormID = @DesignColorMatchingFormID",
-                                        detailCon))
-                                    {
-                                        cmd3.Parameters.Add("@DesignColorMatchingFormID",
-                                            SqlDbType.Int).Value = designColorMatchingFormID;
-
-                                        using (SqlDataReader rdr2 = cmd3.ExecuteReader())
-                                        {
-                                            while (rdr2.Read())
-                                            {
-                                                DesignColorMatchingDetails details =
-                                                    new DesignColorMatchingDetails();
-
-                                                details.DesignColorMatchingDetailsID =
-                                                    Convert.ToInt32(rdr2["DesignColorMatchingDetailsID"]);
-
-                                                details.DesignColorMatchingFormID =
-                                                    Convert.ToInt32(rdr2["DesignColorMatchingFormID"]);
-
-                                                details.MatchingNo =
-                                                    Convert.ToInt32(rdr2["MatchingNo"] == DBNull.Value ? 0 : rdr2["MatchingNo"]);
-
-                                                details.MatchingID =
-                                                    Convert.ToString(rdr2["MatchingID"]).ToUpper();
-
-                                                details.WarpMatchingID =
-                                                    Convert.ToString(rdr2["WarpMatchingID"]).ToUpper();
-
-                                                details.Warp1 = Convert.ToInt32(rdr2["Warp1"] == DBNull.Value ? 0 : rdr2["Warp1"]);
-                                                details.Warp2 = Convert.ToInt32(rdr2["Warp2"] == DBNull.Value ? 0 : rdr2["Warp2"]);
-                                                details.Warp3 = Convert.ToInt32(rdr2["Warp3"] == DBNull.Value ? 0 : rdr2["Warp3"]);
-                                                details.Warp4 = Convert.ToInt32(rdr2["Warp4"] == DBNull.Value ? 0 : rdr2["Warp4"]);
-                                                details.Warp5 = Convert.ToInt32(rdr2["Warp5"] == DBNull.Value ? 0 : rdr2["Warp5"]);
-                                                details.Warp6 = Convert.ToInt32(rdr2["Warp6"] == DBNull.Value ? 0 : rdr2["Warp6"]);
-                                                details.Warp7 = Convert.ToInt32(rdr2["Warp7"] == DBNull.Value ? 0 : rdr2["Warp7"]);
-                                                details.Warp8 = Convert.ToInt32(rdr2["Warp8"] == DBNull.Value ? 0 : rdr2["Warp8"]);
-                                                details.Warp9 = Convert.ToInt32(rdr2["Warp9"] == DBNull.Value ? 0 : rdr2["Warp9"]);
-                                                details.Warp10 = Convert.ToInt32(rdr2["Warp10"] == DBNull.Value ? 0 : rdr2["Warp10"]);
-
-                                                details.FeederMatchingID =
-                                                    Convert.ToString(rdr2["FeederMatchingID"]).ToUpper();
-
-                                                details.Feeder1 = Convert.ToInt32(rdr2["Feeder1"] == DBNull.Value ? 0 : rdr2["Feeder1"]);
-                                                details.Feeder2 = Convert.ToInt32(rdr2["Feeder2"] == DBNull.Value ? 0 : rdr2["Feeder2"]);
-                                                details.Feeder3 = Convert.ToInt32(rdr2["Feeder3"] == DBNull.Value ? 0 : rdr2["Feeder3"]);
-                                                details.Feeder4 = Convert.ToInt32(rdr2["Feeder4"] == DBNull.Value ? 0 : rdr2["Feeder4"]);
-                                                details.Feeder5 = Convert.ToInt32(rdr2["Feeder5"] == DBNull.Value ? 0 : rdr2["Feeder5"]);
-                                                details.Feeder6 = Convert.ToInt32(rdr2["Feeder6"] == DBNull.Value ? 0 : rdr2["Feeder6"]);
-                                                details.Feeder7 = Convert.ToInt32(rdr2["Feeder7"] == DBNull.Value ? 0 : rdr2["Feeder7"]);
-                                                details.Feeder8 = Convert.ToInt32(rdr2["Feeder8"] == DBNull.Value ? 0 : rdr2["Feeder8"]);
-                                                details.Feeder9 = Convert.ToInt32(rdr2["Feeder9"] == DBNull.Value ? 0 : rdr2["Feeder9"]);
-                                                details.Feeder10 = Convert.ToInt32(rdr2["Feeder10"] == DBNull.Value ? 0 : rdr2["Feeder10"]);
-                                                details.Feeder11 = Convert.ToInt32(rdr2["Feeder11"] == DBNull.Value ? 0 : rdr2["Feeder11"]);
-                                                details.Feeder12 = Convert.ToInt32(rdr2["Feeder12"] == DBNull.Value ? 0 : rdr2["Feeder12"]);
-                                                details.Feeder13 = Convert.ToInt32(rdr2["Feeder13"] == DBNull.Value ? 0 : rdr2["Feeder13"]);
-                                                details.Feeder14 = Convert.ToInt32(rdr2["Feeder14"] == DBNull.Value ? 0 : rdr2["Feeder14"]);
-                                                details.Feeder15 = Convert.ToInt32(rdr2["Feeder15"] == DBNull.Value ? 0 : rdr2["Feeder15"]);
-                                                details.Feeder16 = Convert.ToInt32(rdr2["Feeder16"] == DBNull.Value ? 0 : rdr2["Feeder16"]);
-                                                details.Feeder17 = Convert.ToInt32(rdr2["Feeder17"] == DBNull.Value ? 0 : rdr2["Feeder17"]);
-                                                details.Feeder18 = Convert.ToInt32(rdr2["Feeder18"] == DBNull.Value ? 0 : rdr2["Feeder18"]);
-                                                details.Feeder19 = Convert.ToInt32(rdr2["Feeder19"] == DBNull.Value ? 0 : rdr2["Feeder19"]);
-                                                details.Feeder20 = Convert.ToInt32(rdr2["Feeder20"] == DBNull.Value ? 0 : rdr2["Feeder20"]);
-                                                details.Feeder21 = Convert.ToInt32(rdr2["Feeder21"] == DBNull.Value ? 0 : rdr2["Feeder21"]);
-                                                details.Feeder22 = Convert.ToInt32(rdr2["Feeder22"] == DBNull.Value ? 0 : rdr2["Feeder22"]);
-                                                details.Feeder23 = Convert.ToInt32(rdr2["Feeder23"] == DBNull.Value ? 0 : rdr2["Feeder23"]);
-                                                details.Feeder24 = Convert.ToInt32(rdr2["Feeder24"] == DBNull.Value ? 0 : rdr2["Feeder24"]);
-                                                details.Feeder25 = Convert.ToInt32(rdr2["Feeder25"] == DBNull.Value ? 0 : rdr2["Feeder25"]);
-                                                details.Feeder26 = Convert.ToInt32(rdr2["Feeder26"] == DBNull.Value ? 0 : rdr2["Feeder26"]);
-                                                details.Feeder27 = Convert.ToInt32(rdr2["Feeder27"] == DBNull.Value ? 0 : rdr2["Feeder27"]);
-                                                details.Feeder28 = Convert.ToInt32(rdr2["Feeder28"] == DBNull.Value ? 0 : rdr2["Feeder28"]);
-                                                details.Feeder29 = Convert.ToInt32(rdr2["Feeder29"] == DBNull.Value ? 0 : rdr2["Feeder29"]);
-                                                details.Feeder30 = Convert.ToInt32(rdr2["Feeder30"] == DBNull.Value ? 0 : rdr2["Feeder30"]);
-
-                                                details.ColorMatchingPhoto =
-                                                    Convert.ToString(rdr2["ColorMatchingPhoto"]).ToUpper();
-
-                                                details.ColorGroupID =
-                                                    Convert.ToInt32(rdr2["ColorGroupID"] == DBNull.Value ? 0 : rdr2["ColorGroupID"]);
-
-                                                allDesignColorMatchingDetails.Add(details);
-                                            }
-                                        }
-                                    }
-
-                                    DEntryForm.listDesignColorMatchingDetails =
-                                        allDesignColorMatchingDetails;
-
-                                    listDesignEntryForm.Add(DEntryForm);
-                                }
+                                    DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                    DateandTime = rdr["DateandTime"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(rdr["DateandTime"]),
+                                    DateandTimes = rdr["DateandTime"] == DBNull.Value ? "" : Convert.ToDateTime(rdr["DateandTime"]).ToString("dd-MM-yyyy"),
+                                    DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]),
+                                    TotalWarp = GetInt(rdr, "TotalWarp"),
+                                    TotalWeft = GetInt(rdr, "TotalWeft"),
+                                    ColorArray = GetString(rdr, "ColorArray").ToUpper(),
+                                    PhotoOfDesign = GetString(rdr, "PhotoOfDesign"),
+                                    DesignerID = GetInt(rdr, "DesignerID"),
+                                    DesignerCode = GetString(rdr, "DesignerCode").ToUpper(),
+                                    DesignNo = GetString(rdr, "DesignNo").ToUpper(),
+                                    PickOnLoom = GetString(rdr, "PickOnLoom"),
+                                    TotalCard = rdr["TotalCard"] == DBNull.Value ? 0 : Convert.ToDouble(rdr["TotalCard"]),
+                                    ReedOnLoom = GetString(rdr, "ReedOnLoom").ToUpper(),
+                                    WarpQuality = GetString(rdr, "WarpQuality").ToUpper(),
+                                    DesignCategory = GetString(rdr, "DesignCategory").ToUpper(),
+                                    WarpCheckBox = GetString(rdr, "WarpCheckBox").ToUpper(),
+                                    WeftCheckBox = GetString(rdr, "WeftCheckBox").ToUpper(),
+                                    SaleRate = rdr["SaleRate"] == DBNull.Value ? 0.00m : Convert.ToDecimal(rdr["SaleRate"])
+                                });
                             }
                         }
                     }
 
-                    if (listDesignEntryForm.Count > 0)
+                    foreach (var form in listDesignEntryForm)
                     {
-                        response.Code = 200;
-                        response.Message = "Success";
-                    }
-                    else
-                    {
-                        response.Code = 105;
-                        response.Message = "Design Color Matching Form Not Exist.";
-                    }
+                        // 1. Weft Data
+                        form.listDesignEntryWeftData = new List<DesignEntryWeftData>();
+                        using (SqlCommand cmd1 = new SqlCommand(@"
+                    SELECT DEWD.DesignEntryWeftID, DEWD.Card, DEWD.Pick, DEWD.YarnMaterialID,
+                           YMM.YarnMaterial, DSM.DesignSpecification
+                    FROM DesignEntryWeftData DEWD
+                    LEFT JOIN YarnMaterialMaster YMM ON YMM.YarnMaterialID = DEWD.YarnMaterialID
+                    LEFT JOIN DesignSpecificationMaster DSM ON DSM.DesignSpecificationID = DEWD.DesignSpecificationID
+                    WHERE DEWD.DesignEntryFormID = @DesignEntryFormID", con))
+                        {
+                            cmd1.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = form.DesignEntryFormID;
+                            using (SqlDataReader rdr1 = cmd1.ExecuteReader())
+                            {
+                                while (rdr1.Read())
+                                {
+                                    form.listDesignEntryWeftData.Add(new DesignEntryWeftData
+                                    {
+                                        DesignEntryWeftID = Convert.ToInt32(rdr1["DesignEntryWeftID"]),
+                                        Card = GetInt(rdr1, "Card"),
+                                        Pick = GetInt(rdr1, "Pick"),
+                                        YarnMaterialID = GetInt(rdr1, "YarnMaterialID"),
+                                        YarnMaterial = GetString(rdr1, "YarnMaterial").ToUpper(),
+                                        DesignSpecification = GetString(rdr1, "DesignSpecification").ToUpper()
+                                    });
+                                }
+                            }
+                        }
 
-                    response.listDesignColorMatchingForm = listDesignEntryForm;
+                        // 2. Warp Data
+                        form.listDesignFormWarpData = new List<DesignFormWarpData>();
+                        using (SqlCommand cmd2 = new SqlCommand(@"
+                    SELECT DFWD.DesignEntryWarpID, DFWD.YarnQualityMaterialID, DFWD.Tar, YQM.YarnMaterial
+                    FROM DesignFormWarpData DFWD
+                    LEFT JOIN YarnMaterialMaster YQM ON YQM.YarnMaterialID = DFWD.YarnQualityMaterialID
+                    WHERE DFWD.DesignEntryFormID = @DesignEntryFormID", con))
+                        {
+                            cmd2.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = form.DesignEntryFormID;
+                            using (SqlDataReader rdr2 = cmd2.ExecuteReader())
+                            {
+                                while (rdr2.Read())
+                                {
+                                    form.listDesignFormWarpData.Add(new DesignFormWarpData
+                                    {
+                                        DesignEntryWarpID = Convert.ToInt32(rdr2["DesignEntryWarpID"]),
+                                        YarnQualityID = GetInt(rdr2, "YarnQualityMaterialID"),
+                                        YarnMaterial = GetString(rdr2, "YarnMaterial").ToUpper(),
+                                        Tar = GetInt(rdr2, "Tar")
+                                    });
+                                }
+                            }
+                        }
+
+                        // 3. Color Matching Details (with row-wise validation & Sale Order usage flags)
+                        form.listDesignColorMatchingDetails = new List<DesignColorMatchingDetails>();
+                        using (SqlCommand cmd3 = new SqlCommand(@"
+                    SELECT DCMD.*,
+                           CASE
+                               WHEN NULLIF(LTRIM(RTRIM(ISNULL(DCMD.ColorMatchingPhoto, ''))), '') IS NOT NULL
+                               THEN CAST(1 AS BIT)
+                               ELSE CAST(0 AS BIT)
+                           END AS IsValidated,
+                           CASE
+                               WHEN EXISTS (
+                                   SELECT 1
+                                   FROM dbo.SaleOrderSubDetails SOSD
+                                   WHERE SOSD.ColourID = DCMD.DesignColorMatchingDetailsID
+                               )
+                               THEN CAST(1 AS BIT)
+                               ELSE CAST(0 AS BIT)
+                           END AS IsUsedInSaleOrder
+                    FROM DesignColorMatchingDetails DCMD
+                    WHERE DCMD.DesignColorMatchingFormID = @DesignColorMatchingFormID", con))
+                        {
+                            cmd3.Parameters.Add("@DesignColorMatchingFormID", SqlDbType.Int).Value = designColorMatchingFormID;
+                            using (SqlDataReader rdr3 = cmd3.ExecuteReader())
+                            {
+                                var detailType = typeof(DesignColorMatchingDetails);
+                                while (rdr3.Read())
+                                {
+                                    var details = new DesignColorMatchingDetails
+                                    {
+                                        DesignColorMatchingDetailsID = Convert.ToInt32(rdr3["DesignColorMatchingDetailsID"]),
+                                        DesignColorMatchingFormID = Convert.ToInt32(rdr3["DesignColorMatchingFormID"]),
+                                        MatchingNo = GetInt(rdr3, "MatchingNo"),
+                                        MatchingID = GetString(rdr3, "MatchingID").ToUpper(),
+                                        WarpMatchingID = GetString(rdr3, "WarpMatchingID").ToUpper(),
+                                        FeederMatchingID = GetString(rdr3, "FeederMatchingID").ToUpper(),
+                                        ColorMatchingPhoto = GetString(rdr3, "ColorMatchingPhoto"),
+                                        ColorGroupID = GetInt(rdr3, "ColorGroupID"),
+                                        IsValidated = rdr3["IsValidated"] != DBNull.Value && Convert.ToBoolean(rdr3["IsValidated"]),
+                                        IsUsedInSaleOrder = rdr3["IsUsedInSaleOrder"] != DBNull.Value && Convert.ToBoolean(rdr3["IsUsedInSaleOrder"])
+                                    };
+
+                                    for (int w = 1; w <= 10; w++)
+                                        detailType.GetProperty("Warp" + w)?.SetValue(details, GetInt(rdr3, "Warp" + w));
+
+                                    for (int f = 1; f <= 30; f++)
+                                        detailType.GetProperty("Feeder" + f)?.SetValue(details, GetInt(rdr3, "Feeder" + f));
+
+                                    form.listDesignColorMatchingDetails.Add(details);
+                                }
+                            }
+                        }
+                    }
                 }
+
+                response.Code = listDesignEntryForm.Count > 0 ? 200 : 105;
+                response.Message = listDesignEntryForm.Count > 0 ? "Success" : "Design Color Matching Form Not Exist.";
             }
             catch (Exception ex)
             {
-                AuditLogHelper.LogError(
-                    "Design Color Matching",
-                    "getCreateColorMatchingFormDetails",
-                    ex);
-
+                AuditLogHelper.LogError("Design Color Matching", "getCreateColorMatchingFormDetails", ex);
                 response.Code = 500;
                 response.Message = "FAILED";
-                response.listDesignColorMatchingForm = listDesignEntryForm;
             }
 
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = Int32.MaxValue;
-            Context.Response.Write(js.Serialize(response));
+            response.listDesignColorMatchingForm = listDesignEntryForm;
+            WriteJsonResponse(response);
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignColorMatchingFormMaster()
         {
             CommanResponse comman = new CommanResponse();
-            DesignColorMatchingForm ilist = new DesignColorMatchingForm();
             DesignColorMatchingForm myDetails = null;
-
-            JavaScriptSerializer serializer = new JavaScriptSerializer
-            {
-                MaxJsonLength = int.MaxValue
-            };
 
             DateTime dateTimeIndian = TimeZoneInfo.ConvertTimeFromUtc(
                 DateTime.UtcNow,
                 TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
             );
 
-            ilist.DateandTime = dateTimeIndian;
+            string userAccountId = GetCookieValue("UserIDs", "0");
+            string companyId = GetCookieValue("CompanyID", "0");
+            string financialYearId = GetCookieValue("FinacialYearDefaultID", "0");
+            string rawJson = HttpContext.Current.Request.Params["ColorFormArray"];
 
-            string userAccountId = Context.Request.Cookies["UserIDs"] != null
-                ? Context.Request.Cookies["UserIDs"].Value.Split('=')[1]
-                : "0";
-
-            string companyId = Context.Request.Cookies["CompanyID"] != null
-                ? Context.Request.Cookies["CompanyID"].Value.Split('=')[1]
-                : "0";
-
-            string financialYearId = Context.Request.Cookies["FinacialYearDefaultID"] != null
-                ? Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1]
-                : "0";
-
-            ilist.DesignColorMatchingArray =
-                HttpContext.Current.Request.Params["ColorFormArray"];
-
-            // 1. Validate session
-            if (string.IsNullOrWhiteSpace(userAccountId) ||
-                string.IsNullOrWhiteSpace(companyId) ||
-                string.IsNullOrWhiteSpace(financialYearId) ||
-                userAccountId == "0" ||
-                companyId == "0" ||
-                financialYearId == "0")
+            if (string.IsNullOrWhiteSpace(userAccountId) || userAccountId == "0" ||
+                string.IsNullOrWhiteSpace(companyId) || companyId == "0" ||
+                string.IsNullOrWhiteSpace(financialYearId) || financialYearId == "0")
             {
                 comman.Code = 500;
                 comman.Message = "Please Re-Login your Account.";
-
-                AuditLogHelper.LogValidationError(
-                    "Design Color Matching",
-                    "DesignColorMatchingFormMaster",
-                    null,
-                    "Session or company cookies missing for update.",
-                    errorMessage: comman.Message
-                );
-
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "Session or company cookies missing for update.", errorMessage: comman.Message);
+                WriteJsonResponse(comman);
                 return;
             }
 
-            // 2. Validate request
-            if (string.IsNullOrWhiteSpace(ilist.DesignColorMatchingArray))
+            if (string.IsNullOrWhiteSpace(rawJson))
             {
                 comman.Code = 400;
                 comman.Message = "Color Form details cannot be empty.";
-
-                Context.Response.Write(serializer.Serialize(comman));
+                WriteJsonResponse(comman);
                 return;
             }
 
             try
             {
-                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingForm>(
-                    ilist.DesignColorMatchingArray
-                );
+                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingForm>(rawJson);
             }
             catch (Exception ex)
             {
                 comman.Code = 400;
                 comman.Message = "Invalid JSON data provided for Color Form.";
-                AuditLogHelper.LogValidationError("Design Color Matching","DesignColorMatchingFormMaster",null,"JSON deserialization failed during update.", errorMessage: ex.Message);
-                Context.Response.Write(serializer.Serialize(comman));
+                AuditLogHelper.LogValidationError("Design Color Matching", "DesignColorMatchingFormMaster", null, "JSON deserialization failed during update.", errorMessage: ex.Message);
+                WriteJsonResponse(comman);
                 return;
             }
 
@@ -23909,7 +23442,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             {
                 comman.Code = 400;
                 comman.Message = "Valid Design Color Matching Form ID is required for update.";
-                Context.Response.Write(serializer.Serialize(comman));
+                WriteJsonResponse(comman);
                 return;
             }
 
@@ -23921,55 +23454,51 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     con.Open();
-
-                    using (SqlTransaction trans = con.BeginTransaction(
-                        System.Data.IsolationLevel.Serializable))
+                    using (SqlTransaction trans = con.BeginTransaction(System.Data.IsolationLevel.Serializable))
                     {
                         try
                         {
-                            // 3. Verify master exists and lock it for this transaction.
-                            string checkMasterSql = @"SELECT DesignEntryFormID  FROM dbo.DesignColorMatchingFormMaster  WITH (UPDLOCK, HOLDLOCK) WHERE DesignColorMatchingFormID = @FormID;";
-
                             object oldDesignEntryId;
-
-                            using (SqlCommand cmd = new SqlCommand(checkMasterSql, con, trans))
+                            using (SqlCommand cmd = new SqlCommand(
+                                "SELECT DesignEntryFormID FROM dbo.DesignColorMatchingFormMaster WITH (UPDLOCK, HOLDLOCK) WHERE DesignColorMatchingFormID = @FormID;",
+                                con, trans))
                             {
-                                cmd.Parameters.AddWithValue("@FormID", formId);
+                                cmd.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
                                 oldDesignEntryId = cmd.ExecuteScalar();
                             }
 
-                            if (oldDesignEntryId == null ||  oldDesignEntryId == DBNull.Value)
+                            if (oldDesignEntryId == null || oldDesignEntryId == DBNull.Value)
                             {
                                 trans.Rollback();
                                 comman.Code = 404;
                                 comman.Message = "Color Matching Form not found. Please refresh.";
-                                Context.Response.Write(serializer.Serialize(comman));
+                                WriteJsonResponse(comman);
                                 return;
                             }
-                            // 4. Prevent assigning this form to another design
-                            // that already has a different color-matching master.
-                            string duplicateSql = @" SELECT TOP (1) DesignColorMatchingFormID FROM dbo.DesignColorMatchingFormMaster
-                                         WITH (UPDLOCK, HOLDLOCK) WHERE DesignEntryFormID = @DesignEntryFormID AND DesignColorMatchingFormID <> @FormID;";
+
                             object duplicateId;
-                            using (SqlCommand cmd = new SqlCommand(duplicateSql, con, trans))
+                            using (SqlCommand cmd = new SqlCommand(@"
+                        SELECT TOP (1) DesignColorMatchingFormID
+                        FROM dbo.DesignColorMatchingFormMaster WITH (UPDLOCK, HOLDLOCK)
+                        WHERE DesignEntryFormID = @DesignEntryFormID AND DesignColorMatchingFormID <> @FormID;", con, trans))
                             {
-                                cmd.Parameters.AddWithValue("@DesignEntryFormID",myDetails.DesignEntryFormID);
-                                cmd.Parameters.AddWithValue("@FormID", formId);
+                                cmd.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = myDetails.DesignEntryFormID;
+                                cmd.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
                                 duplicateId = cmd.ExecuteScalar();
                             }
+
                             if (duplicateId != null && duplicateId != DBNull.Value)
                             {
                                 trans.Rollback();
                                 comman.Code = 405;
                                 comman.id = Convert.ToInt32(duplicateId);
-                                comman.Message = $"Design Entry #{myDetails.DesignEntryFormID} " + "already has another Color Matching Form.";
-                                Context.Response.Write(serializer.Serialize(comman));
+                                comman.Message = $"Design Entry #{myDetails.DesignEntryFormID} already has another Color Matching Form.";
+                                WriteJsonResponse(comman);
                                 return;
                             }
-                            // 5. Capture old value for audit.
-                            object oldRecord = AuditLogHelper.FetchOldValue("DesignColorMatchingFormMaster", formId.ToString(), con, trans );
 
-                            // 6. Update master.
+                            object oldRecord = AuditLogHelper.FetchOldValue("DesignColorMatchingFormMaster", formId.ToString(), con, trans);
+
                             string sqlMaster = @"
                         UPDATE dbo.DesignColorMatchingFormMaster
                         SET DateandTime = @DateandTime,
@@ -23984,114 +23513,88 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                             WeftCheckBox = @WeftCheckBox
                         WHERE DesignColorMatchingFormID = @FormID;";
 
-                            using (SqlCommand cmd = new SqlCommand(
-                                sqlMaster, con, trans))
+                            using (SqlCommand cmd = new SqlCommand(sqlMaster, con, trans))
                             {
-                                cmd.Parameters.AddWithValue(
-                                    "@DateandTime", dateTimeIndian);
-                                cmd.Parameters.AddWithValue(
-                                    "@UserAccountId", Convert.ToInt32(userAccountId));
-                                cmd.Parameters.AddWithValue(
-                                    "@CompanyId", Convert.ToInt32(companyId));
-                                cmd.Parameters.AddWithValue(
-                                    "@FinancialYearID", Convert.ToInt32(financialYearId));
-                                cmd.Parameters.AddWithValue(
-                                    "@DesignEntryFormID", myDetails.DesignEntryFormID);
-                                cmd.Parameters.AddWithValue(
-                                    "@TotalWarp", myDetails.TotalWarp);
-                                cmd.Parameters.AddWithValue(
-                                    "@TotalWeft", myDetails.TotalWeft);
-                                cmd.Parameters.AddWithValue(
-                                    "@ColorArray",
-                                    (object)myDetails.ColorArray ?? DBNull.Value);
-                                cmd.Parameters.AddWithValue(
-                                    "@WarpCheckBox",
-                                    (object)myDetails.WarpCheckBox ?? DBNull.Value);
-                                cmd.Parameters.AddWithValue(
-                                    "@WeftCheckBox",
-                                    (object)myDetails.WeftCheckBox ?? DBNull.Value);
-                                cmd.Parameters.AddWithValue("@FormID", formId);
+                                cmd.Parameters.Add("@DateandTime", SqlDbType.DateTime).Value = dateTimeIndian;
+                                cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = Convert.ToInt32(userAccountId);
+                                cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = Convert.ToInt32(companyId);
+                                cmd.Parameters.Add("@FinancialYearID", SqlDbType.Int).Value = Convert.ToInt32(financialYearId);
+                                cmd.Parameters.Add("@DesignEntryFormID", SqlDbType.Int).Value = myDetails.DesignEntryFormID;
+                                cmd.Parameters.Add("@TotalWarp", SqlDbType.Int).Value = myDetails.TotalWarp;
+                                cmd.Parameters.Add("@TotalWeft", SqlDbType.Int).Value = myDetails.TotalWeft;
+                                cmd.Parameters.Add("@ColorArray", SqlDbType.NVarChar, -1).Value = (object)myDetails.ColorArray ?? DBNull.Value;
+                                cmd.Parameters.Add("@WarpCheckBox", SqlDbType.NVarChar, -1).Value = (object)myDetails.WarpCheckBox ?? DBNull.Value;
+                                cmd.Parameters.Add("@WeftCheckBox", SqlDbType.NVarChar, -1).Value = (object)myDetails.WeftCheckBox ?? DBNull.Value;
+                                cmd.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
 
-                                int affected = cmd.ExecuteNonQuery();
+                                if (cmd.ExecuteNonQuery() == 0)
+                                    throw new Exception("Color Matching master was not updated.");
+                            }
 
-                                if (affected == 0)
+                            // Fetch already-validated detail IDs for this form
+                            HashSet<long> validatedDetailIds = new HashSet<long>();
+                            using (SqlCommand cmdVal = new SqlCommand(@"
+                        SELECT DesignColorMatchingDetailsID
+                        FROM dbo.DesignColorMatchingDetails WITH (UPDLOCK, HOLDLOCK)
+                        WHERE DesignColorMatchingFormID = @FormID
+                          AND NULLIF(LTRIM(RTRIM(ISNULL(ColorMatchingPhoto, ''))), '') IS NOT NULL;", con, trans))
+                            {
+                                cmdVal.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
+                                using (SqlDataReader rdrVal = cmdVal.ExecuteReader())
                                 {
-                                    throw new Exception(
-                                        "Color Matching master was not updated.");
+                                    while (rdrVal.Read())
+                                        validatedDetailIds.Add(Convert.ToInt64(rdrVal["DesignColorMatchingDetailsID"]));
                                 }
                             }
 
-
-                            // 7. Delete selected details with Sale Order dependency check.
+                            // Delete selected details with Validation + Sale Order dependency check
                             if (!string.IsNullOrWhiteSpace(myDetails.DeleteColorArray))
                             {
                                 List<long> deleteIds = myDetails.DeleteColorArray
                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(s =>
-                                    {
-                                        long parsed;
-                                        return long.TryParse(s.Trim(), out parsed) ? parsed : 0L;
-                                    })
+                                    .Select(s => { long p; return long.TryParse(s.Trim(), out p) ? p : 0L; })
                                     .Where(id => id > 0)
                                     .Distinct()
                                     .ToList();
 
+                                if (deleteIds.Any(id => validatedDetailIds.Contains(id)))
+                                {
+                                    trans.Rollback();
+                                    comman.Code = 409;
+                                    comman.Message = "Cannot delete Color Matching rows that are already validated in Color Matching Validation Form.";
+                                    WriteJsonResponse(comman);
+                                    return;
+                                }
+
                                 if (deleteIds.Count > 0)
                                 {
                                     List<string> parameterNames = new List<string>();
-
-                                    using (SqlCommand cmdCheck = new SqlCommand())
+                                    using (SqlCommand cmdCheck = new SqlCommand { Connection = con, Transaction = trans })
                                     {
-                                        cmdCheck.Connection = con;
-                                        cmdCheck.Transaction = trans;
-
                                         for (int i = 0; i < deleteIds.Count; i++)
                                         {
-                                            string parameterName = "@DeleteID" + i;
-                                            parameterNames.Add(parameterName);
-
-                                            cmdCheck.Parameters.Add(
-                                                parameterName,
-                                                SqlDbType.BigInt
-                                            ).Value = deleteIds[i];
+                                            string paramName = "@DeleteID" + i;
+                                            parameterNames.Add(paramName);
+                                            cmdCheck.Parameters.Add(paramName, SqlDbType.BigInt).Value = deleteIds[i];
                                         }
 
-                                        cmdCheck.CommandText = @"
-                SELECT
-                    SOSD.ColourID,
-                    SOSD.SubDetailID,
-                    SOSD.DetailID,
-                    SOD.SaleOrderID
-                FROM dbo.SaleOrderSubDetails SOSD
-                    WITH (UPDLOCK, HOLDLOCK)
-                LEFT JOIN dbo.SaleOrderDetails SOD
-                    ON SOD.DetailID = SOSD.DetailID
-                WHERE SOSD.ColourID IN (" +
-                                                string.Join(",", parameterNames) + @")
-                ORDER BY SOSD.ColourID;";
+                                        string inClause = string.Join(",", parameterNames);
+                                        cmdCheck.CommandText = $@"
+                                    SELECT SOSD.ColourID, SOSD.SubDetailID, SOD.SaleOrderID
+                                    FROM dbo.SaleOrderSubDetails SOSD WITH (UPDLOCK, HOLDLOCK)
+                                    LEFT JOIN dbo.SaleOrderDetails SOD ON SOD.DetailID = SOSD.DetailID
+                                    WHERE SOSD.ColourID IN ({inClause})
+                                    ORDER BY SOSD.ColourID;";
 
                                         List<string> dependencyRecords = new List<string>();
-
                                         using (SqlDataReader rdr = cmdCheck.ExecuteReader())
                                         {
                                             while (rdr.Read())
                                             {
-                                                string colourId = Convert.ToString(rdr["ColourID"]);
-
-                                                string saleOrderId =
-                                                    rdr["SaleOrderID"] == DBNull.Value
-                                                    ? "Unknown"
-                                                    : Convert.ToString(rdr["SaleOrderID"]);
-
-                                                string subDetailId =
-                                                    rdr["SubDetailID"] == DBNull.Value
-                                                    ? "Unknown"
-                                                    : Convert.ToString(rdr["SubDetailID"]);
-
                                                 dependencyRecords.Add(
-                                                    "Colour ID: " + colourId +
-                                                    ", Sale Order ID: " + saleOrderId +
-                                                    ", SubDetail ID: " + subDetailId
+                                                    $"Colour ID: {rdr["ColourID"]}, " +
+                                                    $"Sale Order ID: {(rdr["SaleOrderID"] == DBNull.Value ? "Unknown" : rdr["SaleOrderID"].ToString())}, " +
+                                                    $"SubDetail ID: {(rdr["SubDetailID"] == DBNull.Value ? "Unknown" : rdr["SubDetailID"].ToString())}"
                                                 );
                                             }
                                         }
@@ -24099,155 +23602,93 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                                         if (dependencyRecords.Count > 0)
                                         {
                                             trans.Rollback();
-
                                             comman.Code = 409;
-                                            comman.Message =
-                                                "Cannot delete Color Matching details because they are " +
-                                                "already used in Sale Order. " +
-                                                string.Join(" | ", dependencyRecords.Distinct());
-
-                                            Context.Response.Write(serializer.Serialize(comman));
+                                            comman.Message = "Cannot delete Color Matching details because they are already used in Sale Order. " +
+                                                             string.Join(" | ", dependencyRecords.Distinct());
+                                            WriteJsonResponse(comman);
                                             return;
                                         }
 
-                                        cmdCheck.Parameters.Add(
-                                            "@FormID",
-                                            SqlDbType.BigInt
-                                        ).Value = formId;
-
-                                        cmdCheck.CommandText = @"
-                                            DELETE FROM dbo.DesignColorMatchingDetails
-                                            WHERE DesignColorMatchingFormID = @FormID
-                                              AND DesignColorMatchingDetailsID IN (" +
-                                                                            string.Join(",", parameterNames) + ");";
-
-                                                                    cmdCheck.ExecuteNonQuery();
-                                                                }
-                                                            }
-                                                        }
-
-
-                            // 8. Insert or update detail rows.
-                            if (myDetails.listDesignColorMatchingDetails != null)
-                            {
-                                foreach (DesignColorMatchingDetails each
-                                         in myDetails.listDesignColorMatchingDetails)
-                                {
-                                    string matchingId =
-                                        (each.WarpMatchingID ?? "") + "/" +
-                                        (each.FeederMatchingID ?? "");
-
-                                    if (each.DesignColorMatchingDetailsID == 0)
-                                    {
-                                        // Insert new detail.
-                                        string insertSql = @"
-                                    INSERT INTO dbo.DesignColorMatchingDetails
-                                    (
-                                        DesignColorMatchingFormID,
-                                        MatchingNo, MatchingID, WarpMatchingID,
-                                        Warp1, Warp2, Warp3, Warp4, Warp5,
-                                        Warp6, Warp7, Warp8, Warp9, Warp10,
-                                        FeederMatchingID,
-                                        Feeder1, Feeder2, Feeder3, Feeder4, Feeder5,
-                                        Feeder6, Feeder7, Feeder8, Feeder9, Feeder10,
-                                        Feeder11, Feeder12, Feeder13, Feeder14, Feeder15,
-                                        Feeder16, Feeder17, Feeder18, Feeder19, Feeder20,
-                                        Feeder21, Feeder22, Feeder23, Feeder24, Feeder25,
-                                        Feeder26, Feeder27, Feeder28, Feeder29, Feeder30,
-                                        ColorGroupID, UserAccountId
-                                    )
-                                    VALUES
-                                    (
-                                        @FormID,
-                                        @MatchingNo, @MatchingID, @WarpMatchingID,
-                                        @Warp1, @Warp2, @Warp3, @Warp4, @Warp5,
-                                        @Warp6, @Warp7, @Warp8, @Warp9, @Warp10,
-                                        @FeederMatchingID,
-                                        @Feeder1, @Feeder2, @Feeder3, @Feeder4, @Feeder5,
-                                        @Feeder6, @Feeder7, @Feeder8, @Feeder9, @Feeder10,
-                                        @Feeder11, @Feeder12, @Feeder13, @Feeder14, @Feeder15,
-                                        @Feeder16, @Feeder17, @Feeder18, @Feeder19, @Feeder20,
-                                        @Feeder21, @Feeder22, @Feeder23, @Feeder24, @Feeder25,
-                                        @Feeder26, @Feeder27, @Feeder28, @Feeder29, @Feeder30,
-                                        0, 0
-                                    );";
-
-                                        using (SqlCommand cmd = new SqlCommand(
-                                            insertSql, con, trans))
-                                        {
-                                            AddDesignColorDetailParameters(
-                                                cmd, each, matchingId, formId, false);
-
-                                            cmd.ExecuteNonQuery();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Update only if the detail belongs to this master.
-                                        string updateSql = @"
-                                    UPDATE dbo.DesignColorMatchingDetails
-                                    SET MatchingNo = @MatchingNo,
-                                        MatchingID = @MatchingID,
-                                        WarpMatchingID = @WarpMatchingID,
-                                        Warp1 = @Warp1, Warp2 = @Warp2,
-                                        Warp3 = @Warp3, Warp4 = @Warp4,
-                                        Warp5 = @Warp5, Warp6 = @Warp6,
-                                        Warp7 = @Warp7, Warp8 = @Warp8,
-                                        Warp9 = @Warp9, Warp10 = @Warp10,
-                                        FeederMatchingID = @FeederMatchingID,
-                                        Feeder1 = @Feeder1, Feeder2 = @Feeder2,
-                                        Feeder3 = @Feeder3, Feeder4 = @Feeder4,
-                                        Feeder5 = @Feeder5, Feeder6 = @Feeder6,
-                                        Feeder7 = @Feeder7, Feeder8 = @Feeder8,
-                                        Feeder9 = @Feeder9, Feeder10 = @Feeder10,
-                                        Feeder11 = @Feeder11, Feeder12 = @Feeder12,
-                                        Feeder13 = @Feeder13, Feeder14 = @Feeder14,
-                                        Feeder15 = @Feeder15, Feeder16 = @Feeder16,
-                                        Feeder17 = @Feeder17, Feeder18 = @Feeder18,
-                                        Feeder19 = @Feeder19, Feeder20 = @Feeder20,
-                                        Feeder21 = @Feeder21, Feeder22 = @Feeder22,
-                                        Feeder23 = @Feeder23, Feeder24 = @Feeder24,
-                                        Feeder25 = @Feeder25, Feeder26 = @Feeder26,
-                                        Feeder27 = @Feeder27, Feeder28 = @Feeder28,
-                                        Feeder29 = @Feeder29, Feeder30 = @Feeder30
-                                    WHERE DesignColorMatchingDetailsID = @DetailID
-                                      AND DesignColorMatchingFormID = @FormID;";
-
-                                        using (SqlCommand cmd = new SqlCommand(
-                                            updateSql, con, trans))
-                                        {
-                                            AddDesignColorDetailParameters(
-                                                cmd, each, matchingId, formId, true);
-
-                                            int affected = cmd.ExecuteNonQuery();
-
-                                            if (affected == 0)
-                                            {
-                                                throw new Exception(
-                                                    "Detail ID " +
-                                                    each.DesignColorMatchingDetailsID +
-                                                    " does not belong to this form, " +
-                                                    "or the detail no longer exists.");
-                                            }
-                                        }
+                                        cmdCheck.Parameters.Add("@FormID", SqlDbType.BigInt).Value = formId;
+                                        cmdCheck.CommandText = $@"
+                                    DELETE FROM dbo.DesignColorMatchingDetails
+                                    WHERE DesignColorMatchingFormID = @FormID
+                                      AND DesignColorMatchingDetailsID IN ({inClause});";
+                                        cmdCheck.ExecuteNonQuery();
                                     }
                                 }
                             }
 
-                            // 9. Expire existing form-ID cookie.
-                            System.Web.HttpCookie nameCookie =
-                                new System.Web.HttpCookie("DesignColorMatchingFormIDs");
+                            // Insert or update detail rows (skip updating already-validated rows)
+                            if (myDetails.listDesignColorMatchingDetails != null)
+                            {
+                                string insertSql = @"
+                            INSERT INTO dbo.DesignColorMatchingDetails
+                            (
+                                DesignColorMatchingFormID, MatchingNo, MatchingID, WarpMatchingID,
+                                Warp1, Warp2, Warp3, Warp4, Warp5, Warp6, Warp7, Warp8, Warp9, Warp10,
+                                FeederMatchingID,
+                                Feeder1, Feeder2, Feeder3, Feeder4, Feeder5, Feeder6, Feeder7, Feeder8, Feeder9, Feeder10,
+                                Feeder11, Feeder12, Feeder13, Feeder14, Feeder15, Feeder16, Feeder17, Feeder18, Feeder19, Feeder20,
+                                Feeder21, Feeder22, Feeder23, Feeder24, Feeder25, Feeder26, Feeder27, Feeder28, Feeder29, Feeder30,
+                                ColorGroupID, UserAccountId
+                            )
+                            VALUES
+                            (
+                                @FormID, @MatchingNo, @MatchingID, @WarpMatchingID,
+                                @Warp1, @Warp2, @Warp3, @Warp4, @Warp5, @Warp6, @Warp7, @Warp8, @Warp9, @Warp10,
+                                @FeederMatchingID,
+                                @Feeder1, @Feeder2, @Feeder3, @Feeder4, @Feeder5, @Feeder6, @Feeder7, @Feeder8, @Feeder9, @Feeder10,
+                                @Feeder11, @Feeder12, @Feeder13, @Feeder14, @Feeder15, @Feeder16, @Feeder17, @Feeder18, @Feeder19, @Feeder20,
+                                @Feeder21, @Feeder22, @Feeder23, @Feeder24, @Feeder25, @Feeder26, @Feeder27, @Feeder28, @Feeder29, @Feeder30,
+                                0, 0
+                            );";
 
-                            nameCookie.Expires = DateTime.Now.AddDays(-1);
-                            Context.Response.Cookies.Add(nameCookie);
+                                string updateSql = @"
+                            UPDATE dbo.DesignColorMatchingDetails
+                            SET MatchingNo = @MatchingNo,
+                                MatchingID = @MatchingID,
+                                WarpMatchingID = @WarpMatchingID,
+                                Warp1 = @Warp1, Warp2 = @Warp2, Warp3 = @Warp3, Warp4 = @Warp4, Warp5 = @Warp5,
+                                Warp6 = @Warp6, Warp7 = @Warp7, Warp8 = @Warp8, Warp9 = @Warp9, Warp10 = @Warp10,
+                                FeederMatchingID = @FeederMatchingID,
+                                Feeder1 = @Feeder1, Feeder2 = @Feeder2, Feeder3 = @Feeder3, Feeder4 = @Feeder4, Feeder5 = @Feeder5,
+                                Feeder6 = @Feeder6, Feeder7 = @Feeder7, Feeder8 = @Feeder8, Feeder9 = @Feeder9, Feeder10 = @Feeder10,
+                                Feeder11 = @Feeder11, Feeder12 = @Feeder12, Feeder13 = @Feeder13, Feeder14 = @Feeder14, Feeder15 = @Feeder15,
+                                Feeder16 = @Feeder16, Feeder17 = @Feeder17, Feeder18 = @Feeder18, Feeder19 = @Feeder19, Feeder20 = @Feeder20,
+                                Feeder21 = @Feeder21, Feeder22 = @Feeder22, Feeder23 = @Feeder23, Feeder24 = @Feeder24, Feeder25 = @Feeder25,
+                                Feeder26 = @Feeder26, Feeder27 = @Feeder27, Feeder28 = @Feeder28, Feeder29 = @Feeder29, Feeder30 = @Feeder30
+                            WHERE DesignColorMatchingDetailsID = @DetailID
+                              AND DesignColorMatchingFormID = @FormID;";
 
-                            // 10. Audit the actual master primary key.
+                                foreach (var each in myDetails.listDesignColorMatchingDetails)
+                                {
+                                    bool isUpdate = each.DesignColorMatchingDetailsID > 0;
+
+                                    // Validated row ko overwrite na karein (sirf MatchingNo update karna ho toh alag se kar sakte hain)
+                                    if (isUpdate && validatedDetailIds.Contains(each.DesignColorMatchingDetailsID))
+                                        continue;
+
+                                    string matchingId = (each.WarpMatchingID ?? "") + "/" + (each.FeederMatchingID ?? "");
+
+                                    using (SqlCommand cmd = new SqlCommand(isUpdate ? updateSql : insertSql, con, trans))
+                                    {
+                                        AddDesignColorDetailParameters(cmd, each, matchingId, formId, isUpdate);
+                                        int affected = cmd.ExecuteNonQuery();
+
+                                        if (isUpdate && affected == 0)
+                                            throw new Exception($"Detail ID {each.DesignColorMatchingDetailsID} does not belong to this form, or no longer exists.");
+                                    }
+                                }
+                            }
+
+                            Context.Response.Cookies.Add(new System.Web.HttpCookie("DesignColorMatchingFormIDs") { Expires = DateTime.Now.AddDays(-1) });
+
                             AuditLogHelper.LogUpdate(
                                 module: "Design Color Matching",
                                 tableName: "DesignColorMatchingFormMaster",
                                 recordId: formId.ToString(),
-                                description:
-                                    $"Updated Design Color Matching Form ID #{formId}",
+                                description: $"Updated Design Color Matching Form ID #{formId}",
                                 oldValue: oldRecord,
                                 newValue: myDetails,
                                 conn: con,
@@ -24262,15 +23703,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                         }
                         catch
                         {
-                            try
-                            {
-                                trans.Rollback();
-                            }
-                            catch
-                            {
-                                // Preserve original exception.
-                            }
-
+                            try { trans.Rollback(); } catch { }
                             throw;
                         }
                     }
@@ -24282,110 +23715,27 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 {
                     comman.Code = 405;
                     comman.Message = "Duplicate record detected.";
-
-                    AuditLogHelper.LogDuplicateError(
-                        "Design Color Matching",
-                        "DesignColorMatchingFormMaster",
-                        myDetails.DesignColorMatchingFormID.ToString(),
-                        "SQL duplicate-key error during update.",
-                        errorMessage: ex.Message,
-                        requestData: myDetails
-                    );
+                    AuditLogHelper.LogDuplicateError("Design Color Matching", "DesignColorMatchingFormMaster", formId.ToString(), "SQL duplicate-key error during update.", errorMessage: ex.Message, requestData: myDetails);
                 }
                 else
                 {
                     comman.Code = 410;
-                    comman.Message =
-                        "Problem has been occurred while submitting your data.";
-
-                    AuditLogHelper.LogError(
-                        "Design Color Matching",
-                        "UpdateDesignColorMatchingFormMaster",
-                        ex,
-                        ilist.DesignColorMatchingArray
-                    );
+                    comman.Message = "Problem has been occurred while submitting your data.";
+                    AuditLogHelper.LogError("Design Color Matching", "UpdateDesignColorMatchingFormMaster", ex, rawJson);
                 }
             }
             catch (Exception ex)
             {
                 comman.Code = 500;
                 comman.Message = "An unexpected error occurred: " + ex.Message;
-
-                AuditLogHelper.LogError(
-                    "Design Color Matching",
-                    "UpdateDesignColorMatchingFormMaster",
-                    ex,
-                    ilist.DesignColorMatchingArray
-                );
+                AuditLogHelper.LogError("Design Color Matching", "UpdateDesignColorMatchingFormMaster", ex, rawJson);
             }
 
-            Context.Response.Write(serializer.Serialize(comman));
+            WriteJsonResponse(comman);
         }
         // Helper method: place this inside the same WebService class,
         // outside UpdateDesignColorMatchingFormMaster().
-        private void AddDesignColorDetailParameters(SqlCommand cmd,DesignColorMatchingDetails each,string matchingId,long formId,bool isUpdate)
-        {
-            cmd.Parameters.AddWithValue("@FormID", formId);
 
-            if (isUpdate)
-            {
-                cmd.Parameters.AddWithValue(
-                    "@DetailID", each.DesignColorMatchingDetailsID);
-            }
-
-            cmd.Parameters.AddWithValue("@MatchingNo", each.MatchingNo);
-            cmd.Parameters.AddWithValue("@MatchingID", matchingId);
-
-            cmd.Parameters.AddWithValue(
-                "@WarpMatchingID",
-                (object)each.WarpMatchingID ?? DBNull.Value);
-
-            cmd.Parameters.AddWithValue("@Warp1", (object)each.Warp1 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp2", (object)each.Warp2 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp3", (object)each.Warp3 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp4", (object)each.Warp4 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp5", (object)each.Warp5 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp6", (object)each.Warp6 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp7", (object)each.Warp7 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp8", (object)each.Warp8 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp9", (object)each.Warp9 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Warp10", (object)each.Warp10 ?? DBNull.Value);
-
-            cmd.Parameters.AddWithValue(
-                "@FeederMatchingID",
-                (object)each.FeederMatchingID ?? DBNull.Value);
-
-            cmd.Parameters.AddWithValue("@Feeder1", (object)each.Feeder1 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder2", (object)each.Feeder2 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder3", (object)each.Feeder3 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder4", (object)each.Feeder4 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder5", (object)each.Feeder5 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder6", (object)each.Feeder6 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder7", (object)each.Feeder7 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder8", (object)each.Feeder8 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder9", (object)each.Feeder9 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder10", (object)each.Feeder10 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder11", (object)each.Feeder11 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder12", (object)each.Feeder12 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder13", (object)each.Feeder13 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder14", (object)each.Feeder14 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder15", (object)each.Feeder15 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder16", (object)each.Feeder16 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder17", (object)each.Feeder17 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder18", (object)each.Feeder18 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder19", (object)each.Feeder19 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder20", (object)each.Feeder20 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder21", (object)each.Feeder21 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder22", (object)each.Feeder22 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder23", (object)each.Feeder23 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder24", (object)each.Feeder24 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder25", (object)each.Feeder25 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder26", (object)each.Feeder26 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder27", (object)each.Feeder27 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder28", (object)each.Feeder28 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder29", (object)each.Feeder29 ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Feeder30", (object)each.Feeder30 ?? DBNull.Value);
-        }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void DeleteDesignColorMatchingFormMaster()
@@ -24396,7 +23746,6 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             };
 
             CommanResponse comman = new CommanResponse();
-
             int formId = 0;
 
             int.TryParse(
@@ -24408,13 +23757,11 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             {
                 comman.Code = 400;
                 comman.Message = "Invalid Design Color Matching Form ID.";
-
                 Context.Response.Write(js.Serialize(comman));
                 return;
             }
 
-            string cs = ConfigurationManager
-                .ConnectionStrings["sqlconnstr"].ConnectionString;
+            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
 
             try
             {
@@ -24422,16 +23769,17 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 {
                     con.Open();
 
-                    using (SqlTransaction trans = con.BeginTransaction(
-                        System.Data.IsolationLevel.Serializable))
+                    using (SqlTransaction trans = con.BeginTransaction(System.Data.IsolationLevel.Serializable))
                     {
                         try
                         {
                             // 1. Lock and verify the master record.
                             object masterId;
-
                             string masterCheckSql = @"
-                        SELECT DesignColorMatchingFormID  FROM dbo.DesignColorMatchingFormMaster WITH (UPDLOCK, HOLDLOCK) WHERE DesignColorMatchingFormID = @FormID;";
+                        SELECT DesignColorMatchingFormID
+                        FROM dbo.DesignColorMatchingFormMaster WITH (UPDLOCK, HOLDLOCK)
+                        WHERE DesignColorMatchingFormID = @FormID;";
+
                             using (SqlCommand cmd = new SqlCommand(masterCheckSql, con, trans))
                             {
                                 cmd.Parameters.Add("@FormID", SqlDbType.Int).Value = formId;
@@ -24443,81 +23791,67 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                                 trans.Rollback();
                                 comman.Code = 404;
                                 comman.Message = "Record not found.";
-
                                 Context.Response.Write(js.Serialize(comman));
                                 return;
                             }
 
-                            // 2. Fetch the old record for audit.
-                            object oldRecord = AuditLogHelper.FetchOldValue("DesignColorMatchingFormMaster", formId.ToString(), con, trans);
-                            // 3. Check dependencies.
-                            // Lock referenced rows while checking, to reduce race risks.
+                            // 2. Check actual external dependencies (exclude child DesignColorMatchingDetails).
                             string checkSql = @"
                         SELECT
-                            (SELECT COUNT_BIG(1) FROM dbo.DesignColorMatchingDetails WITH (HOLDLOCK)  WHERE DesignColorMatchingFormID = @FormID)
-                          + (SELECT COUNT_BIG(1) FROM dbo.YarnRequirementMaster WITH (HOLDLOCK) WHERE DesignColorMatchingFormID = @FormID)
-                          + (SELECT COUNT_BIG(1) FROM dbo.YarnOutwardDetails YOD WITH (HOLDLOCK)
-                                INNER JOIN dbo.DesignColorMatchingDetails DCMD  WITH (HOLDLOCK)
-                               ON DCMD.DesignColorMatchingDetailsID = YOD.ColorDetailsID
+                            (SELECT COUNT_BIG(1)
+                             FROM dbo.YarnRequirementMaster WITH (HOLDLOCK)
+                             WHERE DesignColorMatchingFormID = @FormID)
+                          + (SELECT COUNT_BIG(1)
+                             FROM dbo.YarnOutwardDetails YOD WITH (HOLDLOCK)
+                             INNER JOIN dbo.DesignColorMatchingDetails DCMD WITH (HOLDLOCK)
+                                 ON DCMD.DesignColorMatchingDetailsID = YOD.ColorDetailsID
                              WHERE DCMD.DesignColorMatchingFormID = @FormID);";
 
-                            using (SqlCommand cmdCheck = new SqlCommand(
-                                checkSql, con, trans))
+                            using (SqlCommand cmdCheck = new SqlCommand(checkSql, con, trans))
                             {
-                                cmdCheck.Parameters.Add(
-                                    "@FormID", SqlDbType.Int
-                                ).Value = formId;
-
-                                long totalRefs = Convert.ToInt64(
-                                    cmdCheck.ExecuteScalar()
-                                );
+                                cmdCheck.Parameters.Add("@FormID", SqlDbType.Int).Value = formId;
+                                long totalRefs = Convert.ToInt64(cmdCheck.ExecuteScalar());
 
                                 if (totalRefs > 0)
                                 {
                                     trans.Rollback();
-
                                     comman.Code = 547;
-                                    comman.Message =
-                                        "Cannot delete this record because it is already used.";
-
+                                    comman.Message = "Cannot delete this record because it is already used in Yarn Requirement / Yarn Outward.";
                                     Context.Response.Write(js.Serialize(comman));
                                     return;
                                 }
                             }
 
+                            // 3. Fetch old record for audit.
+                            object oldRecord = AuditLogHelper.FetchOldValue(
+                                "DesignColorMatchingFormMaster",
+                                formId.ToString(),
+                                con,
+                                trans
+                            );
+
                             // 4. Delete child details first.
                             using (SqlCommand cmdDetails = new SqlCommand(
-                                @"DELETE FROM dbo.DesignColorMatchingDetails
-                          WHERE DesignColorMatchingFormID = @FormID;",
+                                "DELETE FROM dbo.DesignColorMatchingDetails WHERE DesignColorMatchingFormID = @FormID;",
                                 con, trans))
                             {
-                                cmdDetails.Parameters.Add(
-                                    "@FormID", SqlDbType.Int
-                                ).Value = formId;
-
+                                cmdDetails.Parameters.Add("@FormID", SqlDbType.Int).Value = formId;
                                 cmdDetails.ExecuteNonQuery();
                             }
 
                             // 5. Delete master.
                             int deletedRows;
-
                             using (SqlCommand cmdMaster = new SqlCommand(
-                                @"DELETE FROM dbo.DesignColorMatchingFormMaster
-                          WHERE DesignColorMatchingFormID = @FormID;",
+                                "DELETE FROM dbo.DesignColorMatchingFormMaster WHERE DesignColorMatchingFormID = @FormID;",
                                 con, trans))
                             {
-                                cmdMaster.Parameters.Add(
-                                    "@FormID", SqlDbType.Int
-                                ).Value = formId;
-
+                                cmdMaster.Parameters.Add("@FormID", SqlDbType.Int).Value = formId;
                                 deletedRows = cmdMaster.ExecuteNonQuery();
                             }
 
                             if (deletedRows != 1)
                             {
-                                throw new Exception(
-                                    "Master record was not deleted."
-                                );
+                                throw new Exception("Master record was not deleted.");
                             }
 
                             // 6. Write audit log using the actual master primary key.
@@ -24525,8 +23859,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                                 module: "Design Color Matching",
                                 tableName: "DesignColorMatchingFormMaster",
                                 recordId: formId.ToString(),
-                                description:
-                                    $"Deleted Design Color Matching Form ID #{formId}",
+                                description: $"Deleted Design Color Matching Form ID #{formId}",
                                 oldValue: oldRecord,
                                 conn: con,
                                 tran: trans
@@ -24560,15 +23893,12 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 if (ex.Number == 547)
                 {
                     comman.Code = 547;
-                    comman.Message =
-                        "Cannot delete this record because another record references it.";
+                    comman.Message = "Cannot delete this record because another record references it.";
                 }
                 else
                 {
-                    comman.Code = 405;
-                    comman.Message =
-                        "Problem occurred while deleting your data.";
-
+                    comman.Code = ex.Number;
+                    comman.Message = "SQL Error (" + ex.Number + "): " + ex.Message;
                     AuditLogHelper.LogError(
                         "Design Color Matching",
                         "DeleteDesignColorMatchingFormMaster",
@@ -24580,8 +23910,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             catch (Exception ex)
             {
                 comman.Code = 500;
-                comman.Message = "An unexpected error occurred.";
-
+                comman.Message = "Error: " + ex.Message;
                 AuditLogHelper.LogError(
                     "Design Color Matching",
                     "DeleteDesignColorMatchingFormMaster",
@@ -24624,133 +23953,112 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getColorGroup()
         {
-            var request = HttpContext.Current.Request;
-            Int64 customer_id = 0;
-
-            if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
-            {
-                customer_id = Convert.ToInt64(request.Form["CustomerId"]);
-            }
-
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<ColorGroupMaster> listColorGroupMaster = new List<ColorGroupMaster>();
-            ColorGroupMasterResponse DesignEntryForm = new ColorGroupMasterResponse();
+            ColorGroupMasterResponse response = new ColorGroupMasterResponse();
 
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
+            try
             {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select * from ColorGroupMaster where IsActive = 1 order by ColorGroup ";
-                con.Open();
-                rdr = cmd.ExecuteReader();
-
-                if (rdr.HasRows)
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                using (SqlCommand cmd = new SqlCommand(@"
+            SELECT ColorGroupID, ColorGroup
+            FROM ColorGroupMaster
+            WHERE IsActive = 1
+            ORDER BY ColorGroup;", con))
                 {
-                    while (rdr.Read())
+                    con.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
-                        ColorGroupMaster Designer = new ColorGroupMaster();
-                        Designer.ColorGroupID = Convert.ToInt32(rdr["ColorGroupID"]);
-                        Designer.ColorGroup = rdr["ColorGroup"].ToString().ToUpper();
-                        listColorGroupMaster.Add(Designer);
+                        while (rdr.Read())
+                        {
+                            listColorGroupMaster.Add(new ColorGroupMaster
+                            {
+                                ColorGroupID = Convert.ToInt32(rdr["ColorGroupID"]),
+                                ColorGroup = GetString(rdr, "ColorGroup").ToUpper()
+                            });
+                        }
                     }
                 }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
 
+                response.Code = 200;
+                response.Message = "Success";
             }
-            DesignEntryForm.Code = 200;
-            DesignEntryForm.Message = "Success";
-            DesignEntryForm.listColorGroupMaster = listColorGroupMaster;
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Color Matching Validation", "getColorGroup", ex);
+                response.Code = 500;
+                response.Message = "FAILED";
+            }
 
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
-
-            return;
+            response.listColorGroupMaster = listColorGroupMaster;
+            WriteJsonResponse(response);
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void getExistsDesignNoForm()
         {
-            var request = HttpContext.Current.Request;
-            Int64 customer_id = 0;
-
-            string DesignColorMatchingFormIDs = "0";
-            if (Context.Request.Cookies["DesignColorMatchingFormIDs"] != null)
-            {
-                DesignColorMatchingFormIDs = DesignColorMatchingFormIDs = Context.Request.Cookies["DesignColorMatchingFormIDs"].Value.Split('=')[1];
-            }
-            if (!string.IsNullOrEmpty(request.Form["CustomerId"]))
-            {
-                customer_id = Convert.ToInt64(request.Form["CustomerId"]);
-            }
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-            string dateVal = dateTime_Indian.ToString("yyyy-MM-dd");
             List<DesignEntryForm> listDesignerMaster = new List<DesignEntryForm>();
-            DesignEntryFormResponse DesignEntryForm = new DesignEntryFormResponse();
+            DesignEntryFormResponse response = new DesignEntryFormResponse();
 
-            string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
-            using (SqlConnection con = new SqlConnection(cs))
+            try
             {
-                SqlCommand cmd;
-                SqlDataReader rdr;
-                cmd = new SqlCommand();
-                cmd.Connection = con;
-                cmd.CommandType = System.Data.CommandType.Text;
-                cmd.CommandText = " select DEFM.*, ISNULL(DCMFM.DesignColorMatchingFormID,0) as DesignColorMatchingFormID   " +
-                     " from DesignEntryFormMaster DEFM" +
-                     " LEFT JOIN DesignColorMatchingFormMaster DCMFM ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID " +
-                     " Where DEFM.DesignEntryFormID in (select DesignEntryFormID from DesignColorMatchingFormMaster)" +
-                     " order by DesignEntryFormID DESC";
-                con.Open();
-                rdr = cmd.ExecuteReader();
+                int designColorMatchingFormIDs = 0;
+                int.TryParse(GetCookieValue("DesignColorMatchingFormIDs", "0"), out designColorMatchingFormIDs);
 
-                if (rdr.HasRows)
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                using (SqlCommand cmd = new SqlCommand(@"
+            SELECT DEFM.DesignEntryFormID,
+                   DEFM.DesignNo,
+                   DEFM.DesignerCode,
+                   DCMFM.DesignColorMatchingFormID
+            FROM DesignEntryFormMaster DEFM
+            INNER JOIN DesignColorMatchingFormMaster DCMFM
+                ON DCMFM.DesignEntryFormID = DEFM.DesignEntryFormID
+            ORDER BY DEFM.DesignEntryFormID DESC;", con))
                 {
-                    while (rdr.Read())
+                    con.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
-                        DesignEntryForm Designer = new DesignEntryForm();
-                        Designer.DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]);
-                        Designer.DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]);
-                        Designer.DesignColorMatchingFormIDs = Convert.ToInt32(DesignColorMatchingFormIDs);
-                        Designer.DesignNo = rdr["DesignNo"].ToString().ToUpper();
-                        Designer.DesignerCode = rdr["DesignerCode"].ToString().ToUpper();
-                        listDesignerMaster.Add(Designer);
+                        while (rdr.Read())
+                        {
+                            listDesignerMaster.Add(new DesignEntryForm
+                            {
+                                DesignEntryFormID = Convert.ToInt32(rdr["DesignEntryFormID"]),
+                                DesignColorMatchingFormID = Convert.ToInt32(rdr["DesignColorMatchingFormID"]),
+                                DesignColorMatchingFormIDs = designColorMatchingFormIDs,
+                                DesignNo = GetString(rdr, "DesignNo").ToUpper(),
+                                DesignerCode = GetString(rdr, "DesignerCode").ToUpper()
+                            });
+                        }
                     }
                 }
-                rdr.Close();
-                cmd.Dispose();
-                con.Close();
+
+                response.Code = 200;
+                response.Message = "Success";
             }
-            DesignEntryForm.Code = 200;
-            DesignEntryForm.Message = "Success";
-            DesignEntryForm.listDesignEntryForm = listDesignerMaster;
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            Context.Response.Write(js.Serialize(DesignEntryForm));
-            return;
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Color Matching Validation", "getExistsDesignNoForm", ex);
+                response.Code = 500;
+                response.Message = "FAILED";
+            }
+
+            response.listDesignEntryForm = listDesignerMaster;
+            WriteJsonResponse(response);
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public void UpdateDesignColorMatchingValidationFormMaster()
         {
-            DateTime dateTime_Indian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+            DateTime dateTimeIndian = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
             var request = HttpContext.Current.Request;
-
             CommanResponse comman = new CommanResponse();
-            DesignColorMatchingForm ilist = new DesignColorMatchingForm();
-            ilist.DateandTime = Convert.ToDateTime(dateTime_Indian.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            string UserAccountId = Context.Request.Cookies["UserIDs"] != null ? Context.Request.Cookies["UserIDs"].Value.Split('=')[1] : "0";
-            string CompanyId = Context.Request.Cookies["CompanyID"] != null ? Context.Request.Cookies["CompanyID"].Value.Split('=')[1] : "0";
-            string FinancialYearID = Context.Request.Cookies["FinacialYearDefaultID"] != null ? Context.Request.Cookies["FinacialYearDefaultID"].Value.Split('=')[1] : "0";
-            ilist.DesignColorMatchingArray = HttpContext.Current.Request.Params["DesignColorMatchingDetails"];
+            string userAccountId = GetCookieValue("UserIDs", "0");
+            string rawJson = request.Params["DesignColorMatchingDetails"];
 
-            if (string.IsNullOrEmpty(UserAccountId) || UserAccountId == "0")
+            if (string.IsNullOrWhiteSpace(userAccountId) || userAccountId == "0")
             {
                 comman.Code = 500;
                 comman.Message = "Please Re-Login your Account.";
@@ -24759,7 +24067,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 return;
             }
 
-            if (string.IsNullOrEmpty(ilist.DesignColorMatchingArray))
+            if (string.IsNullOrWhiteSpace(rawJson))
             {
                 comman.Code = 400;
                 comman.Message = "DesignColorMatchingDetails parameter is required.";
@@ -24771,7 +24079,7 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
             DesignColorMatchingDetails myDetails = null;
             try
             {
-                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingDetails>(ilist.DesignColorMatchingArray);
+                myDetails = JsonConvert.DeserializeObject<DesignColorMatchingDetails>(rawJson);
             }
             catch (Exception ex)
             {
@@ -24791,46 +24099,28 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 return;
             }
 
-            string ColorMatchingPhoto = myDetails.ColorMatchingPhoto ?? "";
+            string colorMatchingPhoto = myDetails.ColorMatchingPhoto ?? "";
+            var uploadedFile = request.Files.Count > 0 ? request.Files["ColorMatching"] : null;
 
-            if (string.IsNullOrEmpty(ColorMatchingPhoto))
+            if (uploadedFile != null && uploadedFile.ContentLength > 0)
             {
-                if (request.Files.Count > 0)
-                {
-                    var photo1 = request.Files["ColorMatching"];
-                    if (photo1 != null && photo1.ContentLength != 0)
-                    {
-                        ColorMatchingPhoto = "ColorMatchingPhoto/" + RandomString(6, true) + Regex.Replace(photo1.FileName, @"\s+", "-");
-                        var path = HttpContext.Current.Server.MapPath(ColorMatchingPhoto);
-                        Stream strm = photo1.InputStream;
-                        GenerateThumbnails(0.2, strm, path);
-                    }
-                }
-            }
-            else
-            {
-                if (request.Files.Count > 0)
+                if (!string.IsNullOrWhiteSpace(colorMatchingPhoto))
                 {
                     try
                     {
-                        string path = Server.MapPath(@"/" + myDetails.ColorMatchingPhoto);
-                        FileInfo filess = new FileInfo(path);
-                        if (filess.Exists) filess.Delete();
+                        string oldPath = Server.MapPath("~/" + colorMatchingPhoto.TrimStart('/'));
+                        if (File.Exists(oldPath))
+                            File.Delete(oldPath);
                     }
                     catch { }
-
-                    var photo1 = request.Files["ColorMatching"];
-                    if (photo1 != null && photo1.ContentLength != 0)
-                    {
-                        ColorMatchingPhoto = "ColorMatchingPhoto/" + RandomString(6, true) + Regex.Replace(photo1.FileName, @"\s+", "-");
-                        var paths = HttpContext.Current.Server.MapPath(ColorMatchingPhoto);
-                        Stream strm = photo1.InputStream;
-                        GenerateThumbnails(0.2, strm, paths);
-                    }
                 }
+
+                colorMatchingPhoto = "ColorMatchingPhoto/" + RandomString(6, true) + Regex.Replace(uploadedFile.FileName, @"\s+", "-");
+                string newPath = HttpContext.Current.Server.MapPath("~/" + colorMatchingPhoto);
+                GenerateThumbnails(0.2, uploadedFile.InputStream, newPath);
             }
 
-            if (string.IsNullOrEmpty(ColorMatchingPhoto))
+            if (string.IsNullOrWhiteSpace(colorMatchingPhoto))
             {
                 comman.Code = 500;
                 comman.Message = "Please upload Color Matching Photo First.";
@@ -24845,73 +24135,76 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 using (SqlConnection con = new SqlConnection(cs))
                 {
                     con.Open();
-                    using (SqlTransaction trans = con.BeginTransaction())
+                    using (SqlTransaction trans = con.BeginTransaction(System.Data.IsolationLevel.Serializable))
                     {
                         try
                         {
-                            object oldRecord = AuditLogHelper.FetchOldValue("DesignColorMatchingDetails", myDetails.DesignColorMatchingDetailsID.ToString(), con, trans);
-                            string MatchingID = (myDetails.WarpMatchingID ?? "") + "/" + (myDetails.FeederMatchingID ?? "");
+                            // Block edit if this Color Matching ID is already used in a Sale Order
+                            using (SqlCommand cmdSo = new SqlCommand(@"
+                        SELECT COUNT_BIG(1)
+                        FROM dbo.SaleOrderSubDetails WITH (UPDLOCK, HOLDLOCK)
+                        WHERE ColourID = @DesignColorMatchingDetailsID;", con, trans))
+                            {
+                                cmdSo.Parameters.Add("@DesignColorMatchingDetailsID", SqlDbType.Int).Value = myDetails.DesignColorMatchingDetailsID;
+                                long soCount = Convert.ToInt64(cmdSo.ExecuteScalar());
 
-                            string sqlUpdate = @"UPDATE DesignColorMatchingDetails SET 
-                                MatchingID = @MatchingID, WarpMatchingID = @WarpMatchingID, 
-                                Warp1 = @Warp1, Warp2 = @Warp2, Warp3 = @Warp3, Warp4 = @Warp4, Warp5 = @Warp5, Warp6 = @Warp6, Warp7 = @Warp7, Warp8 = @Warp8, Warp9 = @Warp9, Warp10 = @Warp10, 
-                                FeederMatchingID = @FeederMatchingID, Feeder1 = @Feeder1, Feeder2 = @Feeder2, Feeder3 = @Feeder3, Feeder4 = @Feeder4, Feeder5 = @Feeder5, Feeder6 = @Feeder6, Feeder7 = @Feeder7, Feeder8 = @Feeder8, Feeder9 = @Feeder9, Feeder10 = @Feeder10, 
-                                Feeder11 = @Feeder11, Feeder12 = @Feeder12, Feeder13 = @Feeder13, Feeder14 = @Feeder14, Feeder15 = @Feeder15, Feeder16 = @Feeder16, Feeder17 = @Feeder17, Feeder18 = @Feeder18, Feeder19 = @Feeder19, Feeder20 = @Feeder20, 
-                                Feeder21 = @Feeder21, Feeder22 = @Feeder22, Feeder23 = @Feeder23, Feeder24 = @Feeder24, Feeder25 = @Feeder25, Feeder26 = @Feeder26, Feeder27 = @Feeder27, Feeder28 = @Feeder28, Feeder29 = @Feeder29, Feeder30 = @Feeder30, 
-                                ColorMatchingPhoto = @ColorMatchingPhoto, ColorGroupID = @ColorGroupID, UserAccountId = @UserAccountId, UpdateDateandTime = @UpdateDateandTime 
-                                WHERE DesignColorMatchingDetailsID = @DesignColorMatchingDetailsID AND DesignColorMatchingFormID = @DesignColorMatchingFormID";
+                                if (soCount > 0)
+                                {
+                                    trans.Rollback();
+                                    comman.Code = 409;
+                                    comman.Message = "This Color Matching ID is already added in a Sale Order and cannot be edited.";
+                                    WriteJsonResponse(comman);
+                                    return;
+                                }
+                            }
+
+                            object oldRecord = AuditLogHelper.FetchOldValue("DesignColorMatchingDetails", myDetails.DesignColorMatchingDetailsID.ToString(), con, trans);
+                            string matchingId = (myDetails.WarpMatchingID ?? "") + "/" + (myDetails.FeederMatchingID ?? "");
+
+                            string sqlUpdate = @"
+                        UPDATE DesignColorMatchingDetails
+                        SET MatchingID = @MatchingID,
+                            WarpMatchingID = @WarpMatchingID,
+                            Warp1 = @Warp1, Warp2 = @Warp2, Warp3 = @Warp3, Warp4 = @Warp4, Warp5 = @Warp5,
+                            Warp6 = @Warp6, Warp7 = @Warp7, Warp8 = @Warp8, Warp9 = @Warp9, Warp10 = @Warp10,
+                            FeederMatchingID = @FeederMatchingID,
+                            Feeder1 = @Feeder1, Feeder2 = @Feeder2, Feeder3 = @Feeder3, Feeder4 = @Feeder4, Feeder5 = @Feeder5,
+                            Feeder6 = @Feeder6, Feeder7 = @Feeder7, Feeder8 = @Feeder8, Feeder9 = @Feeder9, Feeder10 = @Feeder10,
+                            Feeder11 = @Feeder11, Feeder12 = @Feeder12, Feeder13 = @Feeder13, Feeder14 = @Feeder14, Feeder15 = @Feeder15,
+                            Feeder16 = @Feeder16, Feeder17 = @Feeder17, Feeder18 = @Feeder18, Feeder19 = @Feeder19, Feeder20 = @Feeder20,
+                            Feeder21 = @Feeder21, Feeder22 = @Feeder22, Feeder23 = @Feeder23, Feeder24 = @Feeder24, Feeder25 = @Feeder25,
+                            Feeder26 = @Feeder26, Feeder27 = @Feeder27, Feeder28 = @Feeder28, Feeder29 = @Feeder29, Feeder30 = @Feeder30,
+                            ColorMatchingPhoto = @ColorMatchingPhoto,
+                            ColorGroupID = @ColorGroupID,
+                            UserAccountId = @UserAccountId,
+                            UpdateDateandTime = @UpdateDateandTime
+                        WHERE DesignColorMatchingDetailsID = @DesignColorMatchingDetailsID
+                          AND DesignColorMatchingFormID = @DesignColorMatchingFormID;";
 
                             using (SqlCommand cmd = new SqlCommand(sqlUpdate, con, trans))
                             {
-                                cmd.Parameters.AddWithValue("@MatchingID", MatchingID);
-                                cmd.Parameters.AddWithValue("@WarpMatchingID", myDetails.WarpMatchingID ?? (object)DBNull.Value);
-                                cmd.Parameters.AddWithValue("@Warp1", myDetails.Warp1);
-                                cmd.Parameters.AddWithValue("@Warp2", myDetails.Warp2);
-                                cmd.Parameters.AddWithValue("@Warp3", myDetails.Warp3);
-                                cmd.Parameters.AddWithValue("@Warp4", myDetails.Warp4);
-                                cmd.Parameters.AddWithValue("@Warp5", myDetails.Warp5);
-                                cmd.Parameters.AddWithValue("@Warp6", myDetails.Warp6);
-                                cmd.Parameters.AddWithValue("@Warp7", myDetails.Warp7);
-                                cmd.Parameters.AddWithValue("@Warp8", myDetails.Warp8);
-                                cmd.Parameters.AddWithValue("@Warp9", myDetails.Warp9);
-                                cmd.Parameters.AddWithValue("@Warp10", myDetails.Warp10);
-                                cmd.Parameters.AddWithValue("@FeederMatchingID", myDetails.FeederMatchingID ?? (object)DBNull.Value);
-                                cmd.Parameters.AddWithValue("@Feeder1", myDetails.Feeder1);
-                                cmd.Parameters.AddWithValue("@Feeder2", myDetails.Feeder2);
-                                cmd.Parameters.AddWithValue("@Feeder3", myDetails.Feeder3);
-                                cmd.Parameters.AddWithValue("@Feeder4", myDetails.Feeder4);
-                                cmd.Parameters.AddWithValue("@Feeder5", myDetails.Feeder5);
-                                cmd.Parameters.AddWithValue("@Feeder6", myDetails.Feeder6);
-                                cmd.Parameters.AddWithValue("@Feeder7", myDetails.Feeder7);
-                                cmd.Parameters.AddWithValue("@Feeder8", myDetails.Feeder8);
-                                cmd.Parameters.AddWithValue("@Feeder9", myDetails.Feeder9);
-                                cmd.Parameters.AddWithValue("@Feeder10", myDetails.Feeder10);
-                                cmd.Parameters.AddWithValue("@Feeder11", myDetails.Feeder11);
-                                cmd.Parameters.AddWithValue("@Feeder12", myDetails.Feeder12);
-                                cmd.Parameters.AddWithValue("@Feeder13", myDetails.Feeder13);
-                                cmd.Parameters.AddWithValue("@Feeder14", myDetails.Feeder14);
-                                cmd.Parameters.AddWithValue("@Feeder15", myDetails.Feeder15);
-                                cmd.Parameters.AddWithValue("@Feeder16", myDetails.Feeder16);
-                                cmd.Parameters.AddWithValue("@Feeder17", myDetails.Feeder17);
-                                cmd.Parameters.AddWithValue("@Feeder18", myDetails.Feeder18);
-                                cmd.Parameters.AddWithValue("@Feeder19", myDetails.Feeder19);
-                                cmd.Parameters.AddWithValue("@Feeder20", myDetails.Feeder20);
-                                cmd.Parameters.AddWithValue("@Feeder21", myDetails.Feeder21);
-                                cmd.Parameters.AddWithValue("@Feeder22", myDetails.Feeder22);
-                                cmd.Parameters.AddWithValue("@Feeder23", myDetails.Feeder23);
-                                cmd.Parameters.AddWithValue("@Feeder24", myDetails.Feeder24);
-                                cmd.Parameters.AddWithValue("@Feeder25", myDetails.Feeder25);
-                                cmd.Parameters.AddWithValue("@Feeder26", myDetails.Feeder26);
-                                cmd.Parameters.AddWithValue("@Feeder27", myDetails.Feeder27);
-                                cmd.Parameters.AddWithValue("@Feeder28", myDetails.Feeder28);
-                                cmd.Parameters.AddWithValue("@Feeder29", myDetails.Feeder29);
-                                cmd.Parameters.AddWithValue("@Feeder30", myDetails.Feeder30);
-                                cmd.Parameters.AddWithValue("@ColorMatchingPhoto", ColorMatchingPhoto ?? (object)DBNull.Value);
-                                cmd.Parameters.AddWithValue("@ColorGroupID", myDetails.ColorGroupID);
-                                cmd.Parameters.AddWithValue("@UserAccountId", Convert.ToInt32(UserAccountId));
-                                cmd.Parameters.AddWithValue("@UpdateDateandTime", dateTime_Indian);
-                                cmd.Parameters.AddWithValue("@DesignColorMatchingDetailsID", myDetails.DesignColorMatchingDetailsID);
-                                cmd.Parameters.AddWithValue("@DesignColorMatchingFormID", myDetails.DesignColorMatchingFormID);
+                                cmd.Parameters.Add("@MatchingID", SqlDbType.NVarChar, 100).Value = matchingId;
+                                cmd.Parameters.Add("@WarpMatchingID", SqlDbType.NVarChar, 100).Value = (object)myDetails.WarpMatchingID ?? DBNull.Value;
+                                cmd.Parameters.Add("@FeederMatchingID", SqlDbType.NVarChar, 100).Value = (object)myDetails.FeederMatchingID ?? DBNull.Value;
+
+                                var detailType = typeof(DesignColorMatchingDetails);
+                                for (int w = 1; w <= 10; w++)
+                                {
+                                    object val = detailType.GetProperty("Warp" + w)?.GetValue(myDetails);
+                                    cmd.Parameters.Add("@Warp" + w, SqlDbType.Int).Value = val ?? 0;
+                                }
+                                for (int f = 1; f <= 30; f++)
+                                {
+                                    object val = detailType.GetProperty("Feeder" + f)?.GetValue(myDetails);
+                                    cmd.Parameters.Add("@Feeder" + f, SqlDbType.Int).Value = val ?? 0;
+                                }
+
+                                cmd.Parameters.Add("@ColorMatchingPhoto", SqlDbType.NVarChar, -1).Value = colorMatchingPhoto;
+                                cmd.Parameters.Add("@ColorGroupID", SqlDbType.Int).Value = myDetails.ColorGroupID;
+                                cmd.Parameters.Add("@UserAccountId", SqlDbType.Int).Value = Convert.ToInt32(userAccountId);
+                                cmd.Parameters.Add("@UpdateDateandTime", SqlDbType.DateTime).Value = dateTimeIndian;
+                                cmd.Parameters.Add("@DesignColorMatchingDetailsID", SqlDbType.Int).Value = myDetails.DesignColorMatchingDetailsID;
+                                cmd.Parameters.Add("@DesignColorMatchingFormID", SqlDbType.Int).Value = myDetails.DesignColorMatchingFormID;
 
                                 int rows = cmd.ExecuteNonQuery();
                                 if (rows > 0)
@@ -24930,8 +24223,6 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                                     trans.Commit();
                                     comman.Code = 200;
                                     comman.Message = "Record has been saved successfully";
-                                    WriteJsonResponse(comman);
-                                    return;
                                 }
                                 else
                                 {
@@ -24939,8 +24230,6 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                                     comman.Code = 410;
                                     comman.Message = "Problem has occurred while submitting your data.";
                                     AuditLogHelper.LogValidationError("Color Matching Validation", "DesignColorMatchingDetails", myDetails.DesignColorMatchingDetailsID.ToString(), "No record updated in DesignColorMatchingDetails");
-                                    WriteJsonResponse(comman);
-                                    return;
                                 }
                             }
                         }
@@ -24964,17 +24253,17 @@ WHERE t1.row_num BETWEEN " + (Convert.ToInt32(ilist.startFrom) + 1) +
                 {
                     comman.Code = 410;
                     comman.Message = "Problem has occurred while submitting your data: " + ex.Message;
-                    AuditLogHelper.LogError("Color Matching Validation", "UpdateDesignColorMatchingValidationFormMaster", ex, ilist.DesignColorMatchingArray);
+                    AuditLogHelper.LogError("Color Matching Validation", "UpdateDesignColorMatchingValidationFormMaster", ex, rawJson);
                 }
-                WriteJsonResponse(comman);
             }
             catch (Exception ex)
             {
                 comman.Code = 500;
                 comman.Message = "An unexpected error occurred: " + ex.Message;
-                AuditLogHelper.LogError("Color Matching Validation", "UpdateDesignColorMatchingValidationFormMaster", ex, ilist.DesignColorMatchingArray);
-                WriteJsonResponse(comman);
+                AuditLogHelper.LogError("Color Matching Validation", "UpdateDesignColorMatchingValidationFormMaster", ex, rawJson);
             }
+
+            WriteJsonResponse(comman);
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]

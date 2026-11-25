@@ -56,8 +56,8 @@ namespace NikunjTextile.Class
         public int Feeder30 { get; set; }
         public string ColorMatchingPhoto { get; set; }
         public int ColorGroupID { get; set; }
-
-
+        public bool IsValidated { get; set; }
+        public bool IsUsedInSaleOrder { get; set; }
 
     }
 }

@@ -1,7 +1,414 @@
 @{
     Layout = "/_LayoutPage1.cshtml";
 }
+
 <style>
+    /* ========================================================
+       ERP DESIGN SYSTEM - DESIGN ENTRY (NIKUNJ TEXTILE)
+       Deep Navy Blue (#1E3A5F) | Royal Blue (#2563EB) | Teal (#0D9488) | Light Gray (#F5F7FA)
+    ======================================================== */
+    :root {
+        --erp-navy: #1E3A5F;
+        --erp-navy-dark: #152A45;
+        --erp-navy-light: #F0F4F8;
+        --erp-blue: #2563EB;
+        --erp-blue-hover: #1D4ED8;
+        --erp-blue-light: #EFF6FF;
+        --erp-teal: #0D9488;
+        --erp-teal-light: #F0FDFA;
+        --erp-bg: #F5F7FA;
+        --erp-card-bg: #FFFFFF;
+        --erp-border: #E2E8F0;
+        --erp-text-main: #1E293B;
+        --erp-text-muted: #64748B;
+        --erp-shadow: 0 4px 12px rgba(30, 58, 95, 0.06);
+        --erp-shadow-hover: 0 8px 20px rgba(30, 58, 95, 0.1);
+    }
+
+    body, .content-wrapper {
+        background-color: var(--erp-bg);
+        color: var(--erp-text-main);
+    }
+
+    /* Page Header Hero Card */
+    .erp-hero-header {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: var(--erp-shadow);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .erp-hero-title-group {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .erp-hero-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .erp-hero-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--erp-navy);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .erp-hero-subtitle {
+        font-size: 13px;
+        color: var(--erp-text-muted);
+        margin: 3px 0 0 0;
+    }
+
+    .erp-btn-primary {
+        background: var(--erp-blue) !important;
+        border-color: var(--erp-blue) !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        padding: 9px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none !important;
+    }
+
+    .erp-btn-primary:hover {
+        background: var(--erp-blue-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+        color: #FFFFFF !important;
+    }
+
+    /* Filter Card */
+    .erp-card {
+        background: #FFFFFF;
+        border: 1px solid var(--erp-border);
+        border-radius: 12px;
+        box-shadow: var(--erp-shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .erp-filter-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .erp-search-box {
+        position: relative;
+        min-width: 320px;
+    }
+
+    .erp-search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--erp-text-muted);
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .erp-search-input {
+        padding-left: 38px !important;
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid var(--erp-border);
+        font-size: 13px;
+        background: #F8FAFC;
+        transition: all 0.2s ease;
+    }
+
+    .erp-search-input:focus {
+        background: #FFFFFF;
+        border-color: var(--erp-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Modern ERP Table */
+    .erp-table-container {
+        border: 1px solid var(--erp-border);
+        border-radius: 10px;
+        overflow-x: auto;
+        background: #FFFFFF;
+    }
+
+    #designEntryTable {
+        width: 100% !important;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #designEntryTable thead th {
+        background-color: var(--erp-navy) !important;
+        color: #FFFFFF !important;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 13px 14px;
+        vertical-align: middle;
+        border: none;
+        white-space: nowrap;
+    }
+
+    #designEntryTable tbody td {
+        padding: 12px 14px;
+        vertical-align: middle;
+        border-top: 1px solid #F1F5F9;
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
+        font-size: 13px;
+        color: var(--erp-text-main);
+        transition: background-color 0.15s ease;
+    }
+
+    #designEntryTable tbody tr:hover td {
+        background-color: #F8FAFC !important;
+    }
+
+    .erp-order-no {
+        font-weight: 700;
+        color: var(--erp-navy);
+        font-size: 13px;
+        letter-spacing: 0.3px;
+    }
+
+    .erp-date-cell {
+        color: var(--erp-text-muted);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .erp-amount-cell {
+        font-weight: 700;
+        color: var(--erp-navy);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    /* Action Button Group */
+    .erp-action-btn-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .erp-btn-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        background: transparent;
+        padding: 0;
+        text-decoration: none !important;
+    }
+
+    .erp-btn-quick-edit {
+        background: #FEF3C7;
+        color: #D97706;
+        border: 1px solid #FDE68A;
+    }
+
+    .erp-btn-quick-edit:hover {
+        background: #D97706;
+        color: #FFFFFF !important;
+        border-color: #D97706;
+        transform: translateY(-1px);
+    }
+
+    .erp-btn-edit {
+        background: #EFF6FF;
+        color: var(--erp-blue);
+        border: 1px solid #DBEAFE;
+    }
+
+    .erp-btn-edit:hover {
+        background: var(--erp-blue);
+        color: #FFFFFF !important;
+        border-color: var(--erp-blue);
+        transform: translateY(-1px);
+    }
+
+    .erp-btn-view {
+        background: #F0FDFA;
+        color: var(--erp-teal);
+        border: 1px solid #CCFBF1;
+    }
+
+    .erp-btn-view:hover {
+        background: var(--erp-teal);
+        color: #FFFFFF !important;
+        border-color: var(--erp-teal);
+        transform: translateY(-1px);
+    }
+
+    .erp-btn-delete {
+        background: #FEF2F2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
+    }
+
+    .erp-btn-delete:hover {
+        background: #DC2626;
+        color: #FFFFFF !important;
+        border-color: #DC2626;
+        transform: translateY(-1px);
+    }
+
+    .action-disabled {
+        pointer-events: none !important;
+        opacity: 0.45 !important;
+        cursor: not-allowed !important;
+        background: #F1F5F9 !important;
+        color: #94A3B8 !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+
+    /* Thumbnail styling */
+    .erp-design-thumb {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--erp-border);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .erp-design-thumb:hover {
+        transform: scale(1.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10;
+        position: relative;
+    }
+
+    .erp-no-thumb {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #F8FAFC;
+        border: 1px dashed var(--erp-border);
+        border-radius: 8px;
+        color: #94A3B8;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    /* Pagination */
+    .erp-pagination-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding-top: 20px;
+    }
+
+    #pageNumbers {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--erp-border);
+        background: #FFFFFF;
+        color: var(--erp-text-main);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 8px;
+    }
+
+    .page-btn:hover {
+        background: #F8FAFC;
+        border-color: var(--erp-blue);
+        color: var(--erp-blue);
+    }
+
+    .page-btn.active {
+        background: var(--erp-blue) !important;
+        border-color: var(--erp-blue) !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    }
+
+    .page-dots {
+        padding: 0 6px;
+        font-weight: bold;
+        color: var(--erp-text-muted);
+    }
+
+    .erp-nav-btn {
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: 1px solid var(--erp-border);
+        background: #FFFFFF;
+        color: var(--erp-text-main);
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .erp-nav-btn:hover:not(:disabled) {
+        background: #F8FAFC;
+        border-color: var(--erp-navy);
+        color: var(--erp-navy);
+    }
+
+    .erp-nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Print styles */
     @@media print {
         @@page {
             size: A4;
@@ -19,9 +426,9 @@
         }
 
         #printArea {
-            width: 210mm; /* A4 width */
-            min-height: 297mm; /* A4 height */
-            zoom: 80%; /* resize content */
+            width: 210mm;
+            min-height: 297mm;
+            zoom: 80%;
         }
 
         img {
@@ -34,306 +441,318 @@
             display: none !important;
         }
     }
-    /* Hide Export Buttons */
-    .dt-buttons,
-    .dataTables_wrapper .dt-buttons {
-        display: none !important;
-    }
-
-    /* Hide Search Box */
-    .dataTables_filter {
-        display: none !important;
-    }
-
-    /* Hide "Showing x to y of z entries" */
-    .dataTables_info {
-        display: none !important;
-    }
-
-    /* Hide Pagination */
-    .dataTables_paginate {
-        display: none !important;
-    }
-
-    /* Hide "Show Entries" Dropdown */
-    .dataTables_length {
-        display: none !important;
-    }
-    .action-disabled {
-        pointer-events: none;
-        opacity: 0.35;
-        cursor: not-allowed;
-    }
 </style>
 
 <!-- Content wrapper start -->
 <div class="content-wrapper">
-    <input type="hidden" id="rowStartCount" value="" />
+    <input type="hidden" id="rowStartCount" value="0" />
     <div id="notes"></div>
-    <div class="card-header-lg">
 
-        <a href="CreateDesignEntry" style="float:right;" id="AddDesignEntry" class="btn btn-primary">Add Design Entry Form</a>
-        <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addNewContactLabel">Design Entry Form</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true"></span>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="printArea" style="overflow:auto;">
+    <!-- ERP Hero Header Banner -->
+    <div class="erp-hero-header">
+        <div class="erp-hero-title-group">
+            <div class="erp-hero-icon">
+                <i class="fa fa-th-large"></i>
+            </div>
+            <div>
+                <h4 class="erp-hero-title">Design Entry</h4>
+                <p class="erp-hero-subtitle">Manage design catalog, specifications, sketches, and pricing</p>
+            </div>
+        </div>
+        <div>
+            <a href="CreateDesignEntry" id="AddDesignEntry" class="erp-btn-primary">
+                <i class="fa fa-plus-circle"></i> Add Design Entry Form
+            </a>
+        </div>
+    </div>
 
-                        <div class="row gutters">
+    <!-- ERP Table Card -->
+    <div class="erp-card">
+        <!-- Filter Toolbar -->
+        <div class="erp-filter-toolbar">
+            <div class="text-muted small">
+                <span id="pageInfo"></span>
+            </div>
 
-                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
-                            </div>
-
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                    <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                        <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
-                                            <label id="PhotoOfDesign-preview">Photo Of Design.</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                            </div>
-
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
-                                    <div class="dropzone needsclick dz-clickable" id="demo-upload">
-                                        <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
-                                            <label id="PhotoOfSketch-preview">Photo Of Sketch.</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <br />
-
-                        <!-- Warp Data Header -->
-                        <div class="row gutters">
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"></div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                <div class="field-wrapper" style="margin-bottom: 0;">
-                                    <div class="field-placeholder" style="text-align: end; width: 85%;"> WARP DATA</div>
-                                    <br />
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
-                        </div>
-
-                        <div class="row gutters">
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="col-12">
-                                    <div class="field-wrapper" style="margin-top: 0;">
-                                        <h6>Warp Pattern: <br /><span id="warnquality" style="font-weight:100;"></span></h6>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12" id="divWarpData">
-                                <div class="row gutters" id="divWarnQuality"></div>
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <!-- Weft Data Header -->
-                        <div class="row gutters">
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"></div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
-                                <div class="field-wrapper" style="margin-bottom: 0;">
-                                    <div class="field-placeholder" style="text-align: end; width: 85%;"> WEFT DATA</div>
-                                    <br />
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
-                        </div>
-
-                        <div class="row gutters">
-
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="row gutters">
-
-                                    <div class="col-xl-6">
-                                        <h6>Date: <br /><span id="DesignDate" style="font-weight:100;"></span></h6>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Designer: <br /><span id="DesignerID" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Sketcher: <br /><span id="Sketcher" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Design No: <br /><span id="DesignNo" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Remark: <br /><span id="Remark" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Pick On Loom: <br /><span id="PickOnLoom" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Total Card: <br /><span id="TotalCard" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Average Pic: <br /><span id="AveragePic" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Reed On Loom:<br /> <span id="ReedOnLoom" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Type:<br /> <span id="type" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Design Category: <br /><span id="DesignCategory" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Design Cut: <br /><span id="DesignCut" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>Sale Rate: <br /><span id="SaleRate" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                    <!-- ADDED HSN CODE IN MODAL -->
-                                    <div class="col-xl-6">
-                                        <div class="field-wrapper" style="margin-top: 0;">
-                                            <h6>HSN Code: <br /><span id="HSNCode" style="font-weight:100;"></span></h6>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
-                                <div class="row gutters" id="divWeftData"></div>
-                                <br />
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <input id="edit-id" type="hidden" />
-                    <input id="catedit-id" type="hidden" />
-                    <div id="notess"></div>
-                    <div class="modal-footer">
-                        <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary">Print</button>
-                        <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+            <div class="erp-search-box">
+                <i class="fa fa-search"></i>
+                <input id="search-design-no" placeholder="Search Design No..." type="text" class="form-control erp-search-input detail" onkeyup="functionSearch()">
             </div>
         </div>
 
+        <!-- Table Container -->
+        <div class="erp-table-container table-responsive">
+            <table id="designEntryTable" class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align: center;">Sr No</th>
+                        <th style="width: 140px; text-align: center;">Action</th>
+                        <th style="text-align: center;">Design Date</th>
+                        <th>Design No</th>
+                        <th style="text-align: center;">Photo Of Design</th>
+                        <th style="text-align: center;">Photo Of Sketch</th>
+                        <th>Warp Quality</th>
+                        <th style="text-align: center;">Pick On Loom</th>
+                        <th style="text-align: center;">Total Card</th>
+                        <th style="text-align: center;">Average Pic</th>
+                        <th style="text-align: center;">Reed On Loom</th>
+                        <th>Sketcher</th>
+                        <th>Type</th>
+                        <th>Design Category</th>
+                        <th style="text-align: right;">Sale Rate</th>
+                        <th style="text-align: center;">HSN Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination (Like listSaleOrderEntry) -->
+        <div class="erp-pagination-bar">
+            <button id="prevPage" class="erp-nav-btn" type="button">
+                <i class="fa fa-chevron-left me-1"></i> Previous
+            </button>
+
+            <div id="pageNumbers"></div>
+
+            <button id="nextPage" class="erp-nav-btn" type="button">
+                Next <i class="fa fa-chevron-right ms-1"></i>
+            </button>
+        </div>
     </div>
-    <div style="float:none;clear:both;">
-        <br />
+
+    <!-- Quick Update Modal (Design Category, Sale Rate, HSN Code only) -->
+    <div class="modal fade" id="quickUpdateModal" tabindex="-1" aria-labelledby="quickUpdateModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, var(--erp-navy) 0%, var(--erp-navy-dark) 100%); color: #fff;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa fa-pencil-square-o fs-5"></i>
+                        <h5 class="modal-title fw-bold m-0 text-white" id="quickUpdateModalLabel">Update Design Details</h5>
+                        <span id="quickModalDesignNo" class="badge bg-light text-dark fw-bold ms-2 px-2 py-1"></span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <input type="hidden" id="quickDesignID" value="" />
+                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Design Category <span class="text-danger">*</span>
+                            </label>
+                            <select id="quickDesignCategory" class="form-select form-control" style="height: 42px; border-radius: 8px;">
+                                <option value="">Select Design Category</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Sale Rate <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa fa-inr"></i></span>
+                                <input type="number" step="0.01" min="0" id="quickSaleRate" class="form-control" placeholder="0.00" style="height: 42px; border-radius: 0 8px 8px 0;">
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                HSN Code
+                            </label>
+                            <input type="text" id="quickHSNCode" class="form-control" placeholder="e.g. 540710" style="height: 42px; border-radius: 8px;">
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2 ps-1">
+                        <i class="fa fa-info-circle me-1 text-primary"></i> Only Design Category, Sale Rate, and HSN Code can be modified.
+                    </div>
+                </div>
+                <div class="modal-footer py-2 px-4 bg-white border-top">
+                    <button type="button" class="btn btn-outline-secondary px-3 py-2" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                    <button type="button" class="erp-btn-primary px-4 py-2" id="btnSaveQuickUpdate" onclick="submitQuickUpdate()" style="border-radius: 8px; border: none; cursor: pointer;">
+                        <i class="fa fa-check-circle me-1"></i> Update
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Row start -->
-    <div class="row gutters">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-section-header">Design Entry Form</div>
-                    <br />
-
+    <!-- View Modal Details -->
+    <div class="modal fade" id="addNewContact" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addNewContactLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--erp-navy); color: #fff;">
+                    <h5 class="modal-title text-white" id="addNewContactLabel">Design Entry Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="printArea" style="overflow:auto;">
                     <div class="row gutters">
-                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12"></div>
+                        <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12"></div>
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                            <div class="field-wrapper">
-                                <input id="search-design-no" placeholder="Search Design No." type="text" class="form-control clear-field detail" onkeyup="functionSearch()">
-                                <div class="field-placeholder">Search Design No. </div>
+                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                    <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
+                                        <label id="PhotoOfDesign-preview">Photo Of Design.</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12"></div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div id="dropzone-sm" class="mb-3 image-upload-clear-image">
+                                <div class="dropzone needsclick dz-clickable" id="demo-upload">
+                                    <div class="dz-message needsclick" style="text-align: center; margin-top: 54px;">
+                                        <label id="PhotoOfSketch-preview">Photo Of Sketch.</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="table-responsive">
-                        <table id="copy-print-csv" class="table table-hover table-bordered m-0">
-                            <thead>
-                                <tr style="background-color: #1273eb;">
-                                    <th style="color: white !important;">Sr No</th>
-                                    <th style="color: white !important;">Action</th>
-                                    <th style="color: white !important;">Design <br /> Date</th>
-                                    <th style="color: white !important;">Design <br /> No</th>
-                                    <th style="color: white !important;">Photo Of <br /> Design</th>
-                                    <th style="color: white !important;">Photo Of <br /> Sketch</th>
-                                    <th style="color: white !important;">Warp <br /> Quality</th>
-                                    <th style="color: white !important;">Pick On <br /> Loom</th>
-                                    <th style="color: white !important;">Total <br /> Card</th>
-                                    <th style="color: white !important;">Average <br /> Pic</th>
-                                    <th style="color: white !important;">Reed On <br /> Loom</th>
-                                    <th style="color: white !important;">Sketcher</th>
-                                    <th style="color: white !important;">Type</th>
-                                    <th style="color: white !important;">Design <br /> Category</th>
-                                    <th style="color: white !important;">Sale <br /> Rate</th>
-                                    <th style="color: white !important;">HSN <br /> Code</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-
                     <br />
 
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination justify-content-center" id="divPaggination"></ul>
-                    </nav>
+                    <!-- Warp Data Header -->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"></div>
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="field-wrapper" style="margin-bottom: 0;">
+                                <div class="field-placeholder" style="text-align: end; width: 85%;"> WARP DATA</div>
+                                <br />
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+                    </div>
 
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="col-12">
+                                <div class="field-wrapper" style="margin-top: 0;">
+                                    <h6>Warp Pattern: <br /><span id="warnquality" style="font-weight:100;"></span></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12" id="divWarpData">
+                            <div class="row gutters" id="divWarnQuality"></div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Weft Data Header -->
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"></div>
+                        <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
+                            <div class="field-wrapper" style="margin-bottom: 0;">
+                                <div class="field-placeholder" style="text-align: end; width: 85%;"> WEFT DATA</div>
+                                <br />
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12"></div>
+                    </div>
+
+                    <div class="row gutters">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="row gutters">
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Design Date: <br /><span id="DesignDate" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Designer Name: <br /><span id="DesignerID" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Sketcher: <br /><span id="Sketcher" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Design No:<br /> <span id="DesignNo" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Remark:<br /> <span id="Remark" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Pick On Loom:<br /> <span id="PickOnLoom" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Total Card:<br /> <span id="TotalCard" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Average Pic:<br /> <span id="AveragePic" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Reed On Loom:<br /> <span id="ReedOnLoom" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Type:<br /> <span id="type" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Design Category: <br /><span id="DesignCategory" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Design Cut: <br /><span id="DesignCut" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>Sale Rate: <br /><span id="SaleRate" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="field-wrapper" style="margin-top: 0;">
+                                        <h6>HSN Code: <br /><span id="HSNCode" style="font-weight:100;"></span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12">
+                            <div class="row gutters" id="divWeftData"></div>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+                <input id="edit-id" type="hidden" />
+                <input id="catedit-id" type="hidden" />
+                <div id="notess"></div>
+                <div class="modal-footer">
+                    <button id="Printbtn" type="button" onclick="printModalBody();" class="btn btn-primary">Print</button>
+                    <button id="cancelbtn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts{
     <script>
+        $('body').addClass('fullscreen');
         var currentPagePermission = {};
+        var totalRecords = 0;
+        var totalPages = 1;
+        var currentPage = 1;
+        var pageSize = 30;
+
         $(document).ready(function () {
             FunctionIsLogin();
+            loadDesignCategories();
             displayPagginationData();
             displayData(0);
         });
@@ -358,12 +777,14 @@
         }
 
         function functionSearch() {
+            currentPage = 1;
+            $("#rowStartCount").val(0);
             displayPagginationData();
             displayData(0);
         }
 
         function displayData(rowStartCheck) {
-            var rowStart = rowStartCheck;
+            var rowStart = rowStartCheck || 0;
             var searchdesignNo = $("#search-design-no").val();
 
             var formData = new FormData();
@@ -378,64 +799,77 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    if (rowStart == 0) {
-                        $("#copy-print-csv tbody").empty();
+                    var dataTableBody = $('#designEntryTable tbody');
+                    dataTableBody.empty();
+
+                    if (!response.listDesignEntryForm || response.listDesignEntryForm.length === 0) {
+                        dataTableBody.html("<tr><td colspan='16' class='text-center py-4 text-muted'><i class='fa fa-folder-open-o me-2'></i> No design entries found</td></tr>");
+                        return;
                     }
-                    var dataTable = $('#copy-print-csv');
+
                     var temp = "";
-                    var srno = parseInt(rowStart) + parseInt(1);
+                    var srno = parseInt(rowStart) + 1;
+
                     for (var i = 0; i < response.listDesignEntryForm.length; i++) {
+                        var item = response.listDesignEntryForm[i];
+                        var designID = item.DesignEntryFormID;
 
-                        var id = response.listDesignEntryForm[i].DesignEntryFormID;
+                        var photoDesign = (item.PhotoOfDesign || "").trim();
+                        var photoSketch = (item.PhotoOfSketch || "").trim();
+                        var sketcherVal = (item.Sketcher || "").trim();
+                        var saleRateVal = parseFloat(item.SaleRate) || 0;
+                        var hsnVal = (item.HSNCode || "").trim();
+                        var fullDesignNo = (item.DesignerCode || "") + (item.DesignNo || "");
+                        var catId = item.DesignCategoryID || 0;
 
-                        checkDesignColorMatchingPermission(id);
-                    }
-                    for (var i = 0; i < response.listDesignEntryForm.length; i++) {
-                        temp += "<tr><td>" + srno++ + "</td>";
-                        temp += "<td><div class='actions'>";
-
-                        var designID = response.listDesignEntryForm[i].DesignEntryFormID;
-
-                        temp += "<a href='javascript:void(0);' id='editBtn_" + designID +
-                            "' class='EditBtn action-disabled' title='Edit' onclick='showEditRecords(" + designID + ")'><i class='icon-edit1 text-info'></i></a>&nbsp;&nbsp;&nbsp;";
-                        temp += "<a href='javascript:void(0);' class='ViewBtn' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + designID + ")'><i class='fa fa-eye text-secondary'></i></a>&nbsp;&nbsp;&nbsp;";
-                        temp += "<a href='javascript:void(0);' id='deleteBtn_" + designID + "' class='DeleteBtn action-disabled' title='Delete' onclick='functionUserDelete(" + designID + ")'><i class='icon-x-circle text-danger'></i></a>";
+                        temp += "<tr>";
+                        temp += "<td class='text-center text-muted fw-bold'>" + (srno++) + "</td>";
+                        temp += "<td class='text-center'><div class='erp-action-btn-group'>";
+                        temp += "<a href='javascript:void(0);' id='quickEditBtn_" + designID + "' class='erp-btn-action erp-btn-quick-edit' style='display: none;' title='Quick Update (Category, Rate, HSN)' onclick='openQuickUpdateModal(" + designID + ", \"" + fullDesignNo + "\", " + catId + ", " + saleRateVal + ", \"" + hsnVal + "\")'><i class='fa fa-pencil-square-o'></i></a>";
+                        temp += "<a href='javascript:void(0);' id='editBtn_" + designID + "' class='erp-btn-action erp-btn-edit action-disabled' title='Edit' onclick='showEditRecords(" + designID + ")'><i class='fa fa-pencil'></i></a>";
+                        temp += "<a href='javascript:void(0);' class='erp-btn-action erp-btn-view' title='Details' data-bs-toggle='modal' data-bs-target='#addNewContact' onclick='showRecords(" + designID + ")'><i class='fa fa-eye'></i></a>";
+                        temp += "<a href='javascript:void(0);' id='deleteBtn_" + designID + "' class='erp-btn-action erp-btn-delete action-disabled' title='Delete' onclick='functionUserDelete(" + designID + ")'><i class='fa fa-trash'></i></a>";
                         temp += "</div></td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].DesignDates + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo + "</td>";
-                        temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:50px; height:50px;'></td>";
-                        if (response.listDesignEntryForm[i].PhotoOfSketch == "") {
-                            temp += "<td></td>";
+
+                        temp += "<td class='erp-date-cell text-center'>" + (item.DesignDates || "-") + "</td>";
+                        temp += "<td><span class='erp-order-no'>" + (item.DesignerCode || "") + (item.DesignNo || "") + "</span></td>";
+
+                        if (photoDesign !== "") {
+                            temp += "<td class='text-center'><img src='" + photoDesign + "' class='erp-design-thumb' onerror=\"this.onerror=null;this.parentElement.innerHTML='<span class=\\'erp-no-thumb\\'>-</span>';\"></td>";
                         } else {
-                            temp += "<td><img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:50px; height:50px;'></td>";
+                            temp += "<td class='text-center'><span class='erp-no-thumb'>-</span></td>";
                         }
 
-                        temp += "<td>" + response.listDesignEntryForm[i].WarpQuality + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].PickOnLoom + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].TotalCard + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].AveragePic + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].ReedOnLoom + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].Sketcher + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].Type + "</td>";
-                        temp += "<td>" + response.listDesignEntryForm[i].DesignCategory + "</td>";
-                        temp += "<td>" + (response.listDesignEntryForm[i].SaleRate || '') + "</td>";
-                        temp += "<td>" + (response.listDesignEntryForm[i].HSNCode || '') + "</td>";
+                        if (photoSketch !== "") {
+                            temp += "<td class='text-center'><img src='" + photoSketch + "' class='erp-design-thumb' onerror=\"this.onerror=null;this.parentElement.innerHTML='<span class=\\'erp-no-thumb\\'>-</span>';\"></td>";
+                        } else {
+                            temp += "<td class='text-center'><span class='erp-no-thumb'>-</span></td>";
+                        }
+
+                        temp += "<td>" + (item.WarpQuality || "-") + "</td>";
+                        temp += "<td class='text-center'>" + (item.PickOnLoom || "-") + "</td>";
+                        temp += "<td class='text-center'>" + (item.TotalCard || "-") + "</td>";
+                        temp += "<td class='text-center'>" + (item.AveragePic || "-") + "</td>";
+                        temp += "<td class='text-center'>" + (item.ReedOnLoom || "-") + "</td>";
+                        temp += "<td>" + (sketcherVal !== "" ? sketcherVal : "<span class='text-muted'>-</span>") + "</td>";
+                        temp += "<td>" + (item.Type || "-") + "</td>";
+                        temp += "<td>" + (item.DesignCategory || "-") + "</td>";
+                        temp += "<td class='text-end erp-amount-cell'>" + (saleRateVal > 0 ? saleRateVal.toFixed(2) : "<span class='text-muted'>-</span>") + "</td>";
+                        temp += "<td class='text-center'>" + (hsnVal !== "" ? hsnVal : "<span class='text-muted'>-</span>") + "</td>";
                         temp += "</tr>";
                     }
 
-                    $("#copy-print-csv tbody").empty();
-                    dataTable.append(temp);
+                    dataTableBody.html(temp);
+
+                    for (var k = 0; k < response.listDesignEntryForm.length; k++) {
+                        checkDesignColorMatchingPermission(response.listDesignEntryForm[k].DesignEntryFormID);
+                    }
                 },
-                error: function (request, status, error) { }
+                error: function (request, status, error) {
+                    console.log(error);
+                }
             });
         }
-
-        var total = 0;
-        var Paggination = 0;
-        var prevNo = 0;
-        var nextNo = 0;
-        var SelectNo = 1;
-        var PageNo = 0;
 
         function displayPagginationData() {
             var searchdesignNo = $("#search-design-no").val();
@@ -451,101 +885,96 @@
                 processData: false,
                 success: function (response) {
                     if (!response.listPagginationMaster || response.listPagginationMaster.length === 0 || response.listPagginationMaster[0].Paggination == "0") {
-                        $('#divPaggination').hide();
+                        totalRecords = 0;
+                        totalPages = 1;
+                        currentPage = 1;
+                        $("#pageNumbers").empty();
+                        $("#prevPage").prop("disabled", true);
+                        $("#nextPage").prop("disabled", true);
+                        $(".erp-pagination-bar").hide();
+                        $("#pageInfo").text("0 records found");
                     } else {
-                        total = response.listPagginationMaster[0].Total;
-                        Paggination = parseInt(response.listPagginationMaster[0].Paggination);
-                        prevNo = 0;
-                        nextNo = 10;
-                        PageNo = 0;
-
-                        if (Paggination <= 10) {
-                            var temp = "";
-                            for (var i = 1; i <= Paggination; i++) {
-                                temp += "<li class='page-item " + (i == 1 ? "active" : "") + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-                            $('#divPaggination').html(temp).show();
-                        } else {
-                            var temp = "";
-                            for (var i = 1; i <= 10; i++) {
-                                temp += "<li class='page-item " + (i == 1 ? "active" : "") + "' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                            }
-                            temp += "<li class='page-item' id='next'><a class='page-link' href='javascript:void(0);' onclick='funcationPagginationNext()'>Next</a></li>";
-                            $('#divPaggination').html(temp).show();
-                        }
+                        totalRecords = parseInt(response.listPagginationMaster[0].Total) || 0;
+                        totalPages = parseInt(response.listPagginationMaster[0].Paggination) || 1;
+                        if (currentPage > totalPages) currentPage = 1;
+                        $(".erp-pagination-bar").show();
+                        $("#pageInfo").text(`Showing page ${currentPage} of ${totalPages} (${totalRecords} designs)`);
+                        renderPageNumbers();
                     }
                 }
             });
         }
 
-        function funcationPaggination(abc) {
-            var a = "#a" + abc;
-            SelectNo = abc;
-            $('#divPaggination li').removeClass('active');
-            $(a).addClass('active');
+        function renderPageNumbers() {
+            let html = '';
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
 
-            var rowStart = (abc - 1) * 30;
-            $("#rowStartCount").val(rowStart);
-            displayData(rowStart);
+            // First page
+            if (startPage > 1) {
+                html += `<button type="button" class="page-btn" data-page="1">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="page-dots">...</span>`;
+                }
+            }
+
+            // Middle pages
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button type="button" class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            // Last page
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="page-dots">...</span>`;
+                }
+                html += `
+                    <button type="button" class="page-btn" data-page="${totalPages}">
+                        ${totalPages}
+                    </button>
+                `;
+            }
+
+            $("#pageNumbers").html(html);
+            $("#prevPage").prop("disabled", currentPage === 1);
+            $("#nextPage").prop("disabled", currentPage === totalPages || totalPages === 0);
+            $("#pageInfo").text(`Showing page ${currentPage} of ${totalPages} (${totalRecords} designs)`);
         }
 
-        function funcationPagginationNext() {
-            var n = nextNo + 1;
-            var nnext = nextNo + 10;
-
-            if (nextNo >= Paggination - 10) {
-                nnext = Paggination;
-                prevNo = nextNo;
-                nextNo = nnext;
-                var temp = "";
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
-                for (var i = prevNo + 1; i <= nnext; i++) {
-                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                }
-                $('#divPaggination').html(temp).show();
-            } else {
-                prevNo = nextNo;
-                nextNo = nnext;
-                var temp = "";
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
-                for (var i = n; i <= nnext; i++) {
-                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                }
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
-                $('#divPaggination').html(temp).show();
+        $(document).on("click", ".page-btn", function () {
+            let page = parseInt($(this).data("page"));
+            if (page && page !== currentPage) {
+                currentPage = page;
+                let rowStart = (currentPage - 1) * pageSize;
+                $("#rowStartCount").val(rowStart);
+                displayData(rowStart);
+                renderPageNumbers();
             }
-            PageNo += 1;
-        }
+        });
 
-        function funcationPagginationPrev() {
-            PageNo -= 1;
-            var n = 1;
-            if (PageNo > 0) {
-                n = (PageNo * 10) + 1;
+        $(document).on("click", "#prevPage", function () {
+            if (currentPage > 1) {
+                currentPage--;
+                let rowStart = (currentPage - 1) * pageSize;
+                $("#rowStartCount").val(rowStart);
+                displayData(rowStart);
+                renderPageNumbers();
             }
-            var nnext = n + 9;
+        });
 
-            if (n === 1) {
-                prevNo = 0;
-                nextNo = 10;
-                var temp = "";
-                for (var i = 1; i <= 10; i++) {
-                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                }
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
-                $('#divPaggination').html(temp).show();
-            } else {
-                prevNo = n - 10;
-                nextNo = nnext;
-                var temp = "";
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='prev' onclick='funcationPagginationPrev()'>Previous</a></li>";
-                for (var i = n; i <= nnext; i++) {
-                    temp += "<li class='page-item' id='a" + i + "'><a class='page-link' href='javascript:void(0);' onclick='funcationPaggination(" + i + ")'>" + i + "</a></li>";
-                }
-                temp += "<li class='page-item'><a class='page-link' href='javascript:void(0);' id='next' onclick='funcationPagginationNext()'>Next</a></li>";
-                $('#divPaggination').html(temp).show();
+        $(document).on("click", "#nextPage", function () {
+            if (currentPage < totalPages) {
+                currentPage++;
+                let rowStart = (currentPage - 1) * pageSize;
+                $("#rowStartCount").val(rowStart);
+                displayData(rowStart);
+                renderPageNumbers();
             }
-        }
+        });
 
         function showRecords(id) {
             $("#edit-id").val(id);
@@ -572,24 +1001,33 @@
                 processData: false,
                 success: function (response) {
                     for (var i = 0; i < response.listDesignEntryForm.length; i++) {
-                        $("#PhotoOfDesign-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
-                        $("#PhotoOfSketch-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
+                        if (response.listDesignEntryForm[i].PhotoOfDesign && response.listDesignEntryForm[i].PhotoOfDesign.trim() !== "") {
+                            $("#PhotoOfDesign-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfDesign + "' style='width:100%;margin-top:-54px;'>");
+                        } else {
+                            $("#PhotoOfDesign-preview").html("<div class='text-center text-muted p-4'>-</div>");
+                        }
+                        if (response.listDesignEntryForm[i].PhotoOfSketch && response.listDesignEntryForm[i].PhotoOfSketch.trim() !== "") {
+                            $("#PhotoOfSketch-preview").html("<img src='" + response.listDesignEntryForm[i].PhotoOfSketch + "' style='width:100%;margin-top:-54px;'>");
+                        } else {
+                            $("#PhotoOfSketch-preview").html("<div class='text-center text-muted p-4'>-</div>");
+                        }
 
-                        $("#warnquality").html(response.listDesignEntryForm[i].WarpQuality);
-                        $("#DesignDate").html(response.listDesignEntryForm[i].DesignDates);
-                        $("#DesignerID").html(response.listDesignEntryForm[i].DesignerName);
-                        $("#Sketcher").html(response.listDesignEntryForm[i].Sketcher);
-                        $("#DesignNo").html(response.listDesignEntryForm[i].DesignerCode + response.listDesignEntryForm[i].DesignNo);
-                        $("#Remark").html(response.listDesignEntryForm[i].Remark);
-                        $("#PickOnLoom").html(response.listDesignEntryForm[i].PickOnLoom);
-                        $("#TotalCard").html(response.listDesignEntryForm[i].TotalCard);
-                        $("#AveragePic").html(response.listDesignEntryForm[i].AveragePic);
-                        $("#ReedOnLoom").html(response.listDesignEntryForm[i].ReedOnLoom);
-                        $("#type").html(response.listDesignEntryForm[i].Type);
-                        $("#DesignCategory").html(response.listDesignEntryForm[i].DesignCategory);
-                        $("#DesignCut").html(response.listDesignEntryForm[i].DesignCut);
-                        $("#SaleRate").html(response.listDesignEntryForm[i].SaleRate);
-                        $("#HSNCode").html(response.listDesignEntryForm[i].HSNCode);
+                        $("#warnquality").html(response.listDesignEntryForm[i].WarpQuality || "-");
+                        $("#DesignDate").html(response.listDesignEntryForm[i].DesignDates || "-");
+                        $("#DesignerID").html(response.listDesignEntryForm[i].DesignerName || "-");
+                        $("#Sketcher").html(response.listDesignEntryForm[i].Sketcher || "-");
+                        $("#DesignNo").html((response.listDesignEntryForm[i].DesignerCode || "") + (response.listDesignEntryForm[i].DesignNo || ""));
+                        $("#Remark").html(response.listDesignEntryForm[i].Remark || "-");
+                        $("#PickOnLoom").html(response.listDesignEntryForm[i].PickOnLoom || "-");
+                        $("#TotalCard").html(response.listDesignEntryForm[i].TotalCard || "-");
+                        $("#AveragePic").html(response.listDesignEntryForm[i].AveragePic || "-");
+                        $("#ReedOnLoom").html(response.listDesignEntryForm[i].ReedOnLoom || "-");
+                        $("#type").html(response.listDesignEntryForm[i].Type || "-");
+                        $("#DesignCategory").html(response.listDesignEntryForm[i].DesignCategory || "-");
+                        $("#DesignCut").html(response.listDesignEntryForm[i].DesignCut || "-");
+                        var modalSaleRate = parseFloat(response.listDesignEntryForm[i].SaleRate) || 0;
+                        $("#SaleRate").html(modalSaleRate > 0 ? modalSaleRate.toFixed(2) : "-");
+                        $("#HSNCode").html(response.listDesignEntryForm[i].HSNCode || "-");
 
                         // Render Warp Data
                         var tempWarnQuality = "";
@@ -655,6 +1093,7 @@
                             if (response.Code == 200 || response.Code == "200") {
                                 Swal.fire('Deleted!', 'Design Entry Form deleted successfully.', 'success');
                                 displayData(0);
+                                displayPagginationData();
                             } else {
                                 Swal.fire('Error!', response.Message || 'Problem occurred while submitting your data.', 'error');
                             }
@@ -680,29 +1119,130 @@
                 data: JSON.stringify({ id: id }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-
                 success: function (response) {
-
-                    // ASMX response handling
-                    response = response.d ? response.d : response;
-
-                    if (typeof response === "string") {
-                        response = JSON.parse(response);
+                    var data = response.d ? response.d : response;
+                    if (typeof data === "string") {
+                        try { data = JSON.parse(data); } catch (e) { }
                     }
 
-                    if (response.Code == 200 && response.CanEditDelete == true) {
+                    var canEdit = false;
+                    if (data && (data.Code == 200 || data.Code == "200")) {
+                        canEdit = (data.CanEditDelete === true || data.CanEditDelete === "true" || data.CanEditDelete === 1 || data.CanEditDelete === "1");
+                    }
+
+                    if (canEdit) {
+                        // Edit & Delete are enabled -> Quick Update button hidden
                         $("#editBtn_" + id).removeClass("action-disabled");
                         $("#deleteBtn_" + id).removeClass("action-disabled");
-                    }
-                    else {
+                        $("#quickEditBtn_" + id).hide();
+                    } else {
+                        // Edit & Delete are disabled -> Quick Update button shown
                         $("#editBtn_" + id).addClass("action-disabled");
                         $("#deleteBtn_" + id).addClass("action-disabled");
+                        $("#quickEditBtn_" + id).css("display", "inline-flex");
                     }
                 },
-
                 error: function (request, status, error) {
                     console.log("Unable to check Design Color Matching Details: " + id);
                     console.log(request.responseText);
+                }
+            });
+        }
+
+        var ArrayDesignCategory = [];
+        function loadDesignCategories() {
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/getAllDesignEntryForm',
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response && response.listDesignCategoryMaster && response.listDesignCategoryMaster.length > 0) {
+                        ArrayDesignCategory = response.listDesignCategoryMaster;
+                        var opts = "<option value=''>Select Design Category</option>";
+                        for (var i = 0; i < ArrayDesignCategory.length; i++) {
+                            opts += "<option value='" + ArrayDesignCategory[i].DesignCategoryID + "'>" + ArrayDesignCategory[i].DesignCategory + "</option>";
+                        }
+                        $("#quickDesignCategory").html(opts);
+                    }
+                }
+            });
+        }
+
+        function openQuickUpdateModal(designId, designNo, catId, saleRate, hsnCode) {
+            $("#quickDesignID").val(designId);
+            $("#quickModalDesignNo").text(designNo || "");
+            $("#quickDesignCategory").val(catId || "");
+            $("#quickSaleRate").val(saleRate > 0 ? parseFloat(saleRate).toFixed(2) : "");
+            $("#quickHSNCode").val(hsnCode || "");
+            $("#quickUpdateModal").modal("show");
+        }
+
+        function submitQuickUpdate() {
+            var designId = $("#quickDesignID").val();
+            var catId = $("#quickDesignCategory").val();
+            var saleRate = $("#quickSaleRate").val();
+            var hsnCode = $("#quickHSNCode").val();
+
+            if (!designId || designId == "0") {
+                Swal.fire("Warning", "Invalid design selected.", "warning");
+                return;
+            }
+
+            if (!catId) {
+                Swal.fire("Required", "Please select a Design Category.", "warning");
+                $("#quickDesignCategory").focus();
+                return;
+            }
+
+            if (saleRate === "" || isNaN(parseFloat(saleRate)) || parseFloat(saleRate) < 0) {
+                Swal.fire("Required", "Please enter a valid Sale Rate.", "warning");
+                $("#quickSaleRate").focus();
+                return;
+            }
+
+            var btn = $("#btnSaveQuickUpdate");
+            btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Updating...');
+
+            var formData = new FormData();
+            formData.append('DesignEntryFormID', designId);
+            formData.append('DesignCategoryID', catId);
+            formData.append('SaleRate', saleRate);
+            formData.append('HSNCode', (hsnCode || "").trim());
+
+            $.ajax({
+                type: "POST",
+                url: '/WebServiceNikunjTextile.asmx/QuickUpdateDesignCategoryRateHSN',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    btn.prop("disabled", false).html('<i class="fa fa-check-circle me-1"></i> Update');
+                    var res = response;
+                    if (typeof res === "string") {
+                        try { res = JSON.parse(res); } catch (e) { }
+                    }
+
+                    if (res.Code == 200 || res.Code == "200") {
+                        $("#quickUpdateModal").modal("hide");
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: res.Message || 'Design updated successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        var rowStart = $("#rowStartCount").val() || 0;
+                        displayData(rowStart);
+                    } else {
+                        Swal.fire("Error", res.Message || "Failed to update design.", "error");
+                    }
+                },
+                error: function (request, status, error) {
+                    btn.prop("disabled", false).html('<i class="fa fa-check-circle me-1"></i> Update');
+                    Swal.fire("Error", "Server error while updating design.", "error");
                 }
             });
         }

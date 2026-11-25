@@ -511,7 +511,31 @@
         transform: translateY(-1px);
         color: #FFFFFF !important;
     }
+    /* Singal  Qty Panel */
+    .erp-Singal-panel {
+        background: #e8dded;
+        border: 1px solid #ecb2ed;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
 
+    .erp-btn-Singal {
+        background: #16A34A !important;
+        border-color: #16A34A !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+        transition: all 0.2s ease;
+    }
+
+        .erp-btn-Singal:hover {
+            background: #15803D !important;
+            transform: translateY(-1px);
+            color: #FFFFFF !important;
+        }
     /* Modal Divider */
     .erp-modal-divider {
         display: flex;
@@ -655,11 +679,12 @@
         background-color: #FEF9C3 !important;
         border-left: 3px solid #EAB308 !important;
     }
+
 </style>
 
 <div class="content-wrapper">
     <!-- ERP Hero Header Banner -->
-    <div class="erp-hero-header">
+    <div class="erp-hero-header" style="background-color: #eaf3ff; border: 1px solid #68a0eb; ">
         <div class="erp-hero-title-group">
             <div class="erp-hero-icon">
                 <i class="fa fa-shopping-cart"></i>
@@ -682,7 +707,7 @@
     <div class="row gutters">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
 
-            <div class="erp-card">
+            <div class="erp-card" style="background-color: #eaf3ff; border: 1px solid #68a0eb; ">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
                     <div class="row gutters">
                         <input type="text" value="0" id="SaleOrderID" hidden>
@@ -1279,110 +1304,113 @@
                                                 </div>
 
                                                 <!-- SINGLE ITEM FORM ROW -->
-                                                <div class="row g-2 align-items-center mb-3">
-                                                    <div class="col-md-4">
-                                                        <div class="erp-selected-color-box text-truncate">
-                                                            <span class="erp-selected-color-label">SELECTED COLOR</span>
-                                                            <strong class="ColorMatchingName text-dark d-block text-truncate">Select Color Matching</strong>
-                                                        </div>
-                                                    </div>
+                                                <div class="erp-Singal-panel  mb-3">
+                                                    <div class="row g-2 align-items-center">
+                                                        <div class="row g-2 align-items-center mb-3">
+                                                            <div class="col-md-4">
+                                                                <div class="erp-selected-color-box text-truncate">
+                                                                    <span class="erp-selected-color-label">SELECTED COLOR</span>
+                                                                    <strong class="ColorMatchingName text-dark d-block text-truncate">Select Color Matching</strong>
+                                                                </div>
+                                                            </div>
 
-                                                    <div class="col-md-4">
-                                                        <div class="field-wrapper mb-0">
-                                                            <input type="text" id="DesignSelectionRemark" class="form-control form-control-sm" placeholder=" ">
-                                                            <div class="field-placeholder">Remark</div>
-                                                        </div>
-                                                    </div>
+                                                            <div class="col-md-4">
+                                                                <div class="field-wrapper mb-0">
+                                                                    <input type="text" id="DesignSelectionRemark" class="form-control form-control-sm" placeholder=" ">
+                                                                    <div class="field-placeholder">Remark</div>
+                                                                </div>
+                                                            </div>
 
-                                                    <div class="col-md-2">
-                                                        <div class="field-wrapper mb-0">
-                                                            <input type="tel" id="ColorMatchingQty" class="form-control form-control-sm" placeholder=" ">
-                                                            <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
-                                                        </div>
-                                                    </div>
+                                                            <div class="col-md-2">
+                                                                <div class="field-wrapper mb-0">
+                                                                    <input type="tel" id="ColorMatchingQty" class="form-control form-control-sm" placeholder=" ">
+                                                                    <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
+                                                                </div>
+                                                            </div>
 
-                                                    <div class="col-md-2">
-                                                        <button type="button" id="ColorMatchingAddbtn" class="btn erp-btn-primary btn-sm w-100" style="padding: 7px 10px;">
-                                                            Add Item
-                                                        </button>
+                                                            <div class="col-md-2">
+                                                                <button type="button" id="ColorMatchingAddbtn" class="btn-primary btn-sm w-100" style="padding: 7px 10px;">
+                                                                    Add Item
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                 </div>
+                                                        <span class="fw-bold text-danger small d-block mb-2" id="AlertsMsg"></span>
+
+                                                        <!-- SUB-DETAILS TABLE -->
+                                                        <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 185px; min-height: 160px; overflow-y: auto;">
+                                                            <table class="table table-sm table-hover align-middle mb-0" id="SaleOrderSubDetails">
+                                                                <thead class="sticky-top">
+                                                                    <tr>
+                                                                        <th class="ps-3" style="width: 50px;">Sr No</th>
+                                                                        <th hidden>Design No</th>
+                                                                        <th hidden>Design Name</th>
+                                                                        <th hidden>Color Group</th>
+                                                                        <th>Color Matching</th>
+                                                                        <th style="width: 90px; text-align: right;">Qty</th>
+                                                                        <th>Remark</th>
+                                                                        <th class="text-center pe-3" style="width: 70px;">Action</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="itemTableBody">
+                                                                    <tr class="no-data">
+                                                                        <td colspan="8" class="text-center text-muted py-3">
+                                                                            No Data Available In Table
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <span class="fw-bold text-danger small d-block mb-2" id="AlertsMsg"></span>
+                                                <!-- RIGHT SIDE: PREVIOUS ORDER COLOUR HISTORY -->
+                                                <div class="col-xl-3 col-lg-3 col-md-3 d-flex flex-column" id="pnlColourHistory">
+                                                    <div class="card border-0 shadow-sm rounded-3 p-3 h-100 d-flex flex-column" style="background: #efd9d9; border: 1px solid #f7a6a6 !important; border-radius: 10px !important; ">
+                                                        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                                                            <span class="fw-bold" style="font-size: 11px; color: var(--erp-navy); text-transform: uppercase; letter-spacing: 0.5px;">
+                                                                <i class="fa fa-history text-primary me-1"></i> Previous Order Colour History
+                                                            </span>
+                                                        </div>
+                                                        <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 280px;  min-height: 200px; overflow-y: auto;">
+                                                            <table class="table table-sm table-hover align-middle mb-0" id="tblColourHistory">
+                                                                <thead class="sticky-top">
+                                                                    <tr>
+                                                                        <th style="width: 36px; text-align: center;">
+                                                                            <input type="checkbox" id="chkHistorySelectAll" style="cursor: pointer; width: 14px; height: 14px;" title="Select All" />
+                                                                        </th>
+                                                                        <th>Colour Name</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="colourHistoryTableBody">
+                                                                    <tr class="no-history-data">
+                                                                        <td colspan="2" class="text-center text-muted py-3 small">
+                                                                            No Previous Order Colour History
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
 
-                                                <!-- SUB-DETAILS TABLE -->
-                                                <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 185px; min-height: 160px; overflow-y: auto;">
-                                                    <table class="table table-sm table-hover align-middle mb-0" id="SaleOrderSubDetails">
-                                                        <thead class="sticky-top">
-                                                            <tr>
-                                                                <th class="ps-3" style="width: 50px;">Sr No</th>
-                                                                <th hidden>Design No</th>
-                                                                <th hidden>Design Name</th>
-                                                                <th hidden>Color Group</th>
-                                                                <th>Color Matching</th>
-                                                                <th style="width: 90px; text-align: right;">Qty</th>
-                                                                <th>Remark</th>
-                                                                <th class="text-center pe-3" style="width: 70px;">Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="itemTableBody">
-                                                            <tr class="no-data">
-                                                                <td colspan="8" class="text-center text-muted py-3">
-                                                                    No Data Available In Table
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+                                                        <!-- Qty and Add Item button below table -->
+                                                        <div class="row g-2 align-items-center mt-2 pt-2 border-top">
+                                                            <div class="col-6">
+                                                                <div class="field-wrapper mb-0">
+                                                                    <input type="tel" id="txtHistoryQty" class="form-control form-control-sm" placeholder=" ">
+                                                                    <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <button type="button" id="btnHistoryAddItem" class="btn-primary btn-sm w-100" style="padding: 7px 10px;">
+                                                                    Add Item
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
+
                                             </div>
-                                        </div>
-
-                                        <!-- RIGHT SIDE: PREVIOUS ORDER COLOUR HISTORY -->
-                                        <div class="col-xl-3 col-lg-3 col-md-3 d-flex flex-column" id="pnlColourHistory">
-                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 d-flex flex-column" style="border: 1px solid var(--erp-border) !important;">
-                                                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
-                                                    <span class="fw-bold" style="font-size: 11px; color: var(--erp-navy); text-transform: uppercase; letter-spacing: 0.5px;">
-                                                        <i class="fa fa-history text-primary me-1"></i> Previous Order Colour History
-                                                    </span>
-                                                </div>
-                                                <div class="erp-table-container table-responsive flex-grow-1" style="max-height: 280px; min-height: 200px; overflow-y: auto;">
-                                                    <table class="table table-sm table-hover align-middle mb-0" id="tblColourHistory">
-                                                        <thead class="sticky-top">
-                                                            <tr>
-                                                                <th style="width: 36px; text-align: center;">
-                                                                    <input type="checkbox" id="chkHistorySelectAll" style="cursor: pointer; width: 14px; height: 14px;" title="Select All" />
-                                                                </th>
-                                                                <th>Colour Name</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="colourHistoryTableBody">
-                                                            <tr class="no-history-data">
-                                                                <td colspan="2" class="text-center text-muted py-3 small">
-                                                                    No Previous Order Colour History
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                                <!-- Qty and Add Item button below table -->
-                                                <div class="row g-2 align-items-center mt-2 pt-2 border-top">
-                                                    <div class="col-6">
-                                                        <div class="field-wrapper mb-0">
-                                                            <input type="tel" id="txtHistoryQty" class="form-control form-control-sm" placeholder=" ">
-                                                            <div class="field-placeholder">Qty <span class="text-danger">*</span></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <button type="button" id="btnHistoryAddItem" class="btn-primary btn-sm w-100" style="padding: 7px 10px;">
-                                                            Add Item
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
                                 </div>
 
                                 <!-- FOOTER -->
@@ -1596,11 +1624,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+      
 
 @section Scripts{
     <script>
