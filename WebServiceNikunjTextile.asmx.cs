@@ -23795,17 +23795,13 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                                 return;
                             }
 
-                            // 2. Check actual external dependencies (exclude child DesignColorMatchingDetails).
+                            // 2. Check SaleOrderSubDetails dependency for any detail row of this form.
                             string checkSql = @"
-                        SELECT
-                            (SELECT COUNT_BIG(1)
-                             FROM dbo.YarnRequirementMaster WITH (HOLDLOCK)
-                             WHERE DesignColorMatchingFormID = @FormID)
-                          + (SELECT COUNT_BIG(1)
-                             FROM dbo.YarnOutwardDetails YOD WITH (HOLDLOCK)
-                             INNER JOIN dbo.DesignColorMatchingDetails DCMD WITH (HOLDLOCK)
-                                 ON DCMD.DesignColorMatchingDetailsID = YOD.ColorDetailsID
-                             WHERE DCMD.DesignColorMatchingFormID = @FormID);";
+                        SELECT COUNT_BIG(1)
+                        FROM dbo.SaleOrderSubDetails SOSD WITH (HOLDLOCK)
+                        INNER JOIN dbo.DesignColorMatchingDetails DCMD WITH (HOLDLOCK)
+                            ON DCMD.DesignColorMatchingDetailsID = SOSD.ColourID
+                        WHERE DCMD.DesignColorMatchingFormID = @FormID;";
 
                             using (SqlCommand cmdCheck = new SqlCommand(checkSql, con, trans))
                             {
@@ -23816,7 +23812,7 @@ WHERE GS.GSTSLABId = @GSTSLABId";
                                 {
                                     trans.Rollback();
                                     comman.Code = 547;
-                                    comman.Message = "Cannot delete this record because it is already used in Yarn Requirement / Yarn Outward.";
+                                    comman.Message = "Cannot delete this record because its color matching is already used in a Sale Order.";
                                     Context.Response.Write(js.Serialize(comman));
                                     return;
                                 }
@@ -43782,10 +43778,13 @@ ORDER BY
 
             using (SqlConnection con = new SqlConnection(cs))
             {
-                string query = "SELECT ISNULL(MAX(OrderNo),0) + 1 FROM SaleOrder";
-                SqlCommand cmd = new SqlCommand(query, con);
-                con.Open();
-                orderNo = cmd.ExecuteScalar().ToString();
+                string query = "SELECT CAST(ISNULL(MAX(TRY_CAST(OrderNo AS BIGINT)), 0) + 1 AS VARCHAR(50)) FROM dbo.SaleOrder";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    con.Open();
+                    object result = cmd.ExecuteScalar();
+                    orderNo = result != null ? result.ToString() : "1";
+                }
             }
             return orderNo;
         }
@@ -44045,7 +44044,7 @@ ORDER BY
                                 foreach (int remDetailId in removedDetailIds)
                                 {
                                     // Check ProductionOrderDetail
-                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID", con, trans))
+                                    using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SalesOrderDetailID = @DetailID AND IsActive=1", con, trans))
                                     {
                                         cmdDep.Parameters.Add("@DetailID", SqlDbType.BigInt).Value = remDetailId;
                                         int count = Convert.ToInt32(cmdDep.ExecuteScalar());
@@ -44069,7 +44068,7 @@ ORDER BY
                                     {
                                         foreach (int subId in existingSubDetails[remDetailId])
                                         {
-                                            using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID", con, trans))
+                                            using (SqlCommand cmdDep = new SqlCommand("SELECT COUNT(1) FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID AND IsActive=1", con, trans))
                                             {
                                                 cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = subId;
                                                 int count = Convert.ToInt32(cmdDep.ExecuteScalar());
@@ -44227,11 +44226,7 @@ ORDER BY
                                         bool isRemovedSubProductionLinked;
                                         using (SqlCommand cmdDep = new SqlCommand(@"
                                      SELECT CASE WHEN EXISTS
-                                     (
-                                         SELECT 1
-                                         FROM dbo.ProductionOrderDetail
-                                         WHERE SubDetailID = @SubDetailID
-                                     ) THEN 1 ELSE 0 END", con, trans))
+                                     (  SELECT 1 FROM dbo.ProductionOrderDetail WHERE SubDetailID = @SubDetailID AND IsActive=1 ) THEN 1 ELSE 0 END", con, trans))
                                         {
                                             cmdDep.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = remSubId;
                                             isRemovedSubProductionLinked = Convert.ToInt32(cmdDep.ExecuteScalar()) == 1;
@@ -44262,9 +44257,7 @@ ORDER BY
                                                 bool isProductionLinkedSubDetail = false;
 
                                                 using (SqlCommand cmdChkSub = new SqlCommand(@"
-                                             SELECT COUNT(1)
-                                             FROM dbo.ProductionOrderDetail
-                                             WHERE SubDetailID = @SubDetailID", con, trans))
+                                             SELECT COUNT(1)  FROM dbo.ProductionOrderDetail  WHERE SubDetailID = @SubDetailID AND IsActive=1", con, trans))
                                                 {
                                                     cmdChkSub.Parameters.Add("@SubDetailID", SqlDbType.BigInt).Value = s.SubDetailID;
                                                     isProductionLinkedSubDetail = Convert.ToInt32(cmdChkSub.ExecuteScalar()) > 0;
@@ -44278,13 +44271,7 @@ ORDER BY
                                                 {
                                                     // In-place UPDATE
                                                     using (SqlCommand cmdUpdSub = new SqlCommand(@"
-                                      UPDATE dbo.SaleOrderSubDetails
-                                      SET ColourID = @ColourID,
-                                          ColourName = @ColourName,
-                                          Qty = @Qty,
-                                          Unit = @Unit,
-                                          Remark = @Remark
-                                      WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
+                                      UPDATE dbo.SaleOrderSubDetails  SET ColourID = @ColourID, ColourName = @ColourName, Qty = @Qty,Unit = @Unit, Remark = @Remark WHERE SubDetailID = @SubDetailID AND DetailID = @DetailID", con, trans))
                                                     {
                                                         cmdUpdSub.Parameters.Add("@SubDetailID", SqlDbType.Int).Value = s.SubDetailID;
                                                         cmdUpdSub.Parameters.Add("@DetailID", SqlDbType.Int).Value = detailId;
@@ -44420,9 +44407,12 @@ ORDER BY
         }
         private string GetNextOrderNo(SqlConnection con, SqlTransaction tran)
         {
-            using (SqlCommand cmd = new SqlCommand(@"SELECT ISNULL(MAX(CAST(OrderNo AS INT)), 0) + 1 FROM SaleOrder", con, tran))
+            string query = @" SELECT CAST(ISNULL(MAX(TRY_CAST(OrderNo AS BIGINT)), 0) + 1 AS VARCHAR(50)) FROM dbo.SaleOrder WITH (UPDLOCK, HOLDLOCK)";
+
+            using (SqlCommand cmd = new SqlCommand(query, con, tran))
             {
-                return cmd.ExecuteScalar().ToString();
+                object result = cmd.ExecuteScalar();
+                return (result != null && result != DBNull.Value) ? result.ToString() : "1";
             }
         }
         [WebMethod]
@@ -44766,7 +44756,7 @@ ORDER BY
                             ISNULL(POD.ColourMatchingName, '') AS ColourMatchingName,
                             ISNULL(POD.PCS, 0) AS PCS
                         FROM dbo.ProductionOrderDetail POD WITH (NOLOCK)
-                        WHERE POD.SalesOrderID = @SaleOrderID
+                        WHERE POD.SalesOrderID = @SaleOrderID AND POD.IsActive=1
                           AND (@DetailID = 0 OR POD.SalesOrderDetailID = @DetailID);";
 
                     using (SqlCommand cmd = new SqlCommand(sql, con))
@@ -50311,11 +50301,11 @@ ORDER BY
                     if (userAccountId > 0)
                     {
                         using (SqlCommand cmdUser = new SqlCommand(@"
-                            SELECT 
-                                ISNULL(PartyId, 0) AS PartyId,
-                                ISNULL(UserRole, '') AS UserRole
-                            FROM UserAccountMaster
-                            WHERE UserAccountId = @UserAccountId", con))
+                    SELECT 
+                        ISNULL(PartyId, 0) AS PartyId,
+                        ISNULL(UserRole, '') AS UserRole
+                    FROM UserAccountMaster
+                    WHERE UserAccountId = @UserAccountId", con))
                         {
                             cmdUser.Parameters.AddWithValue("@UserAccountId", userAccountId);
                             using (SqlDataReader drUser = cmdUser.ExecuteReader())
@@ -50335,11 +50325,11 @@ ORDER BY
                     try
                     {
                         string sqlJobbers = @"
-                            SELECT DISTINCT 
-                                Id AS JobberID, 
-                                PartyName AS JobberName 
-                            FROM JobberMaster 
-                            WHERE PartyName IS NOT NULL AND PartyName <> ''";
+                    SELECT DISTINCT 
+                        Id AS JobberID, 
+                        PartyName AS JobberName 
+                    FROM JobberMaster 
+                    WHERE PartyName IS NOT NULL AND PartyName <> ''";
 
                         if (isJobWork && partyId > 0)
                         {
@@ -50372,12 +50362,12 @@ ORDER BY
                     try
                     {
                         string sqlParties = @"
-                            SELECT DISTINCT 
-                                PartyID, 
-                                PartyName 
-                            FROM PartyMaster 
-                            WHERE PartyName IS NOT NULL AND PartyName <> ''
-                            ORDER BY PartyName";
+                    SELECT DISTINCT 
+                        PartyID, 
+                        PartyName 
+                    FROM PartyMaster 
+                    WHERE PartyName IS NOT NULL AND PartyName <> ''
+                    ORDER BY PartyName";
                         using (SqlCommand cmdP = new SqlCommand(sqlParties, con))
                         {
                             using (SqlDataReader drP = cmdP.ExecuteReader())
@@ -50397,117 +50387,123 @@ ORDER BY
 
                     // 3. Main Query for Sale Orders & Jobber Assignment (Itemized sub-details)
                     string sql = @"
-                        WITH SOD_Seq AS (
-                            SELECT 
-                                sod.*,
-                                DENSE_RANK() OVER (PARTITION BY sod.SaleOrderID ORDER BY sod.DetailID) AS DesignSeq
-                            FROM SaleOrderDetails sod
-                        ),
-                        SOSD_Seq AS (
-                            SELECT 
-                                sods.*,
-                                ROW_NUMBER() OVER (PARTITION BY sods.DetailID ORDER BY sods.SubDetailID) AS ColourSeq
-                            FROM SaleOrderSubDetails sods
-                        ),
-                        BaseItems AS (
-                            SELECT 
-                                so.SaleOrderID,
-                                ISNULL(so.OrderNo, CAST(so.SaleOrderID AS VARCHAR(50))) AS OrderNo,
-                                so.OrderDate,
-                                CONVERT(VARCHAR(10), so.OrderDate, 103) AS OrderDateFormatted,
-                                so.PartyID,
-                                ISNULL(pm.PartyName, '') AS PartyName,
-                                sod.DetailID,
-                                ISNULL(sods.SubDetailID, 0) AS SubDetailID,
-                                ISNULL(sod.DesignNo, '') AS DesignNo,
-                                ISNULL(sods.ColourID, sod.DesignColorMatchingID) AS ColourMatchingID,
-                                ISNULL(sods.ColourName, '') AS ColourName,
-                                ISNULL(sods.Qty, ISNULL(sod.Qty, 0)) AS TotalItemQty,
-                                ISNULL(sod.Rate, 0) AS Rate,
-                                ISNULL(sod.DesignSeq, 1) AS DesignSeq,
-                                ISNULL(sods.ColourSeq, 1) AS ColourSeq
-                            FROM SaleOrder so
-                            LEFT JOIN PartyMaster pm ON so.PartyID = pm.PartyID
-                            INNER JOIN SOD_Seq sod ON so.SaleOrderID = sod.SaleOrderID
-                            LEFT JOIN SOSD_Seq sods ON sod.DetailID = sods.DetailID
-                        ),
-                        AllottedRows AS (
-                            SELECT 
-                                b.SaleOrderID,
-                                b.OrderNo,
-                                b.OrderDate,
-                                b.OrderDateFormatted,
-                                b.PartyID,
-                                b.PartyName,
-                                b.DetailID,
-                                b.SubDetailID,
-                                b.DesignNo,
-                                b.ColourMatchingID,
-                                b.ColourName,
-                                ISNULL(pod.ProductionPCS, 0) AS TotalOrderPcs,
-                                ISNULL(pod.ProductionPCS, 0) AS AlreadyProducedPcs,
-                                CAST(0 AS DECIMAL(18,2)) AS PendingPcs,
-                                b.Rate,
-                                b.DesignSeq,
-                                b.ColourSeq,
-                                ISNULL(pom.JobWorkerID, 0) AS JobWorkerID,
-                                ISNULL(jm.PartyName, ISNULL(pom.JobWorkerName, 'Not Assigned')) AS JobWorkerName,
-                                ISNULL(pom.ProductionOrderNo, '') AS ProductionOrderNo,
-                                ISNULL(CONVERT(VARCHAR(10), pom.ProductionOrderDate, 103), '') AS AssignmentDateFormatted,
-                                'ALLOTTED' AS AssignmentStatus,
-                                1 AS RowType
-                            FROM BaseItems b
-                            INNER JOIN ProductionOrderDetail pod ON (
-                                (b.SubDetailID > 0 AND pod.SubDetailID = b.SubDetailID)
-                                OR ((b.SubDetailID IS NULL OR b.SubDetailID = 0) AND pod.SalesOrderDetailID = b.DetailID)
+                WITH SOD_Seq AS (
+                    SELECT 
+                        sod.*,
+                        DENSE_RANK() OVER (PARTITION BY sod.SaleOrderID ORDER BY sod.DetailID) AS DesignSeq
+                    FROM SaleOrderDetails sod
+                ),
+                SOSD_Seq AS (
+                    SELECT 
+                        sods.*,
+                        ROW_NUMBER() OVER (PARTITION BY sods.DetailID ORDER BY sods.SubDetailID) AS ColourSeq
+                    FROM SaleOrderSubDetails sods
+                ),
+                BaseItems AS (
+                    SELECT 
+                        so.SaleOrderID,
+                        ISNULL(so.OrderNo, CAST(so.SaleOrderID AS VARCHAR(50))) AS OrderNo,
+                        so.OrderDate,
+                        CONVERT(VARCHAR(10), so.OrderDate, 103) AS OrderDateFormatted,
+                        so.PartyID,
+                        ISNULL(pm.PartyName, '') AS PartyName,
+                        sod.DetailID,
+                        ISNULL(sods.SubDetailID, 0) AS SubDetailID,
+                        ISNULL(sod.DesignNo, '') AS DesignNo,
+                        ISNULL(sods.ColourID, sod.DesignColorMatchingID) AS ColourMatchingID,
+                        ISNULL(sods.ColourName, '') AS ColourName,
+                        ISNULL(sods.Qty, ISNULL(sod.Qty, 0)) AS TotalItemQty,
+                        ISNULL(sod.Rate, 0) AS Rate,
+                        ISNULL(sod.DesignSeq, 1) AS DesignSeq,
+                        ISNULL(sods.ColourSeq, 1) AS ColourSeq
+                    FROM SaleOrder so
+                    LEFT JOIN PartyMaster pm ON so.PartyID = pm.PartyID
+                    INNER JOIN SOD_Seq sod ON so.SaleOrderID = sod.SaleOrderID
+                    LEFT JOIN SOSD_Seq sods ON sod.DetailID = sods.DetailID
+                ),
+                AllottedRows AS (
+                    SELECT 
+                        b.SaleOrderID,
+                        b.OrderNo,
+                        b.OrderDate,
+                        b.OrderDateFormatted,
+                        b.PartyID,
+                        b.PartyName,
+                        b.DetailID,
+                        b.SubDetailID,
+                        b.DesignNo,
+                        b.ColourMatchingID,
+                        b.ColourName,
+                        ISNULL(pod.ProductionPCS, 0) AS TotalOrderPcs,
+                        ISNULL(pod.ProductionPCS, 0) AS AlreadyProducedPcs,
+                        CAST(0 AS DECIMAL(18,2)) AS PendingPcs,
+                        b.Rate,
+                        b.DesignSeq,
+                        b.ColourSeq,
+                        ISNULL(pom.JobWorkerID, 0) AS JobWorkerID,
+                        ISNULL(jm.PartyName, ISNULL(pom.JobWorkerName, 'Not Assigned')) AS JobWorkerName,
+                        ISNULL(pom.ProductionOrderNo, '') AS ProductionOrderNo,
+                        ISNULL(CONVERT(VARCHAR(10), pom.ProductionOrderDate, 103), '') AS AssignmentDateFormatted,
+                        'ALLOTTED' AS AssignmentStatus,
+                        1 AS RowType
+                    FROM BaseItems b
+                    INNER JOIN ProductionOrderDetail pod ON (
+                        pod.SalesOrderDetailID = b.DetailID
+                        AND (
+                            (b.SubDetailID > 0 AND pod.SubDetailID = b.SubDetailID)
+                            OR (
+                                (pod.SubDetailID IS NULL OR pod.SubDetailID = 0)
+                                AND (b.ColourMatchingID = 0 OR pod.ColourMatchingID = b.ColourMatchingID)
                             )
-                            INNER JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
-                            LEFT JOIN JobberMaster jm ON pom.JobWorkerID = jm.Id
-                            WHERE ISNULL(pod.IsActive, 1) = 1 AND ISNULL(pom.IsActive, 1) = 1
-                        ),
-                        PendingSummary AS (
-                            SELECT 
-                                DetailID,
-                                SubDetailID,
-                                SUM(TotalOrderPcs) AS SumAllottedPcs
-                            FROM AllottedRows
-                            GROUP BY DetailID, SubDetailID
-                        ),
-                        PendingRows AS (
-                            SELECT 
-                                b.SaleOrderID,
-                                b.OrderNo,
-                                b.OrderDate,
-                                b.OrderDateFormatted,
-                                b.PartyID,
-                                b.PartyName,
-                                b.DetailID,
-                                b.SubDetailID,
-                                b.DesignNo,
-                                b.ColourMatchingID,
-                                b.ColourName,
-                                (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) AS TotalOrderPcs,
-                                CAST(0 AS DECIMAL(18,2)) AS AlreadyProducedPcs,
-                                (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) AS PendingPcs,
-                                b.Rate,
-                                b.DesignSeq,
-                                b.ColourSeq,
-                                CAST(0 AS BIGINT) AS JobWorkerID,
-                                'Not Assigned' AS JobWorkerName,
-                                '' AS ProductionOrderNo,
-                                '' AS AssignmentDateFormatted,
-                                'PENDING' AS AssignmentStatus,
-                                2 AS RowType
-                            FROM BaseItems b
-                            LEFT JOIN PendingSummary ps ON b.DetailID = ps.DetailID AND b.SubDetailID = ps.SubDetailID
-                            WHERE (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) > 0
-                        ),
-                        CombinedData AS (
-                            SELECT * FROM AllottedRows
-                            UNION ALL
-                            SELECT * FROM PendingRows
                         )
-                        SELECT * FROM CombinedData WHERE 1=1";
+                    )
+                    INNER JOIN ProductionOrderMaster pom ON pod.ProductionOrderID = pom.ProductionOrderID
+                    LEFT JOIN JobberMaster jm ON pom.JobWorkerID = jm.Id
+                    WHERE ISNULL(pod.IsActive, 1) = 1 AND ISNULL(pom.IsActive, 1) = 1
+                ),
+                PendingSummary AS (
+                    SELECT 
+                        DetailID,
+                        SubDetailID,
+                        SUM(TotalOrderPcs) AS SumAllottedPcs
+                    FROM AllottedRows
+                    GROUP BY DetailID, SubDetailID
+                ),
+                PendingRows AS (
+                    SELECT 
+                        b.SaleOrderID,
+                        b.OrderNo,
+                        b.OrderDate,
+                        b.OrderDateFormatted,
+                        b.PartyID,
+                        b.PartyName,
+                        b.DetailID,
+                        b.SubDetailID,
+                        b.DesignNo,
+                        b.ColourMatchingID,
+                        b.ColourName,
+                        (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) AS TotalOrderPcs,
+                        CAST(0 AS DECIMAL(18,2)) AS AlreadyProducedPcs,
+                        (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) AS PendingPcs,
+                        b.Rate,
+                        b.DesignSeq,
+                        b.ColourSeq,
+                        CAST(0 AS BIGINT) AS JobWorkerID,
+                        'Not Assigned' AS JobWorkerName,
+                        '' AS ProductionOrderNo,
+                        '' AS AssignmentDateFormatted,
+                        'PENDING' AS AssignmentStatus,
+                        2 AS RowType
+                    FROM BaseItems b
+                    LEFT JOIN PendingSummary ps ON b.DetailID = ps.DetailID AND b.SubDetailID = ps.SubDetailID
+                    WHERE (b.TotalItemQty - ISNULL(ps.SumAllottedPcs, 0)) > 0
+                ),
+                CombinedData AS (
+                    SELECT * FROM AllottedRows
+                    UNION ALL
+                    SELECT * FROM PendingRows
+                )
+                SELECT * FROM CombinedData WHERE 1=1";
 
                     // Handle Jobber Role default vs Explicit Jobber Filter
                     if (isJobWork && partyId > 0 && (string.IsNullOrEmpty(jobberId) || jobberId == "ALL"))
@@ -60181,7 +60177,7 @@ FROM Filtered
                         {
                             if (pdfBytes != null && pdfBytes.Length > 0)
                             {
-                                PdfReader reader = new PdfReader(pdfBytes);
+                                iTextSharp.text.pdf.PdfReader reader = new iTextSharp.text.pdf.PdfReader(pdfBytes);
                                 for (int i = 1; i <= reader.NumberOfPages; i++)
                                 {
                                     PdfImportedPage page = pdfCopy.GetImportedPage(reader, i);
@@ -60965,7 +60961,7 @@ FROM Filtered
                             )
                             {
                                 using (
-                                    PdfReader reader =
+                                     PdfReader reader =
                                         new PdfReader(file)
                                 )
                                 {
@@ -62211,7 +62207,7 @@ FROM Filtered
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public object JobProductionOrderSlipReport(List<long> productionOrderDetailID)
         {
-            return GenerateCrystalPdfReportCommon(
+            var result = GenerateCrystalPdfReportCommon(
                 productionOrderDetailID,
                 "~/Reports/WEAVELANEPRODUCTIONSLIP.rpt",
                 "ProductionSlip",
@@ -62219,6 +62215,113 @@ FROM Filtered
                 FetchProductionSlipDataSet,
                 ResolveProductionSlipReportPath
             );
+
+            if (result == null)
+                return null;
+
+            // 1. Agar result direct string (PDF URL) return karta hai
+            if (result is string directUrl && directUrl.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return BuildTwoUpPdfUrl(directUrl);
+            }
+
+            // 2. Agar result Dictionary hai
+            if (result is System.Collections.Generic.IDictionary<string, object> dict)
+            {
+                var keys = new System.Collections.Generic.List<string>(dict.Keys);
+                foreach (string key in keys)
+                {
+                    if (dict[key] != null && dict[key].ToString().IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        dict[key] = BuildTwoUpPdfUrl(dict[key].ToString());
+                        return dict;
+                    }
+                }
+                return dict;
+            }
+
+            // 3. Agar result Anonymous Object ya Custom Class hai (e.g. new { success = true, pdfUrl = "..." })
+            Type t = result.GetType();
+            var props = t.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            foreach (var prop in props)
+            {
+                if (prop.PropertyType == typeof(string))
+                {
+                    string val = prop.GetValue(result, null) as string;
+                    if (!string.IsNullOrEmpty(val) && val.IndexOf(".pdf", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        string newUrl = BuildTwoUpPdfUrl(val);
+                        if (prop.CanWrite)
+                        {
+                            prop.SetValue(result, newUrl, null);
+                            return result;
+                        }
+                        else
+                        {
+                            var responseDict = new System.Collections.Generic.Dictionary<string, object>();
+                            foreach (var p in props)
+                            {
+                                responseDict[p.Name] = (p.Name == prop.Name) ? newUrl : p.GetValue(result, null);
+                            }
+                            return responseDict;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private string BuildTwoUpPdfUrl(string rawUrl)
+        {
+            if (string.IsNullOrWhiteSpace(rawUrl))
+                return rawUrl;
+
+            // Fix accidental single slash "http:/" if present
+            string normalizedUrl = rawUrl.Trim();
+            if (normalizedUrl.StartsWith("http:/", StringComparison.OrdinalIgnoreCase) &&
+                !normalizedUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            {
+                normalizedUrl = "http://" + normalizedUrl.Substring("http:/".Length);
+            }
+
+            string pathPart = normalizedUrl.Split('?')[0];
+            bool isFullHttpUrl = pathPart.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                 pathPart.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+            string virtualPath;
+            string urlPrefix;
+
+            if (isFullHttpUrl)
+            {
+                Uri uri = new Uri(pathPart);
+                virtualPath = uri.AbsolutePath; // e.g. "/GeneratedPDF/ProductionSlip_Merged_...pdf"
+                urlPrefix = uri.GetLeftPart(UriPartial.Authority); // e.g. "http://localhost:50500"
+            }
+            else
+            {
+                virtualPath = pathPart.StartsWith("~") || pathPart.StartsWith("/")
+                    ? pathPart
+                    : "~/" + pathPart;
+                urlPrefix = "";
+            }
+
+            string physicalSourcePath = Server.MapPath(virtualPath);
+            if (!System.IO.File.Exists(physicalSourcePath))
+                return rawUrl;
+
+            string twoUpFileName = System.IO.Path.GetFileNameWithoutExtension(physicalSourcePath) + "_2Up.pdf";
+            string physicalTargetPath = System.IO.Path.Combine(
+                System.IO.Path.GetDirectoryName(physicalSourcePath),
+                twoUpFileName
+            );
+
+            ConvertPdfToTwoUpPerPage(physicalSourcePath, physicalTargetPath);
+
+            string folderVirtual = virtualPath.Substring(0, virtualPath.LastIndexOf('/') + 1);
+            string updatedVirtualPath = folderVirtual + twoUpFileName + "?v=" + DateTime.Now.Ticks;
+
+            return isFullHttpUrl ? (urlPrefix + updatedVirtualPath) : updatedVirtualPath;
         }
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
@@ -65522,6 +65625,237 @@ FROM Filtered
         }
 
         #endregion
+        #region
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public void getGodownTransactionReport()
+        {
+            var response = new GodownTransactionReportResponse
+            {
+                InwardList = new List<GodownInwardTransactionRow>(),
+                OutwardList = new List<GodownOutwardTransactionRow>()
+            };
+
+            try
+            {
+                DateTime fromDateVal, toDateVal;
+                object fromDateParam = DateTime.TryParse(HttpContext.Current.Request.Params["FromDate"], out fromDateVal)
+                    ? (object)fromDateVal.Date : DBNull.Value;
+                object toDateParam = DateTime.TryParse(HttpContext.Current.Request.Params["ToDate"], out toDateVal)
+                    ? (object)toDateVal.Date : DBNull.Value;
+
+                string searchText = (HttpContext.Current.Request.Params["SearchText"] ?? "").Trim();
+                int companyId = Convert.ToInt32(GetCookieValue("CompanyID", "0"));
+                int financialYearId = Convert.ToInt32(GetCookieValue("FinacialYearDefaultID", "0"));
+
+                string cs = ConfigurationManager.ConnectionStrings["sqlconnstr"].ConnectionString;
+                using (SqlConnection con = new SqlConnection(cs))
+                using (SqlCommand cmd = new SqlCommand("dbo.sp_GodownTransactionReport", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@FromDate", SqlDbType.Date).Value = fromDateParam;
+                    cmd.Parameters.Add("@ToDate", SqlDbType.Date).Value = toDateParam;
+                    cmd.Parameters.Add("@CompanyId", SqlDbType.Int).Value = companyId;
+                    cmd.Parameters.Add("@FinancialYear", SqlDbType.Int).Value = financialYearId;
+                    cmd.Parameters.Add("@SearchText", SqlDbType.NVarChar, 100).Value = string.IsNullOrEmpty(searchText) ? (object)DBNull.Value : searchText;
+
+                    con.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            response.InwardList.Add(new GodownInwardTransactionRow
+                            {
+                                SrNo = GetInt(rdr, "SrNo"),
+                                TransactionDate = GetString(rdr, "TransactionDate"),
+                                InwardNo = GetString(rdr, "InwardNo"),
+                                PONo = GetString(rdr, "PONo"),
+                                PartyChallanNo = GetString(rdr, "PartyChallanNo"),
+                                SupplierName = GetString(rdr, "SupplierName"),
+                                YarnCompanyName = GetString(rdr, "YarnCompanyName"),
+                                YarnMaterial = GetString(rdr, "YarnMaterial"),
+                                YarnColor = GetString(rdr, "YarnColor"),
+                                YarnColorCode = GetString(rdr, "YarnColorCode"),
+                                ColorSwatchHex = TryGetString(rdr, "ColorSwatchHex"),
+                                BoxNo = GetString(rdr, "BoxNo"),
+                                BarcodeNo = GetString(rdr, "BarcodeNo"),
+                                NetWeight = rdr["NetWeight"] == DBNull.Value ? 0m : Convert.ToDecimal(rdr["NetWeight"]),
+                                Location = GetString(rdr, "Location"),
+                                GodownName = TryGetString(rdr, "GodownName")
+                            });
+                        }
+
+                        if (rdr.NextResult())
+                        {
+                            while (rdr.Read())
+                            {
+                                response.OutwardList.Add(new GodownOutwardTransactionRow
+                                {
+                                    SrNo = GetInt(rdr, "SrNo"),
+                                    TransactionDate = GetString(rdr, "TransactionDate"),
+                                    OutwardNo = GetString(rdr, "OutwardNo"),
+                                    ChallanNo = GetString(rdr, "ChallanNo"),
+                                    PartyChallanNo = GetString(rdr, "PartyChallanNo"),
+                                    JobberCreditorName = GetString(rdr, "JobberCreditorName"),
+                                    YarnCompanyName = GetString(rdr, "YarnCompanyName"),
+                                    YarnMaterial = GetString(rdr, "YarnMaterial"),
+                                    YarnColor = GetString(rdr, "YarnColor"),
+                                    YarnColorCode = GetString(rdr, "YarnColorCode"),
+                                    ColorSwatchHex = TryGetString(rdr, "ColorSwatchHex"),
+                                    BoxNo = GetString(rdr, "BoxNo"),
+                                    BarcodeNo = GetString(rdr, "BarcodeNo"),
+                                    NetWeight = rdr["NetWeight"] == DBNull.Value ? 0m : Convert.ToDecimal(rdr["NetWeight"]),
+                                    GodownName = TryGetString(rdr, "GodownName"),
+                                    GodownAddress = GetString(rdr, "GodownAddress")
+                                });
+                            }
+                        }
+                    }
+                }
+
+                response.Code = 200;
+                response.Message = "Success";
+            }
+            catch (Exception ex)
+            {
+                AuditLogHelper.LogError("Godown Transaction Report", "getGodownTransactionReport", ex);
+                response.Code = 500;
+                response.Message = "Error loading report: " + ex.Message;
+            }
+
+            WriteJsonResponse(response);
+        }
+
+        private static string TryGetString(SqlDataReader rdr, string columnName)
+        {
+            for (int i = 0; i < rdr.FieldCount; i++)
+            {
+                if (string.Equals(rdr.GetName(i), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return rdr.IsDBNull(i) ? string.Empty : rdr.GetValue(i).ToString().Trim();
+                }
+            }
+            return string.Empty;
+        }
+        #endregion
+    public static void ConvertPdfToTwoUpPerPage(string sourcePdfPath, string targetPdfPath)
+    {
+        iTextSharp.text.pdf.PdfReader reader = null;
+        iTextSharp.text.Document doc = null;
+        iTextSharp.text.pdf.PdfWriter writer = null;
+        FileStream fs = null;
+
+        try
+        {
+            reader = new iTextSharp.text.pdf.PdfReader(sourcePdfPath);
+            int totalSlips = reader.NumberOfPages;
+
+            iTextSharp.text.Rectangle firstPageSize = reader.GetPageSizeWithRotation(1);
+            float pageWidth = firstPageSize.Width > 0 ? firstPageSize.Width : iTextSharp.text.PageSize.A4.Width;
+            float pageHeight = firstPageSize.Height > 0 ? firstPageSize.Height : iTextSharp.text.PageSize.A4.Height;
+
+            doc = new iTextSharp.text.Document(new iTextSharp.text.Rectangle(pageWidth, pageHeight), 0, 0, 0, 0);
+            fs = new FileStream(targetPdfPath, FileMode.Create, FileAccess.Write);
+            writer = iTextSharp.text.pdf.PdfWriter.GetInstance(doc, fs);
+
+            doc.Open();
+            iTextSharp.text.pdf.PdfContentByte cb = writer.DirectContent;
+
+            float gapBetweenSlips = 16f; // Dono slips ke beech clean gap (~0.22 inch)
+            float bottomSafeMargin = 18f;
+
+            int i = 1;
+            while (i <= totalSlips)
+            {
+                doc.NewPage();
+
+                // 1. Pehli slip ko original top position par draw karein
+                iTextSharp.text.pdf.PdfImportedPage topSlip = writer.GetImportedPage(reader, i);
+                float topOrigHeight = topSlip.Height;
+                cb.AddTemplate(topSlip, 1f, 0f, 0f, 1f, 0f, pageHeight - topOrigHeight);
+
+                // Pehli slip ka actual content bottom (Remark/Barcode tak) measure karein
+                float topContentBottomY = GetActualContentBottomY(reader, i, topOrigHeight);
+                // PDF coordinate system mein top se kitni height li:
+                float topUsedHeight = topOrigHeight - topContentBottomY;
+
+                // 2. Check karein kya next slip (i + 1) bachi hui jagah mein bina kate fit ho sakti hai
+                if (i + 1 <= totalSlips)
+                {
+                    iTextSharp.text.pdf.PdfImportedPage nextSlip = writer.GetImportedPage(reader, i + 1);
+                    float nextOrigHeight = nextSlip.Height;
+                    float nextContentTopY = GetActualContentTopY(reader, i + 1, nextOrigHeight);
+                    float nextContentBottomY = GetActualContentBottomY(reader, i + 1, nextOrigHeight);
+                    float nextActualContentHeight = nextContentTopY - nextContentBottomY;
+
+                    float availableHeight = pageHeight - topUsedHeight - gapBetweenSlips - bottomSafeMargin;
+
+                    if (nextActualContentHeight <= availableHeight)
+                    {
+                        // Fit ho rahi hai -> usi page par top slip ke niche clean gap ke saath draw karein
+                        float targetTopYForSecondSlip = pageHeight - topUsedHeight - gapBetweenSlips;
+                        float offsetY = targetTopYForSecondSlip - nextContentTopY;
+
+                        cb.AddTemplate(nextSlip, 1f, 0f, 0f, 1f, 0f, offsetY);
+                        i += 2; // Dono slips is page par aa gayin
+                        continue;
+                    }
+                }
+
+                // Agar next slip badi hai aur cut hone ka chance hai, to sirf 1 slip is page par rakhein
+                i += 1;
+            }
+        }
+        finally
+        {
+            if (doc != null && doc.IsOpen()) doc.Close();
+            if (writer != null) writer.Close();
+            if (fs != null) fs.Dispose();
+            if (reader != null) reader.Close();
+        }
     }
+
+    private static float GetActualContentBottomY(iTextSharp.text.pdf.PdfReader reader, int pageNum, float pageHeight)
+    {
+        try
+        {
+            var strategy = new iTextSharp.text.pdf.parser.TextMarginFinder();
+            var processor = new iTextSharp.text.pdf.parser.PdfContentStreamProcessor(strategy);
+            byte[] contentBytes = reader.GetPageContent(pageNum);
+            iTextSharp.text.pdf.PdfDictionary resources = reader.GetPageN(pageNum).GetAsDict(iTextSharp.text.pdf.PdfName.RESOURCES);
+            processor.ProcessContent(contentBytes, resources);
+
+            // TextMarginFinder text ka bottom Y deta hai; Remark/Barcode box ke bottom border ke liye 32pt extra buffer
+            float bottomY = strategy.GetLly() - 32f;
+            return Math.Max(0f, bottomY);
+        }
+        catch
+        {
+            return pageHeight * 0.45f;
+        }
+    }
+
+    private static float GetActualContentTopY(iTextSharp.text.pdf.PdfReader reader, int pageNum, float pageHeight)
+    {
+        try
+        {
+            var strategy = new iTextSharp.text.pdf.parser.TextMarginFinder();
+            var processor = new iTextSharp.text.pdf.parser.PdfContentStreamProcessor(strategy);
+            byte[] contentBytes = reader.GetPageContent(pageNum);
+            iTextSharp.text.pdf.PdfDictionary resources = reader.GetPageN(pageNum).GetAsDict(iTextSharp.text.pdf.PdfName.RESOURCES);
+            processor.ProcessContent(contentBytes, resources);
+
+            // Top outer border ("WEAVELANE" text ke upar) ke liye 18pt buffer
+            float topY = strategy.GetUry() + 18f;
+            return Math.Min(pageHeight, topY);
+        }
+        catch
+        {
+            return pageHeight;
+        }
+    }
+   
+
+}
 }
 

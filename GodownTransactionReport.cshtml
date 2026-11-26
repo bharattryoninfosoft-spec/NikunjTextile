@@ -1,0 +1,680 @@
+@{
+    Layout = "/_LayoutPage1.cshtml";
+}
+<style>
+    .report-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .filter-panel-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        padding: 1rem;
+    }
+
+    .filter-panel-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .filter-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #1273eb;
+        margin-bottom: 0.25rem;
+    }
+
+    .filter-panel-card .form-control,
+    .filter-panel-card .form-select {
+        font-size: 0.78rem;
+        min-height: 35px;
+    }
+
+    .report-header-bar {
+        background: #e5f0ff;
+        color: #1273eb;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 0.65rem 1rem;
+        border-radius: 5px;
+        margin-bottom: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .nav-tabs.report-tabs {
+        border-bottom: 2px solid #e2e8f0;
+        gap: 8px;
+        margin-bottom: 0.85rem;
+    }
+
+        .nav-tabs.report-tabs .nav-link {
+            border: 1px solid #dce3ec;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.55rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .nav-tabs.report-tabs .nav-link.active {
+                background: #1273eb;
+                color: #ffffff;
+                border-color: #1273eb;
+            }
+
+            .nav-tabs.report-tabs .nav-link .badge {
+                font-size: 0.72rem;
+                font-weight: 600;
+                padding: 4px 8px;
+            }
+
+    .report-table-wrap {
+        width: 100%;
+        max-height: 540px;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .report-table {
+        table-layout: auto !important;
+        width: max-content !important;
+        min-width: 100% !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0 !important;
+    }
+
+        .report-table th {
+            position: sticky;
+            top: 0;
+            background: #1273eb !important;
+            color: #ffffff !important;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 8px 12px !important;
+            white-space: nowrap !important;
+            width: 1%;
+            z-index: 10;
+            border-bottom: 2px solid #0d5bbd !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .report-table td {
+            font-size: 0.76rem;
+            padding: 7px 12px !important;
+            white-space: nowrap !important;
+            width: 1%;
+            vertical-align: middle;
+            border-right: 1px solid #e6ebf1 !important;
+            border-bottom: 1px solid #e6ebf1 !important;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .report-table tbody tr:hover td {
+            background-color: #eef5ff !important;
+        }
+
+    .color-swatch-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        border: 1px solid #94a3b8;
+        vertical-align: middle;
+        margin-right: 6px;
+    }
+</style>
+
+<!-- Loading wrapper start -->
+<div id="loading-wrapper" style="display:none;">
+    <div class="spinner-border"></div>
+    Loading...
+</div>
+
+<div class="content-wrapper">
+    <div id="notes"></div>
+    <div class="row gutters">
+
+        <!-- LEFT SIDE MULTI-FILTER PANEL -->
+        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+            <div class="filter-panel-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="filter-panel-title">Filters</h5>
+                    <button type="button" id="btnLoadReportTop" class="btn btn-sm btn-outline-primary fw-semibold" onclick="loadGodownTransactionReport()">
+                        Load Report
+                    </button>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="txtFromDate">Start Date</label>
+                    <input type="date" id="txtFromDate" class="form-control" />
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="txtToDate">End Date</label>
+                    <input type="date" id="txtToDate" class="form-control" />
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlCompanyName">Company Name</label>
+                    <select id="ddlCompanyName" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Company Name</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlPartyName">Party Name</label>
+                    <select id="ddlPartyName" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Party Name</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlMaterial">Material</label>
+                    <select id="ddlMaterial" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Material</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlColor">Color</label>
+                    <select id="ddlColor" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Color</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlColorCode">Color Code</label>
+                    <select id="ddlColorCode" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Color Code</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlBoxNo">BoxNo</label>
+                    <select id="ddlBoxNo" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Box</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlGodown">Godown</label>
+                    <select id="ddlGodown" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Godown</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="ddlLocation">Location</label>
+                    <select id="ddlLocation" class="form-select" onchange="onFilterDropdownChanged()">
+                        <option value="">All Location</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="txtSearch">Quick Search (Challan / Barcode)</label>
+                    <input type="text" id="txtSearch" class="form-control" placeholder="Search..." onkeyup="applyMultiFilters()" />
+                </div>
+
+                <div class="d-flex gap-2 pt-1">
+                    <button type="button" id="btnFilterReport" class="btn btn-primary w-50 fw-semibold" onclick="loadGodownTransactionReport()">
+                        Search
+                    </button>
+                    <button type="button" class="btn btn-secondary w-50 fw-semibold" onclick="resetReportFilters()">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE REPORT CONTENT -->
+        <div class="col-xl-9 col-lg-8 col-md-8 col-sm-12 col-12">
+            <div class="card report-card">
+                <div class="card-body p-3">
+                    <div class="report-header-bar">
+                        <span><i class="fa fa-warehouse me-2"></i>Godown Transaction Report</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fs-7 fw-semibold text-secondary" id="lblDateRangeBadge"></span>
+                            <button type="button" class="btn btn-sm btn-success" onclick="exportReportToExcel()">
+                                <i class="fa fa-file-excel me-1"></i> Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- INWARD / OUTWARD Tabs -->
+                    <ul class="nav nav-tabs report-tabs" id="godownReportTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-inward-btn" data-bs-toggle="tab" data-bs-target="#pane-inward" type="button" role="tab" aria-controls="pane-inward" aria-selected="true">
+                                <span>INWARD</span>
+                                <span class="badge bg-light text-primary" id="lblInwardSummary" title="Total Inward Boxes and Total Net Weight">Boxes: 0 | Wt: 0.000 KG</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-outward-btn" data-bs-toggle="tab" data-bs-target="#pane-outward" type="button" role="tab" aria-controls="pane-outward" aria-selected="false">
+                                <span>OUTWARD</span>
+                                <span class="badge bg-light text-dark" id="lblOutwardSummary" title="Total Outward Boxes and Total Net Weight">Boxes: 0 | Wt: 0.000 KG</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="godownReportTabContent">
+                        <!-- TAB 1: INWARD -->
+                        <div class="tab-pane fade show active" id="pane-inward" role="tabpanel" aria-labelledby="tab-inward-btn">
+                            <div class="report-table-wrap">
+                                <table id="tblInwardReport" class="table table-bordered table-hover report-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>S.NO</th>
+                                            <th>DATE</th>
+                                            <th>INWORD NO</th>
+                                            <th>PO. NO</th>
+                                            <th>PARTY CHALAN NO</th>
+                                            <th>SUPPLIER NAME</th>
+                                            <th>YARN COMPANY NAME</th>
+                                            <th>YARN MATERIAL</th>
+                                            <th>YARN COLOR</th>
+                                            <th>YARN COLOR CODE</th>
+                                            <th>BOX NO</th>
+                                            <th>BARCODE NO</th>
+                                            <th class="text-end">NET WEIGHT (KG)</th>
+                                            <th>LOCATION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: OUTWARD -->
+                        <div class="tab-pane fade" id="pane-outward" role="tabpanel" aria-labelledby="tab-outward-btn">
+                            <div class="report-table-wrap">
+                                <table id="tblOutwardReport" class="table table-bordered table-hover report-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>S.NO</th>
+                                            <th>DATE</th>
+                                            <th>OUTWORD NO</th>
+                                            <th>CHALLAN NO</th>
+                                            <th>PARTY CHALAN NO</th>
+                                            <th>JOBBER / CREDITORS</th>
+                                            <th>YARN COMPANY NAME</th>
+                                            <th>YARN MATERIAL</th>
+                                            <th>YARN COLOR</th>
+                                            <th>YARN COLOR CODE</th>
+                                            <th>BOX NO</th>
+                                            <th>BARCODE NO</th>
+                                            <th class="text-end">NET WEIGHT (KG)</th>
+                                            <th>GODOWN ADDRESS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('body').addClass('fullscreen');
+
+        var rawInwardList = [];
+        var rawOutwardList = [];
+
+        $(document).ready(function () {
+            $('body').addClass('fullscreen');
+            FunctionIsLogin();
+            setDefaultDates();
+            loadGodownTransactionReport();
+        });
+
+        function showReportLoader(show) {
+            var $btn = $("#btnFilterReport");
+            var $topBtn = $("#btnLoadReportTop");
+            if (show) {
+                $("#loading-wrapper").show();
+                $btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin me-1"></i> Loading...');
+                $topBtn.prop("disabled", true);
+            } else {
+                $("#loading-wrapper").hide();
+                $btn.prop("disabled", false).html('Search');
+                $topBtn.prop("disabled", false);
+            }
+        }
+
+        function formatLocalDate(dateObj) {
+            var y = dateObj.getFullYear();
+            var m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            var d = String(dateObj.getDate()).padStart(2, '0');
+            return y + "-" + m + "-" + d;
+        }
+
+        function setDefaultDates() {
+            var now = new Date();
+            var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            $("#txtFromDate").val(formatLocalDate(firstDay));
+            $("#txtToDate").val(formatLocalDate(now));
+        }
+
+        function resetFilterDropdowns() {
+            $("#ddlCompanyName").val("");
+            $("#ddlPartyName").val("");
+            $("#ddlMaterial").val("");
+            $("#ddlColor").val("");
+            $("#ddlColorCode").val("");
+            $("#ddlBoxNo").val("");
+            $("#ddlGodown").val("");
+            $("#ddlLocation").val("");
+            $("#txtSearch").val("");
+        }
+
+        function resetReportFilters() {
+            setDefaultDates();
+            resetFilterDropdowns();
+            loadGodownTransactionReport();
+        }
+
+        function escapeText(val) {
+            return String(val || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function formatHexColor(rawCode) {
+            var clean = String(rawCode || "").trim().replace(/^#/, "");
+            if (!clean) return "";
+
+            if (/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$|^[0-9A-Fa-f]{8}$/.test(clean)) {
+                return "#" + clean;
+            }
+
+            if (/^[0-9A-Fa-f]{4}$/.test(clean)) {
+                return "#" + clean + "00";
+            }
+
+            return "";
+        }
+
+        function populateDropdown(selector, defaultLabel, valuesArray) {
+            var $ddl = $(selector);
+            var prevVal = $ddl.val();
+            var uniqueSet = {};
+            var sorted = [];
+
+            for (var i = 0; i < valuesArray.length; i++) {
+                var v = String(valuesArray[i] || "").trim();
+                if (v && !uniqueSet[v]) {
+                    uniqueSet[v] = true;
+                    sorted.push(v);
+                }
+            }
+
+            sorted.sort(function (a, b) { return a.localeCompare(b); });
+
+            var html = '<option value="">' + defaultLabel + '</option>';
+            for (var j = 0; j < sorted.length; j++) {
+                html += '<option value="' + escapeText(sorted[j]) + '">' + escapeText(sorted[j]) + '</option>';
+            }
+
+            $ddl.html(html);
+            if (prevVal && uniqueSet[prevVal]) {
+                $ddl.val(prevVal);
+            } else {
+                $ddl.val("");
+            }
+        }
+
+        function getFilterState() {
+            return {
+                company: $("#ddlCompanyName").val() || "",
+                party: $("#ddlPartyName").val() || "",
+                material: $("#ddlMaterial").val() || "",
+                color: $("#ddlColor").val() || "",
+                colorCode: $("#ddlColorCode").val() || "",
+                boxNo: $("#ddlBoxNo").val() || "",
+                godown: $("#ddlGodown").val() || "",
+                location: $("#ddlLocation").val() || "",
+                search: String($("#txtSearch").val() || "").trim().toLowerCase()
+            };
+        }
+
+        function itemMatchesState(item, isInward, state, ignoreField) {
+            var partyVal = isInward ? (item.SupplierName || "").trim() : (item.JobberCreditorName || "").trim();
+            var godownVal = (item.GodownName || item.GodownAddress || "").trim();
+            var locationVal = isInward ? (item.Location || "").trim() : "";
+
+            if (ignoreField !== "company" && state.company && (item.YarnCompanyName || "").trim() !== state.company) return false;
+            if (ignoreField !== "party" && state.party && partyVal !== state.party) return false;
+            if (ignoreField !== "material" && state.material && (item.YarnMaterial || "").trim() !== state.material) return false;
+            if (ignoreField !== "color" && state.color && (item.YarnColor || "").trim() !== state.color) return false;
+            if (ignoreField !== "colorCode" && state.colorCode && (item.YarnColorCode || "").trim() !== state.colorCode) return false;
+            if (ignoreField !== "boxNo" && state.boxNo && (item.BoxNo || "").trim() !== state.boxNo) return false;
+            if (ignoreField !== "godown" && state.godown && godownVal !== state.godown) return false;
+            if (ignoreField !== "location" && state.location && isInward && locationVal !== state.location) return false;
+
+            if (state.search) {
+                var blob = [
+                    item.InwardNo, item.OutwardNo, item.PONo, item.ChallanNo,
+                    item.PartyChallanNo, partyVal, item.YarnCompanyName,
+                    item.YarnMaterial, item.YarnColor, item.YarnColorCode,
+                    item.BoxNo, item.BarcodeNo, godownVal, locationVal
+                ].join(" ").toLowerCase();
+
+                if (blob.indexOf(state.search) === -1) return false;
+            }
+
+            return true;
+        }
+
+        function collectOptionsFor(extractorFn, ignoreField, state) {
+            var vals = [];
+            for (var i = 0; i < rawInwardList.length; i++) {
+                if (itemMatchesState(rawInwardList[i], true, state, ignoreField)) {
+                    vals.push(extractorFn(rawInwardList[i], true));
+                }
+            }
+            for (var j = 0; j < rawOutwardList.length; j++) {
+                if (itemMatchesState(rawOutwardList[j], false, state, ignoreField)) {
+                    vals.push(extractorFn(rawOutwardList[j], false));
+                }
+            }
+            return vals;
+        }
+
+        function syncFilterDropdowns() {
+            var state = getFilterState();
+
+            populateDropdown("#ddlCompanyName", "All Company Name", collectOptionsFor(function (r) { return r.YarnCompanyName; }, "company", state));
+            populateDropdown("#ddlPartyName", "All Party Name", collectOptionsFor(function (r, isInw) { return isInw ? r.SupplierName : r.JobberCreditorName; }, "party", state));
+            populateDropdown("#ddlMaterial", "All Material", collectOptionsFor(function (r) { return r.YarnMaterial; }, "material", state));
+            populateDropdown("#ddlColor", "All Color", collectOptionsFor(function (r) { return r.YarnColor; }, "color", state));
+            populateDropdown("#ddlColorCode", "All Color Code", collectOptionsFor(function (r) { return r.YarnColorCode; }, "colorCode", state));
+            populateDropdown("#ddlBoxNo", "All Box", collectOptionsFor(function (r) { return r.BoxNo; }, "boxNo", state));
+            populateDropdown("#ddlGodown", "All Godown", collectOptionsFor(function (r) { return r.GodownName || r.GodownAddress; }, "godown", state));
+            populateDropdown("#ddlLocation", "All Location", collectOptionsFor(function (r, isInw) { return isInw ? r.Location : ""; }, "location", state));
+        }
+
+        function onFilterDropdownChanged() {
+            syncFilterDropdowns();
+            applyMultiFilters();
+        }
+
+        function applyMultiFilters() {
+            var state = getFilterState();
+            var filteredInward = rawInwardList.filter(function (r) { return itemMatchesState(r, true, state, null); });
+            var filteredOutward = rawOutwardList.filter(function (r) { return itemMatchesState(r, false, state, null); });
+            renderInwardTable(filteredInward);
+            renderOutwardTable(filteredOutward);
+        }
+
+        function loadGodownTransactionReport() {
+            showReportLoader(true);
+
+            var fromDt = $("#txtFromDate").val();
+            var toDt = $("#txtToDate").val();
+            $("#lblDateRangeBadge").text(fromDt && toDt ? ("Duration: " + fromDt + " to " + toDt) : "");
+
+            var formData = new FormData();
+            formData.append("FromDate", fromDt);
+            formData.append("ToDate", toDt);
+            formData.append("SearchText", "");
+
+            $.ajax({
+                type: "POST",
+                url: "/WebServiceNikunjTextile.asmx/getGodownTransactionReport",
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response && response.Code === 200) {
+                        rawInwardList = response.InwardList || [];
+                        rawOutwardList = response.OutwardList || [];
+                        syncFilterDropdowns();
+                        applyMultiFilters();
+                    } else {
+                        Swal.fire({ icon: "error", title: "Error", text: response.Message || "Failed to load report." });
+                    }
+                },
+                error: function () {
+                    Swal.fire({ icon: "error", title: "Error", text: "Something went wrong while loading report." });
+                },
+                complete: function () {
+                    requestAnimationFrame(function () {
+                        showReportLoader(false);
+                    });
+                }
+            });
+        }
+
+        function renderInwardTable(rows) {
+            var tbody = $("#tblInwardReport tbody");
+            var html = "";
+            var totalWt = 0;
+
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+                var wt = parseFloat(r.NetWeight) || 0;
+                totalWt += wt;
+                var hex = formatHexColor(r.ColorSwatchHex);
+                var swatchStyle = hex ? ("background-color:" + escapeText(hex) + ";") : "";
+
+                html += "<tr>";
+                html += "<td>" + (i + 1) + "</td>";
+                html += "<td>" + escapeText(r.TransactionDate) + "</td>";
+                html += "<td>" + escapeText(r.InwardNo) + "</td>";
+                html += "<td>" + escapeText(r.PONo) + "</td>";
+                html += "<td>" + escapeText(r.PartyChallanNo) + "</td>";
+                html += "<td>" + escapeText(r.SupplierName) + "</td>";
+                html += "<td>" + escapeText(r.YarnCompanyName) + "</td>";
+                html += "<td>" + escapeText(r.YarnMaterial) + "</td>";
+                html += "<td>" + (hex ? "<span class='color-swatch-dot' style='" + swatchStyle + "' title='" + escapeText(hex) + "'></span>" : "") + escapeText(r.YarnColor) + "</td>";
+                html += "<td>" + escapeText(r.YarnColorCode) + "</td>";
+                html += "<td>" + escapeText(r.BoxNo) + "</td>";
+                html += "<td>" + escapeText(r.BarcodeNo) + "</td>";
+                html += "<td class='text-end'>" + wt.toFixed(3) + "</td>";
+                html += "<td>" + escapeText(r.Location) + "</td>";
+                html += "</tr>";
+            }
+
+            if (rows.length === 0) {
+                html = "<tr><td colspan='14' class='text-center text-muted py-3'>No inward transactions found.</td></tr>";
+            }
+
+            tbody.html(html);
+            $("#lblInwardSummary").text("Boxes: " + rows.length + " | Wt: " + totalWt.toFixed(3) + " KG");
+        }
+
+        function renderOutwardTable(rows) {
+            var tbody = $("#tblOutwardReport tbody");
+            var html = "";
+            var totalWt = 0;
+
+            for (var i = 0; i < rows.length; i++) {
+                var r = rows[i];
+                var wt = parseFloat(r.NetWeight) || 0;
+                totalWt += wt;
+                var hex = formatHexColor(r.ColorSwatchHex);
+                var swatchStyle = hex ? ("background-color:" + escapeText(hex) + ";") : "";
+
+                html += "<tr>";
+                html += "<td>" + (i + 1) + "</td>";
+                html += "<td>" + escapeText(r.TransactionDate) + "</td>";
+                html += "<td>" + escapeText(r.OutwardNo) + "</td>";
+                html += "<td>" + escapeText(r.ChallanNo) + "</td>";
+                html += "<td>" + escapeText(r.PartyChallanNo) + "</td>";
+                html += "<td>" + escapeText(r.JobberCreditorName) + "</td>";
+                html += "<td>" + escapeText(r.YarnCompanyName) + "</td>";
+                html += "<td>" + escapeText(r.YarnMaterial) + "</td>";
+                html += "<td>" + (hex ? "<span class='color-swatch-dot' style='" + swatchStyle + "' title='" + escapeText(hex) + "'></span>" : "") + escapeText(r.YarnColor) + "</td>";
+                html += "<td>" + escapeText(r.YarnColorCode) + "</td>";
+                html += "<td>" + escapeText(r.BoxNo) + "</td>";
+                html += "<td>" + escapeText(r.BarcodeNo) + "</td>";
+                html += "<td class='text-end'>" + wt.toFixed(3) + "</td>";
+                html += "<td>" + escapeText(r.GodownAddress) + "</td>";
+                html += "</tr>";
+            }
+
+            if (rows.length === 0) {
+                html = "<tr><td colspan='14' class='text-center text-muted py-3'>No outward transactions found.</td></tr>";
+            }
+
+            tbody.html(html);
+            $("#lblOutwardSummary").text("Boxes: " + rows.length + " | Wt: " + totalWt.toFixed(3) + " KG");
+        }
+
+        function exportReportToExcel() {
+            var fromDt = $("#txtFromDate").val() || "All";
+            var toDt = $("#txtToDate").val() || "All";
+            var isOutwardActive = $("#tab-outward-btn").hasClass("active");
+            var activeTableHtml = isOutwardActive
+                ? ("<h3>FOR OUTWARD (" + fromDt + " to " + toDt + ")</h3>" + document.getElementById("tblOutwardReport").outerHTML)
+                : ("<h3>FOR INWARD (" + fromDt + " to " + toDt + ")</h3>" + document.getElementById("tblInwardReport").outerHTML);
+
+            var html = "<html><head><meta charset='UTF-8'></head><body>" + activeTableHtml + "</body></html>";
+            var blob = new Blob([html], { type: "application/vnd.ms-excel" });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement("a");
+            link.href = url;
+            link.download = (isOutwardActive ? "GodownOutwardReport_" : "GodownInwardReport_") + fromDt + "_to_" + toDt + ".xls";
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+}

@@ -3538,6 +3538,7 @@
     <Compile Include="Class\AuditLogHelper.cs" />
     <Compile Include="Class\BrokerMaster.cs" />
     <Compile Include="Class\GenericProcessModels.cs" />
+    <Compile Include="Class\getGodownTransactionReport.cs" />
     <Compile Include="Class\IssueBackItemInput.cs" />
     <Compile Include="Class\JobberReceiveItemInput.cs" />
     <Compile Include="Class\NumberToWordsHelper.cs" />
@@ -3800,6 +3801,7 @@
     <Content Include="JobberToProcessList.cshtml" />
     <Content Include="JobberToProcessPrint.cshtml" />
     <Content Include="JobberProductionStockReport.cshtml" />
+    <Content Include="GodownTransactionReport.cshtml" />
     <None Include="packages.config" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\.signature.p7s" />
     <Content Include="packages\BouncyCastle.Cryptography.2.6.2\BouncyCastle.Cryptography.2.6.2.nupkg" />

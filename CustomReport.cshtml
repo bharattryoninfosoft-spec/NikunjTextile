@@ -27,69 +27,62 @@
 
                 string baseQuery = @"
 WITH LatestInterchange AS (
-SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
-FROM (
-SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
-       ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) as rn
-FROM YarnInterchangeMaster
-WHERE YarnInwardDetailID IS NOT NULL
-) sub WHERE rn = 1
+    SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID
+    FROM (
+        SELECT YarnInwardDetailID, GodownLocationID, YarnMaterialID, YarnColorID,
+               ROW_NUMBER() OVER (PARTITION BY YarnInwardDetailID ORDER BY YarnInterchangeID DESC) AS rn
+        FROM YarnInterchangeMaster
+        WHERE YarnInwardDetailID IS NOT NULL
+    ) sub
+    WHERE rn = 1
 ),
 ActiveBoxes AS (
-SELECT
-YID.YarnInwardDetailID,
-YID.BoxNo,
-YID.BarcodeNo,
-CAST(ISNULL(YID.NetWeight, 0) AS DECIMAL(18,2)) AS NetWeight,
-YID.YarnInwardID,
-
-COALESCE(
-    NULLIF(LI.GodownLocationID, 0),
-    YID.GodownLocationID
-) AS CurrentLocationID,
-
-COALESCE(
-    LI.YarnMaterialID,
-    YIM.YarnMaterialID
-) AS CurrentMaterialID,
-
-COALESCE(
-    LI.YarnColorID,
-    YIM.YarnColorID
-) AS CurrentColorID
-
-FROM YarnInwardDetail YID
-INNER JOIN YarnInwardMaster YIM
-ON YIM.YarnInwardID = YID.YarnInwardID
-
-LEFT JOIN LatestInterchange LI
-ON LI.YarnInwardDetailID = YID.YarnInwardDetailID
-
-WHERE
-ISNULL(YID.BoxNo, '') <> ''
-AND YID.BarcodeNo IS NOT NULL
-AND ISNULL(YID.IsScanStutas, 0) <> 1
-
-AND NOT EXISTS (
-    SELECT 1
-    FROM YARNOUTWARDScanMasterDetails YOSD
-    WHERE YOSD.BarcodeNo = YID.BarcodeNo
-)
+    SELECT
+        YID.YarnInwardDetailID,
+        YID.BoxNo,
+        YID.BarcodeNo,
+        CAST(ISNULL(YID.NetWeight, 0) AS DECIMAL(18,2)) AS NetWeight,
+        YID.YarnInwardID,
+        COALESCE(
+            NULLIF(LI.GodownLocationID, 0),
+            NULLIF(YID.YarnInterchangeID, 0),
+            YID.GodownLocationID
+        ) AS CurrentLocationID,
+        COALESCE(
+            LI.YarnMaterialID,
+            YIM.YarnMaterialID
+        ) AS CurrentMaterialID,
+        COALESCE(
+            LI.YarnColorID,
+            YIM.YarnColorID
+        ) AS CurrentColorID
+    FROM YarnInwardDetail YID
+    INNER JOIN YarnInwardMaster YIM ON YIM.YarnInwardID = YID.YarnInwardID
+    LEFT JOIN LatestInterchange LI ON LI.YarnInwardDetailID = YID.YarnInwardDetailID
+    WHERE
+        ISNULL(YID.BoxNo, '') <> ''
+        AND YID.BarcodeNo IS NOT NULL
+        AND ISNULL(YID.IsScanStutas, 0) <> 1
+        AND NOT EXISTS (
+            SELECT 1
+            FROM YARNOUTWARDScanMasterDetails YOSD
+            WHERE YOSD.BarcodeNo = YID.BarcodeNo
+        )
 )
 SELECT
-AB.YarnInwardDetailID,
-AB.BoxNo,
-AB.BarcodeNo,
-AB.NetWeight,
-GLM.LocationTitle,
-GM.GodownTitle,
-YMM.YarnMaterial,
-YCM.YarnColor,
-COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '') AS YarnColorCode,
-COALESCE(PM_Company.PartyName, PM_Bill.PartyName, '') AS CompanyName,
-COALESCE(PM_Ship.PartyName, '') AS PartyName,
-YIM.ChallanNo,
-CONVERT(VARCHAR(10), YIM.YarnInwardDate, 105) AS YarnInwardDate
+    AB.YarnInwardDetailID,
+    AB.BoxNo,
+    AB.BarcodeNo,
+    AB.NetWeight,
+    GLM.LocationTitle,
+    GM.GodownTitle,
+    YMM.YarnMaterial,
+    YCM.YarnColor,
+    COALESCE(NULLIF(YPD.CompanyCode, ''), YCM.YarnColorCode, '') AS YarnColorCode,
+    ISNULL(PM_Company.PartyName, PM_Bill.PartyName) AS CompanyName,
+    ISNULL(PM_Supp.PartyName, '') AS PartyName,
+    YIM.ChallanNo,
+    CONVERT(VARCHAR(10), YIM.YarnInwardDate, 105) AS YarnInwardDate
 FROM ActiveBoxes AB
 INNER JOIN YarnInwardMaster YIM ON AB.YarnInwardID = YIM.YarnInwardID
 LEFT JOIN GodownLocationMaster GLM ON GLM.GodownLocationID = AB.CurrentLocationID
@@ -100,9 +93,9 @@ LEFT JOIN YarnPOMaster YPM ON YPM.YarnPOID = YIM.YarnPOID
 LEFT JOIN YarnPODetails YPD ON YPD.YarnPODetailID = YIM.YarnPODetailIDCompanyCode
 LEFT JOIN PartyMaster PM_Company ON PM_Company.PartyId = YPM.CompanyPartyID
 LEFT JOIN PartyMaster PM_Bill ON PM_Bill.PartyId = YPM.BillToPartyID
-LEFT JOIN PartyMaster PM_Ship ON PM_Ship.PartyId = YPM.ShippedToPartyID
-WHERE UPPER(RTRIM(LTRIM(GLM.LocationTitle))) = UPPER(RTRIM(LTRIM(@LocationTitle)))
-AND (@GodownTitle = '' OR UPPER(RTRIM(LTRIM(ISNULL(GM.GodownTitle, '')))) = UPPER(RTRIM(LTRIM(@GodownTitle))))";
+LEFT JOIN PartyMaster PM_Supp ON PM_Supp.PartyId = YPM.SupplierPartyID
+WHERE (@LocationTitle = '' OR UPPER(RTRIM(LTRIM(ISNULL(GLM.LocationTitle, '')))) = UPPER(RTRIM(LTRIM(@LocationTitle))))
+  AND (@GodownTitle = '' OR UPPER(RTRIM(LTRIM(ISNULL(GM.GodownTitle, '')))) = UPPER(RTRIM(LTRIM(@GodownTitle))))";
 
                 // Row-only mode must match the report row; All-in-Location mode
                 // intentionally filters only by location/godown and active-stock rules.
@@ -126,12 +119,12 @@ AND (@GodownTitle = '' OR UPPER(RTRIM(LTRIM(ISNULL(GM.GodownTitle, '')))) = UPPE
 
                     if (!string.IsNullOrWhiteSpace(companyName))
                     {
-                        rowFilter += " AND UPPER(LTRIM(RTRIM(COALESCE(PM_Company.PartyName, PM_Bill.PartyName, '')))) = UPPER(LTRIM(RTRIM(@CompanyName)))";
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(ISNULL(PM_Company.PartyName, PM_Bill.PartyName)))) = UPPER(LTRIM(RTRIM(@CompanyName)))";
                     }
 
                     if (!string.IsNullOrWhiteSpace(partyName))
                     {
-                        rowFilter += " AND UPPER(LTRIM(RTRIM(COALESCE(PM_Ship.PartyName, '')))) = UPPER(LTRIM(RTRIM(@PartyName)))";
+                        rowFilter += " AND UPPER(LTRIM(RTRIM(ISNULL(PM_Supp.PartyName, '')))) = UPPER(LTRIM(RTRIM(@PartyName)))";
                     }
                 }
 
